@@ -60,6 +60,20 @@ public enum X402SettleErrorReason {
   
   INVALID_EXACT_EVM_PAYLOAD_SIGNATURE_ADDRESS("invalid_exact_evm_payload_signature_address"),
   
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_ALLOWANCE_REQUIRED("invalid_exact_evm_permit2_payload_allowance_required"),
+  
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_SIGNATURE("invalid_exact_evm_permit2_payload_signature"),
+  
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_DEADLINE("invalid_exact_evm_permit2_payload_deadline"),
+  
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_VALID_AFTER("invalid_exact_evm_permit2_payload_valid_after"),
+  
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_SPENDER("invalid_exact_evm_permit2_payload_spender"),
+  
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_RECIPIENT("invalid_exact_evm_permit2_payload_recipient"),
+  
+  INVALID_EXACT_EVM_PERMIT2_PAYLOAD_AMOUNT("invalid_exact_evm_permit2_payload_amount"),
+  
   INVALID_EXACT_SVM_PAYLOAD_TRANSACTION("invalid_exact_svm_payload_transaction"),
   
   INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_AMOUNT_MISMATCH("invalid_exact_svm_payload_transaction_amount_mismatch"),

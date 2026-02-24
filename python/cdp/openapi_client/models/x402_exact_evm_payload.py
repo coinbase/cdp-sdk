@@ -18,8 +18,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from cdp.openapi_client.models.x402_exact_evm_payload_authorization import X402ExactEvmPayloadAuthorization
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,9 +29,16 @@ class X402ExactEvmPayload(BaseModel):
     """
     The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
     """ # noqa: E501
-    signature: StrictStr = Field(description="The EIP-712 hex-encoded signature of the ERC-3009 authorization message.")
+    signature: Annotated[str, Field(strict=True)] = Field(description="The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.")
     authorization: X402ExactEvmPayloadAuthorization
     __properties: ClassVar[List[str]] = ["signature", "authorization"]
+
+    @field_validator('signature')
+    def signature_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[0-9a-fA-F]{130,}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{130,}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

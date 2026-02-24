@@ -56,7 +56,7 @@ public class X402ExactEvmPayload {
   }
 
   /**
-   * The EIP-712 hex-encoded signature of the ERC-3009 authorization message.
+   * The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
    * @return signature
    */
   @jakarta.annotation.Nonnull

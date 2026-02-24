@@ -48,6 +48,13 @@ class TestOnrampApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_get_onramp_user_limits(self) -> None:
+        """Test case for get_onramp_user_limits
+
+        Get onramp user limits
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

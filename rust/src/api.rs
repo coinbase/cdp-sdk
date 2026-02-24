@@ -5,6 +5,8 @@ pub use progenitor_middleware_client::{ByteStream, ClientInfo, Error, ResponseVa
 /// Types used as operation parameters and responses.
 #[allow(clippy::all)]
 pub mod types {
+    #[allow(unused_imports)]
+    use super::{ByteStream, ResponseValue};
     /// Error types.
     pub mod error {
         /// Error from a `TryFrom` or `FromStr` implementation.
@@ -911,6 +913,660 @@ pub mod types {
                 })
         }
     }
+    ///`AddEndUserEvmAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "evmAccount"
+    ///  ],
+    ///  "properties": {
+    ///    "evmAccount": {
+    ///      "$ref": "#/components/schemas/EndUserEvmAccount"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AddEndUserEvmAccountResponse {
+        #[serde(rename = "evmAccount")]
+        pub evm_account: EndUserEvmAccount,
+    }
+    impl ::std::convert::From<&AddEndUserEvmAccountResponse> for AddEndUserEvmAccountResponse {
+        fn from(value: &AddEndUserEvmAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl AddEndUserEvmAccountResponse {
+        pub fn builder() -> builder::AddEndUserEvmAccountResponse {
+            Default::default()
+        }
+    }
+    ///`AddEndUserEvmAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AddEndUserEvmAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for AddEndUserEvmAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AddEndUserEvmAccountUserId> for ::std::string::String {
+        fn from(value: AddEndUserEvmAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AddEndUserEvmAccountUserId> for AddEndUserEvmAccountUserId {
+        fn from(value: &AddEndUserEvmAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AddEndUserEvmAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AddEndUserEvmAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AddEndUserEvmAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AddEndUserEvmAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AddEndUserEvmAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AddEndUserEvmAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 36,
+    ///  "minLength": 36,
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AddEndUserEvmAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for AddEndUserEvmAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AddEndUserEvmAccountXIdempotencyKey> for ::std::string::String {
+        fn from(value: AddEndUserEvmAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AddEndUserEvmAccountXIdempotencyKey>
+        for AddEndUserEvmAccountXIdempotencyKey
+    {
+        fn from(value: &AddEndUserEvmAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AddEndUserEvmAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 36usize {
+                return Err("longer than 36 characters".into());
+            }
+            if value.chars().count() < 36usize {
+                return Err("shorter than 36 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AddEndUserEvmAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AddEndUserEvmAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AddEndUserEvmAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AddEndUserEvmAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AddEndUserEvmSmartAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "enableSpendPermissions": {
+    ///      "description": "If true, enables spend permissions for the EVM smart account.",
+    ///      "default": false,
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AddEndUserEvmSmartAccountBody {
+        ///If true, enables spend permissions for the EVM smart account.
+        #[serde(rename = "enableSpendPermissions", default)]
+        pub enable_spend_permissions: bool,
+    }
+    impl ::std::convert::From<&AddEndUserEvmSmartAccountBody> for AddEndUserEvmSmartAccountBody {
+        fn from(value: &AddEndUserEvmSmartAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for AddEndUserEvmSmartAccountBody {
+        fn default() -> Self {
+            Self {
+                enable_spend_permissions: Default::default(),
+            }
+        }
+    }
+    impl AddEndUserEvmSmartAccountBody {
+        pub fn builder() -> builder::AddEndUserEvmSmartAccountBody {
+            Default::default()
+        }
+    }
+    ///`AddEndUserEvmSmartAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "evmSmartAccount"
+    ///  ],
+    ///  "properties": {
+    ///    "evmSmartAccount": {
+    ///      "$ref": "#/components/schemas/EndUserEvmSmartAccount"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AddEndUserEvmSmartAccountResponse {
+        #[serde(rename = "evmSmartAccount")]
+        pub evm_smart_account: EndUserEvmSmartAccount,
+    }
+    impl ::std::convert::From<&AddEndUserEvmSmartAccountResponse>
+        for AddEndUserEvmSmartAccountResponse
+    {
+        fn from(value: &AddEndUserEvmSmartAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl AddEndUserEvmSmartAccountResponse {
+        pub fn builder() -> builder::AddEndUserEvmSmartAccountResponse {
+            Default::default()
+        }
+    }
+    ///`AddEndUserEvmSmartAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AddEndUserEvmSmartAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for AddEndUserEvmSmartAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AddEndUserEvmSmartAccountUserId> for ::std::string::String {
+        fn from(value: AddEndUserEvmSmartAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AddEndUserEvmSmartAccountUserId> for AddEndUserEvmSmartAccountUserId {
+        fn from(value: &AddEndUserEvmSmartAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AddEndUserEvmSmartAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AddEndUserEvmSmartAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AddEndUserEvmSmartAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AddEndUserEvmSmartAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AddEndUserEvmSmartAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AddEndUserEvmSmartAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 36,
+    ///  "minLength": 36,
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AddEndUserEvmSmartAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for AddEndUserEvmSmartAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AddEndUserEvmSmartAccountXIdempotencyKey> for ::std::string::String {
+        fn from(value: AddEndUserEvmSmartAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AddEndUserEvmSmartAccountXIdempotencyKey>
+        for AddEndUserEvmSmartAccountXIdempotencyKey
+    {
+        fn from(value: &AddEndUserEvmSmartAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AddEndUserEvmSmartAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 36usize {
+                return Err("longer than 36 characters".into());
+            }
+            if value.chars().count() < 36usize {
+                return Err("shorter than 36 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AddEndUserEvmSmartAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AddEndUserEvmSmartAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AddEndUserEvmSmartAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AddEndUserEvmSmartAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AddEndUserSolanaAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "solanaAccount"
+    ///  ],
+    ///  "properties": {
+    ///    "solanaAccount": {
+    ///      "$ref": "#/components/schemas/EndUserSolanaAccount"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AddEndUserSolanaAccountResponse {
+        #[serde(rename = "solanaAccount")]
+        pub solana_account: EndUserSolanaAccount,
+    }
+    impl ::std::convert::From<&AddEndUserSolanaAccountResponse> for AddEndUserSolanaAccountResponse {
+        fn from(value: &AddEndUserSolanaAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl AddEndUserSolanaAccountResponse {
+        pub fn builder() -> builder::AddEndUserSolanaAccountResponse {
+            Default::default()
+        }
+    }
+    ///`AddEndUserSolanaAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AddEndUserSolanaAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for AddEndUserSolanaAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AddEndUserSolanaAccountUserId> for ::std::string::String {
+        fn from(value: AddEndUserSolanaAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AddEndUserSolanaAccountUserId> for AddEndUserSolanaAccountUserId {
+        fn from(value: &AddEndUserSolanaAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AddEndUserSolanaAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AddEndUserSolanaAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AddEndUserSolanaAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AddEndUserSolanaAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AddEndUserSolanaAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AddEndUserSolanaAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 36,
+    ///  "minLength": 36,
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AddEndUserSolanaAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for AddEndUserSolanaAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AddEndUserSolanaAccountXIdempotencyKey> for ::std::string::String {
+        fn from(value: AddEndUserSolanaAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AddEndUserSolanaAccountXIdempotencyKey>
+        for AddEndUserSolanaAccountXIdempotencyKey
+    {
+        fn from(value: &AddEndUserSolanaAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AddEndUserSolanaAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 36usize {
+                return Err("longer than 36 characters".into());
+            }
+            if value.chars().count() < 36usize {
+                return Err("shorter than 36 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AddEndUserSolanaAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AddEndUserSolanaAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AddEndUserSolanaAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AddEndUserSolanaAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///Information about how the end user is authenticated.
     ///
     /// <details><summary>JSON schema</summary>
@@ -930,6 +1586,9 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/OAuth2Authentication"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/TelegramAuthentication"
     ///    }
     ///  ]
     ///}
@@ -942,6 +1601,7 @@ pub mod types {
         SmsAuthentication(SmsAuthentication),
         DeveloperJwtAuthentication(DeveloperJwtAuthentication),
         OAuth2Authentication(OAuth2Authentication),
+        TelegramAuthentication(TelegramAuthentication),
     }
     impl ::std::convert::From<&Self> for AuthenticationMethod {
         fn from(value: &AuthenticationMethod) -> Self {
@@ -966,6 +1626,11 @@ pub mod types {
     impl ::std::convert::From<OAuth2Authentication> for AuthenticationMethod {
         fn from(value: OAuth2Authentication) -> Self {
             Self::OAuth2Authentication(value)
+        }
+    }
+    impl ::std::convert::From<TelegramAuthentication> for AuthenticationMethod {
+        fn from(value: TelegramAuthentication) -> Self {
+            Self::TelegramAuthentication(value)
         }
     }
     ///The list of valid authentication methods linked to the end user.
@@ -994,6 +1659,15 @@ pub mod types {
     ///        "email": "test.user@gmail.com",
     ///        "sub": "115346410074741490243",
     ///        "type": "google"
+    ///      },
+    ///      {
+    ///        "authDate": 1770681412,
+    ///        "firstName": "Satoshi",
+    ///        "id": 1223456,
+    ///        "lastName": "Nakamoto",
+    ///        "photoUrl": "https://image.url/profile.jpg",
+    ///        "type": "telegram",
+    ///        "username": "satoshinakamoto"
     ///      }
     ///    ]
     ///  ],
@@ -1026,6 +1700,87 @@ pub mod types {
     impl ::std::convert::From<::std::vec::Vec<AuthenticationMethod>> for AuthenticationMethods {
         fn from(value: ::std::vec::Vec<AuthenticationMethod>) -> Self {
             Self(value)
+        }
+    }
+    ///A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BlockchainAddress(::std::string::String);
+    impl ::std::ops::Deref for BlockchainAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BlockchainAddress> for ::std::string::String {
+        fn from(value: BlockchainAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BlockchainAddress> for BlockchainAddress {
+        fn from(value: &BlockchainAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BlockchainAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BlockchainAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BlockchainAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BlockchainAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BlockchainAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`CommonSwapResponse`
@@ -2592,6 +3347,13 @@ pub mod types {
     ///            true
     ///          ],
     ///          "type": "boolean"
+    ///        },
+    ///        "enableSpendPermissions": {
+    ///          "description": "If true, enables spend permissions for the EVM smart account.",
+    ///          "examples": [
+    ///            true
+    ///          ],
+    ///          "type": "boolean"
     ///        }
     ///      }
     ///    },
@@ -2673,6 +3435,13 @@ pub mod types {
     ///        true
     ///      ],
     ///      "type": "boolean"
+    ///    },
+    ///    "enableSpendPermissions": {
+    ///      "description": "If true, enables spend permissions for the EVM smart account.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
     ///    }
     ///  }
     ///}
@@ -2683,6 +3452,13 @@ pub mod types {
         ///If true, creates an EVM smart account and a default EVM EOA account as the owner. If false, only a EVM EOA account is created.
         #[serde(rename = "createSmartAccount", default)]
         pub create_smart_account: bool,
+        ///If true, enables spend permissions for the EVM smart account.
+        #[serde(
+            rename = "enableSpendPermissions",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub enable_spend_permissions: ::std::option::Option<bool>,
     }
     impl ::std::convert::From<&CreateEndUserBodyEvmAccount> for CreateEndUserBodyEvmAccount {
         fn from(value: &CreateEndUserBodyEvmAccount) -> Self {
@@ -2693,6 +3469,7 @@ pub mod types {
         fn default() -> Self {
             Self {
                 create_smart_account: Default::default(),
+                enable_spend_permissions: Default::default(),
             }
         }
     }
@@ -4297,10 +5074,11 @@ pub mod types {
     ///    },
     ///    "destinationAddress": {
     ///      "description": "The address the purchased crypto will be sent to.",
-    ///      "examples": [
-    ///        "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
-    ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/BlockchainAddress"
+    ///        }
+    ///      ]
     ///    },
     ///    "destinationNetwork": {
     ///      "description": "The name of the crypto network the purchased currency will be sent on.\n\nUse the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.",
@@ -4406,7 +5184,7 @@ pub mod types {
         pub client_ip: ::std::option::Option<::std::string::String>,
         ///The address the purchased crypto will be sent to.
         #[serde(rename = "destinationAddress")]
-        pub destination_address: ::std::string::String,
+        pub destination_address: BlockchainAddress,
         /**The name of the crypto network the purchased currency will be sent on.
 
         Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.*/
@@ -4545,10 +5323,11 @@ pub mod types {
     ///    },
     ///    "destinationAddress": {
     ///      "description": "The address the purchased crypto will be sent to.",
-    ///      "examples": [
-    ///        "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
-    ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/BlockchainAddress"
+    ///        }
+    ///      ]
     ///    },
     ///    "destinationNetwork": {
     ///      "description": "The name of the crypto network the purchased currency will be sent on.\n\nUse the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.",
@@ -4565,7 +5344,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "paymentAmount": {
-    ///      "description": "A string representing the amount of fiat the user wishes to pay in exchange for crypto.",
+    ///      "description": "A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.",
     ///      "examples": [
     ///        "100.00"
     ///      ],
@@ -4580,6 +5359,13 @@ pub mod types {
     ///    },
     ///    "paymentMethod": {
     ///      "$ref": "#/components/schemas/OnrampQuotePaymentMethodTypeId"
+    ///    },
+    ///    "purchaseAmount": {
+    ///      "description": "A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.",
+    ///      "examples": [
+    ///        "10.000000"
+    ///      ],
+    ///      "type": "string"
     ///    },
     ///    "purchaseCurrency": {
     ///      "description": "The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.\n\nUse the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.",
@@ -4624,7 +5410,7 @@ pub mod types {
         pub country: ::std::option::Option<::std::string::String>,
         ///The address the purchased crypto will be sent to.
         #[serde(rename = "destinationAddress")]
-        pub destination_address: ::std::string::String,
+        pub destination_address: BlockchainAddress,
         /**The name of the crypto network the purchased currency will be sent on.
 
         Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.*/
@@ -4639,7 +5425,7 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub partner_user_ref: ::std::option::Option<::std::string::String>,
-        ///A string representing the amount of fiat the user wishes to pay in exchange for crypto.
+        ///A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.
         #[serde(
             rename = "paymentAmount",
             default,
@@ -4659,6 +5445,13 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub payment_method: ::std::option::Option<OnrampQuotePaymentMethodTypeId>,
+        ///A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.
+        #[serde(
+            rename = "purchaseAmount",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub purchase_amount: ::std::option::Option<::std::string::String>,
         /**The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
 
         Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.*/
@@ -7984,6 +8777,87 @@ pub mod types {
                 })
         }
     }
+    ///A human-readable description.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A human-readable description.",
+    ///  "examples": [
+    ///    "A description of the resource."
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 500,
+    ///  "minLength": 0
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct Description(::std::string::String);
+    impl ::std::ops::Deref for Description {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<Description> for ::std::string::String {
+        fn from(value: Description) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&Description> for Description {
+        fn from(value: &Description) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for Description {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 500usize {
+                return Err("longer than 500 characters".into());
+            }
+            if value.chars().count() < 0usize {
+                return Err("shorter than 0 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for Description {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for Description {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for Description {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for Description {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///Information about an end user who authenticates using a JWT issued by the developer.
     ///
     /// <details><summary>JSON schema</summary>
@@ -8842,6 +9716,9 @@ pub mod types {
     ///        "pattern": "^0x[0-9a-fA-F]{40}$"
     ///      }
     ///    },
+    ///    "mfaMethods": {
+    ///      "$ref": "#/components/schemas/MFAMethods"
+    ///    },
     ///    "solanaAccountObjects": {
     ///      "description": "The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.",
     ///      "examples": [
@@ -8910,6 +9787,12 @@ pub mod types {
         ///**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
         #[serde(rename = "evmSmartAccounts")]
         pub evm_smart_accounts: ::std::vec::Vec<EndUserEvmSmartAccountsItem>,
+        #[serde(
+            rename = "mfaMethods",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub mfa_methods: ::std::option::Option<MfaMethods>,
         ///The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.
         #[serde(rename = "solanaAccountObjects")]
         pub solana_account_objects: ::std::vec::Vec<EndUserSolanaAccount>,
@@ -9882,9 +10765,22 @@ pub mod types {
     ///    "recipient_allowlist_violation",
     ///    "recipient_allowlist_pending",
     ///    "travel_rules_recipient_violation",
-    ///    "transfer_amount_out_of_bounds",
-    ///    "transfer_recipient_address_invalid",
-    ///    "transfer_quote_expired",
+    ///    "source_account_invalid",
+    ///    "target_account_invalid",
+    ///    "source_account_not_found",
+    ///    "target_account_not_found",
+    ///    "source_asset_not_supported",
+    ///    "target_asset_not_supported",
+    ///    "target_email_invalid",
+    ///    "target_onchain_address_invalid",
+    ///    "transfer_amount_invalid",
+    ///    "transfer_asset_not_supported",
+    ///    "insufficient_balance",
+    ///    "metadata_too_many_entries",
+    ///    "metadata_key_too_long",
+    ///    "metadata_value_too_long",
+    ///    "travel_rules_field_missing",
+    ///    "asset_mismatch",
     ///    "mfa_already_enrolled",
     ///    "mfa_invalid_code",
     ///    "mfa_flow_expired",
@@ -9893,6 +10789,7 @@ pub mod types {
     ///  ],
     ///  "x-error-instructions": {
     ///    "already_exists": "This error occurs when trying to create a resource that already exists.\n\n**Steps to resolve:**\n1. Check if the resource exists before creation\n2. Use GET endpoints to verify resource state\n3. Use unique identifiers/names for resources",
+    ///    "asset_mismatch": "This error occurs when the assets specified in the transfer are incompatible or don't match expected values.\n\n**Steps to resolve:**\n1. Ensure the `asset` field matches either the source or target asset\n2. Verify that the source and target assets are compatible for conversion (if different)\n3. Check that the asset symbols are correctly specified\n\n**Common causes:**\n- Transfer asset doesn't match source or target\n- Attempting an unsupported asset conversion\n- Typo in asset symbols",
     ///    "bad_gateway": "This error occurs when the CDP API is unable to connect to the backend service.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - The timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
     ///    "document_verification_failed": "This error occurs when the user has not verified their identity for their coinbase.com account.\n**Steps to resolve:**\n1. Verify your coinbase account identity with valid documents at https://www.coinbase.com/settings/account-levels.",
     ///    "faucet_limit_exceeded": "This error occurs when you've exceeded the faucet request limits.\n\n**Steps to resolve:**\n1. Wait for the time window to reset\n2. Use funds more efficiently in your testing\n\nFor more information on faucet limits, please visit the [EVM Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-evm-test-networks) or the [Solana Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-solana-devnet).",
@@ -9902,11 +10799,15 @@ pub mod types {
     ///    "guest_transaction_count": "This error occurs when the user has reached the lifetime guest onramp transaction count limit.\n\n**Steps to resolve:**\n1. Redirect the user to create a Coinbase account to buy and send crypto.",
     ///    "guest_transaction_limit": "This error occurs when the user has reached the weekly guest onramp transaction limit.\n\n**Steps to resolve:**\n1. Inform the user they have reached their weekly limit and will have to wait until next week.",
     ///    "idempotency_error": "This error occurs when an idempotency key is reused with different parameters.\n\n**Steps to resolve:**\n1. Generate a new UUID v4 for each unique request\n2. Only reuse idempotency keys for exact request duplicates\n3. Track used keys within your application\n\n**Example idempotency key implementation:**\n```typescript lines wrap\nimport { v4 as uuidv4 } from 'uuid';\n\nfunction createIdempotencyKey() {\n  return uuidv4();\n}\n```",
+    ///    "insufficient_balance": "This error occurs when the source account does not have enough funds to complete the transfer including fees.\n\n**Steps to resolve:**\n1. Check the source account balance\n2. Ensure the balance covers both the transfer amount and any fees\n3. Consider using `amountType: \"source\"` to transfer the maximum available amount minus fees\n4. Add funds to the source account if needed\n\n**Common causes:**\n- Transfer amount exceeds available balance\n- Not accounting for transfer fees\n- Pending transactions reducing available balance",
     ///    "internal_server_error": "This indicates an unexpected error that occurred on the CDP servers.\n\n**Important**: If you encounter this error, please note that your operation's status should be treated as unknown by your application, as it could have been a success within the CDP back-end.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - Your correlation ID\n   - Timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
     ///    "invalid_request": "This error occurs when the request is malformed or contains invalid data, including issues with the request body, query parameters, path parameters, or headers.\n\n**Steps to resolve:**\n1. Check all required fields and parameters are present\n2. Ensure request body (if applicable) follows the correct schema\n3. Verify all parameter formats match the API specification:\n   - Query parameters\n   - Path parameters\n   - Request headers\n4. Validate any addresses, IDs, or other formatted strings meet requirements\n\n**Common validation issues:**\n- Missing required parameters\n- Invalid parameter types or formats\n- Malformed JSON in request body\n- Invalid enum values",
     ///    "invalid_signature": "This error occurs when the signature provided for the given user operation is invalid.\n\n**Steps to resolve:**\n1. Verify the signature was generated by the correct owner account\n2. Ensure the signature corresponds to the exact user operation hash\n3. Check that the signature format matches the expected format\n4. Confirm you're using the correct network for the Smart Account\n\n**Common causes:**\n- Using wrong owner account to sign\n- Signing modified/incorrect user operation data\n- Malformed signature encoding\n- Network mismatch between signature and broadcast",
     ///    "invalid_sql_query": "This error occurs when the SQL query is invalid or not allowed.\n\n**Common causes:**\n- Using non-SELECT SQL statements (INSERT, UPDATE, DELETE, etc.)\n- Invalid table or column names\n- Syntax errors in SQL query\n- Query exceeds character limit\n- Too many JOIN operations",
     ///    "malformed_transaction": "This error occurs when the transaction data provided is not properly formatted or is invalid.\n\n**Steps to resolve:**\n1. Verify transaction encoding:\n   - **EVM networks**: Check RLP encoding is correct\n   - **Solana**: Validate base64 encoding\n2. Ensure all required transaction fields are present\n3. Validate transaction parameters are within acceptable ranges\n4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/get-started/supported-networks) page for more details)\n\n**Common causes:**\n- Invalid hex encoding for EVM transactions\n- Missing required transaction fields\n- Incorrect parameter formats\n- Unsupported transaction types\n- Network-specific transaction format mismatches",
+    ///    "metadata_key_too_long": "This error occurs when a metadata key exceeds the maximum allowed length.\n\n**Steps to resolve:**\n1. Shorten the metadata key to 40 characters or less\n2. Use abbreviations or shorter naming conventions\n3. Consider using a key-value structure where the value contains the longer identifier\n\n**Limits:**\n- Maximum key length: 40 characters",
+    ///    "metadata_too_many_entries": "This error occurs when the transfer metadata contains more entries than allowed.\n\n**Steps to resolve:**\n1. Reduce the number of metadata entries (maximum 10 allowed)\n2. Consolidate related data into fewer keys\n3. Store additional data externally and reference it with a single metadata entry\n\n**Limits:**\n- Maximum entries: 10",
+    ///    "metadata_value_too_long": "This error occurs when a metadata value exceeds the maximum allowed length.\n\n**Steps to resolve:**\n1. Shorten the metadata value to 500 characters or less\n2. Store longer data externally and reference it with a shorter identifier\n3. Consider compressing or encoding the data if appropriate\n\n**Limits:**\n- Maximum value length: 500 characters",
     ///    "mfa_already_enrolled": "This error occurs when attempting to enroll in an MFA method that the user has already enrolled in.\n\n**Steps to resolve:**\n1. Check if the user is already enrolled in the MFA method before initiating enrollment\n2. To update or reset MFA, remove the existing enrollment first (if supported)\n3. Use a different MFA method if multiple options are available",
     ///    "mfa_flow_expired": "This error occurs when the MFA enrollment or verification session has expired.\n\n**Steps to resolve:**\n1. Restart the MFA enrollment or verification flow\n2. Complete the flow within the allowed time window (typically 5 minutes)\n3. Ensure the user doesn't leave the flow idle for extended periods\n\n**Note:** MFA sessions expire automatically for security purposes.",
     ///    "mfa_invalid_code": "This error occurs when the MFA code provided is incorrect or has already been used.\n\n**Steps to resolve:**\n1. Verify the user entered the correct code from their authenticator app\n2. Ensure the code is current (TOTP codes expire after 30 seconds)\n3. Check that the device time is synchronized correctly\n4. Ask the user to generate a new code and try again\n\n**Common causes:**\n- Typing errors in the 6-digit code\n- Using an expired TOTP code\n- Device clock drift on user's authenticator app\n- Attempting to reuse a previously submitted code",
@@ -9922,10 +10823,18 @@ pub mod types {
     ///    "recipient_allowlist_violation": "This error occurs when the user is not allowed to receive funds at this address, according to their coinbase account allowlist.\n**Steps to resolve:**\n1. Either disable the allowlist or add the wallet address at https://www.coinbase.com/settings/allowlist\n2. Wait approximately 2 days for updates to take effect.",
     ///    "request_canceled": "This error occurs when the client cancels an in-progress request before it completes.\n\n**Steps to resolve:**\n1. Check client-side timeout configurations\n2. Review request cancellation logic in your code\n3. Consider increasing timeout thresholds for long-running operations\n4. Implement request tracking to identify premature cancellations\n\n**Best practices:**\n```typescript lines wrap\nasync function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {\n  const timeout = new Promise((_, reject) => {\n    setTimeout(() => {\n      reject(new Error(\"Operation timed out\"));\n    }, timeoutMs);\n  });\n\n  try {\n    return await Promise.race([promise, timeout]);\n  } catch (error) {\n    // Handle timeout or cancellation\n    throw error;\n  }\n}\n```",
     ///    "service_unavailable": "This error occurs when the CDP API is temporarily unable to handle requests due to maintenance or high load.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - The timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
+    ///    "source_account_invalid": "This error occurs when the source account specified in the transfer request is invalid or malformed.\n\n**Steps to resolve:**\n1. Verify the account ID format is correct (e.g., `account_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)\n2. Ensure the account ID belongs to your CDP entity\n3. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`\n\n**Common causes:**\n- Malformed account ID\n- Typo in the account ID",
+    ///    "source_account_not_found": "This error occurs when the source account specified in the transfer does not exist.\n\n**Steps to resolve:**\n1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`",
+    ///    "source_asset_not_supported": "This error occurs when the asset specified in the transfer source is not supported for this transfer type.\n\n**Steps to resolve:**\n1. Check the list of supported assets for the source account type\n2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)\n\n**Common causes:**\n- Unsupported asset for the transfer route\n- Incorrect asset symbol",
+    ///    "target_account_invalid": "This error occurs when the target account specified in the transfer request is invalid or malformed.\n\n**Steps to resolve:**\n1. Verify the account ID format is correct (e.g., `account_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)\n2. Ensure the account exists and can receive funds\n3. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`\n\n**Common causes:**\n- Malformed account ID\n- Typo in the account ID",
+    ///    "target_account_not_found": "This error occurs when the target account specified in the transfer does not exist.\n\n**Steps to resolve:**\n1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`",
+    ///    "target_asset_not_supported": "This error occurs when the asset specified in the transfer target is not supported for this transfer type.\n\n**Steps to resolve:**\n1. Check the list of supported assets for the target\n2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)\n3. Ensure the target can receive this asset type\n\n**Common causes:**\n- Asset not supported by the target\n- Unsupported conversion between source and target assets",
+    ///    "target_email_invalid": "This error occurs when the email address specified as the transfer target is invalid.\n\n**Steps to resolve:**\n1. Verify the email address format is valid (e.g., `user@example.com`)\n2. Check for typos in the email address\n3. Ensure the email domain is valid\n\n**Common causes:**\n- Invalid email format\n- Missing @ symbol or domain\n- Typo in the email address",
+    ///    "target_onchain_address_invalid": "This error occurs when the onchain address specified as the transfer target is invalid for the specified network.\n\n**Steps to resolve:**\n1. Ensure the network is supported for the transfer type\n2. Verify the address format matches the target network\n3. Ensure you haven't mixed up addresses from different networks\n\n**Common causes:**\n- Network not supported for the transfer type\n- Address format doesn't match network\n- Address from a different blockchain network",
     ///    "timed_out": "This error occurs when a request exceeds the maximum allowed processing time.\n\n**Steps to resolve:**\n1. Break down large requests into smaller chunks (if applicable)\n2. Implement retry logic with exponential backoff\n3. Use streaming endpoints for large data sets\n\n**Example retry implementation:**\n```typescript lines wrap\nasync function withRetryAndTimeout<T>(\n  operation: () => Promise<T>,\n  maxRetries = 3,\n  timeout = 30000,\n): Promise<T> {\n  let attempts = 0;\n  while (attempts < maxRetries) {\n    try {\n      return await Promise.race([\n        operation(),\n        new Promise((_, reject) =>\n          setTimeout(() => reject(new Error(\"Timeout\")), timeout)\n        ),\n      ]);\n    } catch (error) {\n      attempts++;\n      if (attempts === maxRetries) throw error;\n      // Exponential backoff\n      await new Promise(resolve =>\n        setTimeout(resolve, Math.pow(2, attempts) * 1000)\n      );\n    }\n  }\n  throw new Error(\"Max retries exceeded\");\n}\n```",
-    ///    "transfer_amount_out_of_bounds": "This error occurs when the transfer amount is less than $1 USD equivalent amount or greater than the maximum transfer amount for the account.\n\n**Steps to resolve:**\n1. Verify the transfer amount is greater than $1 USD equivalent amount.\n2. Confirm that the account has sufficient funds to cover the transfer amount.",
-    ///    "transfer_quote_expired": "This error occurs when the transfer quote has expired.\n**Steps to resolve:**\n1. Create a new quoted transfer and retry the request.",
-    ///    "transfer_recipient_address_invalid": "This error occurs when the recipient address is invalid for the specified network.\n**Steps to resolve:**\n1. Verify the network is supported for the transfer.\n2. Confirm that the recipient address is valid for the specified network.",
+    ///    "transfer_amount_invalid": "This error occurs when the transfer amount is invalid.\n\n**Steps to resolve:**\n1. Ensure the amount is a positive number and greater than $1 USD equivalent amount\n2. Verify the amount format is a valid decimal string (e.g., `\"100.50\"`)\n3. Check the number of decimal places for the asset\n\n**Common causes:**\n- Zero or negative amount\n- Too many decimal places for the asset\n- Amount below minimum threshold ($1 USD equivalent amount)",
+    ///    "transfer_asset_not_supported": "This error occurs when the asset specified for the transfer is not supported.\n\n**Steps to resolve:**\n1. Check the list of supported assets for transfers\n2. Verify the asset symbol is correctly specified\n3. Ensure the asset is supported for the transfer route (source → target)\n\n**Common causes:**\n- Asset not supported for transfers\n- Incorrect asset symbol",
+    ///    "travel_rules_field_missing": "This error occurs when required travel rule fields are missing from the transfer request.\n\n**Steps to resolve:**\n1. Include the `travelRule` object in your transfer request\n2. Supply the required missing fields prompted by the error message\n3. Review the travel rule requirements for your jurisdiction\n\nNote: Required fields may vary by region.",
     ///    "travel_rules_recipient_violation": "This error occurs when the user is not allowed to receive funds at this address, because it violates travel rules.\n**Steps to resolve:**\n1. Ensure your desired transfer is not blocked by local travel regulations.",
     ///    "unauthorized": "This error occurs when authentication fails.\n\n**Steps to resolve:**\n1. Verify your CDP API credentials:\n   - Check that your API key is valid\n   - Check that your Wallet Secret is properly configured\n2. Validate JWT token:\n   - Not expired\n   - Properly signed\n   - Contains required claims\n3. Check request headers:\n   - Authorization header present\n   - X-Wallet-Auth header included when required\n\n**Security note:** Never share your Wallet Secret or API keys."
     ///  }
@@ -10005,12 +10914,38 @@ pub mod types {
         RecipientAllowlistPending,
         #[serde(rename = "travel_rules_recipient_violation")]
         TravelRulesRecipientViolation,
-        #[serde(rename = "transfer_amount_out_of_bounds")]
-        TransferAmountOutOfBounds,
-        #[serde(rename = "transfer_recipient_address_invalid")]
-        TransferRecipientAddressInvalid,
-        #[serde(rename = "transfer_quote_expired")]
-        TransferQuoteExpired,
+        #[serde(rename = "source_account_invalid")]
+        SourceAccountInvalid,
+        #[serde(rename = "target_account_invalid")]
+        TargetAccountInvalid,
+        #[serde(rename = "source_account_not_found")]
+        SourceAccountNotFound,
+        #[serde(rename = "target_account_not_found")]
+        TargetAccountNotFound,
+        #[serde(rename = "source_asset_not_supported")]
+        SourceAssetNotSupported,
+        #[serde(rename = "target_asset_not_supported")]
+        TargetAssetNotSupported,
+        #[serde(rename = "target_email_invalid")]
+        TargetEmailInvalid,
+        #[serde(rename = "target_onchain_address_invalid")]
+        TargetOnchainAddressInvalid,
+        #[serde(rename = "transfer_amount_invalid")]
+        TransferAmountInvalid,
+        #[serde(rename = "transfer_asset_not_supported")]
+        TransferAssetNotSupported,
+        #[serde(rename = "insufficient_balance")]
+        InsufficientBalance,
+        #[serde(rename = "metadata_too_many_entries")]
+        MetadataTooManyEntries,
+        #[serde(rename = "metadata_key_too_long")]
+        MetadataKeyTooLong,
+        #[serde(rename = "metadata_value_too_long")]
+        MetadataValueTooLong,
+        #[serde(rename = "travel_rules_field_missing")]
+        TravelRulesFieldMissing,
+        #[serde(rename = "asset_mismatch")]
+        AssetMismatch,
         #[serde(rename = "mfa_already_enrolled")]
         MfaAlreadyEnrolled,
         #[serde(rename = "mfa_invalid_code")]
@@ -10064,11 +10999,22 @@ pub mod types {
                 Self::TravelRulesRecipientViolation => {
                     f.write_str("travel_rules_recipient_violation")
                 }
-                Self::TransferAmountOutOfBounds => f.write_str("transfer_amount_out_of_bounds"),
-                Self::TransferRecipientAddressInvalid => {
-                    f.write_str("transfer_recipient_address_invalid")
-                }
-                Self::TransferQuoteExpired => f.write_str("transfer_quote_expired"),
+                Self::SourceAccountInvalid => f.write_str("source_account_invalid"),
+                Self::TargetAccountInvalid => f.write_str("target_account_invalid"),
+                Self::SourceAccountNotFound => f.write_str("source_account_not_found"),
+                Self::TargetAccountNotFound => f.write_str("target_account_not_found"),
+                Self::SourceAssetNotSupported => f.write_str("source_asset_not_supported"),
+                Self::TargetAssetNotSupported => f.write_str("target_asset_not_supported"),
+                Self::TargetEmailInvalid => f.write_str("target_email_invalid"),
+                Self::TargetOnchainAddressInvalid => f.write_str("target_onchain_address_invalid"),
+                Self::TransferAmountInvalid => f.write_str("transfer_amount_invalid"),
+                Self::TransferAssetNotSupported => f.write_str("transfer_asset_not_supported"),
+                Self::InsufficientBalance => f.write_str("insufficient_balance"),
+                Self::MetadataTooManyEntries => f.write_str("metadata_too_many_entries"),
+                Self::MetadataKeyTooLong => f.write_str("metadata_key_too_long"),
+                Self::MetadataValueTooLong => f.write_str("metadata_value_too_long"),
+                Self::TravelRulesFieldMissing => f.write_str("travel_rules_field_missing"),
+                Self::AssetMismatch => f.write_str("asset_mismatch"),
                 Self::MfaAlreadyEnrolled => f.write_str("mfa_already_enrolled"),
                 Self::MfaInvalidCode => f.write_str("mfa_invalid_code"),
                 Self::MfaFlowExpired => f.write_str("mfa_flow_expired"),
@@ -10111,9 +11057,22 @@ pub mod types {
                 "recipient_allowlist_violation" => Ok(Self::RecipientAllowlistViolation),
                 "recipient_allowlist_pending" => Ok(Self::RecipientAllowlistPending),
                 "travel_rules_recipient_violation" => Ok(Self::TravelRulesRecipientViolation),
-                "transfer_amount_out_of_bounds" => Ok(Self::TransferAmountOutOfBounds),
-                "transfer_recipient_address_invalid" => Ok(Self::TransferRecipientAddressInvalid),
-                "transfer_quote_expired" => Ok(Self::TransferQuoteExpired),
+                "source_account_invalid" => Ok(Self::SourceAccountInvalid),
+                "target_account_invalid" => Ok(Self::TargetAccountInvalid),
+                "source_account_not_found" => Ok(Self::SourceAccountNotFound),
+                "target_account_not_found" => Ok(Self::TargetAccountNotFound),
+                "source_asset_not_supported" => Ok(Self::SourceAssetNotSupported),
+                "target_asset_not_supported" => Ok(Self::TargetAssetNotSupported),
+                "target_email_invalid" => Ok(Self::TargetEmailInvalid),
+                "target_onchain_address_invalid" => Ok(Self::TargetOnchainAddressInvalid),
+                "transfer_amount_invalid" => Ok(Self::TransferAmountInvalid),
+                "transfer_asset_not_supported" => Ok(Self::TransferAssetNotSupported),
+                "insufficient_balance" => Ok(Self::InsufficientBalance),
+                "metadata_too_many_entries" => Ok(Self::MetadataTooManyEntries),
+                "metadata_key_too_long" => Ok(Self::MetadataKeyTooLong),
+                "metadata_value_too_long" => Ok(Self::MetadataValueTooLong),
+                "travel_rules_field_missing" => Ok(Self::TravelRulesFieldMissing),
+                "asset_mismatch" => Ok(Self::AssetMismatch),
                 "mfa_already_enrolled" => Ok(Self::MfaAlreadyEnrolled),
                 "mfa_invalid_code" => Ok(Self::MfaInvalidCode),
                 "mfa_flow_expired" => Ok(Self::MfaFlowExpired),
@@ -10166,6 +11125,7 @@ pub mod types {
     ///        "1000000000000000000"
     ///      ],
     ///      "type": "string",
+    ///      "maxLength": 78,
     ///      "pattern": "^[0-9]+$"
     ///    },
     ///    "operator": {
@@ -10228,6 +11188,7 @@ pub mod types {
     ///    "1000000000000000000"
     ///  ],
     ///  "type": "string",
+    ///  "maxLength": 78,
     ///  "pattern": "^[0-9]+$"
     ///}
     /// ```
@@ -10254,6 +11215,9 @@ pub mod types {
     impl ::std::str::FromStr for EthValueCriterionEthValue {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 78usize {
+                return Err("longer than 78 characters".into());
+            }
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
                 ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]+$").unwrap());
             if PATTERN.find(value).is_none() {
@@ -15402,6 +16366,93 @@ pub mod types {
             Default::default()
         }
     }
+    ///`GetOnrampUserLimitsBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "paymentMethodType",
+    ///    "userId",
+    ///    "userIdType"
+    ///  ],
+    ///  "properties": {
+    ///    "paymentMethodType": {
+    ///      "$ref": "#/components/schemas/OnrampOrderPaymentMethodTypeId"
+    ///    },
+    ///    "userId": {
+    ///      "description": "The user identifier value. For `phone_number` type, this must be in E.164 format.",
+    ///      "examples": [
+    ///        "+12055555555"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "userIdType": {
+    ///      "$ref": "#/components/schemas/OnrampUserIdType"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct GetOnrampUserLimitsBody {
+        #[serde(rename = "paymentMethodType")]
+        pub payment_method_type: OnrampOrderPaymentMethodTypeId,
+        ///The user identifier value. For `phone_number` type, this must be in E.164 format.
+        #[serde(rename = "userId")]
+        pub user_id: ::std::string::String,
+        #[serde(rename = "userIdType")]
+        pub user_id_type: OnrampUserIdType,
+    }
+    impl ::std::convert::From<&GetOnrampUserLimitsBody> for GetOnrampUserLimitsBody {
+        fn from(value: &GetOnrampUserLimitsBody) -> Self {
+            value.clone()
+        }
+    }
+    impl GetOnrampUserLimitsBody {
+        pub fn builder() -> builder::GetOnrampUserLimitsBody {
+            Default::default()
+        }
+    }
+    ///`GetOnrampUserLimitsResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "limits"
+    ///  ],
+    ///  "properties": {
+    ///    "limits": {
+    ///      "description": "The list of limits applicable to the user.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnrampUserLimit"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct GetOnrampUserLimitsResponse {
+        ///The list of limits applicable to the user.
+        pub limits: ::std::vec::Vec<OnrampUserLimit>,
+    }
+    impl ::std::convert::From<&GetOnrampUserLimitsResponse> for GetOnrampUserLimitsResponse {
+        fn from(value: &GetOnrampUserLimitsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl GetOnrampUserLimitsResponse {
+        pub fn builder() -> builder::GetOnrampUserLimitsResponse {
+            Default::default()
+        }
+    }
     ///`GetPolicyByIdPolicyId`
     ///
     /// <details><summary>JSON schema</summary>
@@ -17790,6 +18841,330 @@ pub mod types {
             Default::default()
         }
     }
+    ///`ImportEndUserBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "authenticationMethods",
+    ///    "encryptedPrivateKey",
+    ///    "keyType",
+    ///    "userId"
+    ///  ],
+    ///  "properties": {
+    ///    "authenticationMethods": {
+    ///      "$ref": "#/components/schemas/AuthenticationMethods"
+    ///    },
+    ///    "encryptedPrivateKey": {
+    ///      "description": "The base64-encoded, encrypted private key to import. The private key must be encrypted using the CDP SDK's encryption scheme. This is a 32-byte raw private key.",
+    ///      "examples": [
+    ///        "U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4="
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "keyType": {
+    ///      "description": "The type of key being imported. Determines what type of account will be associated for the end user.",
+    ///      "examples": [
+    ///        "evm"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "evm",
+    ///        "solana"
+    ///      ]
+    ///    },
+    ///    "userId": {
+    ///      "description": "A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ImportEndUserBody {
+        #[serde(rename = "authenticationMethods")]
+        pub authentication_methods: AuthenticationMethods,
+        ///The base64-encoded, encrypted private key to import. The private key must be encrypted using the CDP SDK's encryption scheme. This is a 32-byte raw private key.
+        #[serde(rename = "encryptedPrivateKey")]
+        pub encrypted_private_key: ::std::string::String,
+        ///The type of key being imported. Determines what type of account will be associated for the end user.
+        #[serde(rename = "keyType")]
+        pub key_type: ImportEndUserBodyKeyType,
+        ///A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+        #[serde(rename = "userId")]
+        pub user_id: ImportEndUserBodyUserId,
+    }
+    impl ::std::convert::From<&ImportEndUserBody> for ImportEndUserBody {
+        fn from(value: &ImportEndUserBody) -> Self {
+            value.clone()
+        }
+    }
+    impl ImportEndUserBody {
+        pub fn builder() -> builder::ImportEndUserBody {
+            Default::default()
+        }
+    }
+    ///The type of key being imported. Determines what type of account will be associated for the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of key being imported. Determines what type of account will be associated for the end user.",
+    ///  "examples": [
+    ///    "evm"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "evm",
+    ///    "solana"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum ImportEndUserBodyKeyType {
+        #[serde(rename = "evm")]
+        Evm,
+        #[serde(rename = "solana")]
+        Solana,
+    }
+    impl ::std::convert::From<&Self> for ImportEndUserBodyKeyType {
+        fn from(value: &ImportEndUserBodyKeyType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for ImportEndUserBodyKeyType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Evm => f.write_str("evm"),
+                Self::Solana => f.write_str("solana"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for ImportEndUserBodyKeyType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "evm" => Ok(Self::Evm),
+                "solana" => Ok(Self::Solana),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ImportEndUserBodyKeyType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ImportEndUserBodyKeyType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ImportEndUserBodyKeyType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ImportEndUserBodyUserId(::std::string::String);
+    impl ::std::ops::Deref for ImportEndUserBodyUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ImportEndUserBodyUserId> for ::std::string::String {
+        fn from(value: ImportEndUserBodyUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ImportEndUserBodyUserId> for ImportEndUserBodyUserId {
+        fn from(value: &ImportEndUserBodyUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ImportEndUserBodyUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ImportEndUserBodyUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ImportEndUserBodyUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ImportEndUserBodyUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ImportEndUserBodyUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`ImportEndUserXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 36,
+    ///  "minLength": 36,
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ImportEndUserXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for ImportEndUserXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ImportEndUserXIdempotencyKey> for ::std::string::String {
+        fn from(value: ImportEndUserXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ImportEndUserXIdempotencyKey> for ImportEndUserXIdempotencyKey {
+        fn from(value: &ImportEndUserXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ImportEndUserXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 36usize {
+                return Err("longer than 36 characters".into());
+            }
+            if value.chars().count() < 36usize {
+                return Err("shorter than 36 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ImportEndUserXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ImportEndUserXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ImportEndUserXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ImportEndUserXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`ImportEvmAccountBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -19897,6 +21272,316 @@ pub mod types {
             value.parse()
         }
     }
+    ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.",
+    ///  "examples": [
+    ///    {
+    ///      "customer_id": "cust_12345",
+    ///      "order_reference": "order-67890"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "maxProperties": 50,
+    ///  "additionalProperties": {
+    ///    "type": "string",
+    ///    "maxLength": 500,
+    ///    "minLength": 0
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct Metadata(pub ::std::collections::HashMap<::std::string::String, MetadataValue>);
+    impl ::std::ops::Deref for Metadata {
+        type Target = ::std::collections::HashMap<::std::string::String, MetadataValue>;
+        fn deref(&self) -> &::std::collections::HashMap<::std::string::String, MetadataValue> {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<Metadata>
+        for ::std::collections::HashMap<::std::string::String, MetadataValue>
+    {
+        fn from(value: Metadata) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&Metadata> for Metadata {
+        fn from(value: &Metadata) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<::std::collections::HashMap<::std::string::String, MetadataValue>>
+        for Metadata
+    {
+        fn from(value: ::std::collections::HashMap<::std::string::String, MetadataValue>) -> Self {
+            Self(value)
+        }
+    }
+    ///`MetadataValue`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 500,
+    ///  "minLength": 0
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MetadataValue(::std::string::String);
+    impl ::std::ops::Deref for MetadataValue {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MetadataValue> for ::std::string::String {
+        fn from(value: MetadataValue) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MetadataValue> for MetadataValue {
+        fn from(value: &MetadataValue) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MetadataValue {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 500usize {
+                return Err("longer than 500 characters".into());
+            }
+            if value.chars().count() < 0usize {
+                return Err("shorter than 0 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MetadataValue {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MetadataValue {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MetadataValue {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MetadataValue {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**Information about the end user's MFA enrollments.
+    */
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Information about the end user's MFA enrollments.\n",
+    ///  "examples": [
+    ///    {
+    ///      "enrollmentPromptedAt": "2025-01-15T10:30:00Z",
+    ///      "sms": {
+    ///        "enrolledAt": "2025-01-15T10:30:00Z"
+    ///      },
+    ///      "totp": {
+    ///        "enrolledAt": "2025-01-15T10:30:00Z"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "enrollmentPromptedAt": {
+    ///      "description": "The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "sms": {
+    ///      "description": "An object containing information about the end user's SMS MFA enrollment.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "enrolledAt"
+    ///      ],
+    ///      "properties": {
+    ///        "enrolledAt": {
+    ///          "description": "The date and time when the method was enrolled, in ISO 8601 format.",
+    ///          "examples": [
+    ///            "2025-01-15T10:30:00Z"
+    ///          ],
+    ///          "type": "string",
+    ///          "format": "date-time"
+    ///        }
+    ///      }
+    ///    },
+    ///    "totp": {
+    ///      "description": "An object containing information about the end user's TOTP enrollment.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "enrolledAt"
+    ///      ],
+    ///      "properties": {
+    ///        "enrolledAt": {
+    ///          "description": "The date and time when the method was enrolled, in ISO 8601 format.",
+    ///          "examples": [
+    ///            "2025-01-15T10:30:00Z"
+    ///          ],
+    ///          "type": "string",
+    ///          "format": "date-time"
+    ///        }
+    ///      }
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MfaMethods {
+        ///The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.
+        #[serde(
+            rename = "enrollmentPromptedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub enrollment_prompted_at:
+            ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub sms: ::std::option::Option<MfaMethodsSms>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub totp: ::std::option::Option<MfaMethodsTotp>,
+    }
+    impl ::std::convert::From<&MfaMethods> for MfaMethods {
+        fn from(value: &MfaMethods) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for MfaMethods {
+        fn default() -> Self {
+            Self {
+                enrollment_prompted_at: Default::default(),
+                sms: Default::default(),
+                totp: Default::default(),
+            }
+        }
+    }
+    impl MfaMethods {
+        pub fn builder() -> builder::MfaMethods {
+            Default::default()
+        }
+    }
+    ///An object containing information about the end user's SMS MFA enrollment.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An object containing information about the end user's SMS MFA enrollment.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "enrolledAt"
+    ///  ],
+    ///  "properties": {
+    ///    "enrolledAt": {
+    ///      "description": "The date and time when the method was enrolled, in ISO 8601 format.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MfaMethodsSms {
+        ///The date and time when the method was enrolled, in ISO 8601 format.
+        #[serde(rename = "enrolledAt")]
+        pub enrolled_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&MfaMethodsSms> for MfaMethodsSms {
+        fn from(value: &MfaMethodsSms) -> Self {
+            value.clone()
+        }
+    }
+    impl MfaMethodsSms {
+        pub fn builder() -> builder::MfaMethodsSms {
+            Default::default()
+        }
+    }
+    ///An object containing information about the end user's TOTP enrollment.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An object containing information about the end user's TOTP enrollment.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "enrolledAt"
+    ///  ],
+    ///  "properties": {
+    ///    "enrolledAt": {
+    ///      "description": "The date and time when the method was enrolled, in ISO 8601 format.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MfaMethodsTotp {
+        ///The date and time when the method was enrolled, in ISO 8601 format.
+        #[serde(rename = "enrolledAt")]
+        pub enrolled_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&MfaMethodsTotp> for MfaMethodsTotp {
+        fn from(value: &MfaMethodsTotp) -> Self {
+            value.clone()
+        }
+    }
+    impl MfaMethodsTotp {
+        pub fn builder() -> builder::MfaMethodsTotp {
+            Default::default()
+        }
+    }
     ///The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
     ///
     /// <details><summary>JSON schema</summary>
@@ -20536,7 +22221,8 @@ pub mod types {
     ///  "enum": [
     ///    "google",
     ///    "apple",
-    ///    "x"
+    ///    "x",
+    ///    "telegram"
     ///  ]
     ///}
     /// ```
@@ -20560,6 +22246,8 @@ pub mod types {
         Apple,
         #[serde(rename = "x")]
         X,
+        #[serde(rename = "telegram")]
+        Telegram,
     }
     impl ::std::convert::From<&Self> for OAuth2ProviderType {
         fn from(value: &OAuth2ProviderType) -> Self {
@@ -20572,6 +22260,7 @@ pub mod types {
                 Self::Google => f.write_str("google"),
                 Self::Apple => f.write_str("apple"),
                 Self::X => f.write_str("x"),
+                Self::Telegram => f.write_str("telegram"),
             }
         }
     }
@@ -20582,6 +22271,7 @@ pub mod types {
                 "google" => Ok(Self::Google),
                 "apple" => Ok(Self::Apple),
                 "x" => Ok(Self::X),
+                "telegram" => Ok(Self::Telegram),
                 _ => Err("invalid value".into()),
             }
         }
@@ -21035,7 +22725,7 @@ pub mod types {
         }
     }
     /**Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -21362,6 +23052,94 @@ pub mod types {
             value.parse()
         }
     }
+    /**The type of limit:
+    - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
+      within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
+      $500 is the default limit.
+    - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions
+      across the user's entire history with no time-based expiration. Once the limit is reached, no further
+      transactions are allowed. 15 is the default limit.
+    */
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of limit:\n- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions \n  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. \n  $500 is the default limit.\n- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions \n  across the user's entire history with no time-based expiration. Once the limit is reached, no further \n  transactions are allowed. 15 is the default limit.\n",
+    ///  "examples": [
+    ///    "weekly_spending"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "weekly_spending",
+    ///    "lifetime_transactions"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum OnrampLimitType {
+        #[serde(rename = "weekly_spending")]
+        WeeklySpending,
+        #[serde(rename = "lifetime_transactions")]
+        LifetimeTransactions,
+    }
+    impl ::std::convert::From<&Self> for OnrampLimitType {
+        fn from(value: &OnrampLimitType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for OnrampLimitType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::WeeklySpending => f.write_str("weekly_spending"),
+                Self::LifetimeTransactions => f.write_str("lifetime_transactions"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for OnrampLimitType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "weekly_spending" => Ok(Self::WeeklySpending),
+                "lifetime_transactions" => Ok(Self::LifetimeTransactions),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for OnrampLimitType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for OnrampLimitType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for OnrampLimitType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///An Onramp order.
     ///
     /// <details><summary>JSON schema</summary>
@@ -21399,7 +23177,11 @@ pub mod types {
     ///      "examples": [
     ///        "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
     ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/BlockchainAddress"
+    ///        }
+    ///      ]
     ///    },
     ///    "destinationNetwork": {
     ///      "description": "The network to send the crypto on.",
@@ -21516,7 +23298,7 @@ pub mod types {
         pub created_at: ::std::string::String,
         ///The destination address to send the crypto to.
         #[serde(rename = "destinationAddress")]
-        pub destination_address: ::std::string::String,
+        pub destination_address: BlockchainAddress,
         ///The network to send the crypto on.
         #[serde(rename = "destinationNetwork")]
         pub destination_network: ::std::string::String,
@@ -22320,6 +24102,148 @@ pub mod types {
     }
     impl OnrampSession {
         pub fn builder() -> builder::OnrampSession {
+            Default::default()
+        }
+    }
+    /**The type of user identifier:
+    - `phone_number`: A phone number in E.164 format associated with an onramp user.
+    */
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of user identifier:\n- `phone_number`: A phone number in E.164 format associated with an onramp user.\n",
+    ///  "examples": [
+    ///    "phone_number"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "phone_number"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum OnrampUserIdType {
+        #[serde(rename = "phone_number")]
+        PhoneNumber,
+    }
+    impl ::std::convert::From<&Self> for OnrampUserIdType {
+        fn from(value: &OnrampUserIdType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for OnrampUserIdType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::PhoneNumber => f.write_str("phone_number"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for OnrampUserIdType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "phone_number" => Ok(Self::PhoneNumber),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for OnrampUserIdType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for OnrampUserIdType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for OnrampUserIdType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///A single limit with remaining capacity.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A single limit with remaining capacity.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "limit",
+    ///    "limitType",
+    ///    "remaining"
+    ///  ],
+    ///  "properties": {
+    ///    "currency": {
+    ///      "description": "The currency of the limit amounts. Only present for spending limits, not for count-based limits.",
+    ///      "examples": [
+    ///        "USD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "limit": {
+    ///      "description": "The maximum limit value.",
+    ///      "examples": [
+    ///        "2500"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "limitType": {
+    ///      "$ref": "#/components/schemas/OnrampLimitType"
+    ///    },
+    ///    "remaining": {
+    ///      "description": "The remaining amount or count available.",
+    ///      "examples": [
+    ///        "2000"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnrampUserLimit {
+        ///The currency of the limit amounts. Only present for spending limits, not for count-based limits.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub currency: ::std::option::Option<::std::string::String>,
+        ///The maximum limit value.
+        pub limit: ::std::string::String,
+        #[serde(rename = "limitType")]
+        pub limit_type: OnrampLimitType,
+        ///The remaining amount or count available.
+        pub remaining: ::std::string::String,
+    }
+    impl ::std::convert::From<&OnrampUserLimit> for OnrampUserLimit {
+        fn from(value: &OnrampUserLimit) -> Self {
+            value.clone()
+        }
+    }
+    impl OnrampUserLimit {
+        pub fn builder() -> builder::OnrampUserLimit {
             Default::default()
         }
     }
@@ -24249,7 +26173,7 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct RequestEvmFaucetResponse {
         /**The hash of the transaction that requested the funds.
-         **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
+        **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
         #[serde(rename = "transactionHash")]
         pub transaction_hash: ::std::string::String,
     }
@@ -26863,6 +28787,13 @@ pub mod types {
     ///    "transaction"
     ///  ],
     ///  "properties": {
+    ///    "errorMessage": {
+    ///      "description": "The message describing the error reason.",
+    ///      "examples": [
+    ///        "Insufficient funds"
+    ///      ],
+    ///      "type": "string"
+    ///    },
     ///    "errorReason": {
     ///      "$ref": "#/components/schemas/x402SettleErrorReason"
     ///    },
@@ -26902,6 +28833,13 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct SettleX402PaymentResponse {
+        ///The message describing the error reason.
+        #[serde(
+            rename = "errorMessage",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub error_message: ::std::option::Option<::std::string::String>,
         #[serde(
             rename = "errorReason",
             default,
@@ -35200,6 +37138,104 @@ pub mod types {
                 })
         }
     }
+    ///Information about an end user who authenticates using Telegram.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Information about an end user who authenticates using Telegram.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "authDate",
+    ///    "firstName",
+    ///    "id",
+    ///    "lastName",
+    ///    "photoUrl",
+    ///    "type",
+    ///    "username"
+    ///  ],
+    ///  "properties": {
+    ///    "authDate": {
+    ///      "description": "The Telegram user's last login as a Unix timestamp.",
+    ///      "examples": [
+    ///        1770681412
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "firstName": {
+    ///      "description": "The Telegram user's first name.",
+    ///      "examples": [
+    ///        "Satoshi"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "id": {
+    ///      "description": "The Telegram ID for the end user.",
+    ///      "examples": [
+    ///        123456
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "lastName": {
+    ///      "description": "The Telegram user's last name.",
+    ///      "examples": [
+    ///        "Nakamoto"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "photoUrl": {
+    ///      "description": "The Telegram user's profile picture.",
+    ///      "examples": [
+    ///        "https://image.url/profile.png"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "type": {
+    ///      "$ref": "#/components/schemas/OAuth2ProviderType"
+    ///    },
+    ///    "username": {
+    ///      "description": "The Telegram user's username.",
+    ///      "examples": [
+    ///        "satoshinakamoto"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct TelegramAuthentication {
+        ///The Telegram user's last login as a Unix timestamp.
+        #[serde(rename = "authDate")]
+        pub auth_date: i64,
+        ///The Telegram user's first name.
+        #[serde(rename = "firstName")]
+        pub first_name: ::std::string::String,
+        ///The Telegram ID for the end user.
+        pub id: i64,
+        ///The Telegram user's last name.
+        #[serde(rename = "lastName")]
+        pub last_name: ::std::string::String,
+        ///The Telegram user's profile picture.
+        #[serde(rename = "photoUrl")]
+        pub photo_url: ::std::string::String,
+        #[serde(rename = "type")]
+        pub type_: OAuth2ProviderType,
+        ///The Telegram user's username.
+        pub username: ::std::string::String,
+    }
+    impl ::std::convert::From<&TelegramAuthentication> for TelegramAuthentication {
+        fn from(value: &TelegramAuthentication) -> Self {
+            value.clone()
+        }
+    }
+    impl TelegramAuthentication {
+        pub fn builder() -> builder::TelegramAuthentication {
+            Default::default()
+        }
+    }
     ///The 0x-prefixed contract address of the token to receive.
     ///
     /// <details><summary>JSON schema</summary>
@@ -37769,6 +39805,13 @@ pub mod types {
     ///    "payer"
     ///  ],
     ///  "properties": {
+    ///    "invalidMessage": {
+    ///      "description": "The message describing the invalid reason.",
+    ///      "examples": [
+    ///        "Insufficient funds"
+    ///      ],
+    ///      "type": "string"
+    ///    },
     ///    "invalidReason": {
     ///      "$ref": "#/components/schemas/x402VerifyInvalidReason"
     ///    },
@@ -37793,6 +39836,13 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct VerifyX402PaymentResponse {
+        ///The message describing the invalid reason.
+        #[serde(
+            rename = "invalidMessage",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub invalid_message: ::std::option::Option<::std::string::String>,
         #[serde(
             rename = "invalidReason",
             default,
@@ -37960,55 +40010,19 @@ pub mod types {
             Default::default()
         }
     }
-    /**Request to create a new webhook subscription with support for both traditional single-label
-    and multi-label filtering formats.
+    /**Request to create a new webhook subscription with support for multi-label filtering.
     */
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label\nand multi-label filtering formats.\n",
+    ///  "description": "Request to create a new webhook subscription with support for multi-label filtering.\n",
     ///  "type": "object",
-    ///  "oneOf": [
-    ///    {
-    ///      "title": "Traditional single-label format",
-    ///      "not": {
-    ///        "required": [
-    ///          "labels"
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "title": "Multi-label format with total overlap logic",
-    ///      "not": {
-    ///        "anyOf": [
-    ///          {
-    ///            "required": [
-    ///              "labelKey"
-    ///            ]
-    ///          },
-    ///          {
-    ///            "required": [
-    ///              "labelValue"
-    ///            ]
-    ///          }
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labels",
-    ///        "target"
-    ///      ]
-    ///    }
+    ///  "required": [
+    ///    "eventTypes",
+    ///    "isEnabled",
+    ///    "target"
     ///  ],
     ///  "properties": {
     ///    "description": {
@@ -38016,7 +40030,11 @@ pub mod types {
     ///      "examples": [
     ///        "Subscription for token transfer events"
     ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Description"
+    ///        }
+    ///      ]
     ///    },
     ///    "eventTypes": {
     ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
@@ -38037,27 +40055,13 @@ pub mod types {
     ///      ],
     ///      "type": "boolean"
     ///    },
-    ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///      "examples": [
-    ///        "contract_address"
-    ///      ],
-    ///      "type": "string"
-    ///    },
-    ///    "labelValue": {
-    ///      "description": "Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///      "examples": [
-    ///        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///      ],
-    ///      "type": "string"
-    ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching. Omit to receive all events for the selected event types.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///      "examples": [
     ///        {
-    ///          "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///          "env": "dev",
-    ///          "team": "payments"
+    ///          "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///          "event_name": "Transfer",
+    ///          "network": "base-mainnet"
     ///        }
     ///      ],
     ///      "type": "object",
@@ -38066,15 +40070,7 @@ pub mod types {
     ///      }
     ///    },
     ///    "metadata": {
-    ///      "description": "Additional metadata for the subscription.",
-    ///      "examples": [
-    ///        {
-    ///          "custom_field": "custom_value",
-    ///          "webhook_version": "v1"
-    ///        }
-    ///      ],
-    ///      "type": "object",
-    ///      "additionalProperties": true
+    ///      "$ref": "#/components/schemas/Metadata"
     ///    },
     ///    "target": {
     ///      "$ref": "#/components/schemas/WebhookTarget"
@@ -38084,310 +40080,44 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    #[serde(untagged)]
-    pub enum WebhookSubscriptionRequest {
-        Variant0(WebhookSubscriptionRequestVariant0),
-        Variant1(WebhookSubscriptionRequestVariant1),
+    pub struct WebhookSubscriptionRequest {
+        ///Description of the webhook subscription.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub description: ::std::option::Option<Description>,
+        /**Types of events to subscribe to. Event types follow a three-part dot-separated format:
+        service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+        The subscription will only receive events matching these types AND the label filter(s).
+        */
+        #[serde(rename = "eventTypes")]
+        pub event_types: ::std::vec::Vec<::std::string::String>,
+        ///Whether the subscription is enabled.
+        #[serde(rename = "isEnabled")]
+        pub is_enabled: bool,
+        /**Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+        an event contains ALL the key-value pairs specified here. Additional labels on
+        the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
+
+        **Note:** Currently, labels are supported for onchain webhooks only.
+
+        See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+        */
+        #[serde(
+            default,
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+        )]
+        pub labels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        pub target: WebhookTarget,
     }
-    impl ::std::convert::From<&Self> for WebhookSubscriptionRequest {
+    impl ::std::convert::From<&WebhookSubscriptionRequest> for WebhookSubscriptionRequest {
         fn from(value: &WebhookSubscriptionRequest) -> Self {
             value.clone()
         }
     }
-    impl ::std::convert::From<WebhookSubscriptionRequestVariant0> for WebhookSubscriptionRequest {
-        fn from(value: WebhookSubscriptionRequestVariant0) -> Self {
-            Self::Variant0(value)
-        }
-    }
-    impl ::std::convert::From<WebhookSubscriptionRequestVariant1> for WebhookSubscriptionRequest {
-        fn from(value: WebhookSubscriptionRequestVariant1) -> Self {
-            Self::Variant1(value)
-        }
-    }
-    ///`WebhookSubscriptionRequestVariant0`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "allOf": [
-    ///    {
-    ///      "type": "object",
-    ///      "properties": {
-    ///        "description": {
-    ///          "description": "Description of the webhook subscription.",
-    ///          "examples": [
-    ///            "Subscription for token transfer events"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
-    ///          "examples": [
-    ///            [
-    ///              "onchain.activity.detected"
-    ///            ]
-    ///          ],
-    ///          "type": "array",
-    ///          "items": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "isEnabled": {
-    ///          "description": "Whether the subscription is enabled.",
-    ///          "examples": [
-    ///            true
-    ///          ],
-    ///          "type": "boolean"
-    ///        },
-    ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "contract_address"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
-    ///          "examples": [
-    ///            {
-    ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///              "env": "dev",
-    ///              "team": "payments"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "metadata": {
-    ///          "description": "Additional metadata for the subscription.",
-    ///          "examples": [
-    ///            {
-    ///              "custom_field": "custom_value",
-    ///              "webhook_version": "v1"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": true
-    ///        },
-    ///        "target": {
-    ///          "$ref": "#/components/schemas/WebhookTarget"
-    ///        }
-    ///      }
-    ///    },
-    ///    {
-    ///      "title": "Traditional single-label format",
-    ///      "not": {
-    ///        "required": [
-    ///          "labels"
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "not": {
-    ///        "title": "Multi-label format with total overlap logic",
-    ///        "not": {
-    ///          "anyOf": [
-    ///            {
-    ///              "required": [
-    ///                "labelKey"
-    ///              ]
-    ///            },
-    ///            {
-    ///              "required": [
-    ///                "labelValue"
-    ///              ]
-    ///            }
-    ///          ]
-    ///        },
-    ///        "required": [
-    ///          "eventTypes",
-    ///          "isEnabled",
-    ///          "labels",
-    ///          "target"
-    ///        ]
-    ///      }
-    ///    }
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    #[serde(deny_unknown_fields)]
-    pub enum WebhookSubscriptionRequestVariant0 {}
-    impl ::std::convert::From<&Self> for WebhookSubscriptionRequestVariant0 {
-        fn from(value: &WebhookSubscriptionRequestVariant0) -> Self {
-            value.clone()
-        }
-    }
-    ///`WebhookSubscriptionRequestVariant1`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "allOf": [
-    ///    {
-    ///      "type": "object",
-    ///      "properties": {
-    ///        "description": {
-    ///          "description": "Description of the webhook subscription.",
-    ///          "examples": [
-    ///            "Subscription for token transfer events"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
-    ///          "examples": [
-    ///            [
-    ///              "onchain.activity.detected"
-    ///            ]
-    ///          ],
-    ///          "type": "array",
-    ///          "items": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "isEnabled": {
-    ///          "description": "Whether the subscription is enabled.",
-    ///          "examples": [
-    ///            true
-    ///          ],
-    ///          "type": "boolean"
-    ///        },
-    ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "contract_address"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
-    ///          "examples": [
-    ///            {
-    ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///              "env": "dev",
-    ///              "team": "payments"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "metadata": {
-    ///          "description": "Additional metadata for the subscription.",
-    ///          "examples": [
-    ///            {
-    ///              "custom_field": "custom_value",
-    ///              "webhook_version": "v1"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": true
-    ///        },
-    ///        "target": {
-    ///          "$ref": "#/components/schemas/WebhookTarget"
-    ///        }
-    ///      }
-    ///    },
-    ///    {
-    ///      "title": "Multi-label format with total overlap logic",
-    ///      "not": {
-    ///        "anyOf": [
-    ///          {
-    ///            "required": [
-    ///              "labelKey"
-    ///            ]
-    ///          },
-    ///          {
-    ///            "required": [
-    ///              "labelValue"
-    ///            ]
-    ///          }
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labels",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "not": {
-    ///        "title": "Traditional single-label format",
-    ///        "not": {
-    ///          "required": [
-    ///            "labels"
-    ///          ]
-    ///        },
-    ///        "required": [
-    ///          "eventTypes",
-    ///          "isEnabled",
-    ///          "labelKey",
-    ///          "labelValue",
-    ///          "target"
-    ///        ]
-    ///      }
-    ///    }
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    #[serde(deny_unknown_fields)]
-    pub enum WebhookSubscriptionRequestVariant1 {}
-    impl ::std::convert::From<&Self> for WebhookSubscriptionRequestVariant1 {
-        fn from(value: &WebhookSubscriptionRequestVariant1) -> Self {
-            value.clone()
+    impl WebhookSubscriptionRequest {
+        pub fn builder() -> builder::WebhookSubscriptionRequest {
+            Default::default()
         }
     }
     ///Response containing webhook subscription details.
@@ -38405,8 +40135,6 @@ pub mod types {
     ///        "onchain.activity.detected"
     ///      ],
     ///      "isEnabled": true,
-    ///      "labelKey": "event_name",
-    ///      "labelValue": "Transfer",
     ///      "labels": {
     ///        "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     ///        "event_name": "Transfer",
@@ -38446,7 +40174,11 @@ pub mod types {
     ///      "examples": [
     ///        "Subscription for token transfer events"
     ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Description"
+    ///        }
+    ///      ]
     ///    },
     ///    "eventTypes": {
     ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
@@ -38466,20 +40198,6 @@ pub mod types {
     ///        true
     ///      ],
     ///      "type": "boolean"
-    ///    },
-    ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Present when subscription uses traditional single-label format.\n",
-    ///      "examples": [
-    ///        "contract_address"
-    ///      ],
-    ///      "type": "string"
-    ///    },
-    ///    "labelValue": {
-    ///      "description": "Label value for filtering events. Present when subscription uses traditional single-label format.\n",
-    ///      "examples": [
-    ///        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///      ],
-    ///      "type": "string"
     ///    },
     ///    "labels": {
     ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.\nPresent when subscription uses multi-label format.\n",
@@ -38502,18 +40220,25 @@ pub mod types {
     ///          "secret": "123e4567-e89b-12d3-a456-426614174000"
     ///        }
     ///      ],
-    ///      "type": "object",
-    ///      "properties": {
-    ///        "secret": {
-    ///          "description": "Use the root-level `secret` field instead. Maintained for backward compatibility only.",
-    ///          "deprecated": true,
-    ///          "examples": [
-    ///            "123e4567-e89b-12d3-a456-426614174000"
-    ///          ],
-    ///          "type": "string",
-    ///          "format": "uuid"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Metadata"
+    ///        },
+    ///        {
+    ///          "type": "object",
+    ///          "properties": {
+    ///            "secret": {
+    ///              "description": "Use the root-level `secret` field instead. Maintained for backward compatibility only.",
+    ///              "deprecated": true,
+    ///              "examples": [
+    ///                "123e4567-e89b-12d3-a456-426614174000"
+    ///              ],
+    ///              "type": "string",
+    ///              "format": "uuid"
+    ///            }
+    ///          }
     ///        }
-    ///      }
+    ///      ]
     ///    },
     ///    "secret": {
     ///      "description": "Secret for webhook signature validation.",
@@ -38545,7 +40270,7 @@ pub mod types {
         pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
         ///Description of the webhook subscription.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-        pub description: ::std::option::Option<::std::string::String>,
+        pub description: ::std::option::Option<Description>,
         /**Types of events to subscribe to. Event types follow a three-part dot-separated format:
         service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
         */
@@ -38554,22 +40279,6 @@ pub mod types {
         ///Whether the subscription is enabled.
         #[serde(rename = "isEnabled")]
         pub is_enabled: bool,
-        /**Label key for filtering events. Present when subscription uses traditional single-label format.
-         */
-        #[serde(
-            rename = "labelKey",
-            default,
-            skip_serializing_if = "::std::option::Option::is_none"
-        )]
-        pub label_key: ::std::option::Option<::std::string::String>,
-        /**Label value for filtering events. Present when subscription uses traditional single-label format.
-         */
-        #[serde(
-            rename = "labelValue",
-            default,
-            skip_serializing_if = "::std::option::Option::is_none"
-        )]
-        pub label_value: ::std::option::Option<::std::string::String>,
         /**Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
         Present when subscription uses multi-label format.
         */
@@ -38609,26 +40318,37 @@ pub mod types {
     ///      "secret": "123e4567-e89b-12d3-a456-426614174000"
     ///    }
     ///  ],
-    ///  "type": "object",
-    ///  "properties": {
-    ///    "secret": {
-    ///      "description": "Use the root-level `secret` field instead. Maintained for backward compatibility only.",
-    ///      "deprecated": true,
-    ///      "examples": [
-    ///        "123e4567-e89b-12d3-a456-426614174000"
-    ///      ],
-    ///      "type": "string",
-    ///      "format": "uuid"
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "properties": {
+    ///        "secret": {
+    ///          "description": "Use the root-level `secret` field instead. Maintained for backward compatibility only.",
+    ///          "deprecated": true,
+    ///          "examples": [
+    ///            "123e4567-e89b-12d3-a456-426614174000"
+    ///          ],
+    ///          "type": "string",
+    ///          "format": "uuid"
+    ///        }
+    ///      }
     ///    }
-    ///  }
+    ///  ]
     ///}
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct WebhookSubscriptionResponseMetadata {
-        ///Use the root-level `secret` field instead. Maintained for backward compatibility only.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub secret: ::std::option::Option<::uuid::Uuid>,
+        #[serde(flatten)]
+        pub extra: ::std::collections::HashMap<
+            ::std::string::String,
+            WebhookSubscriptionResponseMetadataExtraValue,
+        >,
     }
     impl ::std::convert::From<&WebhookSubscriptionResponseMetadata>
         for WebhookSubscriptionResponseMetadata
@@ -38637,67 +40357,107 @@ pub mod types {
             value.clone()
         }
     }
-    impl ::std::default::Default for WebhookSubscriptionResponseMetadata {
-        fn default() -> Self {
-            Self {
-                secret: Default::default(),
-            }
-        }
-    }
     impl WebhookSubscriptionResponseMetadata {
         pub fn builder() -> builder::WebhookSubscriptionResponseMetadata {
             Default::default()
         }
     }
-    /**Request to update an existing webhook subscription. The update format must match
-    the original subscription format (traditional or multi-label).
+    ///`WebhookSubscriptionResponseMetadataExtraValue`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 500,
+    ///  "minLength": 0
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WebhookSubscriptionResponseMetadataExtraValue(::std::string::String);
+    impl ::std::ops::Deref for WebhookSubscriptionResponseMetadataExtraValue {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WebhookSubscriptionResponseMetadataExtraValue> for ::std::string::String {
+        fn from(value: WebhookSubscriptionResponseMetadataExtraValue) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WebhookSubscriptionResponseMetadataExtraValue>
+        for WebhookSubscriptionResponseMetadataExtraValue
+    {
+        fn from(value: &WebhookSubscriptionResponseMetadataExtraValue) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WebhookSubscriptionResponseMetadataExtraValue {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 500usize {
+                return Err("longer than 500 characters".into());
+            }
+            if value.chars().count() < 0usize {
+                return Err("shorter than 0 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WebhookSubscriptionResponseMetadataExtraValue {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WebhookSubscriptionResponseMetadataExtraValue
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WebhookSubscriptionResponseMetadataExtraValue
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WebhookSubscriptionResponseMetadataExtraValue {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**Request to update an existing webhook subscription.
     */
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "Request to update an existing webhook subscription. The update format must match\nthe original subscription format (traditional or multi-label).\n",
+    ///  "description": "Request to update an existing webhook subscription.\n",
     ///  "type": "object",
-    ///  "oneOf": [
-    ///    {
-    ///      "title": "Traditional single-label update format",
-    ///      "not": {
-    ///        "required": [
-    ///          "labels"
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "title": "Multi-label update format with total overlap logic",
-    ///      "not": {
-    ///        "anyOf": [
-    ///          {
-    ///            "required": [
-    ///              "labelKey"
-    ///            ]
-    ///          },
-    ///          {
-    ///            "required": [
-    ///              "labelValue"
-    ///            ]
-    ///          }
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labels",
-    ///        "target"
-    ///      ]
-    ///    }
+    ///  "required": [
+    ///    "eventTypes",
+    ///    "isEnabled",
+    ///    "target"
     ///  ],
     ///  "properties": {
     ///    "description": {
@@ -38705,7 +40465,11 @@ pub mod types {
     ///      "examples": [
     ///        "Updated subscription for token transfer events"
     ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Description"
+    ///        }
+    ///      ]
     ///    },
     ///    "eventTypes": {
     ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
@@ -38726,26 +40490,13 @@ pub mod types {
     ///      ],
     ///      "type": "boolean"
     ///    },
-    ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///      "examples": [
-    ///        "contract_address"
-    ///      ],
-    ///      "type": "string"
-    ///    },
-    ///    "labelValue": {
-    ///      "description": "Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///      "examples": [
-    ///        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///      ],
-    ///      "type": "string"
-    ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\nOmit to receive all events for the selected event types.\n",
     ///      "examples": [
     ///        {
-    ///          "env": "prod",
-    ///          "service": "api"
+    ///          "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///          "event_name": "Transfer",
+    ///          "network": "base-mainnet"
     ///        }
     ///      ],
     ///      "type": "object",
@@ -38754,15 +40505,7 @@ pub mod types {
     ///      }
     ///    },
     ///    "metadata": {
-    ///      "description": "Additional metadata for the subscription.",
-    ///      "examples": [
-    ///        {
-    ///          "updated_field": "updated_value",
-    ///          "webhook_version": "v2"
-    ///        }
-    ///      ],
-    ///      "type": "object",
-    ///      "additionalProperties": true
+    ///      "$ref": "#/components/schemas/Metadata"
     ///    },
     ///    "target": {
     ///      "$ref": "#/components/schemas/WebhookTarget"
@@ -38772,312 +40515,42 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    #[serde(untagged)]
-    pub enum WebhookSubscriptionUpdateRequest {
-        Variant0(WebhookSubscriptionUpdateRequestVariant0),
-        Variant1(WebhookSubscriptionUpdateRequestVariant1),
+    pub struct WebhookSubscriptionUpdateRequest {
+        ///Description of the webhook subscription.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub description: ::std::option::Option<Description>,
+        /**Types of events to subscribe to. Event types follow a three-part dot-separated format:
+        service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+        */
+        #[serde(rename = "eventTypes")]
+        pub event_types: ::std::vec::Vec<::std::string::String>,
+        ///Whether the subscription is enabled.
+        #[serde(rename = "isEnabled")]
+        pub is_enabled: bool,
+        /**Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+
+        **Note:** Currently, labels are supported for onchain webhooks only.
+
+        See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+        Omit to receive all events for the selected event types.
+        */
+        #[serde(
+            default,
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+        )]
+        pub labels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        pub target: WebhookTarget,
     }
-    impl ::std::convert::From<&Self> for WebhookSubscriptionUpdateRequest {
+    impl ::std::convert::From<&WebhookSubscriptionUpdateRequest> for WebhookSubscriptionUpdateRequest {
         fn from(value: &WebhookSubscriptionUpdateRequest) -> Self {
             value.clone()
         }
     }
-    impl ::std::convert::From<WebhookSubscriptionUpdateRequestVariant0>
-        for WebhookSubscriptionUpdateRequest
-    {
-        fn from(value: WebhookSubscriptionUpdateRequestVariant0) -> Self {
-            Self::Variant0(value)
-        }
-    }
-    impl ::std::convert::From<WebhookSubscriptionUpdateRequestVariant1>
-        for WebhookSubscriptionUpdateRequest
-    {
-        fn from(value: WebhookSubscriptionUpdateRequestVariant1) -> Self {
-            Self::Variant1(value)
-        }
-    }
-    ///`WebhookSubscriptionUpdateRequestVariant0`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "allOf": [
-    ///    {
-    ///      "type": "object",
-    ///      "properties": {
-    ///        "description": {
-    ///          "description": "Description of the webhook subscription.",
-    ///          "examples": [
-    ///            "Updated subscription for token transfer events"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
-    ///          "examples": [
-    ///            [
-    ///              "onchain.activity.detected"
-    ///            ]
-    ///          ],
-    ///          "type": "array",
-    ///          "items": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "isEnabled": {
-    ///          "description": "Whether the subscription is enabled.",
-    ///          "examples": [
-    ///            false
-    ///          ],
-    ///          "type": "boolean"
-    ///        },
-    ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "contract_address"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
-    ///          "examples": [
-    ///            {
-    ///              "env": "prod",
-    ///              "service": "api"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "metadata": {
-    ///          "description": "Additional metadata for the subscription.",
-    ///          "examples": [
-    ///            {
-    ///              "updated_field": "updated_value",
-    ///              "webhook_version": "v2"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": true
-    ///        },
-    ///        "target": {
-    ///          "$ref": "#/components/schemas/WebhookTarget"
-    ///        }
-    ///      }
-    ///    },
-    ///    {
-    ///      "title": "Traditional single-label update format",
-    ///      "not": {
-    ///        "required": [
-    ///          "labels"
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "not": {
-    ///        "title": "Multi-label update format with total overlap logic",
-    ///        "not": {
-    ///          "anyOf": [
-    ///            {
-    ///              "required": [
-    ///                "labelKey"
-    ///              ]
-    ///            },
-    ///            {
-    ///              "required": [
-    ///                "labelValue"
-    ///              ]
-    ///            }
-    ///          ]
-    ///        },
-    ///        "required": [
-    ///          "eventTypes",
-    ///          "isEnabled",
-    ///          "labels",
-    ///          "target"
-    ///        ]
-    ///      }
-    ///    }
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    #[serde(deny_unknown_fields)]
-    pub enum WebhookSubscriptionUpdateRequestVariant0 {}
-    impl ::std::convert::From<&Self> for WebhookSubscriptionUpdateRequestVariant0 {
-        fn from(value: &WebhookSubscriptionUpdateRequestVariant0) -> Self {
-            value.clone()
-        }
-    }
-    ///`WebhookSubscriptionUpdateRequestVariant1`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "allOf": [
-    ///    {
-    ///      "type": "object",
-    ///      "properties": {
-    ///        "description": {
-    ///          "description": "Description of the webhook subscription.",
-    ///          "examples": [
-    ///            "Updated subscription for token transfer events"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
-    ///          "examples": [
-    ///            [
-    ///              "onchain.activity.detected"
-    ///            ]
-    ///          ],
-    ///          "type": "array",
-    ///          "items": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "isEnabled": {
-    ///          "description": "Whether the subscription is enabled.",
-    ///          "examples": [
-    ///            false
-    ///          ],
-    ///          "type": "boolean"
-    ///        },
-    ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "contract_address"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
-    ///          "examples": [
-    ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ///          ],
-    ///          "type": "string"
-    ///        },
-    ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
-    ///          "examples": [
-    ///            {
-    ///              "env": "prod",
-    ///              "service": "api"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "metadata": {
-    ///          "description": "Additional metadata for the subscription.",
-    ///          "examples": [
-    ///            {
-    ///              "updated_field": "updated_value",
-    ///              "webhook_version": "v2"
-    ///            }
-    ///          ],
-    ///          "type": "object",
-    ///          "additionalProperties": true
-    ///        },
-    ///        "target": {
-    ///          "$ref": "#/components/schemas/WebhookTarget"
-    ///        }
-    ///      }
-    ///    },
-    ///    {
-    ///      "title": "Multi-label update format with total overlap logic",
-    ///      "not": {
-    ///        "anyOf": [
-    ///          {
-    ///            "required": [
-    ///              "labelKey"
-    ///            ]
-    ///          },
-    ///          {
-    ///            "required": [
-    ///              "labelValue"
-    ///            ]
-    ///          }
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labels",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "not": {
-    ///        "title": "Traditional single-label update format",
-    ///        "not": {
-    ///          "required": [
-    ///            "labels"
-    ///          ]
-    ///        },
-    ///        "required": [
-    ///          "eventTypes",
-    ///          "isEnabled",
-    ///          "labelKey",
-    ///          "labelValue",
-    ///          "target"
-    ///        ]
-    ///      }
-    ///    }
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    #[serde(deny_unknown_fields)]
-    pub enum WebhookSubscriptionUpdateRequestVariant1 {}
-    impl ::std::convert::From<&Self> for WebhookSubscriptionUpdateRequestVariant1 {
-        fn from(value: &WebhookSubscriptionUpdateRequestVariant1) -> Self {
-            value.clone()
+    impl WebhookSubscriptionUpdateRequest {
+        pub fn builder() -> builder::WebhookSubscriptionUpdateRequest {
+            Default::default()
         }
     }
     /**Target configuration for webhook delivery.
@@ -39164,13 +40637,13 @@ pub mod types {
     ///    {
     ///      "authorization": {
     ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///        "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///        "validAfter": "1716150000",
     ///        "validBefore": "1716150000",
     ///        "value": "1000000000000000000"
     ///      },
-    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///    }
     ///  ],
     ///  "type": "object",
@@ -39184,7 +40657,7 @@ pub mod types {
     ///      "examples": [
     ///        {
     ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///          "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///          "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///          "validAfter": "1716150000",
     ///          "validBefore": "1716150000",
@@ -39210,11 +40683,12 @@ pub mod types {
     ///          "pattern": "^0x[0-9a-fA-F]{40}$"
     ///        },
     ///        "nonce": {
-    ///          "description": "The hex-encoded nonce of the payment.",
+    ///          "description": "The hex-encoded nonce of the payment (bytes32).",
     ///          "examples": [
-    ///            "0x1234567890abcdef1234567890abcdef12345678"
+    ///            "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
     ///          ],
-    ///          "type": "string"
+    ///          "type": "string",
+    ///          "pattern": "^0x[0-9a-fA-F]{64}$"
     ///        },
     ///        "to": {
     ///          "description": "The 0x-prefixed, checksum EVM address of the recipient of the payment.",
@@ -39248,11 +40722,12 @@ pub mod types {
     ///      }
     ///    },
     ///    "signature": {
-    ///      "description": "The EIP-712 hex-encoded signature of the ERC-3009 authorization message.",
+    ///      "description": "The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.",
     ///      "examples": [
-    ///        "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///        "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///      ],
-    ///      "type": "string"
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{130,}$"
     ///    }
     ///  }
     ///}
@@ -39261,8 +40736,8 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct X402ExactEvmPayload {
         pub authorization: X402ExactEvmPayloadAuthorization,
-        ///The EIP-712 hex-encoded signature of the ERC-3009 authorization message.
-        pub signature: ::std::string::String,
+        ///The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
+        pub signature: X402ExactEvmPayloadSignature,
     }
     impl ::std::convert::From<&X402ExactEvmPayload> for X402ExactEvmPayload {
         fn from(value: &X402ExactEvmPayload) -> Self {
@@ -39284,7 +40759,7 @@ pub mod types {
     ///  "examples": [
     ///    {
     ///      "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///      "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///      "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///      "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///      "validAfter": "1716150000",
     ///      "validBefore": "1716150000",
@@ -39310,11 +40785,12 @@ pub mod types {
     ///      "pattern": "^0x[0-9a-fA-F]{40}$"
     ///    },
     ///    "nonce": {
-    ///      "description": "The hex-encoded nonce of the payment.",
+    ///      "description": "The hex-encoded nonce of the payment (bytes32).",
     ///      "examples": [
-    ///        "0x1234567890abcdef1234567890abcdef12345678"
+    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
     ///      ],
-    ///      "type": "string"
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
     ///    },
     ///    "to": {
     ///      "description": "The 0x-prefixed, checksum EVM address of the recipient of the payment.",
@@ -39353,8 +40829,8 @@ pub mod types {
     pub struct X402ExactEvmPayloadAuthorization {
         ///The 0x-prefixed, checksum EVM address of the sender of the payment.
         pub from: X402ExactEvmPayloadAuthorizationFrom,
-        ///The hex-encoded nonce of the payment.
-        pub nonce: ::std::string::String,
+        ///The hex-encoded nonce of the payment (bytes32).
+        pub nonce: X402ExactEvmPayloadAuthorizationNonce,
         ///The 0x-prefixed, checksum EVM address of the recipient of the payment.
         pub to: X402ExactEvmPayloadAuthorizationTo,
         ///The unix timestamp after which the payment is valid.
@@ -39459,6 +40935,89 @@ pub mod types {
                 })
         }
     }
+    ///The hex-encoded nonce of the payment (bytes32).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hex-encoded nonce of the payment (bytes32).",
+    ///  "examples": [
+    ///    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPayloadAuthorizationNonce(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPayloadAuthorizationNonce {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPayloadAuthorizationNonce> for ::std::string::String {
+        fn from(value: X402ExactEvmPayloadAuthorizationNonce) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPayloadAuthorizationNonce>
+        for X402ExactEvmPayloadAuthorizationNonce
+    {
+        fn from(value: &X402ExactEvmPayloadAuthorizationNonce) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPayloadAuthorizationNonce {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPayloadAuthorizationNonce {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402ExactEvmPayloadAuthorizationNonce {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402ExactEvmPayloadAuthorizationNonce {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPayloadAuthorizationNonce {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///The 0x-prefixed, checksum EVM address of the recipient of the payment.
     ///
     /// <details><summary>JSON schema</summary>
@@ -39542,6 +41101,1154 @@ pub mod types {
                 })
         }
     }
+    ///The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.",
+    ///  "examples": [
+    ///    "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{130,}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPayloadSignature(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPayloadSignature {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPayloadSignature> for ::std::string::String {
+        fn from(value: X402ExactEvmPayloadSignature) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPayloadSignature> for X402ExactEvmPayloadSignature {
+        fn from(value: &X402ExactEvmPayloadSignature) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPayloadSignature {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{130,}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{130,}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPayloadSignature {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402ExactEvmPayloadSignature {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402ExactEvmPayloadSignature {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPayloadSignature {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "x402ExactEvmPermit2Payload",
+    ///  "description": "The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.",
+    ///  "examples": [
+    ///    {
+    ///      "permit2Authorization": {
+    ///        "deadline": "1716150000",
+    ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "nonce": "12345678901234567890",
+    ///        "permitted": {
+    ///          "amount": "1000000",
+    ///          "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///        },
+    ///        "spender": "0x4020615294c913F045dc10f0a5cdEbd86c280001",
+    ///        "witness": {
+    ///          "extra": "0x",
+    ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///          "validAfter": "1716150000"
+    ///        }
+    ///      },
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "permit2Authorization",
+    ///    "signature"
+    ///  ],
+    ///  "properties": {
+    ///    "permit2Authorization": {
+    ///      "description": "The authorization data for the Permit2 PermitWitnessTransferFrom message.",
+    ///      "examples": [
+    ///        {
+    ///          "deadline": "1716150000",
+    ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///          "nonce": "12345678901234567890",
+    ///          "permitted": {
+    ///            "amount": "1000000",
+    ///            "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///          },
+    ///          "spender": "0x4020615294c913F045dc10f0a5cdEbd86c280001",
+    ///          "witness": {
+    ///            "extra": "0x",
+    ///            "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "validAfter": "1716150000"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "required": [
+    ///        "deadline",
+    ///        "from",
+    ///        "nonce",
+    ///        "permitted",
+    ///        "spender",
+    ///        "witness"
+    ///      ],
+    ///      "properties": {
+    ///        "deadline": {
+    ///          "description": "The unix timestamp before which the permit is valid.",
+    ///          "examples": [
+    ///            "1716150000"
+    ///          ],
+    ///          "type": "string"
+    ///        },
+    ///        "from": {
+    ///          "description": "The 0x-prefixed, checksum EVM address of the sender of the payment.",
+    ///          "examples": [
+    ///            "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///          ],
+    ///          "type": "string",
+    ///          "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///        },
+    ///        "nonce": {
+    ///          "description": "The Permit2 nonce as a decimal string (uint256).",
+    ///          "examples": [
+    ///            "12345678901234567890"
+    ///          ],
+    ///          "type": "string",
+    ///          "pattern": "^[0-9]+$"
+    ///        },
+    ///        "permitted": {
+    ///          "description": "The token permissions for the transfer.",
+    ///          "type": "object",
+    ///          "required": [
+    ///            "amount",
+    ///            "token"
+    ///          ],
+    ///          "properties": {
+    ///            "amount": {
+    ///              "description": "The amount to transfer in atomic units.",
+    ///              "examples": [
+    ///                "1000000"
+    ///              ],
+    ///              "type": "string"
+    ///            },
+    ///            "token": {
+    ///              "description": "The 0x-prefixed, checksum EVM address of the token to transfer.",
+    ///              "examples": [
+    ///                "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///              ],
+    ///              "type": "string",
+    ///              "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///            }
+    ///          }
+    ///        },
+    ///        "spender": {
+    ///          "description": "The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).",
+    ///          "examples": [
+    ///            "0x4020615294c913F045dc10f0a5cdEbd86c280001"
+    ///          ],
+    ///          "type": "string",
+    ///          "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///        },
+    ///        "witness": {
+    ///          "description": "The witness data containing payment details.",
+    ///          "type": "object",
+    ///          "required": [
+    ///            "to",
+    ///            "validAfter"
+    ///          ],
+    ///          "properties": {
+    ///            "extra": {
+    ///              "description": "Optional hex-encoded extra data.",
+    ///              "examples": [
+    ///                "0x"
+    ///              ],
+    ///              "type": "string",
+    ///              "pattern": "^0x[0-9a-fA-F]*$"
+    ///            },
+    ///            "to": {
+    ///              "description": "The 0x-prefixed, checksum EVM address of the recipient.",
+    ///              "examples": [
+    ///                "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///              ],
+    ///              "type": "string",
+    ///              "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///            },
+    ///            "validAfter": {
+    ///              "description": "The unix timestamp after which the payment is valid.",
+    ///              "examples": [
+    ///                "1716150000"
+    ///              ],
+    ///              "type": "string"
+    ///            }
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    "signature": {
+    ///      "description": "The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.",
+    ///      "examples": [
+    ///        "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{130,}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402ExactEvmPermit2Payload {
+        #[serde(rename = "permit2Authorization")]
+        pub permit2_authorization: X402ExactEvmPermit2PayloadPermit2Authorization,
+        ///The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
+        pub signature: X402ExactEvmPermit2PayloadSignature,
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2Payload> for X402ExactEvmPermit2Payload {
+        fn from(value: &X402ExactEvmPermit2Payload) -> Self {
+            value.clone()
+        }
+    }
+    impl X402ExactEvmPermit2Payload {
+        pub fn builder() -> builder::X402ExactEvmPermit2Payload {
+            Default::default()
+        }
+    }
+    ///The authorization data for the Permit2 PermitWitnessTransferFrom message.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The authorization data for the Permit2 PermitWitnessTransferFrom message.",
+    ///  "examples": [
+    ///    {
+    ///      "deadline": "1716150000",
+    ///      "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///      "nonce": "12345678901234567890",
+    ///      "permitted": {
+    ///        "amount": "1000000",
+    ///        "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///      },
+    ///      "spender": "0x4020615294c913F045dc10f0a5cdEbd86c280001",
+    ///      "witness": {
+    ///        "extra": "0x",
+    ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "validAfter": "1716150000"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "deadline",
+    ///    "from",
+    ///    "nonce",
+    ///    "permitted",
+    ///    "spender",
+    ///    "witness"
+    ///  ],
+    ///  "properties": {
+    ///    "deadline": {
+    ///      "description": "The unix timestamp before which the permit is valid.",
+    ///      "examples": [
+    ///        "1716150000"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "from": {
+    ///      "description": "The 0x-prefixed, checksum EVM address of the sender of the payment.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "nonce": {
+    ///      "description": "The Permit2 nonce as a decimal string (uint256).",
+    ///      "examples": [
+    ///        "12345678901234567890"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[0-9]+$"
+    ///    },
+    ///    "permitted": {
+    ///      "description": "The token permissions for the transfer.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "amount",
+    ///        "token"
+    ///      ],
+    ///      "properties": {
+    ///        "amount": {
+    ///          "description": "The amount to transfer in atomic units.",
+    ///          "examples": [
+    ///            "1000000"
+    ///          ],
+    ///          "type": "string"
+    ///        },
+    ///        "token": {
+    ///          "description": "The 0x-prefixed, checksum EVM address of the token to transfer.",
+    ///          "examples": [
+    ///            "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///          ],
+    ///          "type": "string",
+    ///          "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///        }
+    ///      }
+    ///    },
+    ///    "spender": {
+    ///      "description": "The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).",
+    ///      "examples": [
+    ///        "0x4020615294c913F045dc10f0a5cdEbd86c280001"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "witness": {
+    ///      "description": "The witness data containing payment details.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "to",
+    ///        "validAfter"
+    ///      ],
+    ///      "properties": {
+    ///        "extra": {
+    ///          "description": "Optional hex-encoded extra data.",
+    ///          "examples": [
+    ///            "0x"
+    ///          ],
+    ///          "type": "string",
+    ///          "pattern": "^0x[0-9a-fA-F]*$"
+    ///        },
+    ///        "to": {
+    ///          "description": "The 0x-prefixed, checksum EVM address of the recipient.",
+    ///          "examples": [
+    ///            "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///          ],
+    ///          "type": "string",
+    ///          "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///        },
+    ///        "validAfter": {
+    ///          "description": "The unix timestamp after which the payment is valid.",
+    ///          "examples": [
+    ///            "1716150000"
+    ///          ],
+    ///          "type": "string"
+    ///        }
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402ExactEvmPermit2PayloadPermit2Authorization {
+        ///The unix timestamp before which the permit is valid.
+        pub deadline: ::std::string::String,
+        ///The 0x-prefixed, checksum EVM address of the sender of the payment.
+        pub from: X402ExactEvmPermit2PayloadPermit2AuthorizationFrom,
+        ///The Permit2 nonce as a decimal string (uint256).
+        pub nonce: X402ExactEvmPermit2PayloadPermit2AuthorizationNonce,
+        pub permitted: X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted,
+        ///The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
+        pub spender: X402ExactEvmPermit2PayloadPermit2AuthorizationSpender,
+        pub witness: X402ExactEvmPermit2PayloadPermit2AuthorizationWitness,
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2Authorization>
+        for X402ExactEvmPermit2PayloadPermit2Authorization
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2Authorization) -> Self {
+            value.clone()
+        }
+    }
+    impl X402ExactEvmPermit2PayloadPermit2Authorization {
+        pub fn builder() -> builder::X402ExactEvmPermit2PayloadPermit2Authorization {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed, checksum EVM address of the sender of the payment.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed, checksum EVM address of the sender of the payment.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationFrom(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadPermit2AuthorizationFrom>
+        for ::std::string::String
+    {
+        fn from(value: X402ExactEvmPermit2PayloadPermit2AuthorizationFrom) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationFrom>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationFrom) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPermit2PayloadPermit2AuthorizationFrom {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The Permit2 nonce as a decimal string (uint256).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Permit2 nonce as a decimal string (uint256).",
+    ///  "examples": [
+    ///    "12345678901234567890"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9]+$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationNonce(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadPermit2AuthorizationNonce>
+        for ::std::string::String
+    {
+        fn from(value: X402ExactEvmPermit2PayloadPermit2AuthorizationNonce) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationNonce>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationNonce) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]+$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[0-9]+$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPermit2PayloadPermit2AuthorizationNonce {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The token permissions for the transfer.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The token permissions for the transfer.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "amount",
+    ///    "token"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "description": "The amount to transfer in atomic units.",
+    ///      "examples": [
+    ///        "1000000"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "token": {
+    ///      "description": "The 0x-prefixed, checksum EVM address of the token to transfer.",
+    ///      "examples": [
+    ///        "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted {
+        ///The amount to transfer in atomic units.
+        pub amount: ::std::string::String,
+        ///The 0x-prefixed, checksum EVM address of the token to transfer.
+        pub token: X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken,
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted) -> Self {
+            value.clone()
+        }
+    }
+    impl X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted {
+        pub fn builder() -> builder::X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed, checksum EVM address of the token to transfer.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed, checksum EVM address of the token to transfer.",
+    ///  "examples": [
+    ///    "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken>
+        for ::std::string::String
+    {
+        fn from(value: X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken
+    {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).",
+    ///  "examples": [
+    ///    "0x4020615294c913F045dc10f0a5cdEbd86c280001"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationSpender(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadPermit2AuthorizationSpender>
+        for ::std::string::String
+    {
+        fn from(value: X402ExactEvmPermit2PayloadPermit2AuthorizationSpender) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationSpender>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationSpender) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPermit2PayloadPermit2AuthorizationSpender {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The witness data containing payment details.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The witness data containing payment details.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "to",
+    ///    "validAfter"
+    ///  ],
+    ///  "properties": {
+    ///    "extra": {
+    ///      "description": "Optional hex-encoded extra data.",
+    ///      "examples": [
+    ///        "0x"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]*$"
+    ///    },
+    ///    "to": {
+    ///      "description": "The 0x-prefixed, checksum EVM address of the recipient.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "validAfter": {
+    ///      "description": "The unix timestamp after which the payment is valid.",
+    ///      "examples": [
+    ///        "1716150000"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationWitness {
+        ///Optional hex-encoded extra data.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub extra:
+            ::std::option::Option<X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra>,
+        ///The 0x-prefixed, checksum EVM address of the recipient.
+        pub to: X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo,
+        ///The unix timestamp after which the payment is valid.
+        #[serde(rename = "validAfter")]
+        pub valid_after: ::std::string::String,
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationWitness>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitness
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationWitness) -> Self {
+            value.clone()
+        }
+    }
+    impl X402ExactEvmPermit2PayloadPermit2AuthorizationWitness {
+        pub fn builder() -> builder::X402ExactEvmPermit2PayloadPermit2AuthorizationWitness {
+            Default::default()
+        }
+    }
+    ///Optional hex-encoded extra data.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Optional hex-encoded extra data.",
+    ///  "examples": [
+    ///    "0x"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]*$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra>
+        for ::std::string::String
+    {
+        fn from(value: X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^0x[0-9a-fA-F]*$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]*$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The 0x-prefixed, checksum EVM address of the recipient.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed, checksum EVM address of the recipient.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo>
+        for ::std::string::String
+    {
+        fn from(value: X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.",
+    ///  "examples": [
+    ///    "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{130,}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402ExactEvmPermit2PayloadSignature(::std::string::String);
+    impl ::std::ops::Deref for X402ExactEvmPermit2PayloadSignature {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2PayloadSignature> for ::std::string::String {
+        fn from(value: X402ExactEvmPermit2PayloadSignature) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402ExactEvmPermit2PayloadSignature>
+        for X402ExactEvmPermit2PayloadSignature
+    {
+        fn from(value: &X402ExactEvmPermit2PayloadSignature) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402ExactEvmPermit2PayloadSignature {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{130,}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{130,}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402ExactEvmPermit2PayloadSignature {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402ExactEvmPermit2PayloadSignature {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402ExactEvmPermit2PayloadSignature {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402ExactEvmPermit2PayloadSignature {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
     ///
     /// <details><summary>JSON schema</summary>
@@ -39586,13 +42293,14 @@ pub mod types {
             Default::default()
         }
     }
-    ///The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    /**The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    For EVM networks, smart account signatures can be longer than 65 bytes.*/
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.",
+    ///  "description": "The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.\nFor EVM networks, smart account signatures can be longer than 65 bytes.",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
@@ -39680,11 +42388,15 @@ pub mod types {
     ///  "type": "object",
     ///  "properties": {
     ///    "description": {
-    ///      "description": "The description of the resource.",
+    ///      "description": "A human-readable description of the resource.",
     ///      "examples": [
     ///        "Premium API access for data analysis"
     ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Description"
+    ///        }
+    ///      ]
     ///    },
     ///    "mimeType": {
     ///      "description": "The MIME type of the resource response.",
@@ -39706,9 +42418,9 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct X402ResourceInfo {
-        ///The description of the resource.
+        ///A human-readable description of the resource.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-        pub description: ::std::option::Option<::std::string::String>,
+        pub description: ::std::option::Option<Description>,
         ///The MIME type of the resource response.
         #[serde(
             rename = "mimeType",
@@ -39758,14 +42470,47 @@ pub mod types {
     ///    "invalid_payment_requirements",
     ///    "invalid_payload",
     ///    "invalid_exact_evm_payload_authorization_value",
+    ///    "invalid_exact_evm_payload_authorization_value_too_low",
     ///    "invalid_exact_evm_payload_authorization_valid_after",
     ///    "invalid_exact_evm_payload_authorization_valid_before",
     ///    "invalid_exact_evm_payload_authorization_typed_data_message",
     ///    "invalid_exact_evm_payload_authorization_from_address_kyt",
     ///    "invalid_exact_evm_payload_authorization_to_address_kyt",
+    ///    "invalid_exact_evm_payload_signature",
     ///    "invalid_exact_evm_payload_signature_address",
+    ///    "invalid_exact_evm_permit2_payload_allowance_required",
+    ///    "invalid_exact_evm_permit2_payload_signature",
+    ///    "invalid_exact_evm_permit2_payload_deadline",
+    ///    "invalid_exact_evm_permit2_payload_valid_after",
+    ///    "invalid_exact_evm_permit2_payload_spender",
+    ///    "invalid_exact_evm_permit2_payload_recipient",
+    ///    "invalid_exact_evm_permit2_payload_amount",
+    ///    "invalid_exact_svm_payload_transaction",
+    ///    "invalid_exact_svm_payload_transaction_amount_mismatch",
+    ///    "invalid_exact_svm_payload_transaction_create_ata_instruction",
+    ///    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee",
+    ///    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset",
+    ///    "invalid_exact_svm_payload_transaction_instructions",
+    ///    "invalid_exact_svm_payload_transaction_instructions_length",
+    ///    "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction",
+    ///    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction",
+    ///    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high",
+    ///    "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked",
+    ///    "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked",
+    ///    "invalid_exact_svm_payload_transaction_not_a_transfer_instruction",
+    ///    "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata",
+    ///    "invalid_exact_svm_payload_transaction_receiver_ata_not_found",
+    ///    "invalid_exact_svm_payload_transaction_sender_ata_not_found",
+    ///    "invalid_exact_svm_payload_transaction_simulation_failed",
+    ///    "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
+    ///    "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts",
+    ///    "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
+    ///    "settle_exact_evm_transaction_confirmation_timed_out",
+    ///    "settle_exact_node_failure",
+    ///    "settle_exact_failed_onchain",
     ///    "settle_exact_svm_block_height_exceeded",
-    ///    "settle_exact_svm_transaction_confirmation_timed_out"
+    ///    "settle_exact_svm_transaction_confirmation_timed_out",
+    ///    "unknown_error"
     ///  ]
     ///}
     /// ```
@@ -39797,6 +42542,8 @@ pub mod types {
         InvalidPayload,
         #[serde(rename = "invalid_exact_evm_payload_authorization_value")]
         InvalidExactEvmPayloadAuthorizationValue,
+        #[serde(rename = "invalid_exact_evm_payload_authorization_value_too_low")]
+        InvalidExactEvmPayloadAuthorizationValueTooLow,
         #[serde(rename = "invalid_exact_evm_payload_authorization_valid_after")]
         InvalidExactEvmPayloadAuthorizationValidAfter,
         #[serde(rename = "invalid_exact_evm_payload_authorization_valid_before")]
@@ -39807,12 +42554,92 @@ pub mod types {
         InvalidExactEvmPayloadAuthorizationFromAddressKyt,
         #[serde(rename = "invalid_exact_evm_payload_authorization_to_address_kyt")]
         InvalidExactEvmPayloadAuthorizationToAddressKyt,
+        #[serde(rename = "invalid_exact_evm_payload_signature")]
+        InvalidExactEvmPayloadSignature,
         #[serde(rename = "invalid_exact_evm_payload_signature_address")]
         InvalidExactEvmPayloadSignatureAddress,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_allowance_required")]
+        InvalidExactEvmPermit2PayloadAllowanceRequired,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_signature")]
+        InvalidExactEvmPermit2PayloadSignature,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_deadline")]
+        InvalidExactEvmPermit2PayloadDeadline,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_valid_after")]
+        InvalidExactEvmPermit2PayloadValidAfter,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_spender")]
+        InvalidExactEvmPermit2PayloadSpender,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_recipient")]
+        InvalidExactEvmPermit2PayloadRecipient,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_amount")]
+        InvalidExactEvmPermit2PayloadAmount,
+        #[serde(rename = "invalid_exact_svm_payload_transaction")]
+        InvalidExactSvmPayloadTransaction,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_amount_mismatch")]
+        InvalidExactSvmPayloadTransactionAmountMismatch,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_create_ata_instruction")]
+        InvalidExactSvmPayloadTransactionCreateAtaInstruction,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+        )]
+        InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
+        )]
+        InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_instructions")]
+        InvalidExactSvmPayloadTransactionInstructions,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_instructions_length")]
+        InvalidExactSvmPayloadTransactionInstructionsLength,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction")]
+        InvalidExactSvmPayloadTransactionNotATransferInstruction,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata")]
+        InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_receiver_ata_not_found")]
+        InvalidExactSvmPayloadTransactionReceiverAtaNotFound,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_sender_ata_not_found")]
+        InvalidExactSvmPayloadTransactionSenderAtaNotFound,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_simulation_failed")]
+        InvalidExactSvmPayloadTransactionSimulationFailed,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata")]
+        InvalidExactSvmPayloadTransactionTransferToIncorrectAta,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
+        )]
+        InvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds")]
+        InvalidExactSvmPayloadTransactionFeePayerTransferringFunds,
+        #[serde(rename = "settle_exact_evm_transaction_confirmation_timed_out")]
+        SettleExactEvmTransactionConfirmationTimedOut,
+        #[serde(rename = "settle_exact_node_failure")]
+        SettleExactNodeFailure,
+        #[serde(rename = "settle_exact_failed_onchain")]
+        SettleExactFailedOnchain,
         #[serde(rename = "settle_exact_svm_block_height_exceeded")]
         SettleExactSvmBlockHeightExceeded,
         #[serde(rename = "settle_exact_svm_transaction_confirmation_timed_out")]
         SettleExactSvmTransactionConfirmationTimedOut,
+        #[serde(rename = "unknown_error")]
+        UnknownError,
     }
     impl ::std::convert::From<&Self> for X402SettleErrorReason {
         fn from(value: &X402SettleErrorReason) -> Self {
@@ -39826,10 +42653,15 @@ pub mod types {
                 Self::InvalidScheme => f.write_str("invalid_scheme"),
                 Self::InvalidNetwork => f.write_str("invalid_network"),
                 Self::InvalidX402Version => f.write_str("invalid_x402_version"),
-                Self::InvalidPaymentRequirements => f.write_str("invalid_payment_requirements"),
+                Self::InvalidPaymentRequirements => {
+                    f.write_str("invalid_payment_requirements")
+                }
                 Self::InvalidPayload => f.write_str("invalid_payload"),
                 Self::InvalidExactEvmPayloadAuthorizationValue => {
                     f.write_str("invalid_exact_evm_payload_authorization_value")
+                }
+                Self::InvalidExactEvmPayloadAuthorizationValueTooLow => {
+                    f.write_str("invalid_exact_evm_payload_authorization_value_too_low")
                 }
                 Self::InvalidExactEvmPayloadAuthorizationValidAfter => {
                     f.write_str("invalid_exact_evm_payload_authorization_valid_after")
@@ -39838,16 +42670,145 @@ pub mod types {
                     f.write_str("invalid_exact_evm_payload_authorization_valid_before")
                 }
                 Self::InvalidExactEvmPayloadAuthorizationTypedDataMessage => {
-                    f.write_str("invalid_exact_evm_payload_authorization_typed_data_message")
+                    f.write_str(
+                        "invalid_exact_evm_payload_authorization_typed_data_message",
+                    )
                 }
                 Self::InvalidExactEvmPayloadAuthorizationFromAddressKyt => {
-                    f.write_str("invalid_exact_evm_payload_authorization_from_address_kyt")
+                    f.write_str(
+                        "invalid_exact_evm_payload_authorization_from_address_kyt",
+                    )
                 }
                 Self::InvalidExactEvmPayloadAuthorizationToAddressKyt => {
                     f.write_str("invalid_exact_evm_payload_authorization_to_address_kyt")
                 }
+                Self::InvalidExactEvmPayloadSignature => {
+                    f.write_str("invalid_exact_evm_payload_signature")
+                }
                 Self::InvalidExactEvmPayloadSignatureAddress => {
                     f.write_str("invalid_exact_evm_payload_signature_address")
+                }
+                Self::InvalidExactEvmPermit2PayloadAllowanceRequired => {
+                    f.write_str("invalid_exact_evm_permit2_payload_allowance_required")
+                }
+                Self::InvalidExactEvmPermit2PayloadSignature => {
+                    f.write_str("invalid_exact_evm_permit2_payload_signature")
+                }
+                Self::InvalidExactEvmPermit2PayloadDeadline => {
+                    f.write_str("invalid_exact_evm_permit2_payload_deadline")
+                }
+                Self::InvalidExactEvmPermit2PayloadValidAfter => {
+                    f.write_str("invalid_exact_evm_permit2_payload_valid_after")
+                }
+                Self::InvalidExactEvmPermit2PayloadSpender => {
+                    f.write_str("invalid_exact_evm_permit2_payload_spender")
+                }
+                Self::InvalidExactEvmPermit2PayloadRecipient => {
+                    f.write_str("invalid_exact_evm_permit2_payload_recipient")
+                }
+                Self::InvalidExactEvmPermit2PayloadAmount => {
+                    f.write_str("invalid_exact_evm_permit2_payload_amount")
+                }
+                Self::InvalidExactSvmPayloadTransaction => {
+                    f.write_str("invalid_exact_svm_payload_transaction")
+                }
+                Self::InvalidExactSvmPayloadTransactionAmountMismatch => {
+                    f.write_str("invalid_exact_svm_payload_transaction_amount_mismatch")
+                }
+                Self::InvalidExactSvmPayloadTransactionCreateAtaInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_create_ata_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructions => {
+                    f.write_str("invalid_exact_svm_payload_transaction_instructions")
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsLength => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_length",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionNotATransferInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_not_a_transfer_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionReceiverAtaNotFound => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_receiver_ata_not_found",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionSenderAtaNotFound => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_sender_ata_not_found",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionSimulationFailed => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_simulation_failed",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionTransferToIncorrectAta => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionFeePayerTransferringFunds => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
+                    )
+                }
+                Self::SettleExactEvmTransactionConfirmationTimedOut => {
+                    f.write_str("settle_exact_evm_transaction_confirmation_timed_out")
+                }
+                Self::SettleExactNodeFailure => f.write_str("settle_exact_node_failure"),
+                Self::SettleExactFailedOnchain => {
+                    f.write_str("settle_exact_failed_onchain")
                 }
                 Self::SettleExactSvmBlockHeightExceeded => {
                     f.write_str("settle_exact_svm_block_height_exceeded")
@@ -39855,6 +42816,7 @@ pub mod types {
                 Self::SettleExactSvmTransactionConfirmationTimedOut => {
                     f.write_str("settle_exact_svm_transaction_confirmation_timed_out")
                 }
+                Self::UnknownError => f.write_str("unknown_error"),
             }
         }
     }
@@ -39871,6 +42833,9 @@ pub mod types {
                 "invalid_exact_evm_payload_authorization_value" => {
                     Ok(Self::InvalidExactEvmPayloadAuthorizationValue)
                 }
+                "invalid_exact_evm_payload_authorization_value_too_low" => {
+                    Ok(Self::InvalidExactEvmPayloadAuthorizationValueTooLow)
+                }
                 "invalid_exact_evm_payload_authorization_valid_after" => {
                     Ok(Self::InvalidExactEvmPayloadAuthorizationValidAfter)
                 }
@@ -39886,15 +42851,121 @@ pub mod types {
                 "invalid_exact_evm_payload_authorization_to_address_kyt" => {
                     Ok(Self::InvalidExactEvmPayloadAuthorizationToAddressKyt)
                 }
+                "invalid_exact_evm_payload_signature" => {
+                    Ok(Self::InvalidExactEvmPayloadSignature)
+                }
                 "invalid_exact_evm_payload_signature_address" => {
                     Ok(Self::InvalidExactEvmPayloadSignatureAddress)
                 }
+                "invalid_exact_evm_permit2_payload_allowance_required" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadAllowanceRequired)
+                }
+                "invalid_exact_evm_permit2_payload_signature" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadSignature)
+                }
+                "invalid_exact_evm_permit2_payload_deadline" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadDeadline)
+                }
+                "invalid_exact_evm_permit2_payload_valid_after" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadValidAfter)
+                }
+                "invalid_exact_evm_permit2_payload_spender" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadSpender)
+                }
+                "invalid_exact_evm_permit2_payload_recipient" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadRecipient)
+                }
+                "invalid_exact_evm_permit2_payload_amount" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadAmount)
+                }
+                "invalid_exact_svm_payload_transaction" => {
+                    Ok(Self::InvalidExactSvmPayloadTransaction)
+                }
+                "invalid_exact_svm_payload_transaction_amount_mismatch" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionAmountMismatch)
+                }
+                "invalid_exact_svm_payload_transaction_create_ata_instruction" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionCreateAtaInstruction)
+                }
+                "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instructions" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionInstructions)
+                }
+                "invalid_exact_svm_payload_transaction_instructions_length" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionInstructionsLength)
+                }
+                "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_not_a_transfer_instruction" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionNotATransferInstruction)
+                }
+                "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta)
+                }
+                "invalid_exact_svm_payload_transaction_receiver_ata_not_found" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionReceiverAtaNotFound)
+                }
+                "invalid_exact_svm_payload_transaction_sender_ata_not_found" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionSenderAtaNotFound)
+                }
+                "invalid_exact_svm_payload_transaction_simulation_failed" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionSimulationFailed)
+                }
+                "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionTransferToIncorrectAta)
+                }
+                "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionFeePayerTransferringFunds)
+                }
+                "settle_exact_evm_transaction_confirmation_timed_out" => {
+                    Ok(Self::SettleExactEvmTransactionConfirmationTimedOut)
+                }
+                "settle_exact_node_failure" => Ok(Self::SettleExactNodeFailure),
+                "settle_exact_failed_onchain" => Ok(Self::SettleExactFailedOnchain),
                 "settle_exact_svm_block_height_exceeded" => {
                     Ok(Self::SettleExactSvmBlockHeightExceeded)
                 }
                 "settle_exact_svm_transaction_confirmation_timed_out" => {
                     Ok(Self::SettleExactSvmTransactionConfirmationTimedOut)
                 }
+                "unknown_error" => Ok(Self::UnknownError),
                 _ => Err("invalid value".into()),
             }
         }
@@ -39919,6 +42990,287 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///The result when x402 payment settlement fails.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The result when x402 payment settlement fails.",
+    ///  "examples": [
+    ///    {
+    ///      "errorReason": "insufficient_funds",
+    ///      "payer": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///      "success": false
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "errorReason",
+    ///    "success"
+    ///  ],
+    ///  "properties": {
+    ///    "errorMessage": {
+    ///      "description": "The message describing the error reason.",
+    ///      "examples": [
+    ///        "Insufficient funds"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "errorReason": {
+    ///      "$ref": "#/components/schemas/x402SettleErrorReason"
+    ///    },
+    ///    "network": {
+    ///      "description": "The network where the settlement occurred.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "payer": {
+    ///      "description": "The onchain address of the client that is paying for the resource.\n\nFor EVM networks, the payer will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the payer will be a base58-encoded Solana address.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///    },
+    ///    "success": {
+    ///      "description": "Indicates whether the payment settlement is successful.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "transaction": {
+    ///      "description": "The transaction of the settlement.\nFor EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.\nFor Solana-based networks, the transaction will be a base58-encoded Solana signature.",
+    ///      "examples": [
+    ///        "0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402SettlePaymentRejection {
+        ///The message describing the error reason.
+        #[serde(
+            rename = "errorMessage",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub error_message: ::std::option::Option<::std::string::String>,
+        #[serde(rename = "errorReason")]
+        pub error_reason: X402SettleErrorReason,
+        ///The network where the settlement occurred.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub network: ::std::option::Option<::std::string::String>,
+        /**The onchain address of the client that is paying for the resource.
+
+        For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+        For Solana-based networks, the payer will be a base58-encoded Solana address.*/
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub payer: ::std::option::Option<X402SettlePaymentRejectionPayer>,
+        ///Indicates whether the payment settlement is successful.
+        pub success: bool,
+        /**The transaction of the settlement.
+        For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+        For Solana-based networks, the transaction will be a base58-encoded Solana signature.*/
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub transaction: ::std::option::Option<X402SettlePaymentRejectionTransaction>,
+    }
+    impl ::std::convert::From<&X402SettlePaymentRejection> for X402SettlePaymentRejection {
+        fn from(value: &X402SettlePaymentRejection) -> Self {
+            value.clone()
+        }
+    }
+    impl X402SettlePaymentRejection {
+        pub fn builder() -> builder::X402SettlePaymentRejection {
+            Default::default()
+        }
+    }
+    /**The onchain address of the client that is paying for the resource.
+
+    For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+    For Solana-based networks, the payer will be a base58-encoded Solana address.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The onchain address of the client that is paying for the resource.\n\nFor EVM networks, the payer will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the payer will be a base58-encoded Solana address.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402SettlePaymentRejectionPayer(::std::string::String);
+    impl ::std::ops::Deref for X402SettlePaymentRejectionPayer {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402SettlePaymentRejectionPayer> for ::std::string::String {
+        fn from(value: X402SettlePaymentRejectionPayer) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402SettlePaymentRejectionPayer> for X402SettlePaymentRejectionPayer {
+        fn from(value: &X402SettlePaymentRejectionPayer) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402SettlePaymentRejectionPayer {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402SettlePaymentRejectionPayer {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402SettlePaymentRejectionPayer {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402SettlePaymentRejectionPayer {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402SettlePaymentRejectionPayer {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**The transaction of the settlement.
+    For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+    For Solana-based networks, the transaction will be a base58-encoded Solana signature.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The transaction of the settlement.\nFor EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.\nFor Solana-based networks, the transaction will be a base58-encoded Solana signature.",
+    ///  "examples": [
+    ///    "0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402SettlePaymentRejectionTransaction(::std::string::String);
+    impl ::std::ops::Deref for X402SettlePaymentRejectionTransaction {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402SettlePaymentRejectionTransaction> for ::std::string::String {
+        fn from(value: X402SettlePaymentRejectionTransaction) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402SettlePaymentRejectionTransaction>
+        for X402SettlePaymentRejectionTransaction
+    {
+        fn from(value: &X402SettlePaymentRejectionTransaction) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402SettlePaymentRejectionTransaction {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402SettlePaymentRejectionTransaction {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402SettlePaymentRejectionTransaction {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402SettlePaymentRejectionTransaction {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402SettlePaymentRejectionTransaction {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
@@ -39950,7 +43302,17 @@ pub mod types {
     ///      "examples": [
     ///        "base"
     ///      ],
-    ///      "type": "string"
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-sepolia",
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana",
+    ///        "eip155:8453",
+    ///        "eip155:84532",
+    ///        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///      ]
     ///    },
     ///    "scheme": {
     ///      "description": "The scheme of the payment protocol.",
@@ -39975,7 +43337,7 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
         pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
         ///The network of the blockchain.
-        pub network: ::std::string::String,
+        pub network: X402SupportedPaymentKindNetwork,
         ///The scheme of the payment protocol.
         pub scheme: X402SupportedPaymentKindScheme,
         #[serde(rename = "x402Version")]
@@ -40006,7 +43368,11 @@ pub mod types {
     ///    "base-sepolia",
     ///    "base",
     ///    "solana-devnet",
-    ///    "solana"
+    ///    "solana",
+    ///    "eip155:8453",
+    ///    "eip155:84532",
+    ///    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
     ///  ]
     ///}
     /// ```
@@ -40032,6 +43398,14 @@ pub mod types {
         SolanaDevnet,
         #[serde(rename = "solana")]
         Solana,
+        #[serde(rename = "eip155:8453")]
+        Eip1558453,
+        #[serde(rename = "eip155:84532")]
+        Eip15584532,
+        #[serde(rename = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")]
+        Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp,
+        #[serde(rename = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")]
+        SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1,
     }
     impl ::std::convert::From<&Self> for X402SupportedPaymentKindNetwork {
         fn from(value: &X402SupportedPaymentKindNetwork) -> Self {
@@ -40045,6 +43419,14 @@ pub mod types {
                 Self::Base => f.write_str("base"),
                 Self::SolanaDevnet => f.write_str("solana-devnet"),
                 Self::Solana => f.write_str("solana"),
+                Self::Eip1558453 => f.write_str("eip155:8453"),
+                Self::Eip15584532 => f.write_str("eip155:84532"),
+                Self::Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp => {
+                    f.write_str("solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")
+                }
+                Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1 => {
+                    f.write_str("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")
+                }
             }
         }
     }
@@ -40056,6 +43438,14 @@ pub mod types {
                 "base" => Ok(Self::Base),
                 "solana-devnet" => Ok(Self::SolanaDevnet),
                 "solana" => Ok(Self::Solana),
+                "eip155:8453" => Ok(Self::Eip1558453),
+                "eip155:84532" => Ok(Self::Eip15584532),
+                "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" => {
+                    Ok(Self::Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp)
+                }
+                "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" => {
+                    Ok(Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1)
+                }
                 _ => Err("invalid value".into()),
             }
         }
@@ -40171,13 +43561,13 @@ pub mod types {
     ///      "payload": {
     ///        "authorization": {
     ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///          "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///          "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///          "validAfter": "1716150000",
     ///          "validBefore": "1716150000",
     ///          "value": "1000000000000000000"
     ///        },
-    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///      },
     ///      "scheme": "exact",
     ///      "x402Version": 1
@@ -40210,19 +43600,22 @@ pub mod types {
     ///        {
     ///          "authorization": {
     ///            "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///            "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///            "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///            "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///            "validAfter": "1716150000",
     ///            "validBefore": "1716150000",
     ///            "value": "1000000000000000000"
     ///          },
-    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///        }
     ///      ],
     ///      "type": "object",
     ///      "oneOf": [
     ///        {
     ///          "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///        },
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactEvmPermit2Payload"
     ///        },
     ///        {
     ///          "$ref": "#/components/schemas/x402ExactSolanaPayload"
@@ -40296,11 +43689,15 @@ pub mod types {
     ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    },
     ///    "description": {
-    ///      "description": "The description of the resource.",
+    ///      "description": "A human-readable description of the resource.",
     ///      "examples": [
     ///        "Premium API access for data analysis"
     ///      ],
-    ///      "type": "string"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Description"
+    ///        }
+    ///      ]
     ///    },
     ///    "extra": {
     ///      "description": "The optional additional scheme-specific payment info.",
@@ -40393,8 +43790,8 @@ pub mod types {
 
         For Solana-based networks, the asset will be a base58-encoded Solana address.*/
         pub asset: X402v1PaymentRequirementsAsset,
-        ///The description of the resource.
-        pub description: ::std::string::String,
+        ///A human-readable description of the resource.
+        pub description: Description,
         ///The optional additional scheme-specific payment info.
         #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
         pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
@@ -40462,13 +43859,13 @@ pub mod types {
     ///      "payload": {
     ///        "authorization": {
     ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///          "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///          "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///          "validAfter": "1716150000",
     ///          "validBefore": "1716150000",
     ///          "value": "1000000000000000000"
     ///        },
-    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///      },
     ///      "resource": {
     ///        "description": "Premium API access for data analysis.",
@@ -40506,19 +43903,22 @@ pub mod types {
     ///        {
     ///          "authorization": {
     ///            "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///            "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///            "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///            "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///            "validAfter": "1716150000",
     ///            "validBefore": "1716150000",
     ///            "value": "1000000000000000000"
     ///          },
-    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///        }
     ///      ],
     ///      "type": "object",
     ///      "oneOf": [
     ///        {
     ///          "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///        },
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactEvmPermit2Payload"
     ///        },
     ///        {
     ///          "$ref": "#/components/schemas/x402ExactSolanaPayload"
@@ -40702,6 +44102,13 @@ pub mod types {
     ///    "invalid_exact_evm_payload_authorization_to_address_kyt",
     ///    "invalid_exact_evm_payload_signature",
     ///    "invalid_exact_evm_payload_signature_address",
+    ///    "invalid_exact_evm_permit2_payload_allowance_required",
+    ///    "invalid_exact_evm_permit2_payload_signature",
+    ///    "invalid_exact_evm_permit2_payload_deadline",
+    ///    "invalid_exact_evm_permit2_payload_valid_after",
+    ///    "invalid_exact_evm_permit2_payload_spender",
+    ///    "invalid_exact_evm_permit2_payload_recipient",
+    ///    "invalid_exact_evm_permit2_payload_amount",
     ///    "invalid_exact_svm_payload_transaction",
     ///    "invalid_exact_svm_payload_transaction_amount_mismatch",
     ///    "invalid_exact_svm_payload_transaction_create_ata_instruction",
@@ -40721,7 +44128,8 @@ pub mod types {
     ///    "invalid_exact_svm_payload_transaction_simulation_failed",
     ///    "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
     ///    "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts",
-    ///    "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
+    ///    "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
+    ///    "unknown_error"
     ///  ]
     ///}
     /// ```
@@ -40769,6 +44177,20 @@ pub mod types {
         InvalidExactEvmPayloadSignature,
         #[serde(rename = "invalid_exact_evm_payload_signature_address")]
         InvalidExactEvmPayloadSignatureAddress,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_allowance_required")]
+        InvalidExactEvmPermit2PayloadAllowanceRequired,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_signature")]
+        InvalidExactEvmPermit2PayloadSignature,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_deadline")]
+        InvalidExactEvmPermit2PayloadDeadline,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_valid_after")]
+        InvalidExactEvmPermit2PayloadValidAfter,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_spender")]
+        InvalidExactEvmPermit2PayloadSpender,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_recipient")]
+        InvalidExactEvmPermit2PayloadRecipient,
+        #[serde(rename = "invalid_exact_evm_permit2_payload_amount")]
+        InvalidExactEvmPermit2PayloadAmount,
         #[serde(rename = "invalid_exact_svm_payload_transaction")]
         InvalidExactSvmPayloadTransaction,
         #[serde(rename = "invalid_exact_svm_payload_transaction_amount_mismatch")]
@@ -40825,6 +44247,8 @@ pub mod types {
         InvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts,
         #[serde(rename = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds")]
         InvalidExactSvmPayloadTransactionFeePayerTransferringFunds,
+        #[serde(rename = "unknown_error")]
+        UnknownError,
     }
     impl ::std::convert::From<&Self> for X402VerifyInvalidReason {
         fn from(value: &X402VerifyInvalidReason) -> Self {
@@ -40872,6 +44296,27 @@ pub mod types {
                 }
                 Self::InvalidExactEvmPayloadSignatureAddress => {
                     f.write_str("invalid_exact_evm_payload_signature_address")
+                }
+                Self::InvalidExactEvmPermit2PayloadAllowanceRequired => {
+                    f.write_str("invalid_exact_evm_permit2_payload_allowance_required")
+                }
+                Self::InvalidExactEvmPermit2PayloadSignature => {
+                    f.write_str("invalid_exact_evm_permit2_payload_signature")
+                }
+                Self::InvalidExactEvmPermit2PayloadDeadline => {
+                    f.write_str("invalid_exact_evm_permit2_payload_deadline")
+                }
+                Self::InvalidExactEvmPermit2PayloadValidAfter => {
+                    f.write_str("invalid_exact_evm_permit2_payload_valid_after")
+                }
+                Self::InvalidExactEvmPermit2PayloadSpender => {
+                    f.write_str("invalid_exact_evm_permit2_payload_spender")
+                }
+                Self::InvalidExactEvmPermit2PayloadRecipient => {
+                    f.write_str("invalid_exact_evm_permit2_payload_recipient")
+                }
+                Self::InvalidExactEvmPermit2PayloadAmount => {
+                    f.write_str("invalid_exact_evm_permit2_payload_amount")
                 }
                 Self::InvalidExactSvmPayloadTransaction => {
                     f.write_str("invalid_exact_svm_payload_transaction")
@@ -40967,6 +44412,7 @@ pub mod types {
                         "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
                     )
                 }
+                Self::UnknownError => f.write_str("unknown_error"),
             }
         }
     }
@@ -41006,6 +44452,27 @@ pub mod types {
                 }
                 "invalid_exact_evm_payload_signature_address" => {
                     Ok(Self::InvalidExactEvmPayloadSignatureAddress)
+                }
+                "invalid_exact_evm_permit2_payload_allowance_required" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadAllowanceRequired)
+                }
+                "invalid_exact_evm_permit2_payload_signature" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadSignature)
+                }
+                "invalid_exact_evm_permit2_payload_deadline" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadDeadline)
+                }
+                "invalid_exact_evm_permit2_payload_valid_after" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadValidAfter)
+                }
+                "invalid_exact_evm_permit2_payload_spender" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadSpender)
+                }
+                "invalid_exact_evm_permit2_payload_recipient" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadRecipient)
+                }
+                "invalid_exact_evm_permit2_payload_amount" => {
+                    Ok(Self::InvalidExactEvmPermit2PayloadAmount)
                 }
                 "invalid_exact_svm_payload_transaction" => {
                     Ok(Self::InvalidExactSvmPayloadTransaction)
@@ -41083,6 +44550,7 @@ pub mod types {
                 "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds" => {
                     Ok(Self::InvalidExactSvmPayloadTransactionFeePayerTransferringFunds)
                 }
+                "unknown_error" => Ok(Self::UnknownError),
                 _ => Err("invalid value".into()),
             }
         }
@@ -41107,6 +44575,177 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///The result when x402 payment verification fails.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The result when x402 payment verification fails.",
+    ///  "examples": [
+    ///    {
+    ///      "invalidMessage": "Insufficient funds",
+    ///      "invalidReason": "insufficient_funds",
+    ///      "isValid": false,
+    ///      "payer": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "invalidReason",
+    ///    "isValid"
+    ///  ],
+    ///  "properties": {
+    ///    "invalidMessage": {
+    ///      "description": "The message describing the invalid reason.",
+    ///      "examples": [
+    ///        "Insufficient funds"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "invalidReason": {
+    ///      "$ref": "#/components/schemas/x402VerifyInvalidReason"
+    ///    },
+    ///    "isValid": {
+    ///      "description": "Indicates whether the payment is valid.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "payer": {
+    ///      "description": "The onchain address of the client that is paying for the resource.\n\nFor EVM networks, the payer will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the payer will be a base58-encoded Solana address.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402VerifyPaymentRejection {
+        ///The message describing the invalid reason.
+        #[serde(
+            rename = "invalidMessage",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub invalid_message: ::std::option::Option<::std::string::String>,
+        #[serde(rename = "invalidReason")]
+        pub invalid_reason: X402VerifyInvalidReason,
+        ///Indicates whether the payment is valid.
+        #[serde(rename = "isValid")]
+        pub is_valid: bool,
+        /**The onchain address of the client that is paying for the resource.
+
+        For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+        For Solana-based networks, the payer will be a base58-encoded Solana address.*/
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub payer: ::std::option::Option<X402VerifyPaymentRejectionPayer>,
+    }
+    impl ::std::convert::From<&X402VerifyPaymentRejection> for X402VerifyPaymentRejection {
+        fn from(value: &X402VerifyPaymentRejection) -> Self {
+            value.clone()
+        }
+    }
+    impl X402VerifyPaymentRejection {
+        pub fn builder() -> builder::X402VerifyPaymentRejection {
+            Default::default()
+        }
+    }
+    /**The onchain address of the client that is paying for the resource.
+
+    For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+    For Solana-based networks, the payer will be a base58-encoded Solana address.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The onchain address of the client that is paying for the resource.\n\nFor EVM networks, the payer will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the payer will be a base58-encoded Solana address.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402VerifyPaymentRejectionPayer(::std::string::String);
+    impl ::std::ops::Deref for X402VerifyPaymentRejectionPayer {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402VerifyPaymentRejectionPayer> for ::std::string::String {
+        fn from(value: X402VerifyPaymentRejectionPayer) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402VerifyPaymentRejectionPayer> for X402VerifyPaymentRejectionPayer {
+        fn from(value: &X402VerifyPaymentRejectionPayer) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402VerifyPaymentRejectionPayer {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402VerifyPaymentRejectionPayer {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402VerifyPaymentRejectionPayer {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402VerifyPaymentRejectionPayer {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402VerifyPaymentRejectionPayer {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///The version of the x402 protocol.
@@ -41267,19 +44906,22 @@ pub mod types {
     ///    {
     ///      "authorization": {
     ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///        "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///        "validAfter": "1716150000",
     ///        "validBefore": "1716150000",
     ///        "value": "1000000000000000000"
     ///      },
-    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///    }
     ///  ],
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
     ///      "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactEvmPermit2Payload"
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/x402ExactSolanaPayload"
@@ -41292,6 +44934,7 @@ pub mod types {
     #[serde(untagged)]
     pub enum X402v1PaymentPayloadPayload {
         EvmPayload(X402ExactEvmPayload),
+        EvmPermit2Payload(X402ExactEvmPermit2Payload),
         SolanaPayload(X402ExactSolanaPayload),
     }
     impl ::std::convert::From<&Self> for X402v1PaymentPayloadPayload {
@@ -41302,6 +44945,11 @@ pub mod types {
     impl ::std::convert::From<X402ExactEvmPayload> for X402v1PaymentPayloadPayload {
         fn from(value: X402ExactEvmPayload) -> Self {
             Self::EvmPayload(value)
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2Payload> for X402v1PaymentPayloadPayload {
+        fn from(value: X402ExactEvmPermit2Payload) -> Self {
+            Self::EvmPermit2Payload(value)
         }
     }
     impl ::std::convert::From<X402ExactSolanaPayload> for X402v1PaymentPayloadPayload {
@@ -41741,19 +45389,22 @@ pub mod types {
     ///    {
     ///      "authorization": {
     ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///        "nonce": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     ///        "validAfter": "1716150000",
     ///        "validBefore": "1716150000",
     ///        "value": "1000000000000000000"
     ///      },
-    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b"
     ///    }
     ///  ],
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
     ///      "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactEvmPermit2Payload"
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/x402ExactSolanaPayload"
@@ -41766,6 +45417,7 @@ pub mod types {
     #[serde(untagged)]
     pub enum X402v2PaymentPayloadPayload {
         EvmPayload(X402ExactEvmPayload),
+        EvmPermit2Payload(X402ExactEvmPermit2Payload),
         SolanaPayload(X402ExactSolanaPayload),
     }
     impl ::std::convert::From<&Self> for X402v2PaymentPayloadPayload {
@@ -41776,6 +45428,11 @@ pub mod types {
     impl ::std::convert::From<X402ExactEvmPayload> for X402v2PaymentPayloadPayload {
         fn from(value: X402ExactEvmPayload) -> Self {
             Self::EvmPayload(value)
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPermit2Payload> for X402v2PaymentPayloadPayload {
+        fn from(value: X402ExactEvmPermit2Payload) -> Self {
+            Self::EvmPermit2Payload(value)
         }
     }
     impl ::std::convert::From<X402ExactSolanaPayload> for X402v2PaymentPayloadPayload {
@@ -42411,6 +46068,184 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct AddEndUserEvmAccountResponse {
+            evm_account: ::std::result::Result<super::EndUserEvmAccount, ::std::string::String>,
+        }
+        impl ::std::default::Default for AddEndUserEvmAccountResponse {
+            fn default() -> Self {
+                Self {
+                    evm_account: Err("no value supplied for evm_account".to_string()),
+                }
+            }
+        }
+        impl AddEndUserEvmAccountResponse {
+            pub fn evm_account<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EndUserEvmAccount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.evm_account = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for evm_account: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AddEndUserEvmAccountResponse> for super::AddEndUserEvmAccountResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AddEndUserEvmAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    evm_account: value.evm_account?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AddEndUserEvmAccountResponse> for AddEndUserEvmAccountResponse {
+            fn from(value: super::AddEndUserEvmAccountResponse) -> Self {
+                Self {
+                    evm_account: Ok(value.evm_account),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AddEndUserEvmSmartAccountBody {
+            enable_spend_permissions: ::std::result::Result<bool, ::std::string::String>,
+        }
+        impl ::std::default::Default for AddEndUserEvmSmartAccountBody {
+            fn default() -> Self {
+                Self {
+                    enable_spend_permissions: Ok(Default::default()),
+                }
+            }
+        }
+        impl AddEndUserEvmSmartAccountBody {
+            pub fn enable_spend_permissions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enable_spend_permissions = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for enable_spend_permissions: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AddEndUserEvmSmartAccountBody>
+            for super::AddEndUserEvmSmartAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AddEndUserEvmSmartAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enable_spend_permissions: value.enable_spend_permissions?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AddEndUserEvmSmartAccountBody> for AddEndUserEvmSmartAccountBody {
+            fn from(value: super::AddEndUserEvmSmartAccountBody) -> Self {
+                Self {
+                    enable_spend_permissions: Ok(value.enable_spend_permissions),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AddEndUserEvmSmartAccountResponse {
+            evm_smart_account:
+                ::std::result::Result<super::EndUserEvmSmartAccount, ::std::string::String>,
+        }
+        impl ::std::default::Default for AddEndUserEvmSmartAccountResponse {
+            fn default() -> Self {
+                Self {
+                    evm_smart_account: Err("no value supplied for evm_smart_account".to_string()),
+                }
+            }
+        }
+        impl AddEndUserEvmSmartAccountResponse {
+            pub fn evm_smart_account<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EndUserEvmSmartAccount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.evm_smart_account = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for evm_smart_account: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AddEndUserEvmSmartAccountResponse>
+            for super::AddEndUserEvmSmartAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AddEndUserEvmSmartAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    evm_smart_account: value.evm_smart_account?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AddEndUserEvmSmartAccountResponse>
+            for AddEndUserEvmSmartAccountResponse
+        {
+            fn from(value: super::AddEndUserEvmSmartAccountResponse) -> Self {
+                Self {
+                    evm_smart_account: Ok(value.evm_smart_account),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AddEndUserSolanaAccountResponse {
+            solana_account:
+                ::std::result::Result<super::EndUserSolanaAccount, ::std::string::String>,
+        }
+        impl ::std::default::Default for AddEndUserSolanaAccountResponse {
+            fn default() -> Self {
+                Self {
+                    solana_account: Err("no value supplied for solana_account".to_string()),
+                }
+            }
+        }
+        impl AddEndUserSolanaAccountResponse {
+            pub fn solana_account<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EndUserSolanaAccount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.solana_account = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for solana_account: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AddEndUserSolanaAccountResponse>
+            for super::AddEndUserSolanaAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AddEndUserSolanaAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    solana_account: value.solana_account?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AddEndUserSolanaAccountResponse>
+            for AddEndUserSolanaAccountResponse
+        {
+            fn from(value: super::AddEndUserSolanaAccountResponse) -> Self {
+                Self {
+                    solana_account: Ok(value.solana_account),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct CommonSwapResponse {
             block_number:
                 ::std::result::Result<super::CommonSwapResponseBlockNumber, ::std::string::String>,
@@ -42973,11 +46808,14 @@ pub mod types {
         #[derive(Clone, Debug)]
         pub struct CreateEndUserBodyEvmAccount {
             create_smart_account: ::std::result::Result<bool, ::std::string::String>,
+            enable_spend_permissions:
+                ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
         }
         impl ::std::default::Default for CreateEndUserBodyEvmAccount {
             fn default() -> Self {
                 Self {
                     create_smart_account: Ok(Default::default()),
+                    enable_spend_permissions: Ok(Default::default()),
                 }
             }
         }
@@ -42995,6 +46833,19 @@ pub mod types {
                 });
                 self
             }
+            pub fn enable_spend_permissions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enable_spend_permissions = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for enable_spend_permissions: {}",
+                        e
+                    )
+                });
+                self
+            }
         }
         impl ::std::convert::TryFrom<CreateEndUserBodyEvmAccount> for super::CreateEndUserBodyEvmAccount {
             type Error = super::error::ConversionError;
@@ -43003,6 +46854,7 @@ pub mod types {
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     create_smart_account: value.create_smart_account?,
+                    enable_spend_permissions: value.enable_spend_permissions?,
                 })
             }
         }
@@ -43010,6 +46862,7 @@ pub mod types {
             fn from(value: super::CreateEndUserBodyEvmAccount) -> Self {
                 Self {
                     create_smart_account: Ok(value.create_smart_account),
+                    enable_spend_permissions: Ok(value.enable_spend_permissions),
                 }
             }
         }
@@ -43352,7 +47205,7 @@ pub mod types {
                 ::std::string::String,
             >,
             destination_address:
-                ::std::result::Result<::std::string::String, ::std::string::String>,
+                ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
             destination_network:
                 ::std::result::Result<::std::string::String, ::std::string::String>,
             domain: ::std::result::Result<
@@ -43440,7 +47293,7 @@ pub mod types {
             }
             pub fn destination_address<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
                 T::Error: ::std::fmt::Display,
             {
                 self.destination_address = value.try_into().map_err(|e| {
@@ -43715,7 +47568,7 @@ pub mod types {
                 ::std::string::String,
             >,
             destination_address:
-                ::std::result::Result<::std::string::String, ::std::string::String>,
+                ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
             destination_network:
                 ::std::result::Result<::std::string::String, ::std::string::String>,
             partner_user_ref: ::std::result::Result<
@@ -43732,6 +47585,10 @@ pub mod types {
             >,
             payment_method: ::std::result::Result<
                 ::std::option::Option<super::OnrampQuotePaymentMethodTypeId>,
+                ::std::string::String,
+            >,
+            purchase_amount: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
                 ::std::string::String,
             >,
             purchase_currency: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -43757,6 +47614,7 @@ pub mod types {
                     payment_amount: Ok(Default::default()),
                     payment_currency: Ok(Default::default()),
                     payment_method: Ok(Default::default()),
+                    purchase_amount: Ok(Default::default()),
                     purchase_currency: Err("no value supplied for purchase_currency".to_string()),
                     redirect_url: Ok(Default::default()),
                     subdivision: Ok(Default::default()),
@@ -43786,7 +47644,7 @@ pub mod types {
             }
             pub fn destination_address<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
                 T::Error: ::std::fmt::Display,
             {
                 self.destination_address = value.try_into().map_err(|e| {
@@ -43858,6 +47716,16 @@ pub mod types {
                 });
                 self
             }
+            pub fn purchase_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.purchase_amount = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for purchase_amount: {}", e)
+                });
+                self
+            }
             pub fn purchase_currency<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::string::String>,
@@ -43906,6 +47774,7 @@ pub mod types {
                     payment_amount: value.payment_amount?,
                     payment_currency: value.payment_currency?,
                     payment_method: value.payment_method?,
+                    purchase_amount: value.purchase_amount?,
                     purchase_currency: value.purchase_currency?,
                     redirect_url: value.redirect_url?,
                     subdivision: value.subdivision?,
@@ -43923,6 +47792,7 @@ pub mod types {
                     payment_amount: Ok(value.payment_amount),
                     payment_currency: Ok(value.payment_currency),
                     payment_method: Ok(value.payment_method),
+                    purchase_amount: Ok(value.purchase_amount),
                     purchase_currency: Ok(value.purchase_currency),
                     redirect_url: Ok(value.redirect_url),
                     subdivision: Ok(value.subdivision),
@@ -45334,6 +49204,10 @@ pub mod types {
                 ::std::vec::Vec<super::EndUserEvmSmartAccountsItem>,
                 ::std::string::String,
             >,
+            mfa_methods: ::std::result::Result<
+                ::std::option::Option<super::MfaMethods>,
+                ::std::string::String,
+            >,
             solana_account_objects: ::std::result::Result<
                 ::std::vec::Vec<super::EndUserSolanaAccount>,
                 ::std::string::String,
@@ -45359,6 +49233,7 @@ pub mod types {
                         "no value supplied for evm_smart_account_objects".to_string(),
                     ),
                     evm_smart_accounts: Err("no value supplied for evm_smart_accounts".to_string()),
+                    mfa_methods: Ok(Default::default()),
                     solana_account_objects: Err(
                         "no value supplied for solana_account_objects".to_string()
                     ),
@@ -45440,6 +49315,16 @@ pub mod types {
                 });
                 self
             }
+            pub fn mfa_methods<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MfaMethods>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mfa_methods = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mfa_methods: {}", e));
+                self
+            }
             pub fn solana_account_objects<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::vec::Vec<super::EndUserSolanaAccount>>,
@@ -45486,6 +49371,7 @@ pub mod types {
                     evm_accounts: value.evm_accounts?,
                     evm_smart_account_objects: value.evm_smart_account_objects?,
                     evm_smart_accounts: value.evm_smart_accounts?,
+                    mfa_methods: value.mfa_methods?,
                     solana_account_objects: value.solana_account_objects?,
                     solana_accounts: value.solana_accounts?,
                     user_id: value.user_id?,
@@ -45501,6 +49387,7 @@ pub mod types {
                     evm_accounts: Ok(value.evm_accounts),
                     evm_smart_account_objects: Ok(value.evm_smart_account_objects),
                     evm_smart_accounts: Ok(value.evm_smart_accounts),
+                    mfa_methods: Ok(value.mfa_methods),
                     solana_account_objects: Ok(value.solana_account_objects),
                     solana_accounts: Ok(value.solana_accounts),
                     user_id: Ok(value.user_id),
@@ -47404,6 +51291,123 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct GetOnrampUserLimitsBody {
+            payment_method_type:
+                ::std::result::Result<super::OnrampOrderPaymentMethodTypeId, ::std::string::String>,
+            user_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            user_id_type: ::std::result::Result<super::OnrampUserIdType, ::std::string::String>,
+        }
+        impl ::std::default::Default for GetOnrampUserLimitsBody {
+            fn default() -> Self {
+                Self {
+                    payment_method_type: Err(
+                        "no value supplied for payment_method_type".to_string()
+                    ),
+                    user_id: Err("no value supplied for user_id".to_string()),
+                    user_id_type: Err("no value supplied for user_id_type".to_string()),
+                }
+            }
+        }
+        impl GetOnrampUserLimitsBody {
+            pub fn payment_method_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnrampOrderPaymentMethodTypeId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_method_type = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for payment_method_type: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn user_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for user_id: {}", e));
+                self
+            }
+            pub fn user_id_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnrampUserIdType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_id_type = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for user_id_type: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<GetOnrampUserLimitsBody> for super::GetOnrampUserLimitsBody {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: GetOnrampUserLimitsBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    payment_method_type: value.payment_method_type?,
+                    user_id: value.user_id?,
+                    user_id_type: value.user_id_type?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::GetOnrampUserLimitsBody> for GetOnrampUserLimitsBody {
+            fn from(value: super::GetOnrampUserLimitsBody) -> Self {
+                Self {
+                    payment_method_type: Ok(value.payment_method_type),
+                    user_id: Ok(value.user_id),
+                    user_id_type: Ok(value.user_id_type),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct GetOnrampUserLimitsResponse {
+            limits: ::std::result::Result<
+                ::std::vec::Vec<super::OnrampUserLimit>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for GetOnrampUserLimitsResponse {
+            fn default() -> Self {
+                Self {
+                    limits: Err("no value supplied for limits".to_string()),
+                }
+            }
+        }
+        impl GetOnrampUserLimitsResponse {
+            pub fn limits<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnrampUserLimit>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.limits = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for limits: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<GetOnrampUserLimitsResponse> for super::GetOnrampUserLimitsResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: GetOnrampUserLimitsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    limits: value.limits?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::GetOnrampUserLimitsResponse> for GetOnrampUserLimitsResponse {
+            fn from(value: super::GetOnrampUserLimitsResponse) -> Self {
+                Self {
+                    limits: Ok(value.limits),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct GetSwapPriceResponse {
             block_number: ::std::result::Result<
                 super::GetSwapPriceResponseBlockNumber,
@@ -48281,6 +52285,100 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct ImportEndUserBody {
+            authentication_methods:
+                ::std::result::Result<super::AuthenticationMethods, ::std::string::String>,
+            encrypted_private_key:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+            key_type: ::std::result::Result<super::ImportEndUserBodyKeyType, ::std::string::String>,
+            user_id: ::std::result::Result<super::ImportEndUserBodyUserId, ::std::string::String>,
+        }
+        impl ::std::default::Default for ImportEndUserBody {
+            fn default() -> Self {
+                Self {
+                    authentication_methods: Err(
+                        "no value supplied for authentication_methods".to_string()
+                    ),
+                    encrypted_private_key: Err(
+                        "no value supplied for encrypted_private_key".to_string()
+                    ),
+                    key_type: Err("no value supplied for key_type".to_string()),
+                    user_id: Err("no value supplied for user_id".to_string()),
+                }
+            }
+        }
+        impl ImportEndUserBody {
+            pub fn authentication_methods<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AuthenticationMethods>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.authentication_methods = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for authentication_methods: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn encrypted_private_key<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.encrypted_private_key = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for encrypted_private_key: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn key_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::ImportEndUserBodyKeyType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.key_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for key_type: {}", e));
+                self
+            }
+            pub fn user_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::ImportEndUserBodyUserId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for user_id: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ImportEndUserBody> for super::ImportEndUserBody {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ImportEndUserBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    authentication_methods: value.authentication_methods?,
+                    encrypted_private_key: value.encrypted_private_key?,
+                    key_type: value.key_type?,
+                    user_id: value.user_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ImportEndUserBody> for ImportEndUserBody {
+            fn from(value: super::ImportEndUserBody) -> Self {
+                Self {
+                    authentication_methods: Ok(value.authentication_methods),
+                    encrypted_private_key: Ok(value.encrypted_private_key),
+                    key_type: Ok(value.key_type),
+                    user_id: Ok(value.user_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct ImportEvmAccountBody {
             account_policy: ::std::result::Result<
                 ::std::option::Option<super::ImportEvmAccountBodyAccountPolicy>,
@@ -49007,6 +53105,174 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct MfaMethods {
+            enrollment_prompted_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            sms: ::std::result::Result<
+                ::std::option::Option<super::MfaMethodsSms>,
+                ::std::string::String,
+            >,
+            totp: ::std::result::Result<
+                ::std::option::Option<super::MfaMethodsTotp>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MfaMethods {
+            fn default() -> Self {
+                Self {
+                    enrollment_prompted_at: Ok(Default::default()),
+                    sms: Ok(Default::default()),
+                    totp: Ok(Default::default()),
+                }
+            }
+        }
+        impl MfaMethods {
+            pub fn enrollment_prompted_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enrollment_prompted_at = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for enrollment_prompted_at: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn sms<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MfaMethodsSms>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.sms = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for sms: {}", e));
+                self
+            }
+            pub fn totp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MfaMethodsTotp>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.totp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for totp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MfaMethods> for super::MfaMethods {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MfaMethods,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enrollment_prompted_at: value.enrollment_prompted_at?,
+                    sms: value.sms?,
+                    totp: value.totp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MfaMethods> for MfaMethods {
+            fn from(value: super::MfaMethods) -> Self {
+                Self {
+                    enrollment_prompted_at: Ok(value.enrollment_prompted_at),
+                    sms: Ok(value.sms),
+                    totp: Ok(value.totp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MfaMethodsSms {
+            enrolled_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MfaMethodsSms {
+            fn default() -> Self {
+                Self {
+                    enrolled_at: Err("no value supplied for enrolled_at".to_string()),
+                }
+            }
+        }
+        impl MfaMethodsSms {
+            pub fn enrolled_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enrolled_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for enrolled_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MfaMethodsSms> for super::MfaMethodsSms {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MfaMethodsSms,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enrolled_at: value.enrolled_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MfaMethodsSms> for MfaMethodsSms {
+            fn from(value: super::MfaMethodsSms) -> Self {
+                Self {
+                    enrolled_at: Ok(value.enrolled_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MfaMethodsTotp {
+            enrolled_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MfaMethodsTotp {
+            fn default() -> Self {
+                Self {
+                    enrolled_at: Err("no value supplied for enrolled_at".to_string()),
+                }
+            }
+        }
+        impl MfaMethodsTotp {
+            pub fn enrolled_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enrolled_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for enrolled_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MfaMethodsTotp> for super::MfaMethodsTotp {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MfaMethodsTotp,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enrolled_at: value.enrolled_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MfaMethodsTotp> for MfaMethodsTotp {
+            fn from(value: super::MfaMethodsTotp) -> Self {
+                Self {
+                    enrolled_at: Ok(value.enrolled_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct MintAddressCriterion {
             addresses: ::std::result::Result<
                 ::std::vec::Vec<super::MintAddressCriterionAddressesItem>,
@@ -49601,7 +53867,7 @@ pub mod types {
         pub struct OnrampOrder {
             created_at: ::std::result::Result<::std::string::String, ::std::string::String>,
             destination_address:
-                ::std::result::Result<::std::string::String, ::std::string::String>,
+                ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
             destination_network:
                 ::std::result::Result<::std::string::String, ::std::string::String>,
             exchange_rate: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -49667,7 +53933,7 @@ pub mod types {
             }
             pub fn destination_address<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
                 T::Error: ::std::fmt::Display,
             {
                 self.destination_address = value.try_into().map_err(|e| {
@@ -50200,6 +54466,91 @@ pub mod types {
             fn from(value: super::OnrampSession) -> Self {
                 Self {
                     onramp_url: Ok(value.onramp_url),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnrampUserLimit {
+            currency: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            limit: ::std::result::Result<::std::string::String, ::std::string::String>,
+            limit_type: ::std::result::Result<super::OnrampLimitType, ::std::string::String>,
+            remaining: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for OnrampUserLimit {
+            fn default() -> Self {
+                Self {
+                    currency: Ok(Default::default()),
+                    limit: Err("no value supplied for limit".to_string()),
+                    limit_type: Err("no value supplied for limit_type".to_string()),
+                    remaining: Err("no value supplied for remaining".to_string()),
+                }
+            }
+        }
+        impl OnrampUserLimit {
+            pub fn currency<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.currency = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for currency: {}", e));
+                self
+            }
+            pub fn limit<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.limit = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for limit: {}", e));
+                self
+            }
+            pub fn limit_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnrampLimitType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.limit_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for limit_type: {}", e));
+                self
+            }
+            pub fn remaining<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.remaining = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for remaining: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnrampUserLimit> for super::OnrampUserLimit {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnrampUserLimit,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    currency: value.currency?,
+                    limit: value.limit?,
+                    limit_type: value.limit_type?,
+                    remaining: value.remaining?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnrampUserLimit> for OnrampUserLimit {
+            fn from(value: super::OnrampUserLimit) -> Self {
+                Self {
+                    currency: Ok(value.currency),
+                    limit: Ok(value.limit),
+                    limit_type: Ok(value.limit_type),
+                    remaining: Ok(value.remaining),
                 }
             }
         }
@@ -51487,6 +55838,10 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct SettleX402PaymentResponse {
+            error_message: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             error_reason: ::std::result::Result<
                 ::std::option::Option<super::X402SettleErrorReason>,
                 ::std::string::String,
@@ -51503,6 +55858,7 @@ pub mod types {
         impl ::std::default::Default for SettleX402PaymentResponse {
             fn default() -> Self {
                 Self {
+                    error_message: Ok(Default::default()),
                     error_reason: Ok(Default::default()),
                     network: Err("no value supplied for network".to_string()),
                     payer: Err("no value supplied for payer".to_string()),
@@ -51512,6 +55868,16 @@ pub mod types {
             }
         }
         impl SettleX402PaymentResponse {
+            pub fn error_message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error_message = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for error_message: {}", e)
+                });
+                self
+            }
             pub fn error_reason<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::option::Option<super::X402SettleErrorReason>>,
@@ -51569,6 +55935,7 @@ pub mod types {
                 value: SettleX402PaymentResponse,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    error_message: value.error_message?,
                     error_reason: value.error_reason?,
                     network: value.network?,
                     payer: value.payer?,
@@ -51580,6 +55947,7 @@ pub mod types {
         impl ::std::convert::From<super::SettleX402PaymentResponse> for SettleX402PaymentResponse {
             fn from(value: super::SettleX402PaymentResponse) -> Self {
                 Self {
+                    error_message: Ok(value.error_message),
                     error_reason: Ok(value.error_reason),
                     network: Ok(value.network),
                     payer: Ok(value.payer),
@@ -54190,6 +58558,130 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct TelegramAuthentication {
+            auth_date: ::std::result::Result<i64, ::std::string::String>,
+            first_name: ::std::result::Result<::std::string::String, ::std::string::String>,
+            id: ::std::result::Result<i64, ::std::string::String>,
+            last_name: ::std::result::Result<::std::string::String, ::std::string::String>,
+            photo_url: ::std::result::Result<::std::string::String, ::std::string::String>,
+            type_: ::std::result::Result<super::OAuth2ProviderType, ::std::string::String>,
+            username: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for TelegramAuthentication {
+            fn default() -> Self {
+                Self {
+                    auth_date: Err("no value supplied for auth_date".to_string()),
+                    first_name: Err("no value supplied for first_name".to_string()),
+                    id: Err("no value supplied for id".to_string()),
+                    last_name: Err("no value supplied for last_name".to_string()),
+                    photo_url: Err("no value supplied for photo_url".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                    username: Err("no value supplied for username".to_string()),
+                }
+            }
+        }
+        impl TelegramAuthentication {
+            pub fn auth_date<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.auth_date = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for auth_date: {}", e));
+                self
+            }
+            pub fn first_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.first_name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for first_name: {}", e));
+                self
+            }
+            pub fn id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for id: {}", e));
+                self
+            }
+            pub fn last_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.last_name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for last_name: {}", e));
+                self
+            }
+            pub fn photo_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.photo_url = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for photo_url: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OAuth2ProviderType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+            pub fn username<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.username = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for username: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<TelegramAuthentication> for super::TelegramAuthentication {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: TelegramAuthentication,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    auth_date: value.auth_date?,
+                    first_name: value.first_name?,
+                    id: value.id?,
+                    last_name: value.last_name?,
+                    photo_url: value.photo_url?,
+                    type_: value.type_?,
+                    username: value.username?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::TelegramAuthentication> for TelegramAuthentication {
+            fn from(value: super::TelegramAuthentication) -> Self {
+                Self {
+                    auth_date: Ok(value.auth_date),
+                    first_name: Ok(value.first_name),
+                    id: Ok(value.id),
+                    last_name: Ok(value.last_name),
+                    photo_url: Ok(value.photo_url),
+                    type_: Ok(value.type_),
+                    username: Ok(value.username),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct Token {
             contract_address:
                 ::std::result::Result<super::TokenContractAddress, ::std::string::String>,
@@ -54965,6 +59457,10 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct VerifyX402PaymentResponse {
+            invalid_message: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             invalid_reason: ::std::result::Result<
                 ::std::option::Option<super::X402VerifyInvalidReason>,
                 ::std::string::String,
@@ -54976,6 +59472,7 @@ pub mod types {
         impl ::std::default::Default for VerifyX402PaymentResponse {
             fn default() -> Self {
                 Self {
+                    invalid_message: Ok(Default::default()),
                     invalid_reason: Ok(Default::default()),
                     is_valid: Err("no value supplied for is_valid".to_string()),
                     payer: Err("no value supplied for payer".to_string()),
@@ -54983,6 +59480,16 @@ pub mod types {
             }
         }
         impl VerifyX402PaymentResponse {
+            pub fn invalid_message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.invalid_message = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for invalid_message: {}", e)
+                });
+                self
+            }
             pub fn invalid_reason<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::option::Option<super::X402VerifyInvalidReason>>,
@@ -55020,6 +59527,7 @@ pub mod types {
                 value: VerifyX402PaymentResponse,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    invalid_message: value.invalid_message?,
                     invalid_reason: value.invalid_reason?,
                     is_valid: value.is_valid?,
                     payer: value.payer?,
@@ -55029,6 +59537,7 @@ pub mod types {
         impl ::std::convert::From<super::VerifyX402PaymentResponse> for VerifyX402PaymentResponse {
             fn from(value: super::VerifyX402PaymentResponse) -> Self {
                 Self {
+                    invalid_message: Ok(value.invalid_message),
                     invalid_reason: Ok(value.invalid_reason),
                     is_valid: Ok(value.is_valid),
                     payer: Ok(value.payer),
@@ -55100,13 +59609,9 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
-        pub struct WebhookSubscriptionResponse {
-            created_at: ::std::result::Result<
-                ::chrono::DateTime<::chrono::offset::Utc>,
-                ::std::string::String,
-            >,
+        pub struct WebhookSubscriptionRequest {
             description: ::std::result::Result<
-                ::std::option::Option<::std::string::String>,
+                ::std::option::Option<super::Description>,
                 ::std::string::String,
             >,
             event_types: ::std::result::Result<
@@ -55114,57 +59619,32 @@ pub mod types {
                 ::std::string::String,
             >,
             is_enabled: ::std::result::Result<bool, ::std::string::String>,
-            label_key: ::std::result::Result<
-                ::std::option::Option<::std::string::String>,
-                ::std::string::String,
-            >,
-            label_value: ::std::result::Result<
-                ::std::option::Option<::std::string::String>,
-                ::std::string::String,
-            >,
             labels: ::std::result::Result<
                 ::std::collections::HashMap<::std::string::String, ::std::string::String>,
                 ::std::string::String,
             >,
             metadata: ::std::result::Result<
-                ::std::option::Option<super::WebhookSubscriptionResponseMetadata>,
+                ::std::option::Option<super::Metadata>,
                 ::std::string::String,
             >,
-            secret: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
-            subscription_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
             target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
         }
-        impl ::std::default::Default for WebhookSubscriptionResponse {
+        impl ::std::default::Default for WebhookSubscriptionRequest {
             fn default() -> Self {
                 Self {
-                    created_at: Err("no value supplied for created_at".to_string()),
                     description: Ok(Default::default()),
                     event_types: Err("no value supplied for event_types".to_string()),
                     is_enabled: Err("no value supplied for is_enabled".to_string()),
-                    label_key: Ok(Default::default()),
-                    label_value: Ok(Default::default()),
                     labels: Ok(Default::default()),
                     metadata: Ok(Default::default()),
-                    secret: Err("no value supplied for secret".to_string()),
-                    subscription_id: Err("no value supplied for subscription_id".to_string()),
                     target: Err("no value supplied for target".to_string()),
                 }
             }
         }
-        impl WebhookSubscriptionResponse {
-            pub fn created_at<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.created_at = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
-                self
-            }
+        impl WebhookSubscriptionRequest {
             pub fn description<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T: ::std::convert::TryInto<::std::option::Option<super::Description>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.description = value
@@ -55192,24 +59672,147 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for is_enabled: {}", e));
                 self
             }
-            pub fn label_key<T>(mut self, value: T) -> Self
+            pub fn labels<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T: ::std::convert::TryInto<
+                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                >,
                 T::Error: ::std::fmt::Display,
             {
-                self.label_key = value
+                self.labels = value
                     .try_into()
-                    .map_err(|e| format!("error converting supplied value for label_key: {}", e));
+                    .map_err(|e| format!("error converting supplied value for labels: {}", e));
                 self
             }
-            pub fn label_value<T>(mut self, value: T) -> Self
+            pub fn metadata<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
                 T::Error: ::std::fmt::Display,
             {
-                self.label_value = value
+                self.metadata = value
                     .try_into()
-                    .map_err(|e| format!("error converting supplied value for label_value: {}", e));
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn target<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::WebhookTarget>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.target = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for target: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WebhookSubscriptionRequest> for super::WebhookSubscriptionRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WebhookSubscriptionRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    description: value.description?,
+                    event_types: value.event_types?,
+                    is_enabled: value.is_enabled?,
+                    labels: value.labels?,
+                    metadata: value.metadata?,
+                    target: value.target?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WebhookSubscriptionRequest> for WebhookSubscriptionRequest {
+            fn from(value: super::WebhookSubscriptionRequest) -> Self {
+                Self {
+                    description: Ok(value.description),
+                    event_types: Ok(value.event_types),
+                    is_enabled: Ok(value.is_enabled),
+                    labels: Ok(value.labels),
+                    metadata: Ok(value.metadata),
+                    target: Ok(value.target),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WebhookSubscriptionResponse {
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            description: ::std::result::Result<
+                ::std::option::Option<super::Description>,
+                ::std::string::String,
+            >,
+            event_types: ::std::result::Result<
+                ::std::vec::Vec<::std::string::String>,
+                ::std::string::String,
+            >,
+            is_enabled: ::std::result::Result<bool, ::std::string::String>,
+            labels: ::std::result::Result<
+                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                ::std::string::String,
+            >,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::WebhookSubscriptionResponseMetadata>,
+                ::std::string::String,
+            >,
+            secret: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            subscription_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
+        }
+        impl ::std::default::Default for WebhookSubscriptionResponse {
+            fn default() -> Self {
+                Self {
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    description: Ok(Default::default()),
+                    event_types: Err("no value supplied for event_types".to_string()),
+                    is_enabled: Err("no value supplied for is_enabled".to_string()),
+                    labels: Ok(Default::default()),
+                    metadata: Ok(Default::default()),
+                    secret: Err("no value supplied for secret".to_string()),
+                    subscription_id: Err("no value supplied for subscription_id".to_string()),
+                    target: Err("no value supplied for target".to_string()),
+                }
+            }
+        }
+        impl WebhookSubscriptionResponse {
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn description<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Description>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.description = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for description: {}", e));
+                self
+            }
+            pub fn event_types<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_types = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_types: {}", e));
+                self
+            }
+            pub fn is_enabled<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.is_enabled = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for is_enabled: {}", e));
                 self
             }
             pub fn labels<T>(mut self, value: T) -> Self
@@ -55277,8 +59880,6 @@ pub mod types {
                     description: value.description?,
                     event_types: value.event_types?,
                     is_enabled: value.is_enabled?,
-                    label_key: value.label_key?,
-                    label_value: value.label_value?,
                     labels: value.labels?,
                     metadata: value.metadata?,
                     secret: value.secret?,
@@ -55294,8 +59895,6 @@ pub mod types {
                     description: Ok(value.description),
                     event_types: Ok(value.event_types),
                     is_enabled: Ok(value.is_enabled),
-                    label_key: Ok(value.label_key),
-                    label_value: Ok(value.label_value),
                     labels: Ok(value.labels),
                     metadata: Ok(value.metadata),
                     secret: Ok(value.secret),
@@ -55308,11 +59907,19 @@ pub mod types {
         pub struct WebhookSubscriptionResponseMetadata {
             secret:
                 ::std::result::Result<::std::option::Option<::uuid::Uuid>, ::std::string::String>,
+            extra: ::std::result::Result<
+                ::std::collections::HashMap<
+                    ::std::string::String,
+                    super::WebhookSubscriptionResponseMetadataExtraValue,
+                >,
+                ::std::string::String,
+            >,
         }
         impl ::std::default::Default for WebhookSubscriptionResponseMetadata {
             fn default() -> Self {
                 Self {
                     secret: Ok(Default::default()),
+                    extra: Err("no value supplied for extra".to_string()),
                 }
             }
         }
@@ -55327,6 +59934,21 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for secret: {}", e));
                 self
             }
+            pub fn extra<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::collections::HashMap<
+                        ::std::string::String,
+                        super::WebhookSubscriptionResponseMetadataExtraValue,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extra = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extra: {}", e));
+                self
+            }
         }
         impl ::std::convert::TryFrom<WebhookSubscriptionResponseMetadata>
             for super::WebhookSubscriptionResponseMetadata
@@ -55337,6 +59959,7 @@ pub mod types {
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     secret: value.secret?,
+                    extra: value.extra?,
                 })
             }
         }
@@ -55346,6 +59969,135 @@ pub mod types {
             fn from(value: super::WebhookSubscriptionResponseMetadata) -> Self {
                 Self {
                     secret: Ok(value.secret),
+                    extra: Ok(value.extra),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WebhookSubscriptionUpdateRequest {
+            description: ::std::result::Result<
+                ::std::option::Option<super::Description>,
+                ::std::string::String,
+            >,
+            event_types: ::std::result::Result<
+                ::std::vec::Vec<::std::string::String>,
+                ::std::string::String,
+            >,
+            is_enabled: ::std::result::Result<bool, ::std::string::String>,
+            labels: ::std::result::Result<
+                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                ::std::string::String,
+            >,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
+        }
+        impl ::std::default::Default for WebhookSubscriptionUpdateRequest {
+            fn default() -> Self {
+                Self {
+                    description: Ok(Default::default()),
+                    event_types: Err("no value supplied for event_types".to_string()),
+                    is_enabled: Err("no value supplied for is_enabled".to_string()),
+                    labels: Ok(Default::default()),
+                    metadata: Ok(Default::default()),
+                    target: Err("no value supplied for target".to_string()),
+                }
+            }
+        }
+        impl WebhookSubscriptionUpdateRequest {
+            pub fn description<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Description>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.description = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for description: {}", e));
+                self
+            }
+            pub fn event_types<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_types = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_types: {}", e));
+                self
+            }
+            pub fn is_enabled<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.is_enabled = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for is_enabled: {}", e));
+                self
+            }
+            pub fn labels<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.labels = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for labels: {}", e));
+                self
+            }
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn target<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::WebhookTarget>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.target = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for target: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WebhookSubscriptionUpdateRequest>
+            for super::WebhookSubscriptionUpdateRequest
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WebhookSubscriptionUpdateRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    description: value.description?,
+                    event_types: value.event_types?,
+                    is_enabled: value.is_enabled?,
+                    labels: value.labels?,
+                    metadata: value.metadata?,
+                    target: value.target?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WebhookSubscriptionUpdateRequest>
+            for WebhookSubscriptionUpdateRequest
+        {
+            fn from(value: super::WebhookSubscriptionUpdateRequest) -> Self {
+                Self {
+                    description: Ok(value.description),
+                    event_types: Ok(value.event_types),
+                    is_enabled: Ok(value.is_enabled),
+                    labels: Ok(value.labels),
+                    metadata: Ok(value.metadata),
+                    target: Ok(value.target),
                 }
             }
         }
@@ -55414,7 +60166,8 @@ pub mod types {
                 super::X402ExactEvmPayloadAuthorization,
                 ::std::string::String,
             >,
-            signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+            signature:
+                ::std::result::Result<super::X402ExactEvmPayloadSignature, ::std::string::String>,
         }
         impl ::std::default::Default for X402ExactEvmPayload {
             fn default() -> Self {
@@ -55437,7 +60190,7 @@ pub mod types {
             }
             pub fn signature<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::X402ExactEvmPayloadSignature>,
                 T::Error: ::std::fmt::Display,
             {
                 self.signature = value
@@ -55471,7 +60224,10 @@ pub mod types {
                 super::X402ExactEvmPayloadAuthorizationFrom,
                 ::std::string::String,
             >,
-            nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+            nonce: ::std::result::Result<
+                super::X402ExactEvmPayloadAuthorizationNonce,
+                ::std::string::String,
+            >,
             to: ::std::result::Result<
                 super::X402ExactEvmPayloadAuthorizationTo,
                 ::std::string::String,
@@ -55505,7 +60261,7 @@ pub mod types {
             }
             pub fn nonce<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::X402ExactEvmPayloadAuthorizationNonce>,
                 T::Error: ::std::fmt::Display,
             {
                 self.nonce = value
@@ -55586,6 +60342,359 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct X402ExactEvmPermit2Payload {
+            permit2_authorization: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2Authorization,
+                ::std::string::String,
+            >,
+            signature: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadSignature,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402ExactEvmPermit2Payload {
+            fn default() -> Self {
+                Self {
+                    permit2_authorization: Err(
+                        "no value supplied for permit2_authorization".to_string()
+                    ),
+                    signature: Err("no value supplied for signature".to_string()),
+                }
+            }
+        }
+        impl X402ExactEvmPermit2Payload {
+            pub fn permit2_authorization<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402ExactEvmPermit2PayloadPermit2Authorization>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.permit2_authorization = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for permit2_authorization: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402ExactEvmPermit2PayloadSignature>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signature = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for signature: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402ExactEvmPermit2Payload> for super::X402ExactEvmPermit2Payload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402ExactEvmPermit2Payload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    permit2_authorization: value.permit2_authorization?,
+                    signature: value.signature?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402ExactEvmPermit2Payload> for X402ExactEvmPermit2Payload {
+            fn from(value: super::X402ExactEvmPermit2Payload) -> Self {
+                Self {
+                    permit2_authorization: Ok(value.permit2_authorization),
+                    signature: Ok(value.signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402ExactEvmPermit2PayloadPermit2Authorization {
+            deadline: ::std::result::Result<::std::string::String, ::std::string::String>,
+            from: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationFrom,
+                ::std::string::String,
+            >,
+            nonce: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationNonce,
+                ::std::string::String,
+            >,
+            permitted: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted,
+                ::std::string::String,
+            >,
+            spender: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationSpender,
+                ::std::string::String,
+            >,
+            witness: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitness,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402ExactEvmPermit2PayloadPermit2Authorization {
+            fn default() -> Self {
+                Self {
+                    deadline: Err("no value supplied for deadline".to_string()),
+                    from: Err("no value supplied for from".to_string()),
+                    nonce: Err("no value supplied for nonce".to_string()),
+                    permitted: Err("no value supplied for permitted".to_string()),
+                    spender: Err("no value supplied for spender".to_string()),
+                    witness: Err("no value supplied for witness".to_string()),
+                }
+            }
+        }
+        impl X402ExactEvmPermit2PayloadPermit2Authorization {
+            pub fn deadline<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.deadline = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for deadline: {}", e));
+                self
+            }
+            pub fn from<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationFrom,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.from = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for from: {}", e));
+                self
+            }
+            pub fn nonce<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationNonce,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.nonce = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for nonce: {}", e));
+                self
+            }
+            pub fn permitted<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.permitted = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for permitted: {}", e));
+                self
+            }
+            pub fn spender<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationSpender,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.spender = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for spender: {}", e));
+                self
+            }
+            pub fn witness<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitness,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.witness = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for witness: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402ExactEvmPermit2PayloadPermit2Authorization>
+            for super::X402ExactEvmPermit2PayloadPermit2Authorization
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402ExactEvmPermit2PayloadPermit2Authorization,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    deadline: value.deadline?,
+                    from: value.from?,
+                    nonce: value.nonce?,
+                    permitted: value.permitted?,
+                    spender: value.spender?,
+                    witness: value.witness?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402ExactEvmPermit2PayloadPermit2Authorization>
+            for X402ExactEvmPermit2PayloadPermit2Authorization
+        {
+            fn from(value: super::X402ExactEvmPermit2PayloadPermit2Authorization) -> Self {
+                Self {
+                    deadline: Ok(value.deadline),
+                    from: Ok(value.from),
+                    nonce: Ok(value.nonce),
+                    permitted: Ok(value.permitted),
+                    spender: Ok(value.spender),
+                    witness: Ok(value.witness),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted {
+            amount: ::std::result::Result<::std::string::String, ::std::string::String>,
+            token: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    token: Err("no value supplied for token".to_string()),
+                }
+            }
+        }
+        impl X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermittedToken,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.token = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for token: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted>
+            for super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    token: value.token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted>
+            for X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted
+        {
+            fn from(value: super::X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    token: Ok(value.token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402ExactEvmPermit2PayloadPermit2AuthorizationWitness {
+            extra: ::std::result::Result<
+                ::std::option::Option<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra,
+                >,
+                ::std::string::String,
+            >,
+            to: ::std::result::Result<
+                super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo,
+                ::std::string::String,
+            >,
+            valid_after: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402ExactEvmPermit2PayloadPermit2AuthorizationWitness {
+            fn default() -> Self {
+                Self {
+                    extra: Ok(Default::default()),
+                    to: Err("no value supplied for to".to_string()),
+                    valid_after: Err("no value supplied for valid_after".to_string()),
+                }
+            }
+        }
+        impl X402ExactEvmPermit2PayloadPermit2AuthorizationWitness {
+            pub fn extra<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessExtra,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extra = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extra: {}", e));
+                self
+            }
+            pub fn to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitnessTo,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.to = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for to: {}", e));
+                self
+            }
+            pub fn valid_after<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.valid_after = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for valid_after: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402ExactEvmPermit2PayloadPermit2AuthorizationWitness>
+            for super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitness
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402ExactEvmPermit2PayloadPermit2AuthorizationWitness,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    extra: value.extra?,
+                    to: value.to?,
+                    valid_after: value.valid_after?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitness>
+            for X402ExactEvmPermit2PayloadPermit2AuthorizationWitness
+        {
+            fn from(value: super::X402ExactEvmPermit2PayloadPermit2AuthorizationWitness) -> Self {
+                Self {
+                    extra: Ok(value.extra),
+                    to: Ok(value.to),
+                    valid_after: Ok(value.valid_after),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct X402ExactSolanaPayload {
             transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
         }
@@ -55628,7 +60737,7 @@ pub mod types {
         #[derive(Clone, Debug)]
         pub struct X402ResourceInfo {
             description: ::std::result::Result<
-                ::std::option::Option<::std::string::String>,
+                ::std::option::Option<super::Description>,
                 ::std::string::String,
             >,
             mime_type: ::std::result::Result<
@@ -55652,7 +60761,7 @@ pub mod types {
         impl X402ResourceInfo {
             pub fn description<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T: ::std::convert::TryInto<::std::option::Option<super::Description>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.description = value
@@ -55703,12 +60812,142 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct X402SettlePaymentRejection {
+            error_message: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            error_reason:
+                ::std::result::Result<super::X402SettleErrorReason, ::std::string::String>,
+            network: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            payer: ::std::result::Result<
+                ::std::option::Option<super::X402SettlePaymentRejectionPayer>,
+                ::std::string::String,
+            >,
+            success: ::std::result::Result<bool, ::std::string::String>,
+            transaction: ::std::result::Result<
+                ::std::option::Option<super::X402SettlePaymentRejectionTransaction>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402SettlePaymentRejection {
+            fn default() -> Self {
+                Self {
+                    error_message: Ok(Default::default()),
+                    error_reason: Err("no value supplied for error_reason".to_string()),
+                    network: Ok(Default::default()),
+                    payer: Ok(Default::default()),
+                    success: Err("no value supplied for success".to_string()),
+                    transaction: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402SettlePaymentRejection {
+            pub fn error_message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error_message = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for error_message: {}", e)
+                });
+                self
+            }
+            pub fn error_reason<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402SettleErrorReason>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error_reason = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for error_reason: {}", e)
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn payer<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::X402SettlePaymentRejectionPayer>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payer = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payer: {}", e));
+                self
+            }
+            pub fn success<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.success = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for success: {}", e));
+                self
+            }
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::X402SettlePaymentRejectionTransaction>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402SettlePaymentRejection> for super::X402SettlePaymentRejection {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402SettlePaymentRejection,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    error_message: value.error_message?,
+                    error_reason: value.error_reason?,
+                    network: value.network?,
+                    payer: value.payer?,
+                    success: value.success?,
+                    transaction: value.transaction?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402SettlePaymentRejection> for X402SettlePaymentRejection {
+            fn from(value: super::X402SettlePaymentRejection) -> Self {
+                Self {
+                    error_message: Ok(value.error_message),
+                    error_reason: Ok(value.error_reason),
+                    network: Ok(value.network),
+                    payer: Ok(value.payer),
+                    success: Ok(value.success),
+                    transaction: Ok(value.transaction),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct X402SupportedPaymentKind {
             extra: ::std::result::Result<
                 ::serde_json::Map<::std::string::String, ::serde_json::Value>,
                 ::std::string::String,
             >,
-            network: ::std::result::Result<::std::string::String, ::std::string::String>,
+            network: ::std::result::Result<
+                super::X402SupportedPaymentKindNetwork,
+                ::std::string::String,
+            >,
             scheme:
                 ::std::result::Result<super::X402SupportedPaymentKindScheme, ::std::string::String>,
             x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
@@ -55738,7 +60977,7 @@ pub mod types {
             }
             pub fn network<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::X402SupportedPaymentKindNetwork>,
                 T::Error: ::std::fmt::Display,
             {
                 self.network = value
@@ -55878,7 +61117,7 @@ pub mod types {
         pub struct X402V1PaymentRequirements {
             asset:
                 ::std::result::Result<super::X402v1PaymentRequirementsAsset, ::std::string::String>,
-            description: ::std::result::Result<::std::string::String, ::std::string::String>,
+            description: ::std::result::Result<super::Description, ::std::string::String>,
             extra: ::std::result::Result<
                 ::serde_json::Map<::std::string::String, ::serde_json::Value>,
                 ::std::string::String,
@@ -55937,7 +61176,7 @@ pub mod types {
             }
             pub fn description<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::Description>,
                 T::Error: ::std::fmt::Display,
             {
                 self.description = value
@@ -56328,6 +61567,97 @@ pub mod types {
                 }
             }
         }
+        #[derive(Clone, Debug)]
+        pub struct X402VerifyPaymentRejection {
+            invalid_message: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            invalid_reason:
+                ::std::result::Result<super::X402VerifyInvalidReason, ::std::string::String>,
+            is_valid: ::std::result::Result<bool, ::std::string::String>,
+            payer: ::std::result::Result<
+                ::std::option::Option<super::X402VerifyPaymentRejectionPayer>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402VerifyPaymentRejection {
+            fn default() -> Self {
+                Self {
+                    invalid_message: Ok(Default::default()),
+                    invalid_reason: Err("no value supplied for invalid_reason".to_string()),
+                    is_valid: Err("no value supplied for is_valid".to_string()),
+                    payer: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402VerifyPaymentRejection {
+            pub fn invalid_message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.invalid_message = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for invalid_message: {}", e)
+                });
+                self
+            }
+            pub fn invalid_reason<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402VerifyInvalidReason>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.invalid_reason = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for invalid_reason: {}", e)
+                });
+                self
+            }
+            pub fn is_valid<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.is_valid = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for is_valid: {}", e));
+                self
+            }
+            pub fn payer<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::X402VerifyPaymentRejectionPayer>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payer = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payer: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402VerifyPaymentRejection> for super::X402VerifyPaymentRejection {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402VerifyPaymentRejection,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    invalid_message: value.invalid_message?,
+                    invalid_reason: value.invalid_reason?,
+                    is_valid: value.is_valid?,
+                    payer: value.payer?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402VerifyPaymentRejection> for X402VerifyPaymentRejection {
+            fn from(value: super::X402VerifyPaymentRejection) -> Self {
+                Self {
+                    invalid_message: Ok(value.invalid_message),
+                    invalid_reason: Ok(value.invalid_reason),
+                    is_valid: Ok(value.is_valid),
+                    payer: Ok(value.payer),
+                }
+            }
+        }
     }
     /// Generation of default values for serde.
     pub mod defaults {
@@ -56338,6 +61668,21 @@ pub mod types {
         {
             T::try_from(V).unwrap()
         }
+    }
+    #[derive(Debug)]
+    pub enum SettleX402PaymentError {
+        Status400(X402SettlePaymentRejection),
+        Status402(Error),
+        Status500(Error),
+        Status502(Error),
+        Status503(Error),
+    }
+    #[derive(Debug)]
+    pub enum VerifyX402PaymentError {
+        Status400(X402VerifyPaymentRejection),
+        Status500(Error),
+        Status502(Error),
+        Status503(Error),
     }
 }
 #[derive(Clone, Debug)]
@@ -56554,12 +61899,19 @@ impl Client {
     - `offramp.transaction.success`, `offramp.transaction.failed`
     - **No labels required** - maximum simplicity for transaction monitoring
 
+    **Payments Transfers Events** - Transfer lifecycle notifications:
+    - `payments.transfers.quoted`
+    - `payments.transfers.processing`
+    - `payments.transfers.completed`
+    - `payments.transfers.failed`
+    - **No labels required** - enable the transfers webhook to monitor status transitions
+
     **Wallet Events** - Wallet activity notifications:
     - `wallet.activity.detected`
 
     ### Webhook Signature Verification
     All webhooks include cryptographic signatures for security.
-    The signature secret is returned in `metadata.secret` when creating a subscription.
+    The signature secret is returned in `secret` field when creating a subscription.
 
     **Note:** Webhooks are in beta and this interface is subject to change.
 
@@ -56739,6 +62091,35 @@ impl Client {
     pub fn validate_end_user_access_token(&self) -> builder::ValidateEndUserAccessToken<'_> {
         builder::ValidateEndUserAccessToken::new(self)
     }
+    /**Import a private key for an end user
+
+    Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+
+    This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
+
+    Sends a `POST` request to `/v2/end-users/import`
+
+    Arguments:
+    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.import_end_user()
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn import_end_user(&self) -> builder::ImportEndUser<'_> {
+        builder::ImportEndUser::new(self)
+    }
     /**Get an end user
 
     Gets an end user by ID.
@@ -56757,6 +62138,96 @@ impl Client {
     ```*/
     pub fn get_end_user(&self) -> builder::GetEndUser<'_> {
         builder::GetEndUser::new(self)
+    }
+    /**Add an EVM account to an end user
+
+    Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts.
+    This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+    Sends a `POST` request to `/v2/end-users/{userId}/evm`
+
+    Arguments:
+    - `user_id`: The ID of the end user to add the account to.
+    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.add_end_user_evm_account()
+        .user_id(user_id)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn add_end_user_evm_account(&self) -> builder::AddEndUserEvmAccount<'_> {
+        builder::AddEndUserEvmAccount::new(self)
+    }
+    /**Add an EVM smart account to an end user
+
+    Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account.
+    This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+    Sends a `POST` request to `/v2/end-users/{userId}/evm-smart-account`
+
+    Arguments:
+    - `user_id`: The ID of the end user to add the smart account to.
+    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.add_end_user_evm_smart_account()
+        .user_id(user_id)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn add_end_user_evm_smart_account(&self) -> builder::AddEndUserEvmSmartAccount<'_> {
+        builder::AddEndUserEvmSmartAccount::new(self)
+    }
+    /**Add a Solana account to an end user
+
+    Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+    This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+    Sends a `POST` request to `/v2/end-users/{userId}/solana`
+
+    Arguments:
+    - `user_id`: The ID of the end user to add the account to.
+    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.add_end_user_solana_account()
+        .user_id(user_id)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn add_end_user_solana_account(&self) -> builder::AddEndUserSolanaAccount<'_> {
+        builder::AddEndUserSolanaAccount::new(self)
     }
     /**List EVM accounts
 
@@ -57485,6 +62956,22 @@ impl Client {
     pub fn list_evm_token_balances(&self) -> builder::ListEvmTokenBalances<'_> {
         builder::ListEvmTokenBalances::new(self)
     }
+    /**Get onramp user limits
+
+    Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction.
+    Currently supports `GUEST_CHECKOUT_APPLE_PAY` payment method with phone number identification. The phone number must have been previously verified via OTP.
+
+    Sends a `POST` request to `/v2/onramp/limits`
+
+    ```ignore
+    let response = client.get_onramp_user_limits()
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn get_onramp_user_limits(&self) -> builder::GetOnrampUserLimits<'_> {
+        builder::GetOnrampUserLimits::new(self)
+    }
     /**Create an onramp order
 
     Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
@@ -57532,13 +63019,15 @@ impl Client {
 
     **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response.
     ### 2. One-Click Onramp URL
-    **Required**: Basic parameters + `paymentAmount`, `paymentCurrency`
+    **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`
 
     **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response.
     ### 3. One-Click Onramp URL with Quote
     **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`
 
     **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.
+
+    **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
     Sends a `POST` request to `/v2/onramp/sessions`
 
@@ -58182,7 +63671,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58278,7 +63767,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58335,7 +63824,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 401u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58420,7 +63909,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58521,7 +64010,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58544,22 +64033,36 @@ pub mod builder {
     #[derive(Debug, Clone)]
     pub struct CreateWebhookSubscription<'a> {
         client: &'a super::Client,
-        body: Result<types::WebhookSubscriptionRequest, String>,
+        body: Result<types::builder::WebhookSubscriptionRequest, String>,
     }
     impl<'a> CreateWebhookSubscription<'a> {
         pub fn new(client: &'a super::Client) -> Self {
             Self {
                 client: client,
-                body: Err("body was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
             }
         }
         pub fn body<V>(mut self, value: V) -> Self
         where
             V: std::convert::TryInto<types::WebhookSubscriptionRequest>,
+            <V as std::convert::TryInto<types::WebhookSubscriptionRequest>>::Error:
+                std::fmt::Display,
         {
-            self.body = value.try_into().map_err(|_| {
-                "conversion to `WebhookSubscriptionRequest` for body failed".to_string()
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `WebhookSubscriptionRequest` for body failed: {}",
+                    s
+                )
             });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::WebhookSubscriptionRequest,
+            ) -> types::builder::WebhookSubscriptionRequest,
+        {
+            self.body = self.body.map(f);
             self
         }
         ///Sends a `POST` request to `/v2/data/webhooks/subscriptions`
@@ -58568,7 +64071,11 @@ pub mod builder {
         ) -> Result<ResponseValue<types::WebhookSubscriptionResponse>, Error<types::Error>>
         {
             let Self { client, body } = self;
-            let body = body.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::WebhookSubscriptionRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
             let url = format!("{}/v2/data/webhooks/subscriptions", client.baseurl,);
             let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
             header_map.append(
@@ -58594,7 +64101,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58673,7 +64180,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 401u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58697,14 +64204,14 @@ pub mod builder {
     pub struct UpdateWebhookSubscription<'a> {
         client: &'a super::Client,
         subscription_id: Result<::uuid::Uuid, String>,
-        body: Result<types::WebhookSubscriptionUpdateRequest, String>,
+        body: Result<types::builder::WebhookSubscriptionUpdateRequest, String>,
     }
     impl<'a> UpdateWebhookSubscription<'a> {
         pub fn new(client: &'a super::Client) -> Self {
             Self {
                 client: client,
                 subscription_id: Err("subscription_id was not initialized".to_string()),
-                body: Err("body was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
             }
         }
         pub fn subscription_id<V>(mut self, value: V) -> Self
@@ -58719,10 +64226,24 @@ pub mod builder {
         pub fn body<V>(mut self, value: V) -> Self
         where
             V: std::convert::TryInto<types::WebhookSubscriptionUpdateRequest>,
+            <V as std::convert::TryInto<types::WebhookSubscriptionUpdateRequest>>::Error:
+                std::fmt::Display,
         {
-            self.body = value.try_into().map_err(|_| {
-                "conversion to `WebhookSubscriptionUpdateRequest` for body failed".to_string()
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `WebhookSubscriptionUpdateRequest` for body failed: {}",
+                    s
+                )
             });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::WebhookSubscriptionUpdateRequest,
+            ) -> types::builder::WebhookSubscriptionUpdateRequest,
+        {
+            self.body = self.body.map(f);
             self
         }
         ///Sends a `PUT` request to `/v2/data/webhooks/subscriptions/{subscriptionId}`
@@ -58736,7 +64257,11 @@ pub mod builder {
                 body,
             } = self;
             let subscription_id = subscription_id.map_err(Error::InvalidRequest)?;
-            let body = body.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::WebhookSubscriptionUpdateRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
             let url = format!(
                 "{}/v2/data/webhooks/subscriptions/{}",
                 client.baseurl,
@@ -58766,7 +64291,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -58956,7 +64481,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59076,7 +64601,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59167,7 +64692,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59178,6 +64703,135 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::import_end_user`]
+
+    [`Client::import_end_user`]: super::Client::import_end_user*/
+    #[derive(Debug, Clone)]
+    pub struct ImportEndUser<'a> {
+        client: &'a super::Client,
+        x_idempotency_key: Result<Option<types::ImportEndUserXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::ImportEndUserBody, String>,
+    }
+    impl<'a> ImportEndUser<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ImportEndUserXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value.try_into().map(Some).map_err(|_| {
+                "conversion to `ImportEndUserXIdempotencyKey` for x_idempotency_key failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ImportEndUserBody>,
+            <V as std::convert::TryInto<types::ImportEndUserBody>>::Error: std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| format!("conversion to `ImportEndUserBody` for body failed: {}", s));
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::ImportEndUserBody,
+            ) -> types::builder::ImportEndUserBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/end-users/import`
+        pub async fn send(self) -> Result<ResponseValue<types::EndUser>, Error<types::Error>> {
+            let Self {
+                client,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| types::ImportEndUserBody::try_from(v).map_err(|e| e.to_string()))
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/end-users/import", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "import_end_user",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),
@@ -59240,11 +64894,449 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::add_end_user_evm_account`]
+
+    [`Client::add_end_user_evm_account`]: super::Client::add_end_user_evm_account*/
+    #[derive(Debug, Clone)]
+    pub struct AddEndUserEvmAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::AddEndUserEvmAccountUserId, String>,
+        x_idempotency_key: Result<Option<types::AddEndUserEvmAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<::serde_json::Map<::std::string::String, ::serde_json::Value>, String>,
+    }
+    impl<'a> AddEndUserEvmAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Err("body was not initialized".to_string()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserEvmAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `AddEndUserEvmAccountUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserEvmAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value.try_into().map(Some).map_err(|_| {
+                "conversion to `AddEndUserEvmAccountXIdempotencyKey` for x_idempotency_key failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::serde_json::Map<::std::string::String, ::serde_json::Value>>,
+        {
+            self.body = value
+                .try_into()
+                .map_err(|_| {
+                    "conversion to `:: serde_json :: Map < :: std :: string :: String , :: serde_json :: Value >` for body failed"
+                        .to_string()
+                });
+            self
+        }
+        ///Sends a `POST` request to `/v2/end-users/{userId}/evm`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::AddEndUserEvmAccountResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                user_id,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/end-users/{}/evm",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "add_end_user_evm_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::add_end_user_evm_smart_account`]
+
+    [`Client::add_end_user_evm_smart_account`]: super::Client::add_end_user_evm_smart_account*/
+    #[derive(Debug, Clone)]
+    pub struct AddEndUserEvmSmartAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::AddEndUserEvmSmartAccountUserId, String>,
+        x_idempotency_key: Result<Option<types::AddEndUserEvmSmartAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::AddEndUserEvmSmartAccountBody, String>,
+    }
+    impl<'a> AddEndUserEvmSmartAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserEvmSmartAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `AddEndUserEvmSmartAccountUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserEvmSmartAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `AddEndUserEvmSmartAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserEvmSmartAccountBody>,
+            <V as std::convert::TryInto<types::AddEndUserEvmSmartAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `AddEndUserEvmSmartAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::AddEndUserEvmSmartAccountBody,
+            ) -> types::builder::AddEndUserEvmSmartAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/end-users/{userId}/evm-smart-account`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::AddEndUserEvmSmartAccountResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                user_id,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::AddEndUserEvmSmartAccountBody::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/end-users/{}/evm-smart-account",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "add_end_user_evm_smart_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::add_end_user_solana_account`]
+
+    [`Client::add_end_user_solana_account`]: super::Client::add_end_user_solana_account*/
+    #[derive(Debug, Clone)]
+    pub struct AddEndUserSolanaAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::AddEndUserSolanaAccountUserId, String>,
+        x_idempotency_key: Result<Option<types::AddEndUserSolanaAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<::serde_json::Map<::std::string::String, ::serde_json::Value>, String>,
+    }
+    impl<'a> AddEndUserSolanaAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Err("body was not initialized".to_string()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserSolanaAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `AddEndUserSolanaAccountUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AddEndUserSolanaAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `AddEndUserSolanaAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::serde_json::Map<::std::string::String, ::serde_json::Value>>,
+        {
+            self.body = value
+                .try_into()
+                .map_err(|_| {
+                    "conversion to `:: serde_json :: Map < :: std :: string :: String , :: serde_json :: Value >` for body failed"
+                        .to_string()
+                });
+            self
+        }
+        ///Sends a `POST` request to `/v2/end-users/{userId}/solana`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::AddEndUserSolanaAccountResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                user_id,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/end-users/{}/solana",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "add_end_user_solana_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),
@@ -59329,7 +65421,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59445,7 +65537,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59530,7 +65622,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59675,7 +65767,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59806,7 +65898,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -59891,7 +65983,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60016,7 +66108,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60163,7 +66255,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60313,7 +66405,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60465,7 +66557,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60613,7 +66705,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 401u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60763,7 +66855,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -60915,7 +67007,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61014,7 +67106,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61116,7 +67208,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61226,7 +67318,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61304,7 +67396,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61382,7 +67474,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61495,7 +67587,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61645,7 +67737,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61761,7 +67853,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -61905,7 +67997,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62017,7 +68109,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62168,7 +68260,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62275,7 +68367,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62399,7 +68491,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62519,7 +68611,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62719,7 +68811,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62849,7 +68941,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -62863,6 +68955,96 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_onramp_user_limits`]
+
+    [`Client::get_onramp_user_limits`]: super::Client::get_onramp_user_limits*/
+    #[derive(Debug, Clone)]
+    pub struct GetOnrampUserLimits<'a> {
+        client: &'a super::Client,
+        body: Result<types::builder::GetOnrampUserLimitsBody, String>,
+    }
+    impl<'a> GetOnrampUserLimits<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetOnrampUserLimitsBody>,
+            <V as std::convert::TryInto<types::GetOnrampUserLimitsBody>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `GetOnrampUserLimitsBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::GetOnrampUserLimitsBody,
+            ) -> types::builder::GetOnrampUserLimitsBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/onramp/limits`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::GetOnrampUserLimitsResponse>, Error<types::Error>>
+        {
+            let Self { client, body } = self;
+            let body = body
+                .and_then(|v| {
+                    types::GetOnrampUserLimitsBody::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/onramp/limits", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_onramp_user_limits",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),
@@ -62939,7 +69121,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63014,7 +69196,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 401u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63101,7 +69283,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63213,7 +69395,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63313,7 +69495,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63392,7 +69574,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63512,7 +69694,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63718,7 +69900,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63838,7 +70020,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -63925,7 +70107,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64073,7 +70255,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64208,7 +70390,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                201u16 => ResponseValue::from_response(response).await,
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64345,7 +70527,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64435,7 +70617,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64564,7 +70746,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64714,7 +70896,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -64864,7 +71046,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -65021,7 +71203,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -65129,7 +71311,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -65262,7 +71444,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -65322,7 +71504,10 @@ pub mod builder {
         ///Sends a `POST` request to `/v2/x402/settle`
         pub async fn send(
             self,
-        ) -> Result<ResponseValue<types::SettleX402PaymentResponse>, Error<types::Error>> {
+        ) -> Result<
+            ResponseValue<types::SettleX402PaymentResponse>,
+            Error<types::SettleX402PaymentError>,
+        > {
             let Self { client, body } = self;
             let body = body
                 .and_then(|v| types::SettleX402PaymentBody::try_from(v).map_err(|e| e.to_string()))
@@ -65352,19 +71537,74 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
-                400u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                500u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                502u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                503u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
+                200u16 => {
+                    ResponseValue::from_response::<types::SettleX402PaymentError>(response).await
+                }
+                400u16 => {
+                    let inner_value: ResponseValue<types::X402SettlePaymentRejection> =
+                        ResponseValue::from_response::<types::SettleX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::SettleX402PaymentError::Status400(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                402u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::SettleX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::SettleX402PaymentError::Status402(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                500u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::SettleX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::SettleX402PaymentError::Status500(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                502u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::SettleX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::SettleX402PaymentError::Status502(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                503u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::SettleX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::SettleX402PaymentError::Status503(inner),
+                        status,
+                        headers,
+                    )))
+                }
                 _ => Err(Error::UnexpectedResponse(response)),
             }
         }
@@ -65410,7 +71650,7 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -65464,7 +71704,10 @@ pub mod builder {
         ///Sends a `POST` request to `/v2/x402/verify`
         pub async fn send(
             self,
-        ) -> Result<ResponseValue<types::VerifyX402PaymentResponse>, Error<types::Error>> {
+        ) -> Result<
+            ResponseValue<types::VerifyX402PaymentResponse>,
+            Error<types::VerifyX402PaymentError>,
+        > {
             let Self { client, body } = self;
             let body = body
                 .and_then(|v| types::VerifyX402PaymentBody::try_from(v).map_err(|e| e.to_string()))
@@ -65494,19 +71737,61 @@ pub mod builder {
             client.post(&result, &info).await?;
             let response = result?;
             match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
-                400u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                500u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                502u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                503u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
+                200u16 => {
+                    ResponseValue::from_response::<types::VerifyX402PaymentError>(response).await
+                }
+                400u16 => {
+                    let inner_value: ResponseValue<types::X402VerifyPaymentRejection> =
+                        ResponseValue::from_response::<types::VerifyX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::VerifyX402PaymentError::Status400(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                500u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::VerifyX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::VerifyX402PaymentError::Status500(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                502u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::VerifyX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::VerifyX402PaymentError::Status502(inner),
+                        status,
+                        headers,
+                    )))
+                }
+                503u16 => {
+                    let inner_value: ResponseValue<types::Error> =
+                        ResponseValue::from_response::<types::VerifyX402PaymentError>(response)
+                            .await?;
+                    let status = inner_value.status();
+                    let headers = inner_value.headers().clone();
+                    let inner = inner_value.into_inner();
+                    Err(Error::ErrorResponse(ResponseValue::new(
+                        types::VerifyX402PaymentError::Status503(inner),
+                        status,
+                        headers,
+                    )))
+                }
                 _ => Err(Error::UnexpectedResponse(response)),
             }
         }
