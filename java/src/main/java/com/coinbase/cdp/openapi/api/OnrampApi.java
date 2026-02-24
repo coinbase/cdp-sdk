@@ -23,6 +23,8 @@ import com.coinbase.cdp.openapi.model.CreateOnrampSession201Response;
 import com.coinbase.cdp.openapi.model.CreateOnrampSessionRequest;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.GetOnrampOrderById200Response;
+import com.coinbase.cdp.openapi.model.GetOnrampUserLimits200Response;
+import com.coinbase.cdp.openapi.model.GetOnrampUserLimitsRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -331,6 +333,91 @@ public class OnrampApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get onramp user limits
+   * Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; payment method with phone number identification. The phone number must have been previously verified via OTP.
+   * @param getOnrampUserLimitsRequest  (optional)
+   * @return GetOnrampUserLimits200Response
+   * @throws ApiException if fails to make API call
+   */
+  public GetOnrampUserLimits200Response getOnrampUserLimits(GetOnrampUserLimitsRequest getOnrampUserLimitsRequest) throws ApiException {
+    ApiResponse<GetOnrampUserLimits200Response> localVarResponse = getOnrampUserLimitsWithHttpInfo(getOnrampUserLimitsRequest);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get onramp user limits
+   * Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; payment method with phone number identification. The phone number must have been previously verified via OTP.
+   * @param getOnrampUserLimitsRequest  (optional)
+   * @return ApiResponse&lt;GetOnrampUserLimits200Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<GetOnrampUserLimits200Response> getOnrampUserLimitsWithHttpInfo(GetOnrampUserLimitsRequest getOnrampUserLimitsRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getOnrampUserLimitsRequestBuilder(getOnrampUserLimitsRequest);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getOnrampUserLimits", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<GetOnrampUserLimits200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<GetOnrampUserLimits200Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<GetOnrampUserLimits200Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getOnrampUserLimitsRequestBuilder(GetOnrampUserLimitsRequest getOnrampUserLimitsRequest) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/onramp/limits";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(getOnrampUserLimitsRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

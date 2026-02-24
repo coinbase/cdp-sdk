@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.X402ExactEvmPayload;
 import com.coinbase.cdp.openapi.model.X402ExactEvmPayloadAuthorization;
+import com.coinbase.cdp.openapi.model.X402ExactEvmPermit2Payload;
+import com.coinbase.cdp.openapi.model.X402ExactEvmPermit2PayloadPermit2Authorization;
 import com.coinbase.cdp.openapi.model.X402ExactSolanaPayload;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -117,6 +119,32 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
                 log.log(Level.FINER, "Input data does not match schema 'X402ExactEvmPayload'", e);
             }
 
+            // deserialize X402ExactEvmPermit2Payload
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (X402ExactEvmPermit2Payload.class.equals(Integer.class) || X402ExactEvmPermit2Payload.class.equals(Long.class) || X402ExactEvmPermit2Payload.class.equals(Float.class) || X402ExactEvmPermit2Payload.class.equals(Double.class) || X402ExactEvmPermit2Payload.class.equals(Boolean.class) || X402ExactEvmPermit2Payload.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((X402ExactEvmPermit2Payload.class.equals(Integer.class) || X402ExactEvmPermit2Payload.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((X402ExactEvmPermit2Payload.class.equals(Float.class) || X402ExactEvmPermit2Payload.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (X402ExactEvmPermit2Payload.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (X402ExactEvmPermit2Payload.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(X402ExactEvmPermit2Payload.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'X402ExactEvmPermit2Payload'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'X402ExactEvmPermit2Payload'", e);
+            }
+
             // deserialize X402ExactSolanaPayload
             try {
                 boolean attemptParsing = true;
@@ -172,6 +200,11 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
+    public X402V1PaymentPayloadPayload(X402ExactEvmPermit2Payload o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
     public X402V1PaymentPayloadPayload(X402ExactSolanaPayload o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
@@ -179,6 +212,7 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
 
     static {
         schemas.put("X402ExactEvmPayload", X402ExactEvmPayload.class);
+        schemas.put("X402ExactEvmPermit2Payload", X402ExactEvmPermit2Payload.class);
         schemas.put("X402ExactSolanaPayload", X402ExactSolanaPayload.class);
         JSON.registerDescendants(X402V1PaymentPayloadPayload.class, Collections.unmodifiableMap(schemas));
     }
@@ -191,7 +225,7 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * X402ExactEvmPayload, X402ExactSolanaPayload
+     * X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
@@ -203,19 +237,24 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
             return;
         }
 
+        if (JSON.isInstanceOf(X402ExactEvmPermit2Payload.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
         if (JSON.isInstanceOf(X402ExactSolanaPayload.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be X402ExactEvmPayload, X402ExactSolanaPayload");
+        throw new RuntimeException("Invalid instance type. Must be X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * X402ExactEvmPayload, X402ExactSolanaPayload
+     * X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload
      *
-     * @return The actual instance (X402ExactEvmPayload, X402ExactSolanaPayload)
+     * @return The actual instance (X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload)
      */
     @Override
     public Object getActualInstance() {
@@ -231,6 +270,17 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
      */
     public X402ExactEvmPayload getX402ExactEvmPayload() throws ClassCastException {
         return (X402ExactEvmPayload)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `X402ExactEvmPermit2Payload`. If the actual instance is not `X402ExactEvmPermit2Payload`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `X402ExactEvmPermit2Payload`
+     * @throws ClassCastException if the instance is not `X402ExactEvmPermit2Payload`
+     */
+    public X402ExactEvmPermit2Payload getX402ExactEvmPermit2Payload() throws ClassCastException {
+        return (X402ExactEvmPermit2Payload)super.getActualInstance();
     }
 
     /**
@@ -284,9 +334,15 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
         }
         return joiner.toString();
     }
+    if (getActualInstance() instanceof X402ExactEvmPermit2Payload) {
+        if (getActualInstance() != null) {
+          joiner.add(((X402ExactEvmPermit2Payload)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
+        }
+        return joiner.toString();
+    }
     if (getActualInstance() instanceof X402ExactSolanaPayload) {
         if (getActualInstance() != null) {
-          joiner.add(((X402ExactSolanaPayload)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
+          joiner.add(((X402ExactSolanaPayload)getActualInstance()).toUrlQueryString(prefix + "one_of_2" + suffix));
         }
         return joiner.toString();
     }

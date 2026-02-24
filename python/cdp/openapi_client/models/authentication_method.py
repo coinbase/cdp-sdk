@@ -22,11 +22,12 @@ from cdp.openapi_client.models.developer_jwt_authentication import DeveloperJWTA
 from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.o_auth2_authentication import OAuth2Authentication
 from cdp.openapi_client.models.sms_authentication import SmsAuthentication
+from cdp.openapi_client.models.telegram_authentication import TelegramAuthentication
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-AUTHENTICATIONMETHOD_ONE_OF_SCHEMAS = ["DeveloperJWTAuthentication", "EmailAuthentication", "OAuth2Authentication", "SmsAuthentication"]
+AUTHENTICATIONMETHOD_ONE_OF_SCHEMAS = ["DeveloperJWTAuthentication", "EmailAuthentication", "OAuth2Authentication", "SmsAuthentication", "TelegramAuthentication"]
 
 class AuthenticationMethod(BaseModel):
     """
@@ -40,8 +41,10 @@ class AuthenticationMethod(BaseModel):
     oneof_schema_3_validator: Optional[DeveloperJWTAuthentication] = None
     # data type: OAuth2Authentication
     oneof_schema_4_validator: Optional[OAuth2Authentication] = None
-    actual_instance: Optional[Union[DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication]] = None
-    one_of_schemas: Set[str] = { "DeveloperJWTAuthentication", "EmailAuthentication", "OAuth2Authentication", "SmsAuthentication" }
+    # data type: TelegramAuthentication
+    oneof_schema_5_validator: Optional[TelegramAuthentication] = None
+    actual_instance: Optional[Union[DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication]] = None
+    one_of_schemas: Set[str] = { "DeveloperJWTAuthentication", "EmailAuthentication", "OAuth2Authentication", "SmsAuthentication", "TelegramAuthentication" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -84,12 +87,17 @@ class AuthenticationMethod(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `OAuth2Authentication`")
         else:
             match += 1
+        # validate data type: TelegramAuthentication
+        if not isinstance(v, TelegramAuthentication):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `TelegramAuthentication`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -128,13 +136,19 @@ class AuthenticationMethod(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into TelegramAuthentication
+        try:
+            instance.actual_instance = TelegramAuthentication.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into AuthenticationMethod with oneOf schemas: DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -148,7 +162,7 @@ class AuthenticationMethod(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

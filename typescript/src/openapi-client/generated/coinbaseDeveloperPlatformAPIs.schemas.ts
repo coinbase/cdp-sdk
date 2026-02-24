@@ -83,6 +83,7 @@ export const OAuth2ProviderType = {
   google: "google",
   apple: "apple",
   x: "x",
+  telegram: "telegram",
 } as const;
 
 /**
@@ -101,13 +102,33 @@ export interface OAuth2Authentication {
 }
 
 /**
+ * Information about an end user who authenticates using Telegram.
+ */
+export interface TelegramAuthentication {
+  type: OAuth2ProviderType;
+  /** The Telegram ID for the end user. */
+  id: number;
+  /** The Telegram user's first name. */
+  firstName: string;
+  /** The Telegram user's last name. */
+  lastName: string;
+  /** The Telegram user's profile picture. */
+  photoUrl: string;
+  /** The Telegram user's last login as a Unix timestamp. */
+  authDate: number;
+  /** The Telegram user's username. */
+  username: string;
+}
+
+/**
  * Information about how the end user is authenticated.
  */
 export type AuthenticationMethod =
   | EmailAuthentication
   | SmsAuthentication
   | DeveloperJWTAuthentication
-  | OAuth2Authentication;
+  | OAuth2Authentication
+  | TelegramAuthentication;
 
 /**
  * The list of valid authentication methods linked to the end user.
@@ -262,9 +283,22 @@ export const ErrorType = {
   recipient_allowlist_violation: "recipient_allowlist_violation",
   recipient_allowlist_pending: "recipient_allowlist_pending",
   travel_rules_recipient_violation: "travel_rules_recipient_violation",
-  transfer_amount_out_of_bounds: "transfer_amount_out_of_bounds",
-  transfer_recipient_address_invalid: "transfer_recipient_address_invalid",
-  transfer_quote_expired: "transfer_quote_expired",
+  source_account_invalid: "source_account_invalid",
+  target_account_invalid: "target_account_invalid",
+  source_account_not_found: "source_account_not_found",
+  target_account_not_found: "target_account_not_found",
+  source_asset_not_supported: "source_asset_not_supported",
+  target_asset_not_supported: "target_asset_not_supported",
+  target_email_invalid: "target_email_invalid",
+  target_onchain_address_invalid: "target_onchain_address_invalid",
+  transfer_amount_invalid: "transfer_amount_invalid",
+  transfer_asset_not_supported: "transfer_asset_not_supported",
+  insufficient_balance: "insufficient_balance",
+  metadata_too_many_entries: "metadata_too_many_entries",
+  metadata_key_too_long: "metadata_key_too_long",
+  metadata_value_too_long: "metadata_value_too_long",
+  travel_rules_field_missing: "travel_rules_field_missing",
+  asset_mismatch: "asset_mismatch",
   mfa_already_enrolled: "mfa_already_enrolled",
   mfa_invalid_code: "mfa_invalid_code",
   mfa_flow_expired: "mfa_flow_expired",
@@ -968,6 +1002,7 @@ export interface EthValueCriterion {
   type: EthValueCriterionType;
   /**
    * The amount of ETH, in wei, that the transaction's `value` field should be compared to.
+   * @maxLength 78
    * @pattern ^[0-9]+$
    */
   ethValue: string;
@@ -2756,7 +2791,10 @@ export type X402ExactEvmPayloadAuthorization = {
   validAfter: string;
   /** The unix timestamp before which the payment is valid. */
   validBefore: string;
-  /** The hex-encoded nonce of the payment. */
+  /**
+   * The hex-encoded nonce of the payment (bytes32).
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
   nonce: string;
 };
 
@@ -2764,10 +2802,84 @@ export type X402ExactEvmPayloadAuthorization = {
  * The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
  */
 export interface X402ExactEvmPayload {
-  /** The EIP-712 hex-encoded signature of the ERC-3009 authorization message. */
+  /**
+   * The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
+   * @pattern ^0x[0-9a-fA-F]{130,}$
+   */
   signature: string;
   /** The authorization data for the ERC-3009 authorization message. */
   authorization: X402ExactEvmPayloadAuthorization;
+}
+
+/**
+ * The token permissions for the transfer.
+ */
+export type X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the token to transfer.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  token: string;
+  /** The amount to transfer in atomic units. */
+  amount: string;
+};
+
+/**
+ * The witness data containing payment details.
+ */
+export type X402ExactEvmPermit2PayloadPermit2AuthorizationWitness = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the recipient.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  to: string;
+  /** The unix timestamp after which the payment is valid. */
+  validAfter: string;
+  /**
+   * Optional hex-encoded extra data.
+   * @pattern ^0x[0-9a-fA-F]*$
+   */
+  extra?: string;
+};
+
+/**
+ * The authorization data for the Permit2 PermitWitnessTransferFrom message.
+ */
+export type X402ExactEvmPermit2PayloadPermit2Authorization = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the sender of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  from: string;
+  /** The token permissions for the transfer. */
+  permitted: X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted;
+  /**
+   * The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  spender: string;
+  /**
+   * The Permit2 nonce as a decimal string (uint256).
+   * @pattern ^[0-9]+$
+   */
+  nonce: string;
+  /** The unix timestamp before which the permit is valid. */
+  deadline: string;
+  /** The witness data containing payment details. */
+  witness: X402ExactEvmPermit2PayloadPermit2AuthorizationWitness;
+};
+
+/**
+ * The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.
+ */
+export interface X402ExactEvmPermit2Payload {
+  /**
+   * The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
+   * @pattern ^0x[0-9a-fA-F]{130,}$
+   */
+  signature: string;
+  /** The authorization data for the Permit2 PermitWitnessTransferFrom message. */
+  permit2Authorization: X402ExactEvmPermit2PayloadPermit2Authorization;
 }
 
 /**
@@ -2806,7 +2918,10 @@ export const X402V1PaymentPayloadNetwork = {
 /**
  * The payload of the payment depending on the x402Version, scheme, and network.
  */
-export type X402V1PaymentPayloadPayload = X402ExactEvmPayload | X402ExactSolanaPayload;
+export type X402V1PaymentPayloadPayload =
+  | X402ExactEvmPayload
+  | X402ExactEvmPermit2Payload
+  | X402ExactSolanaPayload;
 
 /**
  * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
@@ -2886,7 +3001,10 @@ export interface X402ResourceInfo {
 /**
  * The payload of the payment depending on the x402Version, scheme, and network.
  */
-export type X402V2PaymentPayloadPayload = X402ExactEvmPayload | X402ExactSolanaPayload;
+export type X402V2PaymentPayloadPayload =
+  | X402ExactEvmPayload
+  | X402ExactEvmPermit2Payload
+  | X402ExactSolanaPayload;
 
 /**
  * Optional protocol extensions.
@@ -2908,6 +3026,7 @@ export interface X402V2PaymentPayload {
 
 /**
  * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+For EVM networks, smart account signatures can be longer than 65 bytes.
  */
 export type X402PaymentPayload = X402V1PaymentPayload | X402V2PaymentPayload;
 
@@ -3022,6 +3141,14 @@ export const X402VerifyInvalidReason = {
     "invalid_exact_evm_payload_authorization_to_address_kyt",
   invalid_exact_evm_payload_signature: "invalid_exact_evm_payload_signature",
   invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+  invalid_exact_evm_permit2_payload_allowance_required:
+    "invalid_exact_evm_permit2_payload_allowance_required",
+  invalid_exact_evm_permit2_payload_signature: "invalid_exact_evm_permit2_payload_signature",
+  invalid_exact_evm_permit2_payload_deadline: "invalid_exact_evm_permit2_payload_deadline",
+  invalid_exact_evm_permit2_payload_valid_after: "invalid_exact_evm_permit2_payload_valid_after",
+  invalid_exact_evm_permit2_payload_spender: "invalid_exact_evm_permit2_payload_spender",
+  invalid_exact_evm_permit2_payload_recipient: "invalid_exact_evm_permit2_payload_recipient",
+  invalid_exact_evm_permit2_payload_amount: "invalid_exact_evm_permit2_payload_amount",
   invalid_exact_svm_payload_transaction: "invalid_exact_svm_payload_transaction",
   invalid_exact_svm_payload_transaction_amount_mismatch:
     "invalid_exact_svm_payload_transaction_amount_mismatch",
@@ -3113,6 +3240,14 @@ export const X402SettleErrorReason = {
     "invalid_exact_evm_payload_authorization_to_address_kyt",
   invalid_exact_evm_payload_signature: "invalid_exact_evm_payload_signature",
   invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+  invalid_exact_evm_permit2_payload_allowance_required:
+    "invalid_exact_evm_permit2_payload_allowance_required",
+  invalid_exact_evm_permit2_payload_signature: "invalid_exact_evm_permit2_payload_signature",
+  invalid_exact_evm_permit2_payload_deadline: "invalid_exact_evm_permit2_payload_deadline",
+  invalid_exact_evm_permit2_payload_valid_after: "invalid_exact_evm_permit2_payload_valid_after",
+  invalid_exact_evm_permit2_payload_spender: "invalid_exact_evm_permit2_payload_spender",
+  invalid_exact_evm_permit2_payload_recipient: "invalid_exact_evm_permit2_payload_recipient",
+  invalid_exact_evm_permit2_payload_amount: "invalid_exact_evm_permit2_payload_amount",
   invalid_exact_svm_payload_transaction: "invalid_exact_svm_payload_transaction",
   invalid_exact_svm_payload_transaction_amount_mismatch:
     "invalid_exact_svm_payload_transaction_amount_mismatch",
@@ -3403,6 +3538,49 @@ export interface OnrampQuote {
   fees: OnrampOrderFee[];
   /** The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat. */
   exchangeRate: string;
+}
+
+/**
+ * The type of user identifier:
+- `phone_number`: A phone number in E.164 format associated with an onramp user.
+
+ */
+export type OnrampUserIdType = (typeof OnrampUserIdType)[keyof typeof OnrampUserIdType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampUserIdType = {
+  phone_number: "phone_number",
+} as const;
+
+/**
+ * The type of limit:
+- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions 
+  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. 
+  $500 is the default limit.
+- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions 
+  across the user's entire history with no time-based expiration. Once the limit is reached, no further 
+  transactions are allowed. 15 is the default limit.
+
+ */
+export type OnrampLimitType = (typeof OnrampLimitType)[keyof typeof OnrampLimitType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampLimitType = {
+  weekly_spending: "weekly_spending",
+  lifetime_transactions: "lifetime_transactions",
+} as const;
+
+/**
+ * A single limit with remaining capacity.
+ */
+export interface OnrampUserLimit {
+  limitType: OnrampLimitType;
+  /** The currency of the limit amounts. Only present for spending limits, not for count-based limits. */
+  currency?: string;
+  /** The maximum limit value. */
+  limit: string;
+  /** The remaining amount or count available. */
+  remaining: string;
 }
 
 /**
@@ -4374,4 +4552,16 @@ This value can be used with with [Onramp User Transactions API](https://docs.cdp
 export type CreateOnrampSession201 = {
   session: OnrampSession;
   quote?: OnrampQuote;
+};
+
+export type GetOnrampUserLimitsBody = {
+  paymentMethodType: OnrampOrderPaymentMethodTypeId;
+  /** The user identifier value. For `phone_number` type, this must be in E.164 format. */
+  userId: string;
+  userIdType: OnrampUserIdType;
+};
+
+export type GetOnrampUserLimits200 = {
+  /** The list of limits applicable to the user. */
+  limits: OnrampUserLimit[];
 };

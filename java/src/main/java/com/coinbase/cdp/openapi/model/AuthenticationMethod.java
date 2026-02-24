@@ -24,6 +24,7 @@ import com.coinbase.cdp.openapi.model.EmailAuthentication;
 import com.coinbase.cdp.openapi.model.OAuth2Authentication;
 import com.coinbase.cdp.openapi.model.OAuth2ProviderType;
 import com.coinbase.cdp.openapi.model.SmsAuthentication;
+import com.coinbase.cdp.openapi.model.TelegramAuthentication;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -197,6 +198,32 @@ public class AuthenticationMethod extends AbstractOpenApiSchema {
                 log.log(Level.FINER, "Input data does not match schema 'SmsAuthentication'", e);
             }
 
+            // deserialize TelegramAuthentication
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (TelegramAuthentication.class.equals(Integer.class) || TelegramAuthentication.class.equals(Long.class) || TelegramAuthentication.class.equals(Float.class) || TelegramAuthentication.class.equals(Double.class) || TelegramAuthentication.class.equals(Boolean.class) || TelegramAuthentication.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((TelegramAuthentication.class.equals(Integer.class) || TelegramAuthentication.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((TelegramAuthentication.class.equals(Float.class) || TelegramAuthentication.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (TelegramAuthentication.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (TelegramAuthentication.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(TelegramAuthentication.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'TelegramAuthentication'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'TelegramAuthentication'", e);
+            }
+
             if (match == 1) {
                 AuthenticationMethod ret = new AuthenticationMethod();
                 ret.setActualInstance(deserialized);
@@ -241,11 +268,17 @@ public class AuthenticationMethod extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
+    public AuthenticationMethod(TelegramAuthentication o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
     static {
         schemas.put("DeveloperJWTAuthentication", DeveloperJWTAuthentication.class);
         schemas.put("EmailAuthentication", EmailAuthentication.class);
         schemas.put("OAuth2Authentication", OAuth2Authentication.class);
         schemas.put("SmsAuthentication", SmsAuthentication.class);
+        schemas.put("TelegramAuthentication", TelegramAuthentication.class);
         JSON.registerDescendants(AuthenticationMethod.class, Collections.unmodifiableMap(schemas));
     }
 
@@ -257,7 +290,7 @@ public class AuthenticationMethod extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication
+     * DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
@@ -284,14 +317,19 @@ public class AuthenticationMethod extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication");
+        if (JSON.isInstanceOf(TelegramAuthentication.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        throw new RuntimeException("Invalid instance type. Must be DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication
+     * DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication
      *
-     * @return The actual instance (DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication)
+     * @return The actual instance (DeveloperJWTAuthentication, EmailAuthentication, OAuth2Authentication, SmsAuthentication, TelegramAuthentication)
      */
     @Override
     public Object getActualInstance() {
@@ -340,6 +378,17 @@ public class AuthenticationMethod extends AbstractOpenApiSchema {
      */
     public SmsAuthentication getSmsAuthentication() throws ClassCastException {
         return (SmsAuthentication)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `TelegramAuthentication`. If the actual instance is not `TelegramAuthentication`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `TelegramAuthentication`
+     * @throws ClassCastException if the instance is not `TelegramAuthentication`
+     */
+    public TelegramAuthentication getTelegramAuthentication() throws ClassCastException {
+        return (TelegramAuthentication)super.getActualInstance();
     }
 
 
@@ -397,6 +446,12 @@ public class AuthenticationMethod extends AbstractOpenApiSchema {
     if (getActualInstance() instanceof OAuth2Authentication) {
         if (getActualInstance() != null) {
           joiner.add(((OAuth2Authentication)getActualInstance()).toUrlQueryString(prefix + "one_of_3" + suffix));
+        }
+        return joiner.toString();
+    }
+    if (getActualInstance() instanceof TelegramAuthentication) {
+        if (getActualInstance() != null) {
+          joiner.add(((TelegramAuthentication)getActualInstance()).toUrlQueryString(prefix + "one_of_4" + suffix));
         }
         return joiner.toString();
     }

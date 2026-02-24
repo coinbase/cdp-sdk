@@ -112,6 +112,8 @@ from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAc
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
 from cdp.openapi_client.models.get_onramp_order_by_id200_response import GetOnrampOrderById200Response
+from cdp.openapi_client.models.get_onramp_user_limits200_response import GetOnrampUserLimits200Response
+from cdp.openapi_client.models.get_onramp_user_limits_request import GetOnrampUserLimitsRequest
 from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
 from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
 from cdp.openapi_client.models.idl import Idl
@@ -150,6 +152,7 @@ from cdp.openapi_client.models.onchain_data_result import OnchainDataResult
 from cdp.openapi_client.models.onchain_data_result_metadata import OnchainDataResultMetadata
 from cdp.openapi_client.models.onchain_data_result_schema import OnchainDataResultSchema
 from cdp.openapi_client.models.onchain_data_result_schema_columns_inner import OnchainDataResultSchemaColumnsInner
+from cdp.openapi_client.models.onramp_limit_type import OnrampLimitType
 from cdp.openapi_client.models.onramp_order import OnrampOrder
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
 from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
@@ -159,6 +162,8 @@ from cdp.openapi_client.models.onramp_payment_link_type import OnrampPaymentLink
 from cdp.openapi_client.models.onramp_quote import OnrampQuote
 from cdp.openapi_client.models.onramp_quote_payment_method_type_id import OnrampQuotePaymentMethodTypeId
 from cdp.openapi_client.models.onramp_session import OnrampSession
+from cdp.openapi_client.models.onramp_user_id_type import OnrampUserIdType
+from cdp.openapi_client.models.onramp_user_limit import OnrampUserLimit
 from cdp.openapi_client.models.policy import Policy
 from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
@@ -229,6 +234,7 @@ from cdp.openapi_client.models.spend_permission_response_object import SpendPerm
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
+from cdp.openapi_client.models.telegram_authentication import TelegramAuthentication
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
 from cdp.openapi_client.models.token_balance import TokenBalance
@@ -249,6 +255,10 @@ from cdp.openapi_client.models.webhook_subscription_update_request import Webhoo
 from cdp.openapi_client.models.webhook_target import WebhookTarget
 from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
 from cdp.openapi_client.models.x402_exact_evm_payload_authorization import X402ExactEvmPayloadAuthorization
+from cdp.openapi_client.models.x402_exact_evm_permit2_payload import X402ExactEvmPermit2Payload
+from cdp.openapi_client.models.x402_exact_evm_permit2_payload_permit2_authorization import X402ExactEvmPermit2PayloadPermit2Authorization
+from cdp.openapi_client.models.x402_exact_evm_permit2_payload_permit2_authorization_permitted import X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted
+from cdp.openapi_client.models.x402_exact_evm_permit2_payload_permit2_authorization_witness import X402ExactEvmPermit2PayloadPermit2AuthorizationWitness
 from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload
 from cdp.openapi_client.models.x402_payment_payload import X402PaymentPayload
 from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
