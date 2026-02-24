@@ -95,7 +95,7 @@ make local-docs
 
 #### Prerequisites
 
-- Rust 1.70 or higher
+- Rust 1.86.0 or higher
 - Cargo
 - Make
 
