@@ -24,6 +24,8 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
+  CreateEvmEip7702DelegationResult,
+  EvmEip7702DelegationNetwork,
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
@@ -75,6 +77,7 @@ export type EvmClientInterface = Omit<
   | "exportEvmAccount"
   | "exportEvmAccountByName"
   | "updateEvmSmartAccount" // 🚧 Coming soon
+  | "createEvmEip7702Delegation" // mapped to options-based createEvmEip7702Delegation
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
@@ -111,6 +114,10 @@ export type EvmClientInterface = Omit<
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
+  createEvmEip7702Delegation: (
+    address: Address,
+    options: CreateEvmEip7702DelegationOptions,
+  ) => Promise<CreateEvmEip7702DelegationResult>;
 };
 
 export type { ServerAccount, SmartAccount };
@@ -481,6 +488,18 @@ export interface UpdateEvmSmartAccountOptions {
   idempotencyKey?: string;
   /** The owner of the account. */
   owner: Account;
+}
+
+/**
+ * Options for creating an EIP-7702 delegation for an EVM EOA account.
+ */
+export interface CreateEvmEip7702DelegationOptions {
+  /** The network for the EIP-7702 delegation. */
+  network: EvmEip7702DelegationNetwork;
+  /** Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf. Defaults to false. */
+  enableSpendPermissions?: boolean;
+  /** Optional idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**

@@ -32,6 +32,9 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_eip7702_delegation_request import (
     CreateEvmEip7702DelegationRequest,
 )
+from cdp.openapi_client.models.evm_eip7702_delegation_network import (
+    EvmEip7702DelegationNetwork,
+)
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
@@ -899,24 +902,43 @@ class EvmClient:
     async def create_evm_eip7702_delegation(
         self,
         address: str,
-        create_evm_eip7702_delegation_request: CreateEvmEip7702DelegationRequest,
+        network: EvmEip7702DelegationNetwork,
+        enable_spend_permissions: bool = False,
         x_wallet_auth: str | None = None,
         idempotency_key: str | None = None,
     ):
         """Create an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
 
+        The delegation allows the EVM EOA to be used as a smart account, which enables
+        batched transactions and gas sponsorship via paymaster.
+
         Args:
             address (str): The 0x-prefixed address of the EVM account to delegate.
-            create_evm_eip7702_delegation_request (CreateEvmEip7702DelegationRequest): The delegation parameters.
+            network (EvmEip7702DelegationNetwork): The network for the EIP-7702 delegation
+                (e.g. EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA).
+            enable_spend_permissions (bool, optional): Whether to configure spend permissions
+                for the upgraded account. Defaults to False.
             x_wallet_auth (str, optional): A JWT signed using your Wallet Secret. Defaults to None.
             idempotency_key (str, optional): An optional idempotency key. Defaults to None.
 
         Returns:
-            CreateEvmEip7702DelegationResult: The delegation result including the transaction hash.
+            CreateEvmEip7702Delegation201Response: The delegation result including the transaction hash.
+
+        Example:
+            >>> result = await cdp.evm.create_evm_eip7702_delegation(
+            ...     account.address,
+            ...     network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+            ...     enable_spend_permissions=False,
+            ... )
+            >>> print(result.transaction_hash)
 
         """
         track_action(action="create_eip7702_delegation")
 
+        create_evm_eip7702_delegation_request = CreateEvmEip7702DelegationRequest(
+            network=network,
+            enable_spend_permissions=enable_spend_permissions,
+        )
         return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
             address=address,
             create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,

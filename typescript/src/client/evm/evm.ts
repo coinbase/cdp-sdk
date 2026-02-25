@@ -89,9 +89,8 @@ import type {
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
 import type {
-  CreateEvmEip7702DelegationBody,
-  CreateEvmEip7702DelegationResult,
-} from "../../openapi-client/index.js";
+  CreateEvmEip7702DelegationOptions,
+} from "./evm.types.js";
 import type {
   CreateSpendPermissionOptions,
   ListSpendPermissionsOptions,
@@ -1409,23 +1408,36 @@ export class EvmClient implements EvmClientInterface {
    * The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
    *
    * @param {string} address - The address of the EOA account.
-   * @param {CreateEvmEip7702DelegationBody} createEvmEip7702DelegationBody - The delegation parameters.
-   * @param {string} [options] - Optional idempotency key.
+   * @param {CreateEvmEip7702DelegationOptions} options - The delegation parameters (network required, enableSpendPermissions and idempotencyKey optional).
    * @returns A promise that resolves to the delegation result including the transaction hash.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
+   *   network: "base-sepolia",
+   *   enableSpendPermissions: false,
+   * });
+   * console.log(result.transactionHash);
+   * ```
    */
   createEvmEip7702Delegation(
     address: string,
-    createEvmEip7702DelegationBody: CreateEvmEip7702DelegationBody,
-    options?: string,
-  ): Promise<CreateEvmEip7702DelegationResult> {
+    options: CreateEvmEip7702DelegationOptions,
+  ) {
     Analytics.trackAction({
       action: "create_eip7702_delegation",
     });
 
+    const { network, enableSpendPermissions, idempotencyKey } = options;
     return CdpOpenApiClient.createEvmEip7702Delegation(
       address,
-      createEvmEip7702DelegationBody,
-      options,
+      {
+        network,
+        ...(enableSpendPermissions !== undefined && {
+          enableSpendPermissions,
+        }),
+      },
+      idempotencyKey,
     );
   }
 

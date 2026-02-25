@@ -210,6 +210,22 @@ describe("CDP Client E2E Tests", () => {
     expect(account.name).toBe(randomName);
   });
 
+  it("should create EIP-7702 delegation for an EOA account", async () => {
+    const randomName = generateRandomName();
+    const serverAccount = await cdp.evm.createAccount({ name: randomName });
+    expect(serverAccount).toBeDefined();
+
+    const result = await cdp.evm.createEvmEip7702Delegation(serverAccount.address, {
+      network: "base-sepolia",
+      enableSpendPermissions: false,
+    });
+
+    expect(result).toBeDefined();
+    expect(result.transactionHash).toBeDefined();
+    expect(typeof result.transactionHash).toBe("string");
+    expect(result.transactionHash).toMatch(/^0x[0-9a-fA-F]{64}$/);
+  });
+
   it("should create an end user with EVM smart account and Solana account", async () => {
     const randomEmail = `test-${Date.now()}@example.com`;
 
