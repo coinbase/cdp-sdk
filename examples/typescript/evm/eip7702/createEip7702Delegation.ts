@@ -1,0 +1,53 @@
+// Usage: pnpm tsx evm/eip7702/createEip7702Delegation.ts
+//
+// Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
+// capabilities), then waits for the transaction to be confirmed.
+
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { createPublicClient, Hex, http } from "viem";
+import { baseSepolia } from "viem/chains";
+import "dotenv/config";
+
+const cdp = new CdpClient();
+
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+// Step 1: Get or create an EOA account
+const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account" });
+console.log("Account address:", account.address);
+
+// Step 2: Ensure the account has ETH for gas (request faucet if needed)
+const balance = await publicClient.getBalance({ address: account.address });
+if (balance === 0n) {
+  const { transactionHash: faucetTxHash } = await cdp.evm.requestFaucet({
+    address: account.address,
+    network: "base-sepolia",
+    token: "eth",
+  });
+
+  await publicClient.waitForTransactionReceipt({ hash: faucetTxHash });
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+// Step 3: Create the EIP-7702 delegation
+console.log("Creating EIP-7702 delegation...");
+const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
+  network: "base-sepolia",
+  enableSpendPermissions: false,
+});
+
+console.log("Delegation transaction submitted:", result.transactionHash);
+
+// Step 4: Wait for the transaction to be confirmed onchain
+console.log("Waiting for transaction confirmation...");
+const receipt = await publicClient.waitForTransactionReceipt({
+  hash: result.transactionHash as Hex,
+});
+
+console.log(
+  `Delegation confirmed in block ${receipt.blockNumber}. Explorer: https://sepolia.basescan.org/tx/${result.transactionHash}`
+);
