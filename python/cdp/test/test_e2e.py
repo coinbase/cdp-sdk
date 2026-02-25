@@ -166,7 +166,7 @@ async def test_create_evm_eip7702_delegation(cdp_client):
     assert server_account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, server_account)
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
 
     result = await cdp_client.evm.create_evm_eip7702_delegation(
         address=server_account.address,

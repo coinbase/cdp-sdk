@@ -216,7 +216,7 @@ describe("CDP Client E2E Tests", () => {
     expect(serverAccount).toBeDefined();
 
     await ensureSufficientEthBalance(cdp, serverAccount);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     const result = await cdp.evm.createEvmEip7702Delegation(serverAccount.address, {
       network: "base-sepolia",
