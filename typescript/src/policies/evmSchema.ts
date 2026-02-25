@@ -509,6 +509,78 @@ export const SendUserOperationCriteriaSchema = z
 export type SendUserOperationCriteria = z.infer<typeof SendUserOperationCriteriaSchema>;
 
 /**
+ * Schema for criteria used in SignEndUserEvmTransaction operations
+ */
+export const SignEndUserEvmTransactionCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEndUserEvmTransaction operation.
+ */
+export type SignEndUserEvmTransactionCriteria = z.infer<
+  typeof SignEndUserEvmTransactionCriteriaSchema
+>;
+
+/**
+ * Schema for criteria used in SendEndUserEvmTransaction operations
+ */
+export const SendEndUserEvmTransactionCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      PrepareUserOperationEvmNetworkCriterionSchema,
+      EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendEndUserEvmTransaction operation.
+ */
+export type SendEndUserEvmTransactionCriteria = z.infer<
+  typeof SendEndUserEvmTransactionCriteriaSchema
+>;
+
+/**
+ * Schema for criteria used in SignEndUserEvmMessage operations
+ */
+export const SignEndUserEvmMessageCriteriaSchema = z
+  .array(z.discriminatedUnion("type", [EvmMessageCriterionSchema]))
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEndUserEvmMessage operation.
+ */
+export type SignEndUserEvmMessageCriteria = z.infer<typeof SignEndUserEvmMessageCriteriaSchema>;
+
+/**
+ * Schema for criteria used in SignEndUserEvmTypedData operations
+ */
+export const SignEndUserEvmTypedDataCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      SignEvmTypedDataFieldCriterionSchema,
+      SignEvmTypedDataVerifyingContractCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEndUserEvmTypedData operation.
+ */
+export type SignEndUserEvmTypedDataCriteria = z.infer<typeof SignEndUserEvmTypedDataCriteriaSchema>;
+
+/**
  * Enum for Evm Operation types
  */
 export const EvmOperationEnum = z.enum([
@@ -691,3 +763,95 @@ export const SendUserOperationRuleSchema = z.object({
   criteria: SendUserOperationCriteriaSchema,
 });
 export type SendUserOperationRule = z.infer<typeof SendUserOperationRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserEvmTransaction' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEndUserEvmTransactionRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the transaction, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserEvmTransaction".
+   */
+  operation: z.literal("signEndUserEvmTransaction"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEndUserEvmTransactionCriteriaSchema,
+});
+export type SignEndUserEvmTransactionRule = z.infer<typeof SignEndUserEvmTransactionRuleSchema>;
+
+/**
+ * Type representing a 'sendEndUserEvmTransaction' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEndUserEvmTransactionRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the transaction, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEndUserEvmTransaction".
+   */
+  operation: z.literal("sendEndUserEvmTransaction"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEndUserEvmTransactionCriteriaSchema,
+});
+export type SendEndUserEvmTransactionRule = z.infer<typeof SendEndUserEvmTransactionRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserEvmMessage' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEndUserEvmMessageRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserEvmMessage".
+   */
+  operation: z.literal("signEndUserEvmMessage"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEndUserEvmMessageCriteriaSchema,
+});
+export type SignEndUserEvmMessageRule = z.infer<typeof SignEndUserEvmMessageRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserEvmTypedData' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEndUserEvmTypedDataRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserEvmTypedData".
+   */
+  operation: z.literal("signEndUserEvmTypedData"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEndUserEvmTypedDataCriteriaSchema,
+});
+export type SignEndUserEvmTypedDataRule = z.infer<typeof SignEndUserEvmTypedDataRuleSchema>;
