@@ -135,7 +135,7 @@ export type EvmServerAccount = Prettify<
        * ```
        */
       toDelegated: () => EvmSmartAccount | Promise<EvmSmartAccount>;
-      /** 
+      /**
        * A function that returns a network-scoped server-managed account.
        *
        * @param network - The network name or RPC URL

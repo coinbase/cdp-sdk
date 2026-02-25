@@ -17,7 +17,7 @@ const publicClient = createPublicClient({
 });
 
 // Step 1: Get or create an EOA account
-const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account-10" });
+const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account" });
 console.log("Account address:", account.address);
 
 // Step 2: Ensure the account has ETH for gas (request faucet if needed)
