@@ -162,8 +162,10 @@ async def test_create_get_and_list_accounts(cdp_client):
 async def test_create_evm_eip7702_delegation(cdp_client):
     """Test creating an EIP-7702 delegation for an EOA account."""
     random_name = generate_random_name()
-    server_account = await cdp_client.evm.create_account(name=random_name)
+    server_account = await cdp_client.evm.get_or_create_account(name=random_name)
     assert server_account is not None
+
+    await _ensure_sufficient_eth_balance(cdp_client, server_account)
 
     result = await cdp_client.evm.create_evm_eip7702_delegation(
         address=server_account.address,
