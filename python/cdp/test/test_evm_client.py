@@ -24,11 +24,11 @@ from cdp.openapi_client.models.create_evm_eip7702_delegation_request import (
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_eip7702_delegation_network import (
     EvmEip7702DelegationNetwork,
 )
-from cdp.openapi_client.models.eip712_domain import EIP712Domain
-from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
@@ -986,10 +986,10 @@ async def test_create_evm_eip7702_delegation():
     mock_api_clients.evm_accounts = mock_evm_accounts_api
 
     mock_response = MagicMock()
-    mock_response.transaction_hash = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    mock_evm_accounts_api.create_evm_eip7702_delegation = AsyncMock(
-        return_value=mock_response
+    mock_response.transaction_hash = (
+        "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
     )
+    mock_evm_accounts_api.create_evm_eip7702_delegation = AsyncMock(return_value=mock_response)
 
     client = EvmClient(api_clients=mock_api_clients)
 

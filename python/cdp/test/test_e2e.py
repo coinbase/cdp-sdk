@@ -29,11 +29,11 @@ from cdp.openapi_client.models.create_end_user_request_evm_account import (
 from cdp.openapi_client.models.create_end_user_request_solana_account import (
     CreateEndUserRequestSolanaAccount,
 )
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.evm_eip7702_delegation_network import (
     EvmEip7702DelegationNetwork,
 )
-from cdp.openapi_client.models.eip712_domain import EIP712Domain
-from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -161,8 +161,7 @@ async def test_create_get_and_list_accounts(cdp_client):
 @pytest.mark.asyncio
 async def test_create_evm_eip7702_delegation(cdp_client):
     """Test creating an EIP-7702 delegation for an EOA account."""
-    random_name = generate_random_name()
-    server_account = await cdp_client.evm.get_or_create_account(name=random_name)
+    server_account = await cdp_client.evm.get_or_create_account(name="eip7702-delegation-e2e")
     assert server_account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, server_account)

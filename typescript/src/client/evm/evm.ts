@@ -84,13 +84,11 @@ import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/consta
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
+import type { CreateEvmEip7702DelegationOptions } from "./evm.types.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
-import type {
-  CreateEvmEip7702DelegationOptions,
-} from "./evm.types.js";
 import type {
   CreateSpendPermissionOptions,
   ListSpendPermissionsOptions,
@@ -1420,10 +1418,7 @@ export class EvmClient implements EvmClientInterface {
    * console.log(result.transactionHash);
    * ```
    */
-  createEvmEip7702Delegation(
-    address: string,
-    options: CreateEvmEip7702DelegationOptions,
-  ) {
+  createEvmEip7702Delegation(address: string, options: CreateEvmEip7702DelegationOptions) {
     Analytics.trackAction({
       action: "create_eip7702_delegation",
     });

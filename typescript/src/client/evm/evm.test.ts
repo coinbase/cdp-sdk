@@ -1515,10 +1515,10 @@ describe("EvmClient", () => {
         transactionHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
       };
 
-      const createEvmEip7702DelegationMock = CdpOpenApiClient
-        .createEvmEip7702Delegation as MockedFunction<
-        typeof CdpOpenApiClient.createEvmEip7702Delegation
-      >;
+      const createEvmEip7702DelegationMock =
+        CdpOpenApiClient.createEvmEip7702Delegation as MockedFunction<
+          typeof CdpOpenApiClient.createEvmEip7702Delegation
+        >;
       createEvmEip7702DelegationMock.mockResolvedValue(mockResult);
 
       const result = await client.createEvmEip7702Delegation(address, options);
@@ -1540,10 +1540,10 @@ describe("EvmClient", () => {
         transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       };
 
-      const createEvmEip7702DelegationMock = CdpOpenApiClient
-        .createEvmEip7702Delegation as MockedFunction<
-        typeof CdpOpenApiClient.createEvmEip7702Delegation
-      >;
+      const createEvmEip7702DelegationMock =
+        CdpOpenApiClient.createEvmEip7702Delegation as MockedFunction<
+          typeof CdpOpenApiClient.createEvmEip7702Delegation
+        >;
       createEvmEip7702DelegationMock.mockResolvedValue(mockResult);
 
       const result = await client.createEvmEip7702Delegation(address, options);
