@@ -109,15 +109,15 @@ export interface TelegramAuthentication {
   /** The Telegram ID for the end user. */
   id: number;
   /** The Telegram user's first name. */
-  firstName: string;
+  firstName?: string;
   /** The Telegram user's last name. */
-  lastName: string;
+  lastName?: string;
   /** The Telegram user's profile picture. */
-  photoUrl: string;
+  photoUrl?: string;
   /** The Telegram user's last login as a Unix timestamp. */
   authDate: number;
   /** The Telegram user's username. */
-  username: string;
+  username?: string;
 }
 
 /**
@@ -265,6 +265,8 @@ export const ErrorType = {
   malformed_transaction: "malformed_transaction",
   not_found: "not_found",
   payment_method_required: "payment_method_required",
+  payment_required: "payment_required",
+  settlement_failed: "settlement_failed",
   rate_limit_exceeded: "rate_limit_exceeded",
   request_canceled: "request_canceled",
   service_unavailable: "service_unavailable",
@@ -304,6 +306,9 @@ export const ErrorType = {
   mfa_flow_expired: "mfa_flow_expired",
   mfa_required: "mfa_required",
   mfa_not_enrolled: "mfa_not_enrolled",
+  order_quote_expired: "order_quote_expired",
+  order_already_filled: "order_already_filled",
+  order_already_canceled: "order_already_canceled",
 } as const;
 
 /**
@@ -395,6 +400,23 @@ export interface EIP712Message {
   /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
   message: EIP712MessageMessage;
 }
+
+/**
+ * The network for the EIP-7702 delegation.
+ */
+export type EvmEip7702DelegationNetwork =
+  (typeof EvmEip7702DelegationNetwork)[keyof typeof EvmEip7702DelegationNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmEip7702DelegationNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
+  polygon: "polygon",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+} as const;
 
 export interface EvmSmartAccount {
   /**
@@ -643,6 +665,7 @@ export const EvmSwapsNetwork = {
   ethereum: "ethereum",
   arbitrum: "arbitrum",
   optimism: "optimism",
+  polygon: "polygon",
 } as const;
 
 /**
@@ -3389,6 +3412,7 @@ export type OnrampOrderPaymentMethodTypeId =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OnrampOrderPaymentMethodTypeId = {
   GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+  GUEST_CHECKOUT_GOOGLE_PAY: "GUEST_CHECKOUT_GOOGLE_PAY",
 } as const;
 
 /**
@@ -3954,6 +3978,20 @@ export type SignEvmMessage200 = {
 export type SignEvmTypedData200 = {
   /** The signature of the typed data, as a 0x-prefixed hex string. */
   signature: string;
+};
+
+export type CreateEvmEip7702DelegationBody = {
+  network: EvmEip7702DelegationNetwork;
+  /** Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf. */
+  enableSpendPermissions?: boolean;
+};
+
+export type CreateEvmEip7702Delegation201 = {
+  /**
+   * The hash of the Type 4 transaction that was submitted.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  transactionHash: string;
 };
 
 export type ListEvmSmartAccountsParams = {

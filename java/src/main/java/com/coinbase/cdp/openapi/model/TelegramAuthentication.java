@@ -53,15 +53,15 @@ public class TelegramAuthentication {
   private Integer id;
 
   public static final String JSON_PROPERTY_FIRST_NAME = "firstName";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String firstName;
 
   public static final String JSON_PROPERTY_LAST_NAME = "lastName";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String lastName;
 
   public static final String JSON_PROPERTY_PHOTO_URL = "photoUrl";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String photoUrl;
 
   public static final String JSON_PROPERTY_AUTH_DATE = "authDate";
@@ -69,7 +69,7 @@ public class TelegramAuthentication {
   private Integer authDate;
 
   public static final String JSON_PROPERTY_USERNAME = "username";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String username;
 
   public TelegramAuthentication() { 
@@ -123,7 +123,7 @@ public class TelegramAuthentication {
   }
 
 
-  public TelegramAuthentication firstName(@jakarta.annotation.Nonnull String firstName) {
+  public TelegramAuthentication firstName(@jakarta.annotation.Nullable String firstName) {
     this.firstName = firstName;
     return this;
   }
@@ -132,22 +132,22 @@ public class TelegramAuthentication {
    * The Telegram user&#39;s first name.
    * @return firstName
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_FIRST_NAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getFirstName() {
     return firstName;
   }
 
 
   @JsonProperty(JSON_PROPERTY_FIRST_NAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setFirstName(@jakarta.annotation.Nonnull String firstName) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFirstName(@jakarta.annotation.Nullable String firstName) {
     this.firstName = firstName;
   }
 
 
-  public TelegramAuthentication lastName(@jakarta.annotation.Nonnull String lastName) {
+  public TelegramAuthentication lastName(@jakarta.annotation.Nullable String lastName) {
     this.lastName = lastName;
     return this;
   }
@@ -156,22 +156,22 @@ public class TelegramAuthentication {
    * The Telegram user&#39;s last name.
    * @return lastName
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LAST_NAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getLastName() {
     return lastName;
   }
 
 
   @JsonProperty(JSON_PROPERTY_LAST_NAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLastName(@jakarta.annotation.Nonnull String lastName) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLastName(@jakarta.annotation.Nullable String lastName) {
     this.lastName = lastName;
   }
 
 
-  public TelegramAuthentication photoUrl(@jakarta.annotation.Nonnull String photoUrl) {
+  public TelegramAuthentication photoUrl(@jakarta.annotation.Nullable String photoUrl) {
     this.photoUrl = photoUrl;
     return this;
   }
@@ -180,17 +180,17 @@ public class TelegramAuthentication {
    * The Telegram user&#39;s profile picture.
    * @return photoUrl
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PHOTO_URL)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhotoUrl() {
     return photoUrl;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PHOTO_URL)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPhotoUrl(@jakarta.annotation.Nonnull String photoUrl) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPhotoUrl(@jakarta.annotation.Nullable String photoUrl) {
     this.photoUrl = photoUrl;
   }
 
@@ -219,7 +219,7 @@ public class TelegramAuthentication {
   }
 
 
-  public TelegramAuthentication username(@jakarta.annotation.Nonnull String username) {
+  public TelegramAuthentication username(@jakarta.annotation.Nullable String username) {
     this.username = username;
     return this;
   }
@@ -228,17 +228,17 @@ public class TelegramAuthentication {
    * The Telegram user&#39;s username.
    * @return username
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_USERNAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getUsername() {
     return username;
   }
 
 
   @JsonProperty(JSON_PROPERTY_USERNAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setUsername(@jakarta.annotation.Nonnull String username) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUsername(@jakarta.annotation.Nullable String username) {
     this.username = username;
   }
 

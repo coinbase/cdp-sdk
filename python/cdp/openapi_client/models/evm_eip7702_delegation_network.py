@@ -19,23 +19,25 @@ from enum import Enum
 from typing_extensions import Self
 
 
-class EvmSwapsNetwork(str, Enum):
+class EvmEip7702DelegationNetwork(str, Enum):
     """
-    The network on which to perform the swap.
+    The network for the EIP-7702 delegation.
     """
 
     """
     allowed enum values
     """
+    BASE_MINUS_SEPOLIA = 'base-sepolia'
     BASE = 'base'
-    ETHEREUM = 'ethereum'
     ARBITRUM = 'arbitrum'
     OPTIMISM = 'optimism'
     POLYGON = 'polygon'
+    ETHEREUM = 'ethereum'
+    ETHEREUM_MINUS_SEPOLIA = 'ethereum-sepolia'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of EvmSwapsNetwork from a JSON string"""
+        """Create an instance of EvmEip7702DelegationNetwork from a JSON string"""
         return cls(json.loads(json_str))
 
 

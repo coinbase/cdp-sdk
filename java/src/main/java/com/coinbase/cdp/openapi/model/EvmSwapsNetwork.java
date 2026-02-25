@@ -36,7 +36,9 @@ public enum EvmSwapsNetwork {
   
   ARBITRUM("arbitrum"),
   
-  OPTIMISM("optimism");
+  OPTIMISM("optimism"),
+  
+  POLYGON("polygon");
 
   private String value;
 

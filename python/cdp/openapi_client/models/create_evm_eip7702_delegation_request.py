@@ -18,24 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.o_auth2_provider_type import OAuth2ProviderType
+from cdp.openapi_client.models.evm_eip7702_delegation_network import EvmEip7702DelegationNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
-class TelegramAuthentication(BaseModel):
+class CreateEvmEip7702DelegationRequest(BaseModel):
     """
-    Information about an end user who authenticates using Telegram.
+    CreateEvmEip7702DelegationRequest
     """ # noqa: E501
-    type: OAuth2ProviderType
-    id: StrictInt = Field(description="The Telegram ID for the end user.")
-    first_name: Optional[StrictStr] = Field(default=None, description="The Telegram user's first name.", alias="firstName")
-    last_name: Optional[StrictStr] = Field(default=None, description="The Telegram user's last name.", alias="lastName")
-    photo_url: Optional[StrictStr] = Field(default=None, description="The Telegram user's profile picture.", alias="photoUrl")
-    auth_date: StrictInt = Field(description="The Telegram user's last login as a Unix timestamp.", alias="authDate")
-    username: Optional[StrictStr] = Field(default=None, description="The Telegram user's username.")
-    __properties: ClassVar[List[str]] = ["type", "id", "firstName", "lastName", "photoUrl", "authDate", "username"]
+    network: EvmEip7702DelegationNetwork
+    enable_spend_permissions: Optional[StrictBool] = Field(default=False, description="Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.", alias="enableSpendPermissions")
+    __properties: ClassVar[List[str]] = ["network", "enableSpendPermissions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -55,7 +50,7 @@ class TelegramAuthentication(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of TelegramAuthentication from a JSON string"""
+        """Create an instance of CreateEvmEip7702DelegationRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,7 +75,7 @@ class TelegramAuthentication(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of TelegramAuthentication from a dict"""
+        """Create an instance of CreateEvmEip7702DelegationRequest from a dict"""
         if obj is None:
             return None
 
@@ -88,13 +83,8 @@ class TelegramAuthentication(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "type": obj.get("type"),
-            "id": obj.get("id"),
-            "firstName": obj.get("firstName"),
-            "lastName": obj.get("lastName"),
-            "photoUrl": obj.get("photoUrl"),
-            "authDate": obj.get("authDate"),
-            "username": obj.get("username")
+            "network": obj.get("network"),
+            "enableSpendPermissions": obj.get("enableSpendPermissions") if obj.get("enableSpendPermissions") is not None else False
         })
         return _obj
 

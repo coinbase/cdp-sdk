@@ -94,7 +94,11 @@ const (
 	ErrorTypeMfaRequired                    ErrorType = "mfa_required"
 	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
 	ErrorTypeNotFound                       ErrorType = "not_found"
+	ErrorTypeOrderAlreadyCanceled           ErrorType = "order_already_canceled"
+	ErrorTypeOrderAlreadyFilled             ErrorType = "order_already_filled"
+	ErrorTypeOrderQuoteExpired              ErrorType = "order_quote_expired"
 	ErrorTypePaymentMethodRequired          ErrorType = "payment_method_required"
+	ErrorTypePaymentRequired                ErrorType = "payment_required"
 	ErrorTypePhoneNumberVerificationExpired ErrorType = "phone_number_verification_expired"
 	ErrorTypePolicyInUse                    ErrorType = "policy_in_use"
 	ErrorTypePolicyViolation                ErrorType = "policy_violation"
@@ -103,6 +107,7 @@ const (
 	ErrorTypeRecipientAllowlistViolation    ErrorType = "recipient_allowlist_violation"
 	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
 	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
+	ErrorTypeSettlementFailed               ErrorType = "settlement_failed"
 	ErrorTypeSourceAccountInvalid           ErrorType = "source_account_invalid"
 	ErrorTypeSourceAccountNotFound          ErrorType = "source_account_not_found"
 	ErrorTypeSourceAssetNotSupported        ErrorType = "source_asset_not_supported"
@@ -164,6 +169,17 @@ const (
 	EvmDataParameterConditionListOperatorNotIn EvmDataParameterConditionListOperator = "not in"
 )
 
+// Defines values for EvmEip7702DelegationNetwork.
+const (
+	EvmEip7702DelegationNetworkArbitrum        EvmEip7702DelegationNetwork = "arbitrum"
+	EvmEip7702DelegationNetworkBase            EvmEip7702DelegationNetwork = "base"
+	EvmEip7702DelegationNetworkBaseSepolia     EvmEip7702DelegationNetwork = "base-sepolia"
+	EvmEip7702DelegationNetworkEthereum        EvmEip7702DelegationNetwork = "ethereum"
+	EvmEip7702DelegationNetworkEthereumSepolia EvmEip7702DelegationNetwork = "ethereum-sepolia"
+	EvmEip7702DelegationNetworkOptimism        EvmEip7702DelegationNetwork = "optimism"
+	EvmEip7702DelegationNetworkPolygon         EvmEip7702DelegationNetwork = "polygon"
+)
+
 // Defines values for EvmMessageCriterionType.
 const (
 	EvmMessage EvmMessageCriterionType = "evmMessage"
@@ -200,6 +216,7 @@ const (
 	EvmSwapsNetworkBase     EvmSwapsNetwork = "base"
 	EvmSwapsNetworkEthereum EvmSwapsNetwork = "ethereum"
 	EvmSwapsNetworkOptimism EvmSwapsNetwork = "optimism"
+	EvmSwapsNetworkPolygon  EvmSwapsNetwork = "polygon"
 )
 
 // Defines values for EvmTypedAddressConditionOperator.
@@ -344,7 +361,8 @@ const (
 
 // Defines values for OnrampOrderPaymentMethodTypeId.
 const (
-	GUESTCHECKOUTAPPLEPAY OnrampOrderPaymentMethodTypeId = "GUEST_CHECKOUT_APPLE_PAY"
+	GUESTCHECKOUTAPPLEPAY  OnrampOrderPaymentMethodTypeId = "GUEST_CHECKOUT_APPLE_PAY"
+	GUESTCHECKOUTGOOGLEPAY OnrampOrderPaymentMethodTypeId = "GUEST_CHECKOUT_GOOGLE_PAY"
 )
 
 // Defines values for OnrampOrderStatus.
@@ -818,9 +836,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -1423,6 +1441,9 @@ type EvmDataParameterConditionList struct {
 
 // EvmDataParameterConditionListOperator The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side.
 type EvmDataParameterConditionListOperator string
+
+// EvmEip7702DelegationNetwork The network for the EIP-7702 delegation.
+type EvmEip7702DelegationNetwork string
 
 // EvmMessageCriterion A schema for specifying a criterion for the message being signed.
 type EvmMessageCriterion struct {
@@ -2649,22 +2670,22 @@ type TelegramAuthentication struct {
 	AuthDate int `json:"authDate"`
 
 	// FirstName The Telegram user's first name.
-	FirstName string `json:"firstName"`
+	FirstName *string `json:"firstName,omitempty"`
 
 	// Id The Telegram ID for the end user.
 	Id int `json:"id"`
 
 	// LastName The Telegram user's last name.
-	LastName string `json:"lastName"`
+	LastName *string `json:"lastName,omitempty"`
 
 	// PhotoUrl The Telegram user's profile picture.
-	PhotoUrl string `json:"photoUrl"`
+	PhotoUrl *string `json:"photoUrl,omitempty"`
 
 	// Type The type of OAuth2 provider.
 	Type OAuth2ProviderType `json:"type"`
 
 	// Username The Telegram user's username.
-	Username string `json:"username"`
+	Username *string `json:"username,omitempty"`
 }
 
 // Token General information about a token. Includes the type, the network, and other identifying information.
@@ -3568,6 +3589,28 @@ type UpdateEvmAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// CreateEvmEip7702DelegationJSONBody defines parameters for CreateEvmEip7702Delegation.
+type CreateEvmEip7702DelegationJSONBody struct {
+	// EnableSpendPermissions Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.
+	EnableSpendPermissions *bool `json:"enableSpendPermissions,omitempty"`
+
+	// Network The network for the EIP-7702 delegation.
+	Network EvmEip7702DelegationNetwork `json:"network"`
+}
+
+// CreateEvmEip7702DelegationParams defines parameters for CreateEvmEip7702Delegation.
+type CreateEvmEip7702DelegationParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // ExportEvmAccountJSONBody defines parameters for ExportEvmAccount.
 type ExportEvmAccountJSONBody struct {
 	// ExportEncryptionKey The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key.
@@ -4316,6 +4359,9 @@ type ImportEvmAccountJSONRequestBody ImportEvmAccountJSONBody
 
 // UpdateEvmAccountJSONRequestBody defines body for UpdateEvmAccount for application/json ContentType.
 type UpdateEvmAccountJSONRequestBody UpdateEvmAccountJSONBody
+
+// CreateEvmEip7702DelegationJSONRequestBody defines body for CreateEvmEip7702Delegation for application/json ContentType.
+type CreateEvmEip7702DelegationJSONRequestBody CreateEvmEip7702DelegationJSONBody
 
 // ExportEvmAccountJSONRequestBody defines body for ExportEvmAccount for application/json ContentType.
 type ExportEvmAccountJSONRequestBody ExportEvmAccountJSONBody
@@ -6933,6 +6979,11 @@ type ClientInterface interface {
 
 	UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateEvmEip7702DelegationWithBody request with any body
+	CreateEvmEip7702DelegationWithBody(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateEvmEip7702Delegation(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, body CreateEvmEip7702DelegationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ExportEvmAccountWithBody request with any body
 	ExportEvmAccountWithBody(ctx context.Context, address string, params *ExportEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -7571,6 +7622,30 @@ func (c *CDPClient) UpdateEvmAccountWithBody(ctx context.Context, address string
 
 func (c *CDPClient) UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateEvmAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateEvmEip7702DelegationWithBody(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEvmEip7702DelegationRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateEvmEip7702Delegation(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, body CreateEvmEip7702DelegationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEvmEip7702DelegationRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9823,6 +9898,79 @@ func NewUpdateEvmAccountRequestWithBody(server string, address string, params *U
 			}
 
 			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewCreateEvmEip7702DelegationRequest calls the generic CreateEvmEip7702Delegation builder with application/json body
+func NewCreateEvmEip7702DelegationRequest(server string, address string, params *CreateEvmEip7702DelegationParams, body CreateEvmEip7702DelegationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateEvmEip7702DelegationRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewCreateEvmEip7702DelegationRequestWithBody generates requests for CreateEvmEip7702Delegation with any type of body
+func NewCreateEvmEip7702DelegationRequestWithBody(server string, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/eip7702/delegation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
 		}
 
 	}
@@ -12738,6 +12886,11 @@ type ClientWithResponsesInterface interface {
 
 	UpdateEvmAccountWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error)
 
+	// CreateEvmEip7702DelegationWithBodyWithResponse request with any body
+	CreateEvmEip7702DelegationWithBodyWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error)
+
+	CreateEvmEip7702DelegationWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, body CreateEvmEip7702DelegationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error)
+
 	// ExportEvmAccountWithBodyWithResponse request with any body
 	ExportEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *ExportEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExportEvmAccountResponse, error)
 
@@ -13625,6 +13778,40 @@ func (r UpdateEvmAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateEvmAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateEvmEip7702DelegationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// TransactionHash The hash of the Type 4 transaction that was submitted.
+		TransactionHash string `json:"transactionHash"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON409 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateEvmEip7702DelegationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateEvmEip7702DelegationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -15365,6 +15552,23 @@ func (c *ClientWithResponses) UpdateEvmAccountWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseUpdateEvmAccountResponse(rsp)
+}
+
+// CreateEvmEip7702DelegationWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationResponse
+func (c *ClientWithResponses) CreateEvmEip7702DelegationWithBodyWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error) {
+	rsp, err := c.CreateEvmEip7702DelegationWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEvmEip7702DelegationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateEvmEip7702DelegationWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, body CreateEvmEip7702DelegationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error) {
+	rsp, err := c.CreateEvmEip7702Delegation(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEvmEip7702DelegationResponse(rsp)
 }
 
 // ExportEvmAccountWithBodyWithResponse request with arbitrary body returning *ExportEvmAccountResponse
@@ -17571,6 +17775,98 @@ func ParseUpdateEvmAccountResponse(rsp *http.Response) (*UpdateEvmAccountRespons
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
 		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateEvmEip7702DelegationResponse parses an HTTP response from a CreateEvmEip7702DelegationWithResponse call
+func ParseCreateEvmEip7702DelegationResponse(rsp *http.Response) (*CreateEvmEip7702DelegationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateEvmEip7702DelegationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// TransactionHash The hash of the Type 4 transaction that was submitted.
+			TransactionHash string `json:"transactionHash"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

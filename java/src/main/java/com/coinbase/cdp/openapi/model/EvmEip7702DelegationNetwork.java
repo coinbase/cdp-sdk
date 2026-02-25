@@ -26,17 +26,27 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The type of payment method to be used to complete an onramp order.
+ * The network for the EIP-7702 delegation.
  */
-public enum OnrampOrderPaymentMethodTypeId {
+public enum EvmEip7702DelegationNetwork {
   
-  GUEST_CHECKOUT_APPLE_PAY("GUEST_CHECKOUT_APPLE_PAY"),
+  BASE_SEPOLIA("base-sepolia"),
   
-  GUEST_CHECKOUT_GOOGLE_PAY("GUEST_CHECKOUT_GOOGLE_PAY");
+  BASE("base"),
+  
+  ARBITRUM("arbitrum"),
+  
+  OPTIMISM("optimism"),
+  
+  POLYGON("polygon"),
+  
+  ETHEREUM("ethereum"),
+  
+  ETHEREUM_SEPOLIA("ethereum-sepolia");
 
   private String value;
 
-  OnrampOrderPaymentMethodTypeId(String value) {
+  EvmEip7702DelegationNetwork(String value) {
     this.value = value;
   }
 
@@ -51,8 +61,8 @@ public enum OnrampOrderPaymentMethodTypeId {
   }
 
   @JsonCreator
-  public static OnrampOrderPaymentMethodTypeId fromValue(String value) {
-    for (OnrampOrderPaymentMethodTypeId b : OnrampOrderPaymentMethodTypeId.values()) {
+  public static EvmEip7702DelegationNetwork fromValue(String value) {
+    for (EvmEip7702DelegationNetwork b : EvmEip7702DelegationNetwork.values()) {
       if (b.value.equals(value)) {
         return b;
       }

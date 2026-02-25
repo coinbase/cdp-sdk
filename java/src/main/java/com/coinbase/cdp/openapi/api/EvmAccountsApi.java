@@ -18,6 +18,8 @@ import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
 import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
+import com.coinbase.cdp.openapi.model.CreateEvmEip7702Delegation201Response;
+import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationRequest;
 import com.coinbase.cdp.openapi.model.EIP712Message;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.EvmAccount;
@@ -180,6 +182,112 @@ public class EvmAccountsApi {
 
     try {
       byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(createEvmAccountRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Create EIP-7702 delegation
+   * Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+   * @param address The 0x-prefixed address of the EVM account to delegate. (required)
+   * @param createEvmEip7702DelegationRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @return CreateEvmEip7702Delegation201Response
+   * @throws ApiException if fails to make API call
+   */
+  public CreateEvmEip7702Delegation201Response createEvmEip7702Delegation(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+    ApiResponse<CreateEvmEip7702Delegation201Response> localVarResponse = createEvmEip7702DelegationWithHttpInfo(address, createEvmEip7702DelegationRequest, xWalletAuth, xIdempotencyKey);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Create EIP-7702 delegation
+   * Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+   * @param address The 0x-prefixed address of the EVM account to delegate. (required)
+   * @param createEvmEip7702DelegationRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @return ApiResponse&lt;CreateEvmEip7702Delegation201Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<CreateEvmEip7702Delegation201Response> createEvmEip7702DelegationWithHttpInfo(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createEvmEip7702DelegationRequestBuilder(address, createEvmEip7702DelegationRequest, xWalletAuth, xIdempotencyKey);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("createEvmEip7702Delegation", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<CreateEvmEip7702Delegation201Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<CreateEvmEip7702Delegation201Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<CreateEvmEip7702Delegation201Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder createEvmEip7702DelegationRequestBuilder(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling createEvmEip7702Delegation");
+    }
+    // verify the required parameter 'createEvmEip7702DelegationRequest' is set
+    if (createEvmEip7702DelegationRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'createEvmEip7702DelegationRequest' when calling createEvmEip7702Delegation");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/evm/accounts/{address}/eip7702/delegation"
+        .replace("{address}", ApiClient.urlEncode(address.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(createEvmEip7702DelegationRequest);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);

@@ -48,11 +48,7 @@ class TestTelegramAuthentication(unittest.TestCase):
             return TelegramAuthentication(
                 type = 'google',
                 id = 123456,
-                first_name = 'Satoshi',
-                last_name = 'Nakamoto',
-                photo_url = 'https://image.url/profile.png',
                 auth_date = 1770681412,
-                username = 'satoshinakamoto',
         )
         """
 
