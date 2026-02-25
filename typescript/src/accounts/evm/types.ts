@@ -116,6 +116,26 @@ export type EvmServerAccount = Prettify<
       /** Indicates this is a server-managed account. */
       type: "evm-server";
       /**
+       * Returns a smart-account view of this EOA for use after EIP-7702 delegation.
+       * The returned account has the same address as this EOA and uses this account as owner,
+       * so you can call sendUserOperation, waitForUserOperation, etc.
+       * When the account is returned from the client it may be wrapped (e.g. for analytics),
+       * in which case toDelegated() returns a Promise—always await it to be safe.
+       *
+       * @example
+       * ```ts
+       * const account = await cdp.evm.createAccount();
+       * await cdp.evm.createEvmEip7702Delegation(account.address, { network: "base-sepolia" });
+       * await publicClient.waitForTransactionReceipt({ hash: result.transactionHash });
+       * const delegated = await account.toDelegated();
+       * const result = await delegated.sendUserOperation({
+       *   network: "base",
+       *   calls: [{ to: "0x...", value: 0n, data: "0x" }],
+       * });
+       * ```
+       */
+      toDelegated: () => EvmSmartAccount | Promise<EvmSmartAccount>;
+      /** 
        * A function that returns a network-scoped server-managed account.
        *
        * @param network - The network name or RPC URL

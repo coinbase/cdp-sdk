@@ -1,16 +1,15 @@
 # Usage: uv run python evm/eip7702/create_eip7702_delegation.py
 #
 # Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
-# capabilities on Base Sepolia), then waits for the transaction to be confirmed using web3.
+# capabilities), waits for the transaction to be confirmed using web3,
+# then sends a user operation using account.to_delegated().
 
 import asyncio
 
 from web3 import Web3
 
 from cdp import CdpClient
-from cdp.openapi_client.models.evm_eip7702_delegation_network import (
-    EvmEip7702DelegationNetwork,
-)
+from cdp.evm_call_types import EncodedCall
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -55,6 +54,25 @@ async def main():
             f"Delegation confirmed in block {receipt.blockNumber}. "
             f"Explorer: https://sepolia.basescan.org/tx/{result.transaction_hash}"
         )
+
+        await asyncio.sleep(1)
+
+        # Step 5: Send a user operation using the upgraded EOA (via to_delegated())
+        print("Sending user operation with upgraded EOA...")
+        delegated = account.to_delegated()
+        user_op = await delegated.send_user_operation(
+            calls=[
+                EncodedCall(
+                    to="0x0000000000000000000000000000000000000000",
+                    value=0,
+                    data="0x",
+                )
+            ],
+            network="base-sepolia",
+        )
+
+        print(f"User operation submitted: {user_op.user_op_hash}")
+        print(f"Check status: https://sepolia.basescan.org/address/{account.address}#internaltx")
 
 
 if __name__ == "__main__":

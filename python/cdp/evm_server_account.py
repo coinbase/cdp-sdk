@@ -669,6 +669,38 @@ class EvmServerAccount(BaseModel):
             network=network,
         )
 
+    def to_delegated(self) -> EvmSmartAccount:
+        """Return a smart-account view of this EOA for use after EIP-7702 delegation.
+
+        The returned account has the same address as this EOA and uses this account as
+        owner, so you can call send_user_operation, wait_for_user_operation, etc.
+
+        Returns:
+            EvmSmartAccount: A smart account instance for this delegated EOA.
+
+        Examples:
+            >>> result = await cdp.evm.create_evm_eip7702_delegation(
+            ...     account.address, network="base-sepolia"
+            ... )
+            >>> w3.eth.wait_for_transaction_receipt(result.transaction_hash)
+            >>> user_op = await account.to_delegated().send_user_operation(
+            ...     calls=[EncodedCall(to="0x000...000", value=0, data="0x")],
+            ...     network="base-sepolia",
+            ... )
+
+        """
+        from cdp.evm_smart_account import EvmSmartAccount
+
+        track_action(action="to_delegated", account_type="evm_server")
+
+        return EvmSmartAccount(
+            address=self.address,
+            owner=self,
+            name=self.name,
+            policies=self.policies,
+            api_clients=self.__api_clients,
+        )
+
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
 
