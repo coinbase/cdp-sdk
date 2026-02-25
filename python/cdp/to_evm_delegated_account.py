@@ -31,6 +31,7 @@ def to_evm_delegated_account(
         ...     calls=[EncodedCall(to="0x000...000", value=0, data="0x")],
         ...     network="base-sepolia",
         ... )
+
     """
     return EvmSmartAccount(
         address=account.address,

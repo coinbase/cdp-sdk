@@ -24,7 +24,6 @@ from cdp.errors import UserInputValidationError
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
-from cdp.to_evm_delegated_account import to_evm_delegated_account
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.export import decrypt_with_private_key, generate_export_encryption_key_pair
@@ -58,6 +57,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
+from cdp.to_evm_delegated_account import to_evm_delegated_account
 from cdp.update_account_types import UpdateAccountOptions
 from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
@@ -970,6 +970,7 @@ class EvmClient:
             ...     calls=[EncodedCall(to="0x000...000", value=0, data="0x")],
             ...     network="base-sepolia",
             ... )
+
         """
         return to_evm_delegated_account(self.api_clients, account)
 
