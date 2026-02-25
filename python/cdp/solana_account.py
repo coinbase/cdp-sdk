@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
-from cdp.analytics import track_action
+from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
@@ -102,12 +102,15 @@ class SolanaAccount(BaseModel):
 
         """
         track_action(action="request_faucet", account_type="solana")
-
-        return await request_faucet(
-            self.__api_clients.faucets,
-            self.__address,
-            token,
-        )
+        try:
+            return await request_faucet(
+                self.__api_clients.faucets,
+                self.__address,
+                token,
+            )
+        except Exception as error:
+            track_error(error, "request_faucet")
+            raise
 
     async def sign_message(
         self, message: str, idempotency_key: str | None = None
@@ -123,13 +126,16 @@ class SolanaAccount(BaseModel):
 
         """
         track_action(action="sign_message", account_type="solana")
-
-        return await sign_message(
-            self.__api_clients.solana_accounts,
-            self.__address,
-            message,
-            idempotency_key,
-        )
+        try:
+            return await sign_message(
+                self.__api_clients.solana_accounts,
+                self.__address,
+                message,
+                idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "sign_message")
+            raise
 
     async def sign_transaction(
         self, transaction: str, idempotency_key: str | None = None
@@ -145,13 +151,16 @@ class SolanaAccount(BaseModel):
 
         """
         track_action(action="sign_transaction", account_type="solana")
-
-        return await sign_transaction(
-            self.__api_clients.solana_accounts,
-            self.__address,
-            transaction,
-            idempotency_key,
-        )
+        try:
+            return await sign_transaction(
+                self.__api_clients.solana_accounts,
+                self.__address,
+                transaction,
+                idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "sign_transaction")
+            raise
 
     async def transfer(
         self,
@@ -179,21 +188,24 @@ class SolanaAccount(BaseModel):
                 "network": network,
             },
         )
+        try:
+            from cdp.actions.solana.transfer import TransferOptions, transfer
 
-        from cdp.actions.solana.transfer import TransferOptions, transfer
+            transfer_args = TransferOptions(
+                from_account=self.__address,
+                to_account=to,
+                amount=amount,
+                token=token,
+                network=network,
+            )
 
-        transfer_args = TransferOptions(
-            from_account=self.__address,
-            to_account=to,
-            amount=amount,
-            token=token,
-            network=network,
-        )
-
-        return await transfer(
-            self.__api_clients,
-            transfer_args,
-        )
+            return await transfer(
+                self.__api_clients,
+                transfer_args,
+            )
+        except Exception as error:
+            track_error(error, "transfer")
+            raise
 
 
 class ListSolanaAccountsResponse(BaseModel):

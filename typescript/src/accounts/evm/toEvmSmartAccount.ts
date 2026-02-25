@@ -86,8 +86,12 @@ export function toEvmSmartAccount(
           network: transferArgs.network,
         },
       });
-
-      return transfer(apiClient, account, transferArgs, smartAccountTransferStrategy);
+      try {
+        return transfer(apiClient, account, transferArgs, smartAccountTransferStrategy);
+      } catch (error) {
+        Analytics.trackError(error, "transfer");
+        throw error;
+      }
     },
     async listTokenBalances(
       options: Omit<ListTokenBalancesOptions, "address">,
@@ -99,11 +103,15 @@ export function toEvmSmartAccount(
           network: options.network,
         },
       });
-
-      return listTokenBalances(apiClient, {
-        ...options,
-        address: this.address,
-      });
+      try {
+        return listTokenBalances(apiClient, {
+          ...options,
+          address: this.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "listTokenBalances");
+        throw error;
+      }
     },
     async sendUserOperation(
       options: Omit<SendUserOperationOptions<unknown[]>, "smartAccount">,
@@ -115,11 +123,15 @@ export function toEvmSmartAccount(
           network: options.network,
         },
       });
-
-      return sendUserOperation(apiClient, {
-        ...options,
-        smartAccount: account,
-      });
+      try {
+        return sendUserOperation(apiClient, {
+          ...options,
+          smartAccount: account,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "sendUserOperation");
+        throw error;
+      }
     },
     async waitForUserOperation(
       options: Omit<WaitForUserOperationOptions, "smartAccountAddress">,
@@ -128,11 +140,15 @@ export function toEvmSmartAccount(
         action: "wait_for_user_operation",
         accountType: "evm_smart",
       });
-
-      return waitForUserOperation(apiClient, {
-        ...options,
-        smartAccountAddress: account.address,
-      });
+      try {
+        return waitForUserOperation(apiClient, {
+          ...options,
+          smartAccountAddress: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "waitForUserOperation");
+        throw error;
+      }
     },
     async getUserOperation(
       options: Omit<GetUserOperationOptions, "smartAccount">,
@@ -141,11 +157,15 @@ export function toEvmSmartAccount(
         action: "get_user_operation",
         accountType: "evm_smart",
       });
-
-      return getUserOperation(apiClient, {
-        ...options,
-        smartAccount: account,
-      });
+      try {
+        return getUserOperation(apiClient, {
+          ...options,
+          smartAccount: account,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "getUserOperation");
+        throw error;
+      }
     },
     async requestFaucet(
       options: Omit<RequestFaucetOptions, "address">,
@@ -157,11 +177,15 @@ export function toEvmSmartAccount(
           network: options.network,
         },
       });
-
-      return requestFaucet(apiClient, {
-        ...options,
-        address: account.address,
-      });
+      try {
+        return requestFaucet(apiClient, {
+          ...options,
+          address: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "requestFaucet");
+        throw error;
+      }
     },
     async quoteSwap(options: SmartAccountQuoteSwapOptions): Promise<SmartAccountQuoteSwapResult> {
       Analytics.trackAction({
@@ -171,13 +195,17 @@ export function toEvmSmartAccount(
           network: options.network,
         },
       });
-
-      return createSwapQuote(apiClient, {
-        ...options,
-        taker: this.address, // Always use smart account's address as taker
-        signerAddress: this.owners[0].address, // Always use owner's address as signer
-        smartAccount: account, // Pass smart account for execute method support
-      });
+      try {
+        return createSwapQuote(apiClient, {
+          ...options,
+          taker: this.address, // Always use smart account's address as taker
+          signerAddress: this.owners[0].address, // Always use owner's address as signer
+          smartAccount: account, // Pass smart account for execute method support
+        });
+      } catch (error) {
+        Analytics.trackError(error, "quoteSwap");
+        throw error;
+      }
     },
     async swap(options: SmartAccountSwapOptions): Promise<SmartAccountSwapResult> {
       Analytics.trackAction({
@@ -187,13 +215,17 @@ export function toEvmSmartAccount(
           network: "network" in options ? options.network : undefined,
         },
       });
-
-      return sendSwapOperation(apiClient, {
-        ...options,
-        smartAccount: account,
-        taker: this.address, // Always use smart account's address as taker
-        signerAddress: this.owners[0].address, // Always use owner's address as signer
-      });
+      try {
+        return sendSwapOperation(apiClient, {
+          ...options,
+          smartAccount: account,
+          taker: this.address, // Always use smart account's address as taker
+          signerAddress: this.owners[0].address, // Always use owner's address as signer
+        });
+      } catch (error) {
+        Analytics.trackError(error, "swap");
+        throw error;
+      }
     },
     async signTypedData(
       options: Omit<SignTypedDataOptions, "address"> & { network: KnownEvmNetworks },
@@ -205,13 +237,17 @@ export function toEvmSmartAccount(
           network: options.network,
         },
       });
-
-      const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
-        chainId: BigInt(resolveNetworkToChain(options.network).id),
-        smartAccount: account,
-        typedData: options,
-      });
-      return result.signature;
+      try {
+        const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
+          chainId: BigInt(resolveNetworkToChain(options.network).id),
+          smartAccount: account,
+          typedData: options,
+        });
+        return result.signature;
+      } catch (error) {
+        Analytics.trackError(error, "signTypedData");
+        throw error;
+      }
     },
     async useSpendPermission(
       options: UseSpendPermissionOptions,
@@ -223,8 +259,12 @@ export function toEvmSmartAccount(
           network: options.network,
         },
       });
-
-      return useSpendPermission(apiClient, account, options);
+      try {
+        return useSpendPermission(apiClient, account, options);
+      } catch (error) {
+        Analytics.trackError(error, "useSpendPermission");
+        throw error;
+      }
     },
 
     name: options.smartAccount.name,
@@ -237,12 +277,16 @@ export function toEvmSmartAccount(
           network,
         },
       });
-
-      return toNetworkScopedEvmSmartAccount(apiClient, {
-        smartAccount: account,
-        owner: options.owner,
-        network,
-      });
+      try {
+        return toNetworkScopedEvmSmartAccount(apiClient, {
+          smartAccount: account,
+          owner: options.owner,
+          network,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "useNetwork");
+        throw error;
+      }
     },
   };
 
