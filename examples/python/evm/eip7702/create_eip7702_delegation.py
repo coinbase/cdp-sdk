@@ -2,7 +2,7 @@
 #
 # Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
 # capabilities), waits for the transaction to be confirmed using web3,
-# then sends a user operation using account.to_delegated().
+# then sends a user operation using cdp.evm.to_delegated_account(account).
 
 import asyncio
 
@@ -37,6 +37,7 @@ async def main():
             print("Faucet transaction confirmed.")
 
         # Step 3: Create the EIP-7702 delegation
+        await asyncio.sleep(1)
         print("Creating EIP-7702 delegation...")
         result = await cdp.evm.create_evm_eip7702_delegation(
             address=account.address,
@@ -55,11 +56,10 @@ async def main():
             f"Explorer: https://sepolia.basescan.org/tx/{result.transaction_hash}"
         )
 
-        await asyncio.sleep(1)
-
-        # Step 5: Send a user operation using the upgraded EOA (via to_delegated())
+        # Step 5: Send a user operation using the upgraded EOA (via to_delegated_account)
         print("Sending user operation with upgraded EOA...")
-        delegated = account.to_delegated()
+        await asyncio.sleep(2)
+        delegated = cdp.evm.to_delegated_account(account)
         user_op = await delegated.send_user_operation(
             calls=[
                 EncodedCall(
@@ -72,7 +72,7 @@ async def main():
         )
 
         print(f"User operation submitted: {user_op.user_op_hash}")
-        print(f"Check status: https://sepolia.basescan.org/address/{account.address}#internaltx")
+        print(f"Check status: https://base-sepolia.blockscout.com/op/{user_op.user_op_hash}")
 
 
 if __name__ == "__main__":

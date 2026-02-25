@@ -24,6 +24,7 @@ from cdp.errors import UserInputValidationError
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
+from cdp.to_evm_delegated_account import to_evm_delegated_account
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.export import decrypt_with_private_key, generate_export_encryption_key_pair
@@ -945,6 +946,32 @@ class EvmClient:
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=idempotency_key,
         )
+
+    def to_delegated_account(self, account: EvmServerAccount) -> EvmSmartAccount:
+        """Return a smart account view of a server account for use after EIP-7702 delegation.
+
+        Use this to send user operations with an EOA that has been upgraded via
+        create_evm_eip7702_delegation.
+
+        Args:
+            account: The server account (EOA) that has been delegated.
+
+        Returns:
+            EvmSmartAccount: A smart account with the same address as the EOA, ready for
+                send_user_operation, etc.
+
+        Example:
+            >>> account = await cdp.evm.get_or_create_account(name="MyAccount")
+            >>> await cdp.evm.create_evm_eip7702_delegation(
+            ...     account.address, network="base-sepolia"
+            ... )
+            >>> delegated = cdp.evm.to_delegated_account(account)
+            >>> await delegated.send_user_operation(
+            ...     calls=[EncodedCall(to="0x000...000", value=0, data="0x")],
+            ...     network="base-sepolia",
+            ... )
+        """
+        return to_evm_delegated_account(self.api_clients, account)
 
     async def update_smart_account(
         self,

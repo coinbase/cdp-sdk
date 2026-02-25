@@ -1015,6 +1015,28 @@ async def test_create_evm_eip7702_delegation():
     assert result.transaction_hash == mock_response.transaction_hash
 
 
+def test_to_delegated_account(server_account_model_factory):
+    """Test converting a server account to a delegated smart account."""
+    from cdp.evm_server_account import EvmServerAccount
+
+    evm_server_account_model = server_account_model_factory()
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    client = EvmClient(api_clients=mock_api_clients)
+    server_account = EvmServerAccount(
+        evm_server_account_model, mock_evm_accounts_api, mock_api_clients
+    )
+
+    delegated = client.to_delegated_account(server_account)
+
+    assert delegated.address == server_account.address
+    assert delegated.owners == [server_account]
+    assert delegated.name == server_account.name
+    assert delegated.policies == server_account.policies
+
+
 @pytest.mark.asyncio
 async def test_update_smart_account(smart_account_model_factory):
     """Test updating an EVM smart account."""

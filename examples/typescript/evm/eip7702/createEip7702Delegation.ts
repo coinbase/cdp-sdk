@@ -2,10 +2,10 @@
 //
 // Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
 // capabilities), waits for the transaction to be confirmed, then sends a user operation
-// using account.toDelegated().
+// using cdp.evm.toDelegatedAccount(account).
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { createPublicClient, Hex, http, parseEther } from "viem";
+import { createPublicClient, http, parseEther } from "viem";
 import { baseSepolia } from "viem/chains";
 import "dotenv/config";
 
@@ -30,12 +30,11 @@ if (balance === 0n) {
   });
 
   await publicClient.waitForTransactionReceipt({ hash: faucetTxHash });
-
-  await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
 // Step 3: Create the EIP-7702 delegation
 console.log("Creating EIP-7702 delegation...");
+await new Promise(resolve => setTimeout(resolve, 1000));
 const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
   network: "base-sepolia",
   enableSpendPermissions: false,
@@ -46,20 +45,18 @@ console.log("Delegation transaction submitted:", result.transactionHash);
 // Step 4: Wait for the transaction to be confirmed onchain
 console.log("Waiting for transaction confirmation...");
 const receipt = await publicClient.waitForTransactionReceipt({
-  hash: result.transactionHash as Hex,
+  hash: result.transactionHash,
 });
 
 console.log(
   `Delegation confirmed in block ${receipt.blockNumber}. Explorer: https://sepolia.basescan.org/tx/${result.transactionHash}`
 );
 
-// Step 5: Send a user operation using the upgraded EOA (via toDelegated())
+// Step 5: Send a user operation using the upgraded EOA (via toDelegatedAccount)
 console.log("Sending user operation with upgraded EOA...");
-const delegated = await account.toDelegated();
-console.log("Delegated account:", delegated);
-await new Promise(resolve => setTimeout(resolve, 1000));
-
-const userOpResult = await delegated.sendUserOperation({
+await new Promise(resolve => setTimeout(resolve, 2000));
+const delegated = await cdp.evm.toDelegatedAccount(account);
+const { userOpHash } = await delegated.sendUserOperation({
   network: "base-sepolia",
   calls: [
     {
@@ -70,8 +67,7 @@ const userOpResult = await delegated.sendUserOperation({
   ],
 });
 
-console.log("User operation submitted:", userOpResult.userOpHash);
+console.log("User operation submitted:", userOpHash);
 console.log(
-  "Check status: https://sepolia.basescan.org/address/%s#internaltx",
-  account.address
+  `Check status: https://base-sepolia.blockscout.com/op/${userOpHash}`,
 );

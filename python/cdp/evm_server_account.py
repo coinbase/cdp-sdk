@@ -683,23 +683,18 @@ class EvmServerAccount(BaseModel):
             ...     account.address, network="base-sepolia"
             ... )
             >>> w3.eth.wait_for_transaction_receipt(result.transaction_hash)
-            >>> user_op = await account.to_delegated().send_user_operation(
+            >>> delegated = cdp.evm.to_delegated_account(account)
+            >>> user_op = await delegated.send_user_operation(
             ...     calls=[EncodedCall(to="0x000...000", value=0, data="0x")],
             ...     network="base-sepolia",
             ... )
 
         """
-        from cdp.evm_smart_account import EvmSmartAccount
+        from cdp.to_evm_delegated_account import to_evm_delegated_account
 
         track_action(action="to_delegated", account_type="evm_server")
 
-        return EvmSmartAccount(
-            address=self.address,
-            owner=self,
-            name=self.name,
-            policies=self.policies,
-            api_clients=self.__api_clients,
-        )
+        return to_evm_delegated_account(self.__api_clients, self)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

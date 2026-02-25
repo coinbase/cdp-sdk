@@ -1,5 +1,6 @@
 export { CdpClient } from "./client/cdp.js";
 export type { EvmServerAccount, EvmSmartAccount } from "./accounts/evm/types.js";
+export type { CreateEvmEip7702DelegationResult } from "./client/evm/evm.types.js";
 export type { Policy } from "./policies/types.js";
 export {
   CreatePolicyBodySchema,

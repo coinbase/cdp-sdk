@@ -134,7 +134,7 @@ export type EvmServerAccount = Prettify<
        * });
        * ```
        */
-      toDelegated: () => EvmSmartAccount | Promise<EvmSmartAccount>;
+      toDelegated: () => EvmSmartAccount;
       /**
        * A function that returns a network-scoped server-managed account.
        *

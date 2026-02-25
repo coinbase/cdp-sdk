@@ -24,7 +24,7 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
-  CreateEvmEip7702DelegationResult,
+  CreateEvmEip7702DelegationResult as CreateEvmEip7702DelegationResultApi,
   EvmEip7702DelegationNetwork,
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
@@ -38,6 +38,12 @@ import type { ListSpendPermissionsOptions } from "../../spend-permissions/types.
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
+
+/** Result of createEvmEip7702Delegation with transactionHash typed as Hex for viem compatibility. */
+export type CreateEvmEip7702DelegationResult = Omit<
+  CreateEvmEip7702DelegationResultApi,
+  "transactionHash"
+> & { transactionHash: Hex };
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.
@@ -118,6 +124,8 @@ export type EvmClientInterface = Omit<
     address: Address,
     options: CreateEvmEip7702DelegationOptions,
   ) => Promise<CreateEvmEip7702DelegationResult>;
+  /** Returns a smart account view of a server account for use after EIP-7702 delegation. */
+  toDelegatedAccount: (account: ServerAccount) => SmartAccount;
 };
 
 export type { ServerAccount, SmartAccount };
