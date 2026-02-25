@@ -211,10 +211,12 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should create EIP-7702 delegation for an EOA account", async () => {
-    const serverAccount = await cdp.evm.getOrCreateAccount({ name: "eip7702-delegation-e2e" });
+    const randomName = generateRandomName();
+    const serverAccount = await cdp.evm.getOrCreateAccount({ name: randomName });
     expect(serverAccount).toBeDefined();
 
     await ensureSufficientEthBalance(cdp, serverAccount);
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const result = await cdp.evm.createEvmEip7702Delegation(serverAccount.address, {
       network: "base-sepolia",
