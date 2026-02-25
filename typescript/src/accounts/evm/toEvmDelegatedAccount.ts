@@ -1,8 +1,7 @@
 import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
 
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
-
 import type { EvmServerAccount, EvmSmartAccount } from "./types.js";
+import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 
 /**
  * Options for converting a server account (EOA) to a delegated smart account view.

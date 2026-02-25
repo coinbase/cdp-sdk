@@ -6,12 +6,16 @@ import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address } from "../../types/misc.js";
 
 vi.mock("./toEvmSmartAccount.js", () => ({
-  toEvmSmartAccount: vi.fn().mockImplementation((_apiClient: unknown, options: { smartAccount: unknown; owner: unknown }) => ({
-    type: "evm-smart",
-    address: (options.smartAccount as { address: string }).address,
-    owners: [options.owner],
-    sendUserOperation: vi.fn(),
-  })),
+  toEvmSmartAccount: vi
+    .fn()
+    .mockImplementation(
+      (_apiClient: unknown, options: { smartAccount: unknown; owner: unknown }) => ({
+        type: "evm-smart",
+        address: (options.smartAccount as { address: string }).address,
+        owners: [options.owner],
+        sendUserOperation: vi.fn(),
+      }),
+    ),
 }));
 
 describe("toEvmDelegatedAccount", () => {
