@@ -49,7 +49,7 @@ const receipt = await publicClient.waitForTransactionReceipt({
 });
 
 console.log(
-  `Delegation confirmed in block ${receipt.blockNumber}. Explorer: https://sepolia.basescan.org/tx/${result.transactionHash}`
+  `Delegation confirmed in block ${receipt.blockNumber}. Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
 );
 
 // Step 5: Send a user operation using the upgraded EOA (via toDelegatedAccount)
