@@ -35,17 +35,17 @@ if (balance === 0n) {
 // Step 3: Create the EIP-7702 delegation
 console.log("Creating EIP-7702 delegation...");
 await new Promise(resolve => setTimeout(resolve, 1000));
-const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
+const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.address, {
   network: "base-sepolia",
   enableSpendPermissions: false,
 });
 
-console.log("Delegation transaction submitted:", result.transactionHash);
+console.log("Delegation transaction submitted:", transactionHash);
 
 // Step 4: Wait for the transaction to be confirmed onchain
 console.log("Waiting for transaction confirmation...");
 const receipt = await publicClient.waitForTransactionReceipt({
-  hash: result.transactionHash,
+  hash: transactionHash,
 });
 
 console.log(
