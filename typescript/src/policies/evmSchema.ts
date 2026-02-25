@@ -1,6 +1,8 @@
 import { Abi, Address } from "abitype/zod";
 import { z } from "zod";
 
+import { RateLimitingCriterionSchema } from "./sharedSchema.js";
+
 /**
  * Enum for EthValueOperator values
  */
@@ -425,6 +427,7 @@ export const SignEvmTransactionCriteriaSchema = z
       EvmAddressCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -459,6 +462,7 @@ export const SendEvmTransactionCriteriaSchema = z
       SendEvmTransactionEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -478,6 +482,7 @@ export const PrepareUserOperationCriteriaSchema = z
       PrepareUserOperationEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -498,6 +503,7 @@ export const SendUserOperationCriteriaSchema = z
       EvmAddressCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -518,6 +524,7 @@ export const SignEndUserEvmTransactionCriteriaSchema = z
       EvmAddressCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -540,6 +547,7 @@ export const SendEndUserEvmTransactionCriteriaSchema = z
       PrepareUserOperationEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
