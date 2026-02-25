@@ -913,6 +913,7 @@ class EvmClient:
 
         Returns:
             CreateEvmEip7702DelegationResult: The delegation result including the transaction hash.
+
         """
         track_action(action="create_eip7702_delegation")
 
