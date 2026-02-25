@@ -2185,6 +2185,124 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/accounts/{address}/eip7702/delegation:
+    post:
+      x-audience: public
+      summary: Create EIP-7702 delegation
+      description: |-
+        Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
+
+        This endpoint:
+        - Retrieves delegation artifacts from onchain
+        - Signs the EIP-7702 authorization for delegation
+        - Assembles and submits a Type 4 transaction
+        - Creates an associated smart account object
+
+        The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+      operationId: createEvmEip7702Delegation
+      tags:
+        - EVM Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The 0x-prefixed address of the EVM account to delegate.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
+                enableSpendPermissions:
+                  type: boolean
+                  description: Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.
+                  default: false
+                  example: true
+              required:
+                - network
+      responses:
+        '201':
+          description: Delegation created and transaction broadcasted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionHash:
+                    type: string
+                    pattern: ^0x[0-9a-fA-F]{64}$
+                    description: The hash of the Type 4 transaction that was submitted.
+                    example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                required:
+                  - transactionHash
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'network' is required.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                unsupported_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Network 'gnosis' is not supported for EIP-7702.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: EVM account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '409':
+          description: Account already delegated on the given network.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_delegated:
+                  value:
+                    errorType: already_exists
+                    errorMessage: Account already has an active EIP-7702 delegation on the given network.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts:
     get:
       summary: List Smart Accounts
@@ -6546,11 +6664,7 @@ components:
       required:
         - type
         - id
-        - firstName
-        - lastName
-        - photoUrl
         - authDate
-        - username
     AuthenticationMethod:
       description: Information about how the end user is authenticated.
       oneOf:
@@ -6800,6 +6914,8 @@ components:
         - malformed_transaction
         - not_found
         - payment_method_required
+        - payment_required
+        - settlement_failed
         - rate_limit_exceeded
         - request_canceled
         - service_unavailable
@@ -6839,6 +6955,9 @@ components:
         - mfa_flow_expired
         - mfa_required
         - mfa_not_enrolled
+        - order_quote_expired
+        - order_already_filled
+        - order_already_canceled
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -6982,6 +7101,18 @@ components:
           **Common causes:**
           - No payment method configured on the account
           - Payment method is expired
+        payment_required: |-
+          This error occurs when an x402 payment is required to access the requested resource.
+
+          **Steps to resolve:**
+          1. Include a valid x402 payment header in your request
+          2. Ensure the payment meets the resource's pricing requirements
+        settlement_failed: |-
+          This error occurs when an x402 payment was verified but settlement on-chain failed.
+
+          **Steps to resolve:**
+          1. Retry the request with a new payment
+          2. Ensure the payment asset has sufficient balance for settlement
         rate_limit_exceeded: |-
           This error occurs when you've exceeded the API rate limits.
 
@@ -7371,6 +7502,25 @@ components:
           - Transfer asset doesn't match source or target
           - Attempting an unsupported asset conversion
           - Typo in asset symbols
+        order_quote_expired: |-
+          This error occurs when attempting to execute an order whose quote has expired.
+
+          **Steps to resolve:**
+          1. Create a new order with `execute: false` to get an updated quote.
+          2. Execute the new order before the quote expires (check the `expiresAt` field).
+          3. Alternatively, create a new order with `execute: true` to skip the quote step and execute immediately.
+        order_already_filled: |-
+          This error occurs when attempting to cancel or modify an order that has already been filled.
+
+          **Steps to resolve:**
+          1. Check the current status of the order using `GET /v2/orders/{orderId}`.
+          2. A filled order cannot be canceled or re-executed.
+        order_already_canceled: |-
+          This error occurs when attempting to cancel or execute an order that has already been canceled.
+
+          **Steps to resolve:**
+          1. Check the current status of the order using `GET /v2/orders/{orderId}`.
+          2. Create a new order if you still want to trade.
     Url:
       type: string
       format: uri
@@ -7563,6 +7713,18 @@ components:
           spender: '0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf'
           nonce: '123456'
           deadline: '1717123200'
+    EvmEip7702DelegationNetwork:
+      type: string
+      description: The network for the EIP-7702 delegation.
+      enum:
+        - base-sepolia
+        - base
+        - arbitrum
+        - optimism
+        - polygon
+        - ethereum
+        - ethereum-sepolia
+      example: base
     EvmSmartAccount:
       type: object
       properties:
@@ -7939,6 +8101,7 @@ components:
         - ethereum
         - arbitrum
         - optimism
+        - polygon
       description: The network on which to perform the swap.
       example: base
     toToken:
@@ -11221,6 +11384,7 @@ components:
       description: The type of payment method to be used to complete an onramp order.
       enum:
         - GUEST_CHECKOUT_APPLE_PAY
+        - GUEST_CHECKOUT_GOOGLE_PAY
       example: GUEST_CHECKOUT_APPLE_PAY
     OnrampOrderFee:
       type: object

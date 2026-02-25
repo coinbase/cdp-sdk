@@ -89,6 +89,10 @@ import type {
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
 import type {
+  CreateEvmEip7702DelegationBody,
+  CreateEvmEip7702DelegationResult,
+} from "../../openapi-client/index.js";
+import type {
   CreateSpendPermissionOptions,
   ListSpendPermissionsOptions,
   RevokeSpendPermissionOptions,
@@ -1398,6 +1402,31 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
 
     return smartAccount;
+  }
+
+  /**
+   * Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
+   * The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+   *
+   * @param {string} address - The address of the EOA account.
+   * @param {CreateEvmEip7702DelegationBody} createEvmEip7702DelegationBody - The delegation parameters.
+   * @param {string} [options] - Optional idempotency key.
+   * @returns A promise that resolves to the delegation result including the transaction hash.
+   */
+  createEvmEip7702Delegation(
+    address: string,
+    createEvmEip7702DelegationBody: CreateEvmEip7702DelegationBody,
+    options?: string,
+  ): Promise<CreateEvmEip7702DelegationResult> {
+    Analytics.trackAction({
+      action: "create_eip7702_delegation",
+    });
+
+    return CdpOpenApiClient.createEvmEip7702Delegation(
+      address,
+      createEvmEip7702DelegationBody,
+      options,
+    );
   }
 
   /**

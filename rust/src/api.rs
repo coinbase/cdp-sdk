@@ -4025,6 +4025,354 @@ pub mod types {
                 })
         }
     }
+    ///`CreateEvmEip7702DelegationAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationAddress(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationAddress> for ::std::string::String {
+        fn from(value: CreateEvmEip7702DelegationAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationAddress>
+        for CreateEvmEip7702DelegationAddress
+    {
+        fn from(value: &CreateEvmEip7702DelegationAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CreateEvmEip7702DelegationAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CreateEvmEip7702DelegationAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateEvmEip7702DelegationBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "network"
+    ///  ],
+    ///  "properties": {
+    ///    "enableSpendPermissions": {
+    ///      "description": "Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.",
+    ///      "default": false,
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/EvmEip7702DelegationNetwork"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateEvmEip7702DelegationBody {
+        ///Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.
+        #[serde(rename = "enableSpendPermissions", default)]
+        pub enable_spend_permissions: bool,
+        pub network: EvmEip7702DelegationNetwork,
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationBody> for CreateEvmEip7702DelegationBody {
+        fn from(value: &CreateEvmEip7702DelegationBody) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateEvmEip7702DelegationBody {
+        pub fn builder() -> builder::CreateEvmEip7702DelegationBody {
+            Default::default()
+        }
+    }
+    ///`CreateEvmEip7702DelegationResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transactionHash"
+    ///  ],
+    ///  "properties": {
+    ///    "transactionHash": {
+    ///      "description": "The hash of the Type 4 transaction that was submitted.",
+    ///      "examples": [
+    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateEvmEip7702DelegationResponse {
+        ///The hash of the Type 4 transaction that was submitted.
+        #[serde(rename = "transactionHash")]
+        pub transaction_hash: CreateEvmEip7702DelegationResponseTransactionHash,
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationResponse>
+        for CreateEvmEip7702DelegationResponse
+    {
+        fn from(value: &CreateEvmEip7702DelegationResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateEvmEip7702DelegationResponse {
+        pub fn builder() -> builder::CreateEvmEip7702DelegationResponse {
+            Default::default()
+        }
+    }
+    ///The hash of the Type 4 transaction that was submitted.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the Type 4 transaction that was submitted.",
+    ///  "examples": [
+    ///    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationResponseTransactionHash(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationResponseTransactionHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationResponseTransactionHash>
+        for ::std::string::String
+    {
+        fn from(value: CreateEvmEip7702DelegationResponseTransactionHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationResponseTransactionHash>
+        for CreateEvmEip7702DelegationResponseTransactionHash
+    {
+        fn from(value: &CreateEvmEip7702DelegationResponseTransactionHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationResponseTransactionHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateEvmEip7702DelegationResponseTransactionHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateEvmEip7702DelegationResponseTransactionHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationResponseTransactionHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateEvmEip7702DelegationXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 36,
+    ///  "minLength": 36,
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationXIdempotencyKey> for ::std::string::String {
+        fn from(value: CreateEvmEip7702DelegationXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationXIdempotencyKey>
+        for CreateEvmEip7702DelegationXIdempotencyKey
+    {
+        fn from(value: &CreateEvmEip7702DelegationXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 36usize {
+                return Err("longer than 36 characters".into());
+            }
+            if value.chars().count() < 36usize {
+                return Err("shorter than 36 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CreateEvmEip7702DelegationXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CreateEvmEip7702DelegationXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`CreateEvmSmartAccountBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -10743,6 +11091,8 @@ pub mod types {
     ///    "malformed_transaction",
     ///    "not_found",
     ///    "payment_method_required",
+    ///    "payment_required",
+    ///    "settlement_failed",
     ///    "rate_limit_exceeded",
     ///    "request_canceled",
     ///    "service_unavailable",
@@ -10781,7 +11131,10 @@ pub mod types {
     ///    "mfa_invalid_code",
     ///    "mfa_flow_expired",
     ///    "mfa_required",
-    ///    "mfa_not_enrolled"
+    ///    "mfa_not_enrolled",
+    ///    "order_quote_expired",
+    ///    "order_already_filled",
+    ///    "order_already_canceled"
     ///  ],
     ///  "x-error-instructions": {
     ///    "already_exists": "This error occurs when trying to create a resource that already exists.\n\n**Steps to resolve:**\n1. Check if the resource exists before creation\n2. Use GET endpoints to verify resource state\n3. Use unique identifiers/names for resources",
@@ -10811,7 +11164,11 @@ pub mod types {
     ///    "mfa_required": "This error occurs when attempting to perform a sensitive operation that requires MFA verification, but the user has not completed MFA verification.\n\n**Steps to resolve:**\n1. Initiate the MFA verification flow using the `/mfa/verify/{mfaMethod}/init` endpoint\n2. Prompt the user to enter their MFA code\n3. Submit the verification using the `/mfa/verify/{mfaMethod}/submit` endpoint\n4. Use the returned access token with MFA claim for the sensitive operation\n5. Retry the original request with the new MFA-verified token\n\n**Operations requiring MFA:**\n- Transactions Sign/Send\n- Key export\n- Account management actions (when configured)",
     ///    "network_not_tradable": "This error occurs when the selected asset cannot be purchased on the selected network in the user's location.\n\n**Steps to resolve:**\n1. Verify the asset is tradable on the selected network\n2. Check the user's location to ensure it is allowed to purchase the asset on the selected network\n\n**Common causes:**\n- Users in NY are not allowed to purchase USDC on any network other than Ethereum",
     ///    "not_found": "This error occurs when the resource specified in your request doesn't exist or you don't have access to it.\n\n**Steps to resolve:**\n1. Verify the resource ID/address/account exists\n2. Check your permissions to access the resource\n3. Ensure you're using the correct network/environment\n4. Confirm the resource hasn't been deleted\n\n**Common causes:**\n- Mistyped addresses\n- Accessing resources from the wrong CDP project\n- Resource was deleted or hasn't been created yet",
+    ///    "order_already_canceled": "This error occurs when attempting to cancel or execute an order that has already been canceled.\n\n**Steps to resolve:**\n1. Check the current status of the order using `GET /v2/orders/{orderId}`.\n2. Create a new order if you still want to trade.",
+    ///    "order_already_filled": "This error occurs when attempting to cancel or modify an order that has already been filled.\n\n**Steps to resolve:**\n1. Check the current status of the order using `GET /v2/orders/{orderId}`.\n2. A filled order cannot be canceled or re-executed.",
+    ///    "order_quote_expired": "This error occurs when attempting to execute an order whose quote has expired.\n\n**Steps to resolve:**\n1. Create a new order with `execute: false` to get an updated quote.\n2. Execute the new order before the quote expires (check the `expiresAt` field).\n3. Alternatively, create a new order with `execute: true` to skip the quote step and execute immediately.",
     ///    "payment_method_required": "This error occurs when a payment method is required to complete the requested operation but none is configured or available.\n\n**Steps to resolve:**\n1. Add a valid payment method to your account using the [CDP Portal](https://portal.cdp.coinbase.com)\n2. Ensure your payment method is valid and not expired\n\n**Common causes:**\n- No payment method configured on the account\n- Payment method is expired",
+    ///    "payment_required": "This error occurs when an x402 payment is required to access the requested resource.\n\n**Steps to resolve:**\n1. Include a valid x402 payment header in your request\n2. Ensure the payment meets the resource's pricing requirements",
     ///    "phone_number_verification_expired": "This error occurs when the user's phone number verification has expired. Use of guest Onramp requires the user's\nphone number to be verified every 60 days.\n\n**Steps to resolve:**\n1. Re-verify the user's phone number via OTP.\n2. Retry the request with the phoneNumberVerifiedAt field set to new verification timestamp.",
     ///    "policy_in_use": "This error occurs when trying to delete a Policy that is currently in use by at least one project or account.\n\n**Steps to resolve:**\n1. Update project or accounts to remove references to the Policy in question.\n2. Retry your delete request.",
     ///    "rate_limit_exceeded": "This error occurs when you've exceeded the API rate limits.\n\n**Steps to resolve:**\n1. Implement exponential backoff\n2. Cache responses where possible\n3. Wait for rate limit window to reset\n\n**Best practices:**\n```typescript lines wrap\nasync function withRetry(fn: () => Promise<any>) {\n  let delay = 1000;\n  while (true) {\n    try {\n      return await fn();\n    } catch (e) {\n      if (e.errorType === \"rate_limit_exceeded\") {\n        await sleep(delay);\n        delay *= 2;\n        continue;\n      }\n      throw e;\n    }\n  }\n}\n```",
@@ -10819,6 +11176,7 @@ pub mod types {
     ///    "recipient_allowlist_violation": "This error occurs when the user is not allowed to receive funds at this address, according to their coinbase account allowlist.\n**Steps to resolve:**\n1. Either disable the allowlist or add the wallet address at https://www.coinbase.com/settings/allowlist\n2. Wait approximately 2 days for updates to take effect.",
     ///    "request_canceled": "This error occurs when the client cancels an in-progress request before it completes.\n\n**Steps to resolve:**\n1. Check client-side timeout configurations\n2. Review request cancellation logic in your code\n3. Consider increasing timeout thresholds for long-running operations\n4. Implement request tracking to identify premature cancellations\n\n**Best practices:**\n```typescript lines wrap\nasync function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {\n  const timeout = new Promise((_, reject) => {\n    setTimeout(() => {\n      reject(new Error(\"Operation timed out\"));\n    }, timeoutMs);\n  });\n\n  try {\n    return await Promise.race([promise, timeout]);\n  } catch (error) {\n    // Handle timeout or cancellation\n    throw error;\n  }\n}\n```",
     ///    "service_unavailable": "This error occurs when the CDP API is temporarily unable to handle requests due to maintenance or high load.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - The timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
+    ///    "settlement_failed": "This error occurs when an x402 payment was verified but settlement on-chain failed.\n\n**Steps to resolve:**\n1. Retry the request with a new payment\n2. Ensure the payment asset has sufficient balance for settlement",
     ///    "source_account_invalid": "This error occurs when the source account specified in the transfer request is invalid or malformed.\n\n**Steps to resolve:**\n1. Verify the account ID format is correct (e.g., `account_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)\n2. Ensure the account ID belongs to your CDP entity\n3. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`\n\n**Common causes:**\n- Malformed account ID\n- Typo in the account ID",
     ///    "source_account_not_found": "This error occurs when the source account specified in the transfer does not exist.\n\n**Steps to resolve:**\n1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`",
     ///    "source_asset_not_supported": "This error occurs when the asset specified in the transfer source is not supported for this transfer type.\n\n**Steps to resolve:**\n1. Check the list of supported assets for the source account type\n2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)\n\n**Common causes:**\n- Unsupported asset for the transfer route\n- Incorrect asset symbol",
@@ -10874,6 +11232,10 @@ pub mod types {
         NotFound,
         #[serde(rename = "payment_method_required")]
         PaymentMethodRequired,
+        #[serde(rename = "payment_required")]
+        PaymentRequired,
+        #[serde(rename = "settlement_failed")]
+        SettlementFailed,
         #[serde(rename = "rate_limit_exceeded")]
         RateLimitExceeded,
         #[serde(rename = "request_canceled")]
@@ -10952,6 +11314,12 @@ pub mod types {
         MfaRequired,
         #[serde(rename = "mfa_not_enrolled")]
         MfaNotEnrolled,
+        #[serde(rename = "order_quote_expired")]
+        OrderQuoteExpired,
+        #[serde(rename = "order_already_filled")]
+        OrderAlreadyFilled,
+        #[serde(rename = "order_already_canceled")]
+        OrderAlreadyCanceled,
     }
     impl ::std::convert::From<&Self> for ErrorType {
         fn from(value: &ErrorType) -> Self {
@@ -10973,6 +11341,8 @@ pub mod types {
                 Self::MalformedTransaction => f.write_str("malformed_transaction"),
                 Self::NotFound => f.write_str("not_found"),
                 Self::PaymentMethodRequired => f.write_str("payment_method_required"),
+                Self::PaymentRequired => f.write_str("payment_required"),
+                Self::SettlementFailed => f.write_str("settlement_failed"),
                 Self::RateLimitExceeded => f.write_str("rate_limit_exceeded"),
                 Self::RequestCanceled => f.write_str("request_canceled"),
                 Self::ServiceUnavailable => f.write_str("service_unavailable"),
@@ -11016,6 +11386,9 @@ pub mod types {
                 Self::MfaFlowExpired => f.write_str("mfa_flow_expired"),
                 Self::MfaRequired => f.write_str("mfa_required"),
                 Self::MfaNotEnrolled => f.write_str("mfa_not_enrolled"),
+                Self::OrderQuoteExpired => f.write_str("order_quote_expired"),
+                Self::OrderAlreadyFilled => f.write_str("order_already_filled"),
+                Self::OrderAlreadyCanceled => f.write_str("order_already_canceled"),
             }
         }
     }
@@ -11035,6 +11408,8 @@ pub mod types {
                 "malformed_transaction" => Ok(Self::MalformedTransaction),
                 "not_found" => Ok(Self::NotFound),
                 "payment_method_required" => Ok(Self::PaymentMethodRequired),
+                "payment_required" => Ok(Self::PaymentRequired),
+                "settlement_failed" => Ok(Self::SettlementFailed),
                 "rate_limit_exceeded" => Ok(Self::RateLimitExceeded),
                 "request_canceled" => Ok(Self::RequestCanceled),
                 "service_unavailable" => Ok(Self::ServiceUnavailable),
@@ -11074,6 +11449,9 @@ pub mod types {
                 "mfa_flow_expired" => Ok(Self::MfaFlowExpired),
                 "mfa_required" => Ok(Self::MfaRequired),
                 "mfa_not_enrolled" => Ok(Self::MfaNotEnrolled),
+                "order_quote_expired" => Ok(Self::OrderQuoteExpired),
+                "order_already_filled" => Ok(Self::OrderAlreadyFilled),
+                "order_already_canceled" => Ok(Self::OrderAlreadyCanceled),
                 _ => Err("invalid value".into()),
             }
         }
@@ -12969,6 +13347,112 @@ pub mod types {
             value.parse()
         }
     }
+    ///The network for the EIP-7702 delegation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The network for the EIP-7702 delegation.",
+    ///  "examples": [
+    ///    "base"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-sepolia",
+    ///    "base",
+    ///    "arbitrum",
+    ///    "optimism",
+    ///    "polygon",
+    ///    "ethereum",
+    ///    "ethereum-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum EvmEip7702DelegationNetwork {
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+        #[serde(rename = "base")]
+        Base,
+        #[serde(rename = "arbitrum")]
+        Arbitrum,
+        #[serde(rename = "optimism")]
+        Optimism,
+        #[serde(rename = "polygon")]
+        Polygon,
+        #[serde(rename = "ethereum")]
+        Ethereum,
+        #[serde(rename = "ethereum-sepolia")]
+        EthereumSepolia,
+    }
+    impl ::std::convert::From<&Self> for EvmEip7702DelegationNetwork {
+        fn from(value: &EvmEip7702DelegationNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for EvmEip7702DelegationNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+                Self::Base => f.write_str("base"),
+                Self::Arbitrum => f.write_str("arbitrum"),
+                Self::Optimism => f.write_str("optimism"),
+                Self::Polygon => f.write_str("polygon"),
+                Self::Ethereum => f.write_str("ethereum"),
+                Self::EthereumSepolia => f.write_str("ethereum-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for EvmEip7702DelegationNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                "base" => Ok(Self::Base),
+                "arbitrum" => Ok(Self::Arbitrum),
+                "optimism" => Ok(Self::Optimism),
+                "polygon" => Ok(Self::Polygon),
+                "ethereum" => Ok(Self::Ethereum),
+                "ethereum-sepolia" => Ok(Self::EthereumSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EvmEip7702DelegationNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EvmEip7702DelegationNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///A schema for specifying a criterion for the message being signed.
     ///
     /// <details><summary>JSON schema</summary>
@@ -13924,7 +14408,8 @@ pub mod types {
     ///    "base",
     ///    "ethereum",
     ///    "arbitrum",
-    ///    "optimism"
+    ///    "optimism",
+    ///    "polygon"
     ///  ]
     ///}
     /// ```
@@ -13950,6 +14435,8 @@ pub mod types {
         Arbitrum,
         #[serde(rename = "optimism")]
         Optimism,
+        #[serde(rename = "polygon")]
+        Polygon,
     }
     impl ::std::convert::From<&Self> for EvmSwapsNetwork {
         fn from(value: &EvmSwapsNetwork) -> Self {
@@ -13963,6 +14450,7 @@ pub mod types {
                 Self::Ethereum => f.write_str("ethereum"),
                 Self::Arbitrum => f.write_str("arbitrum"),
                 Self::Optimism => f.write_str("optimism"),
+                Self::Polygon => f.write_str("polygon"),
             }
         }
     }
@@ -13974,6 +14462,7 @@ pub mod types {
                 "ethereum" => Ok(Self::Ethereum),
                 "arbitrum" => Ok(Self::Arbitrum),
                 "optimism" => Ok(Self::Optimism),
+                "polygon" => Ok(Self::Polygon),
                 _ => Err("invalid value".into()),
             }
         }
@@ -23503,7 +23992,8 @@ pub mod types {
     ///  ],
     ///  "type": "string",
     ///  "enum": [
-    ///    "GUEST_CHECKOUT_APPLE_PAY"
+    ///    "GUEST_CHECKOUT_APPLE_PAY",
+    ///    "GUEST_CHECKOUT_GOOGLE_PAY"
     ///  ]
     ///}
     /// ```
@@ -23523,6 +24013,8 @@ pub mod types {
     pub enum OnrampOrderPaymentMethodTypeId {
         #[serde(rename = "GUEST_CHECKOUT_APPLE_PAY")]
         GuestCheckoutApplePay,
+        #[serde(rename = "GUEST_CHECKOUT_GOOGLE_PAY")]
+        GuestCheckoutGooglePay,
     }
     impl ::std::convert::From<&Self> for OnrampOrderPaymentMethodTypeId {
         fn from(value: &OnrampOrderPaymentMethodTypeId) -> Self {
@@ -23533,6 +24025,7 @@ pub mod types {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
                 Self::GuestCheckoutApplePay => f.write_str("GUEST_CHECKOUT_APPLE_PAY"),
+                Self::GuestCheckoutGooglePay => f.write_str("GUEST_CHECKOUT_GOOGLE_PAY"),
             }
         }
     }
@@ -23541,6 +24034,7 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "GUEST_CHECKOUT_APPLE_PAY" => Ok(Self::GuestCheckoutApplePay),
+                "GUEST_CHECKOUT_GOOGLE_PAY" => Ok(Self::GuestCheckoutGooglePay),
                 _ => Err("invalid value".into()),
             }
         }
@@ -37139,12 +37633,8 @@ pub mod types {
     ///  "type": "object",
     ///  "required": [
     ///    "authDate",
-    ///    "firstName",
     ///    "id",
-    ///    "lastName",
-    ///    "photoUrl",
-    ///    "type",
-    ///    "username"
+    ///    "type"
     ///  ],
     ///  "properties": {
     ///    "authDate": {
@@ -37202,20 +37692,33 @@ pub mod types {
         #[serde(rename = "authDate")]
         pub auth_date: i64,
         ///The Telegram user's first name.
-        #[serde(rename = "firstName")]
-        pub first_name: ::std::string::String,
+        #[serde(
+            rename = "firstName",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub first_name: ::std::option::Option<::std::string::String>,
         ///The Telegram ID for the end user.
         pub id: i64,
         ///The Telegram user's last name.
-        #[serde(rename = "lastName")]
-        pub last_name: ::std::string::String,
+        #[serde(
+            rename = "lastName",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub last_name: ::std::option::Option<::std::string::String>,
         ///The Telegram user's profile picture.
-        #[serde(rename = "photoUrl")]
-        pub photo_url: ::std::string::String,
+        #[serde(
+            rename = "photoUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub photo_url: ::std::option::Option<::std::string::String>,
         #[serde(rename = "type")]
         pub type_: OAuth2ProviderType,
         ///The Telegram user's username.
-        pub username: ::std::string::String,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub username: ::std::option::Option<::std::string::String>,
     }
     impl ::std::convert::From<&TelegramAuthentication> for TelegramAuthentication {
         fn from(value: &TelegramAuthentication) -> Self {
@@ -46959,6 +47462,120 @@ pub mod types {
                 Self {
                     account_policy: Ok(value.account_policy),
                     name: Ok(value.name),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateEvmEip7702DelegationBody {
+            enable_spend_permissions: ::std::result::Result<bool, ::std::string::String>,
+            network:
+                ::std::result::Result<super::EvmEip7702DelegationNetwork, ::std::string::String>,
+        }
+        impl ::std::default::Default for CreateEvmEip7702DelegationBody {
+            fn default() -> Self {
+                Self {
+                    enable_spend_permissions: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                }
+            }
+        }
+        impl CreateEvmEip7702DelegationBody {
+            pub fn enable_spend_permissions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enable_spend_permissions = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for enable_spend_permissions: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EvmEip7702DelegationNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateEvmEip7702DelegationBody>
+            for super::CreateEvmEip7702DelegationBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateEvmEip7702DelegationBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enable_spend_permissions: value.enable_spend_permissions?,
+                    network: value.network?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateEvmEip7702DelegationBody>
+            for CreateEvmEip7702DelegationBody
+        {
+            fn from(value: super::CreateEvmEip7702DelegationBody) -> Self {
+                Self {
+                    enable_spend_permissions: Ok(value.enable_spend_permissions),
+                    network: Ok(value.network),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateEvmEip7702DelegationResponse {
+            transaction_hash: ::std::result::Result<
+                super::CreateEvmEip7702DelegationResponseTransactionHash,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateEvmEip7702DelegationResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_hash: Err("no value supplied for transaction_hash".to_string()),
+                }
+            }
+        }
+        impl CreateEvmEip7702DelegationResponse {
+            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::CreateEvmEip7702DelegationResponseTransactionHash,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_hash = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_hash: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateEvmEip7702DelegationResponse>
+            for super::CreateEvmEip7702DelegationResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateEvmEip7702DelegationResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_hash: value.transaction_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateEvmEip7702DelegationResponse>
+            for CreateEvmEip7702DelegationResponse
+        {
+            fn from(value: super::CreateEvmEip7702DelegationResponse) -> Self {
+                Self {
+                    transaction_hash: Ok(value.transaction_hash),
                 }
             }
         }
@@ -58547,23 +59164,35 @@ pub mod types {
         #[derive(Clone, Debug)]
         pub struct TelegramAuthentication {
             auth_date: ::std::result::Result<i64, ::std::string::String>,
-            first_name: ::std::result::Result<::std::string::String, ::std::string::String>,
+            first_name: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             id: ::std::result::Result<i64, ::std::string::String>,
-            last_name: ::std::result::Result<::std::string::String, ::std::string::String>,
-            photo_url: ::std::result::Result<::std::string::String, ::std::string::String>,
+            last_name: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            photo_url: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             type_: ::std::result::Result<super::OAuth2ProviderType, ::std::string::String>,
-            username: ::std::result::Result<::std::string::String, ::std::string::String>,
+            username: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
         }
         impl ::std::default::Default for TelegramAuthentication {
             fn default() -> Self {
                 Self {
                     auth_date: Err("no value supplied for auth_date".to_string()),
-                    first_name: Err("no value supplied for first_name".to_string()),
+                    first_name: Ok(Default::default()),
                     id: Err("no value supplied for id".to_string()),
-                    last_name: Err("no value supplied for last_name".to_string()),
-                    photo_url: Err("no value supplied for photo_url".to_string()),
+                    last_name: Ok(Default::default()),
+                    photo_url: Ok(Default::default()),
                     type_: Err("no value supplied for type_".to_string()),
-                    username: Err("no value supplied for username".to_string()),
+                    username: Ok(Default::default()),
                 }
             }
         }
@@ -58580,7 +59209,7 @@ pub mod types {
             }
             pub fn first_name<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.first_name = value
@@ -58600,7 +59229,7 @@ pub mod types {
             }
             pub fn last_name<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.last_name = value
@@ -58610,7 +59239,7 @@ pub mod types {
             }
             pub fn photo_url<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.photo_url = value
@@ -58630,7 +59259,7 @@ pub mod types {
             }
             pub fn username<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.username = value
@@ -62377,6 +63006,43 @@ impl Client {
     pub fn update_evm_account(&self) -> builder::UpdateEvmAccount<'_> {
         builder::UpdateEvmAccount::new(self)
     }
+    /**Create EIP-7702 delegation
+
+    Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
+
+    This endpoint:
+    - Retrieves delegation artifacts from onchain
+    - Signs the EIP-7702 authorization for delegation
+    - Assembles and submits a Type 4 transaction
+    - Creates an associated smart account object
+
+    The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+
+    Sends a `POST` request to `/v2/evm/accounts/{address}/eip7702/delegation`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM account to delegate.
+    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.create_evm_eip7702_delegation()
+        .address(address)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn create_evm_eip7702_delegation(&self) -> builder::CreateEvmEip7702Delegation<'_> {
+        builder::CreateEvmEip7702Delegation::new(self)
+    }
     /**Export an EVM account
 
     Export an existing EVM account's private key. It is important to store the private key in a secure place after it's exported.
@@ -66097,6 +66763,166 @@ pub mod builder {
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::create_evm_eip7702_delegation`]
+
+    [`Client::create_evm_eip7702_delegation`]: super::Client::create_evm_eip7702_delegation*/
+    #[derive(Debug, Clone)]
+    pub struct CreateEvmEip7702Delegation<'a> {
+        client: &'a super::Client,
+        address: Result<types::CreateEvmEip7702DelegationAddress, String>,
+        x_idempotency_key: Result<Option<types::CreateEvmEip7702DelegationXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::CreateEvmEip7702DelegationBody, String>,
+    }
+    impl<'a> CreateEvmEip7702Delegation<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateEvmEip7702DelegationAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `CreateEvmEip7702DelegationAddress` for address failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateEvmEip7702DelegationXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `CreateEvmEip7702DelegationXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateEvmEip7702DelegationBody>,
+            <V as std::convert::TryInto<types::CreateEvmEip7702DelegationBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CreateEvmEip7702DelegationBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CreateEvmEip7702DelegationBody,
+            ) -> types::builder::CreateEvmEip7702DelegationBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/evm/accounts/{address}/eip7702/delegation`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::CreateEvmEip7702DelegationResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                address,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::CreateEvmEip7702DelegationBody::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/accounts/{}/eip7702/delegation",
+                client.baseurl,
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "create_evm_eip7702_delegation",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 404u16 => Err(Error::ErrorResponse(

@@ -18,24 +18,25 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.o_auth2_provider_type import OAuth2ProviderType
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class TelegramAuthentication(BaseModel):
+class CreateEvmEip7702Delegation201Response(BaseModel):
     """
-    Information about an end user who authenticates using Telegram.
+    CreateEvmEip7702Delegation201Response
     """ # noqa: E501
-    type: OAuth2ProviderType
-    id: StrictInt = Field(description="The Telegram ID for the end user.")
-    first_name: Optional[StrictStr] = Field(default=None, description="The Telegram user's first name.", alias="firstName")
-    last_name: Optional[StrictStr] = Field(default=None, description="The Telegram user's last name.", alias="lastName")
-    photo_url: Optional[StrictStr] = Field(default=None, description="The Telegram user's profile picture.", alias="photoUrl")
-    auth_date: StrictInt = Field(description="The Telegram user's last login as a Unix timestamp.", alias="authDate")
-    username: Optional[StrictStr] = Field(default=None, description="The Telegram user's username.")
-    __properties: ClassVar[List[str]] = ["type", "id", "firstName", "lastName", "photoUrl", "authDate", "username"]
+    transaction_hash: Annotated[str, Field(strict=True)] = Field(description="The hash of the Type 4 transaction that was submitted.", alias="transactionHash")
+    __properties: ClassVar[List[str]] = ["transactionHash"]
+
+    @field_validator('transaction_hash')
+    def transaction_hash_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[0-9a-fA-F]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{64}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -55,7 +56,7 @@ class TelegramAuthentication(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of TelegramAuthentication from a JSON string"""
+        """Create an instance of CreateEvmEip7702Delegation201Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,7 +81,7 @@ class TelegramAuthentication(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of TelegramAuthentication from a dict"""
+        """Create an instance of CreateEvmEip7702Delegation201Response from a dict"""
         if obj is None:
             return None
 
@@ -88,13 +89,7 @@ class TelegramAuthentication(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "type": obj.get("type"),
-            "id": obj.get("id"),
-            "firstName": obj.get("firstName"),
-            "lastName": obj.get("lastName"),
-            "photoUrl": obj.get("photoUrl"),
-            "authDate": obj.get("authDate"),
-            "username": obj.get("username")
+            "transactionHash": obj.get("transactionHash")
         })
         return _obj
 

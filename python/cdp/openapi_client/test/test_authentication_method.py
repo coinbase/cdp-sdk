@@ -56,11 +56,7 @@ class TestAuthenticationMethod(unittest.TestCase):
                 phone_number = '+12055555555',
                 kid = 'NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg',
                 sub = 'e051beeb-7163-4527-a5b6-35e301529ff2',
-                username = 'satoshinakamoto',
                 id = 123456,
-                first_name = 'Satoshi',
-                last_name = 'Nakamoto',
-                photo_url = 'https://image.url/profile.png',
                 auth_date = 1770681412,
         )
         """

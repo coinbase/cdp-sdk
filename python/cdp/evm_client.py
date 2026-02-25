@@ -29,6 +29,9 @@ from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.export import decrypt_with_private_key, generate_export_encryption_key_pair
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
+from cdp.openapi_client.models.create_evm_eip7702_delegation_request import (
+    CreateEvmEip7702DelegationRequest,
+)
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
@@ -892,6 +895,34 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
         return EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
+
+    async def create_evm_eip7702_delegation(
+        self,
+        address: str,
+        create_evm_eip7702_delegation_request: CreateEvmEip7702DelegationRequest,
+        x_wallet_auth: str | None = None,
+        idempotency_key: str | None = None,
+    ):
+        """Create an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
+
+        Args:
+            address (str): The 0x-prefixed address of the EVM account to delegate.
+            create_evm_eip7702_delegation_request (CreateEvmEip7702DelegationRequest): The delegation parameters.
+            x_wallet_auth (str, optional): A JWT signed using your Wallet Secret. Defaults to None.
+            idempotency_key (str, optional): An optional idempotency key. Defaults to None.
+
+        Returns:
+            CreateEvmEip7702DelegationResult: The delegation result including the transaction hash.
+
+        """
+        track_action(action="create_eip7702_delegation")
+
+        return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
+            address=address,
+            create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=idempotency_key,
+        )
 
     async def update_smart_account(
         self,

@@ -28,6 +28,7 @@ class OnrampOrderPaymentMethodTypeId(str, Enum):
     allowed enum values
     """
     GUEST_CHECKOUT_APPLE_PAY = 'GUEST_CHECKOUT_APPLE_PAY'
+    GUEST_CHECKOUT_GOOGLE_PAY = 'GUEST_CHECKOUT_GOOGLE_PAY'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

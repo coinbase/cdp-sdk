@@ -34,6 +34,13 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_create_evm_eip7702_delegation(self) -> None:
+        """Test case for create_evm_eip7702_delegation
+
+        Create EIP-7702 delegation
+        """
+        pass
+
     async def test_export_evm_account(self) -> None:
         """Test case for export_evm_account
 

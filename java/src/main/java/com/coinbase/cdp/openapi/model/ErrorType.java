@@ -54,6 +54,10 @@ public enum ErrorType {
   
   PAYMENT_METHOD_REQUIRED("payment_method_required"),
   
+  PAYMENT_REQUIRED("payment_required"),
+  
+  SETTLEMENT_FAILED("settlement_failed"),
+  
   RATE_LIMIT_EXCEEDED("rate_limit_exceeded"),
   
   REQUEST_CANCELED("request_canceled"),
@@ -130,7 +134,13 @@ public enum ErrorType {
   
   MFA_REQUIRED("mfa_required"),
   
-  MFA_NOT_ENROLLED("mfa_not_enrolled");
+  MFA_NOT_ENROLLED("mfa_not_enrolled"),
+  
+  ORDER_QUOTE_EXPIRED("order_quote_expired"),
+  
+  ORDER_ALREADY_FILLED("order_already_filled"),
+  
+  ORDER_ALREADY_CANCELED("order_already_canceled");
 
   private String value;
 
