@@ -1,7 +1,7 @@
 // Usage: pnpm tsx evm/eip7702/createEip7702Delegation.ts
 //
 // Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
-// capabilities), waits for the transaction to be confirmed, then sends a user operation
+// capabilities), waits for delegation status to be CURRENT, then sends a user operation
 // using toEvmDelegatedAccount(account).
 
 import { CdpClient, toEvmDelegatedAccount } from "@coinbase/cdp-sdk";
@@ -17,7 +17,7 @@ const publicClient = createPublicClient({
 });
 
 // Step 1: Get or create an EOA account
-const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account-1121" });
+const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account" });
 console.log("Account address:", account.address);
 
 // Step 2: Ensure the account has ETH for gas (request faucet if needed)
@@ -42,19 +42,19 @@ const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.add
 
 console.log("Delegation transaction submitted:", transactionHash);
 
-// Step 4: Wait for the transaction to be confirmed onchain
-console.log("Waiting for transaction confirmation...");
-const receipt = await publicClient.waitForTransactionReceipt({
-  hash: transactionHash,
+// Step 4: Wait for the delegation status to be CURRENT
+console.log("Waiting for delegation to be active...");
+const delegationStatus = await cdp.evm.waitForEvmEip7702DelegationStatus({
+  address: account.address,
+  network: "base-sepolia",
 });
 
 console.log(
-  `Delegation confirmed in block ${receipt.blockNumber}. Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
+  `Delegation is active (status: ${delegationStatus.status}). Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
 );
 
 // Step 5: Send a user operation using the upgraded EOA (via toEvmDelegatedAccount)
 console.log("Sending user operation with upgraded EOA...");
-await new Promise(resolve => setTimeout(resolve, 2000));
 const delegatedAccount = toEvmDelegatedAccount(account);
 const { userOpHash } = await delegatedAccount.sendUserOperation({
   network: "base-sepolia",

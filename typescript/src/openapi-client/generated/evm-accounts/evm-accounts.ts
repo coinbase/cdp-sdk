@@ -242,7 +242,11 @@ export const getEvmEip7702DelegationStatus = (
   options?: SecondParameter<typeof cdpApiClient>,
 ) => {
   return cdpApiClient<EvmEip7702DelegationStatus>(
-    { url: `/v2/evm/accounts/${address}/eip7702/delegation`, method: "GET", params },
+    { 
+      url: `/v2/evm/accounts/${address}/eip7702/delegation`, 
+      method: "GET", 
+      params 
+    },
     options,
   );
 };
