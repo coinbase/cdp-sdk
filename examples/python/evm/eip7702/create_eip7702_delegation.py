@@ -21,7 +21,7 @@ w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 async def main():
      async with CdpClient() as cdp:
         # Step 1: Get or create an EOA account
-        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python-212")
+        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python")
         print(f"Account address: {account.address}")
 
         # Step 2: Ensure the account has ETH for gas (request faucet if needed)
