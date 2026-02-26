@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.45.0
+
+### Minor Changes
+
+- [#606](https://github.com/coinbase/cdp-sdk/pull/606) [`3fef84a`](https://github.com/coinbase/cdp-sdk/commit/3fef84a828ee897fcbdc9bb920fcc3641eac8641) Thanks [@milan-cb](https://github.com/milan-cb)! - Added createEvmEip7702Delegation to upgrade EOAs with smart account capabilities
+
+### Patch Changes
+
+- [#607](https://github.com/coinbase/cdp-sdk/pull/607) [`21244e3`](https://github.com/coinbase/cdp-sdk/commit/21244e32384fb189facbea96668087d24ded035a) Thanks [@0xRAG](https://github.com/0xRAG)! - Simplify analytics
+
 ## 1.44.1
 
 ### Patch Changes
