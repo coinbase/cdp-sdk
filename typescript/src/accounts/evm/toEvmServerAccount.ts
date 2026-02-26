@@ -8,7 +8,6 @@ import {
   hashMessage,
 } from "viem";
 
-import { toEvmDelegatedAccount } from "./toEvmDelegatedAccount.js";
 import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
 import {
   listTokenBalances,
@@ -278,9 +277,6 @@ export function toEvmServerAccount(
     name: options.account.name,
     type: "evm-server",
     policies: options.account.policies,
-    toDelegated(): EvmSmartAccount {
-      return toEvmDelegatedAccount(apiClient, { account });
-    },
     useNetwork: async <Network extends NetworkOrRpcUrl>(networkOrRpcUrl: Network) => {
       Analytics.trackAction({
         action: "use_network",

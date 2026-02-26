@@ -1,33 +1,22 @@
+import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
 
 import type { EvmServerAccount, EvmSmartAccount } from "./types.js";
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
-
-/**
- * Options for converting a server account (EOA) to a delegated smart account view.
- * Use after the EOA has been upgraded via EIP-7702 delegation.
- */
-export type ToEvmDelegatedAccountOptions = {
-  /** The server account (EOA) that has been delegated via EIP-7702. */
-  account: EvmServerAccount;
-};
 
 /**
  * Creates an EvmSmartAccount view of a server account for use after EIP-7702 delegation.
+ * Uses the API client configured by your CdpClient instance.
+ *
  * The returned account has the same address as the EOA and uses the server account as owner,
  * so you can call sendUserOperation, waitForUserOperation, etc.
  *
- * @param {CdpOpenApiClientType} apiClient - The API client.
- * @param {ToEvmDelegatedAccountOptions} options - Configuration options.
- * @param {EvmServerAccount} options.account - The server account (EOA) that has been delegated.
- * @returns {EvmSmartAccount} A smart account view ready for user operation submission.
+ * @param account - The server account (EOA) that has been delegated via EIP-7702.
+ * @returns An EvmSmartAccount view ready for user operation submission.
  */
 export function toEvmDelegatedAccount(
-  apiClient: CdpOpenApiClientType,
-  options: ToEvmDelegatedAccountOptions,
+  account: EvmServerAccount,
 ): EvmSmartAccount {
-  const { account } = options;
-  return toEvmSmartAccount(apiClient, {
+  return toEvmSmartAccount(CdpOpenApiClient, {
     smartAccount: {
       address: account.address,
       owners: [account.address],

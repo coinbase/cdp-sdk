@@ -2,9 +2,9 @@
 //
 // Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
 // capabilities), waits for the transaction to be confirmed, then sends a user operation
-// using toDelegatedAccount(account).
+// using toEvmDelegatedAccount(account).
 
-import { CdpClient, toDelegatedAccount } from "@coinbase/cdp-sdk";
+import { CdpClient, toEvmDelegatedAccount } from "@coinbase/cdp-sdk";
 import { createPublicClient, http, parseEther } from "viem";
 import { baseSepolia } from "viem/chains";
 import "dotenv/config";
@@ -52,11 +52,11 @@ console.log(
   `Delegation confirmed in block ${receipt.blockNumber}. Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
 );
 
-// Step 5: Send a user operation using the upgraded EOA (via toDelegatedAccount)
+// Step 5: Send a user operation using the upgraded EOA (via toEvmDelegatedAccount)
 console.log("Sending user operation with upgraded EOA...");
 await new Promise(resolve => setTimeout(resolve, 2000));
-const delegated = toDelegatedAccount(account);
-const { userOpHash } = await delegated.sendUserOperation({
+const delegatedAccount = toEvmDelegatedAccount(account);
+const { userOpHash } = await delegatedAccount.sendUserOperation({
   network: "base-sepolia",
   calls: [
     {

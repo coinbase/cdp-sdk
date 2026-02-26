@@ -151,7 +151,6 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -204,7 +203,6 @@ describe("EvmClient", () => {
         useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -434,7 +432,6 @@ describe("EvmClient", () => {
         useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccount as MockedFunction<
@@ -476,7 +473,6 @@ describe("EvmClient", () => {
         useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const getEvmAccountByNameMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -578,7 +574,6 @@ describe("EvmClient", () => {
         useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -1420,7 +1415,6 @@ describe("EvmClient", () => {
         policies: [updateData.accountPolicy],
         quoteSwap: vi.fn(),
         swap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
@@ -1478,7 +1472,6 @@ describe("EvmClient", () => {
         policies: [],
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
@@ -1719,7 +1712,6 @@ describe("EvmClient", () => {
         policies: [],
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const mockEncryptedKey = Buffer.from("encrypted-private-key");
@@ -1784,7 +1776,6 @@ describe("EvmClient", () => {
         policies: [],
         swap: vi.fn(),
         quoteSwap: vi.fn(),
-        toDelegated: vi.fn(),
       };
 
       const mockEncryptedKey = Buffer.from("encrypted-private-key");

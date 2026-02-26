@@ -35,7 +35,7 @@ describe("toEvmDelegatedAccount", () => {
   });
 
   it("should return an EvmSmartAccount with the same address as the server account", () => {
-    const delegated = toEvmDelegatedAccount(mockApiClient, { account: serverAccount });
+    const delegated = toEvmDelegatedAccount(serverAccount);
 
     expect(delegated.type).toBe("evm-smart");
     expect(delegated.address).toBe(serverAccount.address);

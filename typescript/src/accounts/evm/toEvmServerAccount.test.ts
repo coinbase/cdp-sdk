@@ -136,7 +136,6 @@ describe("toEvmServerAccount", () => {
       signTypedData: expect.any(Function),
       swap: expect.any(Function),
       quoteSwap: expect.any(Function),
-      toDelegated: expect.any(Function),
       transfer: expect.any(Function),
       type: "evm-server",
       useNetwork: expect.any(Function),
@@ -150,19 +149,6 @@ describe("toEvmServerAccount", () => {
 
   it("should have the correct type property", () => {
     expect(serverAccount.type).toBe("evm-server");
-  });
-
-  describe("toDelegated", () => {
-    it("should return an EvmSmartAccount with the same address and sendUserOperation", () => {
-      const delegated = serverAccount.toDelegated();
-
-      expect(delegated.type).toBe("evm-smart");
-      expect(delegated.address).toBe(serverAccount.address);
-      expect(delegated.owners).toHaveLength(1);
-      expect(delegated.owners[0]).toBe(serverAccount);
-      expect(delegated.sendUserOperation).toBeDefined();
-      expect(typeof delegated.sendUserOperation).toBe("function");
-    });
   });
 
   describe("signMessage", () => {
