@@ -68,7 +68,12 @@ export class PoliciesClient implements PoliciesClientInterface {
       },
     });
 
-    return CdpOpenApiClient.listPolicies(options) as Promise<ListPoliciesResult>;
+    try {
+      return CdpOpenApiClient.listPolicies(options) as Promise<ListPoliciesResult>;
+    } catch (error) {
+      Analytics.trackError(error, "listPolicies");
+      throw error;
+    }
   }
 
   /**
@@ -186,13 +191,18 @@ export class PoliciesClient implements PoliciesClientInterface {
       },
     });
 
-    CreatePolicyBodySchema.parse(options.policy);
-    return CdpOpenApiClient.createPolicy(
-      // There are arbitrary differences between the abitype Abi and the openapi Abi
-      options.policy as CreatePolicyBody,
+    try {
+      CreatePolicyBodySchema.parse(options.policy);
+      return CdpOpenApiClient.createPolicy(
+        // There are arbitrary differences between the abitype Abi and the openapi Abi
+        options.policy as CreatePolicyBody,
 
-      options.idempotencyKey,
-    ) as Promise<Policy>;
+        options.idempotencyKey,
+      ) as Promise<Policy>;
+    } catch (error) {
+      Analytics.trackError(error, "createPolicy");
+      throw error;
+    }
   }
 
   /**
@@ -218,7 +228,12 @@ export class PoliciesClient implements PoliciesClientInterface {
       action: "get_policy_by_id",
     });
 
-    return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
+    try {
+      return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
+    } catch (error) {
+      Analytics.trackError(error, "getPolicyById");
+      throw error;
+    }
   }
 
   /**
@@ -254,7 +269,12 @@ export class PoliciesClient implements PoliciesClientInterface {
       action: "delete_policy",
     });
 
-    return CdpOpenApiClient.deletePolicy(options.id, options.idempotencyKey);
+    try {
+      return CdpOpenApiClient.deletePolicy(options.id, options.idempotencyKey);
+    } catch (error) {
+      Analytics.trackError(error, "deletePolicy");
+      throw error;
+    }
   }
 
   /**
@@ -342,12 +362,17 @@ export class PoliciesClient implements PoliciesClientInterface {
       action: "update_policy",
     });
 
-    UpdatePolicyBodySchema.parse(options.policy);
-    return CdpOpenApiClient.updatePolicy(
-      options.id,
-      // There are arbitrary differences between the abitype Abi and the openapi Abi
-      options.policy as UpdatePolicyBody,
-      options.idempotencyKey,
-    ) as Promise<Policy>;
+    try {
+      UpdatePolicyBodySchema.parse(options.policy);
+      return CdpOpenApiClient.updatePolicy(
+        options.id,
+        // There are arbitrary differences between the abitype Abi and the openapi Abi
+        options.policy as UpdatePolicyBody,
+        options.idempotencyKey,
+      ) as Promise<Policy>;
+    } catch (error) {
+      Analytics.trackError(error, "updatePolicy");
+      throw error;
+    }
   }
 }

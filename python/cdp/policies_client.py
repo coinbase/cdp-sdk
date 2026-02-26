@@ -1,4 +1,4 @@
-from cdp.analytics import track_action
+from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
@@ -41,22 +41,26 @@ class PoliciesClient:
             },
         )
 
-        openapi_policy = await self.api_clients.policies.create_policy(
-            create_policy_request=CreatePolicyRequest(
-                scope=policy.scope,
-                description=policy.description,
-                rules=map_request_rules_to_openapi_format(policy.rules),
-            ),
-            x_idempotency_key=idempotency_key,
-        )
-        return Policy(
-            id=openapi_policy.id,
-            description=openapi_policy.description,
-            scope=openapi_policy.scope,
-            rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-            created_at=openapi_policy.created_at,
-            updated_at=openapi_policy.updated_at,
-        )
+        try:
+            openapi_policy = await self.api_clients.policies.create_policy(
+                create_policy_request=CreatePolicyRequest(
+                    scope=policy.scope,
+                    description=policy.description,
+                    rules=map_request_rules_to_openapi_format(policy.rules),
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return Policy(
+                id=openapi_policy.id,
+                description=openapi_policy.description,
+                scope=openapi_policy.scope,
+                rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+                created_at=openapi_policy.created_at,
+                updated_at=openapi_policy.updated_at,
+            )
+        except Exception as error:
+            track_error(error, "create_policy")
+            raise
 
     async def update_policy(
         self,
@@ -79,22 +83,26 @@ class PoliciesClient:
         """
         track_action(action="update_policy")
 
-        openapi_policy = await self.api_clients.policies.update_policy(
-            policy_id=id,
-            update_policy_request=UpdatePolicyRequest(
-                description=policy.description,
-                rules=map_request_rules_to_openapi_format(policy.rules),
-            ),
-            x_idempotency_key=idempotency_key,
-        )
-        return Policy(
-            id=openapi_policy.id,
-            description=openapi_policy.description,
-            scope=openapi_policy.scope,
-            rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-            created_at=openapi_policy.created_at,
-            updated_at=openapi_policy.updated_at,
-        )
+        try:
+            openapi_policy = await self.api_clients.policies.update_policy(
+                policy_id=id,
+                update_policy_request=UpdatePolicyRequest(
+                    description=policy.description,
+                    rules=map_request_rules_to_openapi_format(policy.rules),
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return Policy(
+                id=openapi_policy.id,
+                description=openapi_policy.description,
+                scope=openapi_policy.scope,
+                rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+                created_at=openapi_policy.created_at,
+                updated_at=openapi_policy.updated_at,
+            )
+        except Exception as error:
+            track_error(error, "update_policy")
+            raise
 
     async def delete_policy(
         self,
@@ -112,10 +120,14 @@ class PoliciesClient:
         """
         track_action(action="delete_policy")
 
-        return await self.api_clients.policies.delete_policy(
-            policy_id=id,
-            x_idempotency_key=idempotency_key,
-        )
+        try:
+            return await self.api_clients.policies.delete_policy(
+                policy_id=id,
+                x_idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "delete_policy")
+            raise
 
     async def get_policy_by_id(self, id: str) -> Policy:
         """Retrieve a policy by its unique identifier.
@@ -129,17 +141,21 @@ class PoliciesClient:
         """
         track_action(action="get_policy_by_id")
 
-        openapi_policy = await self.api_clients.policies.get_policy_by_id(
-            policy_id=id,
-        )
-        return Policy(
-            id=openapi_policy.id,
-            description=openapi_policy.description,
-            scope=openapi_policy.scope,
-            rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-            created_at=openapi_policy.created_at,
-            updated_at=openapi_policy.updated_at,
-        )
+        try:
+            openapi_policy = await self.api_clients.policies.get_policy_by_id(
+                policy_id=id,
+            )
+            return Policy(
+                id=openapi_policy.id,
+                description=openapi_policy.description,
+                scope=openapi_policy.scope,
+                rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+                created_at=openapi_policy.created_at,
+                updated_at=openapi_policy.updated_at,
+            )
+        except Exception as error:
+            track_error(error, "get_policy_by_id")
+            raise
 
     async def list_policies(
         self,
@@ -167,22 +183,26 @@ class PoliciesClient:
             },
         )
 
-        openapi_policies = await self.api_clients.policies.list_policies(
-            page_size=page_size,
-            page_token=page_token,
-            scope=scope,
-        )
-        return ListPoliciesResult(
-            policies=[
-                Policy(
-                    id=openapi_policy.id,
-                    description=openapi_policy.description,
-                    scope=openapi_policy.scope,
-                    rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-                    created_at=openapi_policy.created_at,
-                    updated_at=openapi_policy.updated_at,
-                )
-                for openapi_policy in openapi_policies.policies
-            ],
-            next_page_token=openapi_policies.next_page_token,
-        )
+        try:
+            openapi_policies = await self.api_clients.policies.list_policies(
+                page_size=page_size,
+                page_token=page_token,
+                scope=scope,
+            )
+            return ListPoliciesResult(
+                policies=[
+                    Policy(
+                        id=openapi_policy.id,
+                        description=openapi_policy.description,
+                        scope=openapi_policy.scope,
+                        rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+                        created_at=openapi_policy.created_at,
+                        updated_at=openapi_policy.updated_at,
+                    )
+                    for openapi_policy in openapi_policies.policies
+                ],
+                next_page_token=openapi_policies.next_page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_policies")
+            raise

@@ -1,7 +1,7 @@
 import os
 
 from cdp.__version__ import __version__
-from cdp.analytics import Analytics, wrap_class_with_error_tracking
+from cdp.analytics import Analytics, track_error
 from cdp.api_clients import ApiClients
 from cdp.constants import SDK_DEFAULT_SOURCE
 from cdp.end_user_client import EndUserClient
@@ -101,12 +101,6 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         ):
             Analytics["identifier"] = api_key_id
 
-        if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
-            wrap_class_with_error_tracking(CdpClient)
-            wrap_class_with_error_tracking(EvmClient)
-            wrap_class_with_error_tracking(SolanaClient)
-            wrap_class_with_error_tracking(PoliciesClient)
-
     @property
     def evm(self) -> EvmClient:
         """Get the EvmClient instance."""
@@ -149,6 +143,10 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
 
     async def close(self):
         """Close the CDP client."""
-        await self.api_clients.close()
-        self._closed = True
-        return None
+        try:
+            await self.api_clients.close()
+            self._closed = True
+            return None
+        except Exception as error:
+            track_error(error, "close")
+            raise
