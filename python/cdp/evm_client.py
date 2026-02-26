@@ -38,6 +38,7 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
+from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
 from cdp.openapi_client.models.evm_eip7702_delegation_network import (
     EvmEip7702DelegationNetwork,
 )
@@ -1020,6 +1021,31 @@ class EvmClient:
             return response.transaction_hash
         except Exception as error:
             track_error(error, "create_evm_eip7702_delegation")
+            raise
+
+    async def get_evm_eip7702_delegation_status(
+        self,
+        address: str,
+        network: str | EvmEip7702DelegationNetwork,
+    ) -> EvmEip7702DelegationStatus:
+        """Get the EIP-7702 delegation status for an EVM account.
+
+        Args:
+            address (str): The 0x-prefixed address of the EVM account.
+            network (str | EvmEip7702DelegationNetwork): The network to query the delegation status on (e.g. "base-sepolia").
+
+        Returns:
+            EvmEip7702DelegationStatus: The delegation status of the account.
+
+        """
+        track_action(action="get_eip7702_delegation_status")
+        try:
+            return await self.api_clients.evm_accounts.get_evm_eip7702_delegation_status(
+                address=address,
+                network=network,
+            )
+        except Exception as error:
+            track_error(error, "get_evm_eip7702_delegation_status")
             raise
 
     async def update_smart_account(
