@@ -1021,6 +1021,10 @@ class EvmClient:
         """
         track_action(action="create_eip7702_delegation")
         try:
+            create_evm_eip7702_delegation_request = CreateEvmEip7702DelegationRequest(
+                network=network,
+                enable_spend_permissions=enable_spend_permissions,
+            )
             return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
                 address=address,
                 create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,
