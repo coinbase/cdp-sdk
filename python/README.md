@@ -988,14 +988,14 @@ async def main():
     async with CdpClient() as cdp:
         account = await cdp.evm.get_or_create_account(name="MyAccount")
 
-        result = await cdp.evm.create_evm_eip7702_delegation(
+        transaction_hash = await cdp.evm.create_evm_eip7702_delegation(
             address=account.address,
             network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
             enable_spend_permissions=False,  # optional, defaults to False
         )
 
         # Wait for the delegation transaction to be confirmed (same chain as network above)
-        receipt = w3.eth.wait_for_transaction_receipt(result.transaction_hash)
+        receipt = w3.eth.wait_for_transaction_receipt(transaction_hash)
         print(f"Delegation confirmed in block {receipt.blockNumber}")
 
 

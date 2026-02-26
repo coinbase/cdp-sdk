@@ -1011,12 +1011,13 @@ class EvmClient:
                 network=network,
                 enable_spend_permissions=enable_spend_permissions,
             )
-            return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
+            response = await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
                 address=address,
                 create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,
                 x_wallet_auth=x_wallet_auth,
                 x_idempotency_key=idempotency_key,
             )
+            return response.transaction_hash
         except Exception as error:
             track_error(error, "create_evm_eip7702_delegation")
             raise

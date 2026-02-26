@@ -21,7 +21,7 @@ w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 async def main():
      async with CdpClient() as cdp:
         # Step 1: Get or create an EOA account
-        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python")
+        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python-1124")
         print(f"Account address: {account.address}")
 
         # Step 2: Ensure the account has ETH for gas (request faucet if needed)
@@ -39,21 +39,21 @@ async def main():
         # Step 3: Create the EIP-7702 delegation
         await asyncio.sleep(1)
         print("Creating EIP-7702 delegation...")
-        result = await cdp.evm.create_evm_eip7702_delegation(
+        tx_hash = await cdp.evm.create_evm_eip7702_delegation(
             address=account.address,
             network="base-sepolia",
             enable_spend_permissions=False,
         )
 
-        print(f"Delegation transaction submitted: {result.transaction_hash}")
+        print(f"Delegation transaction submitted: {tx_hash}")
 
         # Step 4: Wait for the transaction to be confirmed onchain
         print("Waiting for transaction confirmation...")
-        receipt = w3.eth.wait_for_transaction_receipt(result.transaction_hash)
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
         print(
             f"Delegation confirmed in block {receipt.blockNumber}. "
-            f"Explorer: https://sepolia.basescan.org/tx/{result.transaction_hash}"
+            f"Explorer: https://sepolia.basescan.org/tx/{tx_hash}"
         )
 
         # Step 5: Send a user operation using the upgraded EOA (via to_evm_delegated_account)
