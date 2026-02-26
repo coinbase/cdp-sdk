@@ -1012,7 +1012,7 @@ async def test_create_evm_eip7702_delegation():
         x_wallet_auth=None,
         x_idempotency_key=test_idempotency_key,
     )
-    assert result.transaction_hash == mock_response.transaction_hash
+    assert result == mock_response.transaction_hash
 
 
 def test_to_evm_delegated_account(server_account_model_factory):
