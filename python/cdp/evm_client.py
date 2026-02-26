@@ -1002,7 +1002,7 @@ class EvmClient:
             idempotency_key (str, optional): An optional idempotency key. Defaults to None.
 
         Returns:
-            CreateEvmEip7702Delegation201Response: The delegation result including the transaction hash.
+            str: The transaction hash of the delegation transaction.
 
         """
         track_action(action="create_eip7702_delegation")
