@@ -418,6 +418,36 @@ export const EvmEip7702DelegationNetwork = {
   "ethereum-sepolia": "ethereum-sepolia",
 } as const;
 
+/**
+ * The current delegation state of the account.
+CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
+ */
+export type EvmEip7702DelegationStatusStatus =
+  (typeof EvmEip7702DelegationStatusStatus)[keyof typeof EvmEip7702DelegationStatusStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmEip7702DelegationStatusStatus = {
+  CURRENT: "CURRENT",
+  NOT_DELEGATED: "NOT_DELEGATED",
+  WRONG_PROXY: "WRONG_PROXY",
+  NOT_INITIALIZED: "NOT_INITIALIZED",
+} as const;
+
+/**
+ * The EIP-7702 delegation status for an EVM account.
+ */
+export interface EvmEip7702DelegationStatus {
+  /** The current delegation state of the account.
+CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized. */
+  status: EvmEip7702DelegationStatusStatus;
+  /**
+   * The address the account has delegated to, if any. Only present when the account has an active delegation.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  delegateAddress?: string;
+  network: EvmEip7702DelegationNetwork;
+}
+
 export interface EvmSmartAccount {
   /**
    * The 0x-prefixed, checksum address of the Smart Account.
@@ -2936,6 +2966,7 @@ export const X402V1PaymentPayloadNetwork = {
   base: "base",
   "solana-devnet": "solana-devnet",
   solana: "solana",
+  polygon: "polygon",
 } as const;
 
 /**
@@ -3076,6 +3107,7 @@ export const X402V1PaymentRequirementsNetwork = {
   base: "base",
   "solana-devnet": "solana-devnet",
   solana: "solana",
+  polygon: "polygon",
 } as const;
 
 /**
@@ -3372,8 +3404,10 @@ export const X402SupportedPaymentKindNetwork = {
   base: "base",
   "solana-devnet": "solana-devnet",
   solana: "solana",
+  polygon: "polygon",
   "eip155:8453": "eip155:8453",
   "eip155:84532": "eip155:84532",
+  "eip155:137": "eip155:137",
   "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
 } as const;
@@ -3733,8 +3767,8 @@ section of our Authentication docs for more details on how to generate your Wall
 export type XWalletAuthParameter = string;
 
 /**
- * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-When included, duplicate requests with the same key will return identical responses. 
+ * An optional string request header for making requests safely retryable.
+When included, duplicate requests with the same key will return identical responses.
 Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
  */
@@ -3978,6 +4012,13 @@ export type SignEvmMessage200 = {
 export type SignEvmTypedData200 = {
   /** The signature of the typed data, as a 0x-prefixed hex string. */
   signature: string;
+};
+
+export type GetEvmEip7702DelegationStatusParams = {
+  /**
+   * The network to query the delegation status on.
+   */
+  network: EvmEip7702DelegationNetwork;
 };
 
 export type CreateEvmEip7702DelegationBody = {

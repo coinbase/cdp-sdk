@@ -180,6 +180,14 @@ const (
 	EvmEip7702DelegationNetworkPolygon         EvmEip7702DelegationNetwork = "polygon"
 )
 
+// Defines values for EvmEip7702DelegationStatusStatus.
+const (
+	CURRENT        EvmEip7702DelegationStatusStatus = "CURRENT"
+	NOTDELEGATED   EvmEip7702DelegationStatusStatus = "NOT_DELEGATED"
+	NOTINITIALIZED EvmEip7702DelegationStatusStatus = "NOT_INITIALIZED"
+	WRONGPROXY     EvmEip7702DelegationStatusStatus = "WRONG_PROXY"
+)
+
 // Defines values for EvmMessageCriterionType.
 const (
 	EvmMessage EvmMessageCriterionType = "evmMessage"
@@ -713,8 +721,10 @@ const (
 const (
 	X402SupportedPaymentKindNetworkBase                                   X402SupportedPaymentKindNetwork = "base"
 	X402SupportedPaymentKindNetworkBaseSepolia                            X402SupportedPaymentKindNetwork = "base-sepolia"
+	X402SupportedPaymentKindNetworkEip155137                              X402SupportedPaymentKindNetwork = "eip155:137"
 	X402SupportedPaymentKindNetworkEip1558453                             X402SupportedPaymentKindNetwork = "eip155:8453"
 	X402SupportedPaymentKindNetworkEip15584532                            X402SupportedPaymentKindNetwork = "eip155:84532"
+	X402SupportedPaymentKindNetworkPolygon                                X402SupportedPaymentKindNetwork = "polygon"
 	X402SupportedPaymentKindNetworkSolana                                 X402SupportedPaymentKindNetwork = "solana"
 	X402SupportedPaymentKindNetworkSolana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402SupportedPaymentKindNetwork = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
 	X402SupportedPaymentKindNetworkSolanaDevnet                           X402SupportedPaymentKindNetwork = "solana-devnet"
@@ -730,6 +740,7 @@ const (
 const (
 	X402V1PaymentPayloadNetworkBase         X402V1PaymentPayloadNetwork = "base"
 	X402V1PaymentPayloadNetworkBaseSepolia  X402V1PaymentPayloadNetwork = "base-sepolia"
+	X402V1PaymentPayloadNetworkPolygon      X402V1PaymentPayloadNetwork = "polygon"
 	X402V1PaymentPayloadNetworkSolana       X402V1PaymentPayloadNetwork = "solana"
 	X402V1PaymentPayloadNetworkSolanaDevnet X402V1PaymentPayloadNetwork = "solana-devnet"
 )
@@ -743,6 +754,7 @@ const (
 const (
 	X402V1PaymentRequirementsNetworkBase         X402V1PaymentRequirementsNetwork = "base"
 	X402V1PaymentRequirementsNetworkBaseSepolia  X402V1PaymentRequirementsNetwork = "base-sepolia"
+	X402V1PaymentRequirementsNetworkPolygon      X402V1PaymentRequirementsNetwork = "polygon"
 	X402V1PaymentRequirementsNetworkSolana       X402V1PaymentRequirementsNetwork = "solana"
 	X402V1PaymentRequirementsNetworkSolanaDevnet X402V1PaymentRequirementsNetwork = "solana-devnet"
 )
@@ -1444,6 +1456,23 @@ type EvmDataParameterConditionListOperator string
 
 // EvmEip7702DelegationNetwork The network for the EIP-7702 delegation.
 type EvmEip7702DelegationNetwork string
+
+// EvmEip7702DelegationStatus The EIP-7702 delegation status for an EVM account.
+type EvmEip7702DelegationStatus struct {
+	// DelegateAddress The address the account has delegated to, if any. Only present when the account has an active delegation.
+	DelegateAddress *string `json:"delegateAddress,omitempty"`
+
+	// Network The network for the EIP-7702 delegation.
+	Network EvmEip7702DelegationNetwork `json:"network"`
+
+	// Status The current delegation state of the account.
+	// CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
+	Status EvmEip7702DelegationStatusStatus `json:"status"`
+}
+
+// EvmEip7702DelegationStatusStatus The current delegation state of the account.
+// CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
+type EvmEip7702DelegationStatusStatus string
 
 // EvmMessageCriterion A schema for specifying a criterion for the message being signed.
 type EvmMessageCriterion struct {
@@ -3397,7 +3426,7 @@ type CreateEndUserParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3431,7 +3460,7 @@ type ImportEndUserParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3450,7 +3479,7 @@ type AddEndUserEvmAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3469,7 +3498,7 @@ type AddEndUserEvmSmartAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3485,7 +3514,7 @@ type AddEndUserSolanaAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3518,7 +3547,7 @@ type CreateEvmAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3537,7 +3566,7 @@ type ExportEvmAccountByNameParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3564,7 +3593,7 @@ type ImportEvmAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3583,10 +3612,16 @@ type UpdateEvmAccountJSONBody struct {
 
 // UpdateEvmAccountParams defines parameters for UpdateEvmAccount.
 type UpdateEvmAccountParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// GetEvmEip7702DelegationStatusParams defines parameters for GetEvmEip7702DelegationStatus.
+type GetEvmEip7702DelegationStatusParams struct {
+	// Network The network to query the delegation status on.
+	Network EvmEip7702DelegationNetwork `form:"network" json:"network"`
 }
 
 // CreateEvmEip7702DelegationJSONBody defines parameters for CreateEvmEip7702Delegation.
@@ -3605,7 +3640,7 @@ type CreateEvmEip7702DelegationParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3624,7 +3659,7 @@ type ExportEvmAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3646,7 +3681,7 @@ type SendEvmTransactionParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3668,7 +3703,7 @@ type SignEvmHashParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3687,7 +3722,7 @@ type SignEvmMessageParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3706,7 +3741,7 @@ type SignEvmTransactionParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3719,7 +3754,7 @@ type SignEvmTypedDataParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3765,7 +3800,7 @@ type CreateEvmSmartAccountJSONBody struct {
 
 // CreateEvmSmartAccountParams defines parameters for CreateEvmSmartAccount.
 type CreateEvmSmartAccountParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3786,7 +3821,7 @@ type CreateSpendPermissionParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3808,7 +3843,7 @@ type RevokeSpendPermissionParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3843,7 +3878,7 @@ type PrepareAndSendUserOperationJSONBody struct {
 
 // PrepareAndSendUserOperationParams defines parameters for PrepareAndSendUserOperation.
 type PrepareAndSendUserOperationParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -3889,7 +3924,7 @@ type CreateEvmSwapQuoteJSONBody struct {
 
 // CreateEvmSwapQuoteParams defines parameters for CreateEvmSwapQuote.
 type CreateEvmSwapQuoteParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4063,7 +4098,7 @@ type CreatePolicyJSONBody struct {
 
 // CreatePolicyParams defines parameters for CreatePolicy.
 type CreatePolicyParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4074,7 +4109,7 @@ type CreatePolicyJSONBodyScope string
 
 // DeletePolicyParams defines parameters for DeletePolicy.
 type DeletePolicyParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4092,7 +4127,7 @@ type UpdatePolicyJSONBody struct {
 
 // UpdatePolicyParams defines parameters for UpdatePolicy.
 type UpdatePolicyParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4125,7 +4160,7 @@ type CreateSolanaAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4144,7 +4179,7 @@ type ExportSolanaAccountByNameParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4168,7 +4203,7 @@ type ImportSolanaAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4190,7 +4225,7 @@ type SendSolanaTransactionParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4211,7 +4246,7 @@ type UpdateSolanaAccountJSONBody struct {
 
 // UpdateSolanaAccountParams defines parameters for UpdateSolanaAccount.
 type UpdateSolanaAccountParams struct {
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4230,7 +4265,7 @@ type ExportSolanaAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4249,7 +4284,7 @@ type SignSolanaMessageParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -4268,7 +4303,7 @@ type SignSolanaTransactionParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
@@ -6979,6 +7014,9 @@ type ClientInterface interface {
 
 	UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetEvmEip7702DelegationStatus request
+	GetEvmEip7702DelegationStatus(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateEvmEip7702DelegationWithBody request with any body
 	CreateEvmEip7702DelegationWithBody(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -7622,6 +7660,18 @@ func (c *CDPClient) UpdateEvmAccountWithBody(ctx context.Context, address string
 
 func (c *CDPClient) UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateEvmAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetEvmEip7702DelegationStatus(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEvmEip7702DelegationStatusRequest(c.Server, address, params)
 	if err != nil {
 		return nil, err
 	}
@@ -9900,6 +9950,58 @@ func NewUpdateEvmAccountRequestWithBody(server string, address string, params *U
 			req.Header.Set("X-Idempotency-Key", headerParam0)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewGetEvmEip7702DelegationStatusRequest generates requests for GetEvmEip7702DelegationStatus
+func NewGetEvmEip7702DelegationStatusRequest(server string, address string, params *GetEvmEip7702DelegationStatusParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/eip7702/delegation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, params.Network); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -12886,6 +12988,9 @@ type ClientWithResponsesInterface interface {
 
 	UpdateEvmAccountWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error)
 
+	// GetEvmEip7702DelegationStatusWithResponse request
+	GetEvmEip7702DelegationStatusWithResponse(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*GetEvmEip7702DelegationStatusResponse, error)
+
 	// CreateEvmEip7702DelegationWithBodyWithResponse request with any body
 	CreateEvmEip7702DelegationWithBodyWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error)
 
@@ -13778,6 +13883,33 @@ func (r UpdateEvmAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateEvmAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetEvmEip7702DelegationStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmEip7702DelegationStatus
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEvmEip7702DelegationStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEvmEip7702DelegationStatusResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -15552,6 +15684,15 @@ func (c *ClientWithResponses) UpdateEvmAccountWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseUpdateEvmAccountResponse(rsp)
+}
+
+// GetEvmEip7702DelegationStatusWithResponse request returning *GetEvmEip7702DelegationStatusResponse
+func (c *ClientWithResponses) GetEvmEip7702DelegationStatusWithResponse(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*GetEvmEip7702DelegationStatusResponse, error) {
+	rsp, err := c.GetEvmEip7702DelegationStatus(ctx, address, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEvmEip7702DelegationStatusResponse(rsp)
 }
 
 // CreateEvmEip7702DelegationWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationResponse
@@ -17786,6 +17927,67 @@ func ParseUpdateEvmAccountResponse(rsp *http.Response) (*UpdateEvmAccountRespons
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEvmEip7702DelegationStatusResponse parses an HTTP response from a GetEvmEip7702DelegationStatusWithResponse call
+func ParseGetEvmEip7702DelegationStatusResponse(rsp *http.Response) (*GetEvmEip7702DelegationStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEvmEip7702DelegationStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmEip7702DelegationStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

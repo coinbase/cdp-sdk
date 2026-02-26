@@ -96,9 +96,13 @@ public class X402SupportedPaymentKind {
     
     SOLANA(String.valueOf("solana")),
     
+    POLYGON(String.valueOf("polygon")),
+    
     EIP155_8453(String.valueOf("eip155:8453")),
     
     EIP155_84532(String.valueOf("eip155:84532")),
+    
+    EIP155_137(String.valueOf("eip155:137")),
     
     SOLANA_5EYKT4_US_FV8_P8_NJD_TREP_Y1VZQ_KQ_Z_KVDP(String.valueOf("solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")),
     

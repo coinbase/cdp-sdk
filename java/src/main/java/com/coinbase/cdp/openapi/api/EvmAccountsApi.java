@@ -23,6 +23,8 @@ import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationRequest;
 import com.coinbase.cdp.openapi.model.EIP712Message;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.EvmAccount;
+import com.coinbase.cdp.openapi.model.EvmEip7702DelegationNetwork;
+import com.coinbase.cdp.openapi.model.EvmEip7702DelegationStatus;
 import com.coinbase.cdp.openapi.model.ExportEvmAccount200Response;
 import com.coinbase.cdp.openapi.model.ExportEvmAccountRequest;
 import com.coinbase.cdp.openapi.model.ImportEvmAccountRequest;
@@ -104,7 +106,7 @@ public class EvmAccountsApi {
    * Create an EVM account
    * Creates a new EVM account.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param createEvmAccountRequest  (optional)
    * @return EvmAccount
    * @throws ApiException if fails to make API call
@@ -118,7 +120,7 @@ public class EvmAccountsApi {
    * Create an EVM account
    * Creates a new EVM account.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param createEvmAccountRequest  (optional)
    * @return ApiResponse&lt;EvmAccount&gt;
    * @throws ApiException if fails to make API call
@@ -201,7 +203,7 @@ public class EvmAccountsApi {
    * @param address The 0x-prefixed address of the EVM account to delegate. (required)
    * @param createEvmEip7702DelegationRequest  (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return CreateEvmEip7702Delegation201Response
    * @throws ApiException if fails to make API call
    */
@@ -216,7 +218,7 @@ public class EvmAccountsApi {
    * @param address The 0x-prefixed address of the EVM account to delegate. (required)
    * @param createEvmEip7702DelegationRequest  (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;CreateEvmEip7702Delegation201Response&gt;
    * @throws ApiException if fails to make API call
    */
@@ -306,7 +308,7 @@ public class EvmAccountsApi {
    * Export an existing EVM account&#39;s private key. It is important to store the private key in a secure place after it&#39;s exported.
    * @param address The 0x-prefixed address of the EVM account. The address does not need to be checksummed. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param exportEvmAccountRequest  (optional)
    * @return ExportEvmAccount200Response
    * @throws ApiException if fails to make API call
@@ -321,7 +323,7 @@ public class EvmAccountsApi {
    * Export an existing EVM account&#39;s private key. It is important to store the private key in a secure place after it&#39;s exported.
    * @param address The 0x-prefixed address of the EVM account. The address does not need to be checksummed. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param exportEvmAccountRequest  (optional)
    * @return ApiResponse&lt;ExportEvmAccount200Response&gt;
    * @throws ApiException if fails to make API call
@@ -408,7 +410,7 @@ public class EvmAccountsApi {
    * Export an existing EVM account&#39;s private key by its name. It is important to store the private key in a secure place after it&#39;s exported.
    * @param name The name of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param exportEvmAccountRequest  (optional)
    * @return ExportEvmAccount200Response
    * @throws ApiException if fails to make API call
@@ -423,7 +425,7 @@ public class EvmAccountsApi {
    * Export an existing EVM account&#39;s private key by its name. It is important to store the private key in a secure place after it&#39;s exported.
    * @param name The name of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param exportEvmAccountRequest  (optional)
    * @return ApiResponse&lt;ExportEvmAccount200Response&gt;
    * @throws ApiException if fails to make API call
@@ -674,10 +676,115 @@ public class EvmAccountsApi {
   }
 
   /**
+   * Get EIP-7702 delegation status
+   * Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+   * @param address The 0x-prefixed address of the EVM account. (required)
+   * @param network The network to query the delegation status on. (required)
+   * @return EvmEip7702DelegationStatus
+   * @throws ApiException if fails to make API call
+   */
+  public EvmEip7702DelegationStatus getEvmEip7702DelegationStatus(String address, EvmEip7702DelegationNetwork network) throws ApiException {
+    ApiResponse<EvmEip7702DelegationStatus> localVarResponse = getEvmEip7702DelegationStatusWithHttpInfo(address, network);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get EIP-7702 delegation status
+   * Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+   * @param address The 0x-prefixed address of the EVM account. (required)
+   * @param network The network to query the delegation status on. (required)
+   * @return ApiResponse&lt;EvmEip7702DelegationStatus&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<EvmEip7702DelegationStatus> getEvmEip7702DelegationStatusWithHttpInfo(String address, EvmEip7702DelegationNetwork network) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getEvmEip7702DelegationStatusRequestBuilder(address, network);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getEvmEip7702DelegationStatus", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<EvmEip7702DelegationStatus>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<EvmEip7702DelegationStatus>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<EvmEip7702DelegationStatus>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getEvmEip7702DelegationStatusRequestBuilder(String address, EvmEip7702DelegationNetwork network) throws ApiException {
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling getEvmEip7702DelegationStatus");
+    }
+    // verify the required parameter 'network' is set
+    if (network == null) {
+      throw new ApiException(400, "Missing the required parameter 'network' when calling getEvmEip7702DelegationStatus");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/evm/accounts/{address}/eip7702/delegation"
+        .replace("{address}", ApiClient.urlEncode(address.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "network";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("network", network));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Import an EVM account
    * Import an existing EVM account into the developer&#39;s CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param importEvmAccountRequest  (optional)
    * @return EvmAccount
    * @throws ApiException if fails to make API call
@@ -691,7 +798,7 @@ public class EvmAccountsApi {
    * Import an EVM account
    * Import an existing EVM account into the developer&#39;s CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param importEvmAccountRequest  (optional)
    * @return ApiResponse&lt;EvmAccount&gt;
    * @throws ApiException if fails to make API call
@@ -871,7 +978,7 @@ public class EvmAccountsApi {
    * Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - &#x60;to&#x60; *(Required)*: The address of the contract or account to send the transaction to. - &#x60;chainId&#x60; *(Ignored)*: The value of the &#x60;chainId&#x60; field in the transaction is ignored.   The transaction will be sent to the network indicated by the &#x60;network&#x60; field in the request body.  - &#x60;nonce&#x60; *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - &#x60;maxPriorityFeePerGas&#x60; *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;maxFeePerGas&#x60; *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;gasLimit&#x60; *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the &#x60;to&#x60; and &#x60;data&#x60; fields of the transaction.  - &#x60;value&#x60; *(Optional)*: The amount of ETH, in wei, to send with the transaction. - &#x60;data&#x60; *(Optional)*: The data to send with the transaction; only used for contract calls. - &#x60;accessList&#x60; *(Optional)*: The access list to use for the transaction.
    * @param address The 0x-prefixed address of the Ethereum account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param sendEvmTransactionRequest  (optional)
    * @return SendEvmTransaction200Response
    * @throws ApiException if fails to make API call
@@ -886,7 +993,7 @@ public class EvmAccountsApi {
    * Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - &#x60;to&#x60; *(Required)*: The address of the contract or account to send the transaction to. - &#x60;chainId&#x60; *(Ignored)*: The value of the &#x60;chainId&#x60; field in the transaction is ignored.   The transaction will be sent to the network indicated by the &#x60;network&#x60; field in the request body.  - &#x60;nonce&#x60; *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - &#x60;maxPriorityFeePerGas&#x60; *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;maxFeePerGas&#x60; *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;gasLimit&#x60; *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the &#x60;to&#x60; and &#x60;data&#x60; fields of the transaction.  - &#x60;value&#x60; *(Optional)*: The amount of ETH, in wei, to send with the transaction. - &#x60;data&#x60; *(Optional)*: The data to send with the transaction; only used for contract calls. - &#x60;accessList&#x60; *(Optional)*: The access list to use for the transaction.
    * @param address The 0x-prefixed address of the Ethereum account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param sendEvmTransactionRequest  (optional)
    * @return ApiResponse&lt;SendEvmTransaction200Response&gt;
    * @throws ApiException if fails to make API call
@@ -973,7 +1080,7 @@ public class EvmAccountsApi {
    * Signs an arbitrary 32 byte hash with the given EVM account.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmHashRequest  (optional)
    * @return SignEvmHash200Response
    * @throws ApiException if fails to make API call
@@ -988,7 +1095,7 @@ public class EvmAccountsApi {
    * Signs an arbitrary 32 byte hash with the given EVM account.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmHashRequest  (optional)
    * @return ApiResponse&lt;SignEvmHash200Response&gt;
    * @throws ApiException if fails to make API call
@@ -1075,7 +1182,7 @@ public class EvmAccountsApi {
    * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.  Per the specification, the message in the request body is prepended with &#x60;0x19 &lt;0x45 (E)&gt; &lt;thereum Signed Message:\\n\&quot; + len(message)&gt;&#x60; before being signed.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmMessageRequest  (optional)
    * @return SignEvmMessage200Response
    * @throws ApiException if fails to make API call
@@ -1090,7 +1197,7 @@ public class EvmAccountsApi {
    * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.  Per the specification, the message in the request body is prepended with &#x60;0x19 &lt;0x45 (E)&gt; &lt;thereum Signed Message:\\n\&quot; + len(message)&gt;&#x60; before being signed.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmMessageRequest  (optional)
    * @return ApiResponse&lt;SignEvmMessage200Response&gt;
    * @throws ApiException if fails to make API call
@@ -1177,7 +1284,7 @@ public class EvmAccountsApi {
    * Signs a transaction with the given EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmTransactionRequest  (optional)
    * @return SignEvmTransaction200Response
    * @throws ApiException if fails to make API call
@@ -1192,7 +1299,7 @@ public class EvmAccountsApi {
    * Signs a transaction with the given EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmTransactionRequest  (optional)
    * @return ApiResponse&lt;SignEvmTransaction200Response&gt;
    * @throws ApiException if fails to make API call
@@ -1279,7 +1386,7 @@ public class EvmAccountsApi {
    * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param eiP712Message  (optional)
    * @return SignEvmTypedData200Response
    * @throws ApiException if fails to make API call
@@ -1294,7 +1401,7 @@ public class EvmAccountsApi {
    * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
    * @param address The 0x-prefixed address of the EVM account. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param eiP712Message  (optional)
    * @return ApiResponse&lt;SignEvmTypedData200Response&gt;
    * @throws ApiException if fails to make API call
@@ -1380,7 +1487,7 @@ public class EvmAccountsApi {
    * Update an EVM account
    * Updates an existing EVM account. Use this to update the account&#39;s name or account-level policy.
    * @param address The 0x-prefixed address of the EVM account. The address does not need to be checksummed. (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param updateEvmAccountRequest  (optional)
    * @return EvmAccount
    * @throws ApiException if fails to make API call
@@ -1394,7 +1501,7 @@ public class EvmAccountsApi {
    * Update an EVM account
    * Updates an existing EVM account. Use this to update the account&#39;s name or account-level policy.
    * @param address The 0x-prefixed address of the EVM account. The address does not need to be checksummed. (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param updateEvmAccountRequest  (optional)
    * @return ApiResponse&lt;EvmAccount&gt;
    * @throws ApiException if fails to make API call

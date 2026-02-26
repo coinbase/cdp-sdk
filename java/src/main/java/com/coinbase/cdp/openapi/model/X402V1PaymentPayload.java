@@ -93,7 +93,9 @@ public class X402V1PaymentPayload {
     
     SOLANA_DEVNET(String.valueOf("solana-devnet")),
     
-    SOLANA(String.valueOf("solana"));
+    SOLANA(String.valueOf("solana")),
+    
+    POLYGON(String.valueOf("polygon"));
 
     private String value;
 
