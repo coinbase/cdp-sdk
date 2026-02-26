@@ -1,5 +1,5 @@
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
+import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
 import type { EvmServerAccount, EvmSmartAccount } from "./types.js";
 
@@ -13,9 +13,7 @@ import type { EvmServerAccount, EvmSmartAccount } from "./types.js";
  * @param account - The server account (EOA) that has been delegated via EIP-7702.
  * @returns An EvmSmartAccount view ready for user operation submission.
  */
-export function toEvmDelegatedAccount(
-  account: EvmServerAccount,
-): EvmSmartAccount {
+export function toEvmDelegatedAccount(account: EvmServerAccount): EvmSmartAccount {
   return toEvmSmartAccount(CdpOpenApiClient, {
     smartAccount: {
       address: account.address,

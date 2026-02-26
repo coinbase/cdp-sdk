@@ -28,7 +28,7 @@ import { accountTransferStrategy } from "../../actions/evm/transfer/accountTrans
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { Analytics } from "../../analytics.js";
 
-import type { EvmServerAccount, EvmSmartAccount, NetworkOrRpcUrl } from "./types.js";
+import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
