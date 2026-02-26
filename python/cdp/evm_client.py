@@ -38,10 +38,10 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
-from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
 from cdp.openapi_client.models.evm_eip7702_delegation_network import (
     EvmEip7702DelegationNetwork,
 )
+from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest

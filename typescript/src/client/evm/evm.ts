@@ -1584,6 +1584,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @param {string} address - The address of the EVM account.
    * @param {GetEvmEip7702DelegationStatusParams} params - Parameters including the network to query.
+   * @param {string} [options] - Optional request configuration overrides.
    * @returns A promise that resolves to the delegation status.
    *
    * @example
