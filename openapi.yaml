@@ -2186,6 +2186,76 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}/eip7702/delegation:
+    get:
+      x-audience: public
+      summary: Get EIP-7702 delegation status
+      description: Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+      operationId: getEvmEip7702DelegationStatus
+      tags:
+        - EVM Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The 0x-prefixed address of the EVM account.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: network
+          description: The network to query the delegation status on.
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
+          example: base
+      responses:
+        '200':
+          description: Delegation status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmEip7702DelegationStatus'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'network' is required.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                invalid_address:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid address format.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '404':
+          description: EVM account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
     post:
       x-audience: public
       summary: Create EIP-7702 delegation
@@ -7725,6 +7795,31 @@ components:
         - ethereum
         - ethereum-sepolia
       example: base
+    EvmEip7702DelegationStatus:
+      type: object
+      description: The EIP-7702 delegation status for an EVM account.
+      properties:
+        status:
+          type: string
+          description: |-
+            The current delegation state of the account.
+            CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
+          enum:
+            - CURRENT
+            - NOT_DELEGATED
+            - WRONG_PROXY
+            - NOT_INITIALIZED
+          example: CURRENT
+        delegateAddress:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The address the account has delegated to, if any. Only present when the account has an active delegation.
+          example: '0x7702cb554e6bFb442cb743A7dF23154544a7176C'
+        network:
+          $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
+      required:
+        - status
+        - network
     EvmSmartAccount:
       type: object
       properties:
@@ -10896,6 +10991,7 @@ components:
             - base
             - solana-devnet
             - solana
+            - polygon
           example: base
         payload:
           type: object
@@ -11092,6 +11188,7 @@ components:
             - base
             - solana-devnet
             - solana
+            - polygon
           example: base
         maxAmountRequired:
           type: string
@@ -11359,8 +11456,10 @@ components:
             - base
             - solana-devnet
             - solana
+            - polygon
             - eip155:8453
             - eip155:84532
+            - eip155:137
             - solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
             - solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
         extra:
@@ -11907,6 +12006,9 @@ components:
                   - x402Version: 1
                     scheme: exact
                     network: solana-devnet
+                  - x402Version: 1
+                    scheme: exact
+                    network: polygon
               extensions:
                 type: array
                 description: The list of supported x402 extensions.
@@ -11959,14 +12061,13 @@ components:
       in: header
       required: false
       description: |
-        An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-        When included, duplicate requests with the same key will return identical responses. 
+        An optional string request header for making requests safely retryable.
+        When included, duplicate requests with the same key will return identical responses.
         Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
       schema:
         type: string
-        maxLength: 36
-        minLength: 36
-        pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+        maxLength: 128
+        minLength: 1
       example: 8e03978e-40d5-43e8-bc93-6894a57f9324
     PageSize:
       name: pageSize

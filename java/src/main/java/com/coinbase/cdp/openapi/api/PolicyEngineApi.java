@@ -89,7 +89,7 @@ public class PolicyEngineApi {
    * Create a policy
    * Create a policy that can be used to govern the behavior of accounts.
    * @param createPolicyRequest  (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return Policy
    * @throws ApiException if fails to make API call
    */
@@ -102,7 +102,7 @@ public class PolicyEngineApi {
    * Create a policy
    * Create a policy that can be used to govern the behavior of accounts.
    * @param createPolicyRequest  (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;Policy&gt;
    * @throws ApiException if fails to make API call
    */
@@ -183,7 +183,7 @@ public class PolicyEngineApi {
    * Delete a policy
    * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
    * @param policyId The ID of the policy to delete. (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @throws ApiException if fails to make API call
    */
   public void deletePolicy(String policyId, String xIdempotencyKey) throws ApiException {
@@ -194,7 +194,7 @@ public class PolicyEngineApi {
    * Delete a policy
    * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
    * @param policyId The ID of the policy to delete. (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
@@ -451,7 +451,7 @@ public class PolicyEngineApi {
    * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
    * @param policyId The ID of the policy to update. (required)
    * @param updatePolicyRequest  (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return Policy
    * @throws ApiException if fails to make API call
    */
@@ -465,7 +465,7 @@ public class PolicyEngineApi {
    * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
    * @param policyId The ID of the policy to update. (required)
    * @param updatePolicyRequest  (required)
-   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;Policy&gt;
    * @throws ApiException if fails to make API call
    */

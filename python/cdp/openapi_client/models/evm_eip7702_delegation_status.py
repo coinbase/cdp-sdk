@@ -20,32 +20,35 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.x402_version import X402Version
+from typing_extensions import Annotated
+from cdp.openapi_client.models.evm_eip7702_delegation_network import EvmEip7702DelegationNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
-class X402SupportedPaymentKind(BaseModel):
+class EvmEip7702DelegationStatus(BaseModel):
     """
-    The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
+    The EIP-7702 delegation status for an EVM account.
     """ # noqa: E501
-    x402_version: X402Version = Field(alias="x402Version")
-    scheme: StrictStr = Field(description="The scheme of the payment protocol.")
-    network: StrictStr = Field(description="The network of the blockchain.")
-    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
-    __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "extra"]
+    status: StrictStr = Field(description="The current delegation state of the account. CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.")
+    delegate_address: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The address the account has delegated to, if any. Only present when the account has an active delegation.", alias="delegateAddress")
+    network: EvmEip7702DelegationNetwork
+    __properties: ClassVar[List[str]] = ["status", "delegateAddress", "network"]
 
-    @field_validator('scheme')
-    def scheme_validate_enum(cls, value):
+    @field_validator('status')
+    def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['exact']):
-            raise ValueError("must be one of enum values ('exact')")
+        if value not in set(['CURRENT', 'NOT_DELEGATED', 'WRONG_PROXY', 'NOT_INITIALIZED']):
+            raise ValueError("must be one of enum values ('CURRENT', 'NOT_DELEGATED', 'WRONG_PROXY', 'NOT_INITIALIZED')")
         return value
 
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')")
+    @field_validator('delegate_address')
+    def delegate_address_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^0x[0-9a-fA-F]{40}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
         return value
 
     model_config = ConfigDict(
@@ -66,7 +69,7 @@ class X402SupportedPaymentKind(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of X402SupportedPaymentKind from a JSON string"""
+        """Create an instance of EvmEip7702DelegationStatus from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -91,7 +94,7 @@ class X402SupportedPaymentKind(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of X402SupportedPaymentKind from a dict"""
+        """Create an instance of EvmEip7702DelegationStatus from a dict"""
         if obj is None:
             return None
 
@@ -99,10 +102,9 @@ class X402SupportedPaymentKind(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "x402Version": obj.get("x402Version"),
-            "scheme": obj.get("scheme"),
-            "network": obj.get("network"),
-            "extra": obj.get("extra")
+            "status": obj.get("status"),
+            "delegateAddress": obj.get("delegateAddress"),
+            "network": obj.get("network")
         })
         return _obj
 

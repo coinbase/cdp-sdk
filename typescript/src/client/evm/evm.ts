@@ -78,7 +78,9 @@ import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
+  EvmEip7702DelegationStatus,
   EvmUserOperationStatus,
+  GetEvmEip7702DelegationStatusParams,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
@@ -1573,6 +1575,40 @@ export class EvmClient implements EvmClientInterface {
       )) as CreateEvmEip7702DelegationResult;
     } catch (error) {
       Analytics.trackError(error, "createEvmEip7702Delegation");
+      throw error;
+    }
+  }
+
+  /**
+   * Gets the EIP-7702 delegation status for an EVM account.
+   *
+   * @param {string} address - The address of the EVM account.
+   * @param {GetEvmEip7702DelegationStatusParams} params - Parameters including the network to query.
+   * @param {string} [options] - Optional request configuration overrides.
+   * @returns A promise that resolves to the delegation status.
+   *
+   * @example
+   * ```ts
+   * const status = await cdp.evm.getEvmEip7702DelegationStatus(
+   *   account.address,
+   *   { network: "base-sepolia" },
+   * );
+   * console.log(status.status); // "CURRENT" | "NOT_DELEGATED" | "WRONG_PROXY" | "NOT_INITIALIZED"
+   * ```
+   */
+  async getEvmEip7702DelegationStatus(
+    address: string,
+    params: GetEvmEip7702DelegationStatusParams,
+    options?: string,
+  ): Promise<EvmEip7702DelegationStatus> {
+    Analytics.trackAction({
+      action: "get_eip7702_delegation_status",
+    });
+
+    try {
+      return await CdpOpenApiClient.getEvmEip7702DelegationStatus(address, params, options);
+    } catch (error) {
+      Analytics.trackError(error, "getEvmEip7702DelegationStatus");
       throw error;
     }
   }

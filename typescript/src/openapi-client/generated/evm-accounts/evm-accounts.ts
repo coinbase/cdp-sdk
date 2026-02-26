@@ -11,10 +11,12 @@ import type {
   CreateEvmEip7702DelegationBody,
   EIP712Message,
   EvmAccount,
+  EvmEip7702DelegationStatus,
   ExportEvmAccount200,
   ExportEvmAccountBody,
   ExportEvmAccountByName200,
   ExportEvmAccountByNameBody,
+  GetEvmEip7702DelegationStatusParams,
   ImportEvmAccountBody,
   ListEvmAccounts200,
   ListEvmAccountsParams,
@@ -231,6 +233,20 @@ export const signEvmTypedData = (
   );
 };
 /**
+ * Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+ * @summary Get EIP-7702 delegation status
+ */
+export const getEvmEip7702DelegationStatus = (
+  address: string,
+  params: GetEvmEip7702DelegationStatusParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmEip7702DelegationStatus>(
+    { url: `/v2/evm/accounts/${address}/eip7702/delegation`, method: "GET", params },
+    options,
+  );
+};
+/**
  * Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
 
 This endpoint:
@@ -325,6 +341,9 @@ export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sig
 export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
 export type SignEvmTypedDataResult = NonNullable<Awaited<ReturnType<typeof signEvmTypedData>>>;
+export type GetEvmEip7702DelegationStatusResult = NonNullable<
+  Awaited<ReturnType<typeof getEvmEip7702DelegationStatus>>
+>;
 export type CreateEvmEip7702DelegationResult = NonNullable<
   Awaited<ReturnType<typeof createEvmEip7702Delegation>>
 >;

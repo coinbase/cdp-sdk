@@ -1030,9 +1030,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -1060,24 +1059,11 @@ pub mod types {
     impl ::std::str::FromStr for AddEndUserEvmAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -1278,9 +1264,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -1308,24 +1293,11 @@ pub mod types {
     impl ::std::str::FromStr for AddEndUserEvmSmartAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -1481,9 +1453,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -1511,24 +1482,11 @@ pub mod types {
     impl ::std::str::FromStr for AddEndUserSolanaAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -3612,9 +3570,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -3640,24 +3597,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateEndUserXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -3941,9 +3885,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -3969,24 +3912,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateEvmAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -4287,9 +4217,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -4317,24 +4246,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateEvmEip7702DelegationXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -4600,9 +4516,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -4630,24 +4545,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateEvmSmartAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -5299,9 +5201,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -5329,24 +5230,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateEvmSwapQuoteXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -6096,9 +5984,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -6124,24 +6011,11 @@ pub mod types {
     impl ::std::str::FromStr for CreatePolicyXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -6425,9 +6299,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -6455,24 +6328,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateSolanaAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -6898,9 +6758,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -6928,24 +6787,11 @@ pub mod types {
     impl ::std::str::FromStr for CreateSpendPermissionXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -9041,9 +8887,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -9069,24 +8914,11 @@ pub mod types {
     impl ::std::str::FromStr for DeletePolicyXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -13453,6 +13285,246 @@ pub mod types {
             value.parse()
         }
     }
+    ///The EIP-7702 delegation status for an EVM account.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The EIP-7702 delegation status for an EVM account.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "network",
+    ///    "status"
+    ///  ],
+    ///  "properties": {
+    ///    "delegateAddress": {
+    ///      "description": "The address the account has delegated to, if any. Only present when the account has an active delegation.",
+    ///      "examples": [
+    ///        "0x7702cb554e6bFb442cb743A7dF23154544a7176C"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/EvmEip7702DelegationNetwork"
+    ///    },
+    ///    "status": {
+    ///      "description": "The current delegation state of the account.\nCURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.",
+    ///      "examples": [
+    ///        "CURRENT"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "CURRENT",
+    ///        "NOT_DELEGATED",
+    ///        "WRONG_PROXY",
+    ///        "NOT_INITIALIZED"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct EvmEip7702DelegationStatus {
+        ///The address the account has delegated to, if any. Only present when the account has an active delegation.
+        #[serde(
+            rename = "delegateAddress",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub delegate_address: ::std::option::Option<EvmEip7702DelegationStatusDelegateAddress>,
+        pub network: EvmEip7702DelegationNetwork,
+        /**The current delegation state of the account.
+        CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.*/
+        pub status: EvmEip7702DelegationStatusStatus,
+    }
+    impl ::std::convert::From<&EvmEip7702DelegationStatus> for EvmEip7702DelegationStatus {
+        fn from(value: &EvmEip7702DelegationStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl EvmEip7702DelegationStatus {
+        pub fn builder() -> builder::EvmEip7702DelegationStatus {
+            Default::default()
+        }
+    }
+    ///The address the account has delegated to, if any. Only present when the account has an active delegation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The address the account has delegated to, if any. Only present when the account has an active delegation.",
+    ///  "examples": [
+    ///    "0x7702cb554e6bFb442cb743A7dF23154544a7176C"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EvmEip7702DelegationStatusDelegateAddress(::std::string::String);
+    impl ::std::ops::Deref for EvmEip7702DelegationStatusDelegateAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EvmEip7702DelegationStatusDelegateAddress> for ::std::string::String {
+        fn from(value: EvmEip7702DelegationStatusDelegateAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EvmEip7702DelegationStatusDelegateAddress>
+        for EvmEip7702DelegationStatusDelegateAddress
+    {
+        fn from(value: &EvmEip7702DelegationStatusDelegateAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EvmEip7702DelegationStatusDelegateAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationStatusDelegateAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EvmEip7702DelegationStatusDelegateAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EvmEip7702DelegationStatusDelegateAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EvmEip7702DelegationStatusDelegateAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**The current delegation state of the account.
+    CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The current delegation state of the account.\nCURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.",
+    ///  "examples": [
+    ///    "CURRENT"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "CURRENT",
+    ///    "NOT_DELEGATED",
+    ///    "WRONG_PROXY",
+    ///    "NOT_INITIALIZED"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum EvmEip7702DelegationStatusStatus {
+        #[serde(rename = "CURRENT")]
+        Current,
+        #[serde(rename = "NOT_DELEGATED")]
+        NotDelegated,
+        #[serde(rename = "WRONG_PROXY")]
+        WrongProxy,
+        #[serde(rename = "NOT_INITIALIZED")]
+        NotInitialized,
+    }
+    impl ::std::convert::From<&Self> for EvmEip7702DelegationStatusStatus {
+        fn from(value: &EvmEip7702DelegationStatusStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for EvmEip7702DelegationStatusStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Current => f.write_str("CURRENT"),
+                Self::NotDelegated => f.write_str("NOT_DELEGATED"),
+                Self::WrongProxy => f.write_str("WRONG_PROXY"),
+                Self::NotInitialized => f.write_str("NOT_INITIALIZED"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for EvmEip7702DelegationStatusStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "CURRENT" => Ok(Self::Current),
+                "NOT_DELEGATED" => Ok(Self::NotDelegated),
+                "WRONG_PROXY" => Ok(Self::WrongProxy),
+                "NOT_INITIALIZED" => Ok(Self::NotInitialized),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationStatusStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EvmEip7702DelegationStatusStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EvmEip7702DelegationStatusStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///A schema for specifying a criterion for the message being signed.
     ///
     /// <details><summary>JSON schema</summary>
@@ -15717,9 +15789,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -15747,24 +15818,11 @@ pub mod types {
     impl ::std::str::FromStr for ExportEvmAccountByNameXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -15848,9 +15906,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -15876,24 +15933,11 @@ pub mod types {
     impl ::std::str::FromStr for ExportEvmAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -16132,9 +16176,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -16162,24 +16205,11 @@ pub mod types {
     impl ::std::str::FromStr for ExportSolanaAccountByNameXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -16263,9 +16293,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -16293,24 +16322,11 @@ pub mod types {
     impl ::std::str::FromStr for ExportSolanaAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -16731,6 +16747,85 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for GetEvmAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetEvmEip7702DelegationStatusAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetEvmEip7702DelegationStatusAddress(::std::string::String);
+    impl ::std::ops::Deref for GetEvmEip7702DelegationStatusAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetEvmEip7702DelegationStatusAddress> for ::std::string::String {
+        fn from(value: GetEvmEip7702DelegationStatusAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetEvmEip7702DelegationStatusAddress>
+        for GetEvmEip7702DelegationStatusAddress
+    {
+        fn from(value: &GetEvmEip7702DelegationStatusAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetEvmEip7702DelegationStatusAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetEvmEip7702DelegationStatusAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetEvmEip7702DelegationStatusAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetEvmEip7702DelegationStatusAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetEvmEip7702DelegationStatusAddress {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -19566,9 +19661,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -19594,24 +19688,11 @@ pub mod types {
     impl ::std::str::FromStr for ImportEndUserXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -19900,9 +19981,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -19928,24 +20008,11 @@ pub mod types {
     impl ::std::str::FromStr for ImportEvmAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -20127,9 +20194,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -20157,24 +20223,11 @@ pub mod types {
     impl ::std::str::FromStr for ImportSolanaAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -25261,9 +25314,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -25291,24 +25343,11 @@ pub mod types {
     impl ::std::str::FromStr for PrepareAndSendUserOperationXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -27070,9 +27109,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -27100,24 +27138,11 @@ pub mod types {
     impl ::std::str::FromStr for RevokeSpendPermissionXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -27935,9 +27960,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -27965,24 +27989,11 @@ pub mod types {
     impl ::std::str::FromStr for SendEvmTransactionXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -28591,9 +28602,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -28621,24 +28631,11 @@ pub mod types {
     impl ::std::str::FromStr for SendSolanaTransactionXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -29904,9 +29901,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -29932,24 +29928,11 @@ pub mod types {
     impl ::std::str::FromStr for SignEvmHashXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -30414,9 +30397,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -30442,24 +30424,11 @@ pub mod types {
     impl ::std::str::FromStr for SignEvmMessageXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -31000,9 +30969,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -31030,24 +30998,11 @@ pub mod types {
     impl ::std::str::FromStr for SignEvmTransactionXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -32345,9 +32300,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -32373,24 +32327,11 @@ pub mod types {
     impl ::std::str::FromStr for SignEvmTypedDataXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -33230,9 +33171,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -33258,24 +33198,11 @@ pub mod types {
     impl ::std::str::FromStr for SignSolanaMessageXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -33473,9 +33400,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -33503,24 +33429,11 @@ pub mod types {
     impl ::std::str::FromStr for SignSolanaTransactionXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -37438,6 +37351,11 @@ pub mod types {
     ///            "network": "solana-devnet",
     ///            "scheme": "exact",
     ///            "x402Version": 1
+    ///          },
+    ///          {
+    ///            "network": "polygon",
+    ///            "scheme": "exact",
+    ///            "x402Version": 1
     ///          }
     ///        ]
     ///      ],
@@ -38681,9 +38599,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -38709,24 +38626,11 @@ pub mod types {
     impl ::std::str::FromStr for UpdateEvmAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -39194,9 +39098,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -39222,24 +39125,11 @@ pub mod types {
     impl ::std::str::FromStr for UpdatePolicyXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -39598,9 +39488,8 @@ pub mod types {
     /// ```json
     ///{
     ///  "type": "string",
-    ///  "maxLength": 36,
-    ///  "minLength": 36,
-    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///  "maxLength": 128,
+    ///  "minLength": 1
     ///}
     /// ```
     /// </details>
@@ -39628,24 +39517,11 @@ pub mod types {
     impl ::std::str::FromStr for UpdateSolanaAccountXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 36usize {
-                return Err("longer than 36 characters".into());
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
             }
-            if value.chars().count() < 36usize {
-                return Err("shorter than 36 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
-                        .into(),
-                );
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
             }
             Ok(Self(value.to_string()))
         }
@@ -43798,8 +43674,10 @@ pub mod types {
     ///        "base",
     ///        "solana-devnet",
     ///        "solana",
+    ///        "polygon",
     ///        "eip155:8453",
     ///        "eip155:84532",
+    ///        "eip155:137",
     ///        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
     ///      ]
@@ -43859,8 +43737,10 @@ pub mod types {
     ///    "base",
     ///    "solana-devnet",
     ///    "solana",
+    ///    "polygon",
     ///    "eip155:8453",
     ///    "eip155:84532",
+    ///    "eip155:137",
     ///    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
     ///  ]
@@ -43888,10 +43768,14 @@ pub mod types {
         SolanaDevnet,
         #[serde(rename = "solana")]
         Solana,
+        #[serde(rename = "polygon")]
+        Polygon,
         #[serde(rename = "eip155:8453")]
         Eip1558453,
         #[serde(rename = "eip155:84532")]
         Eip15584532,
+        #[serde(rename = "eip155:137")]
+        Eip155137,
         #[serde(rename = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")]
         Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp,
         #[serde(rename = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")]
@@ -43909,8 +43793,10 @@ pub mod types {
                 Self::Base => f.write_str("base"),
                 Self::SolanaDevnet => f.write_str("solana-devnet"),
                 Self::Solana => f.write_str("solana"),
+                Self::Polygon => f.write_str("polygon"),
                 Self::Eip1558453 => f.write_str("eip155:8453"),
                 Self::Eip15584532 => f.write_str("eip155:84532"),
+                Self::Eip155137 => f.write_str("eip155:137"),
                 Self::Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp => {
                     f.write_str("solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")
                 }
@@ -43928,8 +43814,10 @@ pub mod types {
                 "base" => Ok(Self::Base),
                 "solana-devnet" => Ok(Self::SolanaDevnet),
                 "solana" => Ok(Self::Solana),
+                "polygon" => Ok(Self::Polygon),
                 "eip155:8453" => Ok(Self::Eip1558453),
                 "eip155:84532" => Ok(Self::Eip15584532),
+                "eip155:137" => Ok(Self::Eip155137),
                 "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" => {
                     Ok(Self::Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp)
                 }
@@ -44081,7 +43969,8 @@ pub mod types {
     ///        "base-sepolia",
     ///        "base",
     ///        "solana-devnet",
-    ///        "solana"
+    ///        "solana",
+    ///        "polygon"
     ///      ]
     ///    },
     ///    "payload": {
@@ -44230,7 +44119,8 @@ pub mod types {
     ///        "base-sepolia",
     ///        "base",
     ///        "solana-devnet",
-    ///        "solana"
+    ///        "solana",
+    ///        "polygon"
     ///      ]
     ///    },
     ///    "outputSchema": {
@@ -45309,7 +45199,8 @@ pub mod types {
     ///    "base-sepolia",
     ///    "base",
     ///    "solana-devnet",
-    ///    "solana"
+    ///    "solana",
+    ///    "polygon"
     ///  ]
     ///}
     /// ```
@@ -45335,6 +45226,8 @@ pub mod types {
         SolanaDevnet,
         #[serde(rename = "solana")]
         Solana,
+        #[serde(rename = "polygon")]
+        Polygon,
     }
     impl ::std::convert::From<&Self> for X402v1PaymentPayloadNetwork {
         fn from(value: &X402v1PaymentPayloadNetwork) -> Self {
@@ -45348,6 +45241,7 @@ pub mod types {
                 Self::Base => f.write_str("base"),
                 Self::SolanaDevnet => f.write_str("solana-devnet"),
                 Self::Solana => f.write_str("solana"),
+                Self::Polygon => f.write_str("polygon"),
             }
         }
     }
@@ -45359,6 +45253,7 @@ pub mod types {
                 "base" => Ok(Self::Base),
                 "solana-devnet" => Ok(Self::SolanaDevnet),
                 "solana" => Ok(Self::Solana),
+                "polygon" => Ok(Self::Polygon),
                 _ => Err("invalid value".into()),
             }
         }
@@ -45627,7 +45522,8 @@ pub mod types {
     ///    "base-sepolia",
     ///    "base",
     ///    "solana-devnet",
-    ///    "solana"
+    ///    "solana",
+    ///    "polygon"
     ///  ]
     ///}
     /// ```
@@ -45653,6 +45549,8 @@ pub mod types {
         SolanaDevnet,
         #[serde(rename = "solana")]
         Solana,
+        #[serde(rename = "polygon")]
+        Polygon,
     }
     impl ::std::convert::From<&Self> for X402v1PaymentRequirementsNetwork {
         fn from(value: &X402v1PaymentRequirementsNetwork) -> Self {
@@ -45666,6 +45564,7 @@ pub mod types {
                 Self::Base => f.write_str("base"),
                 Self::SolanaDevnet => f.write_str("solana-devnet"),
                 Self::Solana => f.write_str("solana"),
+                Self::Polygon => f.write_str("polygon"),
             }
         }
     }
@@ -45677,6 +45576,7 @@ pub mod types {
                 "base" => Ok(Self::Base),
                 "solana-devnet" => Ok(Self::SolanaDevnet),
                 "solana" => Ok(Self::Solana),
+                "polygon" => Ok(Self::Polygon),
                 _ => Err("invalid value".into()),
             }
         }
@@ -50892,6 +50792,86 @@ pub mod types {
                     name: Ok(value.name),
                     operator: Ok(value.operator),
                     values: Ok(value.values),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct EvmEip7702DelegationStatus {
+            delegate_address: ::std::result::Result<
+                ::std::option::Option<super::EvmEip7702DelegationStatusDelegateAddress>,
+                ::std::string::String,
+            >,
+            network:
+                ::std::result::Result<super::EvmEip7702DelegationNetwork, ::std::string::String>,
+            status: ::std::result::Result<
+                super::EvmEip7702DelegationStatusStatus,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for EvmEip7702DelegationStatus {
+            fn default() -> Self {
+                Self {
+                    delegate_address: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                    status: Err("no value supplied for status".to_string()),
+                }
+            }
+        }
+        impl EvmEip7702DelegationStatus {
+            pub fn delegate_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::EvmEip7702DelegationStatusDelegateAddress>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.delegate_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for delegate_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EvmEip7702DelegationNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EvmEip7702DelegationStatusStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.status = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for status: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EvmEip7702DelegationStatus> for super::EvmEip7702DelegationStatus {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EvmEip7702DelegationStatus,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    delegate_address: value.delegate_address?,
+                    network: value.network?,
+                    status: value.status?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EvmEip7702DelegationStatus> for EvmEip7702DelegationStatus {
+            fn from(value: super::EvmEip7702DelegationStatus) -> Self {
+                Self {
+                    delegate_address: Ok(value.delegate_address),
+                    network: Ok(value.network),
+                    status: Ok(value.status),
                 }
             }
         }
@@ -62670,7 +62650,7 @@ impl Client {
     Sends a `POST` request to `/v2/end-users`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62716,7 +62696,7 @@ impl Client {
     Sends a `POST` request to `/v2/end-users/import`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62764,7 +62744,7 @@ impl Client {
 
     Arguments:
     - `user_id`: The ID of the end user to add the account to.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62794,7 +62774,7 @@ impl Client {
 
     Arguments:
     - `user_id`: The ID of the end user to add the smart account to.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62824,7 +62804,7 @@ impl Client {
 
     Arguments:
     - `user_id`: The ID of the end user to add the account to.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62872,7 +62852,7 @@ impl Client {
     Sends a `POST` request to `/v2/evm/accounts`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62917,7 +62897,7 @@ impl Client {
 
     Arguments:
     - `name`: The name of the EVM account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62945,7 +62925,7 @@ impl Client {
     Sends a `POST` request to `/v2/evm/accounts/import`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -62990,7 +62970,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63005,6 +62985,25 @@ impl Client {
     ```*/
     pub fn update_evm_account(&self) -> builder::UpdateEvmAccount<'_> {
         builder::UpdateEvmAccount::new(self)
+    }
+    /**Get EIP-7702 delegation status
+
+    Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+
+    Sends a `GET` request to `/v2/evm/accounts/{address}/eip7702/delegation`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM account.
+    - `network`: The network to query the delegation status on.
+    ```ignore
+    let response = client.get_evm_eip7702_delegation_status()
+        .address(address)
+        .network(network)
+        .send()
+        .await;
+    ```*/
+    pub fn get_evm_eip7702_delegation_status(&self) -> builder::GetEvmEip7702DelegationStatus<'_> {
+        builder::GetEvmEip7702DelegationStatus::new(self)
     }
     /**Create EIP-7702 delegation
 
@@ -63022,7 +63021,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account to delegate.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63051,7 +63050,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63105,7 +63104,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the Ethereum account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63134,7 +63133,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63165,7 +63164,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63197,7 +63196,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63226,7 +63225,7 @@ impl Client {
 
     Arguments:
     - `address`: The 0x-prefixed address of the EVM account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63303,7 +63302,7 @@ impl Client {
     Sends a `POST` request to `/v2/evm/smart-accounts`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63379,7 +63378,7 @@ impl Client {
 
     Arguments:
     - `address`: The address of the Smart Account to create the spend permission for.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63429,7 +63428,7 @@ impl Client {
 
     Arguments:
     - `address`: The address of the Smart account this spend permission is valid for.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63477,7 +63476,7 @@ impl Client {
 
     Arguments:
     - `address`: The address of the EVM Smart Account to execute the user operation from.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63548,7 +63547,7 @@ impl Client {
     Sends a `POST` request to `/v2/evm/swaps`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63722,7 +63721,7 @@ impl Client {
     Sends a `POST` request to `/v2/policy-engine/policies`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63762,7 +63761,7 @@ impl Client {
 
     Arguments:
     - `policy_id`: The ID of the policy to update.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63786,7 +63785,7 @@ impl Client {
 
     Arguments:
     - `policy_id`: The ID of the policy to delete.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63829,7 +63828,7 @@ impl Client {
     Sends a `POST` request to `/v2/solana/accounts`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63874,7 +63873,7 @@ impl Client {
 
     Arguments:
     - `name`: The name of the Solana account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63902,7 +63901,7 @@ impl Client {
     Sends a `POST` request to `/v2/solana/accounts/import`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63949,7 +63948,7 @@ impl Client {
     Sends a `POST` request to `/v2/solana/accounts/send/transaction`
 
     Arguments:
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -63994,7 +63993,7 @@ impl Client {
 
     Arguments:
     - `address`: The base58 encoded address of the Solana account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -64018,7 +64017,7 @@ impl Client {
 
     Arguments:
     - `address`: The base58 encoded address of the Solana account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -64049,7 +64048,7 @@ impl Client {
 
     Arguments:
     - `address`: The base58 encoded address of the Solana account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -64087,7 +64086,7 @@ impl Client {
 
     Arguments:
     - `address`: The base58 encoded address of the Solana account.
-    - `x_idempotency_key`: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
     When included, duplicate requests with the same key will return identical responses.
     Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
@@ -66772,6 +66771,104 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_evm_eip7702_delegation_status`]
+
+    [`Client::get_evm_eip7702_delegation_status`]: super::Client::get_evm_eip7702_delegation_status*/
+    #[derive(Debug, Clone)]
+    pub struct GetEvmEip7702DelegationStatus<'a> {
+        client: &'a super::Client,
+        address: Result<types::GetEvmEip7702DelegationStatusAddress, String>,
+        network: Result<types::EvmEip7702DelegationNetwork, String>,
+    }
+    impl<'a> GetEvmEip7702DelegationStatus<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                network: Err("network was not initialized".to_string()),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetEvmEip7702DelegationStatusAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `GetEvmEip7702DelegationStatusAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn network<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::EvmEip7702DelegationNetwork>,
+        {
+            self.network = value.try_into().map_err(|_| {
+                "conversion to `EvmEip7702DelegationNetwork` for network failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/evm/accounts/{address}/eip7702/delegation`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmEip7702DelegationStatus>, Error<types::Error>> {
+            let Self {
+                client,
+                address,
+                network,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let network = network.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/accounts/{}/eip7702/delegation",
+                client.baseurl,
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_evm_eip7702_delegation_status",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
