@@ -4,10 +4,11 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
 const cdp = new CdpClient();
+
 const policy = await cdp.policies.createPolicy({
   policy: {
-    scope: "project",
     description: "End User Policy Example",
+    scope: 'project',
     rules: [
       // Restrict end-user EVM transaction signing to a max value and allowlisted recipients
       {
