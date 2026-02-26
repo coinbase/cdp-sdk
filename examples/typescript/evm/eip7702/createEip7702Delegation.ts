@@ -17,7 +17,7 @@ const publicClient = createPublicClient({
 });
 
 // Step 1: Get or create an EOA account
-const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account" });
+const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account-1121" });
 console.log("Account address:", account.address);
 
 // Step 2: Ensure the account has ETH for gas (request faucet if needed)
@@ -55,7 +55,7 @@ console.log(
 // Step 5: Send a user operation using the upgraded EOA (via toDelegatedAccount)
 console.log("Sending user operation with upgraded EOA...");
 await new Promise(resolve => setTimeout(resolve, 2000));
-const delegated = await cdp.evm.toDelegatedAccount(account);
+const delegated = cdp.evm.toDelegatedAccount(account);
 const { userOpHash } = await delegated.sendUserOperation({
   network: "base-sepolia",
   calls: [

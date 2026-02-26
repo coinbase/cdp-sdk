@@ -1561,18 +1561,21 @@ export class EvmClient implements EvmClientInterface {
       action: "create_eip7702_delegation",
     });
 
-<<<<<<< HEAD
-    const { network, enableSpendPermissions, idempotencyKey } = options;
-    return CdpOpenApiClient.createEvmEip7702Delegation(
-      address,
-      {
+    try {
+      const { network, enableSpendPermissions, idempotencyKey } = options;
+      const body = {
         network,
-        ...(enableSpendPermissions !== undefined && {
-          enableSpendPermissions,
-        }),
-      },
-      idempotencyKey,
-    ) as Promise<CreateEvmEip7702DelegationResult>;
+        ...(enableSpendPermissions !== undefined && { enableSpendPermissions }),
+      };
+      return (await CdpOpenApiClient.createEvmEip7702Delegation(
+        address,
+        body,
+        idempotencyKey,
+      )) as CreateEvmEip7702DelegationResult;
+    } catch (error) {
+      Analytics.trackError(error, "createEvmEip7702Delegation");
+      throw error;
+    }
   }
 
   /**
@@ -1591,21 +1594,7 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   toDelegatedAccount(account: ServerAccount): SmartAccount {
-    const delegated = toEvmDelegatedAccount(CdpOpenApiClient, { account });
-    Analytics.wrapObjectMethodsWithErrorTracking(delegated);
-    return delegated;
-=======
-    try {
-      return await CdpOpenApiClient.createEvmEip7702Delegation(
-        address,
-        createEvmEip7702DelegationBody,
-        options,
-      );
-    } catch (error) {
-      Analytics.trackError(error, "createEvmEip7702Delegation");
-      throw error;
-    }
->>>>>>> 21244e32384fb189facbea96668087d24ded035a
+    return toEvmDelegatedAccount(CdpOpenApiClient, { account });
   }
 
   /**
