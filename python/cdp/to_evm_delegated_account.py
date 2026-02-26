@@ -58,6 +58,7 @@ def to_delegated_account(
 
     Returns:
         EvmSmartAccount: A smart account view ready for user operation submission.
+
     """
     if account is None:
         acc = api_clients_or_account
