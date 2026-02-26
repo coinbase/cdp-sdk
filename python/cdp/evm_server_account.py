@@ -26,7 +26,7 @@ from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.actions.evm.swap.types import AccountSwapResult, QuoteSwapResult
-from cdp.analytics import track_action
+from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -130,30 +130,36 @@ class EvmServerAccount(BaseModel):
         """
         track_action(action="sign_message", account_type="evm_server")
 
-        message_body = signable_message.body
-        message_hex = (
-            message_body.hex() if isinstance(message_body, bytes) else HexBytes(message_body).hex()
-        )
-        signature_response = await self.__evm_accounts_api.sign_evm_message(
-            address=self.address,
-            sign_evm_message_request=SignEvmMessageRequest(message=message_hex),
-            x_idempotency_key=idempotency_key,
-        )
+        try:
+            message_body = signable_message.body
+            message_hex = (
+                message_body.hex()
+                if isinstance(message_body, bytes)
+                else HexBytes(message_body).hex()
+            )
+            signature_response = await self.__evm_accounts_api.sign_evm_message(
+                address=self.address,
+                sign_evm_message_request=SignEvmMessageRequest(message=message_hex),
+                x_idempotency_key=idempotency_key,
+            )
 
-        message_hash = _hash_eip191_message(signable_message)
+            message_hash = _hash_eip191_message(signable_message)
 
-        signature_bytes = HexBytes(signature_response.signature)
-        r = int.from_bytes(signature_bytes[0:32], byteorder="big")
-        s = int.from_bytes(signature_bytes[32:64], byteorder="big")
-        v = signature_bytes[64]
+            signature_bytes = HexBytes(signature_response.signature)
+            r = int.from_bytes(signature_bytes[0:32], byteorder="big")
+            s = int.from_bytes(signature_bytes[32:64], byteorder="big")
+            v = signature_bytes[64]
 
-        return SignedMessage(
-            message_hash=message_hash,
-            r=r,
-            s=s,
-            v=v,
-            signature=signature_bytes,
-        )
+            return SignedMessage(
+                message_hash=message_hash,
+                r=r,
+                s=s,
+                v=v,
+                signature=signature_bytes,
+            )
+        except Exception as error:
+            track_error(error, "sign_message")
+            raise
 
     async def unsafe_sign_hash(
         self, message_hash: Hash32, idempotency_key: str | None = None
@@ -176,26 +182,30 @@ class EvmServerAccount(BaseModel):
         """
         track_action(action="sign", account_type="evm_server")
 
-        hash_hex = HexBytes(message_hash).hex()
-        sign_evm_hash_request = SignEvmHashRequest(hash=hash_hex)
-        signature_response = await self.__evm_accounts_api.sign_evm_hash(
-            address=self.address,
-            sign_evm_hash_request=sign_evm_hash_request,
-            x_idempotency_key=idempotency_key,
-        )
+        try:
+            hash_hex = HexBytes(message_hash).hex()
+            sign_evm_hash_request = SignEvmHashRequest(hash=hash_hex)
+            signature_response = await self.__evm_accounts_api.sign_evm_hash(
+                address=self.address,
+                sign_evm_hash_request=sign_evm_hash_request,
+                x_idempotency_key=idempotency_key,
+            )
 
-        signature_bytes = HexBytes(signature_response.signature)
-        r = int.from_bytes(signature_bytes[0:32], byteorder="big")
-        s = int.from_bytes(signature_bytes[32:64], byteorder="big")
-        v = signature_bytes[64]
+            signature_bytes = HexBytes(signature_response.signature)
+            r = int.from_bytes(signature_bytes[0:32], byteorder="big")
+            s = int.from_bytes(signature_bytes[32:64], byteorder="big")
+            v = signature_bytes[64]
 
-        return SignedMessage(
-            message_hash=message_hash,
-            r=r,
-            s=s,
-            v=v,
-            signature=signature_bytes,
-        )
+            return SignedMessage(
+                message_hash=message_hash,
+                r=r,
+                s=s,
+                v=v,
+                signature=signature_bytes,
+            )
+        except Exception as error:
+            track_error(error, "unsafe_sign_hash")
+            raise
 
     async def sign_transaction(
         self, transaction_dict: TransactionDictType, idempotency_key: str | None = None
@@ -213,39 +223,43 @@ class EvmServerAccount(BaseModel):
         """
         track_action(action="sign_transaction", account_type="evm_server")
 
-        typed_tx = TypedTransaction.from_dict(transaction_dict)
-        typed_tx.transaction.dictionary["v"] = 0
-        typed_tx.transaction.dictionary["r"] = 0
-        typed_tx.transaction.dictionary["s"] = 0
-        payload = typed_tx.transaction.payload()
-        serialized_tx = bytes([typed_tx.transaction_type]) + payload
+        try:
+            typed_tx = TypedTransaction.from_dict(transaction_dict)
+            typed_tx.transaction.dictionary["v"] = 0
+            typed_tx.transaction.dictionary["r"] = 0
+            typed_tx.transaction.dictionary["s"] = 0
+            payload = typed_tx.transaction.payload()
+            serialized_tx = bytes([typed_tx.transaction_type]) + payload
 
-        sign_evm_transaction_request = SignEvmTransactionRequest(
-            transaction="0x" + serialized_tx.hex()
-        )
-        signature_response = await self.__evm_accounts_api.sign_evm_transaction(
-            address=self.address,
-            sign_evm_transaction_request=sign_evm_transaction_request,
-            x_idempotency_key=idempotency_key,
-        )
+            sign_evm_transaction_request = SignEvmTransactionRequest(
+                transaction="0x" + serialized_tx.hex()
+            )
+            signature_response = await self.__evm_accounts_api.sign_evm_transaction(
+                address=self.address,
+                sign_evm_transaction_request=sign_evm_transaction_request,
+                x_idempotency_key=idempotency_key,
+            )
 
-        # Get the signed transaction bytes
-        signed_tx_bytes = HexBytes(signature_response.signed_transaction)
-        transaction_hash = Web3.keccak(signed_tx_bytes)
+            # Get the signed transaction bytes
+            signed_tx_bytes = HexBytes(signature_response.signed_transaction)
+            transaction_hash = Web3.keccak(signed_tx_bytes)
 
-        # Extract signature components from the response
-        signature_bytes = HexBytes(signature_response.signed_transaction)
-        r = int.from_bytes(signature_bytes[0:32], byteorder="big")
-        s = int.from_bytes(signature_bytes[32:64], byteorder="big")
-        v = signature_bytes[64]
+            # Extract signature components from the response
+            signature_bytes = HexBytes(signature_response.signed_transaction)
+            r = int.from_bytes(signature_bytes[0:32], byteorder="big")
+            s = int.from_bytes(signature_bytes[32:64], byteorder="big")
+            v = signature_bytes[64]
 
-        return SignedTransaction(
-            raw_transaction=signed_tx_bytes,
-            hash=transaction_hash,
-            r=r,
-            s=s,
-            v=v,
-        )
+            return SignedTransaction(
+                raw_transaction=signed_tx_bytes,
+                hash=transaction_hash,
+                r=r,
+                s=s,
+                v=v,
+            )
+        except Exception as error:
+            track_error(error, "sign_transaction")
+            raise
 
     async def transfer(
         self,
@@ -304,17 +318,21 @@ class EvmServerAccount(BaseModel):
             },
         )
 
-        from cdp.actions.evm.transfer import account_transfer_strategy, transfer
+        try:
+            from cdp.actions.evm.transfer import account_transfer_strategy, transfer
 
-        return await transfer(
-            api_clients=self.__api_clients,
-            from_account=self,
-            to=to,
-            amount=amount,
-            token=token,
-            network=network,
-            transfer_strategy=account_transfer_strategy,
-        )
+            return await transfer(
+                api_clients=self.__api_clients,
+                from_account=self,
+                to=to,
+                amount=amount,
+                token=token,
+                network=network,
+                transfer_strategy=account_transfer_strategy,
+            )
+        except Exception as error:
+            track_error(error, "transfer")
+            raise
 
     async def swap(self, swap_options: AccountSwapOptions) -> AccountSwapResult:
         """Execute a token swap.
@@ -336,37 +354,41 @@ class EvmServerAccount(BaseModel):
             },
         )
 
-        from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
-        from cdp.actions.evm.swap.types import (
-            InlineSendSwapTransactionOptions,
-            QuoteBasedSendSwapTransactionOptions,
-        )
-
-        # Convert AccountSwapOptions to the appropriate discriminated union type
-        if swap_options.swap_quote is not None:
-            # Use quote-based options
-            options = QuoteBasedSendSwapTransactionOptions(
-                address=self.address,
-                swap_quote=swap_options.swap_quote,
-                idempotency_key=swap_options.idempotency_key,
-            )
-        else:
-            # Use inline options
-            options = InlineSendSwapTransactionOptions(
-                address=self.address,
-                network=swap_options.network,
-                from_token=swap_options.from_token,
-                to_token=swap_options.to_token,
-                from_amount=swap_options.from_amount,
-                taker=self.address,  # For regular accounts, taker is same as address
-                slippage_bps=swap_options.slippage_bps,
-                idempotency_key=swap_options.idempotency_key,
+        try:
+            from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
+            from cdp.actions.evm.swap.types import (
+                InlineSendSwapTransactionOptions,
+                QuoteBasedSendSwapTransactionOptions,
             )
 
-        return await send_swap_transaction(
-            api_clients=self.__api_clients,
-            options=options,
-        )
+            # Convert AccountSwapOptions to the appropriate discriminated union type
+            if swap_options.swap_quote is not None:
+                # Use quote-based options
+                options = QuoteBasedSendSwapTransactionOptions(
+                    address=self.address,
+                    swap_quote=swap_options.swap_quote,
+                    idempotency_key=swap_options.idempotency_key,
+                )
+            else:
+                # Use inline options
+                options = InlineSendSwapTransactionOptions(
+                    address=self.address,
+                    network=swap_options.network,
+                    from_token=swap_options.from_token,
+                    to_token=swap_options.to_token,
+                    from_amount=swap_options.from_amount,
+                    taker=self.address,  # For regular accounts, taker is same as address
+                    slippage_bps=swap_options.slippage_bps,
+                    idempotency_key=swap_options.idempotency_key,
+                )
+
+            return await send_swap_transaction(
+                api_clients=self.__api_clients,
+                options=options,
+            )
+        except Exception as error:
+            track_error(error, "swap")
+            raise
 
     async def quote_swap(
         self,
@@ -415,20 +437,24 @@ class EvmServerAccount(BaseModel):
             properties={"network": network},
         )
 
-        from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
+        try:
+            from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
-        # Call create_swap_quote directly with the account address as taker
-        return await create_swap_quote(
-            api_clients=self.__api_clients,
-            from_token=from_token,
-            to_token=to_token,
-            from_amount=from_amount,
-            network=network,
-            taker=self.address,
-            slippage_bps=slippage_bps,
-            signer_address=signer_address,
-            idempotency_key=idempotency_key,
-        )
+            # Call create_swap_quote directly with the account address as taker
+            return await create_swap_quote(
+                api_clients=self.__api_clients,
+                from_token=from_token,
+                to_token=to_token,
+                from_amount=from_amount,
+                network=network,
+                taker=self.address,
+                slippage_bps=slippage_bps,
+                signer_address=signer_address,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "quote_swap")
+            raise
 
     async def request_faucet(
         self,
@@ -453,12 +479,16 @@ class EvmServerAccount(BaseModel):
             },
         )
 
-        return await request_faucet(
-            self.__api_clients.faucets,
-            self.address,
-            network,
-            token,
-        )
+        try:
+            return await request_faucet(
+                self.__api_clients.faucets,
+                self.address,
+                network,
+                token,
+            )
+        except Exception as error:
+            track_error(error, "request_faucet")
+            raise
 
     async def sign_typed_data(
         self,
@@ -483,18 +513,22 @@ class EvmServerAccount(BaseModel):
         """
         track_action(action="sign_typed_data", account_type="evm_server")
 
-        eip712_message = EIP712Message(
-            domain=domain,
-            types=types,
-            primary_type=primary_type,
-            message=message,
-        )
-        response = await self.__evm_accounts_api.sign_evm_typed_data(
-            address=self.address,
-            eip712_message=eip712_message,
-            x_idempotency_key=idempotency_key,
-        )
-        return response.signature
+        try:
+            eip712_message = EIP712Message(
+                domain=domain,
+                types=types,
+                primary_type=primary_type,
+                message=message,
+            )
+            response = await self.__evm_accounts_api.sign_evm_typed_data(
+                address=self.address,
+                eip712_message=eip712_message,
+                x_idempotency_key=idempotency_key,
+            )
+            return response.signature
+        except Exception as error:
+            track_error(error, "sign_typed_data")
+            raise
 
     async def list_token_balances(
         self,
@@ -521,13 +555,17 @@ class EvmServerAccount(BaseModel):
             },
         )
 
-        return await list_token_balances(
-            self.__api_clients.onchain_data,
-            self.address,
-            network,
-            page_size,
-            page_token,
-        )
+        try:
+            return await list_token_balances(
+                self.__api_clients.onchain_data,
+                self.address,
+                network,
+                page_size,
+                page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_token_balances")
+            raise
 
     async def send_transaction(
         self,
@@ -575,13 +613,17 @@ class EvmServerAccount(BaseModel):
             },
         )
 
-        return await send_transaction(
-            evm_accounts=self.__evm_accounts_api,
-            address=self.address,
-            transaction=transaction,
-            network=network,
-            idempotency_key=idempotency_key,
-        )
+        try:
+            return await send_transaction(
+                evm_accounts=self.__evm_accounts_api,
+                address=self.address,
+                transaction=transaction,
+                network=network,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "send_transaction")
+            raise
 
     async def __experimental_use_network__(
         self, network: str | None = None, rpc_url: str | None = None
@@ -661,13 +703,17 @@ class EvmServerAccount(BaseModel):
             },
         )
 
-        return await account_use_spend_permission(
-            api_clients=self.__api_clients,
-            address=self.address,
-            spend_permission=spend_permission,
-            value=value,
-            network=network,
-        )
+        try:
+            return await account_use_spend_permission(
+                api_clients=self.__api_clients,
+                address=self.address,
+                spend_permission=spend_permission,
+                value=value,
+                network=network,
+            )
+        except Exception as error:
+            track_error(error, "use_spend_permission")
+            raise
 
     def to_delegated(self) -> EvmSmartAccount:
         """Return a smart-account view of this EOA for use after EIP-7702 delegation.

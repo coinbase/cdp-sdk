@@ -17,7 +17,7 @@ from cdp.actions.evm.swap import (
     get_swap_price as swap_get_swap_price,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
-from cdp.analytics import track_action, wrap_class_with_error_tracking
+from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
 from cdp.errors import UserInputValidationError
@@ -71,8 +71,6 @@ class EvmClient:
 
     def __init__(self, api_clients: ApiClients):
         self.api_clients = api_clients
-        wrap_class_with_error_tracking(EvmServerAccount)
-        wrap_class_with_error_tracking(EvmSmartAccount)
 
     async def create_account(
         self,
@@ -92,15 +90,18 @@ class EvmClient:
 
         """
         track_action(action="create_account", account_type="evm_server")
-
-        evm_account = await self.api_clients.evm_accounts.create_evm_account(
-            x_idempotency_key=idempotency_key,
-            create_evm_account_request=CreateEvmAccountRequest(
-                name=name,
-                account_policy=account_policy,
-            ),
-        )
-        return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+        try:
+            evm_account = await self.api_clients.evm_accounts.create_evm_account(
+                x_idempotency_key=idempotency_key,
+                create_evm_account_request=CreateEvmAccountRequest(
+                    name=name,
+                    account_policy=account_policy,
+                ),
+            )
+            return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+        except Exception as error:
+            track_error(error, "create_account")
+            raise
 
     async def import_account(
         self,
@@ -125,35 +126,41 @@ class EvmClient:
 
         """
         track_action(action="import_account", account_type="evm_server")
-
-        private_key_hex = private_key[2:] if private_key.startswith("0x") else private_key
-        if not re.match(r"^[0-9a-fA-F]+$", private_key_hex):
-            raise UserInputValidationError("Private key must be a valid hexadecimal string")
-
         try:
-            private_key_bytes = bytes.fromhex(private_key_hex)
-            public_key = load_pem_public_key(encryption_public_key.encode())
-            encrypted_private_key = public_key.encrypt(
-                private_key_bytes,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None,
-                ),
-            )
-            encrypted_private_key = base64.b64encode(encrypted_private_key).decode("utf-8")
-            evm_account = await self.api_clients.evm_accounts.import_evm_account(
-                import_evm_account_request=ImportEvmAccountRequest(
-                    encrypted_private_key=encrypted_private_key,
-                    name=name,
-                ),
-                x_idempotency_key=idempotency_key,
-            )
-            return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
-        except ApiError as e:
-            raise e
-        except Exception as e:
-            raise ValueError(f"Failed to import account: {e}") from e
+            private_key_hex = private_key[2:] if private_key.startswith("0x") else private_key
+            if not re.match(r"^[0-9a-fA-F]+$", private_key_hex):
+                raise UserInputValidationError("Private key must be a valid hexadecimal string")
+
+            try:
+                private_key_bytes = bytes.fromhex(private_key_hex)
+                public_key = load_pem_public_key(encryption_public_key.encode())
+                encrypted_private_key = public_key.encrypt(
+                    private_key_bytes,
+                    padding.OAEP(
+                        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                        algorithm=hashes.SHA256(),
+                        label=None,
+                    ),
+                )
+                encrypted_private_key = base64.b64encode(encrypted_private_key).decode("utf-8")
+                evm_account = await self.api_clients.evm_accounts.import_evm_account(
+                    import_evm_account_request=ImportEvmAccountRequest(
+                        encrypted_private_key=encrypted_private_key,
+                        name=name,
+                    ),
+                    x_idempotency_key=idempotency_key,
+                )
+                return EvmServerAccount(
+                    evm_account, self.api_clients.evm_accounts, self.api_clients
+                )
+            except ApiError as e:
+                raise e
+            except Exception as e:
+                raise ValueError(f"Failed to import account: {e}") from e
+        except Exception as error:
+            if not isinstance(error, UserInputValidationError):
+                track_error(error, "import_account")
+            raise
 
     async def export_account(
         self,
@@ -176,30 +183,34 @@ class EvmClient:
 
         """
         track_action(action="export_account", account_type="evm_server")
+        try:
+            public_key, private_key = generate_export_encryption_key_pair()
 
-        public_key, private_key = generate_export_encryption_key_pair()
+            if address:
+                response = await self.api_clients.evm_accounts.export_evm_account(
+                    address=address,
+                    export_evm_account_request=ExportEvmAccountRequest(
+                        export_encryption_key=public_key,
+                    ),
+                    x_idempotency_key=idempotency_key,
+                )
+                return decrypt_with_private_key(private_key, response.encrypted_private_key)
 
-        if address:
-            response = await self.api_clients.evm_accounts.export_evm_account(
-                address=address,
-                export_evm_account_request=ExportEvmAccountRequest(
-                    export_encryption_key=public_key,
-                ),
-                x_idempotency_key=idempotency_key,
-            )
-            return decrypt_with_private_key(private_key, response.encrypted_private_key)
+            if name:
+                response = await self.api_clients.evm_accounts.export_evm_account_by_name(
+                    name=name,
+                    export_evm_account_request=ExportEvmAccountRequest(
+                        export_encryption_key=public_key,
+                    ),
+                    x_idempotency_key=idempotency_key,
+                )
+                return decrypt_with_private_key(private_key, response.encrypted_private_key)
 
-        if name:
-            response = await self.api_clients.evm_accounts.export_evm_account_by_name(
-                name=name,
-                export_evm_account_request=ExportEvmAccountRequest(
-                    export_encryption_key=public_key,
-                ),
-                x_idempotency_key=idempotency_key,
-            )
-            return decrypt_with_private_key(private_key, response.encrypted_private_key)
-
-        raise UserInputValidationError("Either address or name must be provided")
+            raise UserInputValidationError("Either address or name must be provided")
+        except Exception as error:
+            if not isinstance(error, UserInputValidationError):
+                track_error(error, "export_account")
+            raise
 
     async def create_smart_account(
         self,
@@ -220,24 +231,29 @@ class EvmClient:
 
         """
         track_action(action="create_smart_account", account_type="evm_smart")
+        try:
+            owners = [owner.address]
 
-        owners = [owner.address]
+            if enable_spend_permissions:
+                from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
 
-        if enable_spend_permissions:
-            from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
+                owners.append(SPEND_PERMISSION_MANAGER_ADDRESS)
 
-            owners.append(SPEND_PERMISSION_MANAGER_ADDRESS)
-
-        evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
-            create_evm_smart_account_request=CreateEvmSmartAccountRequest(owners=owners, name=name),
-        )
-        return EvmSmartAccount(
-            evm_smart_account.address,
-            owner,
-            evm_smart_account.name,
-            evm_smart_account.policies,
-            self.api_clients,
-        )
+            evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
+                create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+                    owners=owners, name=name
+                ),
+            )
+            return EvmSmartAccount(
+                evm_smart_account.address,
+                owner,
+                evm_smart_account.name,
+                evm_smart_account.policies,
+                self.api_clients,
+            )
+        except Exception as error:
+            track_error(error, "create_smart_account")
+            raise
 
     async def get_or_create_smart_account(
         self, owner: BaseAccount, name: str, enable_spend_permissions: bool = False
@@ -255,25 +271,30 @@ class EvmClient:
 
         """
         track_action(action="get_or_create_smart_account", account_type="evm_smart")
-
         try:
-            account = await self.__get_smart_account_internal(name=name, owner=owner)
-            return account
-        except ApiError as e:
-            if e.http_code == 404:
-                try:
-                    account = await self.__create_smart_account_internal(
-                        name=name,
-                        owner=owner,
-                        enable_spend_permissions=enable_spend_permissions,
-                    )
-                    return account
-                except ApiError as e:
-                    if e.http_code == 409:
-                        account = await self.__get_smart_account_internal(name=name, owner=owner)
+            try:
+                account = await self.__get_smart_account_internal(name=name, owner=owner)
+                return account
+            except ApiError as e:
+                if e.http_code == 404:
+                    try:
+                        account = await self.__create_smart_account_internal(
+                            name=name,
+                            owner=owner,
+                            enable_spend_permissions=enable_spend_permissions,
+                        )
                         return account
-                    raise e
-            raise e
+                    except ApiError as e:
+                        if e.http_code == 409:
+                            account = await self.__get_smart_account_internal(
+                                name=name, owner=owner
+                            )
+                            return account
+                        raise e
+                raise e
+        except Exception as error:
+            track_error(error, "get_or_create_smart_account")
+            raise
 
     async def create_spend_permission(
         self,
@@ -319,28 +340,31 @@ class EvmClient:
         from cdp.spend_permissions.utils import resolve_spend_permission
 
         track_action(action="create_spend_permission")
+        try:
+            # Resolve the spend permission input to a full spend permission
+            resolved_permission = resolve_spend_permission(spend_permission, network)
 
-        # Resolve the spend permission input to a full spend permission
-        resolved_permission = resolve_spend_permission(spend_permission, network)
-
-        return await self.api_clients.evm_smart_accounts.create_spend_permission(
-            address=resolved_permission.account,
-            create_spend_permission_request=CreateSpendPermissionRequest(
-                spender=resolved_permission.spender,
-                token=resolved_permission.token,
-                allowance=str(resolved_permission.allowance),
-                period=str(resolved_permission.period),
-                start=str(resolved_permission.start),
-                end=str(resolved_permission.end),
-                salt=str(resolved_permission.salt)
-                if resolved_permission.salt is not None
-                else None,
-                extra_data=resolved_permission.extra_data,
-                network=network,
-                paymaster_url=paymaster_url,
-            ),
-            x_idempotency_key=idempotency_key,
-        )
+            return await self.api_clients.evm_smart_accounts.create_spend_permission(
+                address=resolved_permission.account,
+                create_spend_permission_request=CreateSpendPermissionRequest(
+                    spender=resolved_permission.spender,
+                    token=resolved_permission.token,
+                    allowance=str(resolved_permission.allowance),
+                    period=str(resolved_permission.period),
+                    start=str(resolved_permission.start),
+                    end=str(resolved_permission.end),
+                    salt=str(resolved_permission.salt)
+                    if resolved_permission.salt is not None
+                    else None,
+                    extra_data=resolved_permission.extra_data,
+                    network=network,
+                    paymaster_url=paymaster_url,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "create_spend_permission")
+            raise
 
     async def list_spend_permissions(
         self, address: str, page_size: int | None = None, page_token: str | None = None
@@ -357,12 +381,15 @@ class EvmClient:
 
         """
         track_action(action="list_spend_permissions")
-
-        return await self.api_clients.evm_smart_accounts.list_spend_permissions(
-            address,
-            page_size=page_size,
-            page_token=page_token,
-        )
+        try:
+            return await self.api_clients.evm_smart_accounts.list_spend_permissions(
+                address,
+                page_size=page_size,
+                page_token=page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_spend_permissions")
+            raise
 
     async def revoke_spend_permission(
         self,
@@ -390,16 +417,19 @@ class EvmClient:
         )
 
         track_action(action="revoke_spend_permission")
-
-        return await self.api_clients.evm_smart_accounts.revoke_spend_permission(
-            address=address,
-            revoke_spend_permission_request=RevokeSpendPermissionRequest(
-                permission_hash=permission_hash,
-                network=network,
-                paymaster_url=paymaster_url,
-            ),
-            x_idempotency_key=idempotency_key,
-        )
+        try:
+            return await self.api_clients.evm_smart_accounts.revoke_spend_permission(
+                address=address,
+                revoke_spend_permission_request=RevokeSpendPermissionRequest(
+                    permission_hash=permission_hash,
+                    network=network,
+                    paymaster_url=paymaster_url,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "revoke_spend_permission")
+            raise
 
     async def get_account(
         self, address: str | None = None, name: str | None = None
@@ -418,14 +448,18 @@ class EvmClient:
 
         """
         track_action(action="get_account", account_type="evm_server")
-
-        if address:
-            evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
-        elif name:
-            evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
-        else:
-            raise UserInputValidationError("Either address or name must be provided")
-        return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+        try:
+            if address:
+                evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
+            elif name:
+                evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
+            else:
+                raise UserInputValidationError("Either address or name must be provided")
+            return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+        except Exception as error:
+            if not isinstance(error, UserInputValidationError):
+                track_error(error, "get_account")
+            raise
 
     async def get_or_create_account(self, name: str | None = None) -> EvmServerAccount:
         """Get an EVM account, or create one if it doesn't exist.
@@ -438,21 +472,24 @@ class EvmClient:
 
         """
         track_action(action="get_or_create_account", account_type="evm_server")
-
         try:
-            account = await self.__get_account_internal(name=name)
-            return account
-        except ApiError as e:
-            if e.http_code == 404:
-                try:
-                    account = await self.__create_account_internal(name=name)
-                    return account
-                except ApiError as e:
-                    if e.http_code == 409:
-                        account = await self.__get_account_internal(name=name)
+            try:
+                account = await self.__get_account_internal(name=name)
+                return account
+            except ApiError as e:
+                if e.http_code == 404:
+                    try:
+                        account = await self.__create_account_internal(name=name)
                         return account
-                    raise e
-            raise e
+                    except ApiError as e:
+                        if e.http_code == 409:
+                            account = await self.__get_account_internal(name=name)
+                            return account
+                        raise e
+                raise e
+        except Exception as error:
+            track_error(error, "get_or_create_account")
+            raise
 
     async def get_smart_account(
         self, address: str | None = None, name: str | None = None, owner: BaseAccount | None = None
@@ -472,24 +509,28 @@ class EvmClient:
 
         """
         track_action(action="get_smart_account")
-
-        if address:
-            evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(
-                address
+        try:
+            if address:
+                evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(
+                    address
+                )
+            elif name:
+                evm_smart_account = (
+                    await self.api_clients.evm_smart_accounts.get_evm_smart_account_by_name(name)
+                )
+            else:
+                raise UserInputValidationError("Either address or name must be provided")
+            return EvmSmartAccount(
+                evm_smart_account.address,
+                owner,
+                evm_smart_account.name,
+                evm_smart_account.policies,
+                self.api_clients,
             )
-        elif name:
-            evm_smart_account = (
-                await self.api_clients.evm_smart_accounts.get_evm_smart_account_by_name(name)
-            )
-        else:
-            raise UserInputValidationError("Either address or name must be provided")
-        return EvmSmartAccount(
-            evm_smart_account.address,
-            owner,
-            evm_smart_account.name,
-            evm_smart_account.policies,
-            self.api_clients,
-        )
+        except Exception as error:
+            if not isinstance(error, UserInputValidationError):
+                track_error(error, "get_smart_account")
+            raise
 
     async def get_user_operation(self, address: str, user_op_hash: str) -> EvmUserOperationModel:
         """Get a user operation by address and hash.
@@ -503,8 +544,13 @@ class EvmClient:
 
         """
         track_action(action="get_user_operation")
-
-        return await self.api_clients.evm_smart_accounts.get_user_operation(address, user_op_hash)
+        try:
+            return await self.api_clients.evm_smart_accounts.get_user_operation(
+                address, user_op_hash
+            )
+        except Exception as error:
+            track_error(error, "get_user_operation")
+            raise
 
     async def list_accounts(
         self,
@@ -522,18 +568,21 @@ class EvmClient:
 
         """
         track_action(action="list_accounts", account_type="evm_server")
-
-        response = await self.api_clients.evm_accounts.list_evm_accounts(
-            page_size=page_size, page_token=page_token
-        )
-        evm_server_accounts = [
-            EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
-            for account in response.accounts
-        ]
-        return ListEvmAccountsResponse(
-            accounts=evm_server_accounts,
-            next_page_token=response.next_page_token,
-        )
+        try:
+            response = await self.api_clients.evm_accounts.list_evm_accounts(
+                page_size=page_size, page_token=page_token
+            )
+            evm_server_accounts = [
+                EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
+                for account in response.accounts
+            ]
+            return ListEvmAccountsResponse(
+                accounts=evm_server_accounts,
+                next_page_token=response.next_page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_accounts")
+            raise
 
     async def list_token_balances(
         self,
@@ -555,14 +604,17 @@ class EvmClient:
 
         """
         track_action(action="list_token_balances", properties={"network": network})
-
-        return await list_token_balances(
-            self.api_clients.onchain_data,
-            address,
-            network,
-            page_size,
-            page_token,
-        )
+        try:
+            return await list_token_balances(
+                self.api_clients.onchain_data,
+                address,
+                network,
+                page_size,
+                page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_token_balances")
+            raise
 
     async def list_smart_accounts(
         self,
@@ -582,14 +634,17 @@ class EvmClient:
 
         """
         track_action(action="list_smart_accounts")
-
-        response = await self.api_clients.evm_smart_accounts.list_evm_smart_accounts(
-            page_size=page_size, page_token=page_token
-        )
-        return ListEvmSmartAccountsResponse(
-            accounts=response.accounts,
-            next_page_token=response.next_page_token,
-        )
+        try:
+            response = await self.api_clients.evm_smart_accounts.list_evm_smart_accounts(
+                page_size=page_size, page_token=page_token
+            )
+            return ListEvmSmartAccountsResponse(
+                accounts=response.accounts,
+                next_page_token=response.next_page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_smart_accounts")
+            raise
 
     async def prepare_user_operation(
         self,
@@ -613,26 +668,29 @@ class EvmClient:
 
         """
         track_action(action="prepare_user_operation", properties={"network": network})
+        try:
+            evm_calls = [
+                EvmCall(
+                    to=call.to,
+                    data=call.data if call.data else "0x",
+                    value=str(call.value) if call.value else "0",
+                    override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
+                )
+                for call in calls
+            ]
 
-        evm_calls = [
-            EvmCall(
-                to=call.to,
-                data=call.data if call.data else "0x",
-                value=str(call.value) if call.value else "0",
-                override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
+            return await self.api_clients.evm_smart_accounts.prepare_user_operation(
+                smart_account.address,
+                PrepareUserOperationRequest(
+                    calls=evm_calls,
+                    network=network,
+                    paymaster_url=paymaster_url,
+                    data_suffix=data_suffix,
+                ),
             )
-            for call in calls
-        ]
-
-        return await self.api_clients.evm_smart_accounts.prepare_user_operation(
-            smart_account.address,
-            PrepareUserOperationRequest(
-                calls=evm_calls,
-                network=network,
-                paymaster_url=paymaster_url,
-                data_suffix=data_suffix,
-            ),
-        )
+        except Exception as error:
+            track_error(error, "prepare_user_operation")
+            raise
 
     async def prepare_and_send_user_operation(
         self,
@@ -644,26 +702,29 @@ class EvmClient:
     ) -> EvmUserOperationModel:
         """Prepare and send a user operation for a smart account."""
         track_action(action="prepare_and_send_user_operation", properties={"network": network})
+        try:
+            evm_calls = [
+                EvmCall(
+                    to=call.to,
+                    data=call.data if call.data else "0x",
+                    value=str(call.value) if call.value else "0",
+                    override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
+                )
+                for call in calls
+            ]
 
-        evm_calls = [
-            EvmCall(
-                to=call.to,
-                data=call.data if call.data else "0x",
-                value=str(call.value) if call.value else "0",
-                override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
+            return await self.api_clients.evm_smart_accounts.prepare_and_send_user_operation(
+                address=smart_account.address,
+                prepare_and_send_user_operation_request=PrepareAndSendUserOperationRequest(
+                    calls=evm_calls,
+                    network=network,
+                    paymaster_url=paymaster_url,
+                ),
+                x_idempotency_key=idempotency_key,
             )
-            for call in calls
-        ]
-
-        return await self.api_clients.evm_smart_accounts.prepare_and_send_user_operation(
-            address=smart_account.address,
-            prepare_and_send_user_operation_request=PrepareAndSendUserOperationRequest(
-                calls=evm_calls,
-                network=network,
-                paymaster_url=paymaster_url,
-            ),
-            x_idempotency_key=idempotency_key,
-        )
+        except Exception as error:
+            track_error(error, "prepare_and_send_user_operation")
+            raise
 
     async def request_faucet(
         self,
@@ -683,8 +744,11 @@ class EvmClient:
 
         """
         track_action(action="request_faucet", properties={"network": network})
-
-        return await request_faucet(self.api_clients.faucets, address, network, token)
+        try:
+            return await request_faucet(self.api_clients.faucets, address, network, token)
+        except Exception as error:
+            track_error(error, "request_faucet")
+            raise
 
     async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None) -> str:
         """Sign an EVM hash.
@@ -699,13 +763,16 @@ class EvmClient:
 
         """
         track_action(action="sign_hash")
-
-        response = await self.api_clients.evm_accounts.sign_evm_hash(
-            address=address,
-            sign_evm_hash_request=SignEvmHashRequest(hash=hash),
-            x_idempotency_key=idempotency_key,
-        )
-        return response.signature
+        try:
+            response = await self.api_clients.evm_accounts.sign_evm_hash(
+                address=address,
+                sign_evm_hash_request=SignEvmHashRequest(hash=hash),
+                x_idempotency_key=idempotency_key,
+            )
+            return response.signature
+        except Exception as error:
+            track_error(error, "sign_hash")
+            raise
 
     async def sign_message(
         self, address: str, message: str, idempotency_key: str | None = None
@@ -722,13 +789,16 @@ class EvmClient:
 
         """
         track_action(action="sign_message")
-
-        response = await self.api_clients.evm_accounts.sign_evm_message(
-            address=address,
-            sign_evm_message_request=SignEvmMessageRequest(message=message),
-            x_idempotency_key=idempotency_key,
-        )
-        return response.signature
+        try:
+            response = await self.api_clients.evm_accounts.sign_evm_message(
+                address=address,
+                sign_evm_message_request=SignEvmMessageRequest(message=message),
+                x_idempotency_key=idempotency_key,
+            )
+            return response.signature
+        except Exception as error:
+            track_error(error, "sign_message")
+            raise
 
     async def sign_typed_data(
         self,
@@ -754,19 +824,22 @@ class EvmClient:
 
         """
         track_action(action="sign_typed_data")
-
-        eip712_message = EIP712Message(
-            domain=domain,
-            types=types,
-            primary_type=primary_type,
-            message=message,
-        )
-        response = await self.api_clients.evm_accounts.sign_evm_typed_data(
-            address=address,
-            eip712_message=eip712_message,
-            x_idempotency_key=idempotency_key,
-        )
-        return response.signature
+        try:
+            eip712_message = EIP712Message(
+                domain=domain,
+                types=types,
+                primary_type=primary_type,
+                message=message,
+            )
+            response = await self.api_clients.evm_accounts.sign_evm_typed_data(
+                address=address,
+                eip712_message=eip712_message,
+                x_idempotency_key=idempotency_key,
+            )
+            return response.signature
+        except Exception as error:
+            track_error(error, "sign_typed_data")
+            raise
 
     async def sign_transaction(
         self, address: str, transaction: str, idempotency_key: str | None = None
@@ -783,13 +856,16 @@ class EvmClient:
 
         """
         track_action(action="sign_transaction")
-
-        response = await self.api_clients.evm_accounts.sign_evm_transaction(
-            address=address,
-            sign_evm_transaction_request=SignEvmTransactionRequest(transaction=transaction),
-            x_idempotency_key=idempotency_key,
-        )
-        return response.signed_transaction
+        try:
+            response = await self.api_clients.evm_accounts.sign_evm_transaction(
+                address=address,
+                sign_evm_transaction_request=SignEvmTransactionRequest(transaction=transaction),
+                x_idempotency_key=idempotency_key,
+            )
+            return response.signed_transaction
+        except Exception as error:
+            track_error(error, "sign_transaction")
+            raise
 
     async def send_transaction(
         self,
@@ -832,14 +908,17 @@ class EvmClient:
 
         """
         track_action(action="send_transaction", properties={"network": network})
-
-        return await send_transaction(
-            self.api_clients.evm_accounts,
-            address,
-            transaction,
-            network,
-            idempotency_key,
-        )
+        try:
+            return await send_transaction(
+                self.api_clients.evm_accounts,
+                address,
+                transaction,
+                network,
+                idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "send_transaction")
+            raise
 
     async def send_user_operation(
         self,
@@ -861,15 +940,18 @@ class EvmClient:
 
         """
         track_action(action="send_user_operation", properties={"network": network})
-
-        return await send_user_operation(
-            self.api_clients,
-            smart_account.address,
-            smart_account.owners[0],
-            calls,
-            network,
-            paymaster_url,
-        )
+        try:
+            return await send_user_operation(
+                self.api_clients,
+                smart_account.address,
+                smart_account.owners[0],
+                calls,
+                network,
+                paymaster_url,
+            )
+        except Exception as error:
+            track_error(error, "send_user_operation")
+            raise
 
     async def update_account(
         self,
@@ -889,16 +971,19 @@ class EvmClient:
 
         """
         track_action(action="update_account", account_type="evm_server")
-
-        account = await self.api_clients.evm_accounts.update_evm_account(
-            address=address,
-            update_evm_account_request=UpdateEvmAccountRequest(
-                name=update.name,
-                account_policy=update.account_policy,
-            ),
-            x_idempotency_key=idempotency_key,
-        )
-        return EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
+        try:
+            account = await self.api_clients.evm_accounts.update_evm_account(
+                address=address,
+                update_evm_account_request=UpdateEvmAccountRequest(
+                    name=update.name,
+                    account_policy=update.account_policy,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
+        except Exception as error:
+            track_error(error, "update_account")
+            raise
 
     async def create_evm_eip7702_delegation(
         self,
@@ -935,17 +1020,16 @@ class EvmClient:
 
         """
         track_action(action="create_eip7702_delegation")
-
-        create_evm_eip7702_delegation_request = CreateEvmEip7702DelegationRequest(
-            network=network,
-            enable_spend_permissions=enable_spend_permissions,
-        )
-        return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
-            address=address,
-            create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=idempotency_key,
-        )
+        try:
+            return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
+                address=address,
+                create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,
+                x_wallet_auth=x_wallet_auth,
+                x_idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "create_evm_eip7702_delegation")
+            raise
 
     def to_delegated_account(self, account: EvmServerAccount) -> EvmSmartAccount:
         """Return a smart account view of a server account for use after EIP-7702 delegation.
@@ -994,14 +1078,19 @@ class EvmClient:
 
         """
         track_action(action="update_smart_account", account_type="evm_smart")
-
-        smart_account = await self.api_clients.evm_smart_accounts.update_evm_smart_account(
-            address=address,
-            update_evm_smart_account_request=UpdateEvmSmartAccountRequest(
-                name=update.name,
-            ),
-        )
-        return EvmSmartAccount(smart_account.address, owner, smart_account.name, self.api_clients)
+        try:
+            smart_account = await self.api_clients.evm_smart_accounts.update_evm_smart_account(
+                address=address,
+                update_evm_smart_account_request=UpdateEvmSmartAccountRequest(
+                    name=update.name,
+                ),
+            )
+            return EvmSmartAccount(
+                smart_account.address, owner, smart_account.name, self.api_clients
+            )
+        except Exception as error:
+            track_error(error, "update_smart_account")
+            raise
 
     async def wait_for_user_operation(
         self,
@@ -1023,14 +1112,17 @@ class EvmClient:
 
         """
         track_action(action="wait_for_user_operation")
-
-        return await wait_for_user_operation(
-            self.api_clients,
-            smart_account_address,
-            user_op_hash,
-            timeout_seconds,
-            interval_seconds,
-        )
+        try:
+            return await wait_for_user_operation(
+                self.api_clients,
+                smart_account_address,
+                user_op_hash,
+                timeout_seconds,
+                interval_seconds,
+            )
+        except Exception as error:
+            track_error(error, "wait_for_user_operation")
+            raise
 
     async def get_swap_price(
         self,
@@ -1056,16 +1148,19 @@ class EvmClient:
 
         """
         track_action(action="get_swap_price", properties={"network": network})
-
-        return await swap_get_swap_price(
-            self.api_clients,
-            from_token,
-            to_token,
-            from_amount,
-            network,
-            taker,
-            idempotency_key,
-        )
+        try:
+            return await swap_get_swap_price(
+                self.api_clients,
+                from_token,
+                to_token,
+                from_amount,
+                network,
+                taker,
+                idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "get_swap_price")
+            raise
 
     async def create_swap_quote(
         self,
@@ -1124,18 +1219,21 @@ class EvmClient:
 
         """
         track_action(action="create_swap_quote", properties={"network": network})
-
-        return await swap_create_swap_quote(
-            self.api_clients,
-            from_token,
-            to_token,
-            from_amount,
-            network,
-            taker,
-            slippage_bps,
-            signer_address,
-            idempotency_key,
-        )
+        try:
+            return await swap_create_swap_quote(
+                self.api_clients,
+                from_token,
+                to_token,
+                from_amount,
+                network,
+                taker,
+                slippage_bps,
+                signer_address,
+                idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "create_swap_quote")
+            raise
 
     async def __create_account_internal(
         self,

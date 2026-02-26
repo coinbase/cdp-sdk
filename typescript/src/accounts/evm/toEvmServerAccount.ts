@@ -71,18 +71,22 @@ export function toEvmServerAccount(
         action: "sign_message",
         accountType: "evm_server",
       });
+      try {
+        if (typeof message === "string") {
+          const result = await apiClient.signEvmMessage(options.account.address, {
+            message,
+          });
+          return result.signature as Hex;
+        }
 
-      if (typeof message === "string") {
-        const result = await apiClient.signEvmMessage(options.account.address, {
-          message,
+        const result = await apiClient.signEvmHash(options.account.address, {
+          hash: hashMessage(message),
         });
         return result.signature as Hex;
+      } catch (error) {
+        Analytics.trackError(error, "signMessage");
+        throw error;
       }
-
-      const result = await apiClient.signEvmHash(options.account.address, {
-        hash: hashMessage(message),
-      });
-      return result.signature as Hex;
     },
 
     async sign(parameters: { hash: Hash }) {
@@ -90,11 +94,15 @@ export function toEvmServerAccount(
         action: "sign",
         accountType: "evm_server",
       });
-
-      const result = await apiClient.signEvmHash(options.account.address, {
-        hash: parameters.hash,
-      });
-      return result.signature as Hex;
+      try {
+        const result = await apiClient.signEvmHash(options.account.address, {
+          hash: parameters.hash,
+        });
+        return result.signature as Hex;
+      } catch (error) {
+        Analytics.trackError(error, "sign");
+        throw error;
+      }
     },
 
     async signTransaction(transaction: TransactionSerializable) {
@@ -102,11 +110,15 @@ export function toEvmServerAccount(
         action: "sign_transaction",
         accountType: "evm_server",
       });
-
-      const result = await apiClient.signEvmTransaction(options.account.address, {
-        transaction: serializeTransaction(transaction),
-      });
-      return result.signedTransaction as Hex;
+      try {
+        const result = await apiClient.signEvmTransaction(options.account.address, {
+          transaction: serializeTransaction(transaction),
+        });
+        return result.signedTransaction as Hex;
+      } catch (error) {
+        Analytics.trackError(error, "signTransaction");
+        throw error;
+      }
     },
 
     async signTypedData<
@@ -117,22 +129,26 @@ export function toEvmServerAccount(
         action: "sign_typed_data",
         accountType: "evm_server",
       });
+      try {
+        const { domain = {}, message, primaryType } = parameters as HashTypedDataParameters;
+        const types = {
+          EIP712Domain: getTypesForEIP712Domain({ domain }),
+          ...parameters.types,
+        };
 
-      const { domain = {}, message, primaryType } = parameters as HashTypedDataParameters;
-      const types = {
-        EIP712Domain: getTypesForEIP712Domain({ domain }),
-        ...parameters.types,
-      };
+        const openApiMessage = {
+          domain: domain as EIP712Domain,
+          types,
+          primaryType,
+          message,
+        };
 
-      const openApiMessage = {
-        domain: domain as EIP712Domain,
-        types,
-        primaryType,
-        message,
-      };
-
-      const result = await apiClient.signEvmTypedData(options.account.address, openApiMessage);
-      return result.signature as Hex;
+        const result = await apiClient.signEvmTypedData(options.account.address, openApiMessage);
+        return result.signature as Hex;
+      } catch (error) {
+        Analytics.trackError(error, "signTypedData");
+        throw error;
+      }
     },
     async transfer(transferArgs): Promise<TransactionResult> {
       Analytics.trackAction({
@@ -142,8 +158,12 @@ export function toEvmServerAccount(
           network: transferArgs.network,
         },
       });
-
-      return transfer(apiClient, account, transferArgs, accountTransferStrategy);
+      try {
+        return transfer(apiClient, account, transferArgs, accountTransferStrategy);
+      } catch (error) {
+        Analytics.trackError(error, "transfer");
+        throw error;
+      }
     },
     async listTokenBalances(
       options: Omit<ListTokenBalancesOptions, "address">,
@@ -155,11 +175,15 @@ export function toEvmServerAccount(
           network: options.network,
         },
       });
-
-      return listTokenBalances(apiClient, {
-        ...options,
-        address: this.address,
-      });
+      try {
+        return listTokenBalances(apiClient, {
+          ...options,
+          address: this.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "listTokenBalances");
+        throw error;
+      }
     },
     async requestFaucet(
       options: Omit<RequestFaucetOptions, "address">,
@@ -171,11 +195,15 @@ export function toEvmServerAccount(
           network: options.network,
         },
       });
-
-      return requestFaucet(apiClient, {
-        ...options,
-        address: this.address,
-      });
+      try {
+        return requestFaucet(apiClient, {
+          ...options,
+          address: this.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "requestFaucet");
+        throw error;
+      }
     },
     async sendTransaction(options: Omit<SendTransactionOptions, "address">) {
       Analytics.trackAction({
@@ -185,11 +213,15 @@ export function toEvmServerAccount(
           network: options.network,
         },
       });
-
-      return sendTransaction(apiClient, {
-        ...options,
-        address: this.address,
-      });
+      try {
+        return sendTransaction(apiClient, {
+          ...options,
+          address: this.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "sendTransaction");
+        throw error;
+      }
     },
     async quoteSwap(options: AccountQuoteSwapOptions): Promise<AccountQuoteSwapResult> {
       Analytics.trackAction({
@@ -199,11 +231,15 @@ export function toEvmServerAccount(
           network: options.network,
         },
       });
-
-      return createSwapQuote(apiClient, {
-        ...options,
-        taker: this.address,
-      });
+      try {
+        return createSwapQuote(apiClient, {
+          ...options,
+          taker: this.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "quoteSwap");
+        throw error;
+      }
     },
     async swap(options: AccountSwapOptions): Promise<AccountSwapResult> {
       Analytics.trackAction({
@@ -213,12 +249,16 @@ export function toEvmServerAccount(
           network: "network" in options ? options.network : undefined,
         },
       });
-
-      return sendSwapTransaction(apiClient, {
-        ...options,
-        address: this.address,
-        taker: this.address, // Always use account's address as taker
-      });
+      try {
+        return sendSwapTransaction(apiClient, {
+          ...options,
+          address: this.address,
+          taker: this.address, // Always use account's address as taker
+        });
+      } catch (error) {
+        Analytics.trackError(error, "swap");
+        throw error;
+      }
     },
     async useSpendPermission(options: UseSpendPermissionOptions): Promise<TransactionResult> {
       Analytics.trackAction({
@@ -228,8 +268,12 @@ export function toEvmServerAccount(
           network: options.network,
         },
       });
-
-      return useSpendPermission(apiClient, this.address, options);
+      try {
+        return useSpendPermission(apiClient, this.address, options);
+      } catch (error) {
+        Analytics.trackError(error, "useSpendPermission");
+        throw error;
+      }
     },
     name: options.account.name,
     type: "evm-server",
@@ -245,11 +289,15 @@ export function toEvmServerAccount(
           network: networkOrRpcUrl,
         },
       });
-
-      return toNetworkScopedEvmServerAccount({
-        account,
-        network: networkOrRpcUrl,
-      });
+      try {
+        return toNetworkScopedEvmServerAccount({
+          account,
+          network: networkOrRpcUrl,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "useNetwork");
+        throw error;
+      }
     },
   };
 

@@ -43,22 +43,30 @@ export function toSolanaAccount(
         action: "request_faucet",
         accountType: "solana",
       });
-
-      return requestFaucet(apiClient, {
-        ...options,
-        address: account.address,
-      });
+      try {
+        return requestFaucet(apiClient, {
+          ...options,
+          address: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "requestFaucet");
+        throw error;
+      }
     },
     async signMessage(options: Omit<SignMessageOptions, "address">): Promise<SignatureResult> {
       Analytics.trackAction({
         action: "sign_message",
         accountType: "solana",
       });
-
-      return signMessage(apiClient, {
-        ...options,
-        address: account.address,
-      });
+      try {
+        return signMessage(apiClient, {
+          ...options,
+          address: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "signMessage");
+        throw error;
+      }
     },
     async signTransaction(
       options: Omit<SignTransactionOptions, "address">,
@@ -67,11 +75,15 @@ export function toSolanaAccount(
         action: "sign_transaction",
         accountType: "solana",
       });
-
-      return signTransaction(apiClient, {
-        ...options,
-        address: account.address,
-      });
+      try {
+        return signTransaction(apiClient, {
+          ...options,
+          address: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "signTransaction");
+        throw error;
+      }
     },
     async sendTransaction(
       options: Omit<SendTransactionOptions, "address">,
@@ -80,10 +92,14 @@ export function toSolanaAccount(
         action: "send_transaction",
         accountType: "solana",
       });
-
-      return sendTransaction(apiClient, {
-        ...options,
-      });
+      try {
+        return sendTransaction(apiClient, {
+          ...options,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "sendTransaction");
+        throw error;
+      }
     },
     async transfer(options: Omit<TransferOptions, "from">): Promise<SignatureResult> {
       Analytics.trackAction({
@@ -93,11 +109,15 @@ export function toSolanaAccount(
           network: options.network,
         },
       });
-
-      return transfer(apiClient, {
-        ...options,
-        from: account.address,
-      });
+      try {
+        return transfer(apiClient, {
+          ...options,
+          from: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "transfer");
+        throw error;
+      }
     },
   };
 

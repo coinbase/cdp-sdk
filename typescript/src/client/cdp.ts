@@ -132,13 +132,6 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
       Analytics.identifier = apiKeyId;
     }
 
-    if (process.env.DISABLE_CDP_ERROR_REPORTING !== "true") {
-      Analytics.wrapClassWithErrorTracking(CdpClient);
-      Analytics.wrapClassWithErrorTracking(EvmClient);
-      Analytics.wrapClassWithErrorTracking(SolanaClient);
-      Analytics.wrapClassWithErrorTracking(PoliciesClient);
-    }
-
     this.evm = new EvmClient();
     this.solana = new SolanaClient();
     this.policies = new PoliciesClient();

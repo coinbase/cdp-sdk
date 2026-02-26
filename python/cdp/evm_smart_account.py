@@ -15,7 +15,7 @@ from cdp.actions.evm.swap.types import (
     SmartAccountSwapResult,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
-from cdp.analytics import track_action
+from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
 from cdp.evm_message_types import EIP712Domain
@@ -160,21 +160,25 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        from cdp.actions.evm.transfer import (
-            smart_account_transfer_strategy,
-            transfer,
-        )
+        try:
+            from cdp.actions.evm.transfer import (
+                smart_account_transfer_strategy,
+                transfer,
+            )
 
-        return await transfer(
-            api_clients=self.__api_clients,
-            from_account=self,
-            to=to,
-            amount=amount,
-            token=token,
-            network=network,
-            transfer_strategy=smart_account_transfer_strategy,
-            paymaster_url=paymaster_url,
-        )
+            return await transfer(
+                api_clients=self.__api_clients,
+                from_account=self,
+                to=to,
+                amount=amount,
+                token=token,
+                network=network,
+                transfer_strategy=smart_account_transfer_strategy,
+                paymaster_url=paymaster_url,
+            )
+        except Exception as error:
+            track_error(error, "transfer")
+            raise
 
     async def list_token_balances(
         self,
@@ -201,13 +205,17 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        return await list_token_balances(
-            self.__api_clients.onchain_data,
-            self.address,
-            network,
-            page_size,
-            page_token,
-        )
+        try:
+            return await list_token_balances(
+                self.__api_clients.onchain_data,
+                self.address,
+                network,
+                page_size,
+                page_token,
+            )
+        except Exception as error:
+            track_error(error, "list_token_balances")
+            raise
 
     async def request_faucet(
         self,
@@ -232,12 +240,16 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        return await request_faucet(
-            self.__api_clients.faucets,
-            self.address,
-            network,
-            token,
-        )
+        try:
+            return await request_faucet(
+                self.__api_clients.faucets,
+                self.address,
+                network,
+                token,
+            )
+        except Exception as error:
+            track_error(error, "request_faucet")
+            raise
 
     async def send_user_operation(
         self,
@@ -266,15 +278,19 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        return await send_user_operation(
-            self.__api_clients,
-            self.address,
-            self.owners[0],
-            calls,
-            network,
-            paymaster_url,
-            data_suffix,
-        )
+        try:
+            return await send_user_operation(
+                self.__api_clients,
+                self.address,
+                self.owners[0],
+                calls,
+                network,
+                paymaster_url,
+                data_suffix,
+            )
+        except Exception as error:
+            track_error(error, "send_user_operation")
+            raise
 
     async def wait_for_user_operation(
         self,
@@ -298,13 +314,17 @@ class EvmSmartAccount(BaseModel):
             account_type="evm_smart",
         )
 
-        return await wait_for_user_operation(
-            self.__api_clients,
-            self.address,
-            user_op_hash,
-            timeout_seconds,
-            interval_seconds,
-        )
+        try:
+            return await wait_for_user_operation(
+                self.__api_clients,
+                self.address,
+                user_op_hash,
+                timeout_seconds,
+                interval_seconds,
+            )
+        except Exception as error:
+            track_error(error, "wait_for_user_operation")
+            raise
 
     async def get_user_operation(self, user_op_hash: str) -> EvmUserOperationModel:
         """Get a user operation for the smart account by hash.
@@ -321,9 +341,13 @@ class EvmSmartAccount(BaseModel):
             account_type="evm_smart",
         )
 
-        return await self.__api_clients.evm_smart_accounts.get_user_operation(
-            self.address, user_op_hash
-        )
+        try:
+            return await self.__api_clients.evm_smart_accounts.get_user_operation(
+                self.address, user_op_hash
+            )
+        except Exception as error:
+            track_error(error, "get_user_operation")
+            raise
 
     async def swap(
         self,
@@ -392,44 +416,48 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        from cdp.actions.evm.swap.send_swap_operation import (
-            SendSwapOperationOptions,
-            send_swap_operation,
-        )
-
-        # Convert SmartAccountSwapOptions to SendSwapOperationOptions
-        if options.swap_quote is not None:
-            # Quote-based pattern
-            # Use paymaster_url from options if provided, otherwise check if quote has one
-            paymaster_url = options.paymaster_url
-            if paymaster_url is None and hasattr(options.swap_quote, "_paymaster_url"):
-                paymaster_url = options.swap_quote._paymaster_url
-
-            send_options = SendSwapOperationOptions(
-                smart_account=self,
-                network=options.swap_quote.network,  # Get network from quote
-                paymaster_url=paymaster_url,
-                idempotency_key=options.idempotency_key,
-                swap_quote=options.swap_quote,
-            )
-        else:
-            # Inline pattern
-            send_options = SendSwapOperationOptions(
-                smart_account=self,
-                network=options.network,
-                paymaster_url=options.paymaster_url,
-                idempotency_key=options.idempotency_key,
-                from_token=options.from_token,
-                to_token=options.to_token,
-                from_amount=options.from_amount,
-                taker=self.address,  # Smart account is always the taker
-                slippage_bps=options.slippage_bps,
+        try:
+            from cdp.actions.evm.swap.send_swap_operation import (
+                SendSwapOperationOptions,
+                send_swap_operation,
             )
 
-        return await send_swap_operation(
-            api_clients=self.__api_clients,
-            options=send_options,
-        )
+            # Convert SmartAccountSwapOptions to SendSwapOperationOptions
+            if options.swap_quote is not None:
+                # Quote-based pattern
+                # Use paymaster_url from options if provided, otherwise check if quote has one
+                paymaster_url = options.paymaster_url
+                if paymaster_url is None and hasattr(options.swap_quote, "_paymaster_url"):
+                    paymaster_url = options.swap_quote._paymaster_url
+
+                send_options = SendSwapOperationOptions(
+                    smart_account=self,
+                    network=options.swap_quote.network,  # Get network from quote
+                    paymaster_url=paymaster_url,
+                    idempotency_key=options.idempotency_key,
+                    swap_quote=options.swap_quote,
+                )
+            else:
+                # Inline pattern
+                send_options = SendSwapOperationOptions(
+                    smart_account=self,
+                    network=options.network,
+                    paymaster_url=options.paymaster_url,
+                    idempotency_key=options.idempotency_key,
+                    from_token=options.from_token,
+                    to_token=options.to_token,
+                    from_amount=options.from_amount,
+                    taker=self.address,  # Smart account is always the taker
+                    slippage_bps=options.slippage_bps,
+                )
+
+            return await send_swap_operation(
+                api_clients=self.__api_clients,
+                options=send_options,
+            )
+        except Exception as error:
+            track_error(error, "swap")
+            raise
 
     async def quote_swap(
         self,
@@ -485,22 +513,26 @@ class EvmSmartAccount(BaseModel):
             properties={"network": network},
         )
 
-        from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
+        try:
+            from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
-        # Call create_swap_quote with smart account address as taker and owner address as signer
-        return await create_swap_quote(
-            api_clients=self.__api_clients,
-            from_token=from_token,
-            to_token=to_token,
-            from_amount=from_amount,
-            network=network,
-            taker=self.address,  # Smart account is the taker (owns the tokens)
-            slippage_bps=slippage_bps,
-            signer_address=self.owners[0].address,  # Owner signs for the smart account
-            smart_account=self,
-            paymaster_url=paymaster_url,
-            idempotency_key=idempotency_key,
-        )
+            # Call create_swap_quote with smart account address as taker and owner address as signer
+            return await create_swap_quote(
+                api_clients=self.__api_clients,
+                from_token=from_token,
+                to_token=to_token,
+                from_amount=from_amount,
+                network=network,
+                taker=self.address,  # Smart account is the taker (owns the tokens)
+                slippage_bps=slippage_bps,
+                signer_address=self.owners[0].address,  # Owner signs for the smart account
+                smart_account=self,
+                paymaster_url=paymaster_url,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "quote_swap")
+            raise
 
     async def sign_typed_data(
         self,
@@ -531,25 +563,29 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
-            sign_and_wrap_typed_data_for_smart_account,
-        )
-        from cdp.network_config import get_chain_id
+        try:
+            from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+                sign_and_wrap_typed_data_for_smart_account,
+            )
+            from cdp.network_config import get_chain_id
 
-        return await sign_and_wrap_typed_data_for_smart_account(
-            api_clients=self.__api_clients,
-            options=SignAndWrapTypedDataForSmartAccountOptions(
-                smart_account=self,
-                chain_id=get_chain_id(network),
-                typed_data={
-                    "domain": domain,
-                    "types": types,
-                    "primaryType": primary_type,
-                    "message": message,
-                },
-                owner_index=0,  # Only one owner for now
-            ),
-        )
+            return await sign_and_wrap_typed_data_for_smart_account(
+                api_clients=self.__api_clients,
+                options=SignAndWrapTypedDataForSmartAccountOptions(
+                    smart_account=self,
+                    chain_id=get_chain_id(network),
+                    typed_data={
+                        "domain": domain,
+                        "types": types,
+                        "primaryType": primary_type,
+                        "message": message,
+                    },
+                    owner_index=0,  # Only one owner for now
+                ),
+            )
+        except Exception as error:
+            track_error(error, "sign_typed_data")
+            raise
 
     async def use_spend_permission(
         self,
@@ -606,14 +642,18 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        return await smart_account_use_spend_permission(
-            api_clients=self.__api_clients,
-            smart_account=self,
-            spend_permission=spend_permission,
-            value=value,
-            network=network,
-            paymaster_url=paymaster_url,
-        )
+        try:
+            return await smart_account_use_spend_permission(
+                api_clients=self.__api_clients,
+                smart_account=self,
+                spend_permission=spend_permission,
+                value=value,
+                network=network,
+                paymaster_url=paymaster_url,
+            )
+        except Exception as error:
+            track_error(error, "use_spend_permission")
+            raise
 
     async def __experimental_use_network__(self, network: str):
         """Create a network-scoped version of this smart account.

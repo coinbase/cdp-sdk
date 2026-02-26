@@ -87,7 +87,12 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    return this._createAccountInternal(options);
+    try {
+      return this._createAccountInternal(options);
+    } catch (error) {
+      Analytics.trackError(error, "createAccount");
+      throw error;
+    }
   }
 
   /**
@@ -120,34 +125,41 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
+    try {
+      const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
-    const { encryptedPrivateKey } = await (async () => {
-      if (options.address) {
-        return CdpOpenApiClient.exportSolanaAccount(
-          options.address,
-          {
-            exportEncryptionKey: publicKey,
-          },
-          options.idempotencyKey,
-        );
+      const { encryptedPrivateKey } = await (async () => {
+        if (options.address) {
+          return CdpOpenApiClient.exportSolanaAccount(
+            options.address,
+            {
+              exportEncryptionKey: publicKey,
+            },
+            options.idempotencyKey,
+          );
+        }
+
+        if (options.name) {
+          return CdpOpenApiClient.exportSolanaAccountByName(
+            options.name,
+            {
+              exportEncryptionKey: publicKey,
+            },
+            options.idempotencyKey,
+          );
+        }
+
+        throw new UserInputValidationError("Either address or name must be provided");
+      })();
+
+      const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+      return formatSolanaPrivateKey(decryptedPrivateKey);
+    } catch (error) {
+      if (!(error instanceof UserInputValidationError)) {
+        Analytics.trackError(error, "exportAccount");
       }
-
-      if (options.name) {
-        return CdpOpenApiClient.exportSolanaAccountByName(
-          options.name,
-          {
-            exportEncryptionKey: publicKey,
-          },
-          options.idempotencyKey,
-        );
-      }
-
-      throw new UserInputValidationError("Either address or name must be provided");
-    })();
-
-    const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
-    return formatSolanaPrivateKey(decryptedPrivateKey);
+      throw error;
+    }
   }
 
   /**
@@ -194,48 +206,53 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    let privateKeyBytes: Uint8Array = new Uint8Array();
+    try {
+      let privateKeyBytes: Uint8Array = new Uint8Array();
 
-    if (typeof options.privateKey === "string") {
-      privateKeyBytes = bs58.decode(options.privateKey);
-    } else {
-      privateKeyBytes = options.privateKey;
+      if (typeof options.privateKey === "string") {
+        privateKeyBytes = bs58.decode(options.privateKey);
+      } else {
+        privateKeyBytes = options.privateKey;
+      }
+
+      if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
+        throw new UserInputValidationError("Invalid private key length");
+      }
+
+      if (privateKeyBytes.length === 64) {
+        privateKeyBytes = privateKeyBytes.subarray(0, 32);
+      }
+
+      const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
+
+      const encryptedPrivateKey = publicEncrypt(
+        {
+          key: encryptionPublicKey,
+          padding: constants.RSA_PKCS1_OAEP_PADDING,
+          oaepHash: "sha256",
+        },
+        privateKeyBytes,
+      );
+
+      const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
+        {
+          encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+          name: options.name,
+        },
+        options.idempotencyKey,
+      );
+
+      const account = toSolanaAccount(CdpOpenApiClient, {
+        account: openApiAccount,
+      });
+
+      return account;
+    } catch (error) {
+      if (!(error instanceof UserInputValidationError)) {
+        Analytics.trackError(error, "importAccount");
+      }
+      throw error;
     }
-
-    if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
-      throw new UserInputValidationError("Invalid private key length");
-    }
-
-    if (privateKeyBytes.length === 64) {
-      privateKeyBytes = privateKeyBytes.subarray(0, 32);
-    }
-
-    const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
-
-    const encryptedPrivateKey = publicEncrypt(
-      {
-        key: encryptionPublicKey,
-        padding: constants.RSA_PKCS1_OAEP_PADDING,
-        oaepHash: "sha256",
-      },
-      privateKeyBytes,
-    );
-
-    const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
-      {
-        encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
-        name: options.name,
-      },
-      options.idempotencyKey,
-    );
-
-    const account = toSolanaAccount(CdpOpenApiClient, {
-      account: openApiAccount,
-    });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
-
-    return account;
   }
 
   /**
@@ -269,7 +286,12 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    return this._getAccountInternal(options);
+    try {
+      return this._getAccountInternal(options);
+    } catch (error) {
+      Analytics.trackError(error, "getAccount");
+      throw error;
+    }
   }
 
   /**
@@ -294,26 +316,31 @@ export class SolanaClient implements SolanaClientInterface {
     });
 
     try {
-      const account = await this._getAccountInternal(options);
-      return account;
-    } catch (error) {
-      // If it failed because the account doesn't exist, create it
-      const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
-      if (doesAccountNotExist) {
-        try {
-          const account = await this._createAccountInternal(options);
-          return account;
-        } catch (error) {
-          // If it failed because the account already exists, get the existing account
-          const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
-          if (doesAccountAlreadyExist) {
-            const account = await this._getAccountInternal(options);
+      try {
+        const account = await this._getAccountInternal(options);
+        return account;
+      } catch (error) {
+        // If it failed because the account doesn't exist, create it
+        const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
+        if (doesAccountNotExist) {
+          try {
+            const account = await this._createAccountInternal(options);
             return account;
+          } catch (error) {
+            // If it failed because the account already exists, get the existing account
+            const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
+            if (doesAccountAlreadyExist) {
+              const account = await this._getAccountInternal(options);
+              return account;
+            }
+            throw error;
           }
-          throw error;
         }
-      }
 
+        throw error;
+      }
+    } catch (error) {
+      Analytics.trackError(error, "getOrCreateAccount");
       throw error;
     }
   }
@@ -352,23 +379,26 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    const solAccounts = await CdpOpenApiClient.listSolanaAccounts({
-      pageSize: options.pageSize,
-      pageToken: options.pageToken,
-    });
+    try {
+      const solAccounts = await CdpOpenApiClient.listSolanaAccounts({
+        pageSize: options.pageSize,
+        pageToken: options.pageToken,
+      });
 
-    return {
-      accounts: solAccounts.accounts.map(account => {
-        const solanaAccount = toSolanaAccount(CdpOpenApiClient, {
-          account,
-        });
+      return {
+        accounts: solAccounts.accounts.map(account => {
+          const solanaAccount = toSolanaAccount(CdpOpenApiClient, {
+            account,
+          });
 
-        Analytics.wrapObjectMethodsWithErrorTracking(solanaAccount);
-
-        return solanaAccount;
-      }),
-      nextPageToken: solAccounts.nextPageToken,
-    };
+          return solanaAccount;
+        }),
+        nextPageToken: solAccounts.nextPageToken,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "listAccounts");
+      throw error;
+    }
   }
 
   /**
@@ -395,7 +425,12 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    return requestFaucet(CdpOpenApiClient, options);
+    try {
+      return requestFaucet(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "requestFaucet");
+      throw error;
+    }
   }
 
   /**
@@ -426,7 +461,12 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    return signMessage(CdpOpenApiClient, options);
+    try {
+      return signMessage(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "signMessage");
+      throw error;
+    }
   }
 
   /**
@@ -468,7 +508,12 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    return signTransaction(CdpOpenApiClient, options);
+    try {
+      return signTransaction(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "signTransaction");
+      throw error;
+    }
   }
 
   /**
@@ -518,19 +563,22 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    const openApiAccount = await CdpOpenApiClient.updateSolanaAccount(
-      options.address,
-      options.update,
-      options.idempotencyKey,
-    );
+    try {
+      const openApiAccount = await CdpOpenApiClient.updateSolanaAccount(
+        options.address,
+        options.update,
+        options.idempotencyKey,
+      );
 
-    const account = toSolanaAccount(CdpOpenApiClient, {
-      account: openApiAccount,
-    });
+      const account = toSolanaAccount(CdpOpenApiClient, {
+        account: openApiAccount,
+      });
 
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
-
-    return account;
+      return account;
+    } catch (error) {
+      Analytics.trackError(error, "updateAccount");
+      throw error;
+    }
   }
 
   /**
@@ -560,7 +608,12 @@ export class SolanaClient implements SolanaClientInterface {
       },
     });
 
-    return sendTransaction(CdpOpenApiClient, options);
+    try {
+      return sendTransaction(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "sendTransaction");
+      throw error;
+    }
   }
 
   /**
@@ -589,31 +642,36 @@ export class SolanaClient implements SolanaClientInterface {
       },
     });
 
-    const tokenBalances = await CdpOpenApiClient.listSolanaTokenBalances(
-      options.network || "solana",
-      options.address,
-      {
-        pageSize: options.pageSize,
-        pageToken: options.pageToken,
-      },
-    );
+    try {
+      const tokenBalances = await CdpOpenApiClient.listSolanaTokenBalances(
+        options.network || "solana",
+        options.address,
+        {
+          pageSize: options.pageSize,
+          pageToken: options.pageToken,
+        },
+      );
 
-    return {
-      balances: tokenBalances.balances.map(balance => {
-        return {
-          amount: {
-            amount: BigInt(balance.amount.amount),
-            decimals: balance.amount.decimals,
-          },
-          token: {
-            mintAddress: balance.token.mintAddress,
-            name: balance.token.name,
-            symbol: balance.token.symbol,
-          },
-        };
-      }),
-      nextPageToken: tokenBalances.nextPageToken,
-    };
+      return {
+        balances: tokenBalances.balances.map(balance => {
+          return {
+            amount: {
+              amount: BigInt(balance.amount.amount),
+              decimals: balance.amount.decimals,
+            },
+            token: {
+              mintAddress: balance.token.mintAddress,
+              name: balance.token.name,
+              symbol: balance.token.symbol,
+            },
+          };
+        }),
+        nextPageToken: tokenBalances.nextPageToken,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "listTokenBalances");
+      throw error;
+    }
   }
 
   /**
@@ -635,8 +693,6 @@ export class SolanaClient implements SolanaClientInterface {
     const account = toSolanaAccount(CdpOpenApiClient, {
       account: openApiAccount,
     });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
   }
@@ -664,8 +720,6 @@ export class SolanaClient implements SolanaClientInterface {
     const account = toSolanaAccount(CdpOpenApiClient, {
       account: openApiAccount,
     });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
   }

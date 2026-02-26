@@ -141,7 +141,12 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_server",
     });
 
-    return this._createAccountInternal(options);
+    try {
+      return await this._createAccountInternal(options);
+    } catch (error) {
+      Analytics.trackError(error, "createAccount");
+      throw error;
+    }
   }
 
   /**
@@ -192,17 +197,17 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_server",
     });
 
-    const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
-
-    const privateKeyHex = options.privateKey.startsWith("0x")
-      ? options.privateKey.slice(2)
-      : options.privateKey;
-
-    if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
-      throw new UserInputValidationError("Private key must be a valid hexadecimal string");
-    }
-
     try {
+      const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
+
+      const privateKeyHex = options.privateKey.startsWith("0x")
+        ? options.privateKey.slice(2)
+        : options.privateKey;
+
+      if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
+        throw new UserInputValidationError("Private key must be a valid hexadecimal string");
+      }
+
       const privateKeyBytes = Buffer.from(privateKeyHex, "hex");
 
       const encryptedPrivateKey = publicEncrypt(
@@ -226,10 +231,12 @@ export class EvmClient implements EvmClientInterface {
         account: openApiAccount,
       });
 
-      Analytics.wrapObjectMethodsWithErrorTracking(account);
-
       return account;
     } catch (error) {
+      if (!(error instanceof UserInputValidationError)) {
+        Analytics.trackError(error, "importAccount");
+      }
+
       if (error instanceof APIError) {
         throw error;
       }
@@ -268,33 +275,40 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_server",
     });
 
-    const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
+    try {
+      const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
-    const { encryptedPrivateKey } = await (async () => {
-      if (options.address) {
-        return CdpOpenApiClient.exportEvmAccount(
-          options.address,
-          {
-            exportEncryptionKey: publicKey,
-          },
-          options.idempotencyKey,
-        );
+      const { encryptedPrivateKey } = await (async () => {
+        if (options.address) {
+          return CdpOpenApiClient.exportEvmAccount(
+            options.address,
+            {
+              exportEncryptionKey: publicKey,
+            },
+            options.idempotencyKey,
+          );
+        }
+
+        if (options.name) {
+          return CdpOpenApiClient.exportEvmAccountByName(
+            options.name,
+            {
+              exportEncryptionKey: publicKey,
+            },
+            options.idempotencyKey,
+          );
+        }
+
+        throw new UserInputValidationError("Either address or name must be provided");
+      })();
+
+      return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+    } catch (error) {
+      if (!(error instanceof UserInputValidationError)) {
+        Analytics.trackError(error, "exportAccount");
       }
-
-      if (options.name) {
-        return CdpOpenApiClient.exportEvmAccountByName(
-          options.name,
-          {
-            exportEncryptionKey: publicKey,
-          },
-          options.idempotencyKey,
-        );
-      }
-
-      throw new UserInputValidationError("Either address or name must be provided");
-    })();
-
-    return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+      throw error;
+    }
   }
 
   /**
@@ -348,7 +362,12 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_smart",
     });
 
-    return this._createSmartAccountInternal(options);
+    try {
+      return await this._createSmartAccountInternal(options);
+    } catch (error) {
+      Analytics.trackError(error, "createSmartAccount");
+      throw error;
+    }
   }
 
   /**
@@ -373,38 +392,43 @@ export class EvmClient implements EvmClientInterface {
       action: "create_spend_permission",
     });
 
-    const resolvedSpendPermission = resolveSpendPermission(
-      options.spendPermission,
-      options.network,
-    );
+    try {
+      const resolvedSpendPermission = resolveSpendPermission(
+        options.spendPermission,
+        options.network,
+      );
 
-    const userOperation = await CdpOpenApiClient.createSpendPermission(
-      resolvedSpendPermission.account,
-      {
-        spender: resolvedSpendPermission.spender,
-        token: resolvedSpendPermission.token,
-        allowance: resolvedSpendPermission.allowance.toString(),
-        period: resolvedSpendPermission.period.toString(),
-        start: resolvedSpendPermission.start.toString(),
-        end: resolvedSpendPermission.end.toString(),
-        salt: resolvedSpendPermission.salt.toString(),
-        extraData: resolvedSpendPermission.extraData,
-        network: options.network,
-        paymasterUrl: options.paymasterUrl,
-      },
-      options.idempotencyKey,
-    );
+      const userOperation = await CdpOpenApiClient.createSpendPermission(
+        resolvedSpendPermission.account,
+        {
+          spender: resolvedSpendPermission.spender,
+          token: resolvedSpendPermission.token,
+          allowance: resolvedSpendPermission.allowance.toString(),
+          period: resolvedSpendPermission.period.toString(),
+          start: resolvedSpendPermission.start.toString(),
+          end: resolvedSpendPermission.end.toString(),
+          salt: resolvedSpendPermission.salt.toString(),
+          extraData: resolvedSpendPermission.extraData,
+          network: options.network,
+          paymasterUrl: options.paymasterUrl,
+        },
+        options.idempotencyKey,
+      );
 
-    return {
-      network: userOperation.network,
-      userOpHash: userOperation.userOpHash as Hex,
-      status: userOperation.status,
-      calls: userOperation.calls.map(call => ({
-        to: call.to as Address,
-        value: BigInt(call.value),
-        data: call.data as Hex,
-      })),
-    };
+      return {
+        network: userOperation.network,
+        userOpHash: userOperation.userOpHash as Hex,
+        status: userOperation.status,
+        calls: userOperation.calls.map(call => ({
+          to: call.to as Address,
+          value: BigInt(call.value),
+          data: call.data as Hex,
+        })),
+      };
+    } catch (error) {
+      Analytics.trackError(error, "createSpendPermission");
+      throw error;
+    }
   }
 
   /**
@@ -432,26 +456,31 @@ export class EvmClient implements EvmClientInterface {
       action: "revoke_spend_permission",
     });
 
-    const userOperation = await CdpOpenApiClient.revokeSpendPermission(
-      options.address,
-      {
-        network: options.network,
-        permissionHash: options.permissionHash,
-        paymasterUrl: options.paymasterUrl,
-      },
-      options.idempotencyKey,
-    );
+    try {
+      const userOperation = await CdpOpenApiClient.revokeSpendPermission(
+        options.address,
+        {
+          network: options.network,
+          permissionHash: options.permissionHash,
+          paymasterUrl: options.paymasterUrl,
+        },
+        options.idempotencyKey,
+      );
 
-    return {
-      network: userOperation.network,
-      userOpHash: userOperation.userOpHash as Hex,
-      status: userOperation.status,
-      calls: userOperation.calls.map(call => ({
-        to: call.to as Address,
-        value: BigInt(call.value),
-        data: call.data as Hex,
-      })),
-    };
+      return {
+        network: userOperation.network,
+        userOpHash: userOperation.userOpHash as Hex,
+        status: userOperation.status,
+        calls: userOperation.calls.map(call => ({
+          to: call.to as Address,
+          value: BigInt(call.value),
+          data: call.data as Hex,
+        })),
+      };
+    } catch (error) {
+      Analytics.trackError(error, "revokeSpendPermission");
+      throw error;
+    }
   }
 
   /**
@@ -485,7 +514,12 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_server",
     });
 
-    return this._getAccountInternal(options);
+    try {
+      return await this._getAccountInternal(options);
+    } catch (error) {
+      Analytics.trackError(error, "getAccount");
+      throw error;
+    }
   }
 
   /**
@@ -515,7 +549,12 @@ export class EvmClient implements EvmClientInterface {
       action: "get_smart_account",
     });
 
-    return this._getSmartAccountInternal(options);
+    try {
+      return await this._getSmartAccountInternal(options);
+    } catch (error) {
+      Analytics.trackError(error, "getSmartAccount");
+      throw error;
+    }
   }
 
   /**
@@ -540,25 +579,30 @@ export class EvmClient implements EvmClientInterface {
     });
 
     try {
-      const account = await this._getAccountInternal(options);
-      return account;
-    } catch (error) {
-      // If it failed because the account doesn't exist, create it
-      const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
-      if (doesAccountNotExist) {
-        try {
-          const account = await this._createAccountInternal(options);
-          return account;
-        } catch (error) {
-          // If it failed because the account already exists, get the existing account
-          const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
-          if (doesAccountAlreadyExist) {
-            const account = await this._getAccountInternal(options);
+      try {
+        const account = await this._getAccountInternal(options);
+        return account;
+      } catch (error) {
+        // If it failed because the account doesn't exist, create it
+        const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
+        if (doesAccountNotExist) {
+          try {
+            const account = await this._createAccountInternal(options);
             return account;
+          } catch (error) {
+            // If it failed because the account already exists, get the existing account
+            const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
+            if (doesAccountAlreadyExist) {
+              const account = await this._getAccountInternal(options);
+              return account;
+            }
+            throw error;
           }
-          throw error;
         }
+        throw error;
       }
+    } catch (error) {
+      Analytics.trackError(error, "getOrCreateAccount");
       throw error;
     }
   }
@@ -589,25 +633,30 @@ export class EvmClient implements EvmClientInterface {
     });
 
     try {
-      const account = await this._getSmartAccountInternal(options);
-      return account;
-    } catch (error) {
-      // If it failed because the account doesn't exist, create it
-      const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
-      if (doesAccountNotExist) {
-        try {
-          const account = await this._createSmartAccountInternal(options);
-          return account;
-        } catch (error) {
-          // If it failed because the account already exists, get the existing account
-          const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
-          if (doesAccountAlreadyExist) {
-            const account = await this._getSmartAccountInternal(options);
+      try {
+        const account = await this._getSmartAccountInternal(options);
+        return account;
+      } catch (error) {
+        // If it failed because the account doesn't exist, create it
+        const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
+        if (doesAccountNotExist) {
+          try {
+            const account = await this._createSmartAccountInternal(options);
             return account;
+          } catch (error) {
+            // If it failed because the account already exists, get the existing account
+            const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
+            if (doesAccountAlreadyExist) {
+              const account = await this._getSmartAccountInternal(options);
+              return account;
+            }
+            throw error;
           }
-          throw error;
         }
+        throw error;
       }
+    } catch (error) {
+      Analytics.trackError(error, "getOrCreateSmartAccount");
       throw error;
     }
   }
@@ -640,7 +689,12 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    return getSwapPrice(CdpOpenApiClient, options);
+    try {
+      return await getSwapPrice(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "getSwapPrice");
+      throw error;
+    }
   }
 
   /**
@@ -671,7 +725,12 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    return createSwapQuote(CdpOpenApiClient, options);
+    try {
+      return await createSwapQuote(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "createSwapQuote");
+      throw error;
+    }
   }
 
   /**
@@ -696,7 +755,12 @@ export class EvmClient implements EvmClientInterface {
       action: "get_user_operation",
     });
 
-    return getUserOperation(CdpOpenApiClient, options);
+    try {
+      return await getUserOperation(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "getUserOperation");
+      throw error;
+    }
   }
 
   /**
@@ -729,23 +793,26 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_server",
     });
 
-    const ethAccounts = await CdpOpenApiClient.listEvmAccounts({
-      pageSize: options.pageSize,
-      pageToken: options.pageToken,
-    });
+    try {
+      const ethAccounts = await CdpOpenApiClient.listEvmAccounts({
+        pageSize: options.pageSize,
+        pageToken: options.pageToken,
+      });
 
-    return {
-      accounts: ethAccounts.accounts.map(account => {
-        const evmAccount = toEvmServerAccount(CdpOpenApiClient, {
-          account,
-        });
+      return {
+        accounts: ethAccounts.accounts.map(account => {
+          const evmAccount = toEvmServerAccount(CdpOpenApiClient, {
+            account,
+          });
 
-        Analytics.wrapObjectMethodsWithErrorTracking(evmAccount);
-
-        return evmAccount;
-      }),
-      nextPageToken: ethAccounts.nextPageToken,
-    };
+          return evmAccount;
+        }),
+        nextPageToken: ethAccounts.nextPageToken,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "listAccounts");
+      throw error;
+    }
   }
 
   /**
@@ -790,7 +857,12 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    return listTokenBalances(CdpOpenApiClient, options);
+    try {
+      return await listTokenBalances(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "listTokenBalances");
+      throw error;
+    }
   }
 
   /**
@@ -822,20 +894,25 @@ export class EvmClient implements EvmClientInterface {
       action: "list_smart_accounts",
     });
 
-    const smartAccounts = await CdpOpenApiClient.listEvmSmartAccounts({
-      pageSize: options.pageSize,
-      pageToken: options.pageToken,
-    });
+    try {
+      const smartAccounts = await CdpOpenApiClient.listEvmSmartAccounts({
+        pageSize: options.pageSize,
+        pageToken: options.pageToken,
+      });
 
-    return {
-      accounts: smartAccounts.accounts.map(account => ({
-        address: account.address as Address,
-        owners: [account.owners[0] as Address],
-        type: "evm-smart",
-        policies: account.policies,
-      })),
-      nextPageToken: smartAccounts.nextPageToken,
-    };
+      return {
+        accounts: smartAccounts.accounts.map(account => ({
+          address: account.address as Address,
+          owners: [account.owners[0] as Address],
+          type: "evm-smart",
+          policies: account.policies,
+        })),
+        nextPageToken: smartAccounts.nextPageToken,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "listSmartAccounts");
+      throw error;
+    }
   }
 
   /**
@@ -855,7 +932,12 @@ export class EvmClient implements EvmClientInterface {
       action: "list_spend_permissions",
     });
 
-    return listSpendPermissions(CdpOpenApiClient, options);
+    try {
+      return await listSpendPermissions(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "listSpendPermissions");
+      throw error;
+    }
   }
 
   /**
@@ -892,28 +974,33 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    const userOp = await CdpOpenApiClient.prepareUserOperation(options.smartAccount.address, {
-      network: options.network,
-      calls: options.calls.map(call => ({
-        to: call.to as Address,
-        value: call.value.toString(),
-        data: call.data as Hex,
-        overrideGasLimit: call.overrideGasLimit,
-      })),
-      paymasterUrl: options.paymasterUrl,
-      dataSuffix: options.dataSuffix,
-    });
+    try {
+      const userOp = await CdpOpenApiClient.prepareUserOperation(options.smartAccount.address, {
+        network: options.network,
+        calls: options.calls.map(call => ({
+          to: call.to as Address,
+          value: call.value.toString(),
+          data: call.data as Hex,
+          overrideGasLimit: call.overrideGasLimit,
+        })),
+        paymasterUrl: options.paymasterUrl,
+        dataSuffix: options.dataSuffix,
+      });
 
-    return {
-      network: userOp.network,
-      userOpHash: userOp.userOpHash as Hex,
-      status: userOp.status,
-      calls: userOp.calls.map(call => ({
-        to: call.to as Address,
-        value: BigInt(call.value),
-        data: call.data as Hex,
-      })),
-    };
+      return {
+        network: userOp.network,
+        userOpHash: userOp.userOpHash as Hex,
+        status: userOp.status,
+        calls: userOp.calls.map(call => ({
+          to: call.to as Address,
+          value: BigInt(call.value),
+          data: call.data as Hex,
+        })),
+      };
+    } catch (error) {
+      Analytics.trackError(error, "prepareUserOperation");
+      throw error;
+    }
   }
 
   /**
@@ -952,25 +1039,30 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    const userOp = await CdpOpenApiClient.prepareAndSendUserOperation(
-      options.smartAccount.address,
-      {
-        network: options.network,
-        calls: options.calls.map(call => ({
-          to: call.to as Address,
-          value: call.value.toString(),
-          data: call.data as Hex,
-        })),
-        paymasterUrl: options.paymasterUrl,
-      },
-      options.idempotencyKey,
-    );
+    try {
+      const userOp = await CdpOpenApiClient.prepareAndSendUserOperation(
+        options.smartAccount.address,
+        {
+          network: options.network,
+          calls: options.calls.map(call => ({
+            to: call.to as Address,
+            value: call.value.toString(),
+            data: call.data as Hex,
+          })),
+          paymasterUrl: options.paymasterUrl,
+        },
+        options.idempotencyKey,
+      );
 
-    return {
-      smartAccountAddress: options.smartAccount.address as Address,
-      userOpHash: userOp.userOpHash as Hex,
-      status: userOp.status as typeof EvmUserOperationStatus.broadcast,
-    };
+      return {
+        smartAccountAddress: options.smartAccount.address as Address,
+        userOpHash: userOp.userOpHash as Hex,
+        status: userOp.status as typeof EvmUserOperationStatus.broadcast,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "prepareAndSendUserOperation");
+      throw error;
+    }
   }
 
   /**
@@ -1001,7 +1093,12 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    return requestFaucet(CdpOpenApiClient, options);
+    try {
+      return await requestFaucet(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "requestFaucet");
+      throw error;
+    }
   }
 
   /**
@@ -1058,7 +1155,12 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    return sendTransaction(CdpOpenApiClient, options);
+    try {
+      return await sendTransaction(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "sendTransaction");
+      throw error;
+    }
   }
 
   /**
@@ -1099,14 +1201,19 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    return sendUserOperation(CdpOpenApiClient, {
-      smartAccount: options.smartAccount,
-      network: options.network,
-      calls: options.calls,
-      paymasterUrl: options.paymasterUrl,
-      idempotencyKey: options.idempotencyKey,
-      dataSuffix: options.dataSuffix,
-    });
+    try {
+      return await sendUserOperation(CdpOpenApiClient, {
+        smartAccount: options.smartAccount,
+        network: options.network,
+        calls: options.calls,
+        paymasterUrl: options.paymasterUrl,
+        idempotencyKey: options.idempotencyKey,
+        dataSuffix: options.dataSuffix,
+      });
+    } catch (error) {
+      Analytics.trackError(error, "sendUserOperation");
+      throw error;
+    }
   }
 
   /**
@@ -1135,17 +1242,22 @@ export class EvmClient implements EvmClientInterface {
       action: "sign_hash",
     });
 
-    const signature = await CdpOpenApiClient.signEvmHash(
-      options.address,
-      {
-        hash: options.hash,
-      },
-      options.idempotencyKey,
-    );
+    try {
+      const signature = await CdpOpenApiClient.signEvmHash(
+        options.address,
+        {
+          hash: options.hash,
+        },
+        options.idempotencyKey,
+      );
 
-    return {
-      signature: signature.signature as Hex,
-    };
+      return {
+        signature: signature.signature as Hex,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "signHash");
+      throw error;
+    }
   }
 
   /**
@@ -1174,17 +1286,22 @@ export class EvmClient implements EvmClientInterface {
       action: "sign_message",
     });
 
-    const signature = await CdpOpenApiClient.signEvmMessage(
-      options.address,
-      {
-        message: options.message,
-      },
-      options.idempotencyKey,
-    );
+    try {
+      const signature = await CdpOpenApiClient.signEvmMessage(
+        options.address,
+        {
+          message: options.message,
+        },
+        options.idempotencyKey,
+      );
 
-    return {
-      signature: signature.signature as Hex,
-    };
+      return {
+        signature: signature.signature as Hex,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "signMessage");
+      throw error;
+    }
   }
 
   /**
@@ -1237,28 +1354,33 @@ export class EvmClient implements EvmClientInterface {
       action: "sign_typed_data",
     });
 
-    const { domain, message, primaryType } = options;
-    const types = {
-      EIP712Domain: getTypesForEIP712Domain({ domain }),
-      ...options.types,
-    };
+    try {
+      const { domain, message, primaryType } = options;
+      const types = {
+        EIP712Domain: getTypesForEIP712Domain({ domain }),
+        ...options.types,
+      };
 
-    const openApiMessage: OpenAPIEIP712Message = {
-      domain,
-      types,
-      primaryType,
-      message,
-    };
+      const openApiMessage: OpenAPIEIP712Message = {
+        domain,
+        types,
+        primaryType,
+        message,
+      };
 
-    const signature = await CdpOpenApiClient.signEvmTypedData(
-      options.address,
-      openApiMessage,
-      options.idempotencyKey,
-    );
+      const signature = await CdpOpenApiClient.signEvmTypedData(
+        options.address,
+        openApiMessage,
+        options.idempotencyKey,
+      );
 
-    return {
-      signature: signature.signature as Hex,
-    };
+      return {
+        signature: signature.signature as Hex,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "signTypedData");
+      throw error;
+    }
   }
 
   /**
@@ -1296,17 +1418,22 @@ export class EvmClient implements EvmClientInterface {
       action: "sign_transaction",
     });
 
-    const signature = await CdpOpenApiClient.signEvmTransaction(
-      options.address,
-      {
-        transaction: options.transaction,
-      },
-      options.idempotencyKey,
-    );
+    try {
+      const signature = await CdpOpenApiClient.signEvmTransaction(
+        options.address,
+        {
+          transaction: options.transaction,
+        },
+        options.idempotencyKey,
+      );
 
-    return {
-      signature: signature.signedTransaction as Hex,
-    };
+      return {
+        signature: signature.signedTransaction as Hex,
+      };
+    } catch (error) {
+      Analytics.trackError(error, "signTransaction");
+      throw error;
+    }
   }
 
   /**
@@ -1355,19 +1482,22 @@ export class EvmClient implements EvmClientInterface {
       action: "update_account",
     });
 
-    const openApiAccount = await CdpOpenApiClient.updateEvmAccount(
-      options.address,
-      options.update,
-      options.idempotencyKey,
-    );
+    try {
+      const openApiAccount = await CdpOpenApiClient.updateEvmAccount(
+        options.address,
+        options.update,
+        options.idempotencyKey,
+      );
 
-    const account = toEvmServerAccount(CdpOpenApiClient, {
-      account: openApiAccount,
-    });
+      const account = toEvmServerAccount(CdpOpenApiClient, {
+        account: openApiAccount,
+      });
 
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
-
-    return account;
+      return account;
+    } catch (error) {
+      Analytics.trackError(error, "updateAccount");
+      throw error;
+    }
   }
 
   /**
@@ -1387,20 +1517,23 @@ export class EvmClient implements EvmClientInterface {
       action: "update_smart_account",
     });
 
-    const openApiSmartAccount = await CdpOpenApiClient.updateEvmSmartAccount(
-      options.address,
-      options.update,
-      options.idempotencyKey,
-    );
+    try {
+      const openApiSmartAccount = await CdpOpenApiClient.updateEvmSmartAccount(
+        options.address,
+        options.update,
+        options.idempotencyKey,
+      );
 
-    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
-      smartAccount: openApiSmartAccount,
-      owner: options.owner,
-    });
+      const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+        smartAccount: openApiSmartAccount,
+        owner: options.owner,
+      });
 
-    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
-
-    return smartAccount;
+      return smartAccount;
+    } catch (error) {
+      Analytics.trackError(error, "updateSmartAccount");
+      throw error;
+    }
   }
 
   /**
@@ -1420,7 +1553,7 @@ export class EvmClient implements EvmClientInterface {
    * console.log(result.transactionHash);
    * ```
    */
-  createEvmEip7702Delegation(
+  async createEvmEip7702Delegation(
     address: string,
     options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationResult> {
@@ -1428,6 +1561,7 @@ export class EvmClient implements EvmClientInterface {
       action: "create_eip7702_delegation",
     });
 
+<<<<<<< HEAD
     const { network, enableSpendPermissions, idempotencyKey } = options;
     return CdpOpenApiClient.createEvmEip7702Delegation(
       address,
@@ -1460,6 +1594,18 @@ export class EvmClient implements EvmClientInterface {
     const delegated = toEvmDelegatedAccount(CdpOpenApiClient, { account });
     Analytics.wrapObjectMethodsWithErrorTracking(delegated);
     return delegated;
+=======
+    try {
+      return await CdpOpenApiClient.createEvmEip7702Delegation(
+        address,
+        createEvmEip7702DelegationBody,
+        options,
+      );
+    } catch (error) {
+      Analytics.trackError(error, "createEvmEip7702Delegation");
+      throw error;
+    }
+>>>>>>> 21244e32384fb189facbea96668087d24ded035a
   }
 
   /**
@@ -1501,9 +1647,14 @@ export class EvmClient implements EvmClientInterface {
       action: "wait_for_user_operation",
     });
 
-    return waitForUserOperation(CdpOpenApiClient, {
-      ...options,
-    });
+    try {
+      return await waitForUserOperation(CdpOpenApiClient, {
+        ...options,
+      });
+    } catch (error) {
+      Analytics.trackError(error, "waitForUserOperation");
+      throw error;
+    }
   }
 
   /**
@@ -1527,8 +1678,6 @@ export class EvmClient implements EvmClientInterface {
     const account = toEvmServerAccount(CdpOpenApiClient, {
       account: openApiAccount,
     });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
   }
@@ -1556,8 +1705,6 @@ export class EvmClient implements EvmClientInterface {
     const account = toEvmServerAccount(CdpOpenApiClient, {
       account: openApiAccount,
     });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
   }
@@ -1590,8 +1737,6 @@ export class EvmClient implements EvmClientInterface {
       smartAccount: openApiSmartAccount,
       owner: options.owner,
     });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
 
     return smartAccount;
   }
@@ -1627,8 +1772,6 @@ Provided Owner Address: ${options.owner.address}\n`,
       smartAccount: openApiSmartAccount,
       owner: options.owner,
     });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
 
     return smartAccount;
   }
