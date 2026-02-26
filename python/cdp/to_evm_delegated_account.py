@@ -40,3 +40,31 @@ def to_evm_delegated_account(
         policies=account.policies,
         api_clients=api_clients,
     )
+
+
+def to_delegated_account(
+    api_clients_or_account: ApiClients | EvmServerAccount,
+    account: EvmServerAccount | None = None,
+) -> EvmSmartAccount:
+    """Create a smart account view of a server account for use after EIP-7702 delegation.
+
+    Parity with TypeScript's toDelegatedAccount. Call with either:
+    - to_delegated_account(account)  — uses api_clients from the account
+    - to_delegated_account(api_clients, account)
+
+    Args:
+        api_clients_or_account: Either the API clients or the server account (when account is None).
+        account: The server account (EOA) that has been delegated. Omit when first arg is the account.
+
+    Returns:
+        EvmSmartAccount: A smart account view ready for user operation submission.
+    """
+    if account is None:
+        acc = api_clients_or_account
+        if not isinstance(acc, EvmServerAccount):
+            raise TypeError(
+                "to_delegated_account(account) requires an EvmServerAccount; "
+                "or use to_delegated_account(api_clients, account)."
+            )
+        return to_evm_delegated_account(acc.api_clients, acc)
+    return to_evm_delegated_account(api_clients_or_account, account)

@@ -438,7 +438,7 @@ const publicClient = createPublicClient({
 
 const account = await cdp.evm.getOrCreateAccount({ name: "MyAccount" });
 
-const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
+const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.address, {
   network: "base-sepolia",
   enableSpendPermissions: false, // optional, defaults to false
   idempotencyKey: "optional-uuid", // optional
@@ -446,7 +446,7 @@ const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
 
 // Wait for the delegation transaction to be confirmed (use the same chain as network above)
 const receipt = await publicClient.waitForTransactionReceipt({
-  hash: result.transactionHash,
+  hash: transactionHash,
 });
 console.log(`Delegation confirmed in block ${receipt.blockNumber}`);
 ```

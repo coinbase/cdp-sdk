@@ -2,13 +2,13 @@
 #
 # Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
 # capabilities), waits for the transaction to be confirmed using web3,
-# then sends a user operation using cdp.evm.to_delegated_account(account).
+# then sends a user operation using to_delegated_account(api_clients, account).
 
 import asyncio
 
 from web3 import Web3
 
-from cdp import CdpClient
+from cdp import CdpClient, to_delegated_account
 from cdp.evm_call_types import EncodedCall
 from dotenv import load_dotenv
 
@@ -21,7 +21,7 @@ w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 async def main():
      async with CdpClient() as cdp:
         # Step 1: Get or create an EOA account
-        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python")
+        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python-212")
         print(f"Account address: {account.address}")
 
         # Step 2: Ensure the account has ETH for gas (request faucet if needed)
@@ -59,7 +59,7 @@ async def main():
         # Step 5: Send a user operation using the upgraded EOA (via to_delegated_account)
         print("Sending user operation with upgraded EOA...")
         await asyncio.sleep(2)
-        delegated = cdp.evm.to_delegated_account(account)
+        delegated = to_delegated_account(account)
         user_op = await delegated.send_user_operation(
             calls=[
                 EncodedCall(

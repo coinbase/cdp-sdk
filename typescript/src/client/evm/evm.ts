@@ -41,7 +41,6 @@ import {
   UserOperation,
   WaitForUserOperationOptions,
 } from "./evm.types.js";
-import { toEvmDelegatedAccount } from "../../accounts/evm/toEvmDelegatedAccount.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
@@ -1576,25 +1575,6 @@ export class EvmClient implements EvmClientInterface {
       Analytics.trackError(error, "createEvmEip7702Delegation");
       throw error;
     }
-  }
-
-  /**
-   * Returns a smart account view of a server account for use after EIP-7702 delegation.
-   * Use this to send user operations with an EOA that has been upgraded via createEvmEip7702Delegation.
-   *
-   * @param {ServerAccount} account - The server account (EOA) that has been delegated.
-   * @returns A smart account with the same address as the EOA, ready for sendUserOperation, etc.
-   *
-   * @example
-   * ```ts
-   * const account = await cdp.evm.getOrCreateAccount({ name: "MyAccount" });
-   * await cdp.evm.createEvmEip7702Delegation(account.address, { network: "base-sepolia" });
-   * const delegated = cdp.evm.toDelegatedAccount(account);
-   * await delegated.sendUserOperation({ network: "base-sepolia", calls: [...] });
-   * ```
-   */
-  toDelegatedAccount(account: ServerAccount): SmartAccount {
-    return toEvmDelegatedAccount(CdpOpenApiClient, { account });
   }
 
   /**

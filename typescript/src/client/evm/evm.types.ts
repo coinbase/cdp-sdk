@@ -124,8 +124,6 @@ export type EvmClientInterface = Omit<
     address: Address,
     options: CreateEvmEip7702DelegationOptions,
   ) => Promise<CreateEvmEip7702DelegationResult>;
-  /** Returns a smart account view of a server account for use after EIP-7702 delegation. */
-  toDelegatedAccount: (account: ServerAccount) => SmartAccount;
 };
 
 export type { ServerAccount, SmartAccount };
