@@ -175,10 +175,9 @@ async def test_create_evm_eip7702_delegation(cdp_client):
     )
 
     assert result is not None
-    assert result.transaction_hash is not None
-    assert isinstance(result.transaction_hash, str)
-    assert len(result.transaction_hash) == 66
-    assert result.transaction_hash.startswith("0x")
+    assert isinstance(result, str)
+    assert len(result) == 66
+    assert result.startswith("0x")
 
 
 @pytest.mark.e2e
