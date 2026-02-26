@@ -1,8 +1,8 @@
 # Usage: uv run python evm/eip7702/create_eip7702_delegation.py
 #
 # Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
-# capabilities), waits for the transaction to be confirmed using web3,
-# then sends a user operation using to_evm_delegated_account(account).
+# capabilities), waits for delegation status to be CURRENT, then sends a user operation
+# using to_evm_delegated_account(account).
 
 import asyncio
 
@@ -14,14 +14,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Base Sepolia RPC for waiting on transaction receipt
+# Base Sepolia RPC for waiting on faucet transaction receipt
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
 
 async def main():
      async with CdpClient() as cdp:
         # Step 1: Get or create an EOA account
-        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python-1124")
+        account = await cdp.evm.get_or_create_account(name="EIP7702-Example-Account-Python")
         print(f"Account address: {account.address}")
 
         # Step 2: Ensure the account has ETH for gas (request faucet if needed)
@@ -47,18 +47,20 @@ async def main():
 
         print(f"Delegation transaction submitted: {tx_hash}")
 
-        # Step 4: Wait for the transaction to be confirmed onchain
-        print("Waiting for transaction confirmation...")
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        # Step 4: Wait for the delegation status to be CURRENT
+        print("Waiting for delegation to be active...")
+        delegation_status = await cdp.evm.wait_for_evm_eip7702_delegation_status(
+            address=account.address,
+            network="base-sepolia",
+        )
 
         print(
-            f"Delegation confirmed in block {receipt.blockNumber}. "
+            f"Delegation is active (status: {delegation_status.status}). "
             f"Explorer: https://sepolia.basescan.org/tx/{tx_hash}"
         )
 
         # Step 5: Send a user operation using the upgraded EOA (via to_evm_delegated_account)
         print("Sending user operation with upgraded EOA...")
-        await asyncio.sleep(2)
         delegated = to_evm_delegated_account(account)
         user_op = await delegated.send_user_operation(
             calls=[

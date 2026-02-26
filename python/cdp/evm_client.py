@@ -16,6 +16,9 @@ from cdp.actions.evm.swap import (
     create_swap_quote as swap_create_swap_quote,
     get_swap_price as swap_get_swap_price,
 )
+from cdp.actions.evm.wait_for_evm_eip7702_delegation_status import (
+    wait_for_evm_eip7702_delegation_status,
+)
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
@@ -1046,6 +1049,48 @@ class EvmClient:
             )
         except Exception as error:
             track_error(error, "get_evm_eip7702_delegation_status")
+            raise
+
+    async def wait_for_evm_eip7702_delegation_status(
+        self,
+        address: str,
+        network: str | EvmEip7702DelegationNetwork,
+        timeout_seconds: float = 60,
+        interval_seconds: float = 0.2,
+    ) -> EvmEip7702DelegationStatus:
+        """Poll the EIP-7702 delegation status until it is CURRENT or a timeout occurs.
+
+        Args:
+            address (str): The 0x-prefixed address of the EVM account.
+            network (str | EvmEip7702DelegationNetwork): The network to query the delegation status on (e.g. "base-sepolia").
+            timeout_seconds (float, optional): Maximum time to wait in seconds. Defaults to 60.
+            interval_seconds (float, optional): Time between checks in seconds. Defaults to 0.2.
+
+        Returns:
+            EvmEip7702DelegationStatus: The delegation status once it reaches CURRENT.
+
+        Raises:
+            TimeoutError: If the status doesn't reach CURRENT within the specified timeout.
+
+        Example:
+            >>> status = await cdp.evm.wait_for_evm_eip7702_delegation_status(
+            ...     address=account.address,
+            ...     network="base-sepolia",
+            ... )
+            >>> print(status.status)  # "CURRENT"
+
+        """
+        track_action(action="wait_for_eip7702_delegation_status")
+        try:
+            return await wait_for_evm_eip7702_delegation_status(
+                api_clients=self.api_clients,
+                address=address,
+                network=network,
+                timeout_seconds=timeout_seconds,
+                interval_seconds=interval_seconds,
+            )
+        except Exception as error:
+            track_error(error, "wait_for_evm_eip7702_delegation_status")
             raise
 
     async def update_smart_account(
