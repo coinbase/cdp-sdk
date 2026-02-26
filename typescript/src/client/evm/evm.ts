@@ -7,6 +7,7 @@ import { constants, publicEncrypt } from "crypto";
 import { type Address, getTypesForEIP712Domain } from "viem";
 
 import {
+  CreateEvmEip7702DelegationResult,
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
   CreateSwapQuoteOptions,
@@ -84,14 +85,11 @@ import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/consta
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
+import type { CreateEvmEip7702DelegationOptions } from "./evm.types.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
-import type {
-  CreateEvmEip7702DelegationBody,
-  CreateEvmEip7702DelegationResult,
-} from "../../openapi-client/index.js";
 import type {
   CreateSpendPermissionOptions,
   ListSpendPermissionsOptions,
@@ -1542,25 +1540,37 @@ export class EvmClient implements EvmClientInterface {
    * The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
    *
    * @param {string} address - The address of the EOA account.
-   * @param {CreateEvmEip7702DelegationBody} createEvmEip7702DelegationBody - The delegation parameters.
-   * @param {string} [options] - Optional idempotency key.
+   * @param {CreateEvmEip7702DelegationOptions} options - The delegation parameters (network required, enableSpendPermissions and idempotencyKey optional).
    * @returns A promise that resolves to the delegation result including the transaction hash.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
+   *   network: "base-sepolia",
+   *   enableSpendPermissions: false,
+   * });
+   * console.log(result.transactionHash);
+   * ```
    */
   async createEvmEip7702Delegation(
     address: string,
-    createEvmEip7702DelegationBody: CreateEvmEip7702DelegationBody,
-    options?: string,
+    options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationResult> {
     Analytics.trackAction({
       action: "create_eip7702_delegation",
     });
 
     try {
-      return await CdpOpenApiClient.createEvmEip7702Delegation(
+      const { network, enableSpendPermissions, idempotencyKey } = options;
+      const body = {
+        network,
+        ...(enableSpendPermissions !== undefined && { enableSpendPermissions }),
+      };
+      return (await CdpOpenApiClient.createEvmEip7702Delegation(
         address,
-        createEvmEip7702DelegationBody,
-        options,
-      );
+        body,
+        idempotencyKey,
+      )) as CreateEvmEip7702DelegationResult;
     } catch (error) {
       Analytics.trackError(error, "createEvmEip7702Delegation");
       throw error;

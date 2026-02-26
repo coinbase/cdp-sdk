@@ -15,6 +15,7 @@ from cdp.spend_permissions import (
     SpendPermission,
     SpendPermissionInput,
 )
+from cdp.to_evm_delegated_account import to_evm_delegated_account
 from cdp.update_account_types import UpdateAccountOptions
 from cdp.utils import parse_units
 
@@ -36,6 +37,7 @@ __all__ = [
     "SPEND_PERMISSION_MANAGER_ADDRESS",
     "SPEND_PERMISSION_MANAGER_ABI",
     "TransactionRequestEIP1559",
+    "to_evm_delegated_account",
     "UpdateAccountOptions",
     "__version__",
     "parse_units",

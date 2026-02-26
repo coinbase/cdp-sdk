@@ -126,6 +126,8 @@ describe("toEvmServerAccount", () => {
     expect(result).toEqual({
       address: mockAddress,
       listTokenBalances: expect.any(Function),
+      name: undefined,
+      policies: undefined,
       requestFaucet: expect.any(Function),
       sendTransaction: expect.any(Function),
       sign: expect.any(Function),

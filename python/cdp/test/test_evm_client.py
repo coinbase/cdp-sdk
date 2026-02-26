@@ -18,11 +18,17 @@ from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
+from cdp.openapi_client.models.create_evm_eip7702_delegation_request import (
+    CreateEvmEip7702DelegationRequest,
+)
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
+from cdp.openapi_client.models.evm_eip7702_delegation_network import (
+    EvmEip7702DelegationNetwork,
+)
 from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
@@ -970,6 +976,65 @@ async def test_update_account(server_account_model_factory):
         ),
         x_idempotency_key=test_idempotency_key,
     )
+
+
+@pytest.mark.asyncio
+async def test_create_evm_eip7702_delegation():
+    """Test creating an EIP-7702 delegation for an EOA account."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    mock_response = MagicMock()
+    mock_response.transaction_hash = (
+        "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+    )
+    mock_evm_accounts_api.create_evm_eip7702_delegation = AsyncMock(return_value=mock_response)
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_idempotency_key = "test-idempotency-key"
+
+    result = await client.create_evm_eip7702_delegation(
+        address=test_address,
+        network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+        enable_spend_permissions=False,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_evm_accounts_api.create_evm_eip7702_delegation.assert_called_once_with(
+        address=test_address,
+        create_evm_eip7702_delegation_request=CreateEvmEip7702DelegationRequest(
+            network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+            enable_spend_permissions=False,
+        ),
+        x_wallet_auth=None,
+        x_idempotency_key=test_idempotency_key,
+    )
+    assert result == mock_response.transaction_hash
+
+
+def test_to_evm_delegated_account(server_account_model_factory):
+    """Test converting a server account to a delegated smart account."""
+    from cdp.evm_server_account import EvmServerAccount
+    from cdp.to_evm_delegated_account import to_evm_delegated_account
+
+    evm_server_account_model = server_account_model_factory()
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    server_account = EvmServerAccount(
+        evm_server_account_model, mock_evm_accounts_api, mock_api_clients
+    )
+
+    delegated = to_evm_delegated_account(server_account)
+
+    assert delegated.address == server_account.address
+    assert delegated.owners == [server_account]
+    assert delegated.name == server_account.name
+    assert delegated.policies == server_account.policies
 
 
 @pytest.mark.asyncio

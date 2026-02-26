@@ -16,6 +16,7 @@
   - [Sending Transactions](#sending-transactions)
   - [Transferring Tokens](#transferring-tokens)
   - [EVM Swaps](#evm-swaps)
+  - [EIP-7702 delegation](#eip-7702-delegation)
   - [EVM Smart Accounts](#evm-smart-accounts)
 - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
@@ -966,6 +967,42 @@ To help you get started with token swaps in your application, we provide the fol
 - [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.swap.py) - All-in-one smart account swap execution with user operations and optional paymaster support
 - [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.quote_swap.py) - Smart account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
+
+### EIP-7702 delegation
+
+You can create an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) delegation for an existing EOA, upgrading it with smart account capabilities on supported networks. The delegated EOA can then use batched transactions and gas sponsorship via paymaster.
+
+```python
+import asyncio
+from web3 import Web3
+
+from cdp import CdpClient
+from cdp.openapi_client.models.evm_eip7702_delegation_network import (
+    EvmEip7702DelegationNetwork,
+)
+
+w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.evm.get_or_create_account(name="MyAccount")
+
+        transaction_hash = await cdp.evm.create_evm_eip7702_delegation(
+            address=account.address,
+            network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+            enable_spend_permissions=False,  # optional, defaults to False
+        )
+
+        # Wait for the delegation transaction to be confirmed (same chain as network above)
+        receipt = w3.eth.wait_for_transaction_receipt(transaction_hash)
+        print(f"Delegation confirmed in block {receipt.blockNumber}")
+
+
+asyncio.run(main())
+```
+
+For a runnable example that includes faucet and receipt waiting, see [examples/python/evm/eip7702/create_eip7702_delegation.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/eip7702/create_eip7702_delegation.py).
 
 ### EVM Smart Accounts
 

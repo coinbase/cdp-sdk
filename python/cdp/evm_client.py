@@ -38,6 +38,9 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
+from cdp.openapi_client.models.evm_eip7702_delegation_network import (
+    EvmEip7702DelegationNetwork,
+)
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
@@ -984,7 +987,8 @@ class EvmClient:
     async def create_evm_eip7702_delegation(
         self,
         address: str,
-        create_evm_eip7702_delegation_request: CreateEvmEip7702DelegationRequest,
+        network: str | EvmEip7702DelegationNetwork,
+        enable_spend_permissions: bool = False,
         x_wallet_auth: str | None = None,
         idempotency_key: str | None = None,
     ):
@@ -992,22 +996,28 @@ class EvmClient:
 
         Args:
             address (str): The 0x-prefixed address of the EVM account to delegate.
-            create_evm_eip7702_delegation_request (CreateEvmEip7702DelegationRequest): The delegation parameters.
+            network (str | EvmEip7702DelegationNetwork): The network for the delegation (e.g. "base-sepolia").
+            enable_spend_permissions (bool, optional): Whether to configure spend permissions for the upgraded account. Defaults to False.
             x_wallet_auth (str, optional): A JWT signed using your Wallet Secret. Defaults to None.
             idempotency_key (str, optional): An optional idempotency key. Defaults to None.
 
         Returns:
-            CreateEvmEip7702DelegationResult: The delegation result including the transaction hash.
+            str: The transaction hash of the delegation transaction.
 
         """
         track_action(action="create_eip7702_delegation")
         try:
-            return await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
+            create_evm_eip7702_delegation_request = CreateEvmEip7702DelegationRequest(
+                network=network,
+                enable_spend_permissions=enable_spend_permissions,
+            )
+            response = await self.api_clients.evm_accounts.create_evm_eip7702_delegation(
                 address=address,
                 create_evm_eip7702_delegation_request=create_evm_eip7702_delegation_request,
                 x_wallet_auth=x_wallet_auth,
                 x_idempotency_key=idempotency_key,
             )
+            return response.transaction_hash
         except Exception as error:
             track_error(error, "create_evm_eip7702_delegation")
             raise

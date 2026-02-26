@@ -12,6 +12,7 @@
   - [Updating Accounts](#updating-evm-or-solana-accounts)
   - [Testnet Faucet](#testnet-faucet)
   - [Sending Transactions](#sending-transactions)
+  - [EIP-7702 delegation](#eip-7702-delegation)
   - [EVM Smart Accounts](#evm-smart-accounts)
   - [EVM Swaps](#evm-swaps)
   - [Transferring Tokens](#transferring-tokens)
@@ -419,6 +420,38 @@ console.log(
   `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`
 );
 ```
+
+### EIP-7702 delegation
+
+You can create an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) delegation for an existing EOA, upgrading it with smart account capabilities on supported networks. The delegated EOA can then use batched transactions and gas sponsorship via paymaster.
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { createPublicClient, http } from "viem";
+import { baseSepolia } from "viem/chains";
+
+const cdp = new CdpClient();
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+const account = await cdp.evm.getOrCreateAccount({ name: "MyAccount" });
+
+const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.address, {
+  network: "base-sepolia",
+  enableSpendPermissions: false, // optional, defaults to false
+  idempotencyKey: "optional-uuid", // optional
+});
+
+// Wait for the delegation transaction to be confirmed (use the same chain as network above)
+const receipt = await publicClient.waitForTransactionReceipt({
+  hash: transactionHash,
+});
+console.log(`Delegation confirmed in block ${receipt.blockNumber}`);
+```
+
+For a runnable example that includes faucet and receipt waiting, see [examples/typescript/evm/eip7702/createEip7702Delegation.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/eip7702/createEip7702Delegation.ts).
 
 ### EVM Smart Accounts
 

@@ -112,6 +112,11 @@ class EvmServerAccount(BaseModel):
         """
         return self.__policies
 
+    @property
+    def api_clients(self) -> ApiClients:
+        """API clients used by this account."""
+        return self.__api_clients
+
     async def sign_message(
         self, signable_message: SignableMessage, idempotency_key: str | None = None
     ) -> SignedMessage:
