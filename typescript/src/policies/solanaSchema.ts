@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RateLimitingCriterionSchema } from "./sharedSchema.js";
+
 /**
  * Enum for Action types
  */
@@ -344,6 +346,7 @@ export const SignSolTransactionCriteriaSchema = z
       MintAddressCriterionSchema,
       SolDataCriterionSchema,
       ProgramIdCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -368,6 +371,7 @@ export const SendSolTransactionCriteriaSchema = z
       SolDataCriterionSchema,
       ProgramIdCriterionSchema,
       SolNetworkCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -391,6 +395,7 @@ export const SignEndUserSolTransactionCriteriaSchema = z
       MintAddressCriterionSchema,
       SolDataCriterionSchema,
       ProgramIdCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
@@ -416,6 +421,7 @@ export const SendEndUserSolTransactionCriteriaSchema = z
       SolDataCriterionSchema,
       ProgramIdCriterionSchema,
       SolNetworkCriterionSchema,
+      RateLimitingCriterionSchema,
     ]),
   )
   .max(10)
