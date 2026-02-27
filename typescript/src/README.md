@@ -18,6 +18,7 @@
   - [Transferring Tokens](#transferring-tokens)
   - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
+  - [End User Policies](#end-user-policies)
 - [End-user Management](#end-user-management)
   - [Create End User](#create-end-user)
   - [Import End User](#import-end-user)
@@ -1112,6 +1113,8 @@ try {
 
 We currently support the following policy rules:
 
+**Server wallet rules:**
+
 - [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmtransactionrule)
 - [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#sendevmtransactionrule)
 - [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmmessagerule)
@@ -1121,6 +1124,86 @@ We currently support the following policy rules:
 - [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmhashrule)
 - [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#prepareuseroperationrule)
 - [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#senduseroperationrule)
+
+**End user rules:**
+
+- `SignEndUserEvmTransactionRule` — operation: `signEndUserEvmTransaction` (criteria: `ethValue`, `evmAddress`, `evmData`, `netUSDChange`)
+- `SendEndUserEvmTransactionRule` — operation: `sendEndUserEvmTransaction` (criteria: `ethValue`, `evmAddress`, `evmNetwork`, `evmData`, `netUSDChange`)
+- `SignEndUserEvmMessageRule` — operation: `signEndUserEvmMessage` (criteria: `evmMessage`)
+- `SignEndUserEvmTypedDataRule` — operation: `signEndUserEvmTypedData` (criteria: `evmTypedDataField`, `evmTypedDataVerifyingContract`)
+- `SignEndUserSolTransactionRule` — operation: `signEndUserSolTransaction` (criteria: `solAddress`, `solValue`, `splAddress`, `splValue`, `mintAddress`, `solData`, `programId`)
+- `SendEndUserSolTransactionRule` — operation: `sendEndUserSolTransaction` (criteria: `solAddress`, `solValue`, `splAddress`, `splValue`, `mintAddress`, `solData`, `programId`, `solNetwork`)
+- `SignEndUserSolMessageRule` — operation: `signEndUserSolMessage` (criteria: `solMessage`)
+
+End user rules use the same criteria types as their server wallet counterparts. For example, `signEndUserEvmTransaction` supports the same `ethValue`, `evmAddress`, and `evmData` criteria as `signEvmTransaction`.
+
+### End User Policies
+
+You can create policies that govern end-user operations using the same criteria types available for server wallet policies. The only difference is the `operation` value, which targets end-user-specific actions.
+
+#### End User EVM Policy
+
+This policy restricts end-user EVM transaction signing to a max value and allowlisted recipients — the same criteria used in `signEvmTransaction`:
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: "project",
+    description: "End User EVM Policy",
+    rules: [
+      {
+        action: "accept",
+        operation: "signEndUserEvmTransaction",
+        criteria: [
+          {
+            type: "ethValue",
+            ethValue: "1000000000000000000", // 1 ETH in wei
+            operator: "<=",
+          },
+          {
+            type: "evmAddress",
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+#### End User Solana Policy
+
+This policy restricts end-user Solana transaction signing to allowlisted recipients under a SOL value threshold — the same criteria used in `signSolTransaction`:
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: "project",
+    description: "End User Solana Policy",
+    rules: [
+      {
+        action: "accept",
+        operation: "signEndUserSolTransaction",
+        criteria: [
+          {
+            type: "solAddress",
+            addresses: ["11111111111111111111111111111111"],
+            operator: "in",
+          },
+          {
+            type: "solValue",
+            solValue: "1000000000", // 1 SOL in lamports
+            operator: "<=",
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+> For a comprehensive example demonstrating all 7 end-user operations, see [createEndUserPolicy.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/createEndUserPolicy.ts).
 
 ### End-user Management
 
