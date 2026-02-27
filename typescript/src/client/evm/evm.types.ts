@@ -26,6 +26,7 @@ import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
   CreateEvmEip7702DelegationResult as CreateEvmEip7702DelegationResultApi,
   EvmEip7702DelegationNetwork,
+  EvmEip7702DelegationStatus,
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
@@ -124,6 +125,9 @@ export type EvmClientInterface = Omit<
     address: Address,
     options: CreateEvmEip7702DelegationOptions,
   ) => Promise<CreateEvmEip7702DelegationResult>;
+  waitForEvmEip7702DelegationStatus: (
+    options: WaitForEvmEip7702DelegationStatusOptions,
+  ) => Promise<EvmEip7702DelegationStatus>;
 };
 
 export type { ServerAccount, SmartAccount };
@@ -506,6 +510,18 @@ export interface CreateEvmEip7702DelegationOptions {
   enableSpendPermissions?: boolean;
   /** Optional idempotency key. */
   idempotencyKey?: string;
+}
+
+/**
+ * Options for waiting for an EIP-7702 delegation status to become CURRENT.
+ */
+export interface WaitForEvmEip7702DelegationStatusOptions {
+  /** The address of the EVM account. */
+  address: string;
+  /** The network to query the delegation status on. */
+  network: EvmEip7702DelegationNetwork;
+  /** Optional options for the wait operation. */
+  waitOptions?: WaitOptions;
 }
 
 /**

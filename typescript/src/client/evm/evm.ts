@@ -68,6 +68,7 @@ import {
 import { resolveSpendPermission } from "../../actions/evm/spend-permissions/resolveSpendPermission.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { getSwapPrice } from "../../actions/evm/swap/getSwapPrice.js";
+import { waitForEvmEip7702DelegationStatus } from "../../actions/evm/waitForEvmEip7702DelegationStatus.js";
 import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
@@ -87,7 +88,10 @@ import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/consta
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
-import type { CreateEvmEip7702DelegationOptions } from "./evm.types.js";
+import type {
+  CreateEvmEip7702DelegationOptions,
+  WaitForEvmEip7702DelegationStatusOptions,
+} from "./evm.types.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
@@ -1609,6 +1613,40 @@ export class EvmClient implements EvmClientInterface {
       return await CdpOpenApiClient.getEvmEip7702DelegationStatus(address, params, options);
     } catch (error) {
       Analytics.trackError(error, "getEvmEip7702DelegationStatus");
+      throw error;
+    }
+  }
+
+  /**
+   * Polls the EIP-7702 delegation status for an EVM account until the status is CURRENT or a timeout occurs.
+   *
+   * @param {WaitForEvmEip7702DelegationStatusOptions} options - Parameters for waiting, including address, network, and optional wait configuration.
+   * @param {string} options.address - The address of the EVM account.
+   * @param {string} options.network - The network to query.
+   * @param {WaitOptions} [options.waitOptions] - Optional parameters for the wait operation.
+   *
+   * @returns A promise that resolves to the delegation status once it reaches CURRENT.
+   *
+   * @example
+   * ```ts
+   * const status = await cdp.evm.waitForEvmEip7702DelegationStatus({
+   *   address: account.address,
+   *   network: "base-sepolia",
+   * });
+   * console.log(status.status); // "CURRENT"
+   * ```
+   */
+  async waitForEvmEip7702DelegationStatus(
+    options: WaitForEvmEip7702DelegationStatusOptions,
+  ): Promise<EvmEip7702DelegationStatus> {
+    Analytics.trackAction({
+      action: "wait_for_eip7702_delegation_status",
+    });
+
+    try {
+      return await waitForEvmEip7702DelegationStatus(CdpOpenApiClient, options);
+    } catch (error) {
+      Analytics.trackError(error, "waitForEvmEip7702DelegationStatus");
       throw error;
     }
   }

@@ -179,6 +179,14 @@ async def test_create_evm_eip7702_delegation(cdp_client):
     assert len(result) == 66
     assert result.startswith("0x")
 
+    delegation_status = await cdp_client.evm.wait_for_evm_eip7702_delegation_status(
+        address=server_account.address,
+        network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+    )
+
+    assert delegation_status is not None
+    assert delegation_status.status == "CURRENT"
+
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
