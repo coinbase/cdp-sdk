@@ -1586,23 +1586,23 @@ export class EvmClient implements EvmClientInterface {
    *
    * @example
    * ```ts
-   * const operation = await cdp.evm.getEvmEip7702DelegationOperationStatus(
+   * const operation = await cdp.evm.getEvmEip7702DelegationOperationById(
    *   "delegation-op-123",
    * );
    * console.log(operation.status); // "PENDING" | "SUBMITTED" | "COMPLETED" | "FAILED"
    * ```
    */
-  async getEvmEip7702DelegationOperationStatus(
+  async getEvmEip7702DelegationOperationById(
     delegationOperationId: string,
   ): Promise<EvmEip7702DelegationOperation> {
     Analytics.trackAction({
-      action: "get_eip7702_delegation_operation_status",
+      action: "get_eip7702_delegation_operation_by_id",
     });
 
     try {
       return await CdpOpenApiClient.getEvmEip7702DelegationOperationById(delegationOperationId);
     } catch (error) {
-      Analytics.trackError(error, "getEvmEip7702DelegationOperationStatus");
+      Analytics.trackError(error, "getEvmEip7702DelegationOperationById");
       throw error;
     }
   }

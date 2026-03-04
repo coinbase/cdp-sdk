@@ -82,7 +82,7 @@ export type EvmClientInterface = Omit<
   | "exportEvmAccountByName"
   | "updateEvmSmartAccount" // 🚧 Coming soon
   | "createEvmEip7702Delegation" // mapped to options-based createEvmEip7702Delegation
-  | "getEvmEip7702DelegationOperationById" // mapped to getEvmEip7702DelegationOperationStatus
+  | "getEvmEip7702DelegationOperationById" // wrapped as getEvmEip7702DelegationOperationById
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
@@ -123,7 +123,7 @@ export type EvmClientInterface = Omit<
     address: Address,
     options: CreateEvmEip7702DelegationOptions,
   ) => Promise<CreateEvmEip7702DelegationResult>;
-  getEvmEip7702DelegationOperationStatus: (
+  getEvmEip7702DelegationOperationById: (
     delegationOperationId: string,
   ) => Promise<EvmEip7702DelegationOperation>;
   waitForEvmEip7702DelegationOperationStatus: (

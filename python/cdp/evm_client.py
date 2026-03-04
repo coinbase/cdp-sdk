@@ -1026,7 +1026,7 @@ class EvmClient:
             track_error(error, "create_evm_eip7702_delegation")
             raise
 
-    async def get_evm_eip7702_delegation_operation_status(
+    async def get_evm_eip7702_delegation_operation_by_id(
         self,
         delegation_operation_id: str,
     ) -> EvmEip7702DelegationOperation:
@@ -1039,13 +1039,13 @@ class EvmClient:
             EvmEip7702DelegationOperation: The delegation operation status.
 
         """
-        track_action(action="get_eip7702_delegation_operation_status")
+        track_action(action="get_eip7702_delegation_operation_by_id")
         try:
             return await self.api_clients.evm_accounts.get_evm_eip7702_delegation_operation_by_id(
                 delegation_operation_id=delegation_operation_id,
             )
         except Exception as error:
-            track_error(error, "get_evm_eip7702_delegation_operation_status")
+            track_error(error, "get_evm_eip7702_delegation_operation_by_id")
             raise
 
     async def wait_for_evm_eip7702_delegation_operation_status(
