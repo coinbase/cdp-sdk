@@ -1,7 +1,7 @@
 // Usage: pnpm tsx evm/eip7702/createEip7702Delegation.ts
 //
 // Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
-// capabilities), waits for delegation status to be CURRENT, then sends a user operation
+// capabilities), waits for the delegation operation to complete, then sends a user operation
 // using toEvmDelegatedAccount(account).
 
 import { CdpClient, toEvmDelegatedAccount } from "@coinbase/cdp-sdk";
@@ -35,22 +35,21 @@ if (balance === 0n) {
 // Step 3: Create the EIP-7702 delegation
 console.log("Creating EIP-7702 delegation...");
 await new Promise(resolve => setTimeout(resolve, 1000));
-const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.address, {
+const { delegationOperationId } = await cdp.evm.createEvmEip7702Delegation(account.address, {
   network: "base-sepolia",
   enableSpendPermissions: false,
 });
 
-console.log("Delegation transaction submitted:", transactionHash);
+console.log("Delegation operation created:", delegationOperationId);
 
-// Step 4: Wait for the delegation status to be CURRENT
-console.log("Waiting for delegation to be active...");
-const delegationStatus = await cdp.evm.waitForEvmEip7702DelegationStatus({
-  address: account.address,
-  network: "base-sepolia",
+// Step 4: Wait for the delegation operation to complete
+console.log("Waiting for delegation to complete...");
+const delegationOperation = await cdp.evm.waitForEvmEip7702DelegationOperationStatus({
+  delegationOperationId,
 });
 
 console.log(
-  `Delegation is active (status: ${delegationStatus.status}). Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
+  `Delegation is complete (status: ${delegationOperation.status}). Explorer: https://sepolia.basescan.org/tx/${delegationOperation.transactionHash}`
 );
 
 // Step 5: Send a user operation using the upgraded EOA (via toEvmDelegatedAccount)

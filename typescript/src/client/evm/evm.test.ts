@@ -76,6 +76,7 @@ vi.mock("../../openapi-client", () => {
       updateEvmAccount: vi.fn(),
       updateEvmSmartAccount: vi.fn(),
       createEvmEip7702Delegation: vi.fn(),
+      getEvmEip7702DelegationOperationById: vi.fn(),
       getEvmSwapQuote: vi.fn(),
       createEvmSwap: vi.fn(),
       getEvmSwapPrice: vi.fn(),
@@ -1512,7 +1513,7 @@ describe("EvmClient", () => {
         idempotencyKey: "idem-key-eip7702",
       };
       const mockResult = {
-        transactionHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        delegationOperationId: "delegation-op-123",
       };
 
       const createEvmEip7702DelegationMock =
@@ -1537,7 +1538,7 @@ describe("EvmClient", () => {
         network: "base-sepolia" as const,
       };
       const mockResult = {
-        transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        delegationOperationId: "delegation-op-456",
       };
 
       const createEvmEip7702DelegationMock =

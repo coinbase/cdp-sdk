@@ -68,7 +68,7 @@ import {
 import { resolveSpendPermission } from "../../actions/evm/spend-permissions/resolveSpendPermission.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { getSwapPrice } from "../../actions/evm/swap/getSwapPrice.js";
-import { waitForEvmEip7702DelegationStatus } from "../../actions/evm/waitForEvmEip7702DelegationStatus.js";
+import { waitForEvmEip7702DelegationOperationStatus } from "../../actions/evm/waitForEvmEip7702DelegationStatus.js";
 import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
@@ -79,9 +79,8 @@ import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
-  EvmEip7702DelegationStatus,
+  EvmEip7702DelegationOperation,
   EvmUserOperationStatus,
-  GetEvmEip7702DelegationStatusParams,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
@@ -90,7 +89,7 @@ import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../ut
 
 import type {
   CreateEvmEip7702DelegationOptions,
-  WaitForEvmEip7702DelegationStatusOptions,
+  WaitForEvmEip7702DelegationOperationStatusOptions,
 } from "./evm.types.js";
 import type {
   SendTransactionOptions,
@@ -1547,7 +1546,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @param {string} address - The address of the EOA account.
    * @param {CreateEvmEip7702DelegationOptions} options - The delegation parameters (network required, enableSpendPermissions and idempotencyKey optional).
-   * @returns A promise that resolves to the delegation result including the transaction hash.
+   * @returns A promise that resolves to the delegation result including the delegation operation ID.
    *
    * @example
    * ```ts
@@ -1555,7 +1554,7 @@ export class EvmClient implements EvmClientInterface {
    *   network: "base-sepolia",
    *   enableSpendPermissions: false,
    * });
-   * console.log(result.transactionHash);
+   * console.log(result.delegationOperationId);
    * ```
    */
   async createEvmEip7702Delegation(
@@ -1572,11 +1571,11 @@ export class EvmClient implements EvmClientInterface {
         network,
         ...(enableSpendPermissions !== undefined && { enableSpendPermissions }),
       };
-      return (await CdpOpenApiClient.createEvmEip7702Delegation(
+      return await CdpOpenApiClient.createEvmEip7702Delegation(
         address,
         body,
         idempotencyKey,
-      )) as CreateEvmEip7702DelegationResult;
+      );
     } catch (error) {
       Analytics.trackError(error, "createEvmEip7702Delegation");
       throw error;
@@ -1584,69 +1583,62 @@ export class EvmClient implements EvmClientInterface {
   }
 
   /**
-   * Gets the EIP-7702 delegation status for an EVM account.
+   * Gets the EIP-7702 delegation operation status.
    *
-   * @param {string} address - The address of the EVM account.
-   * @param {GetEvmEip7702DelegationStatusParams} params - Parameters including the network to query.
-   * @param {string} [options] - Optional request configuration overrides.
-   * @returns A promise that resolves to the delegation status.
+   * @param {string} delegationOperationId - The delegation operation ID returned by createEvmEip7702Delegation.
+   * @returns A promise that resolves to the delegation operation status.
    *
    * @example
    * ```ts
-   * const status = await cdp.evm.getEvmEip7702DelegationStatus(
-   *   account.address,
-   *   { network: "base-sepolia" },
+   * const operation = await cdp.evm.getEvmEip7702DelegationOperationStatus(
+   *   "delegation-op-123",
    * );
-   * console.log(status.status); // "CURRENT" | "NOT_DELEGATED" | "WRONG_PROXY" | "NOT_INITIALIZED"
+   * console.log(operation.status); // "PENDING" | "SUBMITTED" | "COMPLETED" | "FAILED"
    * ```
    */
-  async getEvmEip7702DelegationStatus(
-    address: string,
-    params: GetEvmEip7702DelegationStatusParams,
-    options?: string,
-  ): Promise<EvmEip7702DelegationStatus> {
+  async getEvmEip7702DelegationOperationStatus(
+    delegationOperationId: string,
+  ): Promise<EvmEip7702DelegationOperation> {
     Analytics.trackAction({
-      action: "get_eip7702_delegation_status",
+      action: "get_eip7702_delegation_operation_status",
     });
 
     try {
-      return await CdpOpenApiClient.getEvmEip7702DelegationStatus(address, params, options);
+      return await CdpOpenApiClient.getEvmEip7702DelegationOperationById(delegationOperationId);
     } catch (error) {
-      Analytics.trackError(error, "getEvmEip7702DelegationStatus");
+      Analytics.trackError(error, "getEvmEip7702DelegationOperationStatus");
       throw error;
     }
   }
 
   /**
-   * Polls the EIP-7702 delegation status for an EVM account until the status is CURRENT or a timeout occurs.
+   * Polls the EIP-7702 delegation operation status until the status is COMPLETED or a timeout occurs.
    *
-   * @param {WaitForEvmEip7702DelegationStatusOptions} options - Parameters for waiting, including address, network, and optional wait configuration.
-   * @param {string} options.address - The address of the EVM account.
-   * @param {string} options.network - The network to query.
+   * @param {WaitForEvmEip7702DelegationOperationStatusOptions} options - Parameters for waiting, including delegationOperationId and optional wait configuration.
+   * @param {string} options.delegationOperationId - The delegation operation ID returned by createEvmEip7702Delegation.
    * @param {WaitOptions} [options.waitOptions] - Optional parameters for the wait operation.
    *
-   * @returns A promise that resolves to the delegation status once it reaches CURRENT.
+   * @returns A promise that resolves to the delegation operation once it reaches COMPLETED.
    *
    * @example
    * ```ts
-   * const status = await cdp.evm.waitForEvmEip7702DelegationStatus({
-   *   address: account.address,
-   *   network: "base-sepolia",
+   * const operation = await cdp.evm.waitForEvmEip7702DelegationOperationStatus({
+   *   delegationOperationId: "delegation-op-123",
    * });
-   * console.log(status.status); // "CURRENT"
+   * console.log(operation.status); // "COMPLETED"
    * ```
    */
-  async waitForEvmEip7702DelegationStatus(
-    options: WaitForEvmEip7702DelegationStatusOptions,
-  ): Promise<EvmEip7702DelegationStatus> {
+  async waitForEvmEip7702DelegationOperationStatus(
+    options: WaitForEvmEip7702DelegationOperationStatusOptions,
+  ): Promise<EvmEip7702DelegationOperation> {
     Analytics.trackAction({
-      action: "wait_for_eip7702_delegation_status",
+      action: "wait_for_eip7702_delegation_operation_status",
     });
 
     try {
-      return await waitForEvmEip7702DelegationStatus(CdpOpenApiClient, options);
+      return await waitForEvmEip7702DelegationOperationStatus(CdpOpenApiClient, options);
     } catch (error) {
-      Analytics.trackError(error, "waitForEvmEip7702DelegationStatus");
+      Analytics.trackError(error, "waitForEvmEip7702DelegationOperationStatus");
       throw error;
     }
   }
