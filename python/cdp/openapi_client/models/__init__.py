@@ -71,7 +71,7 @@ from cdp.openapi_client.models.evm_data_criterion_abi import EvmDataCriterionAbi
 from cdp.openapi_client.models.evm_data_parameter_condition import EvmDataParameterCondition
 from cdp.openapi_client.models.evm_data_parameter_condition_list import EvmDataParameterConditionList
 from cdp.openapi_client.models.evm_eip7702_delegation_network import EvmEip7702DelegationNetwork
-from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
+from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationOperation
 from cdp.openapi_client.models.evm_message_criterion import EvmMessageCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount

@@ -1,7 +1,7 @@
 // Usage: pnpm tsx evm/eip7702/createEip7702Delegation.ts
 //
 // Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
-// capabilities), waits for delegation status to be CURRENT, then sends a user operation
+// capabilities), waits for the delegation operation to complete, then sends a user operation
 // using toEvmDelegatedAccount(account).
 
 import { CdpClient, toEvmDelegatedAccount } from "@coinbase/cdp-sdk";
@@ -17,57 +17,58 @@ const publicClient = createPublicClient({
 });
 
 // Step 1: Get or create an EOA account
-const account = await cdp.evm.getOrCreateAccount({ name: "EIP7702-Example-Account" });
+const account = await cdp.evm.getOrCreateAccount({ name: "redelegation-demo-10" });
 console.log("Account address:", account.address);
 
 // Step 2: Ensure the account has ETH for gas (request faucet if needed)
-const balance = await publicClient.getBalance({ address: account.address });
-if (balance === 0n) {
-  const { transactionHash: faucetTxHash } = await cdp.evm.requestFaucet({
-    address: account.address,
-    network: "base-sepolia",
-    token: "eth",
-  });
+// const balance = await publicClient.getBalance({ address: account.address });
+// if (balance === 0n) {
+//   const { transactionHash: faucetTxHash } = await cdp.evm.requestFaucet({
+//     address: account.address,
+//     network: "base-sepolia",
+//     token: "eth",
+//   });
 
-  await publicClient.waitForTransactionReceipt({ hash: faucetTxHash });
-}
+//   await publicClient.waitForTransactionReceipt({ hash: faucetTxHash });
+// }
 
 // Step 3: Create the EIP-7702 delegation
 console.log("Creating EIP-7702 delegation...");
-await new Promise(resolve => setTimeout(resolve, 1000));
-const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.address, {
+// await new Promise(resolve => setTimeout(resolve, 1000));
+const { delegationOperationId } = await cdp.evm.createEvmEip7702Delegation(account.address, {
   network: "base-sepolia",
-  enableSpendPermissions: false,
+  enableSpendPermissions: true,
 });
 
-console.log("Delegation transaction submitted:", transactionHash);
+console.log("Delegation operation created:", delegationOperationId);
 
-// Step 4: Wait for the delegation status to be CURRENT
-console.log("Waiting for delegation to be active...");
-const delegationStatus = await cdp.evm.waitForEvmEip7702DelegationStatus({
-  address: account.address,
-  network: "base-sepolia",
-});
+// await new Promise(resolve => setTimeout(resolve, 10000));
 
-console.log(
-  `Delegation is active (status: ${delegationStatus.status}). Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
-);
+// Step 4: Wait for the delegation operation to complete
+// console.log("Waiting for delegation to complete...");
+// const delegationOperation = await cdp.evm.waitForEvmEip7702DelegationOperationStatus({
+//   delegationOperationId,
+// });
+
+// console.log(
+//   `Delegation is complete (status: ${delegationOperation.status}). Explorer: https://sepolia.basescan.org/tx/${delegationOperation.transactionHash}`
+// );
 
 // Step 5: Send a user operation using the upgraded EOA (via toEvmDelegatedAccount)
-console.log("Sending user operation with upgraded EOA...");
-const delegatedAccount = toEvmDelegatedAccount(account);
-const { userOpHash } = await delegatedAccount.sendUserOperation({
-  network: "base-sepolia",
-  calls: [
-    {
-      to: "0x0000000000000000000000000000000000000000",
-      value: parseEther("0"),
-      data: "0x",
-    },
-  ],
-});
+// console.log("Sending user operation with upgraded EOA...");
+// const delegatedAccount = toEvmDelegatedAccount(account);
+// const { userOpHash } = await delegatedAccount.sendUserOperation({
+//   network: "base-sepolia",
+//   calls: [
+//     {
+//       to: "0x0000000000000000000000000000000000000000",
+//       value: parseEther("0"),
+//       data: "0x",
+//     },
+//   ],
+// });
 
-console.log("User operation submitted:", userOpHash);
-console.log(
-  `Check status: https://base-sepolia.blockscout.com/op/${userOpHash}`,
-);
+// console.log("User operation submitted:", userOpHash);
+// console.log(
+//   `Check status: https://base.blockscout.com/op/${userOpHash}`,
+// );

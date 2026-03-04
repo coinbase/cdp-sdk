@@ -168,24 +168,21 @@ async def test_create_evm_eip7702_delegation(cdp_client):
     await _ensure_sufficient_eth_balance(cdp_client, server_account)
     await asyncio.sleep(2)
 
-    result = await cdp_client.evm.create_evm_eip7702_delegation(
+    delegation_operation_id = await cdp_client.evm.create_evm_eip7702_delegation(
         address=server_account.address,
         network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
         enable_spend_permissions=False,
     )
 
-    assert result is not None
-    assert isinstance(result, str)
-    assert len(result) == 66
-    assert result.startswith("0x")
+    assert delegation_operation_id is not None
+    assert isinstance(delegation_operation_id, str)
 
-    delegation_status = await cdp_client.evm.wait_for_evm_eip7702_delegation_status(
-        address=server_account.address,
-        network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+    delegation_operation = await cdp_client.evm.wait_for_evm_eip7702_delegation_operation_status(
+        delegation_operation_id=delegation_operation_id,
     )
 
-    assert delegation_status is not None
-    assert delegation_status.status == "CURRENT"
+    assert delegation_operation is not None
+    assert delegation_operation.status == "COMPLETED"
 
 
 @pytest.mark.e2e

@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
+from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationOperation
 
-class TestEvmEip7702DelegationStatus(unittest.TestCase):
-    """EvmEip7702DelegationStatus unit test stubs"""
+class TestEvmEip7702DelegationOperation(unittest.TestCase):
+    """EvmEip7702DelegationOperation unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,29 +26,32 @@ class TestEvmEip7702DelegationStatus(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvmEip7702DelegationStatus:
-        """Test EvmEip7702DelegationStatus
+    def make_instance(self, include_optional) -> EvmEip7702DelegationOperation:
+        """Test EvmEip7702DelegationOperation
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvmEip7702DelegationStatus`
+        # uncomment below to create an instance of `EvmEip7702DelegationOperation`
         """
-        model = EvmEip7702DelegationStatus()
+        model = EvmEip7702DelegationOperation()
         if include_optional:
-            return EvmEip7702DelegationStatus(
-                status = 'CURRENT',
+            return EvmEip7702DelegationOperation(
+                delegation_operation_id = 'delegation-op-123',
+                status = 'COMPLETED',
+                transaction_hash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+                network = 'base',
                 delegate_address = '0x7702cb554e6bFb442cb743A7dF23154544a7176C',
-                network = 'base'
             )
         else:
-            return EvmEip7702DelegationStatus(
-                status = 'CURRENT',
+            return EvmEip7702DelegationOperation(
+                delegation_operation_id = 'delegation-op-123',
+                status = 'PENDING',
                 network = 'base',
         )
         """
 
-    def testEvmEip7702DelegationStatus(self):
-        """Test EvmEip7702DelegationStatus"""
+    def testEvmEip7702DelegationOperation(self):
+        """Test EvmEip7702DelegationOperation"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

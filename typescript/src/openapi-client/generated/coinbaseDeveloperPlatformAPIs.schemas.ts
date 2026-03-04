@@ -419,33 +419,39 @@ export const EvmEip7702DelegationNetwork = {
 } as const;
 
 /**
- * The current delegation state of the account.
-CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
+ * The current status of the delegation operation.
  */
-export type EvmEip7702DelegationStatusStatus =
-  (typeof EvmEip7702DelegationStatusStatus)[keyof typeof EvmEip7702DelegationStatusStatus];
+export type EvmEip7702DelegationOperationStatus =
+  (typeof EvmEip7702DelegationOperationStatus)[keyof typeof EvmEip7702DelegationOperationStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EvmEip7702DelegationStatusStatus = {
-  CURRENT: "CURRENT",
-  NOT_DELEGATED: "NOT_DELEGATED",
-  WRONG_PROXY: "WRONG_PROXY",
-  NOT_INITIALIZED: "NOT_INITIALIZED",
+export const EvmEip7702DelegationOperationStatus = {
+  UNSPECIFIED: "UNSPECIFIED",
+  PENDING: "PENDING",
+  SUBMITTED: "SUBMITTED",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
 } as const;
 
 /**
- * The EIP-7702 delegation status for an EVM account.
+ * The status of an EIP-7702 delegation operation.
  */
-export interface EvmEip7702DelegationStatus {
-  /** The current delegation state of the account.
-CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized. */
-  status: EvmEip7702DelegationStatusStatus;
+export interface EvmEip7702DelegationOperation {
+  /** The unique identifier for the delegation operation. */
+  delegationOperationId: string;
+  /** The current status of the delegation operation. */
+  status: EvmEip7702DelegationOperationStatus;
+  /**
+   * The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  transactionHash?: string;
+  network: EvmEip7702DelegationNetwork;
   /**
    * The address the account has delegated to, if any. Only present when the account has an active delegation.
    * @pattern ^0x[0-9a-fA-F]{40}$
    */
   delegateAddress?: string;
-  network: EvmEip7702DelegationNetwork;
 }
 
 export interface EvmSmartAccount {
@@ -4014,13 +4020,6 @@ export type SignEvmTypedData200 = {
   signature: string;
 };
 
-export type GetEvmEip7702DelegationStatusParams = {
-  /**
-   * The network to query the delegation status on.
-   */
-  network: EvmEip7702DelegationNetwork;
-};
-
 export type CreateEvmEip7702DelegationBody = {
   network: EvmEip7702DelegationNetwork;
   /** Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf. */
@@ -4028,11 +4027,8 @@ export type CreateEvmEip7702DelegationBody = {
 };
 
 export type CreateEvmEip7702Delegation201 = {
-  /**
-   * The hash of the Type 4 transaction that was submitted.
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  transactionHash: string;
+  /** The unique identifier for the delegation operation. Use this to poll the operation status. */
+  delegationOperationId: string;
 };
 
 export type ListEvmSmartAccountsParams = {

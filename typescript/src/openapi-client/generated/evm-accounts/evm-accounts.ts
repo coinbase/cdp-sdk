@@ -11,12 +11,11 @@ import type {
   CreateEvmEip7702DelegationBody,
   EIP712Message,
   EvmAccount,
-  EvmEip7702DelegationStatus,
+  EvmEip7702DelegationOperation,
   ExportEvmAccount200,
   ExportEvmAccountBody,
   ExportEvmAccountByName200,
   ExportEvmAccountByNameBody,
-  GetEvmEip7702DelegationStatusParams,
   ImportEvmAccountBody,
   ListEvmAccounts200,
   ListEvmAccountsParams,
@@ -233,16 +232,16 @@ export const signEvmTypedData = (
   );
 };
 /**
- * Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
- * @summary Get EIP-7702 delegation status
+ * Returns the status of an EIP-7702 delegation operation.
+Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
+ * @summary Get EIP-7702 delegation operation status
  */
-export const getEvmEip7702DelegationStatus = (
-  address: string,
-  params: GetEvmEip7702DelegationStatusParams,
+export const getEvmEip7702DelegationOperationStatus = (
+  delegationOperationId: string,
   options?: SecondParameter<typeof cdpApiClient>,
 ) => {
-  return cdpApiClient<EvmEip7702DelegationStatus>(
-    { url: `/v2/evm/accounts/${address}/eip7702/delegation`, method: "GET", params },
+  return cdpApiClient<EvmEip7702DelegationOperation>(
+    { url: `/v2/evm/eip7702/delegation-operations/${delegationOperationId}`, method: "GET" },
     options,
   );
 };
@@ -341,8 +340,8 @@ export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sig
 export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
 export type SignEvmTypedDataResult = NonNullable<Awaited<ReturnType<typeof signEvmTypedData>>>;
-export type GetEvmEip7702DelegationStatusResult = NonNullable<
-  Awaited<ReturnType<typeof getEvmEip7702DelegationStatus>>
+export type GetEvmEip7702DelegationOperationStatusResult = NonNullable<
+  Awaited<ReturnType<typeof getEvmEip7702DelegationOperationStatus>>
 >;
 export type CreateEvmEip7702DelegationResult = NonNullable<
   Awaited<ReturnType<typeof createEvmEip7702Delegation>>

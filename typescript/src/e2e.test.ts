@@ -224,17 +224,15 @@ describe("CDP Client E2E Tests", () => {
     });
 
     expect(result).toBeDefined();
-    expect(result.transactionHash).toBeDefined();
-    expect(typeof result.transactionHash).toBe("string");
-    expect(result.transactionHash).toMatch(/^0x[0-9a-fA-F]{64}$/);
+    expect(result.delegationOperationId).toBeDefined();
+    expect(typeof result.delegationOperationId).toBe("string");
 
-    const delegationStatus = await cdp.evm.waitForEvmEip7702DelegationStatus({
-      address: serverAccount.address,
-      network: "base-sepolia",
+    const delegationOperation = await cdp.evm.waitForEvmEip7702DelegationOperationStatus({
+      delegationOperationId: result.delegationOperationId,
     });
 
-    expect(delegationStatus).toBeDefined();
-    expect(delegationStatus.status).toBe("CURRENT");
+    expect(delegationOperation).toBeDefined();
+    expect(delegationOperation.status).toBe("COMPLETED");
   });
 
   it("should create an end user with EVM smart account and Solana account", async () => {
