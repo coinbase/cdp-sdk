@@ -1571,11 +1571,7 @@ export class EvmClient implements EvmClientInterface {
         network,
         ...(enableSpendPermissions !== undefined && { enableSpendPermissions }),
       };
-      return await CdpOpenApiClient.createEvmEip7702Delegation(
-        address,
-        body,
-        idempotencyKey,
-      );
+      return await CdpOpenApiClient.createEvmEip7702Delegation(address, body, idempotencyKey);
     } catch (error) {
       Analytics.trackError(error, "createEvmEip7702Delegation");
       throw error;

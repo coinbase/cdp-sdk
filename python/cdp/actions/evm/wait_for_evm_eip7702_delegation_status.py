@@ -27,18 +27,24 @@ async def wait_for_evm_eip7702_delegation_operation_status(
     """
     start_time = time.time()
 
-    delegation_operation = await api_clients.evm_accounts.get_evm_eip7702_delegation_operation_by_id(
-        delegation_operation_id=delegation_operation_id,
+    delegation_operation = (
+        await api_clients.evm_accounts.get_evm_eip7702_delegation_operation_by_id(
+            delegation_operation_id=delegation_operation_id,
+        )
     )
 
     while delegation_operation.status not in ("COMPLETED", "FAILED"):
         if time.time() - start_time > timeout_seconds:
-            raise TimeoutError("EIP-7702 delegation operation did not reach terminal status within timeout")
+            raise TimeoutError(
+                "EIP-7702 delegation operation did not reach terminal status within timeout"
+            )
 
         time.sleep(interval_seconds)
 
-        delegation_operation = await api_clients.evm_accounts.get_evm_eip7702_delegation_operation_by_id(
-            delegation_operation_id=delegation_operation_id,
+        delegation_operation = (
+            await api_clients.evm_accounts.get_evm_eip7702_delegation_operation_by_id(
+                delegation_operation_id=delegation_operation_id,
+            )
         )
 
     return delegation_operation
