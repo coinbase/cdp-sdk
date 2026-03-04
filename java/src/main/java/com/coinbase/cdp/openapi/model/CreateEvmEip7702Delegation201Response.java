@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -33,38 +34,38 @@ import com.coinbase.cdp.openapi.ApiClient;
  * CreateEvmEip7702Delegation201Response
  */
 @JsonPropertyOrder({
-  CreateEvmEip7702Delegation201Response.JSON_PROPERTY_TRANSACTION_HASH
+  CreateEvmEip7702Delegation201Response.JSON_PROPERTY_DELEGATION_OPERATION_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CreateEvmEip7702Delegation201Response {
-  public static final String JSON_PROPERTY_TRANSACTION_HASH = "transactionHash";
+  public static final String JSON_PROPERTY_DELEGATION_OPERATION_ID = "delegationOperationId";
   @jakarta.annotation.Nonnull
-  private String transactionHash;
+  private UUID delegationOperationId;
 
   public CreateEvmEip7702Delegation201Response() { 
   }
 
-  public CreateEvmEip7702Delegation201Response transactionHash(@jakarta.annotation.Nonnull String transactionHash) {
-    this.transactionHash = transactionHash;
+  public CreateEvmEip7702Delegation201Response delegationOperationId(@jakarta.annotation.Nonnull UUID delegationOperationId) {
+    this.delegationOperationId = delegationOperationId;
     return this;
   }
 
   /**
-   * The hash of the Type 4 transaction that was submitted.
-   * @return transactionHash
+   * The unique identifier for the delegation operation. Use this to poll the operation status.
+   * @return delegationOperationId
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_TRANSACTION_HASH)
+  @JsonProperty(JSON_PROPERTY_DELEGATION_OPERATION_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getTransactionHash() {
-    return transactionHash;
+  public UUID getDelegationOperationId() {
+    return delegationOperationId;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_TRANSACTION_HASH)
+  @JsonProperty(JSON_PROPERTY_DELEGATION_OPERATION_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setTransactionHash(@jakarta.annotation.Nonnull String transactionHash) {
-    this.transactionHash = transactionHash;
+  public void setDelegationOperationId(@jakarta.annotation.Nonnull UUID delegationOperationId) {
+    this.delegationOperationId = delegationOperationId;
   }
 
 
@@ -80,19 +81,19 @@ public class CreateEvmEip7702Delegation201Response {
       return false;
     }
     CreateEvmEip7702Delegation201Response createEvmEip7702Delegation201Response = (CreateEvmEip7702Delegation201Response) o;
-    return Objects.equals(this.transactionHash, createEvmEip7702Delegation201Response.transactionHash);
+    return Objects.equals(this.delegationOperationId, createEvmEip7702Delegation201Response.delegationOperationId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(transactionHash);
+    return Objects.hash(delegationOperationId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CreateEvmEip7702Delegation201Response {\n");
-    sb.append("    transactionHash: ").append(toIndentedString(transactionHash)).append("\n");
+    sb.append("    delegationOperationId: ").append(toIndentedString(delegationOperationId)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -140,9 +141,9 @@ public class CreateEvmEip7702Delegation201Response {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `transactionHash` to the URL query string
-    if (getTransactionHash() != null) {
-      joiner.add(String.format("%stransactionHash%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getTransactionHash()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `delegationOperationId` to the URL query string
+    if (getDelegationOperationId() != null) {
+      joiner.add(String.format("%sdelegationOperationId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getDelegationOperationId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -160,8 +161,8 @@ public class CreateEvmEip7702Delegation201Response {
       this.instance = instance;
     }
 
-    public CreateEvmEip7702Delegation201Response.Builder transactionHash(String transactionHash) {
-      this.instance.transactionHash = transactionHash;
+    public CreateEvmEip7702Delegation201Response.Builder delegationOperationId(UUID delegationOperationId) {
+      this.instance.delegationOperationId = delegationOperationId;
       return this;
     }
 
@@ -198,7 +199,7 @@ public class CreateEvmEip7702Delegation201Response {
   */
   public CreateEvmEip7702Delegation201Response.Builder toBuilder() {
     return new CreateEvmEip7702Delegation201Response.Builder()
-      .transactionHash(getTransactionHash());
+      .delegationOperationId(getDelegationOperationId());
   }
 
 }

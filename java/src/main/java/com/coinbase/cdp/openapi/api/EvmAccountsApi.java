@@ -23,8 +23,7 @@ import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationRequest;
 import com.coinbase.cdp.openapi.model.EIP712Message;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.EvmAccount;
-import com.coinbase.cdp.openapi.model.EvmEip7702DelegationNetwork;
-import com.coinbase.cdp.openapi.model.EvmEip7702DelegationStatus;
+import com.coinbase.cdp.openapi.model.EvmEip7702DelegationOperation;
 import com.coinbase.cdp.openapi.model.ExportEvmAccount200Response;
 import com.coinbase.cdp.openapi.model.ExportEvmAccountRequest;
 import com.coinbase.cdp.openapi.model.ImportEvmAccountRequest;
@@ -38,6 +37,7 @@ import com.coinbase.cdp.openapi.model.SignEvmMessageRequest;
 import com.coinbase.cdp.openapi.model.SignEvmTransaction200Response;
 import com.coinbase.cdp.openapi.model.SignEvmTransactionRequest;
 import com.coinbase.cdp.openapi.model.SignEvmTypedData200Response;
+import java.util.UUID;
 import com.coinbase.cdp.openapi.model.UpdateEvmAccountRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -676,28 +676,26 @@ public class EvmAccountsApi {
   }
 
   /**
-   * Get EIP-7702 delegation status
-   * Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
-   * @param address The 0x-prefixed address of the EVM account. (required)
-   * @param network The network to query the delegation status on. (required)
-   * @return EvmEip7702DelegationStatus
+   * Get EIP-7702 delegation operation for an operationID
+   * Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
+   * @param delegationOperationId The unique identifier for the delegation operation. (required)
+   * @return EvmEip7702DelegationOperation
    * @throws ApiException if fails to make API call
    */
-  public EvmEip7702DelegationStatus getEvmEip7702DelegationStatus(String address, EvmEip7702DelegationNetwork network) throws ApiException {
-    ApiResponse<EvmEip7702DelegationStatus> localVarResponse = getEvmEip7702DelegationStatusWithHttpInfo(address, network);
+  public EvmEip7702DelegationOperation getEvmEip7702DelegationOperationById(UUID delegationOperationId) throws ApiException {
+    ApiResponse<EvmEip7702DelegationOperation> localVarResponse = getEvmEip7702DelegationOperationByIdWithHttpInfo(delegationOperationId);
     return localVarResponse.getData();
   }
 
   /**
-   * Get EIP-7702 delegation status
-   * Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
-   * @param address The 0x-prefixed address of the EVM account. (required)
-   * @param network The network to query the delegation status on. (required)
-   * @return ApiResponse&lt;EvmEip7702DelegationStatus&gt;
+   * Get EIP-7702 delegation operation for an operationID
+   * Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
+   * @param delegationOperationId The unique identifier for the delegation operation. (required)
+   * @return ApiResponse&lt;EvmEip7702DelegationOperation&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<EvmEip7702DelegationStatus> getEvmEip7702DelegationStatusWithHttpInfo(String address, EvmEip7702DelegationNetwork network) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = getEvmEip7702DelegationStatusRequestBuilder(address, network);
+  public ApiResponse<EvmEip7702DelegationOperation> getEvmEip7702DelegationOperationByIdWithHttpInfo(UUID delegationOperationId) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getEvmEip7702DelegationOperationByIdRequestBuilder(delegationOperationId);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -707,10 +705,10 @@ public class EvmAccountsApi {
       }
       try {
         if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("getEvmEip7702DelegationStatus", localVarResponse);
+          throw getApiException("getEvmEip7702DelegationOperationById", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<EvmEip7702DelegationStatus>(
+          return new ApiResponse<EvmEip7702DelegationOperation>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -720,10 +718,10 @@ public class EvmAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<EvmEip7702DelegationStatus>(
+        return new ApiResponse<EvmEip7702DelegationOperation>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<EvmEip7702DelegationStatus>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<EvmEip7702DelegationOperation>() {})
         );
       } finally {
       }
@@ -736,37 +734,18 @@ public class EvmAccountsApi {
     }
   }
 
-  private HttpRequest.Builder getEvmEip7702DelegationStatusRequestBuilder(String address, EvmEip7702DelegationNetwork network) throws ApiException {
-    // verify the required parameter 'address' is set
-    if (address == null) {
-      throw new ApiException(400, "Missing the required parameter 'address' when calling getEvmEip7702DelegationStatus");
-    }
-    // verify the required parameter 'network' is set
-    if (network == null) {
-      throw new ApiException(400, "Missing the required parameter 'network' when calling getEvmEip7702DelegationStatus");
+  private HttpRequest.Builder getEvmEip7702DelegationOperationByIdRequestBuilder(UUID delegationOperationId) throws ApiException {
+    // verify the required parameter 'delegationOperationId' is set
+    if (delegationOperationId == null) {
+      throw new ApiException(400, "Missing the required parameter 'delegationOperationId' when calling getEvmEip7702DelegationOperationById");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
-    String localVarPath = "/v2/evm/accounts/{address}/eip7702/delegation"
-        .replace("{address}", ApiClient.urlEncode(address.toString()));
+    String localVarPath = "/v2/evm/eip7702/delegation-operations/{delegationOperationId}"
+        .replace("{delegationOperationId}", ApiClient.urlEncode(delegationOperationId.toString()));
 
-    List<Pair> localVarQueryParams = new ArrayList<>();
-    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
-    String localVarQueryParameterBaseName;
-    localVarQueryParameterBaseName = "network";
-    localVarQueryParams.addAll(ApiClient.parameterToPairs("network", network));
-
-    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
-      StringJoiner queryJoiner = new StringJoiner("&");
-      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
-      if (localVarQueryStringJoiner.length() != 0) {
-        queryJoiner.add(localVarQueryStringJoiner.toString());
-      }
-      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
-    } else {
-      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
-    }
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 
     localVarRequestBuilder.header("Accept", "application/json");
 

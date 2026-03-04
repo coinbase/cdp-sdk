@@ -18,9 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,15 +27,8 @@ class CreateEvmEip7702Delegation201Response(BaseModel):
     """
     CreateEvmEip7702Delegation201Response
     """ # noqa: E501
-    transaction_hash: Annotated[str, Field(strict=True)] = Field(description="The hash of the Type 4 transaction that was submitted.", alias="transactionHash")
-    __properties: ClassVar[List[str]] = ["transactionHash"]
-
-    @field_validator('transaction_hash')
-    def transaction_hash_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^0x[0-9a-fA-F]{64}$", value):
-            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{64}$/")
-        return value
+    delegation_operation_id: StrictStr = Field(description="The unique identifier for the delegation operation. Use this to poll the operation status.", alias="delegationOperationId")
+    __properties: ClassVar[List[str]] = ["delegationOperationId"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -89,7 +81,7 @@ class CreateEvmEip7702Delegation201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "transactionHash": obj.get("transactionHash")
+            "delegationOperationId": obj.get("delegationOperationId")
         })
         return _obj
 

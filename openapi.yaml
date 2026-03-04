@@ -2186,76 +2186,6 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}/eip7702/delegation:
-    get:
-      x-audience: public
-      summary: Get EIP-7702 delegation status
-      description: Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
-      operationId: getEvmEip7702DelegationStatus
-      tags:
-        - EVM Accounts
-      security:
-        - apiKeyAuth: []
-      parameters:
-        - name: address
-          description: The 0x-prefixed address of the EVM account.
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: ^0x[0-9a-fA-F]{40}$
-          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        - name: network
-          description: The network to query the delegation status on.
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
-          example: base
-      responses:
-        '200':
-          description: Delegation status retrieved successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EvmEip7702DelegationStatus'
-        '400':
-          description: Invalid request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                missing_network:
-                  value:
-                    errorType: invalid_request
-                    errorMessage: Field 'network' is required.
-                    errorParam: network
-                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
-                invalid_address:
-                  value:
-                    errorType: invalid_request
-                    errorMessage: Invalid address format.
-                    errorParam: address
-                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
-        '404':
-          description: EVM account not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                not_found:
-                  value:
-                    errorType: not_found
-                    errorMessage: EVM account with the given address not found.
-                    errorParam: address
-                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '502':
-          $ref: '#/components/responses/BadGatewayError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailableError'
     post:
       x-audience: public
       summary: Create EIP-7702 delegation
@@ -2303,19 +2233,19 @@ paths:
                 - network
       responses:
         '201':
-          description: Delegation created and transaction broadcasted successfully.
+          description: Delegation operation created successfully.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  transactionHash:
+                  delegationOperationId:
                     type: string
-                    pattern: ^0x[0-9a-fA-F]{64}$
-                    description: The hash of the Type 4 transaction that was submitted.
-                    example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                    format: uuid
+                    description: The unique identifier for the delegation operation. Use this to poll the operation status.
+                    example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
                 required:
-                  - transactionHash
+                  - delegationOperationId
         '400':
           description: Invalid request.
           content:
@@ -2367,6 +2297,64 @@ paths:
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
         '422':
           $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/eip7702/delegation-operations/{delegationOperationId}:
+    get:
+      x-audience: public
+      summary: Get EIP-7702 delegation operation for an operationID
+      description: Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
+      operationId: getEvmEip7702DelegationOperationById
+      tags:
+        - EVM Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: delegationOperationId
+          description: The unique identifier for the delegation operation.
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+      responses:
+        '200':
+          description: Delegation operation retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmEip7702DelegationOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_id:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid delegation operation ID format.
+                    errorParam: delegationOperationId
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '404':
+          description: Delegation operation not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Delegation operation not found.
+                    errorParam: delegationOperationId
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -7795,29 +7783,41 @@ components:
         - ethereum
         - ethereum-sepolia
       example: base
-    EvmEip7702DelegationStatus:
+    EvmEip7702DelegationOperation:
       type: object
-      description: The EIP-7702 delegation status for an EVM account.
+      description: The status of an EIP-7702 delegation operation.
       properties:
+        delegationOperationId:
+          type: string
+          format: uuid
+          description: The unique identifier for the delegation operation.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
         status:
           type: string
           description: |-
-            The current delegation state of the account.
-            CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
+            The current status of the delegation operation.
+            UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.
           enum:
-            - CURRENT
-            - NOT_DELEGATED
-            - WRONG_PROXY
-            - NOT_INITIALIZED
-          example: CURRENT
+            - UNSPECIFIED
+            - PENDING
+            - SUBMITTED
+            - COMPLETED
+            - FAILED
+          example: COMPLETED
+        transactionHash:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{64}$
+          description: The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        network:
+          $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
         delegateAddress:
           type: string
           pattern: ^0x[0-9a-fA-F]{40}$
           description: The address the account has delegated to, if any. Only present when the account has an active delegation.
           example: '0x7702cb554e6bFb442cb743A7dF23154544a7176C'
-        network:
-          $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
       required:
+        - delegationOperationId
         - status
         - network
     EvmSmartAccount:

@@ -25,20 +25,32 @@ from cdp.openapi_client.models.evm_eip7702_delegation_network import EvmEip7702D
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EvmEip7702DelegationStatus(BaseModel):
+class EvmEip7702DelegationOperation(BaseModel):
     """
-    The EIP-7702 delegation status for an EVM account.
+    The status of an EIP-7702 delegation operation.
     """ # noqa: E501
-    status: StrictStr = Field(description="The current delegation state of the account. CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.")
-    delegate_address: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The address the account has delegated to, if any. Only present when the account has an active delegation.", alias="delegateAddress")
+    delegation_operation_id: StrictStr = Field(description="The unique identifier for the delegation operation.", alias="delegationOperationId")
+    status: StrictStr = Field(description="The current status of the delegation operation. UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.")
+    transaction_hash: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.", alias="transactionHash")
     network: EvmEip7702DelegationNetwork
-    __properties: ClassVar[List[str]] = ["status", "delegateAddress", "network"]
+    delegate_address: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The address the account has delegated to, if any. Only present when the account has an active delegation.", alias="delegateAddress")
+    __properties: ClassVar[List[str]] = ["delegationOperationId", "status", "transactionHash", "network", "delegateAddress"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['CURRENT', 'NOT_DELEGATED', 'WRONG_PROXY', 'NOT_INITIALIZED']):
-            raise ValueError("must be one of enum values ('CURRENT', 'NOT_DELEGATED', 'WRONG_PROXY', 'NOT_INITIALIZED')")
+        if value not in set(['UNSPECIFIED', 'PENDING', 'SUBMITTED', 'COMPLETED', 'FAILED']):
+            raise ValueError("must be one of enum values ('UNSPECIFIED', 'PENDING', 'SUBMITTED', 'COMPLETED', 'FAILED')")
+        return value
+
+    @field_validator('transaction_hash')
+    def transaction_hash_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^0x[0-9a-fA-F]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{64}$/")
         return value
 
     @field_validator('delegate_address')
@@ -69,7 +81,7 @@ class EvmEip7702DelegationStatus(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EvmEip7702DelegationStatus from a JSON string"""
+        """Create an instance of EvmEip7702DelegationOperation from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -94,7 +106,7 @@ class EvmEip7702DelegationStatus(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EvmEip7702DelegationStatus from a dict"""
+        """Create an instance of EvmEip7702DelegationOperation from a dict"""
         if obj is None:
             return None
 
@@ -102,9 +114,11 @@ class EvmEip7702DelegationStatus(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "delegationOperationId": obj.get("delegationOperationId"),
             "status": obj.get("status"),
-            "delegateAddress": obj.get("delegateAddress"),
-            "network": obj.get("network")
+            "transactionHash": obj.get("transactionHash"),
+            "network": obj.get("network"),
+            "delegateAddress": obj.get("delegateAddress")
         })
         return _obj
 
