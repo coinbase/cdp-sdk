@@ -1544,13 +1544,13 @@ export class EvmClient implements EvmClientInterface {
    * Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
    * The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
    *
-   * @param {string} address - The address of the EOA account.
-   * @param {CreateEvmEip7702DelegationOptions} options - The delegation parameters (network required, enableSpendPermissions and idempotencyKey optional).
+   * @param {CreateEvmEip7702DelegationOptions} options - The delegation parameters (address and network required, enableSpendPermissions and idempotencyKey optional).
    * @returns A promise that resolves to the delegation result including the delegation operation ID.
    *
    * @example
    * ```ts
-   * const result = await cdp.evm.createEvmEip7702Delegation(account.address, {
+   * const result = await cdp.evm.createEvmEip7702Delegation({
+   *   address: account.address,
    *   network: "base-sepolia",
    *   enableSpendPermissions: false,
    * });
@@ -1558,7 +1558,6 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async createEvmEip7702Delegation(
-    address: string,
     options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationResult> {
     Analytics.trackAction({
@@ -1566,7 +1565,7 @@ export class EvmClient implements EvmClientInterface {
     });
 
     try {
-      const { network, enableSpendPermissions, idempotencyKey } = options;
+      const { address, network, enableSpendPermissions, idempotencyKey } = options;
       const body = {
         network,
         ...(enableSpendPermissions !== undefined && { enableSpendPermissions }),

@@ -23,6 +23,7 @@ console.log("Account address:", account.address);
 // Step 2: Ensure the account has ETH for gas (request faucet if needed)
 const balance = await publicClient.getBalance({ address: account.address });
 if (balance === 0n) {
+  console.log("Requesting ETH from faucet...");
   const { transactionHash: faucetTxHash } = await cdp.evm.requestFaucet({
     address: account.address,
     network: "base-sepolia",
@@ -30,12 +31,14 @@ if (balance === 0n) {
   });
 
   await publicClient.waitForTransactionReceipt({ hash: faucetTxHash });
+  console.log("Faucet transaction confirmed.");
+  await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
 // Step 3: Create the EIP-7702 delegation
 console.log("Creating EIP-7702 delegation...");
-await new Promise(resolve => setTimeout(resolve, 1000));
-const { delegationOperationId } = await cdp.evm.createEvmEip7702Delegation(account.address, {
+const { delegationOperationId } = await cdp.evm.createEvmEip7702Delegation({
+  address: account.address,
   network: "base-sepolia",
   enableSpendPermissions: false,
 });
@@ -49,7 +52,7 @@ const delegationOperation = await cdp.evm.waitForEvmEip7702DelegationOperationSt
 });
 
 console.log(
-  `Delegation is complete (status: ${delegationOperation.status}). Explorer: https://sepolia.basescan.org/tx/${delegationOperation.transactionHash}`
+  `Delegation is complete (status: ${delegationOperation.status}). Explorer: https://sepolia.basescan.org/tx/${delegationOperation.transactionHash}`,
 );
 
 // Step 5: Send a user operation using the upgraded EOA (via toEvmDelegatedAccount)
@@ -67,6 +70,4 @@ const { userOpHash } = await delegatedAccount.sendUserOperation({
 });
 
 console.log("User operation submitted:", userOpHash);
-console.log(
-  `Check status: https://base-sepolia.blockscout.com/op/${userOpHash}`,
-);
+console.log(`Check status: https://base-sepolia.blockscout.com/op/${userOpHash}`);

@@ -120,7 +120,6 @@ export type EvmClientInterface = Omit<
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
   createEvmEip7702Delegation: (
-    address: Address,
     options: CreateEvmEip7702DelegationOptions,
   ) => Promise<CreateEvmEip7702DelegationResult>;
   getEvmEip7702DelegationOperationById: (
@@ -505,6 +504,8 @@ export interface UpdateEvmSmartAccountOptions {
  * Options for creating an EIP-7702 delegation for an EVM EOA account.
  */
 export interface CreateEvmEip7702DelegationOptions {
+  /** The address of the EOA account. */
+  address: Address;
   /** The network for the EIP-7702 delegation. */
   network: EvmEip7702DelegationNetwork;
   /** Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf. Defaults to false. */

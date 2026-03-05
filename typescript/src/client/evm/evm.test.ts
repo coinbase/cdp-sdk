@@ -1506,12 +1506,6 @@ describe("EvmClient", () => {
 
   describe("createEvmEip7702Delegation", () => {
     it("should create EIP-7702 delegation for an EOA account", async () => {
-      const address = "0x1234567890123456789012345678901234567890";
-      const options = {
-        network: "base-sepolia" as const,
-        enableSpendPermissions: false,
-        idempotencyKey: "idem-key-eip7702",
-      };
       const mockResult = {
         delegationOperationId: "delegation-op-123",
       };
@@ -1522,10 +1516,15 @@ describe("EvmClient", () => {
         >;
       createEvmEip7702DelegationMock.mockResolvedValue(mockResult);
 
-      const result = await client.createEvmEip7702Delegation(address, options);
+      const result = await client.createEvmEip7702Delegation({
+        address: "0x1234567890123456789012345678901234567890",
+        network: "base-sepolia",
+        enableSpendPermissions: false,
+        idempotencyKey: "idem-key-eip7702",
+      });
 
       expect(CdpOpenApiClient.createEvmEip7702Delegation).toHaveBeenCalledWith(
-        address,
+        "0x1234567890123456789012345678901234567890",
         { network: "base-sepolia", enableSpendPermissions: false },
         "idem-key-eip7702",
       );
@@ -1533,10 +1532,6 @@ describe("EvmClient", () => {
     });
 
     it("should create EIP-7702 delegation without idempotency key or enableSpendPermissions", async () => {
-      const address = "0x9876543210987654321098765432109876543210";
-      const options = {
-        network: "base-sepolia" as const,
-      };
       const mockResult = {
         delegationOperationId: "delegation-op-456",
       };
@@ -1547,10 +1542,13 @@ describe("EvmClient", () => {
         >;
       createEvmEip7702DelegationMock.mockResolvedValue(mockResult);
 
-      const result = await client.createEvmEip7702Delegation(address, options);
+      const result = await client.createEvmEip7702Delegation({
+        address: "0x9876543210987654321098765432109876543210",
+        network: "base-sepolia",
+      });
 
       expect(CdpOpenApiClient.createEvmEip7702Delegation).toHaveBeenCalledWith(
-        address,
+        "0x9876543210987654321098765432109876543210",
         { network: "base-sepolia" },
         undefined,
       );

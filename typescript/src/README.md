@@ -438,17 +438,18 @@ const publicClient = createPublicClient({
 
 const account = await cdp.evm.getOrCreateAccount({ name: "MyAccount" });
 
-const { transactionHash } = await cdp.evm.createEvmEip7702Delegation(account.address, {
+const { delegationOperationId } = await cdp.evm.createEvmEip7702Delegation({
+  address: account.address,
   network: "base-sepolia",
   enableSpendPermissions: false, // optional, defaults to false
   idempotencyKey: "optional-uuid", // optional
 });
 
-// Wait for the delegation transaction to be confirmed (use the same chain as network above)
-const receipt = await publicClient.waitForTransactionReceipt({
-  hash: transactionHash,
+// Wait for the delegation operation to complete
+const delegationOperation = await cdp.evm.waitForEvmEip7702DelegationOperationStatus({
+  delegationOperationId,
 });
-console.log(`Delegation confirmed in block ${receipt.blockNumber}`);
+console.log(`Delegation confirmed (status: ${delegationOperation.status})`);
 ```
 
 For a runnable example that includes faucet and receipt waiting, see [examples/typescript/evm/eip7702/createEip7702Delegation.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/eip7702/createEip7702Delegation.ts).
