@@ -36,11 +36,11 @@ class TestCreateEvmEip7702Delegation201Response(unittest.TestCase):
         model = CreateEvmEip7702Delegation201Response()
         if include_optional:
             return CreateEvmEip7702Delegation201Response(
-                transaction_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                delegation_operation_id = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
             )
         else:
             return CreateEvmEip7702Delegation201Response(
-                transaction_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+                delegation_operation_id = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         )
         """
 

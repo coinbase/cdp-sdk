@@ -2,4 +2,4 @@
 "@coinbase/cdp-sdk": minor
 ---
 
-Added getEvmEip7702DelegationStatus and waitForEvmEip7702DelegationStatus
+Added getEvmEip7702DelegationOperationById and waitForEvmEip7702DelegationOperationStatus

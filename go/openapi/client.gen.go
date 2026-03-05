@@ -180,12 +180,13 @@ const (
 	EvmEip7702DelegationNetworkPolygon         EvmEip7702DelegationNetwork = "polygon"
 )
 
-// Defines values for EvmEip7702DelegationStatusStatus.
+// Defines values for EvmEip7702DelegationOperationStatus.
 const (
-	CURRENT        EvmEip7702DelegationStatusStatus = "CURRENT"
-	NOTDELEGATED   EvmEip7702DelegationStatusStatus = "NOT_DELEGATED"
-	NOTINITIALIZED EvmEip7702DelegationStatusStatus = "NOT_INITIALIZED"
-	WRONGPROXY     EvmEip7702DelegationStatusStatus = "WRONG_PROXY"
+	COMPLETED   EvmEip7702DelegationOperationStatus = "COMPLETED"
+	FAILED      EvmEip7702DelegationOperationStatus = "FAILED"
+	PENDING     EvmEip7702DelegationOperationStatus = "PENDING"
+	SUBMITTED   EvmEip7702DelegationOperationStatus = "SUBMITTED"
+	UNSPECIFIED EvmEip7702DelegationOperationStatus = "UNSPECIFIED"
 )
 
 // Defines values for EvmMessageCriterionType.
@@ -1457,22 +1458,28 @@ type EvmDataParameterConditionListOperator string
 // EvmEip7702DelegationNetwork The network for the EIP-7702 delegation.
 type EvmEip7702DelegationNetwork string
 
-// EvmEip7702DelegationStatus The EIP-7702 delegation status for an EVM account.
-type EvmEip7702DelegationStatus struct {
+// EvmEip7702DelegationOperation The status of an EIP-7702 delegation operation.
+type EvmEip7702DelegationOperation struct {
 	// DelegateAddress The address the account has delegated to, if any. Only present when the account has an active delegation.
 	DelegateAddress *string `json:"delegateAddress,omitempty"`
+
+	// DelegationOperationId The unique identifier for the delegation operation.
+	DelegationOperationId openapi_types.UUID `json:"delegationOperationId"`
 
 	// Network The network for the EIP-7702 delegation.
 	Network EvmEip7702DelegationNetwork `json:"network"`
 
-	// Status The current delegation state of the account.
-	// CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
-	Status EvmEip7702DelegationStatusStatus `json:"status"`
+	// Status The current status of the delegation operation.
+	// UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.
+	Status EvmEip7702DelegationOperationStatus `json:"status"`
+
+	// TransactionHash The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
+	TransactionHash *string `json:"transactionHash,omitempty"`
 }
 
-// EvmEip7702DelegationStatusStatus The current delegation state of the account.
-// CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.
-type EvmEip7702DelegationStatusStatus string
+// EvmEip7702DelegationOperationStatus The current status of the delegation operation.
+// UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.
+type EvmEip7702DelegationOperationStatus string
 
 // EvmMessageCriterion A schema for specifying a criterion for the message being signed.
 type EvmMessageCriterion struct {
@@ -3616,12 +3623,6 @@ type UpdateEvmAccountParams struct {
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
-}
-
-// GetEvmEip7702DelegationStatusParams defines parameters for GetEvmEip7702DelegationStatus.
-type GetEvmEip7702DelegationStatusParams struct {
-	// Network The network to query the delegation status on.
-	Network EvmEip7702DelegationNetwork `form:"network" json:"network"`
 }
 
 // CreateEvmEip7702DelegationJSONBody defines parameters for CreateEvmEip7702Delegation.
@@ -7014,9 +7015,6 @@ type ClientInterface interface {
 
 	UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetEvmEip7702DelegationStatus request
-	GetEvmEip7702DelegationStatus(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CreateEvmEip7702DelegationWithBody request with any body
 	CreateEvmEip7702DelegationWithBody(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -7051,6 +7049,9 @@ type ClientInterface interface {
 	SignEvmTypedDataWithBody(ctx context.Context, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SignEvmTypedData(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetEvmEip7702DelegationOperationById request
+	GetEvmEip7702DelegationOperationById(ctx context.Context, delegationOperationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RequestEvmFaucetWithBody request with any body
 	RequestEvmFaucetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -7670,18 +7671,6 @@ func (c *CDPClient) UpdateEvmAccount(ctx context.Context, address string, params
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) GetEvmEip7702DelegationStatus(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetEvmEip7702DelegationStatusRequest(c.Server, address, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *CDPClient) CreateEvmEip7702DelegationWithBody(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateEvmEip7702DelegationRequestWithBody(c.Server, address, params, contentType, body)
 	if err != nil {
@@ -7840,6 +7829,18 @@ func (c *CDPClient) SignEvmTypedDataWithBody(ctx context.Context, address string
 
 func (c *CDPClient) SignEvmTypedData(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignEvmTypedDataRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetEvmEip7702DelegationOperationById(ctx context.Context, delegationOperationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEvmEip7702DelegationOperationByIdRequest(c.Server, delegationOperationId)
 	if err != nil {
 		return nil, err
 	}
@@ -9955,58 +9956,6 @@ func NewUpdateEvmAccountRequestWithBody(server string, address string, params *U
 	return req, nil
 }
 
-// NewGetEvmEip7702DelegationStatusRequest generates requests for GetEvmEip7702DelegationStatus
-func NewGetEvmEip7702DelegationStatusRequest(server string, address string, params *GetEvmEip7702DelegationStatusParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/eip7702/delegation", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, params.Network); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewCreateEvmEip7702DelegationRequest calls the generic CreateEvmEip7702Delegation builder with application/json body
 func NewCreateEvmEip7702DelegationRequest(server string, address string, params *CreateEvmEip7702DelegationParams, body CreateEvmEip7702DelegationJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -10513,6 +10462,40 @@ func NewSignEvmTypedDataRequestWithBody(server string, address string, params *S
 			req.Header.Set("X-Idempotency-Key", headerParam1)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewGetEvmEip7702DelegationOperationByIdRequest generates requests for GetEvmEip7702DelegationOperationById
+func NewGetEvmEip7702DelegationOperationByIdRequest(server string, delegationOperationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "delegationOperationId", runtime.ParamLocationPath, delegationOperationId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/eip7702/delegation-operations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -12988,9 +12971,6 @@ type ClientWithResponsesInterface interface {
 
 	UpdateEvmAccountWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error)
 
-	// GetEvmEip7702DelegationStatusWithResponse request
-	GetEvmEip7702DelegationStatusWithResponse(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*GetEvmEip7702DelegationStatusResponse, error)
-
 	// CreateEvmEip7702DelegationWithBodyWithResponse request with any body
 	CreateEvmEip7702DelegationWithBodyWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error)
 
@@ -13025,6 +13005,9 @@ type ClientWithResponsesInterface interface {
 	SignEvmTypedDataWithBodyWithResponse(ctx context.Context, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTypedDataResponse, error)
 
 	SignEvmTypedDataWithResponse(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTypedDataResponse, error)
+
+	// GetEvmEip7702DelegationOperationByIdWithResponse request
+	GetEvmEip7702DelegationOperationByIdWithResponse(ctx context.Context, delegationOperationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetEvmEip7702DelegationOperationByIdResponse, error)
 
 	// RequestEvmFaucetWithBodyWithResponse request with any body
 	RequestEvmFaucetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestEvmFaucetResponse, error)
@@ -13889,39 +13872,12 @@ func (r UpdateEvmAccountResponse) StatusCode() int {
 	return 0
 }
 
-type GetEvmEip7702DelegationStatusResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *EvmEip7702DelegationStatus
-	JSON400      *Error
-	JSON404      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r GetEvmEip7702DelegationStatusResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetEvmEip7702DelegationStatusResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type CreateEvmEip7702DelegationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *struct {
-		// TransactionHash The hash of the Type 4 transaction that was submitted.
-		TransactionHash string `json:"transactionHash"`
+		// DelegationOperationId The unique identifier for the delegation operation. Use this to poll the operation status.
+		DelegationOperationId openapi_types.UUID `json:"delegationOperationId"`
 	}
 	JSON400 *Error
 	JSON401 *UnauthorizedError
@@ -14146,6 +14102,33 @@ func (r SignEvmTypedDataResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SignEvmTypedDataResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetEvmEip7702DelegationOperationByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmEip7702DelegationOperation
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEvmEip7702DelegationOperationByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEvmEip7702DelegationOperationByIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -15686,15 +15669,6 @@ func (c *ClientWithResponses) UpdateEvmAccountWithResponse(ctx context.Context, 
 	return ParseUpdateEvmAccountResponse(rsp)
 }
 
-// GetEvmEip7702DelegationStatusWithResponse request returning *GetEvmEip7702DelegationStatusResponse
-func (c *ClientWithResponses) GetEvmEip7702DelegationStatusWithResponse(ctx context.Context, address string, params *GetEvmEip7702DelegationStatusParams, reqEditors ...RequestEditorFn) (*GetEvmEip7702DelegationStatusResponse, error) {
-	rsp, err := c.GetEvmEip7702DelegationStatus(ctx, address, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetEvmEip7702DelegationStatusResponse(rsp)
-}
-
 // CreateEvmEip7702DelegationWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationResponse
 func (c *ClientWithResponses) CreateEvmEip7702DelegationWithBodyWithResponse(ctx context.Context, address string, params *CreateEvmEip7702DelegationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationResponse, error) {
 	rsp, err := c.CreateEvmEip7702DelegationWithBody(ctx, address, params, contentType, body, reqEditors...)
@@ -15812,6 +15786,15 @@ func (c *ClientWithResponses) SignEvmTypedDataWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseSignEvmTypedDataResponse(rsp)
+}
+
+// GetEvmEip7702DelegationOperationByIdWithResponse request returning *GetEvmEip7702DelegationOperationByIdResponse
+func (c *ClientWithResponses) GetEvmEip7702DelegationOperationByIdWithResponse(ctx context.Context, delegationOperationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetEvmEip7702DelegationOperationByIdResponse, error) {
+	rsp, err := c.GetEvmEip7702DelegationOperationById(ctx, delegationOperationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEvmEip7702DelegationOperationByIdResponse(rsp)
 }
 
 // RequestEvmFaucetWithBodyWithResponse request with arbitrary body returning *RequestEvmFaucetResponse
@@ -17954,67 +17937,6 @@ func ParseUpdateEvmAccountResponse(rsp *http.Response) (*UpdateEvmAccountRespons
 	return response, nil
 }
 
-// ParseGetEvmEip7702DelegationStatusResponse parses an HTTP response from a GetEvmEip7702DelegationStatusWithResponse call
-func ParseGetEvmEip7702DelegationStatusResponse(rsp *http.Response) (*GetEvmEip7702DelegationStatusResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetEvmEip7702DelegationStatusResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest EvmEip7702DelegationStatus
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseCreateEvmEip7702DelegationResponse parses an HTTP response from a CreateEvmEip7702DelegationWithResponse call
 func ParseCreateEvmEip7702DelegationResponse(rsp *http.Response) (*CreateEvmEip7702DelegationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -18031,8 +17953,8 @@ func ParseCreateEvmEip7702DelegationResponse(rsp *http.Response) (*CreateEvmEip7
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest struct {
-			// TransactionHash The hash of the Type 4 transaction that was submitted.
-			TransactionHash string `json:"transactionHash"`
+			// DelegationOperationId The unique identifier for the delegation operation. Use this to poll the operation status.
+			DelegationOperationId openapi_types.UUID `json:"delegationOperationId"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -18618,6 +18540,67 @@ func ParseSignEvmTypedDataResponse(rsp *http.Response) (*SignEvmTypedDataRespons
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEvmEip7702DelegationOperationByIdResponse parses an HTTP response from a GetEvmEip7702DelegationOperationByIdWithResponse call
+func ParseGetEvmEip7702DelegationOperationByIdResponse(rsp *http.Response) (*GetEvmEip7702DelegationOperationByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEvmEip7702DelegationOperationByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmEip7702DelegationOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

@@ -17,7 +17,7 @@ from cdp.actions.evm.swap import (
     get_swap_price as swap_get_swap_price,
 )
 from cdp.actions.evm.wait_for_evm_eip7702_delegation_status import (
-    wait_for_evm_eip7702_delegation_status,
+    wait_for_evm_eip7702_delegation_operation_status,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.analytics import track_action, track_error
@@ -44,7 +44,7 @@ from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_eip7702_delegation_network import (
     EvmEip7702DelegationNetwork,
 )
-from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
+from cdp.openapi_client.models.evm_eip7702_delegation_operation import EvmEip7702DelegationOperation
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
@@ -1006,7 +1006,7 @@ class EvmClient:
             idempotency_key (str, optional): An optional idempotency key. Defaults to None.
 
         Returns:
-            str: The transaction hash of the delegation transaction.
+            str: The delegation operation ID.
 
         """
         track_action(action="create_eip7702_delegation")
@@ -1021,76 +1021,69 @@ class EvmClient:
                 x_wallet_auth=x_wallet_auth,
                 x_idempotency_key=idempotency_key,
             )
-            return response.transaction_hash
+            return response.delegation_operation_id
         except Exception as error:
             track_error(error, "create_evm_eip7702_delegation")
             raise
 
-    async def get_evm_eip7702_delegation_status(
+    async def get_evm_eip7702_delegation_operation_by_id(
         self,
-        address: str,
-        network: str | EvmEip7702DelegationNetwork,
-    ) -> EvmEip7702DelegationStatus:
-        """Get the EIP-7702 delegation status for an EVM account.
+        delegation_operation_id: str,
+    ) -> EvmEip7702DelegationOperation:
+        """Get the EIP-7702 delegation operation status.
 
         Args:
-            address (str): The 0x-prefixed address of the EVM account.
-            network (str | EvmEip7702DelegationNetwork): The network to query the delegation status on (e.g. "base-sepolia").
+            delegation_operation_id (str): The delegation operation ID returned by create_evm_eip7702_delegation.
 
         Returns:
-            EvmEip7702DelegationStatus: The delegation status of the account.
+            EvmEip7702DelegationOperation: The delegation operation status.
 
         """
-        track_action(action="get_eip7702_delegation_status")
+        track_action(action="get_eip7702_delegation_operation_by_id")
         try:
-            return await self.api_clients.evm_accounts.get_evm_eip7702_delegation_status(
-                address=address,
-                network=network,
+            return await self.api_clients.evm_accounts.get_evm_eip7702_delegation_operation_by_id(
+                delegation_operation_id=delegation_operation_id,
             )
         except Exception as error:
-            track_error(error, "get_evm_eip7702_delegation_status")
+            track_error(error, "get_evm_eip7702_delegation_operation_by_id")
             raise
 
-    async def wait_for_evm_eip7702_delegation_status(
+    async def wait_for_evm_eip7702_delegation_operation_status(
         self,
-        address: str,
-        network: str | EvmEip7702DelegationNetwork,
+        delegation_operation_id: str,
         timeout_seconds: float = 60,
         interval_seconds: float = 0.2,
-    ) -> EvmEip7702DelegationStatus:
-        """Poll the EIP-7702 delegation status until it is CURRENT or a timeout occurs.
+    ) -> EvmEip7702DelegationOperation:
+        """Poll the EIP-7702 delegation operation status until it is COMPLETED or FAILED, or a timeout occurs.
 
         Args:
-            address (str): The 0x-prefixed address of the EVM account.
-            network (str | EvmEip7702DelegationNetwork): The network to query the delegation status on (e.g. "base-sepolia").
+            delegation_operation_id (str): The delegation operation ID returned by create_evm_eip7702_delegation.
             timeout_seconds (float, optional): Maximum time to wait in seconds. Defaults to 60.
             interval_seconds (float, optional): Time between checks in seconds. Defaults to 0.2.
 
         Returns:
-            EvmEip7702DelegationStatus: The delegation status once it reaches CURRENT.
+            EvmEip7702DelegationOperation: The delegation operation once it reaches a terminal status.
 
         Raises:
-            TimeoutError: If the status doesn't reach CURRENT within the specified timeout.
+            TimeoutError: If the status doesn't reach COMPLETED within the specified timeout.
 
         Example:
-            >>> status = await cdp.evm.wait_for_evm_eip7702_delegation_status(
-            ...     address=account.address,
-            ...     network="base-sepolia",
+            >>> operation = await cdp.evm.wait_for_evm_eip7702_delegation_operation_status(
+            ...     delegation_operation_id="delegation-op-123",
             ... )
-            >>> print(status.status)  # "CURRENT"
+            >>> print(operation.status)  # "COMPLETED"
 
         """
-        track_action(action="wait_for_eip7702_delegation_status")
+        track_action(action="wait_for_eip7702_delegation_operation_status")
         try:
-            return await wait_for_evm_eip7702_delegation_status(
+            return await wait_for_evm_eip7702_delegation_operation_status(
                 api_clients=self.api_clients,
-                address=address,
-                network=network,
+                delegation_operation_id=delegation_operation_id,
                 timeout_seconds=timeout_seconds,
                 interval_seconds=interval_seconds,
             )
         except Exception as error:
-            track_error(error, "wait_for_evm_eip7702_delegation_status")
+            track_error(error, "wait_for_evm_eip7702_delegation_operation_status")
             raise
 
     async def update_smart_account(

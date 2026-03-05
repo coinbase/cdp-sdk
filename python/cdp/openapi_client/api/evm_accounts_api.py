@@ -25,8 +25,7 @@ from cdp.openapi_client.models.create_evm_eip7702_delegation201_response import 
 from cdp.openapi_client.models.create_evm_eip7702_delegation_request import CreateEvmEip7702DelegationRequest
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_account import EvmAccount
-from cdp.openapi_client.models.evm_eip7702_delegation_network import EvmEip7702DelegationNetwork
-from cdp.openapi_client.models.evm_eip7702_delegation_status import EvmEip7702DelegationStatus
+from cdp.openapi_client.models.evm_eip7702_delegation_operation import EvmEip7702DelegationOperation
 from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
@@ -1973,10 +1972,9 @@ class EVMAccountsApi:
 
 
     @validate_call
-    async def get_evm_eip7702_delegation_status(
+    async def get_evm_eip7702_delegation_operation_by_id(
         self,
-        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        network: Annotated[EvmEip7702DelegationNetwork, Field(description="The network to query the delegation status on.")],
+        delegation_operation_id: Annotated[StrictStr, Field(description="The unique identifier for the delegation operation.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1989,15 +1987,13 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvmEip7702DelegationStatus:
-        """Get EIP-7702 delegation status
+    ) -> EvmEip7702DelegationOperation:
+        """Get EIP-7702 delegation operation for an operationID
 
-        Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+        Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
 
-        :param address: The 0x-prefixed address of the EVM account. (required)
-        :type address: str
-        :param network: The network to query the delegation status on. (required)
-        :type network: EvmEip7702DelegationNetwork
+        :param delegation_operation_id: The unique identifier for the delegation operation. (required)
+        :type delegation_operation_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2020,9 +2016,8 @@ class EVMAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_evm_eip7702_delegation_status_serialize(
-            address=address,
-            network=network,
+        _param = self._get_evm_eip7702_delegation_operation_by_id_serialize(
+            delegation_operation_id=delegation_operation_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2030,7 +2025,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvmEip7702DelegationStatus",
+            '200': "EvmEip7702DelegationOperation",
             '400': "Error",
             '404': "Error",
             '500': "Error",
@@ -2049,10 +2044,9 @@ class EVMAccountsApi:
 
 
     @validate_call
-    async def get_evm_eip7702_delegation_status_with_http_info(
+    async def get_evm_eip7702_delegation_operation_by_id_with_http_info(
         self,
-        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        network: Annotated[EvmEip7702DelegationNetwork, Field(description="The network to query the delegation status on.")],
+        delegation_operation_id: Annotated[StrictStr, Field(description="The unique identifier for the delegation operation.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2065,15 +2059,13 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvmEip7702DelegationStatus]:
-        """Get EIP-7702 delegation status
+    ) -> ApiResponse[EvmEip7702DelegationOperation]:
+        """Get EIP-7702 delegation operation for an operationID
 
-        Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+        Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
 
-        :param address: The 0x-prefixed address of the EVM account. (required)
-        :type address: str
-        :param network: The network to query the delegation status on. (required)
-        :type network: EvmEip7702DelegationNetwork
+        :param delegation_operation_id: The unique identifier for the delegation operation. (required)
+        :type delegation_operation_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2096,9 +2088,8 @@ class EVMAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_evm_eip7702_delegation_status_serialize(
-            address=address,
-            network=network,
+        _param = self._get_evm_eip7702_delegation_operation_by_id_serialize(
+            delegation_operation_id=delegation_operation_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2106,7 +2097,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvmEip7702DelegationStatus",
+            '200': "EvmEip7702DelegationOperation",
             '400': "Error",
             '404': "Error",
             '500': "Error",
@@ -2125,10 +2116,9 @@ class EVMAccountsApi:
 
 
     @validate_call
-    async def get_evm_eip7702_delegation_status_without_preload_content(
+    async def get_evm_eip7702_delegation_operation_by_id_without_preload_content(
         self,
-        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        network: Annotated[EvmEip7702DelegationNetwork, Field(description="The network to query the delegation status on.")],
+        delegation_operation_id: Annotated[StrictStr, Field(description="The unique identifier for the delegation operation.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2142,14 +2132,12 @@ class EVMAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get EIP-7702 delegation status
+        """Get EIP-7702 delegation operation for an operationID
 
-        Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
+        Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
 
-        :param address: The 0x-prefixed address of the EVM account. (required)
-        :type address: str
-        :param network: The network to query the delegation status on. (required)
-        :type network: EvmEip7702DelegationNetwork
+        :param delegation_operation_id: The unique identifier for the delegation operation. (required)
+        :type delegation_operation_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2172,9 +2160,8 @@ class EVMAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_evm_eip7702_delegation_status_serialize(
-            address=address,
-            network=network,
+        _param = self._get_evm_eip7702_delegation_operation_by_id_serialize(
+            delegation_operation_id=delegation_operation_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2182,7 +2169,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvmEip7702DelegationStatus",
+            '200': "EvmEip7702DelegationOperation",
             '400': "Error",
             '404': "Error",
             '500': "Error",
@@ -2196,10 +2183,9 @@ class EVMAccountsApi:
         return response_data.response
 
 
-    def _get_evm_eip7702_delegation_status_serialize(
+    def _get_evm_eip7702_delegation_operation_by_id_serialize(
         self,
-        address,
-        network,
+        delegation_operation_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2221,13 +2207,9 @@ class EVMAccountsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if address is not None:
-            _path_params['address'] = address
+        if delegation_operation_id is not None:
+            _path_params['delegationOperationId'] = delegation_operation_id
         # process the query parameters
-        if network is not None:
-            
-            _query_params.append(('network', network.value))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2249,7 +2231,7 @@ class EVMAccountsApi:
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v2/evm/accounts/{address}/eip7702/delegation',
+            resource_path='/v2/evm/eip7702/delegation-operations/{delegationOperationId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

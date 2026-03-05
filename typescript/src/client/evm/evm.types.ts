@@ -26,7 +26,7 @@ import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
   CreateEvmEip7702DelegationResult as CreateEvmEip7702DelegationResultApi,
   EvmEip7702DelegationNetwork,
-  EvmEip7702DelegationStatus,
+  EvmEip7702DelegationOperation,
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
@@ -40,11 +40,8 @@ import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
 
-/** Result of createEvmEip7702Delegation with transactionHash typed as Hex for viem compatibility. */
-export type CreateEvmEip7702DelegationResult = Omit<
-  CreateEvmEip7702DelegationResultApi,
-  "transactionHash"
-> & { transactionHash: Hex };
+/** Result of createEvmEip7702Delegation with delegationOperationId. */
+export type CreateEvmEip7702DelegationResult = CreateEvmEip7702DelegationResultApi;
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.
@@ -85,6 +82,7 @@ export type EvmClientInterface = Omit<
   | "exportEvmAccountByName"
   | "updateEvmSmartAccount" // 🚧 Coming soon
   | "createEvmEip7702Delegation" // mapped to options-based createEvmEip7702Delegation
+  | "getEvmEip7702DelegationOperationById" // wrapped as getEvmEip7702DelegationOperationById
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
@@ -122,12 +120,14 @@ export type EvmClientInterface = Omit<
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
   createEvmEip7702Delegation: (
-    address: Address,
     options: CreateEvmEip7702DelegationOptions,
   ) => Promise<CreateEvmEip7702DelegationResult>;
-  waitForEvmEip7702DelegationStatus: (
-    options: WaitForEvmEip7702DelegationStatusOptions,
-  ) => Promise<EvmEip7702DelegationStatus>;
+  getEvmEip7702DelegationOperationById: (
+    delegationOperationId: string,
+  ) => Promise<EvmEip7702DelegationOperation>;
+  waitForEvmEip7702DelegationOperationStatus: (
+    options: WaitForEvmEip7702DelegationOperationStatusOptions,
+  ) => Promise<EvmEip7702DelegationOperation>;
 };
 
 export type { ServerAccount, SmartAccount };
@@ -504,6 +504,8 @@ export interface UpdateEvmSmartAccountOptions {
  * Options for creating an EIP-7702 delegation for an EVM EOA account.
  */
 export interface CreateEvmEip7702DelegationOptions {
+  /** The address of the EOA account. */
+  address: Address;
   /** The network for the EIP-7702 delegation. */
   network: EvmEip7702DelegationNetwork;
   /** Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf. Defaults to false. */
@@ -513,13 +515,11 @@ export interface CreateEvmEip7702DelegationOptions {
 }
 
 /**
- * Options for waiting for an EIP-7702 delegation status to become CURRENT.
+ * Options for waiting for an EIP-7702 delegation operation to complete.
  */
-export interface WaitForEvmEip7702DelegationStatusOptions {
-  /** The address of the EVM account. */
-  address: string;
-  /** The network to query the delegation status on. */
-  network: EvmEip7702DelegationNetwork;
+export interface WaitForEvmEip7702DelegationOperationStatusOptions {
+  /** The delegation operation ID returned by createEvmEip7702Delegation. */
+  delegationOperationId: string;
   /** Optional options for the wait operation. */
   waitOptions?: WaitOptions;
 }

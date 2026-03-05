@@ -4088,16 +4088,16 @@ pub mod types {
     ///{
     ///  "type": "object",
     ///  "required": [
-    ///    "transactionHash"
+    ///    "delegationOperationId"
     ///  ],
     ///  "properties": {
-    ///    "transactionHash": {
-    ///      "description": "The hash of the Type 4 transaction that was submitted.",
+    ///    "delegationOperationId": {
+    ///      "description": "The unique identifier for the delegation operation. Use this to poll the operation status.",
     ///      "examples": [
-    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///        "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///      "format": "uuid"
     ///    }
     ///  }
     ///}
@@ -4105,9 +4105,9 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct CreateEvmEip7702DelegationResponse {
-        ///The hash of the Type 4 transaction that was submitted.
-        #[serde(rename = "transactionHash")]
-        pub transaction_hash: CreateEvmEip7702DelegationResponseTransactionHash,
+        ///The unique identifier for the delegation operation. Use this to poll the operation status.
+        #[serde(rename = "delegationOperationId")]
+        pub delegation_operation_id: ::uuid::Uuid,
     }
     impl ::std::convert::From<&CreateEvmEip7702DelegationResponse>
         for CreateEvmEip7702DelegationResponse
@@ -4119,95 +4119,6 @@ pub mod types {
     impl CreateEvmEip7702DelegationResponse {
         pub fn builder() -> builder::CreateEvmEip7702DelegationResponse {
             Default::default()
-        }
-    }
-    ///The hash of the Type 4 transaction that was submitted.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The hash of the Type 4 transaction that was submitted.",
-    ///  "examples": [
-    ///    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-    ///  ],
-    ///  "type": "string",
-    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[serde(transparent)]
-    pub struct CreateEvmEip7702DelegationResponseTransactionHash(::std::string::String);
-    impl ::std::ops::Deref for CreateEvmEip7702DelegationResponseTransactionHash {
-        type Target = ::std::string::String;
-        fn deref(&self) -> &::std::string::String {
-            &self.0
-        }
-    }
-    impl ::std::convert::From<CreateEvmEip7702DelegationResponseTransactionHash>
-        for ::std::string::String
-    {
-        fn from(value: CreateEvmEip7702DelegationResponseTransactionHash) -> Self {
-            value.0
-        }
-    }
-    impl ::std::convert::From<&CreateEvmEip7702DelegationResponseTransactionHash>
-        for CreateEvmEip7702DelegationResponseTransactionHash
-    {
-        fn from(value: &CreateEvmEip7702DelegationResponseTransactionHash) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::str::FromStr for CreateEvmEip7702DelegationResponseTransactionHash {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationResponseTransactionHash {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String>
-        for CreateEvmEip7702DelegationResponseTransactionHash
-    {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String>
-        for CreateEvmEip7702DelegationResponseTransactionHash
-    {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationResponseTransactionHash {
-        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-        where
-            D: ::serde::Deserializer<'de>,
-        {
-            ::std::string::String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as ::serde::de::Error>::custom(e.to_string())
-                })
         }
     }
     ///`CreateEvmEip7702DelegationXIdempotencyKey`
@@ -13285,15 +13196,16 @@ pub mod types {
             value.parse()
         }
     }
-    ///The EIP-7702 delegation status for an EVM account.
+    ///The status of an EIP-7702 delegation operation.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The EIP-7702 delegation status for an EVM account.",
+    ///  "description": "The status of an EIP-7702 delegation operation.",
     ///  "type": "object",
     ///  "required": [
+    ///    "delegationOperationId",
     ///    "network",
     ///    "status"
     ///  ],
@@ -13306,47 +13218,74 @@ pub mod types {
     ///      "type": "string",
     ///      "pattern": "^0x[0-9a-fA-F]{40}$"
     ///    },
+    ///    "delegationOperationId": {
+    ///      "description": "The unique identifier for the delegation operation.",
+    ///      "examples": [
+    ///        "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "uuid"
+    ///    },
     ///    "network": {
     ///      "$ref": "#/components/schemas/EvmEip7702DelegationNetwork"
     ///    },
     ///    "status": {
-    ///      "description": "The current delegation state of the account.\nCURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.",
+    ///      "description": "The current status of the delegation operation.\nUNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.",
     ///      "examples": [
-    ///        "CURRENT"
+    ///        "COMPLETED"
     ///      ],
     ///      "type": "string",
     ///      "enum": [
-    ///        "CURRENT",
-    ///        "NOT_DELEGATED",
-    ///        "WRONG_PROXY",
-    ///        "NOT_INITIALIZED"
+    ///        "UNSPECIFIED",
+    ///        "PENDING",
+    ///        "SUBMITTED",
+    ///        "COMPLETED",
+    ///        "FAILED"
     ///      ]
+    ///    },
+    ///    "transactionHash": {
+    ///      "description": "The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.",
+    ///      "examples": [
+    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
     ///    }
     ///  }
     ///}
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct EvmEip7702DelegationStatus {
+    pub struct EvmEip7702DelegationOperation {
         ///The address the account has delegated to, if any. Only present when the account has an active delegation.
         #[serde(
             rename = "delegateAddress",
             default,
             skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub delegate_address: ::std::option::Option<EvmEip7702DelegationStatusDelegateAddress>,
+        pub delegate_address: ::std::option::Option<EvmEip7702DelegationOperationDelegateAddress>,
+        ///The unique identifier for the delegation operation.
+        #[serde(rename = "delegationOperationId")]
+        pub delegation_operation_id: ::uuid::Uuid,
         pub network: EvmEip7702DelegationNetwork,
-        /**The current delegation state of the account.
-        CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.*/
-        pub status: EvmEip7702DelegationStatusStatus,
+        /**The current status of the delegation operation.
+        UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.*/
+        pub status: EvmEip7702DelegationOperationStatus,
+        ///The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
+        #[serde(
+            rename = "transactionHash",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub transaction_hash: ::std::option::Option<EvmEip7702DelegationOperationTransactionHash>,
     }
-    impl ::std::convert::From<&EvmEip7702DelegationStatus> for EvmEip7702DelegationStatus {
-        fn from(value: &EvmEip7702DelegationStatus) -> Self {
+    impl ::std::convert::From<&EvmEip7702DelegationOperation> for EvmEip7702DelegationOperation {
+        fn from(value: &EvmEip7702DelegationOperation) -> Self {
             value.clone()
         }
     }
-    impl EvmEip7702DelegationStatus {
-        pub fn builder() -> builder::EvmEip7702DelegationStatus {
+    impl EvmEip7702DelegationOperation {
+        pub fn builder() -> builder::EvmEip7702DelegationOperation {
             Default::default()
         }
     }
@@ -13367,26 +13306,26 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct EvmEip7702DelegationStatusDelegateAddress(::std::string::String);
-    impl ::std::ops::Deref for EvmEip7702DelegationStatusDelegateAddress {
+    pub struct EvmEip7702DelegationOperationDelegateAddress(::std::string::String);
+    impl ::std::ops::Deref for EvmEip7702DelegationOperationDelegateAddress {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<EvmEip7702DelegationStatusDelegateAddress> for ::std::string::String {
-        fn from(value: EvmEip7702DelegationStatusDelegateAddress) -> Self {
+    impl ::std::convert::From<EvmEip7702DelegationOperationDelegateAddress> for ::std::string::String {
+        fn from(value: EvmEip7702DelegationOperationDelegateAddress) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&EvmEip7702DelegationStatusDelegateAddress>
-        for EvmEip7702DelegationStatusDelegateAddress
+    impl ::std::convert::From<&EvmEip7702DelegationOperationDelegateAddress>
+        for EvmEip7702DelegationOperationDelegateAddress
     {
-        fn from(value: &EvmEip7702DelegationStatusDelegateAddress) -> Self {
+        fn from(value: &EvmEip7702DelegationOperationDelegateAddress) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for EvmEip7702DelegationStatusDelegateAddress {
+    impl ::std::str::FromStr for EvmEip7702DelegationOperationDelegateAddress {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -13399,13 +13338,15 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationStatusDelegateAddress {
+    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationOperationDelegateAddress {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<&::std::string::String> for EvmEip7702DelegationStatusDelegateAddress {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for EvmEip7702DelegationOperationDelegateAddress
+    {
         type Error = self::error::ConversionError;
         fn try_from(
             value: &::std::string::String,
@@ -13413,7 +13354,9 @@ pub mod types {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<::std::string::String> for EvmEip7702DelegationStatusDelegateAddress {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for EvmEip7702DelegationOperationDelegateAddress
+    {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -13421,7 +13364,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for EvmEip7702DelegationStatusDelegateAddress {
+    impl<'de> ::serde::Deserialize<'de> for EvmEip7702DelegationOperationDelegateAddress {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -13433,23 +13376,24 @@ pub mod types {
                 })
         }
     }
-    /**The current delegation state of the account.
-    CURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.*/
+    /**The current status of the delegation operation.
+    UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.*/
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The current delegation state of the account.\nCURRENT means the account is fully delegated and initialized. NOT_DELEGATED means the account has no active EIP-7702 delegation. WRONG_PROXY means the account is delegated to an unexpected proxy contract. NOT_INITIALIZED means the account is delegated to the correct proxy but has not been initialized.",
+    ///  "description": "The current status of the delegation operation.\nUNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.",
     ///  "examples": [
-    ///    "CURRENT"
+    ///    "COMPLETED"
     ///  ],
     ///  "type": "string",
     ///  "enum": [
-    ///    "CURRENT",
-    ///    "NOT_DELEGATED",
-    ///    "WRONG_PROXY",
-    ///    "NOT_INITIALIZED"
+    ///    "UNSPECIFIED",
+    ///    "PENDING",
+    ///    "SUBMITTED",
+    ///    "COMPLETED",
+    ///    "FAILED"
     ///  ]
     ///}
     /// ```
@@ -13466,50 +13410,54 @@ pub mod types {
         PartialEq,
         PartialOrd,
     )]
-    pub enum EvmEip7702DelegationStatusStatus {
-        #[serde(rename = "CURRENT")]
-        Current,
-        #[serde(rename = "NOT_DELEGATED")]
-        NotDelegated,
-        #[serde(rename = "WRONG_PROXY")]
-        WrongProxy,
-        #[serde(rename = "NOT_INITIALIZED")]
-        NotInitialized,
+    pub enum EvmEip7702DelegationOperationStatus {
+        #[serde(rename = "UNSPECIFIED")]
+        Unspecified,
+        #[serde(rename = "PENDING")]
+        Pending,
+        #[serde(rename = "SUBMITTED")]
+        Submitted,
+        #[serde(rename = "COMPLETED")]
+        Completed,
+        #[serde(rename = "FAILED")]
+        Failed,
     }
-    impl ::std::convert::From<&Self> for EvmEip7702DelegationStatusStatus {
-        fn from(value: &EvmEip7702DelegationStatusStatus) -> Self {
+    impl ::std::convert::From<&Self> for EvmEip7702DelegationOperationStatus {
+        fn from(value: &EvmEip7702DelegationOperationStatus) -> Self {
             value.clone()
         }
     }
-    impl ::std::fmt::Display for EvmEip7702DelegationStatusStatus {
+    impl ::std::fmt::Display for EvmEip7702DelegationOperationStatus {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Current => f.write_str("CURRENT"),
-                Self::NotDelegated => f.write_str("NOT_DELEGATED"),
-                Self::WrongProxy => f.write_str("WRONG_PROXY"),
-                Self::NotInitialized => f.write_str("NOT_INITIALIZED"),
+                Self::Unspecified => f.write_str("UNSPECIFIED"),
+                Self::Pending => f.write_str("PENDING"),
+                Self::Submitted => f.write_str("SUBMITTED"),
+                Self::Completed => f.write_str("COMPLETED"),
+                Self::Failed => f.write_str("FAILED"),
             }
         }
     }
-    impl ::std::str::FromStr for EvmEip7702DelegationStatusStatus {
+    impl ::std::str::FromStr for EvmEip7702DelegationOperationStatus {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
-                "CURRENT" => Ok(Self::Current),
-                "NOT_DELEGATED" => Ok(Self::NotDelegated),
-                "WRONG_PROXY" => Ok(Self::WrongProxy),
-                "NOT_INITIALIZED" => Ok(Self::NotInitialized),
+                "UNSPECIFIED" => Ok(Self::Unspecified),
+                "PENDING" => Ok(Self::Pending),
+                "SUBMITTED" => Ok(Self::Submitted),
+                "COMPLETED" => Ok(Self::Completed),
+                "FAILED" => Ok(Self::Failed),
                 _ => Err("invalid value".into()),
             }
         }
     }
-    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationStatusStatus {
+    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationOperationStatus {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<&::std::string::String> for EvmEip7702DelegationStatusStatus {
+    impl ::std::convert::TryFrom<&::std::string::String> for EvmEip7702DelegationOperationStatus {
         type Error = self::error::ConversionError;
         fn try_from(
             value: &::std::string::String,
@@ -13517,12 +13465,99 @@ pub mod types {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<::std::string::String> for EvmEip7702DelegationStatusStatus {
+    impl ::std::convert::TryFrom<::std::string::String> for EvmEip7702DelegationOperationStatus {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.",
+    ///  "examples": [
+    ///    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EvmEip7702DelegationOperationTransactionHash(::std::string::String);
+    impl ::std::ops::Deref for EvmEip7702DelegationOperationTransactionHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EvmEip7702DelegationOperationTransactionHash> for ::std::string::String {
+        fn from(value: EvmEip7702DelegationOperationTransactionHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EvmEip7702DelegationOperationTransactionHash>
+        for EvmEip7702DelegationOperationTransactionHash
+    {
+        fn from(value: &EvmEip7702DelegationOperationTransactionHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EvmEip7702DelegationOperationTransactionHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EvmEip7702DelegationOperationTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for EvmEip7702DelegationOperationTransactionHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for EvmEip7702DelegationOperationTransactionHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EvmEip7702DelegationOperationTransactionHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///A schema for specifying a criterion for the message being signed.
@@ -16747,85 +16782,6 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for GetEvmAccountAddress {
-        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-        where
-            D: ::serde::Deserializer<'de>,
-        {
-            ::std::string::String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as ::serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-    ///`GetEvmEip7702DelegationStatusAddress`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "type": "string",
-    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[serde(transparent)]
-    pub struct GetEvmEip7702DelegationStatusAddress(::std::string::String);
-    impl ::std::ops::Deref for GetEvmEip7702DelegationStatusAddress {
-        type Target = ::std::string::String;
-        fn deref(&self) -> &::std::string::String {
-            &self.0
-        }
-    }
-    impl ::std::convert::From<GetEvmEip7702DelegationStatusAddress> for ::std::string::String {
-        fn from(value: GetEvmEip7702DelegationStatusAddress) -> Self {
-            value.0
-        }
-    }
-    impl ::std::convert::From<&GetEvmEip7702DelegationStatusAddress>
-        for GetEvmEip7702DelegationStatusAddress
-    {
-        fn from(value: &GetEvmEip7702DelegationStatusAddress) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::str::FromStr for GetEvmEip7702DelegationStatusAddress {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for GetEvmEip7702DelegationStatusAddress {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for GetEvmEip7702DelegationStatusAddress {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for GetEvmEip7702DelegationStatusAddress {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl<'de> ::serde::Deserialize<'de> for GetEvmEip7702DelegationStatusAddress {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -47429,29 +47385,26 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct CreateEvmEip7702DelegationResponse {
-            transaction_hash: ::std::result::Result<
-                super::CreateEvmEip7702DelegationResponseTransactionHash,
-                ::std::string::String,
-            >,
+            delegation_operation_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
         }
         impl ::std::default::Default for CreateEvmEip7702DelegationResponse {
             fn default() -> Self {
                 Self {
-                    transaction_hash: Err("no value supplied for transaction_hash".to_string()),
+                    delegation_operation_id: Err(
+                        "no value supplied for delegation_operation_id".to_string()
+                    ),
                 }
             }
         }
         impl CreateEvmEip7702DelegationResponse {
-            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            pub fn delegation_operation_id<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<
-                    super::CreateEvmEip7702DelegationResponseTransactionHash,
-                >,
+                T: ::std::convert::TryInto<::uuid::Uuid>,
                 T::Error: ::std::fmt::Display,
             {
-                self.transaction_hash = value.try_into().map_err(|e| {
+                self.delegation_operation_id = value.try_into().map_err(|e| {
                     format!(
-                        "error converting supplied value for transaction_hash: {}",
+                        "error converting supplied value for delegation_operation_id: {}",
                         e
                     )
                 });
@@ -47466,7 +47419,7 @@ pub mod types {
                 value: CreateEvmEip7702DelegationResponse,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
-                    transaction_hash: value.transaction_hash?,
+                    delegation_operation_id: value.delegation_operation_id?,
                 })
             }
         }
@@ -47475,7 +47428,7 @@ pub mod types {
         {
             fn from(value: super::CreateEvmEip7702DelegationResponse) -> Self {
                 Self {
-                    transaction_hash: Ok(value.transaction_hash),
+                    delegation_operation_id: Ok(value.delegation_operation_id),
                 }
             }
         }
@@ -50796,38 +50749,60 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
-        pub struct EvmEip7702DelegationStatus {
+        pub struct EvmEip7702DelegationOperation {
             delegate_address: ::std::result::Result<
-                ::std::option::Option<super::EvmEip7702DelegationStatusDelegateAddress>,
+                ::std::option::Option<super::EvmEip7702DelegationOperationDelegateAddress>,
                 ::std::string::String,
             >,
+            delegation_operation_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
             network:
                 ::std::result::Result<super::EvmEip7702DelegationNetwork, ::std::string::String>,
             status: ::std::result::Result<
-                super::EvmEip7702DelegationStatusStatus,
+                super::EvmEip7702DelegationOperationStatus,
+                ::std::string::String,
+            >,
+            transaction_hash: ::std::result::Result<
+                ::std::option::Option<super::EvmEip7702DelegationOperationTransactionHash>,
                 ::std::string::String,
             >,
         }
-        impl ::std::default::Default for EvmEip7702DelegationStatus {
+        impl ::std::default::Default for EvmEip7702DelegationOperation {
             fn default() -> Self {
                 Self {
                     delegate_address: Ok(Default::default()),
+                    delegation_operation_id: Err(
+                        "no value supplied for delegation_operation_id".to_string()
+                    ),
                     network: Err("no value supplied for network".to_string()),
                     status: Err("no value supplied for status".to_string()),
+                    transaction_hash: Ok(Default::default()),
                 }
             }
         }
-        impl EvmEip7702DelegationStatus {
+        impl EvmEip7702DelegationOperation {
             pub fn delegate_address<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<
-                    ::std::option::Option<super::EvmEip7702DelegationStatusDelegateAddress>,
+                    ::std::option::Option<super::EvmEip7702DelegationOperationDelegateAddress>,
                 >,
                 T::Error: ::std::fmt::Display,
             {
                 self.delegate_address = value.try_into().map_err(|e| {
                     format!(
                         "error converting supplied value for delegate_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn delegation_operation_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.delegation_operation_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for delegation_operation_id: {}",
                         e
                     )
                 });
@@ -50845,7 +50820,7 @@ pub mod types {
             }
             pub fn status<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::EvmEip7702DelegationStatusStatus>,
+                T: ::std::convert::TryInto<super::EvmEip7702DelegationOperationStatus>,
                 T::Error: ::std::fmt::Display,
             {
                 self.status = value
@@ -50853,25 +50828,46 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for status: {}", e));
                 self
             }
+            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::EvmEip7702DelegationOperationTransactionHash>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_hash = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_hash: {}",
+                        e
+                    )
+                });
+                self
+            }
         }
-        impl ::std::convert::TryFrom<EvmEip7702DelegationStatus> for super::EvmEip7702DelegationStatus {
+        impl ::std::convert::TryFrom<EvmEip7702DelegationOperation>
+            for super::EvmEip7702DelegationOperation
+        {
             type Error = super::error::ConversionError;
             fn try_from(
-                value: EvmEip7702DelegationStatus,
+                value: EvmEip7702DelegationOperation,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     delegate_address: value.delegate_address?,
+                    delegation_operation_id: value.delegation_operation_id?,
                     network: value.network?,
                     status: value.status?,
+                    transaction_hash: value.transaction_hash?,
                 })
             }
         }
-        impl ::std::convert::From<super::EvmEip7702DelegationStatus> for EvmEip7702DelegationStatus {
-            fn from(value: super::EvmEip7702DelegationStatus) -> Self {
+        impl ::std::convert::From<super::EvmEip7702DelegationOperation> for EvmEip7702DelegationOperation {
+            fn from(value: super::EvmEip7702DelegationOperation) -> Self {
                 Self {
                     delegate_address: Ok(value.delegate_address),
+                    delegation_operation_id: Ok(value.delegation_operation_id),
                     network: Ok(value.network),
                     status: Ok(value.status),
+                    transaction_hash: Ok(value.transaction_hash),
                 }
             }
         }
@@ -62986,25 +62982,6 @@ impl Client {
     pub fn update_evm_account(&self) -> builder::UpdateEvmAccount<'_> {
         builder::UpdateEvmAccount::new(self)
     }
-    /**Get EIP-7702 delegation status
-
-    Returns the current EIP-7702 delegation state for an EVM account. Used to check if an account has been upgraded with smart account capabilities or needs to be upgraded.
-
-    Sends a `GET` request to `/v2/evm/accounts/{address}/eip7702/delegation`
-
-    Arguments:
-    - `address`: The 0x-prefixed address of the EVM account.
-    - `network`: The network to query the delegation status on.
-    ```ignore
-    let response = client.get_evm_eip7702_delegation_status()
-        .address(address)
-        .network(network)
-        .send()
-        .await;
-    ```*/
-    pub fn get_evm_eip7702_delegation_status(&self) -> builder::GetEvmEip7702DelegationStatus<'_> {
-        builder::GetEvmEip7702DelegationStatus::new(self)
-    }
     /**Create EIP-7702 delegation
 
     Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.
@@ -63245,6 +63222,25 @@ impl Client {
     ```*/
     pub fn sign_evm_typed_data(&self) -> builder::SignEvmTypedData<'_> {
         builder::SignEvmTypedData::new(self)
+    }
+    /**Get EIP-7702 delegation operation for an operationID
+
+    Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
+
+    Sends a `GET` request to `/v2/evm/eip7702/delegation-operations/{delegationOperationId}`
+
+    Arguments:
+    - `delegation_operation_id`: The unique identifier for the delegation operation.
+    ```ignore
+    let response = client.get_evm_eip7702_delegation_operation_by_id()
+        .delegation_operation_id(delegation_operation_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_evm_eip7702_delegation_operation_by_id(
+        &self,
+    ) -> builder::GetEvmEip7702DelegationOperationById<'_> {
+        builder::GetEvmEip7702DelegationOperationById::new(self)
     }
     /**Request funds on EVM test networks
 
@@ -66786,104 +66782,6 @@ pub mod builder {
             }
         }
     }
-    /**Builder for [`Client::get_evm_eip7702_delegation_status`]
-
-    [`Client::get_evm_eip7702_delegation_status`]: super::Client::get_evm_eip7702_delegation_status*/
-    #[derive(Debug, Clone)]
-    pub struct GetEvmEip7702DelegationStatus<'a> {
-        client: &'a super::Client,
-        address: Result<types::GetEvmEip7702DelegationStatusAddress, String>,
-        network: Result<types::EvmEip7702DelegationNetwork, String>,
-    }
-    impl<'a> GetEvmEip7702DelegationStatus<'a> {
-        pub fn new(client: &'a super::Client) -> Self {
-            Self {
-                client: client,
-                address: Err("address was not initialized".to_string()),
-                network: Err("network was not initialized".to_string()),
-            }
-        }
-        pub fn address<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::GetEvmEip7702DelegationStatusAddress>,
-        {
-            self.address = value.try_into().map_err(|_| {
-                "conversion to `GetEvmEip7702DelegationStatusAddress` for address failed"
-                    .to_string()
-            });
-            self
-        }
-        pub fn network<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::EvmEip7702DelegationNetwork>,
-        {
-            self.network = value.try_into().map_err(|_| {
-                "conversion to `EvmEip7702DelegationNetwork` for network failed".to_string()
-            });
-            self
-        }
-        ///Sends a `GET` request to `/v2/evm/accounts/{address}/eip7702/delegation`
-        pub async fn send(
-            self,
-        ) -> Result<ResponseValue<types::EvmEip7702DelegationStatus>, Error<types::Error>> {
-            let Self {
-                client,
-                address,
-                network,
-            } = self;
-            let address = address.map_err(Error::InvalidRequest)?;
-            let network = network.map_err(Error::InvalidRequest)?;
-            let url = format!(
-                "{}/v2/evm/accounts/{}/eip7702/delegation",
-                client.baseurl,
-                encode_path(&address.to_string()),
-            );
-            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
-            header_map.append(
-                ::reqwest::header::HeaderName::from_static("api-version"),
-                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
-            );
-            #[allow(unused_mut)]
-            let mut request = client
-                .client
-                .get(url)
-                .header(
-                    ::reqwest::header::ACCEPT,
-                    ::reqwest::header::HeaderValue::from_static("application/json"),
-                )
-                .query(&progenitor_middleware_client::QueryParam::new(
-                    "network", &network,
-                ))
-                .headers(header_map)
-                .build()?;
-            let info = OperationInfo {
-                operation_id: "get_evm_eip7702_delegation_status",
-            };
-            client.pre(&mut request, &info).await?;
-            let result = client.exec(request, &info).await;
-            client.post(&result, &info).await?;
-            let response = result?;
-            match response.status().as_u16() {
-                200u16 => ResponseValue::from_response::<types::Error>(response).await,
-                400u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                404u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                500u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                502u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                503u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                _ => Err(Error::UnexpectedResponse(response)),
-            }
-        }
-    }
     /**Builder for [`Client::create_evm_eip7702_delegation`]
 
     [`Client::create_evm_eip7702_delegation`]: super::Client::create_evm_eip7702_delegation*/
@@ -67931,6 +67829,90 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_evm_eip7702_delegation_operation_by_id`]
+
+    [`Client::get_evm_eip7702_delegation_operation_by_id`]: super::Client::get_evm_eip7702_delegation_operation_by_id*/
+    #[derive(Debug, Clone)]
+    pub struct GetEvmEip7702DelegationOperationById<'a> {
+        client: &'a super::Client,
+        delegation_operation_id: Result<::uuid::Uuid, String>,
+    }
+    impl<'a> GetEvmEip7702DelegationOperationById<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                delegation_operation_id: Err(
+                    "delegation_operation_id was not initialized".to_string()
+                ),
+            }
+        }
+        pub fn delegation_operation_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::uuid::Uuid>,
+        {
+            self.delegation_operation_id = value.try_into().map_err(|_| {
+                "conversion to `:: uuid :: Uuid` for delegation_operation_id failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/evm/eip7702/delegation-operations/{delegationOperationId}`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmEip7702DelegationOperation>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                delegation_operation_id,
+            } = self;
+            let delegation_operation_id = delegation_operation_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/eip7702/delegation-operations/{}",
+                client.baseurl,
+                encode_path(&delegation_operation_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_evm_eip7702_delegation_operation_by_id",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(

@@ -986,9 +986,7 @@ async def test_create_evm_eip7702_delegation():
     mock_api_clients.evm_accounts = mock_evm_accounts_api
 
     mock_response = MagicMock()
-    mock_response.transaction_hash = (
-        "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    )
+    mock_response.delegation_operation_id = "delegation-op-123"
     mock_evm_accounts_api.create_evm_eip7702_delegation = AsyncMock(return_value=mock_response)
 
     client = EvmClient(api_clients=mock_api_clients)
@@ -1012,7 +1010,7 @@ async def test_create_evm_eip7702_delegation():
         x_wallet_auth=None,
         x_idempotency_key=test_idempotency_key,
     )
-    assert result == mock_response.transaction_hash
+    assert result == mock_response.delegation_operation_id
 
 
 def test_to_evm_delegated_account(server_account_model_factory):

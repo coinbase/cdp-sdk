@@ -1,7 +1,7 @@
 # Usage: uv run python evm/eip7702/create_eip7702_delegation.py
 #
 # Creates an EIP-7702 delegation for an EOA account (upgrading it with smart account
-# capabilities), waits for delegation status to be CURRENT, then sends a user operation
+# capabilities), waits for the delegation operation to complete, then sends a user operation
 # using to_evm_delegated_account(account).
 
 import asyncio
@@ -39,24 +39,23 @@ async def main():
         # Step 3: Create the EIP-7702 delegation
         await asyncio.sleep(1)
         print("Creating EIP-7702 delegation...")
-        tx_hash = await cdp.evm.create_evm_eip7702_delegation(
+        delegation_operation_id = await cdp.evm.create_evm_eip7702_delegation(
             address=account.address,
             network="base-sepolia",
             enable_spend_permissions=False,
         )
 
-        print(f"Delegation transaction submitted: {tx_hash}")
+        print(f"Delegation operation created: {delegation_operation_id}")
 
-        # Step 4: Wait for the delegation status to be CURRENT
-        print("Waiting for delegation to be active...")
-        delegation_status = await cdp.evm.wait_for_evm_eip7702_delegation_status(
-            address=account.address,
-            network="base-sepolia",
+        # Step 4: Wait for the delegation operation to complete
+        print("Waiting for delegation to complete...")
+        delegation_operation = await cdp.evm.wait_for_evm_eip7702_delegation_operation_status(
+            delegation_operation_id=delegation_operation_id,
         )
 
         print(
-            f"Delegation is active (status: {delegation_status.status}). "
-            f"Explorer: https://sepolia.basescan.org/tx/{tx_hash}"
+            f"Delegation is complete (status: {delegation_operation.status}). "
+            f"Explorer: https://sepolia.basescan.org/tx/{delegation_operation.transaction_hash}"
         )
 
         # Step 5: Send a user operation using the upgraded EOA (via to_evm_delegated_account)
