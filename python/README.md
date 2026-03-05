@@ -974,29 +974,25 @@ You can create an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) delegation
 
 ```python
 import asyncio
-from web3 import Web3
 
 from cdp import CdpClient
-from cdp.openapi_client.models.evm_eip7702_delegation_network import (
-    EvmEip7702DelegationNetwork,
-)
-
-w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
 
 async def main():
     async with CdpClient() as cdp:
         account = await cdp.evm.get_or_create_account(name="MyAccount")
 
-        transaction_hash = await cdp.evm.create_evm_eip7702_delegation(
+        delegation_operation_id = await cdp.evm.create_evm_eip7702_delegation(
             address=account.address,
-            network=EvmEip7702DelegationNetwork.BASE_MINUS_SEPOLIA,
+            network="base-sepolia",
             enable_spend_permissions=False,  # optional, defaults to False
         )
 
-        # Wait for the delegation transaction to be confirmed (same chain as network above)
-        receipt = w3.eth.wait_for_transaction_receipt(transaction_hash)
-        print(f"Delegation confirmed in block {receipt.blockNumber}")
+        # Wait for the delegation operation to complete
+        delegation_operation = await cdp.evm.wait_for_evm_eip7702_delegation_operation_status(
+            delegation_operation_id=delegation_operation_id,
+        )
+        print(f"Delegation confirmed (status: {delegation_operation.status})")
 
 
 asyncio.run(main())
