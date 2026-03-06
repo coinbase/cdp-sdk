@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.coinbase"
-version = "0.1.0"
+version = "0.2.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
