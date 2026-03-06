@@ -1,5 +1,5 @@
 ---
-description: Release a new version of the CDP SDK for a specific language (typescript, python, or rust)
+description: Release a new version of the CDP SDK for a specific language (typescript, python, rust, or java)
 allowed-tools: Bash, Read, Glob, Grep, Edit, Write, AskUserQuestion
 ---
 
@@ -13,6 +13,7 @@ $ARGUMENTS should be one of:
 - `ts` or `typescript` - Release the TypeScript SDK
 - `py` or `python` - Release the Python SDK
 - `rust` - Release the Rust SDK
+- `java` - Release the Java SDK
 
 If $ARGUMENTS is empty or invalid, ask the user which language they want to release.
 
@@ -308,6 +309,104 @@ Display these instructions to the user that they should follow after the PR is m
 >    git tag -s cdp-sdk-rust@v{NEW_VERSION} -m "Release cdp-sdk (Rust) {NEW_VERSION}"
 >    git push origin cdp-sdk-rust@v{NEW_VERSION}
 >    git branch -d bump/rust
+>    ```
+
+---
+
+## Java Release
+
+Follow these steps if $ARGUMENTS is `java`:
+
+### Step 1: Create Release Branch
+
+Create a new branch for the release:
+```bash
+git checkout -b bump/java
+```
+
+If the branch already exists, ask the user if they want to delete it and create a new one.
+
+```bash
+git branch -D bump/java
+git checkout -b bump/java
+```
+
+### Step 2: Calculate New Version
+
+Read the current version from build.gradle.kts:
+```bash
+grep '^version = ' java/build.gradle.kts
+```
+
+Then check the changelog.d folder to determine the version bump type:
+```bash
+ls -la java/changelog.d/
+```
+
+Explain the version calculation to the user:
+- If there is a file ending in `removal.md` → **major** version bump
+- If there is a file ending in `feature.md` → **minor** version bump
+- If there is a file ending in `bugfix.md` → **patch** version bump
+
+Ask the user to confirm the new version number.
+
+### Step 3: Update Version Files
+
+Update the version in the following files:
+
+1. `java/build.gradle.kts` - Update the `version = "X.Y.Z"` line
+2. `java/README.md` - Update the version in the installation/dependency examples
+
+Read each file first, then edit it with the new version.
+
+### Step 4: Update Changelog
+
+Run git cliff to update the changelog:
+```bash
+cd java && git cliff --unreleased --tag v{NEW_VERSION} --prepend CHANGELOG.md
+```
+
+### Step 5: Clean Changelog.d
+
+Remove all files from `java/changelog.d/` except `.gitignore`:
+```bash
+find java/changelog.d -type f ! -name '.gitignore' -delete
+```
+
+### Step 6: Commit Changes
+
+Stage and commit all changes:
+```bash
+git add java/
+git commit -m "chore(java): bump cdp-sdk to {NEW_VERSION}"
+```
+
+### Step 7: Push and Create PR
+
+Push the branch and create a PR:
+```bash
+git push -u origin bump/java
+```
+
+Provide the user with instructions to:
+1. Create a PR from the `bump/java` branch
+2. Get approval and merge the PR
+
+### Step 8: Post-Merge Instructions
+
+Display these instructions to the user that they should follow after the PR is merged:
+
+> **Post-merge steps (manual):**
+>
+> 1. Manually trigger the [Publish cdp-sdk (Java)](https://github.com/coinbase/cdp-sdk/actions/workflows/java_publish.yml) workflow
+>
+> 2. Once the workflow completes, run these commands:
+>    ```bash
+>    git checkout main
+>    git pull origin main
+>    git tag -s cdp-sdk-java@v{NEW_VERSION} -m "Release cdp-sdk (Java) {NEW_VERSION}"
+>    git push origin cdp-sdk-java@v{NEW_VERSION}
+>    git branch -d bump/java
 >    ```
 
 ---

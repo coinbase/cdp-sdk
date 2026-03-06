@@ -2,6 +2,20 @@
 
 <!-- towncrier release notes start -->
 
+## [1.40.0] - 2026-03-06
+
+### Features
+
+- Added createEvmEip7702Delegation to upgrade EOAs with smart account capabilities ([#606](https://github.com/coinbase/cdp-sdk/pull/606))
+- Added support for new end user embedded wallet policy rules, reusing existing criteria - signEndUserEvmTransaction, sendEndUserEvmTransaction, signEndUserEvmMessage, signEndUserEvmTypedData, signEndUserSolTransaction, sendEndUserSolTransaction, and signEndUserSolMessage. ([#608](https://github.com/coinbase/cdp-sdk/pull/608))
+- Added get_evm_eip7702_delegation_operation_by_id and wait_for_evm_eip7702_delegation_operation_status methods ([#612](https://github.com/coinbase/cdp-sdk/pull/612))
+
+### Bugfixes
+
+- Fixed a bug where concurrent async method calls on the same object were short-circuited by the analytics error tracking wrapper, causing only the first call to execute and subsequent calls to return the input parameters instead of the actual result. ([#fix-concurrent-analytics-wrapper](https://github.com/coinbase/cdp-sdk/pull/fix-concurrent-analytics-wrapper))
+- Simplified analytics ([#607](https://github.com/coinbase/cdp-sdk/pull/607))
+
+
 ## [1.39.1] - 2026-01-29
 
 ### Bugfixes

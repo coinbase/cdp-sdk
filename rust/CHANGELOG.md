@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-06
+
+### 🚀 Features
+
+- (**CDPSDK-2237**) Implement end user policy rules for all languages ([#608](https://github.com/coinbase/cdp-sdk/pull/608))
+
+### 🐛 Bug Fixes
+
+- (**rust**) Bump progenitor to 0.12.3 to unblock openapi generation ([#551](https://github.com/coinbase/cdp-sdk/pull/551))
+- Bump progenitor to 0.12.4 to fix lints, latest openapi ([#603](https://github.com/coinbase/cdp-sdk/pull/603))
+
+### ⚙️ Miscellaneous Tasks
+
+- (**rust**) Fix rust build/publish, add env var check to prevent unnecessary regenerations by toolchain ([#487](https://github.com/coinbase/cdp-sdk/pull/487))
+- (**rust**) Update to progenitor 0.12.2 with openapi 3.x support ([#514](https://github.com/coinbase/cdp-sdk/pull/514))
+- Update OpenAPI spec, all clients, add rust to check workflow ([#515](https://github.com/coinbase/cdp-sdk/pull/515))
+- Update openapi, all clients ([#517](https://github.com/coinbase/cdp-sdk/pull/517))
+- (**rust**) Update cdp-sdk to 0.2.0 ([#531](https://github.com/coinbase/cdp-sdk/pull/531))
+
 ## [0.2.0]
 
 ### 🚀 Features
