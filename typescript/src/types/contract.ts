@@ -88,10 +88,8 @@ type CheckArgs<
   abiFunction extends AbiFunction,
   args,
   ///
-  targetArgs extends AbiParametersToPrimitiveTypes<
-    abiFunction["inputs"],
-    "inputs"
-  > = AbiParametersToPrimitiveTypes<abiFunction["inputs"], "inputs">,
+  targetArgs extends AbiParametersToPrimitiveTypes<abiFunction["inputs"], "inputs"> =
+    AbiParametersToPrimitiveTypes<abiFunction["inputs"], "inputs">,
 > = (readonly [] extends args ? readonly [] : args) extends targetArgs // fallback to `readonly []` if `args` has no value (e.g. `args` property not provided)
   ? abiFunction
   : never;
