@@ -356,6 +356,7 @@ class SQLAPIAlphaApi:
             '401': "Error",
             '408': "Error",
             '429': "Error",
+            '499': "Error",
             '500': "Error",
             '504': "Error",
         }
@@ -429,6 +430,7 @@ class SQLAPIAlphaApi:
             '401': "Error",
             '408': "Error",
             '429': "Error",
+            '499': "Error",
             '500': "Error",
             '504': "Error",
         }
@@ -502,6 +504,7 @@ class SQLAPIAlphaApi:
             '401': "Error",
             '408': "Error",
             '429': "Error",
+            '499': "Error",
             '500': "Error",
             '504': "Error",
         }

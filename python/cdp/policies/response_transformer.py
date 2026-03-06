@@ -16,9 +16,16 @@ from cdp.policies.types import (
     PrepareUserOperationRule as PrepareUserOperationRuleModel,
     ProgramIdCriterion as ProgramIdCriterionModel,
     Rule as RuleType,
+    SendEndUserEvmTransactionRule as SendEndUserEvmTransactionRuleModel,
+    SendEndUserSolTransactionRule as SendEndUserSolTransactionRuleModel,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
     SendUserOperationRule as SendUserOperationRuleModel,
+    SignEndUserEvmMessageRule as SignEndUserEvmMessageRuleModel,
+    SignEndUserEvmTransactionRule as SignEndUserEvmTransactionRuleModel,
+    SignEndUserEvmTypedDataRule as SignEndUserEvmTypedDataRuleModel,
+    SignEndUserSolMessageRule as SignEndUserSolMessageRuleModel,
+    SignEndUserSolTransactionRule as SignEndUserSolTransactionRuleModel,
     SignEvmHashRule as SignEvmHashRuleModel,
     SignEvmMessageRule as SignEvmMessageRuleModel,
     SignEvmTransactionRule as SignEvmTransactionRuleModel,
@@ -336,6 +343,25 @@ response_criterion_mapping = {
     },
 }
 
+# EndUser operations reuse the same criterion mappings as their non-EndUser counterparts.
+response_criterion_mapping["signEndUserEvmTransaction"] = response_criterion_mapping[
+    "signEvmTransaction"
+]
+response_criterion_mapping["sendEndUserEvmTransaction"] = response_criterion_mapping[
+    "sendEvmTransaction"
+]
+response_criterion_mapping["signEndUserEvmMessage"] = response_criterion_mapping["signEvmMessage"]
+response_criterion_mapping["signEndUserEvmTypedData"] = response_criterion_mapping[
+    "signEvmTypedData"
+]
+response_criterion_mapping["signEndUserSolTransaction"] = response_criterion_mapping[
+    "signSolTransaction"
+]
+response_criterion_mapping["sendEndUserSolTransaction"] = response_criterion_mapping[
+    "sendSolTransaction"
+]
+response_criterion_mapping["signEndUserSolMessage"] = response_criterion_mapping["signSolMessage"]
+
 # Response rule class mapping
 response_rule_mapping = {
     "sendEvmTransaction": SendEvmTransactionRuleModel,
@@ -348,6 +374,13 @@ response_rule_mapping = {
     "signSolMessage": SignSolMessageRuleModel,
     "prepareUserOperation": PrepareUserOperationRuleModel,
     "sendUserOperation": SendUserOperationRuleModel,
+    "signEndUserEvmTransaction": SignEndUserEvmTransactionRuleModel,
+    "sendEndUserEvmTransaction": SendEndUserEvmTransactionRuleModel,
+    "signEndUserEvmMessage": SignEndUserEvmMessageRuleModel,
+    "signEndUserEvmTypedData": SignEndUserEvmTypedDataRuleModel,
+    "signEndUserSolTransaction": SignEndUserSolTransactionRuleModel,
+    "sendEndUserSolTransaction": SendEndUserSolTransactionRuleModel,
+    "signEndUserSolMessage": SignEndUserSolMessageRuleModel,
 }
 
 

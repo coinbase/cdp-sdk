@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.sign_end_user_sol_message_rule import SignEndUserSolMessageRule
 
-class TestRule(unittest.TestCase):
-    """Rule unit test stubs"""
+class TestSignEndUserSolMessageRule(unittest.TestCase):
+    """SignEndUserSolMessageRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,30 @@ class TestRule(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Rule:
-        """Test Rule
+    def make_instance(self, include_optional) -> SignEndUserSolMessageRule:
+        """Test SignEndUserSolMessageRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Rule`
+        # uncomment below to create an instance of `SignEndUserSolMessageRule`
         """
-        model = Rule()
+        model = SignEndUserSolMessageRule()
         if include_optional:
-            return Rule(
+            return SignEndUserSolMessageRule(
                 action = 'accept',
                 operation = 'signEndUserSolMessage',
                 criteria = [{type=solMessage, match=^hello ([a-z]+)$}]
             )
         else:
-            return Rule(
+            return SignEndUserSolMessageRule(
                 action = 'accept',
                 operation = 'signEndUserSolMessage',
                 criteria = [{type=solMessage, match=^hello ([a-z]+)$}],
         )
         """
 
-    def testRule(self):
-        """Test Rule"""
+    def testSignEndUserSolMessageRule(self):
+        """Test SignEndUserSolMessageRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

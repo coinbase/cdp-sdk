@@ -34,6 +34,8 @@ public enum ErrorType {
   
   BAD_GATEWAY("bad_gateway"),
   
+  CLIENT_CLOSED_REQUEST("client_closed_request"),
+  
   FAUCET_LIMIT_EXCEEDED("faucet_limit_exceeded"),
   
   FORBIDDEN("forbidden"),
@@ -140,7 +142,9 @@ public enum ErrorType {
   
   ORDER_ALREADY_FILLED("order_already_filled"),
   
-  ORDER_ALREADY_CANCELED("order_already_canceled");
+  ORDER_ALREADY_CANCELED("order_already_canceled"),
+  
+  ACCOUNT_NOT_READY("account_not_ready");
 
   private String value;
 

@@ -379,6 +379,67 @@ export const SendSolTransactionCriteriaSchema = z
 export type SendSolTransactionCriteria = z.infer<typeof SendSolTransactionCriteriaSchema>;
 
 /**
+ * Schema for criteria used in SignEndUserSolTransaction operations
+ */
+export const SignEndUserSolTransactionCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      SolAddressCriterionSchema,
+      SolValueCriterionSchema,
+      SplAddressCriterionSchema,
+      SplValueCriterionSchema,
+      MintAddressCriterionSchema,
+      SolDataCriterionSchema,
+      ProgramIdCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEndUserSolTransaction operation.
+ */
+export type SignEndUserSolTransactionCriteria = z.infer<
+  typeof SignEndUserSolTransactionCriteriaSchema
+>;
+
+/**
+ * Schema for criteria used in SendEndUserSolTransaction operations
+ */
+export const SendEndUserSolTransactionCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      SolAddressCriterionSchema,
+      SolValueCriterionSchema,
+      SplAddressCriterionSchema,
+      SplValueCriterionSchema,
+      MintAddressCriterionSchema,
+      SolDataCriterionSchema,
+      ProgramIdCriterionSchema,
+      SolNetworkCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendEndUserSolTransaction operation.
+ */
+export type SendEndUserSolTransactionCriteria = z.infer<
+  typeof SendEndUserSolTransactionCriteriaSchema
+>;
+
+/**
+ * Schema for criteria used in SignEndUserSolMessage operations
+ */
+export const SignEndUserSolMessageCriteriaSchema = z
+  .array(SolMessageCriterionSchema)
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEndUserSolMessage operation.
+ */
+export type SignEndUserSolMessageCriteria = z.infer<typeof SignEndUserSolMessageCriteriaSchema>;
+
+/**
  * Enum for Solana Operation types
  */
 export const SolOperationEnum = z.enum([
@@ -470,3 +531,72 @@ export const SignSolMessageRuleSchema = z.object({
   criteria: SignSolMessageCriteriaSchema,
 });
 export type SignSolMessageRule = z.infer<typeof SignSolMessageRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserSolTransaction' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEndUserSolTransactionRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the transaction, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserSolTransaction".
+   */
+  operation: z.literal("signEndUserSolTransaction"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEndUserSolTransactionCriteriaSchema,
+});
+export type SignEndUserSolTransactionRule = z.infer<typeof SignEndUserSolTransactionRuleSchema>;
+
+/**
+ * Type representing a 'sendEndUserSolTransaction' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEndUserSolTransactionRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the transaction, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEndUserSolTransaction".
+   */
+  operation: z.literal("sendEndUserSolTransaction"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEndUserSolTransactionCriteriaSchema,
+});
+export type SendEndUserSolTransactionRule = z.infer<typeof SendEndUserSolTransactionRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserSolMessage' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEndUserSolMessageRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the message signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserSolMessage".
+   */
+  operation: z.literal("signEndUserSolMessage"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEndUserSolMessageCriteriaSchema,
+});
+export type SignEndUserSolMessageRule = z.infer<typeof SignEndUserSolMessageRuleSchema>;

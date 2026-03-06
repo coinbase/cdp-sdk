@@ -769,6 +769,152 @@ class SignSolMessageRule(BaseModel):
     )
 
 
+class SignEndUserEvmTransactionRule(BaseModel):
+    """Type representing a 'signEndUserEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+    )
+    operation: Literal["signEndUserEvmTransaction"] = Field(
+        "signEndUserEvmTransaction",
+        description="The operation to which this rule applies. Must be 'signEndUserEvmTransaction'.",
+    )
+    criteria: list[
+        EthValueCriterion | EvmAddressCriterion | EvmDataCriterion | NetUSDChangeCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SendEndUserEvmTransactionRule(BaseModel):
+    """Type representing a 'sendEndUserEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserEvmTransaction"] = Field(
+        "sendEndUserEvmTransaction",
+        description="The operation to which this rule applies. Must be 'sendEndUserEvmTransaction'.",
+    )
+    criteria: list[
+        EthValueCriterion
+        | EvmAddressCriterion
+        | EvmNetworkCriterion
+        | EvmDataCriterion
+        | NetUSDChangeCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SignEndUserEvmMessageRule(BaseModel):
+    """Type representing a 'signEndUserEvmMessage' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow signing, 'reject' will block it.",
+    )
+    operation: Literal["signEndUserEvmMessage"] = Field(
+        "signEndUserEvmMessage",
+        description="The operation to which this rule applies. Must be 'signEndUserEvmMessage'.",
+    )
+    criteria: list[EvmMessageCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SignEndUserEvmTypedDataRule(BaseModel):
+    """Type representing a 'signEndUserEvmTypedData' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the signing, 'reject' will block it.",
+    )
+    operation: Literal["signEndUserEvmTypedData"] = Field(
+        "signEndUserEvmTypedData",
+        description="The operation to which this rule applies. Must be 'signEndUserEvmTypedData'.",
+    )
+    criteria: list[SignEvmTypedDataFieldCriterion | SignEvmTypedDataVerifyingContractCriterion] = (
+        Field(
+            ...,
+            description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+        )
+    )
+
+
+class SignEndUserSolTransactionRule(BaseModel):
+    """Type representing a 'signEndUserSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+    )
+    operation: Literal["signEndUserSolTransaction"] = Field(
+        "signEndUserSolTransaction",
+        description="The operation to which this rule applies. Must be 'signEndUserSolTransaction'.",
+    )
+    criteria: list[
+        SolAddressCriterion
+        | SolValueCriterion
+        | SplAddressCriterion
+        | SplValueCriterion
+        | MintAddressCriterion
+        | SolDataCriterion
+        | ProgramIdCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SendEndUserSolTransactionRule(BaseModel):
+    """Type representing a 'sendEndUserSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserSolTransaction"] = Field(
+        "sendEndUserSolTransaction",
+        description="The operation to which this rule applies. Must be 'sendEndUserSolTransaction'.",
+    )
+    criteria: list[
+        SolAddressCriterion
+        | SolValueCriterion
+        | SplAddressCriterion
+        | SplValueCriterion
+        | MintAddressCriterion
+        | SolDataCriterion
+        | ProgramIdCriterion
+        | SolNetworkCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SignEndUserSolMessageRule(BaseModel):
+    """Type representing a 'signEndUserSolMessage' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the message signing, 'reject' will block it.",
+    )
+    operation: Literal["signEndUserSolMessage"] = Field(
+        "signEndUserSolMessage",
+        description="The operation to which this rule applies. Must be 'signEndUserSolMessage'.",
+    )
+    criteria: list[SolMessageCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 class PrepareUserOperationRule(BaseModel):
     """Type representing a 'prepareUserOperation' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -828,6 +974,13 @@ Rule = (
     | SignSolMessageRule
     | PrepareUserOperationRule
     | SendUserOperationRule
+    | SignEndUserEvmTransactionRule
+    | SendEndUserEvmTransactionRule
+    | SignEndUserEvmMessageRule
+    | SignEndUserEvmTypedDataRule
+    | SignEndUserSolTransactionRule
+    | SendEndUserSolTransactionRule
+    | SignEndUserSolMessageRule
 )
 
 

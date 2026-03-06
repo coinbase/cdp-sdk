@@ -23,6 +23,13 @@ TYPES=(
     "SignSolTransactionCriteria"
     "AuthenticationMethods"
     "SignEvmHashCriteria"
+    "SendEndUserEvmTransactionCriteria"
+    "SendEndUserSolTransactionCriteria"
+    "SignEndUserEvmMessageCriteria"
+    "SignEndUserEvmTransactionCriteria"
+    "SignEndUserEvmTypedDataCriteria"
+    "SignEndUserSolMessageCriteria"
+    "SignEndUserSolTransactionCriteria"
 )
 
 for TYPE in "${TYPES[@]}"; do
