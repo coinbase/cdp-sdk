@@ -1,5 +1,19 @@
 # CDP SDK Changelog
 
+## 1.45.0
+
+### Minor Changes
+
+- [#606](https://github.com/coinbase/cdp-sdk/pull/606) [`3fef84a`](https://github.com/coinbase/cdp-sdk/commit/3fef84a828ee897fcbdc9bb920fcc3641eac8641) Thanks [@milan-cb](https://github.com/milan-cb)! - Added createEvmEip7702Delegation to upgrade EOAs with smart account capabilities
+
+- [#612](https://github.com/coinbase/cdp-sdk/pull/612) [`7ed8a11`](https://github.com/coinbase/cdp-sdk/commit/7ed8a1177e5fddc70929ee7ec339887c780657b1) Thanks [@milan-cb](https://github.com/milan-cb)! - Added getEvmEip7702DelegationOperationById and waitForEvmEip7702DelegationOperationStatus
+
+- [#608](https://github.com/coinbase/cdp-sdk/pull/608) [`8fcfac3`](https://github.com/coinbase/cdp-sdk/commit/8fcfac348487f586b224b77074f52594ad44198b) Thanks [@sammccord](https://github.com/sammccord)! - Added support for new end user embedded wallet policy rules, reusing existing criteria - signEndUserEvmTransaction, sendEndUserEvmTransaction, signEndUserEvmMessage, signEndUserEvmTypedData, signEndUserSolTransaction, sendEndUserSolTransaction, and signEndUserSolMessage.
+
+### Patch Changes
+
+- [#607](https://github.com/coinbase/cdp-sdk/pull/607) [`21244e3`](https://github.com/coinbase/cdp-sdk/commit/21244e32384fb189facbea96668087d24ded035a) Thanks [@0xRAG](https://github.com/0xRAG)! - Simplify analytics
+
 ## 1.44.1
 
 ### Patch Changes
