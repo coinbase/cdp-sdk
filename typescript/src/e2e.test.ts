@@ -4193,7 +4193,9 @@ describe("CDP Client E2E Tests", () => {
       expect(rpcCalls.length).toBeGreaterThan(0);
 
       const rpcUrl = rpcCalls[0][0] as string;
-      expect(rpcUrl).toBe(optimismSepolia.rpcUrls.default.http[0]);
+      expect(rpcUrl.replace(/\/$/, "")).toBe(
+        optimismSepolia.rpcUrls.default.http[0].replace(/\/$/, ""),
+      );
 
       logger.log(`Optimism Sepolia RPC URL used: ${rpcUrl}`);
     } finally {

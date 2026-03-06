@@ -3,16 +3,16 @@
   "type": "module",
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",
-    "@solana/kit": "^3.0.3",
+    "@solana-program/system": "^0.8.1",
     "@solana-program/token": "^0.6.0",
-    "@solana-program/system": "^0.8.0",
-    "@solana/web3.js": "^1.98.1",
-    "@types/node": "^22.14.1",
+    "@solana/kit": "^3.0.3",
+    "@solana/web3.js": "^1.98.4",
+    "@types/node": "^22.19.15",
     "bs58": "^6.0.0",
-    "dotenv": "^16.5.0",
-    "permissionless": "^0.2.47",
-    "tsx": "^4.19.3",
-    "viem": "^2.21.26"
+    "dotenv": "^16.6.1",
+    "permissionless": "^0.2.57",
+    "tsx": "^4.21.0",
+    "viem": "^2.47.0"
   },
   "scripts": {
     "build": "tsc"

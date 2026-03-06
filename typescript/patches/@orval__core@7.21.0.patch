@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 2a1da94e77c1adaa9f0bf8240dfbebc16958e07c..e09a1b7f251b370fddfa7ac5f027c586e8a8fafc 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -2575,7 +2575,7 @@ const generateDependency = ({ deps, isAllowSyntheticDefaultImports, dependency,
+ 		if (deps.length === 1) return namespaceImportString;
+ 		importString += `${namespaceImportString}\n`;
+ 	}
+-	importString += `import ${onlyTypes ? "type " : ""}${defaultDep ? `${defaultDep.name}${depsString ? "," : ""}` : ""}${depsString ? `{\n  ${depsString}\n}` : ""} from '${dependency}${key !== "default" && specsName[key] ? `/${specsName[key]}` : ""}';`;
++	importString += `import ${onlyTypes ? "type " : ""}${defaultDep ? `${defaultDep.name}${depsString ? "," : ""}` : ""}${depsString ? `{\n  ${depsString}\n}` : ""} from '${dependency}${key !== "default" && specsName[key] ? `/${specsName[key]}` : ""}${dependency.includes('coinbaseDeveloperPlatformAPIs.schemas') ? '.js' : ''}';`;
+ 	return importString;
+ };
+ const addDependency = ({ implementation, exports: exports$1, dependency, specsName, hasSchemaDir, isAllowSyntheticDefaultImports }) => {
