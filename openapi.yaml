@@ -134,6 +134,12 @@ tags:
             - `signEvmMessage` for signing an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
             - `prepareUserOperation` for preparing user operations on a smart account.
             - `sendUserOperation` for sending user operations using a smart account.
+            - `signEndUserEvmTransaction` or `signEndUserSolTransaction` for signing end user transactions (to set a transaction limit).
+            - `sendEndUserEvmTransaction` for signing an end user transaction, and sending it to a supported EVM network.
+            - `sendEndUserSolTransaction` for signing an end user transaction, and sending it to a supported Solana network.
+            - `signEndUserEvmMessage` for signing an end user [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
+            - `signEndUserEvmTypedData` for signing end user [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
+            - `signEndUserSolMessage` for signing an end user Solana message.
       - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
@@ -142,6 +148,8 @@ tags:
         can have at most one account-level policy at any given time.
 
       Thus, a single account can be assigned at most two policies at any given time: one project-level policy and one account-level policy.
+
+      **Note:** End user operation rules (e.g., `signEndUserEvmTransaction`, `sendEndUserSolTransaction`) currently only apply for policies with the `project` scope.
 
       Scope is specified in the `scope` field of a policy:
       ```json {
@@ -321,6 +329,85 @@ tags:
         - `solana-devnet`
         - `solana`
 
+      ## End User Criteria for Embedded Wallets
+      End user criteria apply to operations performed by end users via embedded wallets. These criteria are only evaluated for policies with the `project` scope. The supported criterion types for each end user operation mirror their non-end-user counterparts.
+      ### SignEndUserEvmTransaction Criteria
+      #### ethValue
+      A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      #### netUSDChange
+      A criterion based on the USD denominated market value of assets being transferred, or exposing the sender to. The types of assets included in the calculation include native assets, `ERC20`, `ERC721`, and `ERC1155` tokens. The sum total USD amount of assets being transferred and exposed is compared to the criterion's `changeCents` field using the `operator` field. If signing a testnet transaction, then this criterion configuration will be ignored.
+      ### SendEndUserEvmTransaction Criteria
+      #### ethValue
+      A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
+      #### evmNetwork
+      A criterion based on the intended network of the transaction. The `network` field in the `sendEndUserEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `base`
+        - `base-sepolia`
+        - `ethereum`
+        - `ethereum-sepolia`
+        - `avalanche`
+        - `polygon`
+        - `optimism`
+        - `arbitrum`
+
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      #### netUSDChange
+      A criterion based on the USD denominated market value of assets being transferred, or exposing the sender to. The types of assets included in the calculation include native assets, `ERC20`, `ERC721`, and `ERC1155` tokens. The sum total USD amount of assets being transferred and exposed is compared to the criterion's `changeCents` field using the `operator` field. If sending a testnet transaction, then this criterion configuration will be ignored.
+      ### SignEndUserEvmMessage Criteria
+      #### evmMessage
+      A criterion based on the intended message to be signed. The `match` field in the criteria is a [RE2](https://github.com/google/re2/wiki/Syntax) compliant regular expression that will be executed against the message in the API request.
+      ### SignEndUserEvmTypedData Criteria
+      #### evmTypedDataField
+      A criterion based on the fields of the [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data being signed. The `types` field specifies the EIP-712 type definitions and primary type, while the `conditions` field defines validation rules for specific fields within the typed data message. Conditions can target address fields, numerical fields, or string fields, and can reference deeply nested values using dot-separated paths.
+      #### evmTypedDataVerifyingContract
+      A criterion based on the verifying contract address in the [EIP-712](https://eips.ethereum.org/EIPS/eip-712) domain separator. The domain's `verifyingContract` field is compared to the criterion's `addresses` field using the `operator` field.
+      ### SignEndUserSolTransaction Criteria
+      #### solAddress
+      A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solData
+      A criterion based on Solana transaction instruction data. The criterion uses Interface Definition Language (IDL) specifications to decode and validate instruction data against specific rules. The `idls` field specifies which Solana programs to validate against (either known program names like "SystemProgram" and "TokenProgram", or custom IDL objects), and the `conditions` field defines instruction-specific validation rules including instruction names and parameter constraints.
+      #### programId
+      A criterion based on the program IDs of a transaction's instructions. The criterion's `programIds` field is compared to the list of program IDs in the transaction's instructions using the `operator` field.
+      ### SendEndUserSolTransaction Criteria
+      #### solAddress
+      A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solData
+      A criterion based on Solana transaction instruction data. The criterion uses Interface Definition Language (IDL) specifications to decode and validate instruction data against specific rules. The `idls` field specifies which Solana programs to validate against (either known program names like "SystemProgram" and "TokenProgram", or custom IDL objects), and the `conditions` field defines instruction-specific validation rules including instruction names and parameter constraints.
+      #### programId
+      A criterion based on the program IDs of a transaction's instructions. The criterion's `programIds` field is compared to the list of program IDs in the transaction's instructions using the `operator` field.
+      #### solNetwork
+      A criterion based on the intended network of the transaction. The `network` field in the `sendEndUserSolTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `solana-devnet`
+        - `solana`
+
+      ### SignEndUserSolMessage Criteria
+      #### solMessage
+      A criterion based on the intended message to be signed. The `match` field in the criteria is a [RE2](https://github.com/google/re2/wiki/Syntax) compliant regular expression that will be executed against the message in the API request.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
@@ -5453,6 +5540,8 @@ paths:
                   value:
                     errorType: rate_limit_exceeded
                     errorMessage: Too many requests. Please try again later.
+        '499':
+          $ref: '#/components/responses/ClientClosedRequestError'
         '500':
           $ref: '#/components/responses/InternalServerError'
         '504':
@@ -6962,6 +7051,7 @@ components:
       enum:
         - already_exists
         - bad_gateway
+        - client_closed_request
         - faucet_limit_exceeded
         - forbidden
         - idempotency_error
@@ -7016,6 +7106,7 @@ components:
         - order_quote_expired
         - order_already_filled
         - order_already_canceled
+        - account_not_ready
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -7035,6 +7126,18 @@ components:
           3. Consider implementing retry logic with an exponential backoff
 
           **Note:** These errors are automatically logged and monitored by CDP.
+        client_closed_request: |-
+          This error occurs when the client closes the connection before the server can send a response.
+
+          **Common causes:**
+          - The client timed out waiting for the server response
+          - The client application was terminated during a pending request
+          - Network interruption caused the client connection to drop
+
+          **Steps to resolve:**
+          1. Increase client-side timeout settings if applicable
+          2. Implement retry logic with exponential backoff for long-running queries
+          3. Consider optimizing the request to reduce server processing time
         faucet_limit_exceeded: |-
           This error occurs when you've exceeded the faucet request limits.
 
@@ -7579,6 +7682,12 @@ components:
           **Steps to resolve:**
           1. Check the current status of the order using `GET /v2/orders/{orderId}`.
           2. Create a new order if you still want to trade.
+        account_not_ready: |-
+          This error occurs when an operation is attempted on an account that is still being provisioned.
+
+          **Steps to resolve:**
+          1. Wait a few moments and retry the request
+          2. If the error persists, the account may still be completing setup — retry with exponential backoff
     Url:
       type: string
       format: uri
@@ -10194,6 +10303,388 @@ components:
         - action
         - operation
         - criteria
+    SignEndUserEvmTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the signEndUserEvmTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+        - type: evmData
+          abi: erc20
+          conditions:
+            - function: transfer
+              params:
+                - name: value
+                  operator: <=
+                  value: '10000'
+        - type: netUSDChange
+          changeCents: 10000
+          operator: <=
+    SignEndUserEvmTransactionRule:
+      x-audience: public
+      title: SignEndUserEvmTransactionRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEndUserEvmTransaction
+          enum:
+            - signEndUserEvmTransaction
+        criteria:
+          $ref: '#/components/schemas/SignEndUserEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendEndUserEvmTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the sendEndUserEvmTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+        - type: evmNetwork
+          networks:
+            - base
+            - ethereum
+          operator: in
+        - type: evmData
+          abi: erc20
+          conditions:
+            - function: transfer
+              params:
+                - name: value
+                  operator: <=
+                  value: '10000'
+        - type: netUSDChange
+          changeCents: 10000
+          operator: <=
+    SendEndUserEvmTransactionRule:
+      x-audience: public
+      title: SendEndUserEvmTransactionRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendEndUserEvmTransaction
+          enum:
+            - sendEndUserEvmTransaction
+        criteria:
+          $ref: '#/components/schemas/SendEndUserEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SignEndUserEvmMessageCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the signEndUserEvmMessage operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EvmMessageCriterion'
+      example:
+        - type: evmMessage
+          match: ^hello ([a-z]+)$
+    SignEndUserEvmMessageRule:
+      x-audience: public
+      title: SignEndUserEvmMessageRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEndUserEvmMessage
+          enum:
+            - signEndUserEvmMessage
+        criteria:
+          $ref: '#/components/schemas/SignEndUserEvmMessageCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SignEndUserEvmTypedDataCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the signEndUserEvmTypedData operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SignEvmTypedDataFieldCriterion'
+          - $ref: '#/components/schemas/SignEvmTypedDataVerifyingContractCriterion'
+      example:
+        - type: evmTypedDataField
+          types:
+            types:
+              Person:
+                - name: name
+                  type: string
+                - name: wallet
+                  type: address
+                - name: score
+                  type: uint256
+              Mail:
+                - name: from
+                  type: Person
+                - name: to
+                  type: Person
+                - name: contents
+                  type: string
+            primaryType: Mail
+          conditions:
+            - addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              operator: in
+              path: to.wallet
+            - value: '50'
+              operator: '>='
+              path: to.score
+            - match: ^hello ([a-z]+)$
+              path: contents
+        - type: evmTypedDataVerifyingContract
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SignEndUserEvmTypedDataRule:
+      x-audience: public
+      title: SignEndUserEvmTypedDataRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEndUserEvmTypedData
+          enum:
+            - signEndUserEvmTypedData
+        criteria:
+          $ref: '#/components/schemas/SignEndUserEvmTypedDataCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SignEndUserSolTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the signEndUserSolTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolAddressCriterion'
+          - $ref: '#/components/schemas/SolValueCriterion'
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/MintAddressCriterion'
+          - $ref: '#/components/schemas/SolDataCriterion'
+          - $ref: '#/components/schemas/ProgramIdCriterion'
+      example:
+        - type: solAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: solValue
+          solValue: '1000000000000000000'
+          operator: <=
+        - type: splAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: splValue
+          splValue: '1000000000000000000'
+          operator: <=
+        - type: mintAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: solData
+          idls:
+            - SystemProgram
+          conditions:
+            - instruction: transfer_checked
+              params:
+                - name: lamports
+                  operator: <=
+                  value: '1000000'
+        - type: programId
+          programIds:
+            - TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+          operator: in
+    SignEndUserSolTransactionRule:
+      x-audience: public
+      title: SignEndUserSolTransactionRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEndUserSolTransaction
+          enum:
+            - signEndUserSolTransaction
+        criteria:
+          $ref: '#/components/schemas/SignEndUserSolTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendEndUserSolTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the sendEndUserSolTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolAddressCriterion'
+          - $ref: '#/components/schemas/SolValueCriterion'
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/MintAddressCriterion'
+          - $ref: '#/components/schemas/SolDataCriterion'
+          - $ref: '#/components/schemas/ProgramIdCriterion'
+          - $ref: '#/components/schemas/SolNetworkCriterion'
+      example:
+        - type: solAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: solValue
+          solValue: '1000000000000000000'
+          operator: <=
+        - type: splAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: splValue
+          splValue: '1000000000000000000'
+          operator: <=
+        - type: mintAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: solData
+          idls:
+            - SystemProgram
+          conditions:
+            - instruction: transfer_checked
+              params:
+                - name: lamports
+                  operator: <=
+                  value: '1000000'
+        - type: programId
+          programIds:
+            - TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+          operator: in
+        - type: solNetwork
+          networks:
+            - solana-devnet
+            - solana
+          operator: in
+    SendEndUserSolTransactionRule:
+      x-audience: public
+      title: SendEndUserSolTransactionRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendEndUserSolTransaction
+          enum:
+            - sendEndUserSolTransaction
+        criteria:
+          $ref: '#/components/schemas/SendEndUserSolTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SignEndUserSolMessageCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the signEndUserSolMessage operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolMessageCriterion'
+      example:
+        - type: solMessage
+          match: ^hello ([a-z]+)$
+    SignEndUserSolMessageRule:
+      x-audience: public
+      title: SignEndUserSolMessageRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEndUserSolMessage
+          enum:
+            - signEndUserSolMessage
+        criteria:
+          $ref: '#/components/schemas/SignEndUserSolMessageCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     Rule:
       type: object
       description: A rule that limits the behavior of an account.
@@ -10208,6 +10699,13 @@ components:
         - $ref: '#/components/schemas/SignEvmHashRule'
         - $ref: '#/components/schemas/PrepareUserOperationRule'
         - $ref: '#/components/schemas/SendUserOperationRule'
+        - $ref: '#/components/schemas/SignEndUserEvmTransactionRule'
+        - $ref: '#/components/schemas/SendEndUserEvmTransactionRule'
+        - $ref: '#/components/schemas/SignEndUserEvmMessageRule'
+        - $ref: '#/components/schemas/SignEndUserEvmTypedDataRule'
+        - $ref: '#/components/schemas/SignEndUserSolTransactionRule'
+        - $ref: '#/components/schemas/SendEndUserSolTransactionRule'
+        - $ref: '#/components/schemas/SignEndUserSolMessageRule'
       example:
         action: accept
         operation: signEvmTransaction
@@ -11870,6 +12368,17 @@ components:
               value:
                 errorType: invalid_sql_query
                 errorMessage: Query exceeds maximum length of 10,000 characters
+    ClientClosedRequestError:
+      description: The client closed the connection before the server could send a response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            client_closed_request:
+              value:
+                errorType: client_closed_request
+                errorMessage: The client closed the request before the server could send a response.
     TimedOutError:
       description: The request timed out.
       content:

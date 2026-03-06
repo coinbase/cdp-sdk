@@ -67,9 +67,11 @@ const (
 // Defines values for ErrorType.
 const (
 	ErrorTypeAccountLimitExceeded           ErrorType = "account_limit_exceeded"
+	ErrorTypeAccountNotReady                ErrorType = "account_not_ready"
 	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
 	ErrorTypeAssetMismatch                  ErrorType = "asset_mismatch"
 	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
+	ErrorTypeClientClosedRequest            ErrorType = "client_closed_request"
 	ErrorTypeDocumentVerificationFailed     ErrorType = "document_verification_failed"
 	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
 	ErrorTypeForbidden                      ErrorType = "forbidden"
@@ -431,6 +433,28 @@ const (
 	ProgramId ProgramIdCriterionType = "programId"
 )
 
+// Defines values for SendEndUserEvmTransactionRuleAction.
+const (
+	SendEndUserEvmTransactionRuleActionAccept SendEndUserEvmTransactionRuleAction = "accept"
+	SendEndUserEvmTransactionRuleActionReject SendEndUserEvmTransactionRuleAction = "reject"
+)
+
+// Defines values for SendEndUserEvmTransactionRuleOperation.
+const (
+	SendEndUserEvmTransaction SendEndUserEvmTransactionRuleOperation = "sendEndUserEvmTransaction"
+)
+
+// Defines values for SendEndUserSolTransactionRuleAction.
+const (
+	SendEndUserSolTransactionRuleActionAccept SendEndUserSolTransactionRuleAction = "accept"
+	SendEndUserSolTransactionRuleActionReject SendEndUserSolTransactionRuleAction = "reject"
+)
+
+// Defines values for SendEndUserSolTransactionRuleOperation.
+const (
+	SendEndUserSolTransaction SendEndUserSolTransactionRuleOperation = "sendEndUserSolTransaction"
+)
+
 // Defines values for SendEvmTransactionRuleAction.
 const (
 	SendEvmTransactionRuleActionAccept SendEvmTransactionRuleAction = "accept"
@@ -462,6 +486,61 @@ const (
 // Defines values for SendUserOperationRuleOperation.
 const (
 	SendUserOperation SendUserOperationRuleOperation = "sendUserOperation"
+)
+
+// Defines values for SignEndUserEvmMessageRuleAction.
+const (
+	SignEndUserEvmMessageRuleActionAccept SignEndUserEvmMessageRuleAction = "accept"
+	SignEndUserEvmMessageRuleActionReject SignEndUserEvmMessageRuleAction = "reject"
+)
+
+// Defines values for SignEndUserEvmMessageRuleOperation.
+const (
+	SignEndUserEvmMessage SignEndUserEvmMessageRuleOperation = "signEndUserEvmMessage"
+)
+
+// Defines values for SignEndUserEvmTransactionRuleAction.
+const (
+	SignEndUserEvmTransactionRuleActionAccept SignEndUserEvmTransactionRuleAction = "accept"
+	SignEndUserEvmTransactionRuleActionReject SignEndUserEvmTransactionRuleAction = "reject"
+)
+
+// Defines values for SignEndUserEvmTransactionRuleOperation.
+const (
+	SignEndUserEvmTransaction SignEndUserEvmTransactionRuleOperation = "signEndUserEvmTransaction"
+)
+
+// Defines values for SignEndUserEvmTypedDataRuleAction.
+const (
+	SignEndUserEvmTypedDataRuleActionAccept SignEndUserEvmTypedDataRuleAction = "accept"
+	SignEndUserEvmTypedDataRuleActionReject SignEndUserEvmTypedDataRuleAction = "reject"
+)
+
+// Defines values for SignEndUserEvmTypedDataRuleOperation.
+const (
+	SignEndUserEvmTypedData SignEndUserEvmTypedDataRuleOperation = "signEndUserEvmTypedData"
+)
+
+// Defines values for SignEndUserSolMessageRuleAction.
+const (
+	SignEndUserSolMessageRuleActionAccept SignEndUserSolMessageRuleAction = "accept"
+	SignEndUserSolMessageRuleActionReject SignEndUserSolMessageRuleAction = "reject"
+)
+
+// Defines values for SignEndUserSolMessageRuleOperation.
+const (
+	SignEndUserSolMessage SignEndUserSolMessageRuleOperation = "signEndUserSolMessage"
+)
+
+// Defines values for SignEndUserSolTransactionRuleAction.
+const (
+	SignEndUserSolTransactionRuleActionAccept SignEndUserSolTransactionRuleAction = "accept"
+	SignEndUserSolTransactionRuleActionReject SignEndUserSolTransactionRuleAction = "reject"
+)
+
+// Defines values for SignEndUserSolTransactionRuleOperation.
+const (
+	SignEndUserSolTransaction SignEndUserSolTransactionRuleOperation = "signEndUserSolTransaction"
 )
 
 // Defines values for SignEvmHashRuleAction.
@@ -537,8 +616,8 @@ const (
 
 // Defines values for SignSolTransactionRuleAction.
 const (
-	SignSolTransactionRuleActionAccept SignSolTransactionRuleAction = "accept"
-	SignSolTransactionRuleActionReject SignSolTransactionRuleAction = "reject"
+	Accept SignSolTransactionRuleAction = "accept"
+	Reject SignSolTransactionRuleAction = "reject"
 )
 
 // Defines values for SignSolTransactionRuleOperation.
@@ -2125,6 +2204,58 @@ type Rule struct {
 	union json.RawMessage
 }
 
+// SendEndUserEvmTransactionCriteria A schema for specifying criteria for the sendEndUserEvmTransaction operation.
+type SendEndUserEvmTransactionCriteria = []SendEndUserEvmTransactionCriteria_Item
+
+// SendEndUserEvmTransactionCriteria_Item defines model for SendEndUserEvmTransactionCriteria.Item.
+type SendEndUserEvmTransactionCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SendEndUserEvmTransactionRule defines model for SendEndUserEvmTransactionRule.
+type SendEndUserEvmTransactionRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SendEndUserEvmTransactionRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the sendEndUserEvmTransaction operation.
+	Criteria SendEndUserEvmTransactionCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SendEndUserEvmTransactionRuleOperation `json:"operation"`
+}
+
+// SendEndUserEvmTransactionRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SendEndUserEvmTransactionRuleAction string
+
+// SendEndUserEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SendEndUserEvmTransactionRuleOperation string
+
+// SendEndUserSolTransactionCriteria A schema for specifying criteria for the sendEndUserSolTransaction operation.
+type SendEndUserSolTransactionCriteria = []SendEndUserSolTransactionCriteria_Item
+
+// SendEndUserSolTransactionCriteria_Item defines model for SendEndUserSolTransactionCriteria.Item.
+type SendEndUserSolTransactionCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SendEndUserSolTransactionRule defines model for SendEndUserSolTransactionRule.
+type SendEndUserSolTransactionRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SendEndUserSolTransactionRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the sendEndUserSolTransaction operation.
+	Criteria SendEndUserSolTransactionCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SendEndUserSolTransactionRuleOperation `json:"operation"`
+}
+
+// SendEndUserSolTransactionRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SendEndUserSolTransactionRuleAction string
+
+// SendEndUserSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SendEndUserSolTransactionRuleOperation string
+
 // SendEvmTransactionCriteria A schema for specifying criteria for the SignEvmTransaction operation.
 type SendEvmTransactionCriteria = []SendEvmTransactionCriteria_Item
 
@@ -2202,6 +2333,136 @@ type SendUserOperationRuleAction string
 
 // SendUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendUserOperationRuleOperation string
+
+// SignEndUserEvmMessageCriteria A schema for specifying criteria for the signEndUserEvmMessage operation.
+type SignEndUserEvmMessageCriteria = []SignEndUserEvmMessageCriteria_Item
+
+// SignEndUserEvmMessageCriteria_Item defines model for SignEndUserEvmMessageCriteria.Item.
+type SignEndUserEvmMessageCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SignEndUserEvmMessageRule defines model for SignEndUserEvmMessageRule.
+type SignEndUserEvmMessageRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SignEndUserEvmMessageRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the signEndUserEvmMessage operation.
+	Criteria SignEndUserEvmMessageCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SignEndUserEvmMessageRuleOperation `json:"operation"`
+}
+
+// SignEndUserEvmMessageRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SignEndUserEvmMessageRuleAction string
+
+// SignEndUserEvmMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SignEndUserEvmMessageRuleOperation string
+
+// SignEndUserEvmTransactionCriteria A schema for specifying criteria for the signEndUserEvmTransaction operation.
+type SignEndUserEvmTransactionCriteria = []SignEndUserEvmTransactionCriteria_Item
+
+// SignEndUserEvmTransactionCriteria_Item defines model for SignEndUserEvmTransactionCriteria.Item.
+type SignEndUserEvmTransactionCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SignEndUserEvmTransactionRule defines model for SignEndUserEvmTransactionRule.
+type SignEndUserEvmTransactionRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SignEndUserEvmTransactionRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the signEndUserEvmTransaction operation.
+	Criteria SignEndUserEvmTransactionCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SignEndUserEvmTransactionRuleOperation `json:"operation"`
+}
+
+// SignEndUserEvmTransactionRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SignEndUserEvmTransactionRuleAction string
+
+// SignEndUserEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SignEndUserEvmTransactionRuleOperation string
+
+// SignEndUserEvmTypedDataCriteria A schema for specifying criteria for the signEndUserEvmTypedData operation.
+type SignEndUserEvmTypedDataCriteria = []SignEndUserEvmTypedDataCriteria_Item
+
+// SignEndUserEvmTypedDataCriteria_Item defines model for SignEndUserEvmTypedDataCriteria.Item.
+type SignEndUserEvmTypedDataCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SignEndUserEvmTypedDataRule defines model for SignEndUserEvmTypedDataRule.
+type SignEndUserEvmTypedDataRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SignEndUserEvmTypedDataRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the signEndUserEvmTypedData operation.
+	Criteria SignEndUserEvmTypedDataCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SignEndUserEvmTypedDataRuleOperation `json:"operation"`
+}
+
+// SignEndUserEvmTypedDataRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SignEndUserEvmTypedDataRuleAction string
+
+// SignEndUserEvmTypedDataRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SignEndUserEvmTypedDataRuleOperation string
+
+// SignEndUserSolMessageCriteria A schema for specifying criteria for the signEndUserSolMessage operation.
+type SignEndUserSolMessageCriteria = []SignEndUserSolMessageCriteria_Item
+
+// SignEndUserSolMessageCriteria_Item defines model for SignEndUserSolMessageCriteria.Item.
+type SignEndUserSolMessageCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SignEndUserSolMessageRule defines model for SignEndUserSolMessageRule.
+type SignEndUserSolMessageRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SignEndUserSolMessageRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the signEndUserSolMessage operation.
+	Criteria SignEndUserSolMessageCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SignEndUserSolMessageRuleOperation `json:"operation"`
+}
+
+// SignEndUserSolMessageRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SignEndUserSolMessageRuleAction string
+
+// SignEndUserSolMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SignEndUserSolMessageRuleOperation string
+
+// SignEndUserSolTransactionCriteria A schema for specifying criteria for the signEndUserSolTransaction operation.
+type SignEndUserSolTransactionCriteria = []SignEndUserSolTransactionCriteria_Item
+
+// SignEndUserSolTransactionCriteria_Item defines model for SignEndUserSolTransactionCriteria.Item.
+type SignEndUserSolTransactionCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SignEndUserSolTransactionRule defines model for SignEndUserSolTransactionRule.
+type SignEndUserSolTransactionRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SignEndUserSolTransactionRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the signEndUserSolTransaction operation.
+	Criteria SignEndUserSolTransactionCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SignEndUserSolTransactionRuleOperation `json:"operation"`
+}
+
+// SignEndUserSolTransactionRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SignEndUserSolTransactionRuleAction string
+
+// SignEndUserSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SignEndUserSolTransactionRuleOperation string
 
 // SignEvmHashRule defines model for SignEvmHashRule.
 type SignEvmHashRule struct {
@@ -3275,6 +3536,9 @@ type AlreadyExistsError = Error
 
 // BadGatewayError An error response including the code for the type of error and a human-readable message describing the error.
 type BadGatewayError = Error
+
+// ClientClosedRequestError An error response including the code for the type of error and a human-readable message describing the error.
+type ClientClosedRequestError = Error
 
 // IdempotencyError An error response including the code for the type of error and a human-readable message describing the error.
 type IdempotencyError = Error
@@ -5410,12 +5674,552 @@ func (t *Rule) MergeSendUserOperationRule(v SendUserOperationRule) error {
 	return err
 }
 
+// AsSignEndUserEvmTransactionRule returns the union data inside the Rule as a SignEndUserEvmTransactionRule
+func (t Rule) AsSignEndUserEvmTransactionRule() (SignEndUserEvmTransactionRule, error) {
+	var body SignEndUserEvmTransactionRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmTransactionRule overwrites any union data inside the Rule as the provided SignEndUserEvmTransactionRule
+func (t *Rule) FromSignEndUserEvmTransactionRule(v SignEndUserEvmTransactionRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmTransactionRule performs a merge with any union data inside the Rule, using the provided SignEndUserEvmTransactionRule
+func (t *Rule) MergeSignEndUserEvmTransactionRule(v SignEndUserEvmTransactionRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserEvmTransactionRule returns the union data inside the Rule as a SendEndUserEvmTransactionRule
+func (t Rule) AsSendEndUserEvmTransactionRule() (SendEndUserEvmTransactionRule, error) {
+	var body SendEndUserEvmTransactionRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserEvmTransactionRule overwrites any union data inside the Rule as the provided SendEndUserEvmTransactionRule
+func (t *Rule) FromSendEndUserEvmTransactionRule(v SendEndUserEvmTransactionRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserEvmTransactionRule performs a merge with any union data inside the Rule, using the provided SendEndUserEvmTransactionRule
+func (t *Rule) MergeSendEndUserEvmTransactionRule(v SendEndUserEvmTransactionRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmMessageRule returns the union data inside the Rule as a SignEndUserEvmMessageRule
+func (t Rule) AsSignEndUserEvmMessageRule() (SignEndUserEvmMessageRule, error) {
+	var body SignEndUserEvmMessageRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmMessageRule overwrites any union data inside the Rule as the provided SignEndUserEvmMessageRule
+func (t *Rule) FromSignEndUserEvmMessageRule(v SignEndUserEvmMessageRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmMessageRule performs a merge with any union data inside the Rule, using the provided SignEndUserEvmMessageRule
+func (t *Rule) MergeSignEndUserEvmMessageRule(v SignEndUserEvmMessageRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmTypedDataRule returns the union data inside the Rule as a SignEndUserEvmTypedDataRule
+func (t Rule) AsSignEndUserEvmTypedDataRule() (SignEndUserEvmTypedDataRule, error) {
+	var body SignEndUserEvmTypedDataRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmTypedDataRule overwrites any union data inside the Rule as the provided SignEndUserEvmTypedDataRule
+func (t *Rule) FromSignEndUserEvmTypedDataRule(v SignEndUserEvmTypedDataRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmTypedDataRule performs a merge with any union data inside the Rule, using the provided SignEndUserEvmTypedDataRule
+func (t *Rule) MergeSignEndUserEvmTypedDataRule(v SignEndUserEvmTypedDataRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserSolTransactionRule returns the union data inside the Rule as a SignEndUserSolTransactionRule
+func (t Rule) AsSignEndUserSolTransactionRule() (SignEndUserSolTransactionRule, error) {
+	var body SignEndUserSolTransactionRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserSolTransactionRule overwrites any union data inside the Rule as the provided SignEndUserSolTransactionRule
+func (t *Rule) FromSignEndUserSolTransactionRule(v SignEndUserSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserSolTransactionRule performs a merge with any union data inside the Rule, using the provided SignEndUserSolTransactionRule
+func (t *Rule) MergeSignEndUserSolTransactionRule(v SignEndUserSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserSolTransactionRule returns the union data inside the Rule as a SendEndUserSolTransactionRule
+func (t Rule) AsSendEndUserSolTransactionRule() (SendEndUserSolTransactionRule, error) {
+	var body SendEndUserSolTransactionRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserSolTransactionRule overwrites any union data inside the Rule as the provided SendEndUserSolTransactionRule
+func (t *Rule) FromSendEndUserSolTransactionRule(v SendEndUserSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserSolTransactionRule performs a merge with any union data inside the Rule, using the provided SendEndUserSolTransactionRule
+func (t *Rule) MergeSendEndUserSolTransactionRule(v SendEndUserSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserSolMessageRule returns the union data inside the Rule as a SignEndUserSolMessageRule
+func (t Rule) AsSignEndUserSolMessageRule() (SignEndUserSolMessageRule, error) {
+	var body SignEndUserSolMessageRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserSolMessageRule overwrites any union data inside the Rule as the provided SignEndUserSolMessageRule
+func (t *Rule) FromSignEndUserSolMessageRule(v SignEndUserSolMessageRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserSolMessageRule performs a merge with any union data inside the Rule, using the provided SignEndUserSolMessageRule
+func (t *Rule) MergeSignEndUserSolMessageRule(v SignEndUserSolMessageRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t Rule) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
 func (t *Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEthValueCriterion returns the union data inside the SendEndUserEvmTransactionCriteria_Item as a EthValueCriterion
+func (t SendEndUserEvmTransactionCriteria_Item) AsEthValueCriterion() (EthValueCriterion, error) {
+	var body EthValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEthValueCriterion overwrites any union data inside the SendEndUserEvmTransactionCriteria_Item as the provided EthValueCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) FromEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEthValueCriterion performs a merge with any union data inside the SendEndUserEvmTransactionCriteria_Item, using the provided EthValueCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) MergeEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmAddressCriterion returns the union data inside the SendEndUserEvmTransactionCriteria_Item as a EvmAddressCriterion
+func (t SendEndUserEvmTransactionCriteria_Item) AsEvmAddressCriterion() (EvmAddressCriterion, error) {
+	var body EvmAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmAddressCriterion overwrites any union data inside the SendEndUserEvmTransactionCriteria_Item as the provided EvmAddressCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) FromEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmAddressCriterion performs a merge with any union data inside the SendEndUserEvmTransactionCriteria_Item, using the provided EvmAddressCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) MergeEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmNetworkCriterion returns the union data inside the SendEndUserEvmTransactionCriteria_Item as a EvmNetworkCriterion
+func (t SendEndUserEvmTransactionCriteria_Item) AsEvmNetworkCriterion() (EvmNetworkCriterion, error) {
+	var body EvmNetworkCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmNetworkCriterion overwrites any union data inside the SendEndUserEvmTransactionCriteria_Item as the provided EvmNetworkCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) FromEvmNetworkCriterion(v EvmNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmNetworkCriterion performs a merge with any union data inside the SendEndUserEvmTransactionCriteria_Item, using the provided EvmNetworkCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) MergeEvmNetworkCriterion(v EvmNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmDataCriterion returns the union data inside the SendEndUserEvmTransactionCriteria_Item as a EvmDataCriterion
+func (t SendEndUserEvmTransactionCriteria_Item) AsEvmDataCriterion() (EvmDataCriterion, error) {
+	var body EvmDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmDataCriterion overwrites any union data inside the SendEndUserEvmTransactionCriteria_Item as the provided EvmDataCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) FromEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmDataCriterion performs a merge with any union data inside the SendEndUserEvmTransactionCriteria_Item, using the provided EvmDataCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNetUSDChangeCriterion returns the union data inside the SendEndUserEvmTransactionCriteria_Item as a NetUSDChangeCriterion
+func (t SendEndUserEvmTransactionCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SendEndUserEvmTransactionCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SendEndUserEvmTransactionCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SendEndUserEvmTransactionCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SendEndUserEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SendEndUserEvmTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSolAddressCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a SolAddressCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsSolAddressCriterion() (SolAddressCriterion, error) {
+	var body SolAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolAddressCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided SolAddressCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolAddressCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided SolAddressCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a SolValueCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided SolValueCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided SolValueCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a SplAddressCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided SplAddressCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided SplAddressCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a SplValueCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided SplValueCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided SplValueCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a MintAddressCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided MintAddressCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided MintAddressCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolDataCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a SolDataCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsSolDataCriterion() (SolDataCriterion, error) {
+	var body SolDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided SolDataCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided SolDataCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProgramIdCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a ProgramIdCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsProgramIdCriterion() (ProgramIdCriterion, error) {
+	var body ProgramIdCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProgramIdCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided ProgramIdCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProgramIdCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided ProgramIdCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolNetworkCriterion returns the union data inside the SendEndUserSolTransactionCriteria_Item as a SolNetworkCriterion
+func (t SendEndUserSolTransactionCriteria_Item) AsSolNetworkCriterion() (SolNetworkCriterion, error) {
+	var body SolNetworkCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolNetworkCriterion overwrites any union data inside the SendEndUserSolTransactionCriteria_Item as the provided SolNetworkCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) FromSolNetworkCriterion(v SolNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolNetworkCriterion performs a merge with any union data inside the SendEndUserSolTransactionCriteria_Item, using the provided SolNetworkCriterion
+func (t *SendEndUserSolTransactionCriteria_Item) MergeSolNetworkCriterion(v SolNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SendEndUserSolTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SendEndUserSolTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -5888,6 +6692,446 @@ func (t SendUserOperationCriteria_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *SendUserOperationCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEvmMessageCriterion returns the union data inside the SignEndUserEvmMessageCriteria_Item as a EvmMessageCriterion
+func (t SignEndUserEvmMessageCriteria_Item) AsEvmMessageCriterion() (EvmMessageCriterion, error) {
+	var body EvmMessageCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmMessageCriterion overwrites any union data inside the SignEndUserEvmMessageCriteria_Item as the provided EvmMessageCriterion
+func (t *SignEndUserEvmMessageCriteria_Item) FromEvmMessageCriterion(v EvmMessageCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmMessageCriterion performs a merge with any union data inside the SignEndUserEvmMessageCriteria_Item, using the provided EvmMessageCriterion
+func (t *SignEndUserEvmMessageCriteria_Item) MergeEvmMessageCriterion(v EvmMessageCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SignEndUserEvmMessageCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SignEndUserEvmMessageCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEthValueCriterion returns the union data inside the SignEndUserEvmTransactionCriteria_Item as a EthValueCriterion
+func (t SignEndUserEvmTransactionCriteria_Item) AsEthValueCriterion() (EthValueCriterion, error) {
+	var body EthValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEthValueCriterion overwrites any union data inside the SignEndUserEvmTransactionCriteria_Item as the provided EthValueCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) FromEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEthValueCriterion performs a merge with any union data inside the SignEndUserEvmTransactionCriteria_Item, using the provided EthValueCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) MergeEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmAddressCriterion returns the union data inside the SignEndUserEvmTransactionCriteria_Item as a EvmAddressCriterion
+func (t SignEndUserEvmTransactionCriteria_Item) AsEvmAddressCriterion() (EvmAddressCriterion, error) {
+	var body EvmAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmAddressCriterion overwrites any union data inside the SignEndUserEvmTransactionCriteria_Item as the provided EvmAddressCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) FromEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmAddressCriterion performs a merge with any union data inside the SignEndUserEvmTransactionCriteria_Item, using the provided EvmAddressCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) MergeEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmDataCriterion returns the union data inside the SignEndUserEvmTransactionCriteria_Item as a EvmDataCriterion
+func (t SignEndUserEvmTransactionCriteria_Item) AsEvmDataCriterion() (EvmDataCriterion, error) {
+	var body EvmDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmDataCriterion overwrites any union data inside the SignEndUserEvmTransactionCriteria_Item as the provided EvmDataCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) FromEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmDataCriterion performs a merge with any union data inside the SignEndUserEvmTransactionCriteria_Item, using the provided EvmDataCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNetUSDChangeCriterion returns the union data inside the SignEndUserEvmTransactionCriteria_Item as a NetUSDChangeCriterion
+func (t SignEndUserEvmTransactionCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SignEndUserEvmTransactionCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SignEndUserEvmTransactionCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SignEndUserEvmTransactionCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SignEndUserEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SignEndUserEvmTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSignEvmTypedDataFieldCriterion returns the union data inside the SignEndUserEvmTypedDataCriteria_Item as a SignEvmTypedDataFieldCriterion
+func (t SignEndUserEvmTypedDataCriteria_Item) AsSignEvmTypedDataFieldCriterion() (SignEvmTypedDataFieldCriterion, error) {
+	var body SignEvmTypedDataFieldCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmTypedDataFieldCriterion overwrites any union data inside the SignEndUserEvmTypedDataCriteria_Item as the provided SignEvmTypedDataFieldCriterion
+func (t *SignEndUserEvmTypedDataCriteria_Item) FromSignEvmTypedDataFieldCriterion(v SignEvmTypedDataFieldCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmTypedDataFieldCriterion performs a merge with any union data inside the SignEndUserEvmTypedDataCriteria_Item, using the provided SignEvmTypedDataFieldCriterion
+func (t *SignEndUserEvmTypedDataCriteria_Item) MergeSignEvmTypedDataFieldCriterion(v SignEvmTypedDataFieldCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEvmTypedDataVerifyingContractCriterion returns the union data inside the SignEndUserEvmTypedDataCriteria_Item as a SignEvmTypedDataVerifyingContractCriterion
+func (t SignEndUserEvmTypedDataCriteria_Item) AsSignEvmTypedDataVerifyingContractCriterion() (SignEvmTypedDataVerifyingContractCriterion, error) {
+	var body SignEvmTypedDataVerifyingContractCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmTypedDataVerifyingContractCriterion overwrites any union data inside the SignEndUserEvmTypedDataCriteria_Item as the provided SignEvmTypedDataVerifyingContractCriterion
+func (t *SignEndUserEvmTypedDataCriteria_Item) FromSignEvmTypedDataVerifyingContractCriterion(v SignEvmTypedDataVerifyingContractCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmTypedDataVerifyingContractCriterion performs a merge with any union data inside the SignEndUserEvmTypedDataCriteria_Item, using the provided SignEvmTypedDataVerifyingContractCriterion
+func (t *SignEndUserEvmTypedDataCriteria_Item) MergeSignEvmTypedDataVerifyingContractCriterion(v SignEvmTypedDataVerifyingContractCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SignEndUserEvmTypedDataCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SignEndUserEvmTypedDataCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSolMessageCriterion returns the union data inside the SignEndUserSolMessageCriteria_Item as a SolMessageCriterion
+func (t SignEndUserSolMessageCriteria_Item) AsSolMessageCriterion() (SolMessageCriterion, error) {
+	var body SolMessageCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolMessageCriterion overwrites any union data inside the SignEndUserSolMessageCriteria_Item as the provided SolMessageCriterion
+func (t *SignEndUserSolMessageCriteria_Item) FromSolMessageCriterion(v SolMessageCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolMessageCriterion performs a merge with any union data inside the SignEndUserSolMessageCriteria_Item, using the provided SolMessageCriterion
+func (t *SignEndUserSolMessageCriteria_Item) MergeSolMessageCriterion(v SolMessageCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SignEndUserSolMessageCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SignEndUserSolMessageCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSolAddressCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a SolAddressCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsSolAddressCriterion() (SolAddressCriterion, error) {
+	var body SolAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolAddressCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided SolAddressCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolAddressCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided SolAddressCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a SolValueCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided SolValueCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided SolValueCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a SplAddressCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided SplAddressCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided SplAddressCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a SplValueCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided SplValueCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided SplValueCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a MintAddressCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided MintAddressCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided MintAddressCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolDataCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a SolDataCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsSolDataCriterion() (SolDataCriterion, error) {
+	var body SolDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided SolDataCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided SolDataCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProgramIdCriterion returns the union data inside the SignEndUserSolTransactionCriteria_Item as a ProgramIdCriterion
+func (t SignEndUserSolTransactionCriteria_Item) AsProgramIdCriterion() (ProgramIdCriterion, error) {
+	var body ProgramIdCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProgramIdCriterion overwrites any union data inside the SignEndUserSolTransactionCriteria_Item as the provided ProgramIdCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) FromProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProgramIdCriterion performs a merge with any union data inside the SignEndUserSolTransactionCriteria_Item, using the provided ProgramIdCriterion
+func (t *SignEndUserSolTransactionCriteria_Item) MergeProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SignEndUserSolTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SignEndUserSolTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -13276,6 +14520,7 @@ type RunSQLQueryResponse struct {
 	JSON401      *UnauthorizedError
 	JSON408      *Error
 	JSON429      *Error
+	JSON499      *ClientClosedRequestError
 	JSON500      *InternalServerError
 	JSON504      *TimedOutError
 }
@@ -16589,6 +17834,13 @@ func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) 
 			return nil, err
 		}
 		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 499:
+		var dest ClientClosedRequestError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON499 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

@@ -20,6 +20,7 @@
   - [EVM Smart Accounts](#evm-smart-accounts)
 - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
+  - [End User Policies](#end-user-policies)
 - [End-user Management](#end-user-management)
   - [Create End User](#create-end-user)
   - [Import End User](#import-end-user)
@@ -1254,6 +1255,8 @@ policy = await cdp.policies.delete_policy(id="__POLICY_ID__")
 
 We currently support the following policy rules:
 
+**Server wallet rules:**
+
 - [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmtransactionrule)
 - [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#sendevmtransactionrule)
 - [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmmessagerule)
@@ -1263,6 +1266,94 @@ We currently support the following policy rules:
 - [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmhashrule)
 - [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#prepareuseroperationrule)
 - [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#senduseroperationrule)
+
+**End user embedded wallet rules:**
+
+- `SignEndUserEvmTransactionRule` — operation: `signEndUserEvmTransaction` (criteria: `ethValue`, `evmAddress`, `evmData`, `netUSDChange`)
+- `SendEndUserEvmTransactionRule` — operation: `sendEndUserEvmTransaction` (criteria: `ethValue`, `evmAddress`, `evmNetwork`, `evmData`, `netUSDChange`)
+- `SignEndUserEvmMessageRule` — operation: `signEndUserEvmMessage` (criteria: `evmMessage`)
+- `SignEndUserEvmTypedDataRule` — operation: `signEndUserEvmTypedData` (criteria: `evmTypedDataField`, `evmTypedDataVerifyingContract`)
+- `SignEndUserSolTransactionRule` — operation: `signEndUserSolTransaction` (criteria: `solAddress`, `solValue`, `splAddress`, `splValue`, `mintAddress`, `solData`, `programId`)
+- `SendEndUserSolTransactionRule` — operation: `sendEndUserSolTransaction` (criteria: `solAddress`, `solValue`, `splAddress`, `splValue`, `mintAddress`, `solData`, `programId`, `solNetwork`)
+- `SignEndUserSolMessageRule` — operation: `signEndUserSolMessage` (criteria: `solMessage`)
+
+End user rules use the same criteria types as their server wallet counterparts. For example, `SignEndUserEvmTransactionRule` supports the same `EthValueCriterion`, `EvmAddressCriterion`, and `EvmDataCriterion` criteria as `SignEvmTransactionRule`.
+
+### End User embedded wallet Policies
+
+You can create policies that govern end-user operations using the same criteria types available for server wallet policies. The only difference is the rule type, which targets end-user-specific actions.
+
+#### End User EVM Policy
+
+This policy restricts end-user EVM transaction signing to a max value and allowlisted recipients — the same criteria used in `SignEvmTransactionRule`:
+
+```python
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    SignEndUserEvmTransactionRule,
+    EthValueCriterion,
+    EvmAddressCriterion,
+)
+
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="project",
+        description="End User EVM Policy",
+        rules=[
+            SignEndUserEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EthValueCriterion(
+                        ethValue="1000000000000000000",  # 1 ETH in wei
+                        operator="<=",
+                    ),
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
+                ],
+            ),
+        ],
+    )
+)
+```
+
+#### End User Solana Policy
+
+This policy restricts end-user Solana transaction signing to allowlisted recipients under a SOL value threshold — the same criteria used in `SignSolanaTransactionRule`:
+
+```python
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    SignEndUserSolTransactionRule,
+    SolAddressCriterion,
+    SolValueCriterion,
+)
+
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="project",
+        description="End User Solana Policy",
+        rules=[
+            SignEndUserSolTransactionRule(
+                action="accept",
+                criteria=[
+                    SolAddressCriterion(
+                        addresses=["11111111111111111111111111111111"],
+                        operator="in",
+                    ),
+                    SolValueCriterion(
+                        solValue="1000000000",  # 1 SOL in lamports
+                        operator="<=",
+                    ),
+                ],
+            ),
+        ],
+    )
+)
+```
+
+> For a comprehensive example demonstrating all 7 end-user operations, see [create_end_user_policy.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/end_user/create_end_user_policy.py).
 
 ### End-user Management
 

@@ -29,6 +29,7 @@ class ErrorType(str, Enum):
     """
     ALREADY_EXISTS = 'already_exists'
     BAD_GATEWAY = 'bad_gateway'
+    CLIENT_CLOSED_REQUEST = 'client_closed_request'
     FAUCET_LIMIT_EXCEEDED = 'faucet_limit_exceeded'
     FORBIDDEN = 'forbidden'
     IDEMPOTENCY_ERROR = 'idempotency_error'
@@ -83,6 +84,7 @@ class ErrorType(str, Enum):
     ORDER_QUOTE_EXPIRED = 'order_quote_expired'
     ORDER_ALREADY_FILLED = 'order_already_filled'
     ORDER_ALREADY_CANCELED = 'order_already_canceled'
+    ACCOUNT_NOT_READY = 'account_not_ready'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

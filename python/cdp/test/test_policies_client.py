@@ -12,13 +12,20 @@ from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
 from cdp.policies.types import (
     CreatePolicyOptions,
+    EvmAddressCriterion,
     EvmNetworkCriterion,
     MintAddressCriterion,
     NetUSDChangeCriterion,
     PrepareUserOperationRule,
     ProgramIdCriterion,
+    SendEndUserEvmTransactionRule,
+    SendEndUserSolTransactionRule,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
+    SignEndUserEvmMessageRule,
+    SignEndUserEvmTransactionRule,
+    SignEndUserSolMessageRule,
+    SignEndUserSolTransactionRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
     SignSolMessageRule,
@@ -78,8 +85,293 @@ async def test_create_policy(openapi_policy_model_factory, policy_model_factory)
 
     mock_policies_api.create_policy.assert_called_once_with(
         create_policy_request=CreatePolicyRequest(
-            scope=policy_model.scope,
-            description=policy_model.description,
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sign_end_user_evm_transaction_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with a SignEndUserEvmTransactionRule."""
+    openapi_policy_model = openapi_policy_model_factory()
+
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser EVM Transaction Policy",
+        rules=[
+            SignEndUserEvmTransactionRule(
+                action="accept",
+                operation="signEndUserEvmTransaction",
+                criteria=[
+                    EvmAddressCriterion(
+                        type="evmAddress",
+                        addresses=["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_end_user_evm_transaction_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with a SendEndUserEvmTransactionRule."""
+    openapi_policy_model = openapi_policy_model_factory()
+
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser EVM Send Transaction Policy",
+        rules=[
+            SendEndUserEvmTransactionRule(
+                action="reject",
+                operation="sendEndUserEvmTransaction",
+                criteria=[
+                    EvmAddressCriterion(
+                        type="evmAddress",
+                        addresses=["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        operator="not in",
+                    ),
+                    NetUSDChangeCriterion(
+                        type="netUSDChange",
+                        changeCents=10000,
+                        operator=">=",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sign_end_user_sol_transaction_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with a SignEndUserSolTransactionRule."""
+    openapi_policy_model = openapi_policy_model_factory()
+
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser SOL Transaction Policy",
+        rules=[
+            SignEndUserSolTransactionRule(
+                action="accept",
+                operation="signEndUserSolTransaction",
+                criteria=[
+                    SolAddressCriterion(
+                        type="solAddress",
+                        addresses=["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                        operator="in",
+                    ),
+                    ProgramIdCriterion(
+                        type="programId",
+                        programIds=["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sign_end_user_sol_message_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with a SignEndUserSolMessageRule."""
+    openapi_policy_model = openapi_policy_model_factory()
+
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser SOL Message Policy",
+        rules=[
+            SignEndUserSolMessageRule(
+                action="reject",
+                operation="signEndUserSolMessage",
+                criteria=[
+                    SolMessageCriterion(
+                        type="solMessage",
+                        match="^hello ([a-z]+)$",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_multiple_end_user_rules(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with multiple EndUser rules."""
+    openapi_policy_model = openapi_policy_model_factory()
+
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Multiple EndUser Rules Policy",
+        rules=[
+            SignEndUserEvmTransactionRule(
+                action="accept",
+                operation="signEndUserEvmTransaction",
+                criteria=[
+                    EvmAddressCriterion(
+                        type="evmAddress",
+                        addresses=["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        operator="in",
+                    ),
+                ],
+            ),
+            SendEndUserSolTransactionRule(
+                action="reject",
+                operation="sendEndUserSolTransaction",
+                criteria=[
+                    SolAddressCriterion(
+                        type="solAddress",
+                        addresses=["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                        operator="not in",
+                    ),
+                    SolNetworkCriterion(
+                        type="solNetwork",
+                        networks=["solana"],
+                        operator="in",
+                    ),
+                ],
+            ),
+            SignEndUserEvmMessageRule(
+                action="accept",
+                operation="signEndUserEvmMessage",
+                criteria=[],
+            ),
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
             rules=map_request_rules_to_openapi_format(create_options.rules),
         ),
         x_idempotency_key=None,
@@ -981,6 +1273,9 @@ async def test_create_policy_with_sign_sol_message_rule(
     assert result.rules == policy_model.rules
     assert result.created_at == policy_model.created_at
     assert result.updated_at == policy_model.updated_at
+
+
+# ---- EndUser rule tests ----
 
 
 @pytest.mark.asyncio
