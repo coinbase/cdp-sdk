@@ -1,4 +1,6 @@
 // Usage: pnpm tsx evm/smart-accounts/smartAccount.signTypedData.ts
+// Demonstrates how to sign typed data with a smart account after sending
+// an initial user operation which also deploys the smart account.
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
@@ -15,6 +17,23 @@ const smartAccount = await cdp.evm.getOrCreateSmartAccount({
 });
 
 console.log("Created smart account:", smartAccount.address);
+
+const userOperation = await smartAccount.sendUserOperation({
+  calls: [
+    {
+      to: "0x0000000000000000000000000000000000000000",
+      value: BigInt(0),
+    },
+  ],
+  network: "base-sepolia",
+});
+
+const userOperationResult = await cdp.evm.waitForUserOperation({
+  userOpHash: userOperation.userOpHash,
+  smartAccountAddress: smartAccount.address,
+});
+
+console.log("User Operation Result:", userOperationResult);
 
 const signature = await smartAccount.signTypedData({
   domain: {
