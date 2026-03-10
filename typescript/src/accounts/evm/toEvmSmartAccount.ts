@@ -1,3 +1,10 @@
+import {
+  createPublicClient,
+  encodeAbiParameters,
+  encodeFunctionData,
+  http,
+  serializeErc6492Signature,
+} from "viem";
 import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
@@ -47,6 +54,21 @@ import type {
   SmartAccountSwapResult,
 } from "../../actions/evm/swap/types.js";
 import type { Address, Hex } from "../../types/misc.js";
+
+const COINBASE_SMART_WALLET_FACTORY = "0xBA5ED110eFDBa3D005bfC882d75358ACBbB85842";
+
+const COINBASE_SMART_WALLET_FACTORY_ABI = [
+  {
+    name: "createAccount",
+    type: "function",
+    inputs: [
+      { name: "owners", type: "bytes[]" },
+      { name: "nonce", type: "uint256" },
+    ],
+    outputs: [{ name: "account", type: "address" }],
+    stateMutability: "payable",
+  },
+] as const;
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount
@@ -238,11 +260,37 @@ export function toEvmSmartAccount(
         },
       });
       try {
+        const chain = resolveNetworkToChain(options.network);
+
         const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
-          chainId: BigInt(resolveNetworkToChain(options.network).id),
+          chainId: BigInt(chain.id),
           smartAccount: account,
           typedData: options,
         });
+
+        const publicClient = createPublicClient({ chain, transport: http() });
+        const bytecode = await publicClient.getCode({ address: account.address });
+        const isDeployed = bytecode !== undefined && bytecode !== "0x";
+
+        if (!isDeployed) {
+          const ownerBytes = encodeAbiParameters(
+            [{ type: "address" }],
+            [account.owners[0].address],
+          );
+
+          const factoryCalldata = encodeFunctionData({
+            abi: COINBASE_SMART_WALLET_FACTORY_ABI,
+            functionName: "createAccount",
+            args: [[ownerBytes], 0n],
+          });
+
+          return serializeErc6492Signature({
+            address: COINBASE_SMART_WALLET_FACTORY,
+            data: factoryCalldata,
+            signature: result.signature,
+          });
+        }
+
         return result.signature;
       } catch (error) {
         Analytics.trackError(error, "signTypedData");
