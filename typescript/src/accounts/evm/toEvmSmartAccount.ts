@@ -5,6 +5,7 @@ import {
   http,
   serializeErc6492Signature,
 } from "viem";
+
 import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";

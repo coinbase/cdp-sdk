@@ -14,12 +14,11 @@ import { parseUnits } from "viem";
 import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
 
-const ERC6492_MAGIC_SUFFIX =
-  "6492649264926492649264926492649264926492649264926492649264926492";
+const ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492";
 
 const { mockGetCode } = vi.hoisted(() => ({ mockGetCode: vi.fn() }));
 
-vi.mock("viem", async (importOriginal) => {
+vi.mock("viem", async importOriginal => {
   const actual = await importOriginal<typeof import("viem")>();
   return {
     ...actual,
