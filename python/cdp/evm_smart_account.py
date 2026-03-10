@@ -29,7 +29,9 @@ if TYPE_CHECKING:
     from cdp.spend_permissions import SpendPermissionInput
 
 _COINBASE_SMART_WALLET_FACTORY = "0xBA5ED110eFDBa3D005bfC882d75358ACBbB85842"
-_CREATE_ACCOUNT_SELECTOR = bytes.fromhex("3ffba36f")  # keccak256("createAccount(bytes[],uint256)")[:4]
+_CREATE_ACCOUNT_SELECTOR = bytes.fromhex(
+    "3ffba36f"
+)  # keccak256("createAccount(bytes[],uint256)")[:4]
 _ERC6492_MAGIC_SUFFIX = bytes.fromhex(
     "6492649264926492649264926492649264926492649264926492649264926492"
 )
@@ -558,6 +560,7 @@ class EvmSmartAccount(BaseModel):
             primary_type: The primary type of the typed data.
             message: The message to sign.
             network: The network to sign the typed data on.
+            rpc_url: Optional RPC URL to use for the deployment check. Defaults to the network's public RPC URL.
 
         Returns:
             str: The signature of the typed data.
@@ -696,6 +699,7 @@ class EvmSmartAccount(BaseModel):
             network: The network to scope the smart account to
             rpc_url: Optional custom RPC URL. When provided, RPC calls (e.g. getCode for
                 EIP-6492 detection) will use this URL instead of the default for the network.
+
         Returns:
             A NetworkScopedEvmSmartAccount instance ready for network-specific operations
         Example:

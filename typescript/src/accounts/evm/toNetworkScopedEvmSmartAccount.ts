@@ -3,11 +3,11 @@ import { encodeAbiParameters, encodeFunctionData, serializeErc6492Signature } fr
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
-import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import { listTokenBalances } from "../../actions/evm/listTokenBalances.js";
 import { requestFaucet } from "../../actions/evm/requestFaucet.js";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation.js";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
@@ -19,7 +19,6 @@ import { Analytics } from "../../analytics.js";
 import type {
   EvmAccount,
   EvmSmartAccount,
-  KnownEvmNetworks,
   NetworkOrRpcUrl,
   NetworkScopedEvmSmartAccount,
   DistributedOmit,
