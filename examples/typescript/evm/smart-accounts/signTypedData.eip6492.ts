@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/smart-accounts/smartAccount.signTypedData.eip6492.ts
+// Usage: pnpm tsx evm/smart-accounts/signTypedData.eip6492.ts
 //
 // Demonstrates EIP-6492 signature wrapping for undeployed smart accounts.
 // When a smart account has never sent a user operation, it is not yet deployed on-chain.
@@ -62,13 +62,13 @@ const typedData = {
   },
 };
 
-const signature = (await smartAccount.signTypedData({
+const signature = await smartAccount.signTypedData({
   domain: typedData.domain,
   types: { ...typedData.types },
   primaryType: typedData.primaryType,
   message: { ...typedData.message },
   network: "base-sepolia",
-})) as `0x${string}`;
+});
 
 const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 const bytecode = await publicClient.getCode({ address: from });
