@@ -9,6 +9,7 @@ from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.base_node_rpc_url import get_base_node_rpc_url
 from cdp.evm_server_account import EvmServerAccount
 from cdp.network_capabilities import is_method_supported_on_network
+from cdp.network_config import NETWORK_TO_RPC_URL
 
 
 class NetworkScopedEvmServerAccount:
@@ -220,13 +221,7 @@ class NetworkScopedEvmServerAccount:
 
             # Fall back to default RPC URLs if Base Node URL is not available
             if not network_rpc_url:
-                default_rpc_urls = {
-                    "base": "https://mainnet.base.org",
-                    "base-sepolia": "https://sepolia.base.org",
-                    "ethereum": "https://eth.llamarpc.com",
-                    "ethereum-sepolia": "https://rpc.sepolia.org",
-                }
-                network_rpc_url = default_rpc_urls.get(self._network)
+                network_rpc_url = NETWORK_TO_RPC_URL.get(self._network)
 
             if not network_rpc_url:
                 raise NotImplementedError(

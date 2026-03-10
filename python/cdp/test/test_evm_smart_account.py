@@ -576,6 +576,127 @@ async def test_request_faucet(smart_account_model_factory):
             assert "Signing failed" in str(exc_info.value)
 
 
+ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492"
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_smart_account.Web3")
+@patch(
+    "cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account.sign_and_wrap_typed_data_for_smart_account"
+)
+async def test_sign_typed_data_returns_eip6492_when_undeployed(
+    mock_sign_wrap, mock_web3_cls, local_account_factory
+):
+    """Test that sign_typed_data wraps with EIP-6492 when the account is not yet deployed."""
+    from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+        SignAndWrapTypedDataForSmartAccountResult,
+    )
+    from cdp.evm_message_types import EIP712Domain
+
+    address = "0x1234567890123456789012345678901234567890"
+    owner = local_account_factory()
+    mock_api_clients = AsyncMock()
+
+    inner_sig = "0x" + "ab" * 65
+    mock_sign_wrap.return_value = SignAndWrapTypedDataForSmartAccountResult(signature=inner_sig)
+
+    mock_w3 = MagicMock()
+    mock_w3.eth.get_code.return_value = b""  # account not deployed
+    mock_web3_cls.return_value = mock_w3
+    mock_web3_cls.to_checksum_address.side_effect = lambda x: x
+
+    smart_account = EvmSmartAccount(address, owner, None, None, mock_api_clients)
+
+    result = await smart_account.sign_typed_data(
+        domain=EIP712Domain(name="Test", version="1", chain_id=84532, verifying_contract=address),
+        types={"TestType": [{"name": "value", "type": "uint256"}]},
+        primary_type="TestType",
+        message={"value": "1"},
+        network="base-sepolia",
+    )
+
+    assert result.lower().endswith(ERC6492_MAGIC_SUFFIX)
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_smart_account.Web3")
+@patch(
+    "cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account.sign_and_wrap_typed_data_for_smart_account"
+)
+async def test_sign_typed_data_returns_raw_signature_when_deployed(
+    mock_sign_wrap, mock_web3_cls, local_account_factory
+):
+    """Test that sign_typed_data returns the raw signature when the account is already deployed."""
+    from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+        SignAndWrapTypedDataForSmartAccountResult,
+    )
+    from cdp.evm_message_types import EIP712Domain
+
+    address = "0x1234567890123456789012345678901234567890"
+    owner = local_account_factory()
+    mock_api_clients = AsyncMock()
+
+    inner_sig = "0x" + "ab" * 65
+    mock_sign_wrap.return_value = SignAndWrapTypedDataForSmartAccountResult(signature=inner_sig)
+
+    mock_w3 = MagicMock()
+    mock_w3.eth.get_code.return_value = bytes.fromhex("deadbeef")  # account deployed
+    mock_web3_cls.return_value = mock_w3
+    mock_web3_cls.to_checksum_address.side_effect = lambda x: x
+
+    smart_account = EvmSmartAccount(address, owner, None, None, mock_api_clients)
+
+    result = await smart_account.sign_typed_data(
+        domain=EIP712Domain(name="Test", version="1", chain_id=84532, verifying_contract=address),
+        types={"TestType": [{"name": "value", "type": "uint256"}]},
+        primary_type="TestType",
+        message={"value": "1"},
+        network="base-sepolia",
+    )
+
+    assert result == inner_sig
+    assert ERC6492_MAGIC_SUFFIX not in result.lower()
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_smart_account.Web3")
+@patch(
+    "cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account.sign_and_wrap_typed_data_for_smart_account"
+)
+async def test_sign_typed_data_returns_eip6492_when_getcode_returns_empty_bytes(
+    mock_sign_wrap, mock_web3_cls, local_account_factory
+):
+    """Test that sign_typed_data wraps with EIP-6492 when getCode returns 0x (empty bytecode)."""
+    from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+        SignAndWrapTypedDataForSmartAccountResult,
+    )
+    from cdp.evm_message_types import EIP712Domain
+
+    address = "0x1234567890123456789012345678901234567890"
+    owner = local_account_factory()
+    mock_api_clients = AsyncMock()
+
+    inner_sig = "0x" + "cd" * 65
+    mock_sign_wrap.return_value = SignAndWrapTypedDataForSmartAccountResult(signature=inner_sig)
+
+    mock_w3 = MagicMock()
+    mock_w3.eth.get_code.return_value = b""  # empty bytes — same as 0x
+    mock_web3_cls.return_value = mock_w3
+    mock_web3_cls.to_checksum_address.side_effect = lambda x: x
+
+    smart_account = EvmSmartAccount(address, owner, None, None, mock_api_clients)
+
+    result = await smart_account.sign_typed_data(
+        domain=EIP712Domain(name="Test"),
+        types={},
+        primary_type="Test",
+        message={},
+        network="base",
+    )
+
+    assert result.lower().endswith(ERC6492_MAGIC_SUFFIX)
+
+
 @pytest.mark.asyncio
 async def test_network_scoped_smart_account_uses_base_node_rpc_as_paymaster(smart_account_factory):
     """Test that NetworkScopedEvmSmartAccount uses Base Node RPC URL as paymaster_url for UserOp sends on base networks."""

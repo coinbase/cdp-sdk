@@ -47,7 +47,7 @@ import {
   type EvmSmartAccount as EvmSmartAccountModel,
 } from "../../openapi-client/index.js";
 
-import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks } from "./types.js";
+import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks, NetworkOrRpcUrl } from "./types.js";
 import type {
   SmartAccountQuoteSwapOptions,
   SmartAccountQuoteSwapResult,
@@ -318,7 +318,7 @@ export function toEvmSmartAccount(
 
     name: options.smartAccount.name,
     type: "evm-smart",
-    useNetwork: async <Network extends KnownEvmNetworks>(network: Network) => {
+    useNetwork: async <Network extends NetworkOrRpcUrl>(network: Network) => {
       Analytics.trackAction({
         action: "use_network",
         accountType: "evm_smart",

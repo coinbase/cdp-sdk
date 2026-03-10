@@ -1,5 +1,9 @@
+import { encodeAbiParameters, encodeFunctionData, serializeErc6492Signature } from "viem";
+
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
+import { resolveViemClients } from "./resolveViemClients.js";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import { listTokenBalances } from "../../actions/evm/listTokenBalances.js";
 import { requestFaucet } from "../../actions/evm/requestFaucet.js";
@@ -16,6 +20,7 @@ import type {
   EvmAccount,
   EvmSmartAccount,
   KnownEvmNetworks,
+  NetworkOrRpcUrl,
   NetworkScopedEvmSmartAccount,
   DistributedOmit,
 } from "./types.js";
@@ -29,7 +34,7 @@ import type {
 } from "../../actions/evm/swap/types.js";
 import type { SmartAccountTransferOptions } from "../../actions/evm/transfer/types.js";
 import type { WaitForUserOperationOptions } from "../../actions/evm/waitForUserOperation.js";
-import type { GetUserOperationOptions } from "../../client/evm/evm.types.js";
+import type { GetUserOperationOptions, SignTypedDataOptions } from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClientType,
   EvmUserOperationNetwork,
@@ -37,14 +42,29 @@ import type {
   SpendPermissionNetwork,
 } from "../../openapi-client/index.js";
 
+const COINBASE_SMART_WALLET_FACTORY = "0xBA5ED110eFDBa3D005bfC882d75358ACBbB85842";
+
+const COINBASE_SMART_WALLET_FACTORY_ABI = [
+  {
+    name: "createAccount",
+    type: "function",
+    inputs: [
+      { name: "owners", type: "bytes[]" },
+      { name: "nonce", type: "uint256" },
+    ],
+    outputs: [{ name: "account", type: "address" }],
+    stateMutability: "payable",
+  },
+] as const;
+
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a NetworkScopedEvmSmartAccount
  */
 export type ToNetworkScopedEvmSmartAccountOptions = {
   /** The pre-existing EvmSmartAccount. */
   smartAccount: EvmSmartAccount;
-  /** The network to scope the smart account object to. */
-  network: KnownEvmNetworks;
+  /** The network name or RPC URL to scope the smart account object to. */
+  network: NetworkOrRpcUrl;
   /** The owner of the smart account. */
   owner: EvmAccount;
 };
@@ -62,7 +82,7 @@ export type ToNetworkScopedEvmSmartAccountOptions = {
  * @param {KnownEvmNetworks} options.network - The network to scope the smart account to.
  * @returns {NetworkScopedEvmSmartAccount} A configured NetworkScopedEvmSmartAccount instance ready for user operation submission.
  */
-export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>(
+export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRpcUrl>(
   apiClient: CdpOpenApiClientType,
   options: ToNetworkScopedEvmSmartAccountOptions & { network: Network },
 ): Promise<NetworkScopedEvmSmartAccount<Network>> {
@@ -277,6 +297,61 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
       },
     });
   }
+
+  Object.assign(account, {
+    signTypedData: async (typedDataOptions: Omit<SignTypedDataOptions, "address">) => {
+      Analytics.trackAction({
+        action: "sign_typed_data",
+        accountType: "evm_smart",
+        properties: {
+          network: options.network,
+          managed: true,
+        },
+      });
+
+      try {
+        const { publicClient, chain } = await resolveViemClients({
+          networkOrNodeUrl: options.network,
+          account: options.owner,
+        });
+
+        const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
+          chainId: BigInt(chain.id),
+          smartAccount: options.smartAccount,
+          typedData: typedDataOptions,
+        });
+
+        const bytecode = await publicClient.getCode({
+          address: options.smartAccount.address,
+        });
+        const isDeployed = bytecode !== undefined && bytecode !== "0x";
+
+        if (!isDeployed) {
+          const ownerBytes = encodeAbiParameters(
+            [{ type: "address" }],
+            [options.smartAccount.owners[0].address],
+          );
+
+          const factoryCalldata = encodeFunctionData({
+            abi: COINBASE_SMART_WALLET_FACTORY_ABI,
+            functionName: "createAccount",
+            args: [[ownerBytes], 0n],
+          });
+
+          return serializeErc6492Signature({
+            address: COINBASE_SMART_WALLET_FACTORY,
+            data: factoryCalldata,
+            signature: result.signature,
+          });
+        }
+
+        return result.signature;
+      } catch (error) {
+        Analytics.trackError(error, "signTypedData");
+        throw error;
+      }
+    },
+  });
 
   return account;
 }

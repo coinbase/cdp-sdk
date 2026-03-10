@@ -3,19 +3,35 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { EvmAccount, EvmSmartAccount } from "./types.js";
-import type { Address } from "../../types/misc.js";
+import type { Address, Hex } from "../../types/misc.js";
+
+const ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492";
+
+const { mockGetCode } = vi.hoisted(() => ({ mockGetCode: vi.fn() }));
 
 // Mock the required modules
 vi.mock("./getBaseNodeRpcUrl.js");
 vi.mock("../../actions/evm/sendUserOperation.js");
 vi.mock("../../actions/evm/transfer/transfer.js");
 vi.mock("../../actions/evm/swap/sendSwapOperation.js");
+vi.mock("./resolveViemClients.js", () => ({
+  resolveViemClients: vi.fn().mockResolvedValue({
+    publicClient: { getCode: mockGetCode },
+    chain: { id: 8453 },
+    walletClient: {},
+  }),
+}));
+vi.mock("../../actions/evm/signAndWrapTypedDataForSmartAccount.js", () => ({
+  signAndWrapTypedDataForSmartAccount: vi.fn(),
+}));
 
 // Import mocked functions to use in tests
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
+import { resolveViemClients } from "./resolveViemClients.js";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 
 describe("toNetworkScopedEvmSmartAccount", () => {
   beforeEach(() => {
@@ -23,15 +39,17 @@ describe("toNetworkScopedEvmSmartAccount", () => {
   });
 
   // Mock setup
+  const mockOwnerAddress = "0x0000000000000000000000000000000000000001" as Address;
+
   const mockSmartAccount = {
     address: "0x123" as Address,
     name: "test",
-    owners: [],
+    owners: [{ address: mockOwnerAddress }],
     type: "evm-smart",
   } as unknown as EvmSmartAccount;
 
   const mockOwner = {
-    address: "0x456" as Address,
+    address: mockOwnerAddress,
     type: "evm",
   } as unknown as EvmAccount;
 
@@ -503,6 +521,152 @@ describe("toNetworkScopedEvmSmartAccount", () => {
 
         expect(getBaseNodeRpcUrl).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("signTypedData", () => {
+    const mockSignature = "0xabcdef1234567890" as Hex;
+    const mockTypedData = {
+      domain: {
+        name: "Test Domain",
+        version: "1",
+        chainId: 8453,
+        verifyingContract: "0x1234567890abcdef" as Address,
+      },
+      types: {
+        TestMessage: [
+          { name: "from", type: "address" },
+          { name: "value", type: "uint256" },
+        ],
+      },
+      primaryType: "TestMessage",
+      message: {
+        from: mockOwnerAddress,
+        value: "1000000",
+      },
+    };
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+      vi.mocked(signAndWrapTypedDataForSmartAccount).mockResolvedValue({
+        signature: mockSignature,
+      });
+      vi.mocked(resolveViemClients).mockResolvedValue({
+        publicClient: { getCode: mockGetCode } as never,
+        chain: { id: 8453 } as never,
+        walletClient: {} as never,
+      });
+      // Default: account is deployed
+      mockGetCode.mockResolvedValue("0x1234");
+    });
+
+    it("should always include signTypedData method", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base",
+        owner: mockOwner,
+      });
+
+      expect(account.signTypedData).toBeDefined();
+      expect(typeof account.signTypedData).toBe("function");
+    });
+
+    it("should return raw signature when account is deployed", async () => {
+      mockGetCode.mockResolvedValue("0xdeadbeef");
+
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base",
+        owner: mockOwner,
+      });
+
+      const result = await account.signTypedData(mockTypedData);
+
+      expect(result).toBe(mockSignature);
+      expect(result.toLowerCase()).not.toContain(ERC6492_MAGIC_SUFFIX);
+    });
+
+    it("should return EIP-6492 wrapped signature when account is not deployed", async () => {
+      mockGetCode.mockResolvedValue(undefined);
+
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base",
+        owner: mockOwner,
+      });
+
+      const result = await account.signTypedData(mockTypedData);
+
+      expect(result.toLowerCase()).toContain(ERC6492_MAGIC_SUFFIX);
+    });
+
+    it("should return EIP-6492 wrapped signature when getCode returns 0x", async () => {
+      mockGetCode.mockResolvedValue("0x");
+
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base",
+        owner: mockOwner,
+      });
+
+      const result = await account.signTypedData(mockTypedData);
+
+      expect(result.toLowerCase()).toContain(ERC6492_MAGIC_SUFFIX);
+    });
+
+    it("should call resolveViemClients with the network option", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base-sepolia",
+        owner: mockOwner,
+      });
+
+      await account.signTypedData(mockTypedData);
+
+      expect(resolveViemClients).toHaveBeenCalledWith(
+        expect.objectContaining({ networkOrNodeUrl: "base-sepolia" }),
+      );
+    });
+
+    it("should pass custom RPC URL to resolveViemClients", async () => {
+      const customRpcUrl = "https://my-custom-rpc.example.com";
+
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: customRpcUrl,
+        owner: mockOwner,
+      });
+
+      await account.signTypedData(mockTypedData);
+
+      expect(resolveViemClients).toHaveBeenCalledWith(
+        expect.objectContaining({ networkOrNodeUrl: customRpcUrl }),
+      );
+    });
+
+    it("should call signAndWrapTypedDataForSmartAccount with chain id from resolveViemClients", async () => {
+      vi.mocked(resolveViemClients).mockResolvedValue({
+        publicClient: { getCode: mockGetCode } as never,
+        chain: { id: 84532 } as never,
+        walletClient: {} as never,
+      });
+
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base-sepolia",
+        owner: mockOwner,
+      });
+
+      await account.signTypedData(mockTypedData);
+
+      expect(signAndWrapTypedDataForSmartAccount).toHaveBeenCalledWith(
+        mockApiClient,
+        expect.objectContaining({
+          chainId: 84532n,
+          smartAccount: mockSmartAccount,
+          typedData: mockTypedData,
+        }),
+      );
     });
   });
 });

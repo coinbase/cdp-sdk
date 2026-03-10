@@ -10,6 +10,7 @@ from cdp.base_node_rpc_url import get_base_node_rpc_url
 from cdp.evm_call_types import ContractCall
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.network_capabilities import is_method_supported_on_network
+from cdp.network_config import NETWORK_TO_RPC_URL
 
 
 class NetworkScopedEvmSmartAccount:
@@ -69,6 +70,7 @@ class NetworkScopedEvmSmartAccount:
             self._supported_methods["quote_swap"] = self._network_scoped_quote_swap
         if is_method_supported_on_network("swap", self._network):
             self._supported_methods["swap"] = self._network_scoped_swap
+        self._supported_methods["sign_typed_data"] = self._network_scoped_sign_typed_data
 
     def __getattr__(self, name: str) -> Any:
         """Dynamically access supported methods and account properties, or raise AttributeError if not found."""
@@ -97,8 +99,6 @@ class NetworkScopedEvmSmartAccount:
             return getattr(self._owner, "sign_message", None)
         if name == "sign_transaction":
             return getattr(self._owner, "sign_transaction", None)
-        if name == "sign_typed_data":
-            return getattr(self._owner, "sign_typed_data", None)
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     async def _network_scoped_send_user_operation(
@@ -203,13 +203,7 @@ class NetworkScopedEvmSmartAccount:
 
             from web3 import Web3
 
-            # Map network names to RPC URLs
-            network_rpc_urls = {
-                "base-sepolia": "https://sepolia.base.org",
-                "base": "https://mainnet.base.org",
-            }
-
-            rpc_url = rpc_url or network_rpc_urls.get(self._network)
+            rpc_url = rpc_url or NETWORK_TO_RPC_URL.get(self._network)
             if not rpc_url:
                 raise ValueError(f"No RPC URL available for network: {self._network}")
 
@@ -305,3 +299,19 @@ class NetworkScopedEvmSmartAccount:
         if not hasattr(options, "network") or getattr(options, "network", None) is None:
             options.network = self._network
         return await self._evm_smart_account.swap(options)
+
+    async def _network_scoped_sign_typed_data(
+        self,
+        domain,
+        types,
+        primary_type: str,
+        message,
+    ) -> str:
+        return await self._evm_smart_account.sign_typed_data(
+            domain=domain,
+            types=types,
+            primary_type=primary_type,
+            message=message,
+            network=self._network,
+            rpc_url=self._rpc_url,
+        )
