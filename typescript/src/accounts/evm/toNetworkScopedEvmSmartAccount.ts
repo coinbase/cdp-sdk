@@ -1,5 +1,4 @@
-import { encodeAbiParameters, encodeFunctionData, serializeErc6492Signature } from "viem";
-
+import { wrapSignatureWithEip6492IfUndeployed } from "./eip6492.js";
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
@@ -40,21 +39,6 @@ import type {
   ListEvmTokenBalancesNetwork,
   SpendPermissionNetwork,
 } from "../../openapi-client/index.js";
-
-const COINBASE_SMART_WALLET_FACTORY = "0xBA5ED110eFDBa3D005bfC882d75358ACBbB85842";
-
-const COINBASE_SMART_WALLET_FACTORY_ABI = [
-  {
-    name: "createAccount",
-    type: "function",
-    inputs: [
-      { name: "owners", type: "bytes[]" },
-      { name: "nonce", type: "uint256" },
-    ],
-    outputs: [{ name: "account", type: "address" }],
-    stateMutability: "payable",
-  },
-] as const;
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a NetworkScopedEvmSmartAccount
@@ -320,31 +304,12 @@ export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRp
           typedData: typedDataOptions,
         });
 
-        const bytecode = await publicClient.getCode({
-          address: options.smartAccount.address,
-        });
-        const isDeployed = bytecode !== undefined && bytecode !== "0x";
-
-        if (!isDeployed) {
-          const ownerBytes = encodeAbiParameters(
-            [{ type: "address" }],
-            [options.smartAccount.owners[0].address],
-          );
-
-          const factoryCalldata = encodeFunctionData({
-            abi: COINBASE_SMART_WALLET_FACTORY_ABI,
-            functionName: "createAccount",
-            args: [[ownerBytes], 0n],
-          });
-
-          return serializeErc6492Signature({
-            address: COINBASE_SMART_WALLET_FACTORY,
-            data: factoryCalldata,
-            signature: result.signature,
-          });
-        }
-
-        return result.signature;
+        return wrapSignatureWithEip6492IfUndeployed(
+          publicClient,
+          options.smartAccount.address,
+          options.smartAccount.owners[0].address,
+          result.signature,
+        );
       } catch (error) {
         Analytics.trackError(error, "signTypedData");
         throw error;
