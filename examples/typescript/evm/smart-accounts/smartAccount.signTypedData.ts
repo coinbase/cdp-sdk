@@ -1,6 +1,4 @@
 // Usage: pnpm tsx evm/smart-accounts/smartAccount.signTypedData.ts
-// Demonstrates how to sign typed data with a smart account after sending
-// an initial user operation which also deploys the smart account.
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
