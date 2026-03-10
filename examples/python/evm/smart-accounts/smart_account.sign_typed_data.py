@@ -9,9 +9,7 @@ dotenv.load_dotenv()
 
 
 async def main():
-    async with CdpClient(
-        debugging=True,
-    ) as cdp:
+    async with CdpClient() as cdp:
         owner = await cdp.evm.get_or_create_account(name="SignTypedData-Example-Owner")
         smart_account = await cdp.evm.get_or_create_smart_account(
             name="SignTypedData-Example-SmartAccount",
