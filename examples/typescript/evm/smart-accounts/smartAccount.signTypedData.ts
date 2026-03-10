@@ -18,23 +18,6 @@ const smartAccount = await cdp.evm.getOrCreateSmartAccount({
 
 console.log("Created smart account:", smartAccount.address);
 
-const userOperation = await smartAccount.sendUserOperation({
-  calls: [
-    {
-      to: "0x0000000000000000000000000000000000000000",
-      value: BigInt(0),
-    },
-  ],
-  network: "base-sepolia",
-});
-
-const userOperationResult = await cdp.evm.waitForUserOperation({
-  userOpHash: userOperation.userOpHash,
-  smartAccountAddress: smartAccount.address,
-});
-
-console.log("User Operation Result:", userOperationResult);
-
 const signature = await smartAccount.signTypedData({
   domain: {
     name: "Test",
