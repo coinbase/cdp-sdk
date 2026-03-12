@@ -1,4 +1,5 @@
 import { encodeAbiParameters, encodeFunctionData, serializeErc6492Signature } from "viem";
+import type { PublicClient } from "viem";
 
 import type { Address, Hex } from "../../types/misc.js";
 
@@ -25,14 +26,13 @@ const COINBASE_SMART_WALLET_FACTORY_ABI = [
  * validators can simulate deployment before verifying the signature.
  *
  * @param publicClient - A viem public client used to check the account bytecode.
- * @param publicClient.getCode - Returns the deployed bytecode at the given address.
  * @param accountAddress - The smart account address to check deployment status.
  * @param ownerAddress - The owner address used as the factory `createAccount` argument.
  * @param signature - The inner ERC-1271 signature to wrap.
  * @returns The original signature if the account is deployed, or an EIP-6492 wrapped signature otherwise.
  */
 export async function wrapSignatureWithEip6492IfUndeployed(
-  publicClient: { getCode: (params: { address: Address }) => Promise<Hex | undefined> },
+  publicClient: PublicClient,
   accountAddress: Address,
   ownerAddress: Address,
   signature: Hex,
