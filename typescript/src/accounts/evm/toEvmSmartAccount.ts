@@ -1,3 +1,6 @@
+import { createPublicClient, http } from "viem";
+
+import { wrapSignatureWithEip6492IfUndeployed } from "./eip6492.js";
 import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
@@ -39,7 +42,7 @@ import {
   type EvmSmartAccount as EvmSmartAccountModel,
 } from "../../openapi-client/index.js";
 
-import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks } from "./types.js";
+import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks, NetworkOrRpcUrl } from "./types.js";
 import type {
   SmartAccountQuoteSwapOptions,
   SmartAccountQuoteSwapResult,
@@ -238,12 +241,22 @@ export function toEvmSmartAccount(
         },
       });
       try {
+        const chain = resolveNetworkToChain(options.network);
+
         const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
-          chainId: BigInt(resolveNetworkToChain(options.network).id),
+          chainId: BigInt(chain.id),
           smartAccount: account,
           typedData: options,
         });
-        return result.signature;
+
+        const publicClient = createPublicClient({ chain, transport: http() });
+
+        return wrapSignatureWithEip6492IfUndeployed(
+          publicClient,
+          account.address,
+          account.owners[0].address,
+          result.signature,
+        );
       } catch (error) {
         Analytics.trackError(error, "signTypedData");
         throw error;
@@ -269,7 +282,7 @@ export function toEvmSmartAccount(
 
     name: options.smartAccount.name,
     type: "evm-smart",
-    useNetwork: async <Network extends KnownEvmNetworks>(network: Network) => {
+    useNetwork: async <Network extends NetworkOrRpcUrl>(network: Network) => {
       Analytics.trackAction({
         action: "use_network",
         accountType: "evm_smart",

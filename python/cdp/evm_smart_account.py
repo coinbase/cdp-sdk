@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
+from web3 import Web3
 
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
@@ -26,6 +27,14 @@ from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as Evm
 # Avoid circular imports
 if TYPE_CHECKING:
     from cdp.spend_permissions import SpendPermissionInput
+
+_COINBASE_SMART_WALLET_FACTORY = "0xBA5ED110eFDBa3D005bfC882d75358ACBbB85842"
+_CREATE_ACCOUNT_SELECTOR = bytes.fromhex(
+    "3ffba36f"
+)  # keccak256("createAccount(bytes[],uint256)")[:4]
+_ERC6492_MAGIC_SUFFIX = bytes.fromhex(
+    "6492649264926492649264926492649264926492649264926492649264926492"
+)
 
 
 class EvmSmartAccount(BaseModel):
@@ -541,6 +550,7 @@ class EvmSmartAccount(BaseModel):
         primary_type: str,
         message: dict[str, Any],
         network: str,
+        rpc_url: str | None = None,
     ) -> str:
         """Sign a typed data object with the smart account.
 
@@ -550,6 +560,7 @@ class EvmSmartAccount(BaseModel):
             primary_type: The primary type of the typed data.
             message: The message to sign.
             network: The network to sign the typed data on.
+            rpc_url: Optional RPC URL to use for the deployment check. Defaults to the network's public RPC URL.
 
         Returns:
             str: The signature of the typed data.
@@ -564,12 +575,14 @@ class EvmSmartAccount(BaseModel):
         )
 
         try:
+            from eth_abi import encode
+
             from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
                 sign_and_wrap_typed_data_for_smart_account,
             )
-            from cdp.network_config import get_chain_id
+            from cdp.network_config import NETWORK_TO_RPC_URL, get_chain_id
 
-            return await sign_and_wrap_typed_data_for_smart_account(
+            result = await sign_and_wrap_typed_data_for_smart_account(
                 api_clients=self.__api_clients,
                 options=SignAndWrapTypedDataForSmartAccountOptions(
                     smart_account=self,
@@ -583,6 +596,30 @@ class EvmSmartAccount(BaseModel):
                     owner_index=0,  # Only one owner for now
                 ),
             )
+            inner_sig = result.signature
+
+            rpc_url = rpc_url or NETWORK_TO_RPC_URL.get(network)
+            if rpc_url:
+                w3 = Web3(Web3.HTTPProvider(rpc_url))
+                bytecode = w3.eth.get_code(Web3.to_checksum_address(self.address))
+                if len(bytecode) == 0:
+                    owner_bytes = encode(
+                        ["address"], [Web3.to_checksum_address(self.owners[0].address)]
+                    )
+                    factory_calldata = _CREATE_ACCOUNT_SELECTOR + encode(
+                        ["bytes[]", "uint256"], [[owner_bytes], 0]
+                    )
+                    inner_sig_bytes = bytes.fromhex(inner_sig.removeprefix("0x"))
+                    eip6492_bytes = (
+                        encode(
+                            ["address", "bytes", "bytes"],
+                            [_COINBASE_SMART_WALLET_FACTORY, factory_calldata, inner_sig_bytes],
+                        )
+                        + _ERC6492_MAGIC_SUFFIX
+                    )
+                    return "0x" + eip6492_bytes.hex()
+
+            return inner_sig
         except Exception as error:
             track_error(error, "sign_typed_data")
             raise
@@ -655,11 +692,14 @@ class EvmSmartAccount(BaseModel):
             track_error(error, "use_spend_permission")
             raise
 
-    async def __experimental_use_network__(self, network: str):
+    async def __experimental_use_network__(self, network: str, rpc_url: str | None = None):
         """Create a network-scoped version of this smart account.
 
         Args:
             network: The network to scope the smart account to
+            rpc_url: Optional custom RPC URL. When provided, RPC calls (e.g. getCode for
+                EIP-6492 detection) will use this URL instead of the default for the network.
+
         Returns:
             A NetworkScopedEvmSmartAccount instance ready for network-specific operations
         Example:
@@ -674,7 +714,7 @@ class EvmSmartAccount(BaseModel):
         """
         from cdp.network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
 
-        return NetworkScopedEvmSmartAccount(self, network)
+        return NetworkScopedEvmSmartAccount(self, network, rpc_url=rpc_url)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

@@ -34,7 +34,11 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+import {
+  GetUserOperationOptions,
+  SignTypedDataOptions,
+  UserOperation,
+} from "../../client/evm/evm.types.js";
 import { SpendPermissionNetwork } from "../../openapi-client/index.js";
 
 import type {
@@ -160,7 +164,7 @@ export type EvmSmartAccountProperties = {
    * // For custom RPC URLs without type hints (only sendTransaction, transfer and waitForTransactionReceipt methods available):
    * const customAccount = await smartAccount.useNetwork("https://mainnet.base.org");
    */
-  useNetwork: <Network extends KnownEvmNetworks>(
+  useNetwork: <Network extends NetworkOrRpcUrl>(
     network: Network,
   ) => Promise<NetworkScopedEvmSmartAccount<Network>>;
 };
@@ -176,7 +180,7 @@ export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountA
  * @internal
  */
 export type NetworkSpecificSmartAccountActions<Network extends string> = Prettify<
-  // Always include sendUserOperation, waitForUserOperation and getUserOperation
+  // Always include sendUserOperation, waitForUserOperation, getUserOperation and signTypedData
   {
     sendUserOperation: <const callData extends unknown[]>(
       options: Omit<SendUserOperationOptions<callData>, "smartAccount" | "network">,
@@ -187,6 +191,7 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
     getUserOperation: (
       options: Omit<GetUserOperationOptions, "smartAccount" | "network">,
     ) => Promise<UserOperation>;
+    signTypedData: (options: Omit<SignTypedDataOptions, "address">) => Promise<Hex>;
   } & (Network extends TransferNetworks
     ? {
         transfer: (

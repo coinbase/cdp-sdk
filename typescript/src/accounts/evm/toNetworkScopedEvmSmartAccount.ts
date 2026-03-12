@@ -1,9 +1,12 @@
+import { wrapSignatureWithEip6492IfUndeployed } from "./eip6492.js";
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
+import { resolveViemClients } from "./resolveViemClients.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import { listTokenBalances } from "../../actions/evm/listTokenBalances.js";
 import { requestFaucet } from "../../actions/evm/requestFaucet.js";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation.js";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
@@ -15,7 +18,7 @@ import { Analytics } from "../../analytics.js";
 import type {
   EvmAccount,
   EvmSmartAccount,
-  KnownEvmNetworks,
+  NetworkOrRpcUrl,
   NetworkScopedEvmSmartAccount,
   DistributedOmit,
 } from "./types.js";
@@ -29,7 +32,7 @@ import type {
 } from "../../actions/evm/swap/types.js";
 import type { SmartAccountTransferOptions } from "../../actions/evm/transfer/types.js";
 import type { WaitForUserOperationOptions } from "../../actions/evm/waitForUserOperation.js";
-import type { GetUserOperationOptions } from "../../client/evm/evm.types.js";
+import type { GetUserOperationOptions, SignTypedDataOptions } from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClientType,
   EvmUserOperationNetwork,
@@ -43,8 +46,8 @@ import type {
 export type ToNetworkScopedEvmSmartAccountOptions = {
   /** The pre-existing EvmSmartAccount. */
   smartAccount: EvmSmartAccount;
-  /** The network to scope the smart account object to. */
-  network: KnownEvmNetworks;
+  /** The network name or RPC URL to scope the smart account object to. */
+  network: NetworkOrRpcUrl;
   /** The owner of the smart account. */
   owner: EvmAccount;
 };
@@ -62,7 +65,7 @@ export type ToNetworkScopedEvmSmartAccountOptions = {
  * @param {KnownEvmNetworks} options.network - The network to scope the smart account to.
  * @returns {NetworkScopedEvmSmartAccount} A configured NetworkScopedEvmSmartAccount instance ready for user operation submission.
  */
-export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>(
+export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRpcUrl>(
   apiClient: CdpOpenApiClientType,
   options: ToNetworkScopedEvmSmartAccountOptions & { network: Network },
 ): Promise<NetworkScopedEvmSmartAccount<Network>> {
@@ -277,6 +280,42 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
       },
     });
   }
+
+  Object.assign(account, {
+    signTypedData: async (typedDataOptions: Omit<SignTypedDataOptions, "address">) => {
+      Analytics.trackAction({
+        action: "sign_typed_data",
+        accountType: "evm_smart",
+        properties: {
+          network: options.network,
+          managed: true,
+        },
+      });
+
+      try {
+        const { publicClient, chain } = await resolveViemClients({
+          networkOrNodeUrl: options.network,
+          account: options.owner,
+        });
+
+        const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
+          chainId: BigInt(chain.id),
+          smartAccount: options.smartAccount,
+          typedData: typedDataOptions,
+        });
+
+        return wrapSignatureWithEip6492IfUndeployed(
+          publicClient,
+          options.smartAccount.address,
+          options.smartAccount.owners[0].address,
+          result.signature,
+        );
+      } catch (error) {
+        Analytics.trackError(error, "signTypedData");
+        throw error;
+      }
+    },
+  });
 
   return account;
 }

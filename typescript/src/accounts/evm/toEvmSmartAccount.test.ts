@@ -14,6 +14,20 @@ import { parseUnits } from "viem";
 import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
 
+const ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492";
+
+const { mockGetCode } = vi.hoisted(() => ({ mockGetCode: vi.fn() }));
+
+vi.mock("viem", async importOriginal => {
+  const actual = await importOriginal<typeof import("viem")>();
+  return {
+    ...actual,
+    createPublicClient: vi.fn().mockReturnValue({
+      getCode: mockGetCode,
+    }),
+  };
+});
+
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
   transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
@@ -50,7 +64,7 @@ describe("toEvmSmartAccount", () => {
 
     mockAddress = "0x123456789abcdef" as Address;
     mockOwner = {
-      address: "0xabcdef123456789" as Address,
+      address: "0x0000000000000000000000000000000000000001" as Address,
       sign: vi.fn(),
       signMessage: vi.fn(),
       signTransaction: vi.fn(),
@@ -229,6 +243,8 @@ describe("toEvmSmartAccount", () => {
       vi.mocked(signAndWrapTypedDataForSmartAccount).mockResolvedValue({
         signature: mockSignature,
       });
+      // Default: account is deployed
+      mockGetCode.mockResolvedValue("0x1234");
 
       mockTypedData = {
         domain: {
@@ -355,6 +371,55 @@ describe("toEvmSmartAccount", () => {
           network: "base",
         }),
       ).rejects.toThrow(errorMessage);
+    });
+
+    it("should return EIP-6492 wrapped signature when account is not deployed", async () => {
+      mockGetCode.mockResolvedValue(undefined);
+
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      const result = await smartAccount.signTypedData({
+        ...mockTypedData,
+        network: "base",
+      });
+
+      expect(result.toLowerCase()).toContain(ERC6492_MAGIC_SUFFIX);
+    });
+
+    it("should return raw signature when account is already deployed", async () => {
+      mockGetCode.mockResolvedValue("0xdeadbeef");
+
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      const result = await smartAccount.signTypedData({
+        ...mockTypedData,
+        network: "base",
+      });
+
+      expect(result).toBe(mockSignature);
+      expect(result.toLowerCase()).not.toContain(ERC6492_MAGIC_SUFFIX);
+    });
+
+    it("should return EIP-6492 wrapped signature when getCode returns 0x (empty bytecode)", async () => {
+      mockGetCode.mockResolvedValue("0x");
+
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      const result = await smartAccount.signTypedData({
+        ...mockTypedData,
+        network: "base",
+      });
+
+      expect(result.toLowerCase()).toContain(ERC6492_MAGIC_SUFFIX);
     });
   });
 });

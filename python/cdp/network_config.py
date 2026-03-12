@@ -23,6 +23,26 @@ NETWORK_TO_CHAIN_ID: dict[str, int] = {
 # Chain ID to network mapping (reverse lookup)
 CHAIN_ID_TO_NETWORK: dict[int, str] = {v: k for k, v in NETWORK_TO_CHAIN_ID.items()}
 
+# Default public RPC URLs for known networks, sourced from viem chain definitions:
+# https://github.com/wevm/viem/tree/main/src/chains/definitions
+NETWORK_TO_RPC_URL: dict[str, str] = {
+    # Ethereum networks
+    "ethereum": "https://eth.merkle.io",
+    "ethereum-sepolia": "https://11155111.rpc.thirdweb.com",
+    # Base networks
+    "base": "https://mainnet.base.org",
+    "base-sepolia": "https://sepolia.base.org",
+    # Polygon networks
+    "polygon": "https://polygon.drpc.org",
+    "polygon-mumbai": "https://80001.rpc.thirdweb.com",
+    # Arbitrum networks
+    "arbitrum": "https://arb1.arbitrum.io/rpc",
+    "arbitrum-sepolia": "https://sepolia-rollup.arbitrum.io/rpc",
+    # Optimism networks
+    "optimism": "https://mainnet.optimism.io",
+    "optimism-sepolia": "https://sepolia.optimism.io",
+}
+
 
 def get_chain_id(network: str) -> int:
     """Get chain ID for a network.
