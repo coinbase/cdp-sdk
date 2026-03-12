@@ -1,7 +1,7 @@
 import { encodeAbiParameters, encodeFunctionData, serializeErc6492Signature } from "viem";
-import type { PublicClient } from "viem";
 
 import type { Address, Hex } from "../../types/misc.js";
+import type { PublicClient } from "viem";
 
 const COINBASE_SMART_WALLET_FACTORY = "0xBA5ED110eFDBa3D005bfC882d75358ACBbB85842";
 
