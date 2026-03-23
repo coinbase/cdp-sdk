@@ -15,8 +15,11 @@ from cdp.policies.types import (
     NetUSDChangeCriterion as NetUSDChangeCriterionModel,
     PrepareUserOperationRule as PrepareUserOperationRuleModel,
     ProgramIdCriterion as ProgramIdCriterionModel,
+    RateLimitingCriterion as RateLimitingCriterionModel,
     Rule as RuleType,
+    SendEndUserEvmAssetRule as SendEndUserEvmAssetRuleModel,
     SendEndUserEvmTransactionRule as SendEndUserEvmTransactionRuleModel,
+    SendEndUserSolAssetRule as SendEndUserSolAssetRuleModel,
     SendEndUserSolTransactionRule as SendEndUserSolTransactionRuleModel,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
@@ -361,6 +364,22 @@ response_criterion_mapping["sendEndUserSolTransaction"] = response_criterion_map
     "sendSolTransaction"
 ]
 response_criterion_mapping["signEndUserSolMessage"] = response_criterion_mapping["signSolMessage"]
+response_criterion_mapping["sendEndUserEvmAsset"] = {
+    **response_criterion_mapping["sendEvmTransaction"],
+    "rateLimiting": lambda c: RateLimitingCriterionModel(
+        window=c.window,
+        maxCount=c.max_count,
+        maxValueCents=c.max_value_cents,
+    ),
+}
+response_criterion_mapping["sendEndUserSolAsset"] = {
+    **response_criterion_mapping["sendSolTransaction"],
+    "rateLimiting": lambda c: RateLimitingCriterionModel(
+        window=c.window,
+        maxCount=c.max_count,
+        maxValueCents=c.max_value_cents,
+    ),
+}
 
 # Response rule class mapping
 response_rule_mapping = {
@@ -381,6 +400,8 @@ response_rule_mapping = {
     "signEndUserSolTransaction": SignEndUserSolTransactionRuleModel,
     "sendEndUserSolTransaction": SendEndUserSolTransactionRuleModel,
     "signEndUserSolMessage": SignEndUserSolMessageRuleModel,
+    "sendEndUserEvmAsset": SendEndUserEvmAssetRuleModel,
+    "sendEndUserSolAsset": SendEndUserSolAssetRuleModel,
 }
 
 

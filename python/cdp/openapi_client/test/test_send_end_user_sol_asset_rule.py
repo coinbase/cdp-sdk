@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.send_end_user_sol_asset_rule import SendEndUserSolAssetRule
 
-class TestRule(unittest.TestCase):
-    """Rule unit test stubs"""
+class TestSendEndUserSolAssetRule(unittest.TestCase):
+    """SendEndUserSolAssetRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,30 @@ class TestRule(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Rule:
-        """Test Rule
+    def make_instance(self, include_optional) -> SendEndUserSolAssetRule:
+        """Test SendEndUserSolAssetRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Rule`
+        # uncomment below to create an instance of `SendEndUserSolAssetRule`
         """
-        model = Rule()
+        model = SendEndUserSolAssetRule()
         if include_optional:
-            return Rule(
+            return SendEndUserSolAssetRule(
                 action = 'accept',
                 operation = 'sendEndUserSolAsset',
                 criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=solValue, solValue=1000000000000000000, operator=<=}, {type=splAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=splValue, splValue=1000000000000000000, operator=<=}, {type=mintAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=solData, idls=[SystemProgram], conditions=[{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}]}]}, {type=programId, programIds=[TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA], operator=in}, {type=solNetwork, networks=[solana-devnet, solana], operator=in}]
             )
         else:
-            return Rule(
+            return SendEndUserSolAssetRule(
                 action = 'accept',
                 operation = 'sendEndUserSolAsset',
                 criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=solValue, solValue=1000000000000000000, operator=<=}, {type=splAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=splValue, splValue=1000000000000000000, operator=<=}, {type=mintAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=solData, idls=[SystemProgram], conditions=[{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}]}]}, {type=programId, programIds=[TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA], operator=in}, {type=solNetwork, networks=[solana-devnet, solana], operator=in}],
         )
         """
 
-    def testRule(self):
-        """Test Rule"""
+    def testSendEndUserSolAssetRule(self):
+        """Test SendEndUserSolAssetRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

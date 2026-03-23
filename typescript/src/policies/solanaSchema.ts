@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RateLimitingCriterionSchema } from "./evmSchema.js";
+
 /**
  * Enum for Action types
  */
@@ -577,6 +579,53 @@ export const SendEndUserSolTransactionRuleSchema = z.object({
   criteria: SendEndUserSolTransactionCriteriaSchema,
 });
 export type SendEndUserSolTransactionRule = z.infer<typeof SendEndUserSolTransactionRuleSchema>;
+
+/**
+ * Schema for criteria used in SendEndUserSolAsset operations
+ */
+export const SendEndUserSolAssetCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      SolAddressCriterionSchema,
+      SolValueCriterionSchema,
+      SplAddressCriterionSchema,
+      SplValueCriterionSchema,
+      MintAddressCriterionSchema,
+      SolDataCriterionSchema,
+      ProgramIdCriterionSchema,
+      SolNetworkCriterionSchema,
+      RateLimitingCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendEndUserSolAsset operation.
+ */
+export type SendEndUserSolAssetCriteria = z.infer<typeof SendEndUserSolAssetCriteriaSchema>;
+
+/**
+ * Type representing a 'sendEndUserSolAsset' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEndUserSolAssetRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the asset transfer, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEndUserSolAsset".
+   */
+  operation: z.literal("sendEndUserSolAsset"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEndUserSolAssetCriteriaSchema,
+});
+export type SendEndUserSolAssetRule = z.infer<typeof SendEndUserSolAssetRuleSchema>;
 
 /**
  * Type representing a 'signEndUserSolMessage' policy rule that can accept or reject specific operations
