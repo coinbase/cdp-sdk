@@ -51,7 +51,7 @@ async function main(sourceAddress?: string) {
       fromAddress = sourceAddress;
       console.log("Using existing SOL account:", fromAddress);
     } else {
-      const account = await cdp.solana.createAccount({
+      const account = await cdp.solana.getOrCreateAccount({
         name: "test-sol-account",
       });
 
@@ -65,7 +65,7 @@ async function main(sourceAddress?: string) {
       });
       console.log(
         "Successfully requested SOL from faucet:",
-        faucetResp.signature,
+        faucetResp.signature
       );
     }
 
@@ -90,12 +90,12 @@ async function main(sourceAddress?: string) {
     console.log(
       "Account funded with",
       Number(balance) / LAMPORTS_PER_SOL,
-      "SOL",
+      "SOL"
     );
 
     if (balance < BigInt(lamportsToSend)) {
       throw new Error(
-        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`,
+        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`
       );
     }
 
@@ -111,13 +111,13 @@ async function main(sourceAddress?: string) {
       (tx) =>
         setTransactionMessageLifetimeUsingBlockhash(
           { blockhash: FAKE_BLOCKHASH, lastValidBlockHeight: 9999999n },
-          tx,
+          tx
         ),
-      (tx) => appendTransactionMessageInstructions([instruction], tx),
+      (tx) => appendTransactionMessageInstructions([instruction], tx)
     );
 
     const serializedTx = getBase64EncodedWireTransaction(
-      compileTransaction(txMsg),
+      compileTransaction(txMsg)
     );
     console.log("Transaction serialized successfully");
 
@@ -134,7 +134,7 @@ async function main(sourceAddress?: string) {
 
     console.log("Transaction confirmed: success");
     console.log(
-      `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+      `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`
     );
 
     return {
@@ -152,7 +152,7 @@ async function main(sourceAddress?: string) {
 
 async function confirmTransaction(
   rpcClient: ReturnType<typeof createSolanaRpc>,
-  sig: string,
+  sig: string
 ): Promise<void> {
   const maxAttempts = 30;
   for (let i = 0; i < maxAttempts; i++) {
@@ -172,7 +172,7 @@ async function confirmTransaction(
     await sleep(1000);
   }
   throw new Error(
-    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`,
+    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`
   );
 }
 

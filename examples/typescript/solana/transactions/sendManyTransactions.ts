@@ -48,7 +48,7 @@ async function main() {
     const rpc = createSolanaRpc("https://api.devnet.solana.com");
 
     // Step 1: Create a new Solana account
-    const account = await cdp.solana.createAccount({
+    const account = await cdp.solana.getOrCreateAccount({
       name: "test-sol-account",
     });
     console.log("Successfully created Solana account:", account.address);
@@ -60,7 +60,7 @@ async function main() {
     });
     console.log(
       "Successfully requested SOL from faucet:",
-      faucetResp.signature,
+      faucetResp.signature
     );
 
     // Wait for the faucet transaction and check balance
@@ -85,15 +85,15 @@ async function main() {
     console.log(
       "Account funded with",
       Number(balance) / LAMPORTS_PER_SOL,
-      "SOL",
+      "SOL"
     );
 
     const totalLamportsNeeded = BigInt(
-      lamportsToSend * destinationAddresses.length,
+      lamportsToSend * destinationAddresses.length
     );
     if (balance < totalLamportsNeeded) {
       throw new Error(
-        `Insufficient balance: ${balance} lamports, need at least ${totalLamportsNeeded} lamports`,
+        `Insufficient balance: ${balance} lamports, need at least ${totalLamportsNeeded} lamports`
       );
     }
 
@@ -117,13 +117,13 @@ async function main() {
         (tx) =>
           setTransactionMessageLifetimeUsingBlockhash(
             { blockhash: FAKE_BLOCKHASH, lastValidBlockHeight: 9999999n },
-            tx,
+            tx
           ),
-        (tx) => appendTransactionMessageInstructions([instruction], tx),
+        (tx) => appendTransactionMessageInstructions([instruction], tx)
       );
 
       const serializedTx = getBase64EncodedWireTransaction(
-        compileTransaction(txMsg),
+        compileTransaction(txMsg)
       );
 
       // Create a promise that will resolve with the transaction signature and its index
@@ -149,8 +149,8 @@ async function main() {
 
               console.log(
                 `Rate limit exceeded for transaction #${index} to ${destAddr}, retrying in ${Math.round(
-                  delay,
-                )}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`,
+                  delay
+                )}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`
               );
 
               await sleep(delay);
@@ -183,7 +183,7 @@ async function main() {
         console.log(`- Amount: ${lamportsToSend / LAMPORTS_PER_SOL} SOL`);
         console.log(`- Status: success`);
         console.log(
-          `- Explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+          `- Explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`
         );
 
         return {
@@ -195,7 +195,7 @@ async function main() {
       } catch (error) {
         console.log(
           `Transaction #${index} timed out waiting for confirmation:`,
-          error,
+          error
         );
         return {
           confirmed: false,
@@ -222,7 +222,7 @@ async function main() {
       console.log("\nSuccessful transactions in order of confirmation:");
       successfulTxs.forEach(({ signature, index, destinationAddress }) => {
         console.log(
-          `Transaction #${index}: ${signature} -> ${destinationAddress}`,
+          `Transaction #${index}: ${signature} -> ${destinationAddress}`
         );
       });
     }
@@ -231,7 +231,7 @@ async function main() {
       console.log("\nFailed transactions:");
       failedTxs.forEach(({ signature, index, destinationAddress }) => {
         console.log(
-          `Transaction #${index}: ${signature} -> ${destinationAddress}`,
+          `Transaction #${index}: ${signature} -> ${destinationAddress}`
         );
       });
     }
@@ -250,7 +250,7 @@ async function main() {
 
 async function confirmTransaction(
   rpcClient: ReturnType<typeof createSolanaRpc>,
-  sig: string,
+  sig: string
 ): Promise<void> {
   const maxAttempts = 30;
   for (let i = 0; i < maxAttempts; i++) {
@@ -270,7 +270,7 @@ async function confirmTransaction(
     await sleep(1000);
   }
   throw new Error(
-    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`,
+    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`
   );
 }
 

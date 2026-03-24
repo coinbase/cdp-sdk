@@ -24,8 +24,9 @@ const LAMPORTS_PER_SOL = 1_000_000_000;
 // A more recent blockhash is set in the backend by CDP
 const FAKE_BLOCKHASH =
   "SysvarRecentB1ockHashes11111111111111111111" as Blockhash;
-// Placeholder account address used for instruction accounts (irrelevant for decoding purposes)
-const TEST_ACCOUNT = solanaAddress("11111111111111111111111111111111");
+// Placeholder account address used for instruction accounts (irrelevant for decoding purposes).
+// Must not be the System Program address since that would conflict with programAddress in compiled txs.
+const TEST_ACCOUNT = solanaAddress("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE");
 
 const cdp = new CdpClient();
 
