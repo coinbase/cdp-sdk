@@ -1,6 +1,7 @@
 // Usage: pnpm tsx solana/accounts/updateAccount.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 
@@ -10,7 +11,7 @@ console.log("Created account: ", account.address);
 const updatedAccount = await cdp.solana.updateAccount({
   address: account.address,
   update: {
-    name: "New Name",
+    name: "New-Name",
   },
 });
 console.log("Updated account:", JSON.stringify(updatedAccount, null, 2));
