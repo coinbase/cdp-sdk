@@ -105,7 +105,7 @@ const fromPubkey = solanaAddress(accountWithSolDataPolicy.address);
 const goodTransferAmount = BigInt(0.001 * LAMPORTS_PER_SOL);
 
 const txMsg = pipe(
-  createTransactionMessage({ version: 0 }),
+  createTransactionMessage({ version: "legacy" }),
   (tx) => setTransactionMessageFeePayer(fromPubkey, tx),
   (tx) =>
     setTransactionMessageLifetimeUsingBlockhash(
@@ -138,7 +138,7 @@ console.log("\n===============================================\n");
 console.log("Transaction with bad system transfer instruction: ");
 const badSystemTransferAmount = BigInt(0.002 * LAMPORTS_PER_SOL);
 const badTxMsg = pipe(
-  createTransactionMessage({ version: 0 }),
+  createTransactionMessage({ version: "legacy" }),
   (tx) => setTransactionMessageFeePayer(fromPubkey, tx),
   (tx) =>
     setTransactionMessageLifetimeUsingBlockhash(
@@ -172,7 +172,7 @@ console.log("\n===============================================\n");
 console.log("Transaction with bad token transfer instruction: ");
 const badTokenTransferAmount = 200000;
 const badTokenTxMsg = pipe(
-  createTransactionMessage({ version: 0 }),
+  createTransactionMessage({ version: "legacy" }),
   (tx) => setTransactionMessageFeePayer(fromPubkey, tx),
   (tx) =>
     setTransactionMessageLifetimeUsingBlockhash(
