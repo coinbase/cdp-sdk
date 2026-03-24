@@ -56,7 +56,7 @@ const LAMPORTS_PER_SOL = 1_000_000_000;
 /**
  * Generates an Ed25519 key pair with extractable private key bytes.
  * Node.js doesn't support exportKey("raw") for Ed25519 private keys;
- * we export as PKCS8 and slice the 32 raw bytes from the known offset (16).
+ * we export as JWK and decode the "d" field (base64url-encoded raw private key).
  */
 async function generateExtractableSolanaKeyPair(): Promise<{
   privKeyBytes: Uint8Array;
@@ -66,8 +66,8 @@ async function generateExtractableSolanaKeyPair(): Promise<{
     "sign",
     "verify",
   ])) as CryptoKeyPair;
-  const pkcs8 = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
-  const privKeyBytes = new Uint8Array(pkcs8).slice(16); // 32 raw bytes after the fixed 16-byte PKCS8 header
+  const jwk = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
+  const privKeyBytes = Buffer.from(jwk.d!, "base64url");
   const pubKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
   return { privKeyBytes, pubKeyBytes };
 }
