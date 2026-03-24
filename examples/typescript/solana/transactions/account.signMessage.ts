@@ -11,5 +11,5 @@ const { signature } = await account.signMessage({
 });
 
 console.log(
-  `Sign message. Explorer link: https://sepolia.basescan.org/tx/${signature}`
+  `Sign message. Explorer link: https://sepolia.basescan.org/tx/${signature}`,
 );

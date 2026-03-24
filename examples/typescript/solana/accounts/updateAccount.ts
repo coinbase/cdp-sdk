@@ -10,7 +10,7 @@ console.log("Created account: ", account.address);
 const updatedAccount = await cdp.solana.updateAccount({
   address: account.address,
   update: {
-    name: "New Name"
-  }
+    name: "New Name",
+  },
 });
 console.log("Updated account:", JSON.stringify(updatedAccount, null, 2));

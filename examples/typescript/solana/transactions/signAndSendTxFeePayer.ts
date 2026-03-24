@@ -4,11 +4,22 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
 import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+  address as solanaAddress,
+  appendTransactionMessageInstructions,
+  Base64EncodedWireTransaction,
+  compileTransaction,
+  createNoopSigner,
+  createSolanaRpc,
+  createTransactionMessage,
+  getBase64EncodedWireTransaction,
+  pipe,
+  setTransactionMessageFeePayer,
+  setTransactionMessageLifetimeUsingBlockhash,
+  Signature,
+} from "@solana/kit";
+import { getTransferSolInstruction } from "@solana-program/system";
+
+const LAMPORTS_PER_SOL = 1_000_000_000;
 
 async function main(sourceAddress?: string) {
   const cdp = new CdpClient();
@@ -20,7 +31,7 @@ async function main(sourceAddress?: string) {
   const lamportsToSend = 1000;
 
   try {
-    const connection = new Connection("https://api.devnet.solana.com");
+    const rpc = createSolanaRpc("https://api.devnet.solana.com");
 
     const feePayer = await cdp.solana.getOrCreateAccount({
       name: "test-sol-account-relayer",
@@ -28,7 +39,7 @@ async function main(sourceAddress?: string) {
     console.log("Fee payer address: " + feePayer.address);
 
     // Request funds on the feePayer address.
-    await requestFaucetAndWaitForBalance(cdp, feePayer.address, connection);
+    await requestFaucetAndWaitForBalance(cdp, feePayer.address, rpc);
 
     let fromAddress: string;
     if (sourceAddress) {
@@ -37,38 +48,48 @@ async function main(sourceAddress?: string) {
     } else {
       const account = await cdp.solana.getOrCreateAccount({
         name: "test-sol-account",
-      })
+      });
 
       fromAddress = account.address;
       console.log("Successfully created new SOL account:", fromAddress);
 
       // Request funds to send on the from address.
-      await requestFaucetAndWaitForBalance(cdp, fromAddress, connection);
+      await requestFaucetAndWaitForBalance(cdp, fromAddress, rpc);
     }
 
-    const balance = await connection.getBalance(new PublicKey(fromAddress));
-    if (balance < lamportsToSend) {
+    const balance = (await rpc.getBalance(solanaAddress(fromAddress)).send())
+      .value;
+    if (balance < BigInt(lamportsToSend)) {
       throw new Error(
-        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`
+        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`,
       );
     }
 
-    const transaction = new Transaction();
-    transaction.add(
-      SystemProgram.transfer({
-        fromPubkey: new PublicKey(fromAddress),
-        toPubkey: new PublicKey(destinationAddress),
-        lamports: lamportsToSend,
-      })
+    const {
+      value: { blockhash, lastValidBlockHeight },
+    } = await rpc.getLatestBlockhash().send();
+
+    const instruction = getTransferSolInstruction({
+      source: createNoopSigner(solanaAddress(fromAddress)),
+      destination: solanaAddress(destinationAddress),
+      amount: BigInt(lamportsToSend),
+    });
+
+    const txMsg = pipe(
+      createTransactionMessage({ version: 0 }),
+      (tx) =>
+        setTransactionMessageFeePayer(solanaAddress(feePayer.address), tx),
+      (tx) =>
+        setTransactionMessageLifetimeUsingBlockhash(
+          { blockhash, lastValidBlockHeight },
+          tx,
+        ),
+      (tx) => appendTransactionMessageInstructions([instruction], tx),
     );
 
-    const { blockhash } = await connection.getLatestBlockhash();
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = new PublicKey(feePayer.address);
-
-    const serializedTx = Buffer.from(
-      transaction.serialize({ requireAllSignatures: false })
-    ).toString("base64");
+    const serializedTx = getBase64EncodedWireTransaction(
+      compileTransaction(txMsg),
+    );
 
     // Sign with the funding account.
     const signedTxResponse = await cdp.solana.signTransaction({
@@ -85,36 +106,26 @@ async function main(sourceAddress?: string) {
     });
 
     // Send the signed transaction to the network.
-    const signature = await connection.sendRawTransaction(Buffer.from(finalSignedTxResponse.signature, 'base64'));
+    const signature = await rpc
+      .sendTransaction(
+        finalSignedTxResponse.signature as Base64EncodedWireTransaction,
+        { encoding: "base64" },
+      )
+      .send();
 
-    const latestBlockhash = await connection.getLatestBlockhash();
+    await confirmTransaction(rpc, signature);
 
-    const confirmation = await connection.confirmTransaction({
-      signature,
-      blockhash: latestBlockhash.blockhash,
-      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-    });
-
-    if (confirmation.value.err) {
-      throw new Error(
-        `Transaction failed: ${confirmation.value.err.toString()}`
-      );
-    }
-
+    console.log("Transaction confirmed: success");
     console.log(
-      "Transaction confirmed:",
-      confirmation.value.err ? "failed" : "success"
-    );
-    console.log(
-      `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`
+      `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
     );
 
     return {
       fromAddress,
       destinationAddress,
-      amount: lamportsToSend / 1e9,
+      amount: lamportsToSend / LAMPORTS_PER_SOL,
       signature,
-      success: !confirmation.value.err,
+      success: true,
     };
   } catch (error) {
     console.error("Error processing SOL transaction:", error);
@@ -122,6 +133,29 @@ async function main(sourceAddress?: string) {
   }
 }
 
+async function confirmTransaction(
+  rpcClient: ReturnType<typeof createSolanaRpc>,
+  sig: Signature,
+): Promise<void> {
+  const maxAttempts = 30;
+  for (let i = 0; i < maxAttempts; i++) {
+    const result = await rpcClient.getSignatureStatuses([sig]).send();
+    const status = result.value[0];
+    if (
+      status !== null &&
+      (status.confirmationStatus === "confirmed" ||
+        status.confirmationStatus === "finalized")
+    ) {
+      if (status.err !== null)
+        throw new Error(`Transaction failed: ${JSON.stringify(status.err)}`);
+      return;
+    }
+    await sleep(1000);
+  }
+  throw new Error(
+    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`,
+  );
+}
 
 /**
  * Sleeps for a given number of milliseconds
@@ -133,55 +167,48 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-
 /**
  * Requests funds from the faucet and waits for the balance to be available
  *
  * @param {CdpClient} cdp - The CDP client instance
  * @param {string} address - The address to fund
- * @param {Connection} connection - The Solana connection
- * @param {string} token - The token to request (default: "sol")
+ * @param {ReturnType<typeof createSolanaRpc>} rpc - The Solana RPC client
  * @returns {Promise<void>} A promise that resolves when the account is funded
  */
 async function requestFaucetAndWaitForBalance(
-    cdp: CdpClient,
-    address: string,
-    connection: Connection,
+  cdp: CdpClient,
+  address: string,
+  rpc: ReturnType<typeof createSolanaRpc>,
 ): Promise<void> {
   // Request funds from faucet
   const faucetResp = await cdp.solana.requestFaucet({
     address: address,
     token: "sol",
   });
-  console.log(
-      `Successfully requested SOL from faucet:`,
-      faucetResp.signature
-  );
+  console.log(`Successfully requested SOL from faucet:`, faucetResp.signature);
 
   // Wait until the address has balance
-  let balance = 0;
+  let balance = 0n;
   let attempts = 0;
   const maxAttempts = 30;
 
-  while (balance === 0 && attempts < maxAttempts) {
-    balance = await connection.getBalance(new PublicKey(address));
-    if (balance === 0) {
+  while (balance === 0n && attempts < maxAttempts) {
+    balance = (await rpc.getBalance(solanaAddress(address)).send()).value;
+    if (balance === 0n) {
       console.log("Waiting for funds...");
       await sleep(1000);
       attempts++;
     }
   }
 
-  if (balance === 0) {
+  if (balance === 0n) {
     throw new Error("Account not funded after multiple attempts");
   }
 
-  console.log("Account funded with", balance / 1e9, "SOL");
+  console.log("Account funded with", Number(balance) / LAMPORTS_PER_SOL, "SOL");
   return;
 }
-
 
 const sourceAddress = process.argv.length > 2 ? process.argv[2] : undefined;
 
 main(sourceAddress).catch(console.error);
-

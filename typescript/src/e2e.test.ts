@@ -5,7 +5,6 @@ import {
   createNoopSigner,
   createSolanaRpc,
   createTransactionMessage,
-  generateKeyPair,
   getBase64EncodedWireTransaction,
   pipe,
   setTransactionMessageFeePayer,
@@ -53,6 +52,25 @@ import { SpendPermission } from "./spend-permissions/types.js";
 dotenv.config();
 
 const LAMPORTS_PER_SOL = 1_000_000_000;
+
+/**
+ * Generates an Ed25519 key pair with extractable private key bytes.
+ * Node.js doesn't support exportKey("raw") for Ed25519 private keys;
+ * we export as PKCS8 and slice the 32 raw bytes from the known offset (16).
+ */
+async function generateExtractableSolanaKeyPair(): Promise<{
+  privKeyBytes: Uint8Array;
+  pubKeyBytes: Uint8Array;
+}> {
+  const keyPair = (await crypto.subtle.generateKey("Ed25519", true, [
+    "sign",
+    "verify",
+  ])) as CryptoKeyPair;
+  const pkcs8 = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+  const privKeyBytes = new Uint8Array(pkcs8).slice(16); // 32 raw bytes after the fixed 16-byte PKCS8 header
+  const pubKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+  return { privKeyBytes, pubKeyBytes };
+}
 
 const testAccountName = "E2EServerAccount2";
 
@@ -290,9 +308,7 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should import an end user with a Solana private key (base58)", async () => {
-    const keyPair = await generateKeyPair();
-    const privKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.privateKey));
-    const pubKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+    const { privKeyBytes, pubKeyBytes } = await generateExtractableSolanaKeyPair();
     const privateKey = bs58.encode(Buffer.concat([privKeyBytes, pubKeyBytes])); // 64 bytes
     const randomEmail = `test-${Date.now()}@example.com`;
 
@@ -321,9 +337,7 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should import an end user with a Solana private key (raw bytes)", async () => {
-    const keyPair = await generateKeyPair();
-    const privKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.privateKey));
-    const pubKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+    const { privKeyBytes, pubKeyBytes } = await generateExtractableSolanaKeyPair();
     const privateKeyBytes = Buffer.concat([privKeyBytes, pubKeyBytes]); // 64 bytes
     const randomEmail = `test-${Date.now()}@example.com`;
 
@@ -566,9 +580,8 @@ describe("CDP Client E2E Tests", () => {
 
   it("should import a solana account from a private key", async () => {
     // Test 1: Import from base58 encoded private key
-    const keyPair = await generateKeyPair();
-    const kp1PrivBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.privateKey));
-    const kp1PubBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+    const { privKeyBytes: kp1PrivBytes, pubKeyBytes: kp1PubBytes } =
+      await generateExtractableSolanaKeyPair();
     const privateKey = bs58.encode(Buffer.concat([kp1PrivBytes, kp1PubBytes])); // 64 bytes
     const randomName = generateRandomName();
 
@@ -605,9 +618,8 @@ describe("CDP Client E2E Tests", () => {
     expect(signature).toBeDefined();
 
     // Test 2: Import from raw bytes directly
-    const keyPair2 = await generateKeyPair();
-    const kp2PrivBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair2.privateKey));
-    const kp2PubBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair2.publicKey));
+    const { privKeyBytes: kp2PrivBytes, pubKeyBytes: kp2PubBytes } =
+      await generateExtractableSolanaKeyPair();
     const privateKeyBytes = Buffer.concat([kp2PrivBytes, kp2PubBytes]); // 64 bytes
     const randomName2 = generateRandomName();
 

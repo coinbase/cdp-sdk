@@ -25,5 +25,5 @@ Promise.all([accountPromise1, accountPromise2, accountPromise3]).then(
     console.log("Solana Account Address 1: ", account1.address);
     console.log("Solana Account Address 2: ", account2.address);
     console.log("Solana Account Address 3: ", account3.address);
-  }
+  },
 );

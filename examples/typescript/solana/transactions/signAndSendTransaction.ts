@@ -4,11 +4,22 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
 import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+  address as solanaAddress,
+  appendTransactionMessageInstructions,
+  Base64EncodedWireTransaction,
+  compileTransaction,
+  createNoopSigner,
+  createSolanaRpc,
+  createTransactionMessage,
+  getBase64EncodedWireTransaction,
+  pipe,
+  setTransactionMessageFeePayer,
+  setTransactionMessageLifetimeUsingBlockhash,
+  Signature,
+} from "@solana/kit";
+import { getTransferSolInstruction } from "@solana-program/system";
+
+const LAMPORTS_PER_SOL = 1_000_000_000;
 
 /**
  * This script will:
@@ -30,7 +41,7 @@ async function main(sourceAddress?: string) {
   const lamportsToSend = 1000;
 
   try {
-    const connection = new Connection("https://api.devnet.solana.com");
+    const rpc = createSolanaRpc("https://api.devnet.solana.com");
 
     let fromAddress: string;
     if (sourceAddress) {
@@ -51,54 +62,64 @@ async function main(sourceAddress?: string) {
       });
       console.log(
         "Successfully requested SOL from faucet:",
-        faucetResp.signature
+        faucetResp.signature,
       );
     }
 
     // Wait until the address has balance
-    let balance = 0;
+    let balance = 0n;
     let attempts = 0;
     const maxAttempts = 30;
 
-    while (balance === 0 && attempts < maxAttempts) {
-      balance = await connection.getBalance(new PublicKey(fromAddress));
-      if (balance === 0) {
+    while (balance === 0n && attempts < maxAttempts) {
+      balance = (await rpc.getBalance(solanaAddress(fromAddress)).send()).value;
+      if (balance === 0n) {
         console.log("Waiting for funds...");
         await sleep(1000);
         attempts++;
       }
     }
 
-    if (balance === 0) {
+    if (balance === 0n) {
       throw new Error("Account not funded after multiple attempts");
     }
 
-    console.log("Account funded with", balance / 1e9, "SOL");
+    console.log(
+      "Account funded with",
+      Number(balance) / LAMPORTS_PER_SOL,
+      "SOL",
+    );
 
-    if (balance < lamportsToSend) {
+    if (balance < BigInt(lamportsToSend)) {
       throw new Error(
-        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`
+        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`,
       );
     }
 
-    const { blockhash } = await connection.getLatestBlockhash();
+    const {
+      value: { blockhash, lastValidBlockHeight },
+    } = await rpc.getLatestBlockhash().send();
 
-    const transaction = new Transaction();
-    transaction.add(
-      SystemProgram.transfer({
-        fromPubkey: new PublicKey(fromAddress),
-        toPubkey: new PublicKey(destinationAddress),
-        lamports: lamportsToSend,
-      })
+    const instruction = getTransferSolInstruction({
+      source: createNoopSigner(solanaAddress(fromAddress)),
+      destination: solanaAddress(destinationAddress),
+      amount: BigInt(lamportsToSend),
+    });
+
+    const txMsg = pipe(
+      createTransactionMessage({ version: 0 }),
+      (tx) => setTransactionMessageFeePayer(solanaAddress(fromAddress), tx),
+      (tx) =>
+        setTransactionMessageLifetimeUsingBlockhash(
+          { blockhash, lastValidBlockHeight },
+          tx,
+        ),
+      (tx) => appendTransactionMessageInstructions([instruction], tx),
     );
 
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = new PublicKey(fromAddress);
-
-    const serializedTx = Buffer.from(
-      transaction.serialize({ requireAllSignatures: false })
-    ).toString("base64");
-
+    const serializedTx = getBase64EncodedWireTransaction(
+      compileTransaction(txMsg),
+    );
     console.log("Transaction serialized successfully");
 
     const signedTxResponse = await cdp.solana.signTransaction({
@@ -106,44 +127,57 @@ async function main(sourceAddress?: string) {
       transaction: serializedTx,
     });
 
-    const decodedSignedTx = Buffer.from(signedTxResponse.signature, "base64");
-
-    const signature = await connection.sendRawTransaction(decodedSignedTx);
+    const signature = await rpc
+      .sendTransaction(
+        signedTxResponse.signature as Base64EncodedWireTransaction,
+        { encoding: "base64" },
+      )
+      .send();
     console.log("Solana transaction hash:", signature);
 
     console.log("Waiting for transaction to be confirmed");
-    const latestBlockhash = await connection.getLatestBlockhash();
-    const confirmation = await connection.confirmTransaction({
-      signature,
-      blockhash: latestBlockhash.blockhash,
-      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-    });
+    await confirmTransaction(rpc, signature);
 
-    if (confirmation.value.err) {
-      throw new Error(
-        `Transaction failed: ${confirmation.value.err.toString()}`
-      );
-    }
-
+    console.log("Transaction confirmed: success");
     console.log(
-      "Transaction confirmed:",
-      confirmation.value.err ? "failed" : "success"
-    );
-    console.log(
-      `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`
+      `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
     );
 
     return {
       fromAddress,
       destinationAddress,
-      amount: lamportsToSend / 1e9,
+      amount: lamportsToSend / LAMPORTS_PER_SOL,
       signature,
-      success: !confirmation.value.err,
+      success: true,
     };
   } catch (error) {
     console.error("Error processing SOL transaction:", error);
     throw error;
   }
+}
+
+async function confirmTransaction(
+  rpcClient: ReturnType<typeof createSolanaRpc>,
+  sig: Signature,
+): Promise<void> {
+  const maxAttempts = 30;
+  for (let i = 0; i < maxAttempts; i++) {
+    const result = await rpcClient.getSignatureStatuses([sig]).send();
+    const status = result.value[0];
+    if (
+      status !== null &&
+      (status.confirmationStatus === "confirmed" ||
+        status.confirmationStatus === "finalized")
+    ) {
+      if (status.err !== null)
+        throw new Error(`Transaction failed: ${JSON.stringify(status.err)}`);
+      return;
+    }
+    await sleep(1000);
+  }
+  throw new Error(
+    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`,
+  );
 }
 
 /**

@@ -8,7 +8,7 @@ const cdp = new CdpClient();
 const account = await cdp.solana.createAccount();
 console.log(
   "Successfully created Solana account:",
-  JSON.stringify(account, null, 2)
+  JSON.stringify(account, null, 2),
 );
 
 const signature = await cdp.solana.signMessage({

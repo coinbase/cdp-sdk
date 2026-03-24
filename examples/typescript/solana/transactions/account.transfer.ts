@@ -1,12 +1,18 @@
 // Usage: pnpm tsx solana/transactions/account.transfer.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import {
+  createSolanaRpc,
+  address as solanaAddress,
+  Signature,
+} from "@solana/kit";
 import "dotenv/config";
+
+const LAMPORTS_PER_SOL = 1_000_000_000;
 
 const cdp = new CdpClient();
 
-const connection = new Connection("https://api.devnet.solana.com");
+const rpc = createSolanaRpc("https://api.devnet.solana.com");
 
 const sender = await cdp.solana.getOrCreateAccount({
   name: "Sender",
@@ -24,43 +30,26 @@ const { signature } = await sender.transfer({
 });
 
 console.log(
-  `Sent transaction with signature: ${signature}. Waiting for confirmation...`
+  `Sent transaction with signature: ${signature}. Waiting for confirmation...`,
 );
 
-const { blockhash, lastValidBlockHeight } =
-  await connection.getLatestBlockhash();
-
-const confirmation = await connection.confirmTransaction(
-  {
-    signature,
-    blockhash,
-    lastValidBlockHeight,
-  },
-  "confirmed"
-);
-
-if (confirmation.value.err) {
+try {
+  await confirmTransaction(rpc, signature);
   console.log(
-    `Something went wrong! Error: ${confirmation.value.err.toString()}`
+    `Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
   );
-} else {
-  console.log(
-    `Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet`
-  );
+} catch (error) {
+  console.log(`Something went wrong! Error: ${error}`);
 }
 
-async function faucetIfNeeded(address: string, amount: bigint) {
-  if (amount === 0n) {
+async function faucetIfNeeded(addr: string, amt: bigint) {
+  if (amt === 0n) {
     return;
   }
 
-  function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+  let balance = (await rpc.getBalance(solanaAddress(addr)).send()).value;
 
-  let balance = await connection.getBalance(new PublicKey(address));
-
-  if (balance > 0) {
+  if (balance > 0n) {
     return;
   }
 
@@ -72,18 +61,48 @@ async function faucetIfNeeded(address: string, amount: bigint) {
   let attempts = 0;
   const maxAttempts = 30;
 
-  while (balance === 0 && attempts < maxAttempts) {
-    balance = await connection.getBalance(new PublicKey(address));
-    if (balance === 0) {
+  while (balance === 0n && attempts < maxAttempts) {
+    balance = (await rpc.getBalance(solanaAddress(addr)).send()).value;
+    if (balance === 0n) {
       console.log("Waiting for funds...");
       await sleep(1000);
       attempts++;
     }
   }
 
-  if (balance === 0) {
+  if (balance === 0n) {
     throw new Error("Account not funded after multiple attempts");
   }
 
-  console.log("Account funded with", balance / LAMPORTS_PER_SOL, "SOL");
+  console.log("Account funded with", Number(balance) / LAMPORTS_PER_SOL, "SOL");
+}
+
+async function confirmTransaction(
+  rpcClient: ReturnType<typeof createSolanaRpc>,
+  sig: string,
+): Promise<void> {
+  const maxAttempts = 30;
+  for (let i = 0; i < maxAttempts; i++) {
+    const result = await rpcClient
+      .getSignatureStatuses([sig as Signature])
+      .send();
+    const status = result.value[0];
+    if (
+      status !== null &&
+      (status.confirmationStatus === "confirmed" ||
+        status.confirmationStatus === "finalized")
+    ) {
+      if (status.err !== null)
+        throw new Error(`Transaction failed: ${JSON.stringify(status.err)}`);
+      return;
+    }
+    await sleep(1000);
+  }
+  throw new Error(
+    `Transaction ${sig} not confirmed after ${maxAttempts} attempts`,
+  );
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

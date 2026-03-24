@@ -10,7 +10,7 @@ let account = await cdp.solana.createAccount({
 });
 console.log(
   "Successfully created Solana account:",
-  JSON.stringify(account, null, 2)
+  JSON.stringify(account, null, 2),
 );
 
 account = await cdp.solana.getAccount({

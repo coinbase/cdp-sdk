@@ -12,7 +12,9 @@ const policies = await cdp.policies.listPolicies({
 let accountPolicyId = "";
 
 if (policies.policies.length > 0) {
-  console.log(`Using existing account policy for new account: ${policies.policies[0].id}`);
+  console.log(
+    `Using existing account policy for new account: ${policies.policies[0].id}`,
+  );
   accountPolicyId = policies.policies[0].id;
 } else {
   const policy = await cdp.policies.createPolicy({

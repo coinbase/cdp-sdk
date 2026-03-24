@@ -2,15 +2,30 @@
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import {
-  Keypair,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import { ASSOCIATED_TOKEN_PROGRAM_ADDRESS, TOKEN_PROGRAM_ADDRESS } from "@solana-program/token";
+  address as solanaAddress,
+  AccountRole,
+  appendTransactionMessageInstructions,
+  Blockhash,
+  compileTransaction,
+  createTransactionMessage,
+  getBase64EncodedWireTransaction,
+  Instruction,
+  pipe,
+  setTransactionMessageFeePayer,
+  setTransactionMessageLifetimeUsingBlockhash,
+} from "@solana/kit";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
+  TOKEN_PROGRAM_ADDRESS,
+} from "@solana-program/token";
 import "dotenv/config";
+
+const LAMPORTS_PER_SOL = 1_000_000_000;
+// A more recent blockhash is set in the backend by CDP
+const FAKE_BLOCKHASH =
+  "SysvarRecentB1ockHashes11111111111111111111" as Blockhash;
+// Placeholder account address used for instruction accounts (irrelevant for decoding purposes)
+const TEST_ACCOUNT = solanaAddress("11111111111111111111111111111111");
 
 const cdp = new CdpClient();
 
@@ -114,7 +129,7 @@ const accountWithSolDataPolicy = await cdp.solana.getOrCreateAccount({
 });
 console.log(
   "Account with solData policy: ",
-  JSON.stringify(accountWithSolDataPolicy, null, 2)
+  JSON.stringify(accountWithSolDataPolicy, null, 2),
 );
 
 await cdp.solana.updateAccount({
@@ -127,25 +142,34 @@ console.log(
   "Updated account ",
   accountWithSolDataPolicy.address,
   " with solData policy: ",
-  policy.id
+  policy.id,
 );
 
-const fromPubkey = new PublicKey(accountWithSolDataPolicy.address);
+const fromPubkey = solanaAddress(accountWithSolDataPolicy.address);
 const goodTransferAmount = BigInt(0.001 * LAMPORTS_PER_SOL);
-const transaction = new Transaction().add(
-  createAnchorSystemTransferInstruction(goodTransferAmount),
-  createAnchorSPLTransferCheckedInstruction(100000, 6),
-  createAnchorAssociatedTokenAccountCreateInstruction()
+
+const txMsg = pipe(
+  createTransactionMessage({ version: 0 }),
+  (tx) => setTransactionMessageFeePayer(fromPubkey, tx),
+  (tx) =>
+    setTransactionMessageLifetimeUsingBlockhash(
+      { blockhash: FAKE_BLOCKHASH, lastValidBlockHeight: 9999999n },
+      tx,
+    ),
+  (tx) =>
+    appendTransactionMessageInstructions(
+      [
+        createAnchorSystemTransferInstruction(goodTransferAmount),
+        createAnchorSPLTransferCheckedInstruction(100000, 6),
+        createAnchorAssociatedTokenAccountCreateInstruction(),
+      ],
+      tx,
+    ),
 );
 
-transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-transaction.feePayer = fromPubkey;
-
-const serializedTransaction = transaction.serialize({
-  requireAllSignatures: false,
-});
-
-const base64Transaction = Buffer.from(serializedTransaction).toString("base64");
+const base64Transaction = getBase64EncodedWireTransaction(
+  compileTransaction(txMsg),
+);
 console.log("Base64 transaction: ", base64Transaction);
 
 const result = await accountWithSolDataPolicy.signTransaction({
@@ -157,16 +181,22 @@ console.log("\n===============================================\n");
 
 console.log("Transaction with bad system transfer instruction: ");
 const badSystemTransferAmount = BigInt(0.002 * LAMPORTS_PER_SOL);
-const badTransaction = new Transaction().add(
-  createAnchorSystemTransferInstruction(badSystemTransferAmount)
+const badTxMsg = pipe(
+  createTransactionMessage({ version: 0 }),
+  (tx) => setTransactionMessageFeePayer(fromPubkey, tx),
+  (tx) =>
+    setTransactionMessageLifetimeUsingBlockhash(
+      { blockhash: FAKE_BLOCKHASH, lastValidBlockHeight: 9999999n },
+      tx,
+    ),
+  (tx) =>
+    appendTransactionMessageInstructions(
+      [createAnchorSystemTransferInstruction(badSystemTransferAmount)],
+      tx,
+    ),
 );
-badTransaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-badTransaction.feePayer = fromPubkey;
-const badSerializedTransaction = badTransaction.serialize({
-  requireAllSignatures: false,
-});
-const badBase64Transaction = Buffer.from(badSerializedTransaction).toString(
-  "base64"
+const badBase64Transaction = getBase64EncodedWireTransaction(
+  compileTransaction(badTxMsg),
 );
 console.log("Bad base64 transaction: ", badBase64Transaction);
 
@@ -175,31 +205,46 @@ try {
     transaction: badBase64Transaction,
   });
 } catch (error) {
-  console.log("Expected error while signing bad system transfer transaction: ", error);
+  console.log(
+    "Expected error while signing bad system transfer transaction: ",
+    error,
+  );
 }
 
 console.log("\n===============================================\n");
 
 console.log("Transaction with bad token transfer instruction: ");
 const badTokenTransferAmount = 200000;
-const badTokenTransferTransaction = new Transaction().add(
-  createAnchorSPLTransferCheckedInstruction(badTokenTransferAmount, 6)
+const badTokenTxMsg = pipe(
+  createTransactionMessage({ version: 0 }),
+  (tx) => setTransactionMessageFeePayer(fromPubkey, tx),
+  (tx) =>
+    setTransactionMessageLifetimeUsingBlockhash(
+      { blockhash: FAKE_BLOCKHASH, lastValidBlockHeight: 9999999n },
+      tx,
+    ),
+  (tx) =>
+    appendTransactionMessageInstructions(
+      [createAnchorSPLTransferCheckedInstruction(badTokenTransferAmount, 6)],
+      tx,
+    ),
 );
-badTokenTransferTransaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-badTokenTransferTransaction.feePayer = fromPubkey;
-const badTokenTransferSerializedTransaction = badTokenTransferTransaction.serialize({
-  requireAllSignatures: false,
-});
-const badTokenTransferBase64Transaction = Buffer.from(badTokenTransferSerializedTransaction).toString(
-  "base64"
+const badTokenTransferBase64Transaction = getBase64EncodedWireTransaction(
+  compileTransaction(badTokenTxMsg),
 );
-console.log("Bad token transfer base64 transaction: ", badTokenTransferBase64Transaction);
+console.log(
+  "Bad token transfer base64 transaction: ",
+  badTokenTransferBase64Transaction,
+);
 try {
   await accountWithSolDataPolicy.signTransaction({
     transaction: badTokenTransferBase64Transaction,
   });
 } catch (error) {
-  console.log("Expected error while signing bad token transfer transaction: ", error);
+  console.log(
+    "Expected error while signing bad token transfer transaction: ",
+    error,
+  );
 }
 
 console.log("Removing policy from account...");
@@ -218,33 +263,31 @@ console.log("Policy deleted: ", policy.id);
  * Creates an Anchor-formatted system transfer instruction
  *
  * @param amount - Amount in lamports to transfer
- * @returns TransactionInstruction for an Anchor-formatted system transfer
+ * @returns Instruction for an Anchor-formatted system transfer
  */
-function createAnchorSystemTransferInstruction(
-  amount: bigint
-): TransactionInstruction {
-  const testAccount = Keypair.generate().publicKey;
-  const transferDiscriminator = Buffer.from([
+function createAnchorSystemTransferInstruction(amount: bigint): Instruction {
+  const transferDiscriminator = new Uint8Array([
     163, 52, 200, 231, 140, 3, 69, 186,
   ]);
 
-  const lamportsBuffer = Buffer.alloc(8);
-  lamportsBuffer.writeBigUInt64LE(amount, 0);
+  const lamportsBuffer = new Uint8Array(8);
+  new DataView(lamportsBuffer.buffer).setBigUint64(0, amount, true);
 
-  const instructionData = Buffer.concat([
-    transferDiscriminator,
-    lamportsBuffer,
-  ]);
+  const data = new Uint8Array(
+    transferDiscriminator.length + lamportsBuffer.length,
+  );
+  data.set(transferDiscriminator);
+  data.set(lamportsBuffer, transferDiscriminator.length);
 
-  return new TransactionInstruction({
-    keys: [
+  return {
+    programAddress: solanaAddress("11111111111111111111111111111111"),
+    accounts: [
       // Irrelevant for our instruction decoding purposes
-      { pubkey: testAccount, isSigner: true, isWritable: true },
-      { pubkey: testAccount, isSigner: false, isWritable: true },
+      { address: TEST_ACCOUNT, role: AccountRole.WRITABLE_SIGNER },
+      { address: TEST_ACCOUNT, role: AccountRole.WRITABLE },
     ],
-    programId: new PublicKey("11111111111111111111111111111111"),
-    data: instructionData,
-  });
+    data,
+  };
 }
 
 /**
@@ -252,56 +295,63 @@ function createAnchorSystemTransferInstruction(
  *
  * @param amount - Amount of tokens to transfer
  * @param decimals - Number of decimals for the token
- * @returns TransactionInstruction for an Anchor-formatted token transfer_checked
+ * @returns Instruction for an Anchor-formatted token transfer_checked
  */
 function createAnchorSPLTransferCheckedInstruction(
   amount: number,
-  decimals: number
-): TransactionInstruction {
-  const testAccount = Keypair.generate().publicKey;
-  const transferCheckedDiscriminator = Buffer.from([119, 250, 202, 24, 253, 135, 244, 121]);
+  decimals: number,
+): Instruction {
+  const transferCheckedDiscriminator = new Uint8Array([
+    119, 250, 202, 24, 253, 135, 244, 121,
+  ]);
 
   // Serialize the arguments: amount (u64) + decimals (u8)
-  const amountBuffer = Buffer.alloc(8);
-  amountBuffer.writeBigUInt64LE(BigInt(amount), 0);
-  const decimalsBuffer = Buffer.alloc(1);
-  decimalsBuffer.writeUInt8(decimals, 0);
+  const amountBuffer = new Uint8Array(8);
+  new DataView(amountBuffer.buffer).setBigUint64(0, BigInt(amount), true);
+  const decimalsBuffer = new Uint8Array([decimals]);
 
-  const instructionData = Buffer.concat([transferCheckedDiscriminator, amountBuffer, decimalsBuffer]);
+  const data = new Uint8Array(
+    transferCheckedDiscriminator.length +
+      amountBuffer.length +
+      decimalsBuffer.length,
+  );
+  data.set(transferCheckedDiscriminator);
+  data.set(amountBuffer, transferCheckedDiscriminator.length);
+  data.set(
+    decimalsBuffer,
+    transferCheckedDiscriminator.length + amountBuffer.length,
+  );
 
-  return new TransactionInstruction({
-    keys: [
+  return {
+    programAddress: solanaAddress(TOKEN_PROGRAM_ADDRESS),
+    accounts: [
       // Irrelevant for our instruction decoding purposes
-      { pubkey: testAccount, isSigner: false, isWritable: true },
-      { pubkey: testAccount, isSigner: false, isWritable: false },
-      { pubkey: testAccount, isSigner: false, isWritable: true },
-      { pubkey: testAccount, isSigner: true, isWritable: false },
+      { address: TEST_ACCOUNT, role: AccountRole.WRITABLE },
+      { address: TEST_ACCOUNT, role: AccountRole.READONLY },
+      { address: TEST_ACCOUNT, role: AccountRole.WRITABLE },
+      { address: TEST_ACCOUNT, role: AccountRole.READONLY_SIGNER },
     ],
-    programId: new PublicKey(TOKEN_PROGRAM_ADDRESS),
-    data: instructionData
-  });
+    data,
+  };
 }
 
 /**
  * Creates an Anchor-formatted associated token account create instruction
  */
-function createAnchorAssociatedTokenAccountCreateInstruction(): TransactionInstruction {
-  const testAccount = Keypair.generate().publicKey;
-  const createDiscriminator = Buffer.from([24, 30, 200, 40, 5, 28, 7, 119]);
+function createAnchorAssociatedTokenAccountCreateInstruction(): Instruction {
+  const createDiscriminator = new Uint8Array([24, 30, 200, 40, 5, 28, 7, 119]);
 
-  const instructionData = Buffer.concat([createDiscriminator]);
-
-  return new TransactionInstruction({
-    keys: [
+  return {
+    programAddress: solanaAddress(ASSOCIATED_TOKEN_PROGRAM_ADDRESS),
+    accounts: [
       // Irrelevant for our instruction decoding purposes
-      { pubkey: testAccount, isSigner: true, isWritable: true },
-      { pubkey: testAccount, isSigner: false, isWritable: true },
-      { pubkey: testAccount, isSigner: false, isWritable: false },
-      { pubkey: testAccount, isSigner: false, isWritable: false },
-      { pubkey: testAccount, isSigner: false, isWritable: false },
-      { pubkey: testAccount, isSigner: false, isWritable: false },
+      { address: TEST_ACCOUNT, role: AccountRole.WRITABLE_SIGNER },
+      { address: TEST_ACCOUNT, role: AccountRole.WRITABLE },
+      { address: TEST_ACCOUNT, role: AccountRole.READONLY },
+      { address: TEST_ACCOUNT, role: AccountRole.READONLY },
+      { address: TEST_ACCOUNT, role: AccountRole.READONLY },
+      { address: TEST_ACCOUNT, role: AccountRole.READONLY },
     ],
-    programId: new PublicKey(ASSOCIATED_TOKEN_PROGRAM_ADDRESS),
-    data: instructionData
-  });
+    data: createDiscriminator,
+  };
 }

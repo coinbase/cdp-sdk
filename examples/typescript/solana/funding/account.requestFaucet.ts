@@ -11,5 +11,5 @@ const { signature } = await account.requestFaucet({
 });
 
 console.log(
-  `Request faucet funds. Explorer link: https://sepolia.basescan.org/tx/${signature}`
+  `Request faucet funds. Explorer link: https://sepolia.basescan.org/tx/${signature}`,
 );
