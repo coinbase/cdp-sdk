@@ -1,6 +1,6 @@
 import { generateKeyPair, privateDecrypt, constants, createPrivateKey } from "crypto";
 
-import { Keypair } from "@solana/web3.js";
+import { createKeyPairFromPrivateKeyBytes } from "@solana/kit";
 import bs58 from "bs58";
 
 /**
@@ -81,9 +81,10 @@ export const decryptWithPrivateKey = (b64PrivateKey: string, b64Cipher: string):
  * @param privateKey - The private key as a hex string
  * @returns The formatted private key as a base58 string
  */
-export const formatSolanaPrivateKey = (privateKey: string): string => {
-  const privateKeyBytes = Buffer.from(privateKey, "hex");
-  const keypair = Keypair.fromSeed(privateKeyBytes);
-  const fullKey = Buffer.concat([keypair.secretKey.subarray(0, 32), keypair.publicKey.toBytes()]);
+export const formatSolanaPrivateKey = async (privateKey: string): Promise<string> => {
+  const privateKeyBytes = new Uint8Array(Buffer.from(privateKey, "hex"));
+  const keyPair = await createKeyPairFromPrivateKeyBytes(privateKeyBytes);
+  const publicKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+  const fullKey = Buffer.concat([privateKeyBytes, publicKeyBytes]);
   return bs58.encode(fullKey);
 };

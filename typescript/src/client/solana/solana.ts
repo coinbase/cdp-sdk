@@ -153,7 +153,7 @@ export class SolanaClient implements SolanaClientInterface {
       })();
 
       const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
-      return formatSolanaPrivateKey(decryptedPrivateKey);
+      return await formatSolanaPrivateKey(decryptedPrivateKey);
     } catch (error) {
       if (!(error instanceof UserInputValidationError)) {
         Analytics.trackError(error, "exportAccount");

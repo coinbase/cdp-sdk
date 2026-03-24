@@ -138,20 +138,18 @@ export type AccountActions = {
    * @param {TransferOptions} options - Parameters for the transfer.
    * @param {string} options.to - The base58 encoded Solana address of the destination account.
    * @param {sol|usdc|string} options.token - The token to transfer ("sol" or "usdc"), or mint address of the SPL token to transfer.
-   * @param {bigint} options.amount - The amount to transfer in atomic units of the token. For example, 0.01 * LAMPORTS_PER_SOL would transfer 0.01 SOL.
-   * @param {string | Connection} options.network - The network identifier to use, or a Solana Connection object.
+   * @param {bigint} options.amount - The amount to transfer in atomic units of the token. For example, 1 SOL = 1_000_000_000 lamports.
+   * @param {string | SolanaRpcClient} options.network - The network identifier ("mainnet" or "devnet") to use, or an existing Solana RPC client.
    *
    * @returns A promise that resolves to the transaction signature, which can be used to wait for the transaction result.
    *
    * @example
    * ```ts
-   * import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-   *
    * const account = await cdp.solana.getAccount({ name: "Account" });
    *
    * const { signature } = await account.transfer({
    *   token: "sol",
-   *   amount: 5 * LAMPORTS_PER_SOL,
+   *   amount: 5_000_000_000n, // 5 SOL in lamports
    *   to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
    *   network: "devnet",
    * });

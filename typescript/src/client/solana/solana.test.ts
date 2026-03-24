@@ -185,7 +185,7 @@ describe("SolanaClient", () => {
       const formatSolanaPrivateKeyMock = formatSolanaPrivateKey as MockedFunction<
         typeof formatSolanaPrivateKey
       >;
-      formatSolanaPrivateKeyMock.mockReturnValue(mockFormattedPrivateKey);
+      formatSolanaPrivateKeyMock.mockResolvedValue(mockFormattedPrivateKey);
 
       const exportSolanaAccountMock = CdpOpenApiClient.exportSolanaAccount as MockedFunction<
         typeof CdpOpenApiClient.exportSolanaAccount
@@ -235,7 +235,7 @@ describe("SolanaClient", () => {
       const formatSolanaPrivateKeyMock = formatSolanaPrivateKey as MockedFunction<
         typeof formatSolanaPrivateKey
       >;
-      formatSolanaPrivateKeyMock.mockReturnValue(mockFormattedPrivateKey);
+      formatSolanaPrivateKeyMock.mockResolvedValue(mockFormattedPrivateKey);
 
       const exportSolanaAccountByNameMock =
         CdpOpenApiClient.exportSolanaAccountByName as MockedFunction<

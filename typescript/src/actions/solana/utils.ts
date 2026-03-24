@@ -1,4 +1,4 @@
-import { Connection } from "@solana/web3.js";
+import { createSolanaRpc } from "@solana/kit";
 
 import {
   GENESIS_HASH_MAINNET,
@@ -9,27 +9,29 @@ import {
 
 export type Network = "mainnet" | "devnet";
 
+export type SolanaRpcClient = ReturnType<typeof createSolanaRpc>;
+
 type GetOrCreateConnectionOptions = {
-  networkOrConnection: Network | Connection;
+  networkOrConnection: Network | SolanaRpcClient;
 };
 
 /**
- * Get a connection for the Solana network
+ * Get a Solana RPC client for the given network or return the provided one
  *
  * @param options - The options for the connection
  *
- * @param options.networkOrConnection - The network to use or a connection
+ * @param options.networkOrConnection - The network to use or an existing RPC client
  *
- * @returns The connection
+ * @returns The RPC client
  */
 export function getOrCreateConnection({
   networkOrConnection,
-}: GetOrCreateConnectionOptions): Connection {
+}: GetOrCreateConnectionOptions): SolanaRpcClient {
   if (typeof networkOrConnection !== "string") {
     return networkOrConnection;
   }
 
-  return new Connection(
+  return createSolanaRpc(
     networkOrConnection === "mainnet"
       ? "https://api.mainnet-beta.solana.com"
       : "https://api.devnet.solana.com",
@@ -37,13 +39,13 @@ export function getOrCreateConnection({
 }
 
 /**
- * Legacy function for compatibility during migration
+ * Determine the network from the RPC client by checking the genesis hash
  *
- * @param connection - The Solana Connection instance
+ * @param rpc - The Solana RPC client
  * @returns The network type (mainnet or devnet)
  */
-export async function getConnectedNetwork(connection: Connection): Promise<Network> {
-  const genesisHash = await connection.getGenesisHash();
+export async function getConnectedNetwork(rpc: SolanaRpcClient): Promise<Network> {
+  const genesisHash = await rpc.getGenesisHash().send();
 
   if (genesisHash === GENESIS_HASH_MAINNET) {
     return "mainnet";

@@ -11,7 +11,6 @@ import {
   createNoopSigner,
   getBase64EncodedWireTransaction,
 } from "@solana/kit";
-import { Connection } from "@solana/web3.js";
 import { getTransferSolInstruction } from "@solana-program/system";
 import {
   findAssociatedTokenPda,
@@ -29,6 +28,7 @@ import {
   getOrCreateConnection,
   getUsdcMintAddress,
   type Network,
+  type SolanaRpcClient,
 } from "./utils.js";
 
 import type { SignatureResult } from "../../client/solana/solana.types.js";
@@ -52,9 +52,9 @@ export interface TransferOptions {
    */
   token: "sol" | "usdc" | string;
   /**
-   * The network to use which will be used to create an RPC client, otherwise an RPC client can be provided.
+   * The network to use which will be used to create an RPC client, otherwise an existing RPC client can be provided.
    */
-  network: Network | Connection;
+  network: Network | SolanaRpcClient;
 }
 
 /**

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
   fetchMint,
   fetchToken,
@@ -11,35 +10,10 @@ import {
 import { getTransferSolInstruction } from "@solana-program/system";
 import { transfer } from "./transfer.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
-import { getOrCreateConnection, getConnectedNetwork } from "./utils.js";
+import { getOrCreateConnection, getConnectedNetwork, type SolanaRpcClient } from "./utils.js";
 import { sendTransaction } from "./sendTransaction.js";
 
-vi.mock("@solana/web3.js", async () => {
-  const mockSerializedTransaction = "MOCK_SERIALIZED_TX_DATA";
-  const actual = (await vi.importActual("@solana/web3.js")) as typeof import("@solana/web3.js");
-  return {
-    ...actual,
-    Connection: vi.fn().mockImplementation(() => ({
-      getLatestBlockhash: vi.fn().mockResolvedValue({ blockhash: "mockblockhash123" }),
-      sendRawTransaction: vi.fn().mockResolvedValue("mockSignature123"),
-      rpcEndpoint: "https://api.devnet.solana.com",
-      getGenesisHash: vi.fn().mockResolvedValue("EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"),
-    })),
-    SystemProgram: {
-      transfer: vi.fn().mockReturnValue({
-        programId: new actual.PublicKey("11111111111111111111111111111111"),
-        keys: [],
-        data: Buffer.from([]),
-      }),
-    },
-    Transaction: vi.fn().mockImplementation(() => ({
-      add: vi.fn(),
-      serialize: vi.fn().mockReturnValue(Buffer.from(mockSerializedTransaction)),
-      recentBlockhash: "",
-      feePayer: null,
-    })),
-  };
-});
+const LAMPORTS_PER_SOL = 1_000_000_000n;
 
 vi.mock("@solana/kit", () => ({
   pipe: vi.fn().mockImplementation((initialValue, ...fns) => {
@@ -114,7 +88,7 @@ vi.mock("./sendTransaction.js", () => ({
 
 describe("transfer", () => {
   let mockApiClient: CdpOpenApiClientType;
-  let connection: Connection;
+  let mockRpc: SolanaRpcClient;
 
   const testFromAddress = "vYshzifUaxbTTMp8G6Tguw7RiXYfHhip8eQHjKU9g1j";
   const testToAddress = "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
@@ -122,10 +96,19 @@ describe("transfer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    mockRpc = {
+      getGenesisHash: vi.fn().mockReturnValue({
+        send: vi.fn().mockResolvedValue("EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"),
+      }),
+      getLatestBlockhash: vi.fn().mockReturnValue({
+        send: vi.fn().mockResolvedValue({
+          value: { blockhash: "mockblockhash123", lastValidBlockHeight: 1000 },
+        }),
+      }),
+    } as unknown as SolanaRpcClient;
+
     (getOrCreateConnection as any).mockImplementation(({ networkOrConnection }) => {
-      return typeof networkOrConnection !== "string"
-        ? networkOrConnection
-        : new Connection("https://api.devnet.solana.com");
+      return typeof networkOrConnection !== "string" ? networkOrConnection : mockRpc;
     });
     (getConnectedNetwork as any).mockResolvedValue("devnet");
 
@@ -136,8 +119,6 @@ describe("transfer", () => {
     } as unknown as CdpOpenApiClientType;
 
     (sendTransaction as any).mockResolvedValue({ signature: "mockSignature123" });
-
-    connection = new Connection("https://api.devnet.solana.com");
   });
 
   describe("SOL transfers", () => {
@@ -145,9 +126,9 @@ describe("transfer", () => {
       const result = await transfer(mockApiClient, {
         from: testFromAddress,
         to: testToAddress,
-        amount: BigInt(1 * LAMPORTS_PER_SOL), // 1 SOL
+        amount: LAMPORTS_PER_SOL,
         token: "sol",
-        network: connection,
+        network: mockRpc,
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
@@ -170,7 +151,7 @@ describe("transfer", () => {
       const result = await transfer(mockApiClient, {
         from: testFromAddress,
         to: testToAddress,
-        amount: BigInt(1 * LAMPORTS_PER_SOL),
+        amount: LAMPORTS_PER_SOL,
         token: "sol",
         network: "devnet",
       });
@@ -186,7 +167,7 @@ describe("transfer", () => {
         to: testToAddress,
         amount: BigInt(10 * Math.pow(10, 6)), // 10 USDC
         token: "usdc",
-        network: connection,
+        network: mockRpc,
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
@@ -214,7 +195,7 @@ describe("transfer", () => {
         to: testToAddress,
         amount: BigInt(10 * Math.pow(10, 6)), // 10 USDC
         token: "usdc",
-        network: connection,
+        network: mockRpc,
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
@@ -241,7 +222,7 @@ describe("transfer", () => {
         to: testToAddress,
         amount: BigInt(0.0000000001 * Math.pow(10, 18)),
         token: customMintAddress,
-        network: connection,
+        network: mockRpc,
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
@@ -272,7 +253,7 @@ describe("transfer", () => {
         to: testToAddress,
         amount: BigInt(10 * Math.pow(10, 6)),
         token: "usdc",
-        network: connection,
+        network: mockRpc,
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
@@ -297,7 +278,7 @@ describe("transfer", () => {
           to: testToAddress,
           amount: BigInt(10 * Math.pow(10, 6)),
           token: "usdc",
-          network: connection,
+          network: mockRpc,
         }),
       ).rejects.toThrow("Insufficient token balance: have 1, need 10000000");
     });
@@ -311,7 +292,7 @@ describe("transfer", () => {
           to: testToAddress,
           amount: BigInt(10 * Math.pow(10, 6)),
           token: "usdc",
-          network: connection,
+          network: mockRpc,
         }),
       ).rejects.toThrow("Mint not found");
     });

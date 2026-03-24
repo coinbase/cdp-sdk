@@ -22,7 +22,6 @@
     "@solana-program/system": "^0.10.0",
     "@solana-program/token": "^0.9.0",
     "@solana/kit": "^5.5.1",
-    "@solana/web3.js": "^1.98.4",
     "abitype": "1.0.6",
     "axios": "^1.13.6",
     "axios-retry": "^4.5.0",
