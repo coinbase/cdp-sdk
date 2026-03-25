@@ -378,37 +378,49 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
 import {
-  PublicKey,
-  SystemProgram,
-  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-  Transaction,
-} from "@solana/web3.js";
+  address as solanaAddress,
+  appendTransactionMessageInstructions,
+  compileTransaction,
+  createNoopSigner,
+  createSolanaRpc,
+  createTransactionMessage,
+  getBase64EncodedWireTransaction,
+  pipe,
+  setTransactionMessageFeePayer,
+  setTransactionMessageLifetimeUsingBlockhash,
+} from "@solana/kit";
+import { getTransferSolInstruction } from "@solana-program/system";
 
 const cdp = new CdpClient();
 
 const account = await cdp.solana.createAccount();
 
-const faucetResp = await cdp.solana.requestFaucet({
+await cdp.solana.requestFaucet({
   address: account.address,
   token: "sol",
 });
 
-const transaction = new Transaction();
-transaction.add(
-  SystemProgram.transfer({
-    fromPubkey: new PublicKey(account.address),
-    toPubkey: new PublicKey("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE"),
-    lamports: 10000,
-  })
+const rpc = createSolanaRpc("https://api.devnet.solana.com");
+const { value: { blockhash, lastValidBlockHeight } } = await rpc.getLatestBlockhash().send();
+
+const instruction = getTransferSolInstruction({
+  source: createNoopSigner(solanaAddress(account.address)),
+  destination: solanaAddress("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE"),
+  amount: 10000n,
+});
+
+const txMsg = pipe(
+  createTransactionMessage({ version: 0 }),
+  (tx) => setTransactionMessageFeePayer(solanaAddress(account.address), tx),
+  (tx) =>
+    setTransactionMessageLifetimeUsingBlockhash(
+      { blockhash, lastValidBlockHeight },
+      tx,
+    ),
+  (tx) => appendTransactionMessageInstructions([instruction], tx),
 );
 
-// A more recent blockhash is set in the backend by CDP
-transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-transaction.feePayer = new PublicKey(account.address);
-
-const serializedTx = Buffer.from(
-  transaction.serialize({ requireAllSignatures: false })
-).toString("base64");
+const serializedTx = getBase64EncodedWireTransaction(compileTransaction(txMsg));
 
 console.log("Transaction serialized successfully");
 
@@ -418,7 +430,7 @@ const txResult = await cdp.solana.sendTransaction({
 });
 
 console.log(
-  `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`
+  `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`,
 );
 ```
 
@@ -789,35 +801,27 @@ await sender.transfer({
 
 For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
 
-You can transfer tokens between accounts using the `transfer` function, and wait for the transaction to be confirmed using the `confirmTransaction` function from `@solana/web3.js`:
+You can transfer tokens between accounts using the `transfer` function:
 
 ```typescript
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { createSolanaRpc, type Signature } from "@solana/kit";
 
 const sender = await cdp.solana.createAccount();
 
-const connection = new Connection("https://api.devnet.solana.com");
-
 const { signature } = await sender.transfer({
   to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
-  amount: 0.01 * LAMPORTS_PER_SOL,
+  amount: 10_000_000n, // 0.01 SOL in lamports
   token: "sol",
-  network: connection,
+  network: "devnet",
 });
 
-const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+// Poll for confirmation using @solana/kit
+const rpc = createSolanaRpc("https://api.devnet.solana.com");
+const result = await rpc.getSignatureStatuses([signature as Signature]).send();
+const status = result.value[0];
 
-const confirmation = await connection.confirmTransaction(
-  {
-    signature,
-    blockhash,
-    lastValidBlockHeight,
-  },
-  "confirmed",
-);
-
-if (confirmation.value.err) {
-  console.log(`Something went wrong! Error: ${confirmation.value.err.toString()}`);
+if (status?.err) {
+  console.log(`Something went wrong! Error: ${JSON.stringify(status.err)}`);
 } else {
   console.log(
     `Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
@@ -836,18 +840,18 @@ const { signature } = await sender.transfer({
 });
 ```
 
-If you want to use your own Connection, you can pass one to the `network` parameter:
+If you want to use your own RPC client, you can pass one to the `network` parameter:
 
 ```typescript
-import { Connection } from "@solana/web3.js";
+import { createSolanaRpc } from "@solana/kit";
 
-const connection = new Connection("YOUR_RPC_URL");
+const rpc = createSolanaRpc("YOUR_RPC_URL");
 
 const { signature } = await sender.transfer({
   to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
   amount: "0.01",
   token: "usdc",
-  network: connection,
+  network: rpc,
 });
 ```
 

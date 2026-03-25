@@ -484,18 +484,44 @@ export class SolanaClient implements SolanaClientInterface {
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
-   * // Add your transaction instructions here
-   * const transaction = new Transaction()
+   * // Build your transaction using @solana/kit
+   * import {
+   *   address as solanaAddress,
+   *   appendTransactionMessageInstructions,
+   *   compileTransaction,
+   *   createNoopSigner,
+   *   createSolanaRpc,
+   *   createTransactionMessage,
+   *   getBase64EncodedWireTransaction,
+   *   pipe,
+   *   setTransactionMessageFeePayer,
+   *   setTransactionMessageLifetimeUsingBlockhash,
+   * } from "@solana/kit";
+   * import { getTransferSolInstruction } from "@solana-program/system";
    *
-   * // Make sure to set requireAllSignatures to false, since signing will be done through the API
-   * const serializedTransaction = transaction.serialize({
-   *   requireAllSignatures: false,
-   * });
+   * const rpc = createSolanaRpc("https://api.devnet.solana.com");
+   * const { value: { blockhash, lastValidBlockHeight } } = await rpc.getLatestBlockhash().send();
    *
-   * // Base64 encode the serialized transaction
-   * const transaction = Buffer.from(serializedTransaction).toString("base64");
+   * const txMsg = pipe(
+   *   createTransactionMessage({ version: 0 }),
+   *   (tx) => setTransactionMessageFeePayer(solanaAddress(account.address), tx),
+   *   (tx) => setTransactionMessageLifetimeUsingBlockhash(
+   *     { blockhash, lastValidBlockHeight },
+   *     tx,
+   *   ),
+   *   (tx) => appendTransactionMessageInstructions([
+   *     getTransferSolInstruction({
+   *       source: createNoopSigner(solanaAddress(account.address)),
+   *       destination: solanaAddress("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE"),
+   *       amount: 10000n,
+   *     }),
+   *   ], tx),
+   * );
    *
-   * // When you want to sign a transaction, you can do so by address and base64 encoded transaction
+   * // Base64 encode the compiled transaction
+   * const transaction = getBase64EncodedWireTransaction(compileTransaction(txMsg));
+   *
+   * // Sign the transaction via the CDP API
    * const signature = await cdp.solana.signTransaction({
    *   address: account.address,
    *   transaction,
