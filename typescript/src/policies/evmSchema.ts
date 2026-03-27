@@ -811,6 +811,79 @@ export const SendEndUserEvmTransactionRuleSchema = z.object({
 export type SendEndUserEvmTransactionRule = z.infer<typeof SendEndUserEvmTransactionRuleSchema>;
 
 /**
+ * Schema for the RateLimiting criterion type.
+ * Limits the number or value of operations within a time window.
+ */
+export const RateLimitingCriterionSchema = z.object({
+  /**
+   * The type of criterion. Must be "rateLimiting".
+   */
+  type: z.literal("rateLimiting"),
+  /**
+   * The time window for the rate limit (e.g. "4d2h45m").
+   */
+  window: z.string(),
+  /**
+   * Maximum number of operations allowed within the window.
+   * Mutually exclusive with maxValueCents.
+   */
+  maxCount: z.number().int().optional(),
+  /**
+   * Maximum cumulative USD value in cents within the window.
+   * Mutually exclusive with maxCount.
+   */
+  maxValueCents: z.number().int().optional(),
+});
+/**
+ * Type representing a RateLimiting criterion.
+ */
+export type RateLimitingCriterion = z.infer<typeof RateLimitingCriterionSchema>;
+
+/**
+ * Schema for criteria used in SendEndUserEvmAsset operations
+ */
+export const SendEndUserEvmAssetCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      PrepareUserOperationEvmNetworkCriterionSchema,
+      EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
+      RateLimitingCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendEndUserEvmAsset operation.
+ */
+export type SendEndUserEvmAssetCriteria = z.infer<typeof SendEndUserEvmAssetCriteriaSchema>;
+
+/**
+ * Type representing a 'sendEndUserEvmAsset' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEndUserEvmAssetRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the asset transfer, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEndUserEvmAsset".
+   */
+  operation: z.literal("sendEndUserEvmAsset"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEndUserEvmAssetCriteriaSchema,
+});
+export type SendEndUserEvmAssetRule = z.infer<typeof SendEndUserEvmAssetRuleSchema>;
+
+/**
  * Type representing a 'signEndUserEvmMessage' policy rule that can accept or reject specific operations
  * based on a set of criteria.
  */

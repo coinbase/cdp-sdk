@@ -2209,5 +2209,191 @@ describe("PoliciesClient", () => {
       expect(result).toEqual(mockPolicy);
       expect(createPolicyMock).toHaveBeenCalledWith(policyWithEvmNetwork, "idem-key");
     });
+
+    it("should create policies with sendEndUserEvmAsset rule and ethValue criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithEvmAsset = {
+        scope: "account" as const,
+        description: "EVM asset transfer policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendEndUserEvmAsset" as const,
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "1000000000000000000",
+                operator: ">" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyWithEvmAsset,
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithEvmAsset, undefined);
+    });
+
+    it("should create policies with sendEndUserEvmAsset rule and rateLimiting criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithRateLimiting = {
+        scope: "account" as const,
+        description: "EVM asset rate limiting policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendEndUserEvmAsset" as const,
+            criteria: [
+              {
+                type: "rateLimiting" as const,
+                window: "4d2h45m",
+                maxCount: 10,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyWithRateLimiting,
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithRateLimiting, undefined);
+    });
+
+    it("should create policies with sendEndUserSolAsset rule and solAddress criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithSolAsset = {
+        scope: "account" as const,
+        description: "Solana asset transfer policy",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "sendEndUserSolAsset" as const,
+            criteria: [
+              {
+                type: "solAddress" as const,
+                addresses: ["9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b"],
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyWithSolAsset,
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithSolAsset, undefined);
+    });
+
+    it("should create policies with sendEndUserSolAsset rule and rateLimiting criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithSolRateLimiting = {
+        scope: "account" as const,
+        description: "Solana asset rate limiting policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendEndUserSolAsset" as const,
+            criteria: [
+              {
+                type: "rateLimiting" as const,
+                window: "1d",
+                maxValueCents: 100000,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyWithSolRateLimiting,
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithSolRateLimiting, undefined);
+    });
+
+    it("should reject sendEndUserEvmAsset with invalid criteria", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      await expect(
+        client.createPolicy({
+          policy: {
+            scope: "account" as const,
+            rules: [
+              {
+                action: "reject" as const,
+                operation: "sendEndUserEvmAsset" as const,
+                criteria: [
+                  {
+                    // @ts-expect-error Intentionally using invalid criterion for test
+                    type: "solAddress",
+                    addresses: ["9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b"],
+                    operator: "in",
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+      ).rejects.toThrow(ZodError);
+      expect(createPolicyMock).not.toHaveBeenCalled();
+    });
+
+    it("should reject sendEndUserSolAsset with invalid criteria", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      await expect(
+        client.createPolicy({
+          policy: {
+            scope: "account" as const,
+            rules: [
+              {
+                action: "reject" as const,
+                operation: "sendEndUserSolAsset" as const,
+                criteria: [
+                  {
+                    // @ts-expect-error Intentionally using invalid criterion for test
+                    type: "ethValue",
+                    ethValue: "1000",
+                    operator: ">",
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+      ).rejects.toThrow(ZodError);
+      expect(createPolicyMock).not.toHaveBeenCalled();
+    });
   });
 });

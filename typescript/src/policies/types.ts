@@ -12,6 +12,7 @@ import {
   SendEndUserEvmTransactionRuleSchema,
   SignEndUserEvmMessageRuleSchema,
   SignEndUserEvmTypedDataRuleSchema,
+  SendEndUserEvmAssetRuleSchema,
 } from "./evmSchema.js";
 import {
   SendSolTransactionRuleSchema,
@@ -20,6 +21,7 @@ import {
   SignEndUserSolTransactionRuleSchema,
   SendEndUserSolTransactionRuleSchema,
   SignEndUserSolMessageRuleSchema,
+  SendEndUserSolAssetRuleSchema,
 } from "./solanaSchema.js";
 
 /**
@@ -71,6 +73,8 @@ export const RuleSchema = z.discriminatedUnion("operation", [
   SignEndUserSolTransactionRuleSchema,
   SendEndUserSolTransactionRuleSchema,
   SignEndUserSolMessageRuleSchema,
+  SendEndUserEvmAssetRuleSchema,
+  SendEndUserSolAssetRuleSchema,
 ]);
 
 /**

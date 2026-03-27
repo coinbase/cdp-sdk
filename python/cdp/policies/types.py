@@ -788,6 +788,27 @@ class SignEndUserEvmTransactionRule(BaseModel):
     )
 
 
+class RateLimitingCriterion(BaseModel):
+    """A criterion that limits the number or value of operations within a time window."""
+
+    type: Literal["rateLimiting"] = Field(
+        "rateLimiting",
+        description="The type of criterion. Must be 'rateLimiting'.",
+    )
+    window: str = Field(
+        ...,
+        description="The time window for the rate limit (e.g. '4d2h45m').",
+    )
+    maxCount: int | None = Field(
+        None,
+        description="Maximum number of operations allowed within the window. Mutually exclusive with maxValueCents.",
+    )
+    maxValueCents: int | None = Field(
+        None,
+        description="Maximum cumulative USD value in cents within the window. Mutually exclusive with maxCount.",
+    )
+
+
 class SendEndUserEvmTransactionRule(BaseModel):
     """Type representing a 'sendEndUserEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -805,6 +826,30 @@ class SendEndUserEvmTransactionRule(BaseModel):
         | EvmNetworkCriterion
         | EvmDataCriterion
         | NetUSDChangeCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SendEndUserEvmAssetRule(BaseModel):
+    """Type representing a 'sendEndUserEvmAsset' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the asset transfer, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserEvmAsset"] = Field(
+        "sendEndUserEvmAsset",
+        description="The operation to which this rule applies. Must be 'sendEndUserEvmAsset'.",
+    )
+    criteria: list[
+        EthValueCriterion
+        | EvmAddressCriterion
+        | EvmNetworkCriterion
+        | EvmDataCriterion
+        | NetUSDChangeCriterion
+        | RateLimitingCriterion
     ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
@@ -898,6 +943,33 @@ class SendEndUserSolTransactionRule(BaseModel):
     )
 
 
+class SendEndUserSolAssetRule(BaseModel):
+    """Type representing a 'sendEndUserSolAsset' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the asset transfer, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserSolAsset"] = Field(
+        "sendEndUserSolAsset",
+        description="The operation to which this rule applies. Must be 'sendEndUserSolAsset'.",
+    )
+    criteria: list[
+        SolAddressCriterion
+        | SolValueCriterion
+        | SplAddressCriterion
+        | SplValueCriterion
+        | MintAddressCriterion
+        | SolDataCriterion
+        | ProgramIdCriterion
+        | SolNetworkCriterion
+        | RateLimitingCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 class SignEndUserSolMessageRule(BaseModel):
     """Type representing a 'signEndUserSolMessage' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -976,10 +1048,12 @@ Rule = (
     | SendUserOperationRule
     | SignEndUserEvmTransactionRule
     | SendEndUserEvmTransactionRule
+    | SendEndUserEvmAssetRule
     | SignEndUserEvmMessageRule
     | SignEndUserEvmTypedDataRule
     | SignEndUserSolTransactionRule
     | SendEndUserSolTransactionRule
+    | SendEndUserSolAssetRule
     | SignEndUserSolMessageRule
 )
 

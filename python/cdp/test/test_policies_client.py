@@ -10,15 +10,20 @@ from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
+from cdp.policies.response_transformer import map_openapi_rules_to_response_format
 from cdp.policies.types import (
     CreatePolicyOptions,
+    EthValueCriterion,
     EvmAddressCriterion,
     EvmNetworkCriterion,
     MintAddressCriterion,
     NetUSDChangeCriterion,
     PrepareUserOperationRule,
     ProgramIdCriterion,
+    RateLimitingCriterion,
+    SendEndUserEvmAssetRule,
     SendEndUserEvmTransactionRule,
+    SendEndUserSolAssetRule,
     SendEndUserSolTransactionRule,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
@@ -1331,3 +1336,377 @@ async def test_create_policy_with_multiple_new_criteria(
     assert result.rules == policy_model.rules
     assert result.created_at == policy_model.created_at
     assert result.updated_at == policy_model.updated_at
+
+
+# ---- SendEndUserEvmAsset / SendEndUserSolAsset rule tests ----
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_end_user_evm_asset_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with a SendEndUserEvmAssetRule and ethValue criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser EVM Asset Policy with ethValue",
+        rules=[
+            SendEndUserEvmAssetRule(
+                action="accept",
+                operation="sendEndUserEvmAsset",
+                criteria=[
+                    EthValueCriterion(
+                        type="ethValue",
+                        ethValue="1000000000000000000",
+                        operator="<=",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_end_user_evm_asset_rate_limiting(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with a SendEndUserEvmAssetRule and rateLimiting criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser EVM Asset Policy with rateLimiting",
+        rules=[
+            SendEndUserEvmAssetRule(
+                action="accept",
+                operation="sendEndUserEvmAsset",
+                criteria=[
+                    RateLimitingCriterion(
+                        type="rateLimiting",
+                        window="1h",
+                        maxCount=10,
+                        maxValueCents=50000,
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_end_user_sol_asset_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with a SendEndUserSolAssetRule and solAddress criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser SOL Asset Policy with solAddress",
+        rules=[
+            SendEndUserSolAssetRule(
+                action="accept",
+                operation="sendEndUserSolAsset",
+                criteria=[
+                    SolAddressCriterion(
+                        type="solAddress",
+                        addresses=["So11111111111111111111111111111111111111112"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_end_user_sol_asset_rate_limiting(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with a SendEndUserSolAssetRule and rateLimiting criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser SOL Asset Policy with rateLimiting",
+        rules=[
+            SendEndUserSolAssetRule(
+                action="accept",
+                operation="sendEndUserSolAsset",
+                criteria=[
+                    RateLimitingCriterion(
+                        type="rateLimiting",
+                        window="24h",
+                        maxCount=100,
+                        maxValueCents=100000,
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+# ---- Transformer round-trip tests ----
+
+
+def test_request_transformer_round_trip_evm_asset():
+    """Verify request transformer correctly converts SendEndUserEvmAssetRule with rateLimiting."""
+    rules = [
+        SendEndUserEvmAssetRule(
+            action="accept",
+            operation="sendEndUserEvmAsset",
+            criteria=[
+                EthValueCriterion(
+                    type="ethValue",
+                    ethValue="500000000000000000",
+                    operator="<=",
+                ),
+                RateLimitingCriterion(
+                    type="rateLimiting",
+                    window="1h",
+                    maxCount=5,
+                    maxValueCents=10000,
+                ),
+            ],
+        )
+    ]
+    openapi_rules = map_request_rules_to_openapi_format(rules)
+    assert len(openapi_rules) == 1
+    rule = openapi_rules[0].actual_instance
+    assert rule.operation == "sendEndUserEvmAsset"
+    assert rule.action == "accept"
+    assert len(rule.criteria) == 2
+
+
+def test_request_transformer_round_trip_sol_asset():
+    """Verify request transformer correctly converts SendEndUserSolAssetRule with rateLimiting."""
+    rules = [
+        SendEndUserSolAssetRule(
+            action="reject",
+            operation="sendEndUserSolAsset",
+            criteria=[
+                SolAddressCriterion(
+                    type="solAddress",
+                    addresses=["So11111111111111111111111111111111111111112"],
+                    operator="not in",
+                ),
+                RateLimitingCriterion(
+                    type="rateLimiting",
+                    window="24h",
+                    maxCount=50,
+                    maxValueCents=500000,
+                ),
+            ],
+        )
+    ]
+    openapi_rules = map_request_rules_to_openapi_format(rules)
+    assert len(openapi_rules) == 1
+    rule = openapi_rules[0].actual_instance
+    assert rule.operation == "sendEndUserSolAsset"
+    assert rule.action == "reject"
+    assert len(rule.criteria) == 2
+
+
+def test_response_transformer_round_trip_evm_asset():
+    """Verify response transformer correctly converts OpenAPI SendEndUserEvmAsset rules."""
+    from cdp.openapi_client.models.eth_value_criterion import (
+        EthValueCriterion as OpenAPIEthValueCriterion,
+    )
+    from cdp.openapi_client.models.rate_limiting_criterion import (
+        RateLimitingCriterion as OpenAPIRateLimitingCriterion,
+    )
+    from cdp.openapi_client.models.rule import Rule
+    from cdp.openapi_client.models.send_end_user_evm_asset_criteria_inner import (
+        SendEndUserEvmAssetCriteriaInner,
+    )
+    from cdp.openapi_client.models.send_end_user_evm_asset_rule import (
+        SendEndUserEvmAssetRule as OpenAPISendEndUserEvmAssetRule,
+    )
+
+    openapi_rules = [
+        Rule(
+            actual_instance=OpenAPISendEndUserEvmAssetRule(
+                action="accept",
+                operation="sendEndUserEvmAsset",
+                criteria=[
+                    SendEndUserEvmAssetCriteriaInner(
+                        actual_instance=OpenAPIEthValueCriterion(
+                            type="ethValue",
+                            eth_value="1000000000000000000",
+                            operator="<=",
+                        )
+                    ),
+                    SendEndUserEvmAssetCriteriaInner(
+                        actual_instance=OpenAPIRateLimitingCriterion(
+                            type="rateLimiting",
+                            window="1h",
+                            max_count=10,
+                            max_value_cents=50000,
+                        )
+                    ),
+                ],
+            )
+        )
+    ]
+    result = map_openapi_rules_to_response_format(openapi_rules)
+    assert len(result) == 1
+    rule = result[0]
+    assert isinstance(rule, SendEndUserEvmAssetRule)
+    assert rule.operation == "sendEndUserEvmAsset"
+    assert len(rule.criteria) == 2
+    assert isinstance(rule.criteria[0], EthValueCriterion)
+    assert isinstance(rule.criteria[1], RateLimitingCriterion)
+    assert rule.criteria[1].window == "1h"
+    assert rule.criteria[1].maxCount == 10
+    assert rule.criteria[1].maxValueCents == 50000
+
+
+def test_response_transformer_round_trip_sol_asset():
+    """Verify response transformer correctly converts OpenAPI SendEndUserSolAsset rules."""
+    from cdp.openapi_client.models.rate_limiting_criterion import (
+        RateLimitingCriterion as OpenAPIRateLimitingCriterion,
+    )
+    from cdp.openapi_client.models.rule import Rule
+    from cdp.openapi_client.models.send_end_user_sol_asset_criteria_inner import (
+        SendEndUserSolAssetCriteriaInner,
+    )
+    from cdp.openapi_client.models.send_end_user_sol_asset_rule import (
+        SendEndUserSolAssetRule as OpenAPISendEndUserSolAssetRule,
+    )
+    from cdp.openapi_client.models.sol_address_criterion import (
+        SolAddressCriterion as OpenAPISolAddressCriterion,
+    )
+
+    openapi_rules = [
+        Rule(
+            actual_instance=OpenAPISendEndUserSolAssetRule(
+                action="accept",
+                operation="sendEndUserSolAsset",
+                criteria=[
+                    SendEndUserSolAssetCriteriaInner(
+                        actual_instance=OpenAPISolAddressCriterion(
+                            type="solAddress",
+                            addresses=["So11111111111111111111111111111111111111112"],
+                            operator="in",
+                        )
+                    ),
+                    SendEndUserSolAssetCriteriaInner(
+                        actual_instance=OpenAPIRateLimitingCriterion(
+                            type="rateLimiting",
+                            window="24h",
+                            max_count=100,
+                            max_value_cents=100000,
+                        )
+                    ),
+                ],
+            )
+        )
+    ]
+    result = map_openapi_rules_to_response_format(openapi_rules)
+    assert len(result) == 1
+    rule = result[0]
+    assert isinstance(rule, SendEndUserSolAssetRule)
+    assert rule.operation == "sendEndUserSolAsset"
+    assert len(rule.criteria) == 2
+    assert isinstance(rule.criteria[0], SolAddressCriterion)
+    assert isinstance(rule.criteria[1], RateLimitingCriterion)
+    assert rule.criteria[1].window == "24h"
+    assert rule.criteria[1].maxCount == 100
+    assert rule.criteria[1].maxValueCents == 100000

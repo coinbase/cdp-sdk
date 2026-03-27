@@ -20,9 +20,24 @@ from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterio
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
+from cdp.openapi_client.models.rate_limiting_criterion import (
+    RateLimitingCriterion as OpenAPIRateLimitingCriterion,
+)
 from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.send_end_user_evm_asset_criteria_inner import (
+    SendEndUserEvmAssetCriteriaInner,
+)
+from cdp.openapi_client.models.send_end_user_evm_asset_rule import (
+    SendEndUserEvmAssetRule,
+)
 from cdp.openapi_client.models.send_end_user_evm_transaction_rule import (
     SendEndUserEvmTransactionRule,
+)
+from cdp.openapi_client.models.send_end_user_sol_asset_criteria_inner import (
+    SendEndUserSolAssetCriteriaInner,
+)
+from cdp.openapi_client.models.send_end_user_sol_asset_rule import (
+    SendEndUserSolAssetRule,
 )
 from cdp.openapi_client.models.send_end_user_sol_transaction_rule import (
     SendEndUserSolTransactionRule,
@@ -595,6 +610,181 @@ openapi_criterion_mapping["sendEndUserSolTransaction"] = openapi_criterion_mappi
     "sendSolTransaction"
 ]
 openapi_criterion_mapping["signEndUserSolMessage"] = openapi_criterion_mapping["signSolMessage"]
+openapi_criterion_mapping["sendEndUserEvmAsset"] = {
+    "ethValue": lambda c: SendEndUserEvmAssetCriteriaInner(
+        actual_instance=EthValueCriterion(
+            eth_value=c.ethValue,
+            operator=c.operator,
+            type="ethValue",
+        )
+    ),
+    "evmAddress": lambda c: SendEndUserEvmAssetCriteriaInner(
+        actual_instance=EvmAddressCriterion(
+            addresses=c.addresses,
+            operator=c.operator,
+            type="evmAddress",
+        )
+    ),
+    "evmNetwork": lambda c: SendEndUserEvmAssetCriteriaInner(
+        actual_instance=EvmNetworkCriterion(
+            networks=c.networks,
+            operator=c.operator,
+            type="evmNetwork",
+        )
+    ),
+    "netUSDChange": lambda c: SendEndUserEvmAssetCriteriaInner(
+        actual_instance=NetUSDChangeCriterion(
+            change_cents=c.changeCents,
+            operator=c.operator,
+            type="netUSDChange",
+        )
+    ),
+    "evmData": lambda c: SendEndUserEvmAssetCriteriaInner(
+        actual_instance=EvmDataCriterion(
+            type="evmData",
+            abi=EvmDataCriterionAbi(
+                actual_instance=(KnownAbiType(c.abi) if isinstance(c.abi, str) else c.abi)
+            ),
+            conditions=[
+                OpenAPIEvmDataCondition(
+                    function=cond.function,
+                    params=[
+                        EvmDataConditionParamsInner(
+                            actual_instance=(
+                                EvmDataParameterConditionList(
+                                    name=param.name,
+                                    operator=param.operator,
+                                    values=param.values,
+                                )
+                                if hasattr(param, "values")
+                                else EvmDataParameterCondition(
+                                    name=param.name,
+                                    operator=param.operator,
+                                    value=param.value,
+                                )
+                            )
+                        )
+                        for param in cond.params
+                    ]
+                    if cond.params
+                    else None,
+                )
+                for cond in c.conditions
+            ],
+        )
+    ),
+    "rateLimiting": lambda c: SendEndUserEvmAssetCriteriaInner(
+        actual_instance=OpenAPIRateLimitingCriterion(
+            type="rateLimiting",
+            window=c.window,
+            max_count=c.maxCount,
+            max_value_cents=c.maxValueCents,
+        )
+    ),
+}
+openapi_criterion_mapping["sendEndUserSolAsset"] = {
+    "solAddress": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=SolAddressCriterion(
+            addresses=c.addresses,
+            operator=c.operator,
+            type="solAddress",
+        )
+    ),
+    "solValue": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=SolValueCriterion(
+            sol_value=c.solValue,
+            operator=c.operator,
+            type="solValue",
+        )
+    ),
+    "solNetwork": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=SolNetworkCriterion(
+            networks=c.networks,
+            operator=c.operator,
+            type="solNetwork",
+        )
+    ),
+    "splAddress": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=SplAddressCriterion(
+            addresses=c.addresses,
+            operator=c.operator,
+            type="splAddress",
+        )
+    ),
+    "splValue": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=SplValueCriterion(
+            spl_value=c.splValue,
+            operator=c.operator,
+            type="splValue",
+        )
+    ),
+    "mintAddress": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=MintAddressCriterion(
+            addresses=c.addresses,
+            operator=c.operator,
+            type="mintAddress",
+        )
+    ),
+    "programId": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=ProgramIdCriterion(
+            program_ids=c.programIds,
+            operator=c.operator,
+            type="programId",
+        )
+    ),
+    "solData": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=SolDataCriterion(
+            type="solData",
+            idls=[
+                SolDataCriterionIdlsInner(
+                    actual_instance=(
+                        KnownIdlType(idl)
+                        if isinstance(idl, str)
+                        else Idl(
+                            address=idl.address,
+                            instructions=idl.instructions,
+                        )
+                    )
+                )
+                for idl in c.idls
+            ],
+            conditions=[
+                SolDataCondition(
+                    instruction=cond.instruction,
+                    params=[
+                        SolDataConditionParamsInner(
+                            actual_instance=(
+                                SolDataParameterConditionList(
+                                    name=param.name,
+                                    operator=param.operator,
+                                    values=param.values,
+                                )
+                                if hasattr(param, "values")
+                                else SolDataParameterCondition(
+                                    name=param.name,
+                                    operator=param.operator,
+                                    value=param.value,
+                                )
+                            )
+                        )
+                        for param in cond.params
+                    ]
+                    if cond.params
+                    else None,
+                )
+                for cond in c.conditions
+            ],
+        )
+    ),
+    "rateLimiting": lambda c: SendEndUserSolAssetCriteriaInner(
+        actual_instance=OpenAPIRateLimitingCriterion(
+            type="rateLimiting",
+            window=c.window,
+            max_count=c.maxCount,
+            max_value_cents=c.maxValueCents,
+        )
+    ),
+}
 
 # OpenAPI rule constructor mapping
 openapi_rule_mapping = {
@@ -615,6 +805,8 @@ openapi_rule_mapping = {
     "signEndUserSolTransaction": SignEndUserSolTransactionRule,
     "sendEndUserSolTransaction": SendEndUserSolTransactionRule,
     "signEndUserSolMessage": SignEndUserSolMessageRule,
+    "sendEndUserEvmAsset": SendEndUserEvmAssetRule,
+    "sendEndUserSolAsset": SendEndUserSolAssetRule,
 }
 
 
