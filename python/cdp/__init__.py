@@ -1,6 +1,6 @@
 from cdp.__version__ import __version__
 from cdp.cdp_client import CdpClient
-from cdp.end_user_account import EndUserAccount
+from cdp.end_user_account import EndUserAccount, SendEvmAssetResult
 from cdp.end_user_client import ListEndUsersResult
 from cdp.evm_call_types import ContractCall, EncodedCall, FunctionCall
 from cdp.evm_local_account import EvmLocalAccount
@@ -9,6 +9,7 @@ from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client import SpendPermissionNetwork
 from cdp.openapi_client.errors import HttpErrorType, NetworkError
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.spend_permissions import (
     SPEND_PERMISSION_MANAGER_ABI,
     SPEND_PERMISSION_MANAGER_ADDRESS,
@@ -27,10 +28,12 @@ __all__ = [
     "EvmLocalAccount",
     "EvmServerAccount",
     "EvmSmartAccount",
+    "EvmUserOperation",
     "FunctionCall",
     "HttpErrorType",
     "ListEndUsersResult",
     "NetworkError",
+    "SendEvmAssetResult",
     "SpendPermissionNetwork",
     "SpendPermission",
     "SpendPermissionInput",

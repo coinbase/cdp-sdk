@@ -24,6 +24,7 @@ class CdpClient:
         max_network_retries: int = 3,
         source: str = SDK_DEFAULT_SOURCE,
         source_version: str = __version__,
+        project_id: str | None = None,
     ):
         """Instantiate the CdpClient.
 
@@ -36,11 +37,14 @@ class CdpClient:
             max_network_retries (int, optional): The maximum number of network retries. Defaults to 3.
             source (str, optional): The source. Defaults to SDK_DEFAULT_SOURCE.
             source_version (str, optional): The source version. Defaults to __version__.
+            project_id (str, optional): The CDP Project ID. Required for end user delegation operations.
+                Defaults to the CDP_PROJECT_ID environment variable.
 
         """
         api_key_id = api_key_id or os.getenv("CDP_API_KEY_ID") or os.getenv("CDP_API_KEY_NAME")
         api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
         wallet_secret = wallet_secret or os.getenv("CDP_WALLET_SECRET")
+        project_id = project_id or os.getenv("CDP_PROJECT_ID")
 
         if not api_key_id or not api_key_secret:
             raise ValueError("""
@@ -92,7 +96,7 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         self._evm = EvmClient(self.api_clients)
         self._solana = SolanaClient(self.api_clients)
         self._policies = PoliciesClient(self.api_clients)
-        self._end_user = EndUserClient(self.api_clients)
+        self._end_user = EndUserClient(self.api_clients, project_id=project_id)
         self._closed = False
 
         if (

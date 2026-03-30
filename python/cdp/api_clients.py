@@ -1,3 +1,6 @@
+from cdp.openapi_client.api.embedded_wallets_core_functionality_api import (
+    EmbeddedWalletsCoreFunctionalityApi,
+)
 from cdp.openapi_client.api.end_user_accounts_api import EndUserAccountsApi
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
@@ -39,6 +42,7 @@ class ApiClients:
         """
         self._cdp_client: CdpApiClient = cdp_client
 
+        self._embedded_wallets: EmbeddedWalletsCoreFunctionalityApi | None = None
         self._evm_accounts: EVMAccountsApi | None = None
         self._evm_smart_accounts: EVMSmartAccountsApi | None = None
         self._evm_swaps: EVMSwapsApi | None = None
@@ -58,6 +62,21 @@ class ApiClients:
                 "Cannot use a closed CDP client. Please create a new client instance. "
                 "This error occurs when trying to use a client after calling close()."
             )
+
+    @property
+    def embedded_wallets(self) -> EmbeddedWalletsCoreFunctionalityApi:
+        """Get the EmbeddedWalletsCoreFunctionalityApi client instance.
+
+        Returns:
+            EmbeddedWalletsCoreFunctionalityApi: The EmbeddedWalletsCoreFunctionalityApi client instance.
+
+        """
+        self._check_closed()
+        if self._embedded_wallets is None:
+            self._embedded_wallets = EmbeddedWalletsCoreFunctionalityApi(
+                api_client=self._cdp_client
+            )
+        return self._embedded_wallets
 
     @property
     def solana_token_balances(self) -> SolanaTokenBalancesApi:
