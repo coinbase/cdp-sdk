@@ -88,6 +88,10 @@ export const configure = (options: CdpOptions) => {
 
   /*
    * Delegated routing interceptor.
+   * Embedded Wallet API's are exposed to the developer for delegated signing
+   * via the /delegated path, which properly forwards the Authorization and
+   * X-Wallet-Auth headers from the edge.
+   *
    * Registered after withAuth so it runs BEFORE the auth interceptor (LIFO order).
    * This rewrites the URL first, then the auth interceptor computes JWT headers
    * (Authorization and X-Wallet-Auth) against the rewritten URL path, ensuring
