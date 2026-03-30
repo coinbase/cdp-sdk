@@ -10,10 +10,11 @@ export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/onramp/onramp.js";
 export * from "./generated/onchain-data/onchain-data.js";
 export * from "./generated/end-user-accounts/end-user-accounts.js";
+export * from "./generated/embedded-wallets-core-functionality/embedded-wallets-core-functionality.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
-export * from "./generated/sql-api-alpha/sql-api-alpha.js";
 
 import { configure } from "./cdpApiClient.js";
+import * as embeddedWallets from "./generated/embedded-wallets-core-functionality/embedded-wallets-core-functionality.js";
 import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
 import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
@@ -38,6 +39,7 @@ export const CdpOpenApiClient = {
   ...onchainData,
   ...policies,
   ...endUserAccounts,
+  ...embeddedWallets,
   configure,
 };
 
@@ -59,3 +61,4 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/sql-api/sql-api.js";

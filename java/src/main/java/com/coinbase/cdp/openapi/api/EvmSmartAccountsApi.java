@@ -21,12 +21,12 @@ import com.coinbase.cdp.openapi.model.CreateEvmSmartAccountRequest;
 import com.coinbase.cdp.openapi.model.CreateSpendPermissionRequest;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.EvmSmartAccount;
+import com.coinbase.cdp.openapi.model.EvmSpendPermissionsRevokeSpendPermissionRequest;
 import com.coinbase.cdp.openapi.model.EvmUserOperation;
 import com.coinbase.cdp.openapi.model.ListEvmSmartAccounts200Response;
 import com.coinbase.cdp.openapi.model.ListSpendPermissions200Response;
 import com.coinbase.cdp.openapi.model.PrepareAndSendUserOperationRequest;
 import com.coinbase.cdp.openapi.model.PrepareUserOperationRequest;
-import com.coinbase.cdp.openapi.model.RevokeSpendPermissionRequest;
 import com.coinbase.cdp.openapi.model.SendUserOperationRequest;
 import com.coinbase.cdp.openapi.model.UpdateEvmSmartAccountRequest;
 
@@ -948,14 +948,14 @@ public class EvmSmartAccountsApi {
    * Revoke a spend permission
    * Revokes an existing spend permission.
    * @param address The address of the Smart account this spend permission is valid for. (required)
-   * @param revokeSpendPermissionRequest  (required)
+   * @param evmSpendPermissionsRevokeSpendPermissionRequest  (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return EvmUserOperation
    * @throws ApiException if fails to make API call
    */
-  public EvmUserOperation revokeSpendPermission(String address, RevokeSpendPermissionRequest revokeSpendPermissionRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
-    ApiResponse<EvmUserOperation> localVarResponse = revokeSpendPermissionWithHttpInfo(address, revokeSpendPermissionRequest, xWalletAuth, xIdempotencyKey);
+  public EvmUserOperation revokeSpendPermission(String address, EvmSpendPermissionsRevokeSpendPermissionRequest evmSpendPermissionsRevokeSpendPermissionRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+    ApiResponse<EvmUserOperation> localVarResponse = revokeSpendPermissionWithHttpInfo(address, evmSpendPermissionsRevokeSpendPermissionRequest, xWalletAuth, xIdempotencyKey);
     return localVarResponse.getData();
   }
 
@@ -963,14 +963,14 @@ public class EvmSmartAccountsApi {
    * Revoke a spend permission
    * Revokes an existing spend permission.
    * @param address The address of the Smart account this spend permission is valid for. (required)
-   * @param revokeSpendPermissionRequest  (required)
+   * @param evmSpendPermissionsRevokeSpendPermissionRequest  (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;EvmUserOperation&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<EvmUserOperation> revokeSpendPermissionWithHttpInfo(String address, RevokeSpendPermissionRequest revokeSpendPermissionRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = revokeSpendPermissionRequestBuilder(address, revokeSpendPermissionRequest, xWalletAuth, xIdempotencyKey);
+  public ApiResponse<EvmUserOperation> revokeSpendPermissionWithHttpInfo(String address, EvmSpendPermissionsRevokeSpendPermissionRequest evmSpendPermissionsRevokeSpendPermissionRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = revokeSpendPermissionRequestBuilder(address, evmSpendPermissionsRevokeSpendPermissionRequest, xWalletAuth, xIdempotencyKey);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -1009,14 +1009,14 @@ public class EvmSmartAccountsApi {
     }
   }
 
-  private HttpRequest.Builder revokeSpendPermissionRequestBuilder(String address, RevokeSpendPermissionRequest revokeSpendPermissionRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+  private HttpRequest.Builder revokeSpendPermissionRequestBuilder(String address, EvmSpendPermissionsRevokeSpendPermissionRequest evmSpendPermissionsRevokeSpendPermissionRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
     // verify the required parameter 'address' is set
     if (address == null) {
       throw new ApiException(400, "Missing the required parameter 'address' when calling revokeSpendPermission");
     }
-    // verify the required parameter 'revokeSpendPermissionRequest' is set
-    if (revokeSpendPermissionRequest == null) {
-      throw new ApiException(400, "Missing the required parameter 'revokeSpendPermissionRequest' when calling revokeSpendPermission");
+    // verify the required parameter 'evmSpendPermissionsRevokeSpendPermissionRequest' is set
+    if (evmSpendPermissionsRevokeSpendPermissionRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'evmSpendPermissionsRevokeSpendPermissionRequest' when calling revokeSpendPermission");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
@@ -1036,7 +1036,7 @@ public class EvmSmartAccountsApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(revokeSpendPermissionRequest);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(evmSpendPermissionsRevokeSpendPermissionRequest);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);

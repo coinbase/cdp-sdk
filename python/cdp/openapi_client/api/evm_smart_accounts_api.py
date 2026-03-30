@@ -23,12 +23,12 @@ from typing_extensions import Annotated
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
 from cdp.openapi_client.models.create_spend_permission_request import CreateSpendPermissionRequest
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
+from cdp.openapi_client.models.evm_spend_permissions_revoke_spend_permission_request import EvmSpendPermissionsRevokeSpendPermissionRequest
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
 from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
-from cdp.openapi_client.models.revoke_spend_permission_request import RevokeSpendPermissionRequest
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 
@@ -2790,7 +2790,7 @@ class EVMSmartAccountsApi:
     async def revoke_spend_permission(
         self,
         address: Annotated[str, Field(strict=True, description="The address of the Smart account this spend permission is valid for.")],
-        revoke_spend_permission_request: RevokeSpendPermissionRequest,
+        evm_spend_permissions_revoke_spend_permission_request: EvmSpendPermissionsRevokeSpendPermissionRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
@@ -2812,8 +2812,8 @@ class EVMSmartAccountsApi:
 
         :param address: The address of the Smart account this spend permission is valid for. (required)
         :type address: str
-        :param revoke_spend_permission_request: (required)
-        :type revoke_spend_permission_request: RevokeSpendPermissionRequest
+        :param evm_spend_permissions_revoke_spend_permission_request: (required)
+        :type evm_spend_permissions_revoke_spend_permission_request: EvmSpendPermissionsRevokeSpendPermissionRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
@@ -2842,7 +2842,7 @@ class EVMSmartAccountsApi:
 
         _param = self._revoke_spend_permission_serialize(
             address=address,
-            revoke_spend_permission_request=revoke_spend_permission_request,
+            evm_spend_permissions_revoke_spend_permission_request=evm_spend_permissions_revoke_spend_permission_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
             _request_auth=_request_auth,
@@ -2874,7 +2874,7 @@ class EVMSmartAccountsApi:
     async def revoke_spend_permission_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The address of the Smart account this spend permission is valid for.")],
-        revoke_spend_permission_request: RevokeSpendPermissionRequest,
+        evm_spend_permissions_revoke_spend_permission_request: EvmSpendPermissionsRevokeSpendPermissionRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
@@ -2896,8 +2896,8 @@ class EVMSmartAccountsApi:
 
         :param address: The address of the Smart account this spend permission is valid for. (required)
         :type address: str
-        :param revoke_spend_permission_request: (required)
-        :type revoke_spend_permission_request: RevokeSpendPermissionRequest
+        :param evm_spend_permissions_revoke_spend_permission_request: (required)
+        :type evm_spend_permissions_revoke_spend_permission_request: EvmSpendPermissionsRevokeSpendPermissionRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
@@ -2926,7 +2926,7 @@ class EVMSmartAccountsApi:
 
         _param = self._revoke_spend_permission_serialize(
             address=address,
-            revoke_spend_permission_request=revoke_spend_permission_request,
+            evm_spend_permissions_revoke_spend_permission_request=evm_spend_permissions_revoke_spend_permission_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
             _request_auth=_request_auth,
@@ -2958,7 +2958,7 @@ class EVMSmartAccountsApi:
     async def revoke_spend_permission_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The address of the Smart account this spend permission is valid for.")],
-        revoke_spend_permission_request: RevokeSpendPermissionRequest,
+        evm_spend_permissions_revoke_spend_permission_request: EvmSpendPermissionsRevokeSpendPermissionRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
@@ -2980,8 +2980,8 @@ class EVMSmartAccountsApi:
 
         :param address: The address of the Smart account this spend permission is valid for. (required)
         :type address: str
-        :param revoke_spend_permission_request: (required)
-        :type revoke_spend_permission_request: RevokeSpendPermissionRequest
+        :param evm_spend_permissions_revoke_spend_permission_request: (required)
+        :type evm_spend_permissions_revoke_spend_permission_request: EvmSpendPermissionsRevokeSpendPermissionRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
@@ -3010,7 +3010,7 @@ class EVMSmartAccountsApi:
 
         _param = self._revoke_spend_permission_serialize(
             address=address,
-            revoke_spend_permission_request=revoke_spend_permission_request,
+            evm_spend_permissions_revoke_spend_permission_request=evm_spend_permissions_revoke_spend_permission_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
             _request_auth=_request_auth,
@@ -3037,7 +3037,7 @@ class EVMSmartAccountsApi:
     def _revoke_spend_permission_serialize(
         self,
         address,
-        revoke_spend_permission_request,
+        evm_spend_permissions_revoke_spend_permission_request,
         x_wallet_auth,
         x_idempotency_key,
         _request_auth,
@@ -3071,8 +3071,8 @@ class EVMSmartAccountsApi:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
-        if revoke_spend_permission_request is not None:
-            _body_params = revoke_spend_permission_request
+        if evm_spend_permissions_revoke_spend_permission_request is not None:
+            _body_params = evm_spend_permissions_revoke_spend_permission_request
 
 
         # set the HTTP header `Accept`

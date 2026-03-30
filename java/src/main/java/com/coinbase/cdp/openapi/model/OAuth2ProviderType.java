@@ -36,7 +36,9 @@ public enum OAuth2ProviderType {
   
   X("x"),
   
-  TELEGRAM("telegram");
+  TELEGRAM("telegram"),
+  
+  GITHUB("github");
 
   private String value;
 

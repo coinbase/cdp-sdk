@@ -13,9 +13,36 @@ info:
 servers:
   - url: https://api.cdp.coinbase.com/platform
     description: The production server of the CDP APIs.
+  - url: https://api.cdp.coinbase.com/platform/delegated
+    description: The production server of the CDP Embedded Wallet APIs for delegated signing operations.
 security:
   - apiKeyAuth: []
 tags:
+  - name: Embedded Wallets (Core Functionality)
+    x-audience: public
+    description: |-
+      The Embedded Wallet APIs enable end users to directly create, manage, and use their accounts. They are typically accessed via the CDP Web SDK. End users authenticate with the APIs via the `InitiateAuthentication` endpoint, and use the returned access token and refresh token to authenticate with the other endpoints. The Embedded Wallet APIs offer end users full control over their accounts, including the ability to sign transactions and messages, and to export their accounts' private keys.
+
+      There are three authentication credentials involved in the Embedded Wallet APIs:
+
+      1. **Access Token**: A JWT signed by CDP, encoded in base64. This is used to identify the end user, and is
+        issued after the end user has signed in using one of the provided authentication methods.
+        The APIs provide multiple mechanisms for end user authentication, including custom auth JWT authentication,
+        email one-time-password (OTP) authentication, and social sign-in.
+
+
+      2. **Refresh Token**: A cryptographically random string, set as the `cdp_refresh_token` cookie in the end user's browser.
+        By hitting the `RefreshAccessToken` endpoint, the included refresh token can be used to obtain a new access token
+        without requiring the end user to sign in again.
+
+
+      3. **Temporary Wallet Secret (TWS)**: Requests to signing-related endpoints must also be authenticated using a
+        **Temporary Wallet Secret** (TWS) generated on the end user's browser/device. Typically, this is done using the CDP Embedded Wallet SDK. The Temporary Wallet Secret
+        follows similar semantics to the Wallet Secret used by the EVM and Solana Account APIs, with the following key differences:
+
+        - The end user must register their TWS with the End User Accounts APIs before it can be used.
+        - Temporary Wallet Secrets have a time-to-live (TTL) defined by the `validUntil` field in the TWS registration request.
+        - A maximum of five TWS's can be registered for a single end user at any given time.
   - name: End User Accounts
     x-audience: public
     description: |-
@@ -555,9 +582,9 @@ tags:
 
         - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports).
         - For SPL tokens, `decimals` is defined in the token's mint configuration.
-  - name: SQL API (Alpha)
+  - name: SQL API
     x-audience: public
-    description: The SQL APIs enable you to write performant, high-freshness, and endlessly flexible SQL queries against onchain data.
+    description: The SQL API enables you to write performant, high-freshness, and endlessly flexible SQL queries against onchain data.
   - name: Webhooks
     x-audience: public
     description: Subscribe to real-time events across CDP products. Monitor onchain activity on Base mainnet, track onramp/offramp transactions, and receive instant notifications for wallet events.
@@ -1460,6 +1487,1925 @@ paths:
                   value:
                     errorType: already_exists
                     errorMessage: An account with the given address already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/sign:
+    post:
+      x-audience: public
+      summary: Sign a hash with end user EVM account
+      description: Signs an arbitrary 32 byte hash with the end user's given EVM account.
+      operationId: signEvmHashWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hash:
+                  type: string
+                  description: The arbitrary 32 byte hash to sign.
+                  example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account belonging to the end user.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - hash
+                - address
+      responses:
+        '200':
+          description: Successfully signed hash.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the hash, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Request body must be specified.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/sign/transaction:
+    post:
+      x-audience: public
+      summary: Sign a transaction with end user EVM account
+      description: |-
+        Signs a transaction with the given end user EVM account.
+        The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+        The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+      operationId: signEvmTransactionWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          description: The ID of the CDP Project.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          description: The ID of the end user.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account belonging to the end user.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                transaction:
+                  type: string
+                  description: The RLP-encoded transaction to sign, as a 0x-prefixed hex string.
+                  example: '0xf86b098505d21dba00830334509431415daf58e2c6b7323b4c58712fd92952145da79018080'
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - address
+                - transaction
+      responses:
+        '200':
+          description: Successfully signed transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedTransaction:
+                    type: string
+                    description: The RLP-encoded signed transaction, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signedTransaction
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/send/transaction:
+    post:
+      x-audience: public
+      summary: Send a transaction with end user EVM account
+      description: |-
+        Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+        The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).
+
+
+        **Transaction fields and API behavior**
+
+        - `to` *(Required)*: The address of the contract or account to send the transaction to.
+        - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.
+          The transaction will be sent to the network indicated by the `network` field in the request body.
+
+        - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign
+           a nonce to the transaction based on the current state of the account.
+
+        - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.
+           If not provided, the API will estimate a value based on current network conditions.
+
+        - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.
+           If not provided, the API will estimate a value based on current network conditions.
+
+        - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value
+          based on the `to` and `data` fields of the transaction.
+
+        - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
+        - `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
+        - `accessList` *(Optional)*: The access list to use for the transaction.
+      operationId: sendEvmTransactionWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          description: The ID of the end user.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account belonging to the end user.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                network:
+                  type: string
+                  description: The network to send the transaction to.
+                  enum:
+                    - base
+                    - base-sepolia
+                    - ethereum
+                    - ethereum-sepolia
+                    - avalanche
+                    - polygon
+                    - optimism
+                    - arbitrum
+                  example: base-sepolia
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                transaction:
+                  type: string
+                  description: The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.
+                  example: '0xf86b098505d21dba00830334509431415daf58e2c6b7323b4c58712fd92952145da79018080'
+              required:
+                - address
+                - transaction
+                - network
+      responses:
+        '200':
+          description: Successfully signed and sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionHash:
+                    type: string
+                    description: The hash of the transaction, as a 0x-prefixed hex string.
+                    example: '0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7'
+                required:
+                  - transactionHash
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/{address}/send/{asset}:
+    post:
+      x-audience: public
+      summary: Send USDC on EVM
+      description: |-
+        Sends USDC from an end user's EVM account (EOA or Smart Account) to a recipient address on a supported EVM network. This endpoint simplifies USDC transfers by automatically handling contract resolution, decimal conversion, gas estimation, and transaction encoding.
+        The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50").
+      operationId: sendEvmAssetWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed.
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/BlockchainAddress'
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: asset
+          in: path
+          required: true
+          description: The asset to send. Currently only "usdc" is supported.
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Asset'
+            enum:
+              - usdc
+          example: usdc
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  allOf:
+                    - $ref: '#/components/schemas/BlockchainAddress'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                  description: The 0x-prefixed address of the recipient.
+                  example: '0x1234567890123456789012345678901234567890'
+                amount:
+                  type: string
+                  minLength: 1
+                  maxLength: 32
+                  description: The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+                  example: '1.50'
+                network:
+                  type: string
+                  description: The EVM network to send USDC on.
+                  enum:
+                    - base
+                    - base-sepolia
+                    - ethereum
+                    - ethereum-sepolia
+                    - avalanche
+                    - polygon
+                    - optimism
+                    - arbitrum
+                  example: base-sepolia
+                useCdpPaymaster:
+                  type: boolean
+                  description: Whether to use CDP Paymaster to sponsor gas fees. Only applicable for EVM Smart Accounts. When true, the transaction gas will be paid by the Paymaster, allowing users to send USDC without holding native gas tokens. Ignored for EOA accounts. Cannot be used together with `paymasterUrl`.
+                  example: true
+                paymasterUrl:
+                  allOf:
+                    - $ref: '#/components/schemas/Url'
+                  description: Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+                  example: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - to
+                - amount
+                - network
+            examples:
+              send_usdc_eoa:
+                summary: Send USDC from EOA
+                value:
+                  to: '0x1234567890123456789012345678901234567890'
+                  amount: '25.50'
+                  network: base-sepolia
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+              send_usdc_smart_account_cdp_paymaster:
+                summary: Send USDC from Smart Account with CDP Paymaster
+                value:
+                  to: '0x1234567890123456789012345678901234567890'
+                  amount: '10.00'
+                  network: base-sepolia
+                  useCdpPaymaster: true
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+              send_usdc_smart_account_custom_paymaster:
+                summary: Send USDC from Smart Account with custom Paymaster
+                value:
+                  to: '0x1234567890123456789012345678901234567890'
+                  amount: '15.00'
+                  network: base-sepolia
+                  paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '200':
+          description: Successfully sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionHash:
+                    type: string
+                    description: The hash of the transaction, as a 0x-prefixed hex string. Populated for EOA accounts. Null for Smart Accounts (use userOpHash instead).
+                    example: '0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7'
+                    nullable: true
+                  userOpHash:
+                    type: string
+                    description: The hash of the user operation, as a 0x-prefixed hex string. Populated for Smart Accounts. Null for EOA accounts (use transactionHash instead).
+                    example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                    nullable: true
+              examples:
+                eoa_transfer:
+                  summary: EOA transfer response
+                  value:
+                    transactionHash: '0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7'
+                    userOpHash: null
+                smart_account_transfer:
+                  summary: Smart Account transfer response
+                  value:
+                    transactionHash: null
+                    userOpHash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_amount:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid amount format. Amount must be a valid decimal string.
+                    errorParam: amount
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                invalid_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Unsupported network for USDC transfers.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/get-started/supported-networks#supported-networks
+                invalid_asset:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Unsupported asset. Currently only 'usdc' is supported.
+                    errorParam: asset
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                insufficient_balance:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Account has insufficient USDC balance to complete the transfer.
+                    errorParam: amount
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                conflicting_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Cannot specify both 'useCdpPaymaster' and 'paymasterUrl'. Please use only one.
+                    errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/sign/message:
+    post:
+      x-audience: public
+      summary: Sign an EIP-191 message with end user EVM account
+      description: |-
+        Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.
+
+        Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
+      operationId: signEvmMessageWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          description: The ID of the CDP Project.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          description: The ID of the end user.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account belonging to the end user.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                message:
+                  type: string
+                  description: The message to sign.
+                  example: Hello, world!
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - address
+                - message
+      responses:
+        '200':
+          description: Successfully signed message.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the message, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signature
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/sign/typed-data:
+    post:
+      x-audience: public
+      summary: Sign EIP-712 typed data with end user EVM account
+      description: Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
+      operationId: signEvmTypedDataWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          description: The ID of the CDP Project.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          description: The ID of the end user.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account belonging to the end user.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                typedData:
+                  $ref: '#/components/schemas/EIP712Message'
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - address
+                - typedData
+      responses:
+        '200':
+          description: Successfully signed typed data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the typed data, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/delegation:
+    delete:
+      x-audience: public
+      summary: Revoke delegation for end user
+      description: Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+      operationId: revokeDelegationForEndUser
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuthOptional'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+          required: false
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletSecretId:
+                  description: When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+            example:
+              walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '204':
+          description: Delegation revoked successfully.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Delegation not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No active delegation found for the specified end user.
+                    errorParam: userId
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/eip7702/delegation:
+    post:
+      x-audience: public
+      summary: Create EIP-7702 delegation for end user EVM account
+      description: |-
+        Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
+
+        This endpoint:
+        - Retrieves delegation artifacts from onchain
+        - Signs the EIP-7702 authorization for delegation
+        - Assembles and submits a Type 4 transaction
+        - Creates an associated smart account object
+
+        The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+      operationId: createEvmEip7702DelegationWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account to delegate.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                network:
+                  $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
+                enableSpendPermissions:
+                  type: boolean
+                  description: Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.
+                  default: false
+                  example: true
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - address
+                - network
+      responses:
+        '201':
+          description: Delegation operation created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  delegationOperationId:
+                    type: string
+                    format: uuid
+                    description: The unique identifier for the delegation operation. Use this to poll the operation status.
+                    example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                required:
+                  - delegationOperationId
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'network' is required.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                unsupported_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Network 'gnosis' is not supported for EIP-7702.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: EVM account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '409':
+          description: Account already delegated on the given network.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_delegated:
+                  value:
+                    errorType: already_exists
+                    errorMessage: Account already has an active EIP-7702 delegation on the given network.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#rate-limit-exceeded
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/smart-accounts/{address}/send:
+    post:
+      x-audience: public
+      summary: Send a user operation for end user Smart Account
+      description: Prepares, signs, and sends a user operation for an end user's Smart Account.
+      operationId: sendUserOperationWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XWalletAuth'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the EVM Smart Account to execute the user operation from.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  $ref: '#/components/schemas/EvmUserOperationNetwork'
+                calls:
+                  type: array
+                  description: The list of calls to make from the Smart Account.
+                  items:
+                    $ref: '#/components/schemas/EvmCall'
+                useCdpPaymaster:
+                  type: boolean
+                  description: Whether to use the CDP Paymaster for the user operation.
+                  example: true
+                paymasterUrl:
+                  allOf:
+                    - $ref: '#/components/schemas/Url'
+                  description: The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option.
+                  example: https://api.developer.coinbase.com/rpc/v1/base/<token>
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                dataSuffix:
+                  type: string
+                  pattern: ^0x[0-9a-fA-F]+$
+                  description: The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+                  example: '0xdddddddd62617365617070070080218021802180218021802180218021'
+              required:
+                - network
+                - calls
+                - useCdpPaymaster
+      responses:
+        '200':
+          description: The user operation was successfully prepared, signed, and sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field "network" is required.
+                invalid_signature:
+                  value:
+                    errorType: invalid_signature
+                    errorMessage: Failed to sign user operation.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user Smart Account with the given address not found.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Max concurrent user operations reached.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/smart-accounts/{address}/spend-permissions/revoke:
+    post:
+      x-audience: public
+      summary: Revoke a spend permission
+      description: Revokes an existing spend permission.
+      operationId: revokeSpendPermissionWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the Smart account this spend permission is valid for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeSpendPermissionRequest'
+      responses:
+        '200':
+          description: Successfully revoked spend permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/solana/sign:
+    post:
+      x-audience: public
+      summary: Sign a hash with end user Solana account
+      description: Signs an arbitrary 32 byte hash with the end user's given Solana account.
+      operationId: signSolanaHashWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hash:
+                  type: string
+                  description: The arbitrary 32 byte hash to sign as base58 encoded string.
+                  example: 3CSwN61FYbyoT6tM7h2aY7u1YpPLedGrcnxrPv4Fz4xu
+                address:
+                  type: string
+                  description: The base58 encoded address of the Solana account belonging to the end user.
+                  example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                  pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - hash
+                - address
+      responses:
+        '200':
+          description: Successfully signed hash.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the hash, as a base58 encoded string.
+                    example: 4YecmNqVT9QFqzuSvE9Zih3toZzNAijjXpj8xupgcC6E4VzwzFjuZBk5P99yz9JQaLRLm1K4L4FpMjxByFxQBe2h
+                required:
+                  - signature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Request body must be specified.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/solana/sign/message:
+    post:
+      x-audience: public
+      summary: Sign a Base64 encoded message
+      description: |-
+        Signs an arbitrary Base64 encoded message with the given Solana account.
+        **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
+      operationId: signSolanaMessageWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: projectId
+          description: The ID of the CDP Project.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          description: The ID of the end user.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The base58 encoded address of the Solana account belonging to the end user.
+                  example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                  pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+                message:
+                  type: string
+                  description: The base64 encoded arbitrary message to sign.
+                  example: SGVsbG8sIHdvcmxk
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - address
+                - message
+      responses:
+        '200':
+          description: Successfully signed message.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the message, as a base58 encoded string.
+                    example: 4YecmNqVT9QFqzuSvE9Zih3toZzNAijjXpj8xupgcC6E4VzwzFjuZBk5P99yz9JQaLRLm1K4L4FpMjxByFxQBe2h
+                required:
+                  - signature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Malformed message to sign.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Solana account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/solana/sign/transaction:
+    post:
+      x-audience: public
+      summary: Sign a transaction with end user Solana account
+      description: |-
+        Signs a transaction with the given end user Solana account.
+        The unsigned transaction should be serialized into a byte array and then encoded as base64.
+        **Transaction types**
+        The following transaction types are supported:
+        * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html)
+        * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)
+        The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+      operationId: signSolanaTransactionWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The base58 encoded address of the Solana account belonging to the end user.
+                  example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                  pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+                transaction:
+                  type: string
+                  description: The base64 encoded transaction to sign.
+                  example: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - address
+                - transaction
+      responses:
+        '200':
+          description: Successfully signed transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedTransaction:
+                    type: string
+                    description: The base64 encoded signed transaction.
+                    example: AQACAdSOvpk0UJXs/rQRXYKSI9hcR0bkGp24qGv6t0/M1XjcQpHf6AHwLcPjEtKQI7p/U0Zo98lnJ5/PZMfVq/0BAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+                required:
+                  - signedTransaction
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/solana/send/transaction:
+    post:
+      x-audience: public
+      summary: Send a transaction with end user Solana account
+      description: |-
+        Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
+        The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+        The unsigned transaction should be serialized into a byte array and then encoded as base64.
+        **Transaction types**
+        The following transaction types are supported:
+        * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions)
+        * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)
+        **Instruction Batching**
+        To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+        **Network Support**
+        The following Solana networks are supported:
+        * `solana` - Solana Mainnet
+        * `solana-devnet` - Solana Devnet
+        The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+      operationId: sendSolanaTransactionWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          description: The ID of the end user.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: The base58 encoded address of the Solana account belonging to the end user.
+                  example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                  pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+                network:
+                  type: string
+                  description: The Solana network to send the transaction to.
+                  enum:
+                    - solana
+                    - solana-devnet
+                  example: solana-devnet
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                transaction:
+                  type: string
+                  description: The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
+                  example: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+                useCdpSponsor:
+                  type: boolean
+                  description: Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+                  example: true
+              required:
+                - address
+                - network
+                - transaction
+            examples:
+              send_transaction:
+                summary: Send a transaction
+                value:
+                  address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                  network: solana-devnet
+                  transaction: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+              send_transaction_sponsored:
+                summary: Send a transaction with CDP gas sponsorship
+                value:
+                  address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                  network: solana-devnet
+                  transaction: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+                  useCdpSponsor: true
+      responses:
+        '200':
+          description: Successfully signed and sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionSignature:
+                    type: string
+                    description: The base58 encoded transaction signature.
+                    example: 5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW
+                required:
+                  - transactionSignature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/solana/{address}/send/{asset}:
+    post:
+      x-audience: public
+      summary: Send USDC on Solana
+      description: |-
+        Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
+        The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50").
+        Use the optional `createRecipientAta` parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+      operationId: sendSolanaAssetWithEndUserAccount
+      tags:
+        - Embedded Wallets (Core Functionality)
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The base58 encoded address of the Solana account to send USDC from.
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/BlockchainAddress'
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        - name: asset
+          in: path
+          required: true
+          description: The asset to send. Currently only "usdc" is supported.
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Asset'
+            enum:
+              - usdc
+          example: usdc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  allOf:
+                    - $ref: '#/components/schemas/BlockchainAddress'
+                  pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+                  description: The base58 encoded address of the recipient.
+                  example: ExXhNkgYf6efh7YyqDRVxPZuzafobao1A74drUdp8trd
+                amount:
+                  type: string
+                  minLength: 1
+                  maxLength: 32
+                  description: The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+                  example: '1.50'
+                network:
+                  type: string
+                  description: The Solana network to send USDC on.
+                  enum:
+                    - solana
+                    - solana-devnet
+                  example: solana-devnet
+                createRecipientAta:
+                  type: boolean
+                  description: Whether to automatically create an Associated Token Account (ATA) for the recipient if it doesn't exist. When true, the sender pays the rent-exempt minimum to create the recipient's USDC ATA. When false, the transaction will fail if the recipient doesn't have a USDC ATA.
+                  example: true
+                walletSecretId:
+                  description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                useCdpSponsor:
+                  type: boolean
+                  description: Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+                  example: true
+              required:
+                - to
+                - amount
+                - network
+            examples:
+              send_usdc_auto_create_ata:
+                summary: Send USDC (auto-create ATA)
+                value:
+                  to: ExXhNkgYf6efh7YyqDRVxPZuzafobao1A74drUdp8trd
+                  amount: '25.50'
+                  network: solana-devnet
+                  createRecipientAta: true
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+              send_usdc_no_ata_creation:
+                summary: Send USDC (no ATA creation)
+                value:
+                  to: ExXhNkgYf6efh7YyqDRVxPZuzafobao1A74drUdp8trd
+                  amount: '5.00'
+                  network: solana-devnet
+                  createRecipientAta: false
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+              send_usdc_sponsored:
+                summary: Send USDC with CDP gas sponsorship
+                value:
+                  to: ExXhNkgYf6efh7YyqDRVxPZuzafobao1A74drUdp8trd
+                  amount: '25.50'
+                  network: solana-devnet
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+                  useCdpSponsor: true
+      responses:
+        '200':
+          description: Successfully sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionSignature:
+                    type: string
+                    description: The base58 encoded transaction signature.
+                    example: 5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW
+                required:
+                  - transactionSignature
+              examples:
+                successful_transfer:
+                  value:
+                    transactionSignature: 5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_amount:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid amount format. Amount must be a valid decimal string.
+                    errorParam: amount
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                invalid_network:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Unsupported network for USDC transfers.
+                    errorParam: network
+                    errorLink: https://docs.cdp.coinbase.com/get-started/supported-networks#supported-networks
+                invalid_asset:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Unsupported asset. Currently only 'usdc' is supported.
+                    errorParam: asset
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                insufficient_balance:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Account has insufficient USDC balance to complete the transfer.
+                    errorParam: amount
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                insufficient_sol:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Account has insufficient SOL to pay for transaction fees and rent.
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                recipient_ata_missing:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'Recipient does not have a USDC Associated Token Account. Set ''createRecipientAta: true'' to create one automatically.'
+                    errorParam: to
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '422':
           $ref: '#/components/responses/IdempotencyError'
         '500':
@@ -3531,7 +5477,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RevokeSpendPermissionRequest'
+              $ref: '#/components/schemas/evm-spend-permissions_RevokeSpendPermissionRequest'
       responses:
         '200':
           description: Successfully revoked spend permission.
@@ -5270,16 +7216,17 @@ paths:
       description: |
         Request funds from the CDP Faucet on Solana devnet.
 
-        Faucets are available for SOL.
+        Faucets are available for SOL, USDC, and CBTUSD.
 
         To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
         These limits are applied at both the CDP Project level and the blockchain address level.
         A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
-        | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
-        |:-----:|:-------------------------:|:--------------------------------:|
-        | SOL   | 0.00125 SOL               | 0.0125 SOL                       |
-        | USDC  | 1 USDC                    | 10 USDC                          |
+        | Token  | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
+        |:-----: |:-------------------------:|:--------------------------------:|
+        | SOL    | 0.00125 SOL               | 0.0125 SOL                       |
+        | USDC   | 1 USDC                    | 10 USDC                          |
+        | CBTUSD | 1 CBTUSD                  | 10 CBTUSD                        |
       operationId: requestSolanaFaucet
       tags:
         - Faucets
@@ -5302,6 +7249,7 @@ paths:
                   enum:
                     - sol
                     - usdc
+                    - cbtusd
                   example: sol
               required:
                 - address
@@ -5476,29 +7424,47 @@ paths:
         Run a read-only SQL query against indexed blockchain data including transactions, events, and decoded logs.
 
         This endpoint provides direct SQL access to comprehensive blockchain data across supported networks.
+
         Queries are executed against optimized data structures for high-performance analytics.
 
         ### Allowed Queries
 
-          - Standard SQL syntax (ClickHouse dialect)
+          - Standard SQL syntax (CoinbaSeQL dialect, based on ClickHouse dialect)
           - Read-only queries (SELECT statements)
           - No DDL or DML operations
-          - No cartesian products
+          - Query that follow limits (defined below)
 
         ### Supported Tables
 
-          - `base.events` - Base mainnet decoded event logs with parameters, event signature, topics, and more.
-          - `base.transactions` - Base mainnet transaction data including hash, block number, gas usage.
-          - `base.blocks` - Base mainnet block information.
-          - `base.encoded_logs` - Encoded log data of event logs that aren't able to be decoded by our event decoder (ex: log0 opcode).
-          - `base.transfers` - All event logs with event signature `Transfer(address,address,uint256)`. ERC-20, ERC-721, and ERC-1155 transfers are all included.
+          - `<network>.events` - Base mainnet decoded event logs with parameters, event signature, topics, and more.
+          - `<network>.transactions` - Base mainnet transaction data including hash, block number, gas usage.
+          - `<network>.blocks` - Base mainnet block information.
+          - `<network>.encoded_logs` - Encoded log data of event logs that aren't able to be decoded by our event decoder (ex: log0 opcode).
+          - `<network>.decoded_user_operations` - Decoded user operations data including hash, block number, gas usage, builder codes, entrypoint version, and more.
+          - `<network>.transaction_attributions` - Information about the attributions of a transaction to a builder and associated builder codes.
+
+        ### Supported Networks
+
+          - Base Mainnet: `base`
+          - Base Sepolia: `base_sepolia`
+
+          So for example, valid tables are: `base.events`, `base_sepolia.events`, `base.transactions`, etc.
 
         ### Query Limits
 
-          - Maximum result set: 100,000 rows
+          - Maximum result set: 50,000 rows
+          - Maximum query length: 10,000 characters
+          - Maximum on-disk data to read: 100GB
+          - Maximum memory usage: 15GB
           - Query timeout: 30 seconds
+          - Maximum JOINs: 12
+
+        ### Query Caching
+
+        By default, each query result is returned from cache so long as the result is from an identical query and less than 750ms old. This freshness tolerance can be modified upwards, to a maximum of 900000ms (i.e. 900s, 15m).
+        This can be helpful for users who wish to reduce expensive calls to the SQL API by reusing cached results.
       tags:
-        - SQL API (Alpha)
+        - SQL API
       security:
         - apiKeyAuth: []
       requestBody:
@@ -5518,6 +7484,8 @@ paths:
           $ref: '#/components/responses/InvalidSQLQueryError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '408':
           description: Query timeout.
           content:
@@ -5554,11 +7522,13 @@ paths:
       description: |
         Retrieve the SQL grammar for the SQL API.
 
-        The SQL queries that are supported by the SQL API are defined via an ANTLR4 grammar which is evaluated by server before executing the query. This ensures the safety and soundness of the SQL API.
+        The SQL queries that are supported by the SQL API are defined in ANTLR4 grammar which is evaluated by server before executing the query. This ensures the safety and soundness of the SQL query before execution.
 
-        This endpoint returns the ANTLR4 grammar that is used to evaluate the SQL queries so that developers can understand the SQL API and build SQL queries with high confidence and correctness. LLMs interact well with ANTLR4 grammar as well.
+        This endpoint returns the ANTLR4 grammar that is used to evaluate the SQL queries so that developers can understand the SQL API and build SQL queries with high confidence and correctness.
+
+        LLMs interact well with ANTLR4 grammar. You can feed the grammar directly into the LLMs to help generate SQL queries.
       tags:
-        - SQL API (Alpha)
+        - SQL API
       security:
         - apiKeyAuth: []
       responses:
@@ -5749,6 +7719,10 @@ paths:
       operationId: listWebhookSubscriptions
       summary: List webhook subscriptions
       x-audience: public
+      x-required-permissions:
+        permissions:
+          - accounts:read@entity
+        enforcement: any
       description: |
         Retrieve a paginated list of webhook subscriptions for the authenticated project.
         Returns subscriptions for all CDP product events (onchain, onramp/offramp, wallet, etc.)
@@ -5821,6 +7795,10 @@ paths:
       operationId: createWebhookSubscription
       summary: Create webhook subscription
       x-audience: public
+      x-required-permissions:
+        permissions:
+          - accounts:write@entity
+        enforcement: any
       description: |
         Subscribe to real-time events across CDP products using flexible filtering.
 
@@ -5976,6 +7954,10 @@ paths:
       operationId: getWebhookSubscription
       summary: Get webhook subscription details
       x-audience: public
+      x-required-permissions:
+        permissions:
+          - accounts:read@entity
+        enforcement: any
       description: |
         Retrieve detailed information about a specific webhook subscription including
         configuration, status, creation timestamp, and webhook signature secret.
@@ -6035,6 +8017,10 @@ paths:
       operationId: updateWebhookSubscription
       summary: Update webhook subscription
       x-audience: public
+      x-required-permissions:
+        permissions:
+          - accounts:write@entity
+        enforcement: any
       description: |
         Update an existing webhook subscription's configuration including
         event types, target URL, filtering criteria, and enabled status.
@@ -6116,6 +8102,10 @@ paths:
       operationId: deleteWebhookSubscription
       summary: Delete webhook subscription
       x-audience: public
+      x-required-permissions:
+        permissions:
+          - accounts:write@entity
+        enforcement: any
       description: |
         Permanently delete a webhook subscription and stop all event deliveries.
         This action cannot be undone.
@@ -6681,6 +8671,12 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: A JWT signed using your CDP API Key Secret, encoded in base64. Refer to the [Generate Bearer Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+    endUserAuth:
+      x-audience: public
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A JWT signed using the developer's own JWT private key (in the case of JWT authentication), or an end user JWT signed by CDP, encoded in base64. This is used for End User Account APIs.
   schemas:
     EmailAuthentication:
       type: object
@@ -6751,6 +8747,7 @@ components:
         - apple
         - x
         - telegram
+        - github
       example: google
     OAuth2Authentication:
       type: object
@@ -7107,6 +9104,9 @@ components:
         - order_already_filled
         - order_already_canceled
         - account_not_ready
+        - insufficient_liquidity
+        - insufficient_allowance
+        - transaction_simulation_failed
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -7688,6 +9688,45 @@ components:
           **Steps to resolve:**
           1. Wait a few moments and retry the request
           2. If the error persists, the account may still be completing setup — retry with exponential backoff
+        insufficient_liquidity: |-
+          This error occurs when no swap route is available for the requested token pair or amount.
+
+          **Steps to resolve:**
+          1. Try a smaller `fromAmount` — large orders may exceed available liquidity
+          2. Try a different token pair
+          3. Retry after a short delay; liquidity conditions change with market activity
+        insufficient_allowance: |-
+          This error occurs when the taker has not approved the Permit2 contract to spend the `fromToken`
+          on their behalf. ERC-20 swaps require a Permit2 allowance. Native ETH swaps do not.
+
+          **Steps to resolve:**
+          1. Submit an ERC-20 `approve` transaction on the `fromToken` contract, granting the Permit2
+             contract (`0x000000000022D473030F116dDEE9F6B43aC78BA3`) an allowance of at least `fromAmount`
+          2. Wait for the approval transaction to be confirmed on-chain
+          3. Retry the swap
+
+          **Example:**
+          ```typescript lines wrap
+          // Approve Permit2 to spend fromToken
+          await walletClient.writeContract({
+            address: fromToken,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: ["0x000000000022D473030F116dDEE9F6B43aC78BA3", fromAmount],
+          });
+          ```
+        transaction_simulation_failed: |-
+          This error occurs when the pre-broadcast simulation of the swap transaction predicted a revert.
+          No transaction was submitted and no gas was spent.
+
+          **Common causes:**
+          - The on-chain price moved past the `slippageBps` tolerance between the price estimate and execution
+          - Taker balance changed between the price estimate and execution
+
+          **Steps to resolve:**
+          1. Retry immediately — prices change quickly and a new quote may succeed
+          2. Increase `slippageBps` if retries continue to fail (e.g. from 100 to 200)
+          3. For large swaps, consider splitting into smaller amounts to reduce price impact
     Url:
       type: string
       format: uri
@@ -7723,43 +9762,18 @@ components:
         errorMessage: Invalid request.
         correlationId: 41deb8d59a9dc9a7-IAD
         errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
-    EvmAccount:
-      type: object
-      properties:
-        address:
-          type: string
-          pattern: ^0x[0-9a-fA-F]{40}$
-          description: The 0x-prefixed, checksum EVM address.
-          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        name:
-          type: string
-          description: |-
-            An optional name for the account.
-            Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
-            Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
-          example: my-account
-          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-        policies:
-          type: array
-          x-audience: public
-          description: The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
-          items:
-            type: string
-            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-          example:
-            - 123e4567-e89b-12d3-a456-426614174000
-        createdAt:
-          type: string
-          description: The UTC ISO 8601 timestamp at which the account was created.
-          example: '2025-03-25T12:00:00Z'
-          format: date-time
-        updatedAt:
-          type: string
-          description: The UTC ISO 8601 timestamp at which the account was last updated.
-          example: '2025-03-26T12:00:00Z'
-          format: date-time
-      required:
-        - address
+    BlockchainAddress:
+      type: string
+      minLength: 1
+      maxLength: 128
+      description: A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+      example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+    Asset:
+      type: string
+      minLength: 1
+      maxLength: 42
+      description: The symbol of the asset (e.g., eth, usd, usdc, usdt).
+      example: usd
     EIP712Domain:
       type: object
       description: The domain of the EIP-712 typed data.
@@ -7892,89 +9906,6 @@ components:
         - ethereum
         - ethereum-sepolia
       example: base
-    EvmEip7702DelegationOperation:
-      type: object
-      description: The status of an EIP-7702 delegation operation.
-      properties:
-        delegationOperationId:
-          type: string
-          format: uuid
-          description: The unique identifier for the delegation operation.
-          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        status:
-          type: string
-          description: |-
-            The current status of the delegation operation.
-            UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.
-          enum:
-            - UNSPECIFIED
-            - PENDING
-            - SUBMITTED
-            - COMPLETED
-            - FAILED
-          example: COMPLETED
-        transactionHash:
-          type: string
-          pattern: ^0x[0-9a-fA-F]{64}$
-          description: The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
-          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
-        network:
-          $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
-        delegateAddress:
-          type: string
-          pattern: ^0x[0-9a-fA-F]{40}$
-          description: The address the account has delegated to, if any. Only present when the account has an active delegation.
-          example: '0x7702cb554e6bFb442cb743A7dF23154544a7176C'
-      required:
-        - delegationOperationId
-        - status
-        - network
-    EvmSmartAccount:
-      type: object
-      properties:
-        address:
-          type: string
-          pattern: ^0x[0-9a-fA-F]{40}$
-          description: The 0x-prefixed, checksum address of the Smart Account.
-          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        owners:
-          type: array
-          items:
-            type: string
-            pattern: ^0x[0-9a-fA-F]{40}$
-          description: Today, only a single owner can be set for a Smart Account, but this is an array to allow having multiple owners in the future. The address is a 0x-prefixed, checksum address.
-          example:
-            - '0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a'
-        name:
-          type: string
-          description: |-
-            An optional name for the account.
-            Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
-            Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.
-          example: my-smart-account
-          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-        policies:
-          type: array
-          x-audience: public
-          description: The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists.
-          items:
-            type: string
-            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-          example:
-            - 123e4567-e89b-12d3-a456-426614174000
-        createdAt:
-          type: string
-          description: The UTC ISO 8601 timestamp at which the account was created.
-          example: '2025-03-25T12:00:00Z'
-          format: date-time
-        updatedAt:
-          type: string
-          description: The UTC ISO 8601 timestamp at which the account was last updated.
-          example: '2025-03-26T12:00:00Z'
-          format: date-time
-      required:
-        - address
-        - owners
     EvmUserOperationNetwork:
       type: string
       description: The network the user operation is for.
@@ -8133,6 +10064,155 @@ components:
         - avalanche
         - polygon
       example: base
+    RevokeSpendPermissionRequest:
+      type: object
+      description: Request parameters for revoking a Spend Permission.
+      properties:
+        walletSecretId:
+          description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+          type: string
+          pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        network:
+          $ref: '#/components/schemas/SpendPermissionNetwork'
+        permissionHash:
+          type: string
+          description: The hash of the spend permission to revoke.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        useCdpPaymaster:
+          type: boolean
+          description: Whether to use the CDP Paymaster for the user operation.
+          example: true
+        paymasterUrl:
+          allOf:
+            - $ref: '#/components/schemas/Url'
+          description: The paymaster URL of the spend permission.
+          example: https://paymaster.cdp.coinbase.com
+      required:
+        - walletSecretId
+        - network
+        - permissionHash
+        - useCdpPaymaster
+    EvmAccount:
+      type: object
+      properties:
+        address:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The 0x-prefixed, checksum EVM address.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        name:
+          type: string
+          description: |-
+            An optional name for the account.
+            Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+            Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
+          example: my-account
+          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+        createdAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        updatedAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was last updated.
+          example: '2025-03-26T12:00:00Z'
+          format: date-time
+      required:
+        - address
+    EvmEip7702DelegationOperation:
+      type: object
+      description: The status of an EIP-7702 delegation operation.
+      properties:
+        delegationOperationId:
+          type: string
+          format: uuid
+          description: The unique identifier for the delegation operation.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        status:
+          type: string
+          description: |-
+            The current status of the delegation operation.
+            UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.
+          enum:
+            - UNSPECIFIED
+            - PENDING
+            - SUBMITTED
+            - COMPLETED
+            - FAILED
+          example: COMPLETED
+        transactionHash:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{64}$
+          description: The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        network:
+          $ref: '#/components/schemas/EvmEip7702DelegationNetwork'
+        delegateAddress:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The address the account has delegated to, if any. Only present when the account has an active delegation.
+          example: '0x7702cb554e6bFb442cb743A7dF23154544a7176C'
+      required:
+        - delegationOperationId
+        - status
+        - network
+    EvmSmartAccount:
+      type: object
+      properties:
+        address:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The 0x-prefixed, checksum address of the Smart Account.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        owners:
+          type: array
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          description: Today, only a single owner can be set for a Smart Account, but this is an array to allow having multiple owners in the future. The address is a 0x-prefixed, checksum address.
+          example:
+            - '0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a'
+        name:
+          type: string
+          description: |-
+            An optional name for the account.
+            Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+            Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.
+          example: my-smart-account
+          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+        createdAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        updatedAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was last updated.
+          example: '2025-03-26T12:00:00Z'
+          format: date-time
+      required:
+        - address
+        - owners
     CreateSpendPermissionRequest:
       type: object
       description: Request parameters for creating a Spend Permission.
@@ -8280,7 +10360,7 @@ components:
         - revoked
         - createdAt
         - network
-    RevokeSpendPermissionRequest:
+    evm-spend-permissions_RevokeSpendPermissionRequest:
       type: object
       description: Request parameters for revoking a Spend Permission.
       properties:
@@ -11097,6 +13177,11 @@ components:
           format: date-time
           description: When the subscription was created.
           example: '2025-01-15T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the subscription was last updated.
+          example: '2025-01-16T14:00:00Z'
         description:
           allOf:
             - $ref: '#/components/schemas/Description'
@@ -11164,6 +13249,7 @@ components:
           transaction_to: '0xf5042e6ffac5a625d4e7848e0b01373d8eb9e222'
         description: USDC Transfer events to specific address.
         createdAt: '2025-11-12T09:19:52.051Z'
+        updatedAt: '2025-11-13T11:30:00.000Z'
         metadata:
           secret: a1b2c3d4-e5f6-7890-abcd-ef1234567890
         secret: a1b2c3d4-e5f6-7890-abcd-ef1234567890
@@ -11282,7 +13368,7 @@ components:
       enum:
         - 1
         - 2
-      example: 1
+      example: 2
     x402ExactEvmPayload:
       type: object
       title: x402ExactEvmPayload
@@ -11469,62 +13555,6 @@ components:
         transaction: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
       required:
         - transaction
-    x402V1PaymentPayload:
-      type: object
-      description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
-      properties:
-        x402Version:
-          $ref: '#/components/schemas/X402Version'
-        scheme:
-          type: string
-          description: The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-          enum:
-            - exact
-          example: exact
-        network:
-          type: string
-          description: The network of the blockchain to send payment on.
-          enum:
-            - base-sepolia
-            - base
-            - solana-devnet
-            - solana
-            - polygon
-          example: base
-        payload:
-          type: object
-          description: The payload of the payment depending on the x402Version, scheme, and network.
-          oneOf:
-            - $ref: '#/components/schemas/x402ExactEvmPayload'
-            - $ref: '#/components/schemas/x402ExactEvmPermit2Payload'
-            - $ref: '#/components/schemas/x402ExactSolanaPayload'
-          example:
-            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
-            authorization:
-              from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-              to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-              value: '1000000000000000000'
-              validAfter: '1716150000'
-              validBefore: '1716150000'
-              nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
-      example:
-        x402Version: 1
-        scheme: exact
-        network: base
-        payload:
-          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
-          authorization:
-            from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-            to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-            value: '1000000000000000000'
-            validAfter: '1716150000'
-            validBefore: '1716150000'
-            nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
-      required:
-        - x402Version
-        - scheme
-        - network
-        - payload
     x402V2PaymentRequirements:
       type: object
       description: The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -11660,14 +13690,70 @@ components:
         - x402Version
         - accepted
         - payload
+    x402V1PaymentPayload:
+      type: object
+      description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+      properties:
+        x402Version:
+          $ref: '#/components/schemas/X402Version'
+        scheme:
+          type: string
+          description: The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+          enum:
+            - exact
+          example: exact
+        network:
+          type: string
+          description: The network of the blockchain to send payment on.
+          enum:
+            - base-sepolia
+            - base
+            - solana-devnet
+            - solana
+            - polygon
+          example: base
+        payload:
+          type: object
+          description: The payload of the payment depending on the x402Version, scheme, and network.
+          oneOf:
+            - $ref: '#/components/schemas/x402ExactEvmPayload'
+            - $ref: '#/components/schemas/x402ExactEvmPermit2Payload'
+            - $ref: '#/components/schemas/x402ExactSolanaPayload'
+          example:
+            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
+            authorization:
+              from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              value: '1000000000000000000'
+              validAfter: '1716150000'
+              validBefore: '1716150000'
+              nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+      example:
+        x402Version: 1
+        scheme: exact
+        network: base
+        payload:
+          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
+          authorization:
+            from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            value: '1000000000000000000'
+            validAfter: '1716150000'
+            validBefore: '1716150000'
+            nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+      required:
+        - x402Version
+        - scheme
+        - network
+        - payload
     x402PaymentPayload:
       type: object
       description: |-
         The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
         For EVM networks, smart account signatures can be longer than 65 bytes.
       oneOf:
-        - $ref: '#/components/schemas/x402V1PaymentPayload'
         - $ref: '#/components/schemas/x402V2PaymentPayload'
+        - $ref: '#/components/schemas/x402V1PaymentPayload'
     x402V1PaymentRequirements:
       type: object
       description: The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -11755,8 +13841,8 @@ components:
       type: object
       description: The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
       oneOf:
-        - $ref: '#/components/schemas/x402V1PaymentRequirements'
         - $ref: '#/components/schemas/x402V2PaymentRequirements'
+        - $ref: '#/components/schemas/x402V1PaymentRequirements'
     x402VerifyInvalidReason:
       type: string
       description: The reason the payment is invalid on the x402 protocol.
@@ -11970,12 +14056,6 @@ components:
         - x402Version
         - scheme
         - network
-    BlockchainAddress:
-      type: string
-      minLength: 1
-      maxLength: 128
-      description: A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
-      example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
     OnrampOrderPaymentMethodTypeId:
       type: string
       description: The type of payment method to be used to complete an onramp order.
@@ -12578,6 +14658,28 @@ components:
         maxLength: 128
         minLength: 1
       example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+    XDeveloperAuth:
+      name: X-Developer-Auth
+      in: header
+      required: false
+      description: |
+        A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+        section of our Authentication docs for more details on how to generate your Wallet Token.
+      schema:
+        type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
+    XWalletAuthOptional:
+      name: X-Wallet-Auth
+      in: header
+      required: false
+      description: |
+        A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+        section of our Authentication docs for more details on how to generate your Wallet Token.
+      schema:
+        type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
     PageSize:
       name: pageSize
       description: The number of resources to return per page.
@@ -12595,3 +14697,62 @@ components:
       schema:
         type: string
       example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+x-tagGroups:
+  - name: Wallets
+    tags:
+      - End User Accounts
+      - EVM Accounts
+      - EVM Smart Accounts
+      - Policy Engine
+      - Solana Accounts
+      - Wallet Secrets (Internal)
+  - name: Onchain Data
+    tags:
+      - EVM Token Balances
+      - Onchain Data
+      - Solana Token Balances
+      - SQL API
+  - name: EVM Swaps
+    tags:
+      - EVM Swaps
+  - name: Faucets
+    tags:
+      - Faucets
+  - name: Onramp
+    tags:
+      - Onramp
+  - name: Webhooks
+    tags:
+      - Webhooks
+  - name: x402 Facilitator
+    tags:
+      - x402 Facilitator
+  - name: CDP Portal (Non-Public)
+    tags:
+      - Entities (Under Development)
+      - Permissions (Under Development)
+      - Projects (Under Development)
+      - Reporting (Under Development)
+      - Roles (Under Development)
+      - Team Members (Under Development)
+  - name: Embedded Wallets (Non-Public)
+    tags:
+      - Embedded Wallets (CORS)
+      - Embedded Wallets (Custom Auth)
+      - Embedded Wallets (Custom OAuth)
+      - Embedded Wallets (MFA)
+      - Embedded Wallets (Mobile Attestation)
+      - Embedded Wallets (Project Configuration)
+      - Embedded Wallets (Core Functionality)
+  - name: Payments (Private Beta)
+    tags:
+      - Accounts (Under Development)
+      - Deposit Destinations (Under Development)
+      - Payment Methods (Under Development)
+      - Transfers (Under Development)
+  - name: Other APIs
+    tags:
+      - Customers (Under Development)
+      - Orders (Under Development)
+      - Payment Acceptance (Under Development)
+      - Risk

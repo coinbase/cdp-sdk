@@ -144,7 +144,13 @@ public enum ErrorType {
   
   ORDER_ALREADY_CANCELED("order_already_canceled"),
   
-  ACCOUNT_NOT_READY("account_not_ready");
+  ACCOUNT_NOT_READY("account_not_ready"),
+  
+  INSUFFICIENT_LIQUIDITY("insufficient_liquidity"),
+  
+  INSUFFICIENT_ALLOWANCE("insufficient_allowance"),
+  
+  TRANSACTION_SIMULATION_FAILED("transaction_simulation_failed");
 
   private String value;
 

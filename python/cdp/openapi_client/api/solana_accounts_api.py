@@ -25,12 +25,12 @@ from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccoun
 from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
 from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
 from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
-from cdp.openapi_client.models.send_solana_transaction200_response import SendSolanaTransaction200Response
 from cdp.openapi_client.models.send_solana_transaction_request import SendSolanaTransactionRequest
-from cdp.openapi_client.models.sign_solana_message200_response import SignSolanaMessage200Response
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account200_response import SendSolanaTransactionWithEndUserAccount200Response
 from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMessageRequest
-from cdp.openapi_client.models.sign_solana_transaction200_response import SignSolanaTransaction200Response
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account200_response import SignSolanaMessageWithEndUserAccount200Response
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account200_response import SignSolanaTransactionWithEndUserAccount200Response
 from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 
@@ -2253,7 +2253,7 @@ class SolanaAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SendSolanaTransaction200Response:
+    ) -> SendSolanaTransactionWithEndUserAccount200Response:
         """Send a Solana transaction
 
         Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.  The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)  **Instruction Batching**  To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.  **Network Support**  The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
@@ -2297,7 +2297,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SendSolanaTransaction200Response",
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2337,7 +2337,7 @@ class SolanaAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SendSolanaTransaction200Response]:
+    ) -> ApiResponse[SendSolanaTransactionWithEndUserAccount200Response]:
         """Send a Solana transaction
 
         Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.  The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)  **Instruction Batching**  To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.  **Network Support**  The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
@@ -2381,7 +2381,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SendSolanaTransaction200Response",
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2465,7 +2465,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SendSolanaTransaction200Response",
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2585,7 +2585,7 @@ class SolanaAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SignSolanaMessage200Response:
+    ) -> SignSolanaMessageWithEndUserAccount200Response:
         """Sign a message
 
         Signs an arbitrary message with the given Solana account.  **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
@@ -2632,7 +2632,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignSolanaMessage200Response",
+            '200': "SignSolanaMessageWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2673,7 +2673,7 @@ class SolanaAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SignSolanaMessage200Response]:
+    ) -> ApiResponse[SignSolanaMessageWithEndUserAccount200Response]:
         """Sign a message
 
         Signs an arbitrary message with the given Solana account.  **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
@@ -2720,7 +2720,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignSolanaMessage200Response",
+            '200': "SignSolanaMessageWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2808,7 +2808,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignSolanaMessage200Response",
+            '200': "SignSolanaMessageWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2931,7 +2931,7 @@ class SolanaAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SignSolanaTransaction200Response:
+    ) -> SignSolanaTransactionWithEndUserAccount200Response:
         """Sign a transaction
 
         Signs a transaction with the given Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
@@ -2978,7 +2978,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignSolanaTransaction200Response",
+            '200': "SignSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -3020,7 +3020,7 @@ class SolanaAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SignSolanaTransaction200Response]:
+    ) -> ApiResponse[SignSolanaTransactionWithEndUserAccount200Response]:
         """Sign a transaction
 
         Signs a transaction with the given Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
@@ -3067,7 +3067,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignSolanaTransaction200Response",
+            '200': "SignSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -3156,7 +3156,7 @@ class SolanaAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignSolanaTransaction200Response",
+            '200': "SignSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
