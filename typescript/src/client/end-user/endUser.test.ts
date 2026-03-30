@@ -1525,4 +1525,160 @@ describe("EndUserClient", () => {
       expect(result).toEqual(mockResult);
     });
   });
+
+  describe("requireProjectId", () => {
+    const expectedMessage =
+      "Missing required project ID for delegation operation. " +
+      "Set the CDP_PROJECT_ID environment variable or pass projectId to the CdpClient constructor.";
+
+    let clientWithoutProjectId: CDPEndUserClient;
+
+    beforeEach(() => {
+      clientWithoutProjectId = new CDPEndUserClient();
+    });
+
+    it("should throw UserInputValidationError for revokeDelegationForEndUser", async () => {
+      await expect(
+        clientWithoutProjectId.revokeDelegationForEndUser({ userId: "user-1" }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signEvmHash", async () => {
+      await expect(
+        clientWithoutProjectId.signEvmHash({
+          userId: "user-1",
+          hash: "0xhash",
+          address: "0x123",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signEvmTransaction", async () => {
+      await expect(
+        clientWithoutProjectId.signEvmTransaction({
+          userId: "user-1",
+          address: "0x123",
+          transaction: "0x02",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signEvmMessage", async () => {
+      await expect(
+        clientWithoutProjectId.signEvmMessage({
+          userId: "user-1",
+          address: "0x123",
+          message: "hello",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signEvmTypedData", async () => {
+      await expect(
+        clientWithoutProjectId.signEvmTypedData({
+          userId: "user-1",
+          address: "0x123",
+          typedData: {},
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for sendEvmTransaction", async () => {
+      await expect(
+        clientWithoutProjectId.sendEvmTransaction({
+          userId: "user-1",
+          address: "0x123",
+          transaction: "0x02",
+          network: "base-sepolia",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for sendEvmAsset", async () => {
+      await expect(
+        clientWithoutProjectId.sendEvmAsset({
+          userId: "user-1",
+          address: "0x123",
+          to: "0xrecipient",
+          amount: "1000000",
+          network: "base-sepolia",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for sendUserOperation", async () => {
+      await expect(
+        clientWithoutProjectId.sendUserOperation({
+          userId: "user-1",
+          address: "0xsmart",
+          network: "base-sepolia",
+          calls: [{ to: "0x", value: "0", data: "0x" }],
+          useCdpPaymaster: true,
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for createEvmEip7702Delegation", async () => {
+      await expect(
+        clientWithoutProjectId.createEvmEip7702Delegation({
+          userId: "user-1",
+          address: "0x123",
+          network: "base-sepolia",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signSolanaHash", async () => {
+      await expect(
+        clientWithoutProjectId.signSolanaHash({
+          userId: "user-1",
+          hash: "base64hash",
+          address: "So1ana123",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signSolanaMessage", async () => {
+      await expect(
+        clientWithoutProjectId.signSolanaMessage({
+          userId: "user-1",
+          address: "So1ana123",
+          message: "base64msg",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for signSolanaTransaction", async () => {
+      await expect(
+        clientWithoutProjectId.signSolanaTransaction({
+          userId: "user-1",
+          address: "So1ana123",
+          transaction: "base64tx",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for sendSolanaTransaction", async () => {
+      await expect(
+        clientWithoutProjectId.sendSolanaTransaction({
+          userId: "user-1",
+          address: "So1ana123",
+          transaction: "base64tx",
+          network: "solana-devnet",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+
+    it("should throw UserInputValidationError for sendSolanaAsset", async () => {
+      await expect(
+        clientWithoutProjectId.sendSolanaAsset({
+          userId: "user-1",
+          address: "So1ana123",
+          to: "Recipient",
+          amount: "1000000",
+          network: "solana-devnet",
+        }),
+      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
+    });
+  });
 });
