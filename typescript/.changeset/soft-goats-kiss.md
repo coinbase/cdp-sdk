@@ -1,5 +1,0 @@
----
-"@coinbase/cdp-sdk": patch
----
-
-Added EIP-6492 signature wrapping for undeployed smart accounts
