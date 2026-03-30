@@ -1,4 +1,6 @@
 // Usage: pnpm tsx end-users/sendUserOperation.ts <USER_UUID>
+// Note: This example requires the end user to have an active delegation on their
+// account that allows the developer to sign on their behalf.
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
