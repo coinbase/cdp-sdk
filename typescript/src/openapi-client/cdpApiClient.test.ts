@@ -24,6 +24,10 @@ describe("cdpApiClient", () => {
     }) as unknown as Mocked<AxiosInstance>;
 
     mockAxiosInstance.getUri = vi.fn(() => "https://api.cdp.coinbase.com/platform");
+    mockAxiosInstance.interceptors = {
+      request: { use: vi.fn(), eject: vi.fn(), clear: vi.fn() },
+      response: { use: vi.fn(), eject: vi.fn(), clear: vi.fn() },
+    } as any;
 
     (Axios.create as any).mockReturnValue(mockAxiosInstance);
     (Axios.isAxiosError as any) = vi.fn();
@@ -636,6 +640,111 @@ describe("cdpApiClient", () => {
           retryable: true,
         },
       });
+    });
+  });
+
+  describe("delegated routing interceptor", () => {
+    let delegatedRoutingInterceptor: (config: any) => any;
+
+    beforeEach(() => {
+      configure(defaultOptions);
+
+      // The delegated routing interceptor is the first registered (index 0)
+      delegatedRoutingInterceptor = (mockAxiosInstance.interceptors.request.use as any).mock
+        .calls[0][0];
+    });
+
+    it("should prepend /delegated to end-user EVM sign URLs", () => {
+      const config = {
+        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/sign",
+      };
+
+      const result = delegatedRoutingInterceptor(config);
+
+      expect(result.url).toBe(
+        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/sign",
+      );
+    });
+
+    it("should prepend /delegated to revokeDelegation URLs", () => {
+      const config = {
+        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/delegation",
+      };
+
+      const result = delegatedRoutingInterceptor(config);
+
+      expect(result.url).toBe(
+        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/delegation",
+      );
+    });
+
+    it("should prepend /delegated to EVM send transaction URLs", () => {
+      const config = {
+        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/send/transaction",
+      };
+
+      const result = delegatedRoutingInterceptor(config);
+
+      expect(result.url).toBe(
+        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/send/transaction",
+      );
+    });
+
+    it("should prepend /delegated to Solana sign URLs", () => {
+      const config = {
+        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/solana/sign/message",
+      };
+
+      const result = delegatedRoutingInterceptor(config);
+
+      expect(result.url).toBe(
+        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/solana/sign/message",
+      );
+    });
+
+    it("should prepend /delegated to smart account send URLs", () => {
+      const config = {
+        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/smart-accounts/0x1234/send",
+      };
+
+      const result = delegatedRoutingInterceptor(config);
+
+      expect(result.url).toBe(
+        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/smart-accounts/0x1234/send",
+      );
+    });
+
+    it("should NOT rewrite non-end-user embedded-wallet-api URLs", () => {
+      const paths = [
+        "/v2/embedded-wallet-api/projects/test-project/auth/init",
+        "/v2/embedded-wallet-api/projects/test-project/auth/refresh",
+        "/v2/embedded-wallet-api/projects/test-project/auth/logout",
+        "/v2/embedded-wallet-api/projects/test-project/auth/verify/email",
+        "/v2/embedded-wallet-api/projects/test-project/config",
+        "/v2/embedded-wallet-api/projects/test-project/attestation/challenge",
+      ];
+
+      for (const url of paths) {
+        const config = { url };
+        const result = delegatedRoutingInterceptor(config);
+        expect(result.url).toBe(url);
+      }
+    });
+
+    it("should NOT rewrite non-embedded-wallet-api URLs", () => {
+      const paths = ["/v2/end-users", "/v2/end-users/test-user", "/v2/evm/accounts", "/test"];
+
+      for (const url of paths) {
+        const config = { url };
+        const result = delegatedRoutingInterceptor(config);
+        expect(result.url).toBe(url);
+      }
+    });
+
+    it("should handle config without url", () => {
+      const config = {};
+      const result = delegatedRoutingInterceptor(config);
+      expect(result.url).toBeUndefined();
     });
   });
 });

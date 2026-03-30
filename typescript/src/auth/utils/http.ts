@@ -134,6 +134,7 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
     (requestPath?.includes("/accounts") ||
       requestPath?.includes("/spend-permissions") ||
       requestPath?.includes("/user-operations/prepare-and-send") ||
+      requestPath?.includes("/embedded-wallet-api/") ||
       requestPath?.endsWith("/end-users") ||
       requestPath?.endsWith("/end-users/import") ||
       /\/end-users\/[^/]+\/evm$/.test(requestPath) ||

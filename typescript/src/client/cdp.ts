@@ -13,6 +13,8 @@ export interface CdpClientOptions {
   apiKeySecret?: string;
   /** The wallet secret. */
   walletSecret?: string;
+  /** The CDP project ID. Required for end-user delegation operations (signing, sending). */
+  projectId?: string;
   /** Whether to enable debugging. */
   debugging?: boolean;
   /** The host URL to connect to. */
@@ -50,6 +52,7 @@ export class CdpClient {
    * CDP_API_KEY_ID=your-api-key-id
    * CDP_API_KEY_SECRET=your-api-key-secret
    * CDP_WALLET_SECRET=your-wallet-secret
+   * CDP_PROJECT_ID=your-project-id
    * ```
    *
    * Or passed as options to the constructor:
@@ -59,6 +62,7 @@ export class CdpClient {
    *   apiKeyId: "your-api-key-id",
    *   apiKeySecret: "your-api-key-secret",
    *   walletSecret: "your-wallet-secret",
+   *   projectId: "your-project-id",
    * });
    * ```
    *
@@ -83,6 +87,7 @@ We recommend using https://github.com/Schniz/fnm for managing your Node.js versi
     const apiKeyId = options.apiKeyId ?? process.env.CDP_API_KEY_ID ?? process.env.CDP_API_KEY_NAME;
     const apiKeySecret = options.apiKeySecret ?? process.env.CDP_API_KEY_SECRET;
     const walletSecret = options.walletSecret ?? process.env.CDP_WALLET_SECRET;
+    const projectId = options.projectId ?? process.env.CDP_PROJECT_ID;
 
     if (!apiKeyId || !apiKeySecret) {
       throw new Error(`
@@ -135,6 +140,6 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
     this.evm = new EvmClient();
     this.solana = new SolanaClient();
     this.policies = new PoliciesClient();
-    this.endUser = new CDPEndUserClient();
+    this.endUser = new CDPEndUserClient(projectId);
   }
 }

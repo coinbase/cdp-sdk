@@ -14,6 +14,33 @@ import {
   type AddEndUserEvmSmartAccountResult,
   type AddEndUserSolanaAccountOptions,
   type AddEndUserSolanaAccountResult,
+  type RevokeDelegationForEndUserOptions,
+  type SignEvmHashOptions,
+  type SignEvmHashResult,
+  type SignEvmTransactionOptions,
+  type SignEvmTransactionResult,
+  type SignEvmMessageOptions,
+  type SignEvmMessageResult,
+  type SignEvmTypedDataOptions,
+  type SignEvmTypedDataResult,
+  type SendEvmTransactionOptions,
+  type SendEvmTransactionResult,
+  type SendEvmAssetOptions,
+  type SendEvmAssetResult,
+  type SendUserOperationOptions,
+  type SendUserOperationResult,
+  type CreateEvmEip7702DelegationOptions,
+  type CreateEvmEip7702DelegationForEndUserResult,
+  type SignSolanaHashOptions,
+  type SignSolanaHashResult,
+  type SignSolanaMessageOptions,
+  type SignSolanaMessageResult,
+  type SignSolanaTransactionOptions,
+  type SignSolanaTransactionResult,
+  type SendSolanaTransactionOptions,
+  type SendSolanaTransactionResult,
+  type SendSolanaAssetOptions,
+  type SendSolanaAssetResult,
   type EndUserAccount,
 } from "./endUser.types.js";
 import { toEndUserAccount } from "./toEndUserAccount.js";
@@ -26,6 +53,17 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
  * The CDP end user client.
  */
 export class CDPEndUserClient {
+  private projectId?: string;
+
+  /**
+   * Creates a new CDPEndUserClient.
+   *
+   * @param projectId - The CDP project ID. Required for delegation operations (signing, sending).
+   */
+  constructor(projectId?: string) {
+    this.projectId = projectId;
+  }
+
   /**
    * Creates an end user. An end user is an entity that can own CDP EVM accounts,
    * EVM smart accounts, and/or Solana accounts.
@@ -66,7 +104,7 @@ export class CDPEndUserClient {
       userId,
     });
 
-    return toEndUserAccount(CdpOpenApiClient, { endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
   }
 
   /**
@@ -139,7 +177,7 @@ export class CDPEndUserClient {
 
     const endUser = await CdpOpenApiClient.getEndUser(userId);
 
-    return toEndUserAccount(CdpOpenApiClient, { endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
   }
 
   /**
@@ -236,6 +274,461 @@ export class CDPEndUserClient {
   }
 
   /**
+   * Revokes all active delegations for the specified end user.
+   * This operation can be performed by the end user themselves or by a developer using their API key.
+   *
+   * @param options - The options for revoking the delegation.
+   *
+   * @returns A promise that resolves when the delegation has been revoked.
+   *
+   * @example **Revoke all delegations for an end user**
+   *          ```ts
+   *          await cdp.endUser.revokeDelegationForEndUser({
+   *            userId: "user-123"
+   *          });
+   *          ```
+   */
+  async revokeDelegationForEndUser(options: RevokeDelegationForEndUserOptions): Promise<void> {
+    Analytics.trackAction({
+      action: "revoke_delegation_for_end_user",
+    });
+
+    const { userId } = options;
+
+    await CdpOpenApiClient.revokeDelegationForEndUser(this.requireProjectId(), userId, {});
+  }
+
+  // ─── Delegated EVM Sign Methods ───
+
+  /**
+   * Signs an EVM hash on behalf of an end user using a delegation.
+   * The end user must have previously created a delegation granting signing permissions.
+   *
+   * @param options - The options for signing an EVM hash.
+   *
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signEvmHash({
+   *   userId: "user-123",
+   *   hash: "0xabcdef...",
+   *   address: "0x1234..."
+   * });
+   * console.log(result.signature);
+   * ```
+   */
+  async signEvmHash(options: SignEvmHashOptions): Promise<SignEvmHashResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_hash" });
+
+    return CdpOpenApiClient.signEvmHashWithEndUserAccount(this.requireProjectId(), options.userId, {
+      hash: options.hash,
+      address: options.address,
+    });
+  }
+
+  /**
+   * Signs an EVM transaction on behalf of an end user using a delegation.
+   *
+   * @param options - The options for signing an EVM transaction.
+   *
+   * @returns A promise that resolves to the signed transaction.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signEvmTransaction({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   transaction: "0x02..."
+   * });
+   * console.log(result.signedTransaction);
+   * ```
+   */
+  async signEvmTransaction(options: SignEvmTransactionOptions): Promise<SignEvmTransactionResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
+
+    return CdpOpenApiClient.signEvmTransactionWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        transaction: options.transaction,
+      },
+    );
+  }
+
+  /**
+   * Signs an EVM message (EIP-191) on behalf of an end user using a delegation.
+   *
+   * @param options - The options for signing an EVM message.
+   *
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signEvmMessage({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   message: "Hello, World!"
+   * });
+   * console.log(result.signature);
+   * ```
+   */
+  async signEvmMessage(options: SignEvmMessageOptions): Promise<SignEvmMessageResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_message" });
+
+    return CdpOpenApiClient.signEvmMessageWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        message: options.message,
+      },
+    );
+  }
+
+  /**
+   * Signs EVM EIP-712 typed data on behalf of an end user using a delegation.
+   *
+   * @param options - The options for signing EVM typed data.
+   *
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signEvmTypedData({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   typedData: { domain: {}, types: {}, primaryType: "...", message: {} }
+   * });
+   * console.log(result.signature);
+   * ```
+   */
+  async signEvmTypedData(options: SignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
+
+    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        typedData: options.typedData,
+      },
+    );
+  }
+
+  // ─── Delegated EVM Send Methods ───
+
+  /**
+   * Sends an EVM transaction on behalf of an end user using a delegation.
+   *
+   * @param options - The options for sending an EVM transaction.
+   *
+   * @returns A promise that resolves to the transaction hash.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.sendEvmTransaction({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   transaction: "0x02...",
+   *   network: "base-sepolia"
+   * });
+   * console.log(result.transactionHash);
+   * ```
+   */
+  async sendEvmTransaction(options: SendEvmTransactionOptions): Promise<SendEvmTransactionResult> {
+    Analytics.trackAction({ action: "end_user_send_evm_transaction" });
+
+    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        transaction: options.transaction,
+        network: options.network,
+      },
+    );
+  }
+
+  /**
+   * Sends an EVM asset (e.g. USDC) on behalf of an end user using a delegation.
+   *
+   * @param options - The options for sending an EVM asset.
+   *
+   * @returns A promise that resolves to the transaction result.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.sendEvmAsset({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   to: "0xabcd...",
+   *   amount: "1000000",
+   *   network: "base-sepolia"
+   * });
+   * console.log(result.transactionHash);
+   * ```
+   */
+  async sendEvmAsset(options: SendEvmAssetOptions): Promise<SendEvmAssetResult> {
+    Analytics.trackAction({ action: "end_user_send_evm_asset" });
+
+    const asset = options.asset ?? "usdc";
+
+    return CdpOpenApiClient.sendEvmAssetWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      options.address,
+      asset,
+      {
+        to: options.to,
+        amount: options.amount,
+        network: options.network,
+        useCdpPaymaster: options.useCdpPaymaster,
+        paymasterUrl: options.paymasterUrl,
+      },
+    );
+  }
+
+  /**
+   * Sends a user operation on behalf of an end user using a delegation.
+   *
+   * @param options - The options for sending a user operation.
+   *
+   * @returns A promise that resolves to the user operation result.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.sendUserOperation({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   network: "base-sepolia",
+   *   calls: [{ to: "0xabcd...", value: "0", data: "0x" }],
+   *   useCdpPaymaster: true
+   * });
+   * ```
+   */
+  async sendUserOperation(options: SendUserOperationOptions): Promise<SendUserOperationResult> {
+    Analytics.trackAction({ action: "end_user_send_user_operation" });
+
+    return CdpOpenApiClient.sendUserOperationWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      options.address,
+      {
+        network: options.network,
+        calls: options.calls,
+        useCdpPaymaster: options.useCdpPaymaster,
+        paymasterUrl: options.paymasterUrl,
+        dataSuffix: options.dataSuffix,
+      },
+    );
+  }
+
+  // ─── Delegated EVM EIP-7702 Delegation Method ───
+
+  /**
+   * Creates an EVM EIP-7702 delegation on behalf of an end user.
+   *
+   * @param options - The options for creating an EIP-7702 delegation.
+   *
+   * @returns A promise that resolves to the delegation operation ID.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.createEvmEip7702Delegation({
+   *   userId: "user-123",
+   *   address: "0x1234...",
+   *   network: "base-sepolia"
+   * });
+   * console.log(result.delegationOperationId);
+   * ```
+   */
+  async createEvmEip7702Delegation(
+    options: CreateEvmEip7702DelegationOptions,
+  ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
+    Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
+
+    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        network: options.network,
+        enableSpendPermissions: options.enableSpendPermissions,
+      },
+    );
+  }
+
+  // ─── Delegated Solana Sign Methods ───
+
+  /**
+   * Signs a Solana hash on behalf of an end user using a delegation.
+   *
+   * @param options - The options for signing a Solana hash.
+   *
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signSolanaHash({
+   *   userId: "user-123",
+   *   hash: "base64hash...",
+   *   address: "So1ana..."
+   * });
+   * console.log(result.signature);
+   * ```
+   */
+  async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
+    Analytics.trackAction({ action: "end_user_sign_solana_hash" });
+
+    return CdpOpenApiClient.signSolanaHashWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        hash: options.hash,
+        address: options.address,
+      },
+    );
+  }
+
+  /**
+   * Signs a Solana message on behalf of an end user using a delegation.
+   *
+   * @param options - The options for signing a Solana message.
+   *
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signSolanaMessage({
+   *   userId: "user-123",
+   *   address: "So1ana...",
+   *   message: "base64message..."
+   * });
+   * console.log(result.signature);
+   * ```
+   */
+  async signSolanaMessage(options: SignSolanaMessageOptions): Promise<SignSolanaMessageResult> {
+    Analytics.trackAction({ action: "end_user_sign_solana_message" });
+
+    return CdpOpenApiClient.signSolanaMessageWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        message: options.message,
+      },
+    );
+  }
+
+  /**
+   * Signs a Solana transaction on behalf of an end user using a delegation.
+   *
+   * @param options - The options for signing a Solana transaction.
+   *
+   * @returns A promise that resolves to the signed transaction.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.signSolanaTransaction({
+   *   userId: "user-123",
+   *   address: "So1ana...",
+   *   transaction: "base64tx..."
+   * });
+   * console.log(result.signedTransaction);
+   * ```
+   */
+  async signSolanaTransaction(
+    options: SignSolanaTransactionOptions,
+  ): Promise<SignSolanaTransactionResult> {
+    Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
+
+    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        transaction: options.transaction,
+      },
+    );
+  }
+
+  // ─── Delegated Solana Send Methods ───
+
+  /**
+   * Sends a Solana transaction on behalf of an end user using a delegation.
+   *
+   * @param options - The options for sending a Solana transaction.
+   *
+   * @returns A promise that resolves to the transaction signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.sendSolanaTransaction({
+   *   userId: "user-123",
+   *   address: "So1ana...",
+   *   transaction: "base64tx...",
+   *   network: "solana-devnet"
+   * });
+   * console.log(result.transactionSignature);
+   * ```
+   */
+  async sendSolanaTransaction(
+    options: SendSolanaTransactionOptions,
+  ): Promise<SendSolanaTransactionResult> {
+    Analytics.trackAction({ action: "end_user_send_solana_transaction" });
+
+    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      {
+        address: options.address,
+        transaction: options.transaction,
+        network: options.network,
+      },
+    );
+  }
+
+  /**
+   * Sends a Solana asset (e.g. USDC) on behalf of an end user using a delegation.
+   *
+   * @param options - The options for sending a Solana asset.
+   *
+   * @returns A promise that resolves to the transaction signature.
+   *
+   * @example
+   * ```ts
+   * const result = await cdp.endUser.sendSolanaAsset({
+   *   userId: "user-123",
+   *   address: "So1ana...",
+   *   to: "Recipi...",
+   *   amount: "1000000",
+   *   network: "solana-devnet"
+   * });
+   * console.log(result.transactionSignature);
+   * ```
+   */
+  async sendSolanaAsset(options: SendSolanaAssetOptions): Promise<SendSolanaAssetResult> {
+    Analytics.trackAction({ action: "end_user_send_solana_asset" });
+
+    const asset = options.asset ?? "usdc";
+
+    return CdpOpenApiClient.sendSolanaAssetWithEndUserAccount(
+      this.requireProjectId(),
+      options.userId,
+      options.address,
+      asset,
+      {
+        to: options.to,
+        amount: options.amount,
+        network: options.network,
+        createRecipientAta: options.createRecipientAta,
+      },
+    );
+  }
+
+  /**
    * Validates an end user's access token. Throws an error if the access token is invalid.
    *
    * @param options - The options for validating an access token.
@@ -253,7 +746,7 @@ export class CDPEndUserClient {
       accessToken,
     });
 
-    return toEndUserAccount(CdpOpenApiClient, { endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
   }
 
   /**
@@ -342,6 +835,22 @@ export class CDPEndUserClient {
       keyType: options.keyType,
     });
 
-    return toEndUserAccount(CdpOpenApiClient, { endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
+  }
+
+  /**
+   * Returns the configured project ID or throws if not configured.
+   *
+   * @returns The project ID.
+   */
+  private requireProjectId(): string {
+    if (!this.projectId) {
+      throw new UserInputValidationError(
+        "Missing required project ID for delegation operation. " +
+          "Set the CDP_PROJECT_ID environment variable or pass projectId to the CdpClient constructor.",
+      );
+    }
+
+    return this.projectId;
   }
 }
