@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## [1.46.1] - 2026-03-30
+
+### Security fix
+
+- Pinned `axios` dependency to `1.13.6` to prevent installation of the compromised `axios@1.14.1` release.
+
 ## 1.46.0
 
 ### Minor Changes

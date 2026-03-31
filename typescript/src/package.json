@@ -1,6 +1,6 @@
 {
   "name": "@coinbase/cdp-sdk",
-  "version": "1.46.0",
+  "version": "1.46.1",
   "description": "SDK for interacting with the Coinbase Developer Platform Wallet API",
   "type": "module",
   "main": "./_cjs/index.js",
@@ -23,7 +23,7 @@
     "@solana-program/token": "^0.9.0",
     "@solana/kit": "^5.5.1",
     "abitype": "1.0.6",
-    "axios": "^1.13.6",
+    "axios": "1.13.6",
     "axios-retry": "^4.5.0",
     "jose": "^6.2.0",
     "md5": "^2.3.0",
