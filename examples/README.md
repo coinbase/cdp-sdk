@@ -17,3 +17,7 @@ To run Go examples, see [go/README.md](./go/README.md).
 ## Rust
 
 To run Rust examples, see [rust/README.md](./rust/README.md).
+
+## Java
+
+To run Java examples, see [java/README.md](./java/README.md)
