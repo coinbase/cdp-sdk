@@ -4,7 +4,6 @@ from cdp.openapi_client.models.webhook_target import WebhookTarget
 from cdp.webhook_types import (
     CreateWebhookSubscriptionOptions,
     CreateWebhookSubscriptionResult,
-    WebhookSubscriptionTarget,
 )
 
 
@@ -39,10 +38,8 @@ async def create_webhook_subscription(
         subscription_id=response.subscription_id,
         description=response.description,
         event_types=list(response.event_types),
-        target=WebhookSubscriptionTarget(
-            url=response.target.url,
-            headers=response.target.headers,
-        ),
+        target_url=response.target.url,
+        target_headers=response.target.headers,
         is_enabled=response.is_enabled,
         secret=response.secret,
         created_at=str(response.created_at),

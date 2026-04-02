@@ -25,7 +25,7 @@ async def main():
 
         print(f"Subscription ID: {subscription.subscription_id}")
         print(f"Event Types: {subscription.event_types}")
-        print(f"Target URL: {subscription.target.url}")
+        print(f"Target URL: {subscription.target_url}")
         print(f"Enabled: {subscription.is_enabled}")
 
 

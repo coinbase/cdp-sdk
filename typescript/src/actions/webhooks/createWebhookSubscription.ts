@@ -39,13 +39,10 @@ export interface CreateWebhookSubscriptionResult {
   description?: string;
   /** The event types the subscription is subscribed to. */
   eventTypes: string[];
-  /** The target configuration for webhook delivery. */
-  target: {
-    /** The webhook URL to deliver events to. */
-    url: string;
-    /** Additional headers included in webhook requests. */
-    headers?: Record<string, string>;
-  };
+  /** The webhook URL events are delivered to. */
+  targetUrl: string;
+  /** Additional headers included in webhook requests. */
+  targetHeaders?: Record<string, string>;
   /** Whether the subscription is enabled. */
   isEnabled: boolean;
   /** Secret for webhook signature verification. */
@@ -96,10 +93,8 @@ export async function createWebhookSubscription(
     subscriptionId: response.subscriptionId,
     description: response.description,
     eventTypes: response.eventTypes,
-    target: {
-      url: response.target.url,
-      headers: response.target.headers,
-    },
+    targetUrl: response.target.url,
+    targetHeaders: response.target.headers,
     isEnabled: response.isEnabled,
     secret: response.secret,
     createdAt: response.createdAt,

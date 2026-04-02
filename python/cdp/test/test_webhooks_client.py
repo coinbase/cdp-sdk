@@ -71,8 +71,8 @@ async def test_create_subscription_with_required_fields():
 
     assert result.subscription_id == "sub_123"
     assert result.event_types == ["wallet.transaction.confirmed"]
-    assert result.target.url == "https://example.com/webhook"
-    assert result.target.headers is None
+    assert result.target_url == "https://example.com/webhook"
+    assert result.target_headers is None
     assert result.is_enabled is True
     assert result.secret == "whsec_test_secret"
     assert result.description is None
@@ -144,8 +144,8 @@ async def test_create_subscription_with_all_optional_fields():
         "wallet.transaction.confirmed",
         "wallet.transaction.failed",
     ]
-    assert result.target.url == "https://example.com/webhook"
-    assert result.target.headers == {"X-Custom-Header": "custom-value"}
+    assert result.target_url == "https://example.com/webhook"
+    assert result.target_headers == {"X-Custom-Header": "custom-value"}
     assert result.is_enabled is False
     assert result.secret == "whsec_another_secret"
 
