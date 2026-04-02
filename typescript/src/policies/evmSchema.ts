@@ -855,3 +855,21 @@ export const SignEndUserEvmTypedDataRuleSchema = z.object({
   criteria: SignEndUserEvmTypedDataCriteriaSchema,
 });
 export type SignEndUserEvmTypedDataRule = z.infer<typeof SignEndUserEvmTypedDataRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserEvmHash' policy rule that can accept or reject
+ * end-user EVM hash signing operations.
+ */
+export const SignEndUserEvmHashRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserEvmHash".
+   */
+  operation: z.literal("signEndUserEvmHash"),
+});
+export type SignEndUserEvmHashRule = z.infer<typeof SignEndUserEvmHashRuleSchema>;
