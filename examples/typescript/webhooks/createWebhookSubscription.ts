@@ -17,7 +17,6 @@ const subscription = await cdp.webhooks.createSubscription({
 });
 
 console.log("Subscription ID:", subscription.subscriptionId);
-console.log("Secret:", subscription.secret);
 console.log("Event types:", subscription.eventTypes);
 console.log("Target URL:", subscription.target.url);
 console.log("Enabled:", subscription.isEnabled);
