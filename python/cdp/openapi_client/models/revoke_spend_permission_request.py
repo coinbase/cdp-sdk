@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.spend_permission_network import SpendPermissionNetwork
@@ -29,10 +29,22 @@ class RevokeSpendPermissionRequest(BaseModel):
     """
     Request parameters for revoking a Spend Permission.
     """ # noqa: E501
+    wallet_secret_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.", alias="walletSecretId")
     network: SpendPermissionNetwork
     permission_hash: StrictStr = Field(description="The hash of the spend permission to revoke.", alias="permissionHash")
+    use_cdp_paymaster: Optional[StrictBool] = Field(default=None, description="Whether to use the CDP Paymaster for the user operation.", alias="useCdpPaymaster")
     paymaster_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
-    __properties: ClassVar[List[str]] = ["network", "permissionHash", "paymasterUrl"]
+    __properties: ClassVar[List[str]] = ["walletSecretId", "network", "permissionHash", "useCdpPaymaster", "paymasterUrl"]
+
+    @field_validator('wallet_secret_id')
+    def wallet_secret_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[a-zA-Z0-9-]{1,100}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9-]{1,100}$/")
+        return value
 
     @field_validator('paymaster_url')
     def paymaster_url_validate_regular_expression(cls, value):
@@ -95,8 +107,10 @@ class RevokeSpendPermissionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "walletSecretId": obj.get("walletSecretId"),
             "network": obj.get("network"),
             "permissionHash": obj.get("permissionHash"),
+            "useCdpPaymaster": obj.get("useCdpPaymaster"),
             "paymasterUrl": obj.get("paymasterUrl")
         })
         return _obj

@@ -129,6 +129,119 @@ tasks.register<JavaExec>("runRetryConfiguration") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+// End User examples
+tasks.register<JavaExec>("runCreateEndUser") {
+    group = "examples"
+    description = "Run the create end user example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.CreateEndUser")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runGetEndUser") {
+    group = "examples"
+    description = "Run the get end user example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.GetEndUser")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runListEndUsers") {
+    group = "examples"
+    description = "Run the list end users example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.ListEndUsers")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runImportEndUser") {
+    group = "examples"
+    description = "Run the import end user example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.ImportEndUser")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runAddEndUserEvmAccount") {
+    group = "examples"
+    description = "Run the add EVM account to end user example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.AddEndUserEvmAccount")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runAddEndUserEvmSmartAccount") {
+    group = "examples"
+    description = "Run the add EVM smart account to end user example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.AddEndUserEvmSmartAccount")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runAddEndUserSolanaAccount") {
+    group = "examples"
+    description = "Run the add Solana account to end user example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.AddEndUserSolanaAccount")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runValidateAccessToken") {
+    group = "examples"
+    description = "Run the validate access token example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.ValidateAccessToken")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runCreateEvmEip7702Delegation") {
+    group = "examples"
+    description = "Run the create EIP-7702 delegation example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.CreateEvmEip7702Delegation")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runRevokeDelegation") {
+    group = "examples"
+    description = "Run the revoke delegation example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.RevokeDelegation")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runSignEvmHash") {
+    group = "examples"
+    description = "Run the sign EVM hash example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.SignEvmHash")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runSendEvmTransaction") {
+    group = "examples"
+    description = "Run the send EVM transaction example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.SendEvmTransaction")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runSendEvmAsset") {
+    group = "examples"
+    description = "Run the send EVM asset example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.SendEvmAsset")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runSendUserOperation") {
+    group = "examples"
+    description = "Run the send user operation example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.SendUserOperation")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runSignSolanaMessage") {
+    group = "examples"
+    description = "Run the sign Solana message example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.SignSolanaMessage")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runCreateEndUserPolicy") {
+    group = "examples"
+    description = "Run the create end user policy example"
+    mainClass.set("com.coinbase.cdp.examples.enduser.CreateEndUserPolicy")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 // Task to list all available example tasks
 tasks.register("listExamples") {
     group = "examples"
@@ -148,6 +261,24 @@ tasks.register("listExamples") {
         println("  ./gradlew runListSolanaAccounts              - List Solana accounts")
         println("  ./gradlew runSolanaTransfer                  - Transfer SOL between accounts")
         println("  ./gradlew runRetryConfiguration              - Configure HTTP retry behavior")
+        println("")
+        println("End User examples:")
+        println("  ./gradlew runCreateEndUser                   - Create end users with email auth")
+        println("  ./gradlew runGetEndUser                      - Get an end user by ID")
+        println("  ./gradlew runListEndUsers                    - List end users")
+        println("  ./gradlew runImportEndUser                   - Import an end user with a private key")
+        println("  ./gradlew runAddEndUserEvmAccount            - Add an EVM account to an end user")
+        println("  ./gradlew runAddEndUserEvmSmartAccount       - Add an EVM smart account to an end user")
+        println("  ./gradlew runAddEndUserSolanaAccount         - Add a Solana account to an end user")
+        println("  ./gradlew runValidateAccessToken             - Validate an end user access token")
+        println("  ./gradlew runCreateEvmEip7702Delegation      - Create an EIP-7702 delegation")
+        println("  ./gradlew runRevokeDelegation                - Revoke delegation for an end user")
+        println("  ./gradlew runSignEvmHash                     - Sign an EVM hash (delegated)")
+        println("  ./gradlew runSendEvmTransaction              - Send an EVM transaction (delegated)")
+        println("  ./gradlew runSendEvmAsset                    - Send USDC on EVM (delegated)")
+        println("  ./gradlew runSendUserOperation               - Send a user operation (delegated)")
+        println("  ./gradlew runSignSolanaMessage               - Sign a Solana message (delegated)")
+        println("  ./gradlew runCreateEndUserPolicy             - Create an end user policy")
         println("\nOr run any example directly:")
         println("  ./gradlew run -PmainClass=com.coinbase.cdp.examples.evm.CreateAccount")
     }

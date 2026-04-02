@@ -36,14 +36,14 @@ class TestX402V1PaymentPayload(unittest.TestCase):
         model = X402V1PaymentPayload()
         if include_optional:
             return X402V1PaymentPayload(
-                x402_version = 1,
+                x402_version = 2,
                 scheme = 'exact',
                 network = 'base',
                 payload = {signature=0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b, authorization={from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, value=1000000000000000000, validAfter=1716150000, validBefore=1716150000, nonce=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef}}
             )
         else:
             return X402V1PaymentPayload(
-                x402_version = 1,
+                x402_version = 2,
                 scheme = 'exact',
                 network = 'base',
                 payload = {signature=0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b, authorization={from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, value=1000000000000000000, validAfter=1716150000, validBefore=1716150000, nonce=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef}},

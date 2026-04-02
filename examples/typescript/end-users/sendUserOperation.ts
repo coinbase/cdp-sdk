@@ -42,19 +42,19 @@ try {
   console.log("User operation hash (via client):", result.userOpHash);
 
   // Alternatively, send directly on the EndUserAccount (auto-picks first smart account)
-  const result2 = await endUser.sendUserOperation({
-    network: "base-sepolia",
-    calls: [
-      {
-        to: "0x0000000000000000000000000000000000000000",
-        value: "0",
-        data: "0x",
-      },
-    ],
-    useCdpPaymaster: true,
-  });
+  // const result2 = await endUser.sendUserOperation({
+  //   network: "base-sepolia",
+  //   calls: [
+  //     {
+  //       to: "0x0000000000000000000000000000000000000000",
+  //       value: "0",
+  //       data: "0x",
+  //     },
+  //   ],
+  //   useCdpPaymaster: true,
+  // });
 
-  console.log("User operation hash (via account):", result2.userOpHash);
+  // console.log("User operation hash (via account):", result2.userOpHash);
 } catch (error) {
   console.error("Error: ", (error as { errorMessage: string }).errorMessage);
 }

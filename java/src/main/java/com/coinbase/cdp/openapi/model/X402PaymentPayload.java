@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.X402ResourceInfo;
 import com.coinbase.cdp.openapi.model.X402V1PaymentPayload;
-import com.coinbase.cdp.openapi.model.X402V1PaymentPayloadPayload;
 import com.coinbase.cdp.openapi.model.X402V2PaymentPayload;
+import com.coinbase.cdp.openapi.model.X402V2PaymentPayloadPayload;
 import com.coinbase.cdp.openapi.model.X402V2PaymentRequirements;
 import com.coinbase.cdp.openapi.model.X402Version;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -283,15 +283,15 @@ public class X402PaymentPayload extends AbstractOpenApiSchema {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    if (getActualInstance() instanceof X402V1PaymentPayload) {
+    if (getActualInstance() instanceof X402V2PaymentPayload) {
         if (getActualInstance() != null) {
-          joiner.add(((X402V1PaymentPayload)getActualInstance()).toUrlQueryString(prefix + "one_of_0" + suffix));
+          joiner.add(((X402V2PaymentPayload)getActualInstance()).toUrlQueryString(prefix + "one_of_0" + suffix));
         }
         return joiner.toString();
     }
-    if (getActualInstance() instanceof X402V2PaymentPayload) {
+    if (getActualInstance() instanceof X402V1PaymentPayload) {
         if (getActualInstance() != null) {
-          joiner.add(((X402V2PaymentPayload)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
+          joiner.add(((X402V1PaymentPayload)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
         }
         return joiner.toString();
     }

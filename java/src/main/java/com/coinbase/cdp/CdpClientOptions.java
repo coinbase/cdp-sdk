@@ -26,6 +26,7 @@ public record CdpClientOptions(
     String apiKeyId,
     String apiKeySecret,
     Optional<String> walletSecret,
+    Optional<String> projectId,
     boolean debugging,
     String basePath,
     long expiresIn,
@@ -56,6 +57,9 @@ public record CdpClientOptions(
     }
     if (walletSecret == null) {
       walletSecret = Optional.empty();
+    }
+    if (projectId == null) {
+      projectId = Optional.empty();
     }
     if (basePath == null || basePath.isBlank()) {
       basePath = DEFAULT_BASE_PATH;
@@ -101,6 +105,7 @@ public record CdpClientOptions(
     String apiKeyId = getEnvOrProperty("CDP_API_KEY_ID");
     String apiKeySecret = getEnvOrProperty("CDP_API_KEY_SECRET");
     String walletSecret = getEnvOrProperty("CDP_WALLET_SECRET");
+    String projectId = getEnvOrProperty("CDP_PROJECT_ID");
 
     if (apiKeyId == null || apiKeyId.isBlank()) {
       throw new IllegalArgumentException("CDP_API_KEY_ID environment variable is required");
@@ -113,6 +118,7 @@ public record CdpClientOptions(
         .apiKeyId(apiKeyId)
         .apiKeySecret(apiKeySecret)
         .walletSecret(walletSecret)
+        .projectId(projectId)
         .build();
   }
 
@@ -137,6 +143,7 @@ public record CdpClientOptions(
     private String apiKeyId;
     private String apiKeySecret;
     private Optional<String> walletSecret = Optional.empty();
+    private Optional<String> projectId = Optional.empty();
     private boolean debugging = false;
     private String basePath = DEFAULT_BASE_PATH;
     private long expiresIn = DEFAULT_EXPIRES_IN;
@@ -174,6 +181,17 @@ public record CdpClientOptions(
      */
     public Builder walletSecret(String secret) {
       this.walletSecret = Optional.ofNullable(secret).filter(s -> !s.isBlank());
+      return this;
+    }
+
+    /**
+     * Sets the CDP project ID. Required for end user delegation operations (signing, sending).
+     *
+     * @param projectId the CDP project ID
+     * @return this builder
+     */
+    public Builder projectId(String projectId) {
+      this.projectId = Optional.ofNullable(projectId).filter(s -> !s.isBlank());
       return this;
     }
 
@@ -294,6 +312,7 @@ public record CdpClientOptions(
           apiKeyId,
           apiKeySecret,
           walletSecret,
+          projectId,
           debugging,
           basePath,
           expiresIn,

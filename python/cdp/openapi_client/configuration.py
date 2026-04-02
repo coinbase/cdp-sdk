@@ -114,6 +114,7 @@ AuthSettings = TypedDict(
     "AuthSettings",
     {
         "apiKeyAuth": BearerFormatAuthSetting,
+        "endUserAuth": BearerFormatAuthSetting,
     },
     total=False,
 )
@@ -490,6 +491,14 @@ class Configuration:
                 'key': 'Authorization',
                 'value': 'Bearer ' + self.access_token
             }
+        if self.access_token is not None:
+            auth['endUserAuth'] = {
+                'type': 'bearer',
+                'in': 'header',
+                'format': 'JWT',
+                'key': 'Authorization',
+                'value': 'Bearer ' + self.access_token
+            }
         return auth
 
     def to_debug_report(self) -> str:
@@ -513,6 +522,10 @@ class Configuration:
             {
                 'url': "https://api.cdp.coinbase.com/platform",
                 'description': "The production server of the CDP APIs.",
+            },
+            {
+                'url': "https://api.cdp.coinbase.com/platform/delegated",
+                'description': "The production server of the CDP Embedded Wallet APIs for delegated signing operations.",
             }
         ]
 

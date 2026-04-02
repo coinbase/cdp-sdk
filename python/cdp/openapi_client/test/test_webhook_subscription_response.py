@@ -37,6 +37,7 @@ class TestWebhookSubscriptionResponse(unittest.TestCase):
         if include_optional:
             return WebhookSubscriptionResponse(
                 created_at = '2025-01-15T10:30:00Z',
+                updated_at = '2025-01-16T14:00:00Z',
                 description = 'A description of the resource.',
                 event_types = [onchain.activity.detected],
                 is_enabled = True,

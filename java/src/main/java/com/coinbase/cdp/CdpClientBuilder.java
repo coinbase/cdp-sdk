@@ -53,6 +53,7 @@ public final class CdpClientBuilder {
   private String apiKeyId;
   private String apiKeySecret;
   private Optional<String> walletSecret = Optional.empty();
+  private Optional<String> projectId = Optional.empty();
   private TokenProvider tokenProvider;
 
   // JWT options (only for credential mode)
@@ -98,6 +99,19 @@ public final class CdpClientBuilder {
    */
   public CdpClientBuilder walletSecret(String walletSecret) {
     this.walletSecret = Optional.ofNullable(walletSecret).filter(s -> !s.isBlank());
+    return this;
+  }
+
+  /**
+   * Sets the CDP project ID.
+   *
+   * <p>Required for end user delegation operations (signing, sending).
+   *
+   * @param projectId the CDP project ID
+   * @return this builder
+   */
+  public CdpClientBuilder projectId(String projectId) {
+    this.projectId = Optional.ofNullable(projectId).filter(s -> !s.isBlank());
     return this;
   }
 
@@ -258,6 +272,7 @@ public final class CdpClientBuilder {
             apiKeyId,
             apiKeySecret,
             walletSecret,
+            projectId,
             debugging,
             basePath,
             expiresIn,
@@ -270,6 +285,6 @@ public final class CdpClientBuilder {
   private CdpClient buildWithTokenProvider() {
     HttpClientConfig config =
         new HttpClientConfig(basePath, retryConfig, httpClientBuilder, debugging);
-    return new CdpClient(tokenProvider, config);
+    return new CdpClient(tokenProvider, config, projectId.orElse(null));
   }
 }

@@ -8,6 +8,7 @@ import com.coinbase.cdp.auth.JwtOptions;
 import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.auth.WalletJwtGenerator;
 import com.coinbase.cdp.auth.WalletJwtOptions;
+import com.coinbase.cdp.client.enduser.EndUserClient;
 import com.coinbase.cdp.client.evm.EvmClient;
 import com.coinbase.cdp.client.policies.PoliciesClient;
 import com.coinbase.cdp.client.solana.SolanaClient;
@@ -36,6 +37,7 @@ import java.util.Map;
  *   <li>{@code cdp.evm()} - EVM account operations
  *   <li>{@code cdp.solana()} - Solana account operations
  *   <li>{@code cdp.policies()} - Policy management
+ *   <li>{@code cdp.endUser()} - End user account and delegation operations
  * </ul>
  *
  * <p>Example usage:
@@ -107,12 +109,14 @@ public class CdpClient implements Closeable {
   private final ObjectMapper objectMapper;
   private final CdpTokenGenerator tokenGenerator;
   private final TokenProvider tokenProvider;
+  private final String projectId;
   private volatile boolean closed = false;
 
   // Lazily initialized namespace clients
   private volatile EvmClient evmClient;
   private volatile SolanaClient solanaClient;
   private volatile PoliciesClient policiesClient;
+  private volatile EndUserClient endUserClient;
   private final Object namespaceLock = new Object();
 
   // Package-private constructor for credential-based authentication (used by builder)
@@ -126,15 +130,17 @@ public class CdpClient implements Closeable {
             options.walletSecret(),
             options.expiresIn());
     this.tokenProvider = null;
+    this.projectId = options.projectId().orElse(null);
     this.apiClient = buildApiClient(options);
   }
 
   // Package-private constructor for TokenProvider-based authentication (used by builder)
-  CdpClient(TokenProvider tokenProvider, HttpClientConfig config) {
+  CdpClient(TokenProvider tokenProvider, HttpClientConfig config, String projectId) {
     this.options = null;
     this.objectMapper = ApiClient.createDefaultObjectMapper();
     this.tokenGenerator = null;
     this.tokenProvider = tokenProvider;
+    this.projectId = projectId;
     this.apiClient = buildApiClientWithTokens(tokenProvider, config);
   }
 
@@ -147,6 +153,7 @@ public class CdpClient implements Closeable {
    *   <li>{@code CDP_API_KEY_ID} - Required
    *   <li>{@code CDP_API_KEY_SECRET} - Required
    *   <li>{@code CDP_WALLET_SECRET} - Optional (required for write operations)
+   *   <li>{@code CDP_PROJECT_ID} - Optional (required for end user delegation operations)
    * </ul>
    *
    * @return a new CDP client
@@ -318,6 +325,49 @@ public class CdpClient implements Closeable {
       }
     }
     return policiesClient;
+  }
+
+  /**
+   * Returns the End User namespace client.
+   *
+   * <p>Use this client for end user account management and delegated operations:
+   *
+   * <pre>{@code
+   * EndUser endUser = cdp.endUser().createEndUser(
+   *     new CreateEndUserRequest()
+   *         .addAuthenticationMethodsItem(
+   *             new AuthenticationMethod().type("email").email("user@example.com"))
+   * );
+   * }</pre>
+   *
+   * @return the End User client
+   * @throws IllegalStateException if the client has been closed
+   */
+  public EndUserClient endUser() {
+    checkNotClosed();
+    if (endUserClient == null) {
+      synchronized (namespaceLock) {
+        if (endUserClient == null) {
+          if (tokenProvider != null) {
+            endUserClient = new EndUserClient(apiClient, tokenProvider, projectId);
+          } else {
+            endUserClient = new EndUserClient(this);
+          }
+        }
+      }
+    }
+    return endUserClient;
+  }
+
+  /**
+   * Returns the configured CDP project ID, or null if not configured.
+   *
+   * <p>The project ID is required for end user delegation operations (signing, sending).
+   *
+   * @return the project ID, or null
+   */
+  public String getProjectId() {
+    return projectId;
   }
 
   /**

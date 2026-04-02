@@ -24,10 +24,20 @@
 - [End-user Management](#end-user-management)
   - [Create End User](#create-end-user)
   - [Import End User](#import-end-user)
+  - [Get End User](#get-end-user)
+  - [List End Users](#list-end-users)
   - [Add EVM Account to End User](#add-evm-account-to-end-user)
   - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
   - [Add Solana Account to End User](#add-solana-account-to-end-user)
   - [Validate Access Token](#validate-access-token)
+  - [Delegated Signing and Sending](#delegated-signing-and-sending)
+  - [EIP-7702 Delegation](#end-user-eip-7702-delegation)
+  - [Revoke Delegation](#revoke-delegation)
+  - [Sign EVM Hash](#sign-evm-hash)
+  - [Send EVM Transaction](#send-evm-transaction-end-user)
+  - [Send EVM Asset](#send-evm-asset)
+  - [Send User Operation](#send-user-operation-end-user)
+  - [Sign Solana Message](#sign-solana-message)
 - [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1494,6 +1504,242 @@ try:
     # Access token is valid
 except Exception as e:
     # Access token is invalid or expired
+```
+
+#### Get End User
+
+Retrieve an end user by their user ID. Requires `CDP_PROJECT_ID` to be set.
+
+```python
+end_user = await cdp.end_user.get_end_user(user_id="user-123")
+
+print(f"End user: {end_user.user_id}")
+print(f"EVM accounts: {[a.address for a in end_user.evm_account_objects]}")
+print(f"Solana accounts: {[a.address for a in end_user.solana_account_objects]}")
+```
+
+#### List End Users
+
+List all end users belonging to your CDP Project:
+
+```python
+result = await cdp.end_user.list_end_users(page_size=10)
+
+for user in result.end_users:
+    print(f"User: {user.user_id}")
+
+# Paginate through results
+if result.next_page_token:
+    next_result = await cdp.end_user.list_end_users(
+        page_size=10,
+        page_token=result.next_page_token,
+    )
+```
+
+#### Delegated Signing and Sending
+
+Delegated signing and sending operations allow a developer to sign transactions and messages on behalf of an end user. These operations require:
+
+1. The end user must have created a **delegation** granting the developer permission to sign on their behalf.
+2. A `CDP_PROJECT_ID` environment variable (or `project_id` passed to `CdpClient`).
+
+> **Note**: Delegation is established through the end user's client-side flow using the [Embedded Wallet SDK](https://docs.cdp.coinbase.com/embedded-wallets/welcome). See the CDP documentation for details on how end users create delegations.
+
+#### EIP-7702 Delegation {#end-user-eip-7702-delegation}
+
+Create an EIP-7702 delegation to upgrade an end user's EVM EOA with smart account capabilities. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.create_evm_eip7702_delegation(
+    network="base-sepolia",
+    enable_spend_permissions=True,
+)
+
+print(f"Delegation operation ID: {result.operation_id}")
+```
+
+Or use the client method with a user ID:
+
+```python
+result = await cdp.end_user.create_evm_eip7702_delegation(
+    user_id=end_user.user_id,
+    address=end_user.evm_accounts[0],
+    network="base-sepolia",
+    enable_spend_permissions=True,
+)
+
+print(f"Delegation operation ID: {result.operation_id}")
+```
+
+#### Revoke Delegation
+
+Revoke all active delegations for an end user. After revocation, the developer can no longer sign on behalf of the end user until a new delegation is created. You can call the method directly on the EndUserAccount object:
+
+```python
+await end_user.revoke_delegation()
+```
+
+Or use the client method with a user ID:
+
+```python
+await cdp.end_user.revoke_delegation(user_id=end_user.user_id)
+```
+
+#### Sign EVM Hash
+
+Sign a 32-byte EVM hash on behalf of an end user. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.sign_evm_hash(
+    hash="0x...",  # 32-byte hash (0x-prefixed hex)
+)
+
+print(f"Signature: {result.signature}")
+```
+
+Or use the client method with a user ID:
+
+```python
+result = await cdp.end_user.sign_evm_hash(
+    user_id=end_user.user_id,
+    hash="0x...",
+    address=end_user.evm_accounts[0],
+)
+
+print(f"Signature: {result.signature}")
+```
+
+#### Send EVM Transaction (End User) {#send-evm-transaction-end-user}
+
+Sign and broadcast an EVM transaction on behalf of an end user. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.send_evm_transaction(
+    transaction="0x...",  # RLP-encoded unsigned EIP-1559 transaction
+    network="base-sepolia",
+)
+
+print(f"Transaction hash: {result.transaction_hash}")
+```
+
+Or use the client method with a user ID:
+
+```python
+result = await cdp.end_user.send_evm_transaction(
+    user_id=end_user.user_id,
+    address=end_user.evm_accounts[0],
+    transaction="0x...",
+    network="base-sepolia",
+)
+
+print(f"Transaction hash: {result.transaction_hash}")
+```
+
+#### Send EVM Asset
+
+Send an EVM asset (e.g. USDC) on behalf of an end user. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.send_evm_asset(
+    to="0xRecipientAddress",
+    amount="1000000",  # 1 USDC (6 decimals)
+    network="base-sepolia",
+    asset="usdc",
+)
+
+print(f"Transaction hash: {result.transaction_hash}")
+```
+
+Or use the client method with a user ID:
+
+```python
+result = await cdp.end_user.send_evm_asset(
+    user_id=end_user.user_id,
+    address=end_user.evm_accounts[0],
+    to="0xRecipientAddress",
+    amount="1000000",
+    network="base-sepolia",
+    asset="usdc",
+)
+
+print(f"Transaction hash: {result.transaction_hash}")
+```
+
+For smart accounts, you can optionally use the CDP paymaster for gas sponsorship:
+
+```python
+result = await end_user.send_evm_asset(
+    to="0xRecipientAddress",
+    amount="1000000",
+    network="base-sepolia",
+    asset="usdc",
+    use_cdp_paymaster=True,
+)
+```
+
+#### Send User Operation (End User) {#send-user-operation-end-user}
+
+Send a user operation (ERC-4337) for an end user's Smart Account. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.send_user_operation(
+    network="base-sepolia",
+    calls=[
+        {
+            "to": "0xContractAddress",
+            "value": "0",
+            "data": "0x...",
+        }
+    ],
+)
+
+print(f"User operation hash: {result.user_op_hash}")
+```
+
+Or use the client method with a user ID:
+
+```python
+result = await cdp.end_user.send_user_operation(
+    user_id=end_user.user_id,
+    address=end_user.evm_smart_accounts[0],
+    network="base-sepolia",
+    calls=[
+        {
+            "to": "0xContractAddress",
+            "value": "0",
+            "data": "0x...",
+        }
+    ],
+)
+
+print(f"User operation hash: {result.user_op_hash}")
+```
+
+#### Sign Solana Message
+
+Sign a Solana message on behalf of an end user. You can call the method directly on the EndUserAccount object:
+
+```python
+import base64
+
+message_bytes = b"Hello, Solana!"
+encoded_message = base64.b64encode(message_bytes).decode()
+
+result = await end_user.sign_solana_message(message=encoded_message)
+
+print(f"Signature: {result.signature}")
+```
+
+Or use the client method with a user ID:
+
+```python
+result = await cdp.end_user.sign_solana_message(
+    user_id=end_user.user_id,
+    address=end_user.solana_accounts[0],
+    message=encoded_message,
+)
+
+print(f"Signature: {result.signature}")
 ```
 
 ## Authentication tools

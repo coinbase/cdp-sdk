@@ -28,11 +28,11 @@ try {
   console.log("Signature (via client):", result.signature);
 
   // Alternatively, sign directly on the EndUserAccount (auto-picks first EVM address)
-  const result2 = await endUser.signEvmHash({
-    hash: "0x0000000000000000000000000000000000000000000000000000000000000002",
-  });
+  // const result2 = await endUser.signEvmHash({
+  //   hash: "0x0000000000000000000000000000000000000000000000000000000000000002",
+  // });
 
-  console.log("Signature (via account):", result2.signature);
+  // console.log("Signature (via account):", result2.signature);
 } catch (error) {
   console.error("Error: ", error);
 }

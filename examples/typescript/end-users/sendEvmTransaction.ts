@@ -29,12 +29,12 @@ try {
   console.log("Transaction hash (via client):", result.transactionHash);
 
   // Alternatively, send directly on the EndUserAccount (auto-picks first EVM address)
-  const result2 = await endUser.sendEvmTransaction({
-    transaction: "0x02...",
-    network: "base-sepolia",
-  });
+  // const result2 = await endUser.sendEvmTransaction({
+  //   transaction: "0x02...",
+  //   network: "base-sepolia",
+  // });
 
-  console.log("Transaction hash (via account):", result2.transactionHash);
+  // console.log("Transaction hash (via account):", result2.transactionHash);
 } catch (error) {
   console.error("Error: ", (error as { errorMessage: string }).errorMessage);
 }

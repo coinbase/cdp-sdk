@@ -22,9 +22,9 @@ try {
   console.log("Revoked delegation for end user via client method");
 
   // Alternatively, revoke delegation directly on the EndUserAccount object
-  await endUser.revokeDelegation();
+  // await endUser.revokeDelegation();
 
-  console.log("Revoked delegation for end user via account method");
+  // console.log("Revoked delegation for end user via account method");
 } catch (error) {
   console.error("Error: ", (error as { errorMessage: string }).errorMessage);
 }

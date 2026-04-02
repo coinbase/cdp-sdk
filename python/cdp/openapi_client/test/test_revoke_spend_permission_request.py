@@ -36,8 +36,10 @@ class TestRevokeSpendPermissionRequest(unittest.TestCase):
         model = RevokeSpendPermissionRequest()
         if include_optional:
             return RevokeSpendPermissionRequest(
+                wallet_secret_id = 'e051beeb-7163-4527-a5b6-35e301529ff2',
                 network = 'base',
                 permission_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+                use_cdp_paymaster = True,
                 paymaster_url = 'https://example.com'
             )
         else:

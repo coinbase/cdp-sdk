@@ -89,10 +89,12 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         )
         self.api_clients = ApiClients(self.cdp_api_client)
 
+        self.project_id = os.getenv("CDP_PROJECT_ID")
+
         self._evm = EvmClient(self.api_clients)
         self._solana = SolanaClient(self.api_clients)
         self._policies = PoliciesClient(self.api_clients)
-        self._end_user = EndUserClient(self.api_clients)
+        self._end_user = EndUserClient(self.api_clients, project_id=self.project_id)
         self._closed = False
 
         if (

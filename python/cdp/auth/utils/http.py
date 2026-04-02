@@ -118,6 +118,7 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
         or bool(re.search(r"/end-users/[^/]+/evm$", path))
         or bool(re.search(r"/end-users/[^/]+/evm-smart-account$", path))
         or bool(re.search(r"/end-users/[^/]+/solana$", path))
+        or "/embedded-wallet-api/" in path
     ) and (method == "POST" or method == "DELETE" or method == "PUT")
 
 

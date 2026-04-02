@@ -1,3 +1,6 @@
+from cdp.openapi_client.api.embedded_wallets_core_functionality_api import (
+    EmbeddedWalletsCoreFunctionalityApi,
+)
 from cdp.openapi_client.api.end_user_accounts_api import EndUserAccountsApi
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
@@ -49,6 +52,7 @@ class ApiClients:
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
         self._end_user: EndUserAccountsApi | None = None
+        self._embedded_wallets_core: EmbeddedWalletsCoreFunctionalityApi | None = None
         self._closed = False
 
     def _check_closed(self) -> None:
@@ -215,6 +219,24 @@ class ApiClients:
         if self._end_user is None:
             self._end_user = EndUserAccountsApi(api_client=self._cdp_client)
         return self._end_user
+
+    @property
+    def embedded_wallets_core(self) -> EmbeddedWalletsCoreFunctionalityApi:
+        """Get the EmbeddedWalletsCoreFunctionalityApi client instance.
+
+        Returns:
+            EmbeddedWalletsCoreFunctionalityApi: The embedded wallets core functionality API client.
+
+        Note:
+            This property lazily initializes the EmbeddedWalletsCoreFunctionalityApi client on first access.
+
+        """
+        self._check_closed()
+        if self._embedded_wallets_core is None:
+            self._embedded_wallets_core = EmbeddedWalletsCoreFunctionalityApi(
+                api_client=self._cdp_client
+            )
+        return self._embedded_wallets_core
 
     async def close(self):
         """Close the CDP client asynchronously."""

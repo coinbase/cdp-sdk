@@ -35,12 +35,18 @@ import com.coinbase.cdp.openapi.ApiClient;
  * Request parameters for revoking a Spend Permission.
  */
 @JsonPropertyOrder({
+  RevokeSpendPermissionRequest.JSON_PROPERTY_WALLET_SECRET_ID,
   RevokeSpendPermissionRequest.JSON_PROPERTY_NETWORK,
   RevokeSpendPermissionRequest.JSON_PROPERTY_PERMISSION_HASH,
+  RevokeSpendPermissionRequest.JSON_PROPERTY_USE_CDP_PAYMASTER,
   RevokeSpendPermissionRequest.JSON_PROPERTY_PAYMASTER_URL
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class RevokeSpendPermissionRequest {
+  public static final String JSON_PROPERTY_WALLET_SECRET_ID = "walletSecretId";
+  @jakarta.annotation.Nullable
+  private String walletSecretId;
+
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
   private SpendPermissionNetwork network;
@@ -49,12 +55,40 @@ public class RevokeSpendPermissionRequest {
   @jakarta.annotation.Nonnull
   private String permissionHash;
 
+  public static final String JSON_PROPERTY_USE_CDP_PAYMASTER = "useCdpPaymaster";
+  @jakarta.annotation.Nullable
+  private Boolean useCdpPaymaster;
+
   public static final String JSON_PROPERTY_PAYMASTER_URL = "paymasterUrl";
   @jakarta.annotation.Nullable
   private URI paymasterUrl;
 
   public RevokeSpendPermissionRequest() { 
   }
+
+  public RevokeSpendPermissionRequest walletSecretId(@jakarta.annotation.Nullable String walletSecretId) {
+    this.walletSecretId = walletSecretId;
+    return this;
+  }
+
+  /**
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @return walletSecretId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_WALLET_SECRET_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getWalletSecretId() {
+    return walletSecretId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_WALLET_SECRET_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setWalletSecretId(@jakarta.annotation.Nullable String walletSecretId) {
+    this.walletSecretId = walletSecretId;
+  }
+
 
   public RevokeSpendPermissionRequest network(@jakarta.annotation.Nonnull SpendPermissionNetwork network) {
     this.network = network;
@@ -104,6 +138,30 @@ public class RevokeSpendPermissionRequest {
   }
 
 
+  public RevokeSpendPermissionRequest useCdpPaymaster(@jakarta.annotation.Nullable Boolean useCdpPaymaster) {
+    this.useCdpPaymaster = useCdpPaymaster;
+    return this;
+  }
+
+  /**
+   * Whether to use the CDP Paymaster for the user operation.
+   * @return useCdpPaymaster
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_USE_CDP_PAYMASTER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getUseCdpPaymaster() {
+    return useCdpPaymaster;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_USE_CDP_PAYMASTER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUseCdpPaymaster(@jakarta.annotation.Nullable Boolean useCdpPaymaster) {
+    this.useCdpPaymaster = useCdpPaymaster;
+  }
+
+
   public RevokeSpendPermissionRequest paymasterUrl(@jakarta.annotation.Nullable URI paymasterUrl) {
     this.paymasterUrl = paymasterUrl;
     return this;
@@ -140,22 +198,26 @@ public class RevokeSpendPermissionRequest {
       return false;
     }
     RevokeSpendPermissionRequest revokeSpendPermissionRequest = (RevokeSpendPermissionRequest) o;
-    return Objects.equals(this.network, revokeSpendPermissionRequest.network) &&
+    return Objects.equals(this.walletSecretId, revokeSpendPermissionRequest.walletSecretId) &&
+        Objects.equals(this.network, revokeSpendPermissionRequest.network) &&
         Objects.equals(this.permissionHash, revokeSpendPermissionRequest.permissionHash) &&
+        Objects.equals(this.useCdpPaymaster, revokeSpendPermissionRequest.useCdpPaymaster) &&
         Objects.equals(this.paymasterUrl, revokeSpendPermissionRequest.paymasterUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(network, permissionHash, paymasterUrl);
+    return Objects.hash(walletSecretId, network, permissionHash, useCdpPaymaster, paymasterUrl);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class RevokeSpendPermissionRequest {\n");
+    sb.append("    walletSecretId: ").append(toIndentedString(walletSecretId)).append("\n");
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
     sb.append("    permissionHash: ").append(toIndentedString(permissionHash)).append("\n");
+    sb.append("    useCdpPaymaster: ").append(toIndentedString(useCdpPaymaster)).append("\n");
     sb.append("    paymasterUrl: ").append(toIndentedString(paymasterUrl)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -204,6 +266,11 @@ public class RevokeSpendPermissionRequest {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `walletSecretId` to the URL query string
+    if (getWalletSecretId() != null) {
+      joiner.add(String.format("%swalletSecretId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getWalletSecretId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `network` to the URL query string
     if (getNetwork() != null) {
       joiner.add(String.format("%snetwork%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getNetwork()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -212,6 +279,11 @@ public class RevokeSpendPermissionRequest {
     // add `permissionHash` to the URL query string
     if (getPermissionHash() != null) {
       joiner.add(String.format("%spermissionHash%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPermissionHash()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `useCdpPaymaster` to the URL query string
+    if (getUseCdpPaymaster() != null) {
+      joiner.add(String.format("%suseCdpPaymaster%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getUseCdpPaymaster()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `paymasterUrl` to the URL query string
@@ -234,12 +306,20 @@ public class RevokeSpendPermissionRequest {
       this.instance = instance;
     }
 
+    public RevokeSpendPermissionRequest.Builder walletSecretId(String walletSecretId) {
+      this.instance.walletSecretId = walletSecretId;
+      return this;
+    }
     public RevokeSpendPermissionRequest.Builder network(SpendPermissionNetwork network) {
       this.instance.network = network;
       return this;
     }
     public RevokeSpendPermissionRequest.Builder permissionHash(String permissionHash) {
       this.instance.permissionHash = permissionHash;
+      return this;
+    }
+    public RevokeSpendPermissionRequest.Builder useCdpPaymaster(Boolean useCdpPaymaster) {
+      this.instance.useCdpPaymaster = useCdpPaymaster;
       return this;
     }
     public RevokeSpendPermissionRequest.Builder paymasterUrl(URI paymasterUrl) {
@@ -280,8 +360,10 @@ public class RevokeSpendPermissionRequest {
   */
   public RevokeSpendPermissionRequest.Builder toBuilder() {
     return new RevokeSpendPermissionRequest.Builder()
+      .walletSecretId(getWalletSecretId())
       .network(getNetwork())
       .permissionHash(getPermissionHash())
+      .useCdpPaymaster(getUseCdpPaymaster())
       .paymasterUrl(getPaymasterUrl());
   }
 

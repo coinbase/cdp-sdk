@@ -28,11 +28,11 @@ try {
   console.log("Signature (via client):", result.signature);
 
   // Alternatively, sign directly on the EndUserAccount (auto-picks first Solana address)
-  const result2 = await endUser.signSolanaMessage({
-    message: Buffer.from("Hello again!").toString("base64"),
-  });
+  // const result2 = await endUser.signSolanaMessage({
+  //   message: Buffer.from("Hello again!").toString("base64"),
+  // });
 
-  console.log("Signature (via account):", result2.signature);
+  // console.log("Signature (via account):", result2.signature);
 } catch (error) {
   console.error("Error: ", (error as { errorMessage: string }).errorMessage);
 }

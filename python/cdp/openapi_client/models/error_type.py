@@ -85,6 +85,9 @@ class ErrorType(str, Enum):
     ORDER_ALREADY_FILLED = 'order_already_filled'
     ORDER_ALREADY_CANCELED = 'order_already_canceled'
     ACCOUNT_NOT_READY = 'account_not_ready'
+    INSUFFICIENT_LIQUIDITY = 'insufficient_liquidity'
+    INSUFFICIENT_ALLOWANCE = 'insufficient_allowance'
+    TRANSACTION_SIMULATION_FAILED = 'transaction_simulation_failed'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

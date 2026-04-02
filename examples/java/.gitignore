@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 build/
+.settings
 !gradle/wrapper/gradle-wrapper.jar
 
 # IDE

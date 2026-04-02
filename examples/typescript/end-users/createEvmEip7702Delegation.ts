@@ -32,15 +32,15 @@ try {
   );
 
   // Alternatively, create directly on the EndUserAccount (auto-picks first EVM address)
-  const result2 = await endUser.createEvmEip7702Delegation({
-    network: "base-sepolia",
-    enableSpendPermissions: true,
-  });
+  // const result2 = await endUser.createEvmEip7702Delegation({
+  //   network: "base-sepolia",
+  //   enableSpendPermissions: true,
+  // });
 
-  console.log(
-    "Delegation operation ID (via account):",
-    result2.delegationOperationId
-  );
+  // console.log(
+  //   "Delegation operation ID (via account):",
+  //   result2.delegationOperationId
+  // );
 } catch (error) {
   console.error("Error: ", (error as { errorMessage: string }).errorMessage);
 }

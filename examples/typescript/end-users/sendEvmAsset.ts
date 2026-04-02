@@ -31,14 +31,14 @@ try {
   console.log("Transaction hash (via client):", result.transactionHash);
 
   // Alternatively, send directly on the EndUserAccount (auto-picks first EVM address)
-  const result2 = await endUser.sendEvmAsset({
-    asset: "usdc",
-    to: "0x0000000000000000000000000000000000000001",
-    amount: "1000000",
-    network: "base-sepolia",
-  });
+  // const result2 = await endUser.sendEvmAsset({
+  //   asset: "usdc",
+  //   to: "0x0000000000000000000000000000000000000001",
+  //   amount: "1000000",
+  //   network: "base-sepolia",
+  // });
 
-  console.log("Transaction hash (via account):", result2.transactionHash);
+  // console.log("Transaction hash (via account):", result2.transactionHash);
 } catch (error) {
   console.error("Error: ", (error as { errorMessage: string }).errorMessage);
 }
