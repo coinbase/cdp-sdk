@@ -1,5 +1,4 @@
 import asyncio
-import sys
 from typing import Any
 
 from eth_account.datastructures import SignedMessage, SignedTransaction
@@ -11,21 +10,16 @@ from eth_typing import Hash32
 from cdp.errors import UserInputValidationError
 from cdp.evm_server_account import EvmServerAccount
 
-# Apply nest-asyncio to allow nested event loops, but only if compatible
-# Skip on Python 3.12+ where nest_asyncio breaks uvicorn's loop_factory support
-if sys.version_info < (3, 12):
+# Apply nest-asyncio to allow nested event loops (e.g., Jupyter notebooks).
+# Catch ImportError if nest_asyncio is not installed, TypeError if it conflicts
+# with uvicorn's loop_factory on Python 3.12+, and ValueError if the loop
+# cannot be patched (e.g., uvloop).
+try:
     import nest_asyncio
 
-    try:
-        nest_asyncio.apply()
-    except ValueError as e:
-        # If nest_asyncio can't patch the loop (e.g., uvloop), silently continue
-        # This commonly happens when uvloop is installed and running
-        if "Can't patch loop" in str(e):
-            pass
-        else:
-            # Re-raise other ValueError exceptions
-            raise
+    nest_asyncio.apply()
+except (ImportError, TypeError, ValueError):
+    pass
 
 
 def _run_async(coroutine):
