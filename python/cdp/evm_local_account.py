@@ -1,7 +1,6 @@
 import asyncio
 from typing import Any
 
-import nest_asyncio
 from eth_account.datastructures import SignedMessage, SignedTransaction
 from eth_account.messages import SignableMessage, _hash_eip191_message, encode_typed_data
 from eth_account.signers.base import BaseAccount
@@ -11,17 +10,6 @@ from eth_typing import Hash32
 from cdp.errors import UserInputValidationError
 from cdp.evm_server_account import EvmServerAccount
 
-# Apply nest-asyncio to allow nested event loops, but only if compatible
-try:
-    nest_asyncio.apply()
-except ValueError as e:
-    # If nest_asyncio can't patch the loop (e.g., uvloop), silently continue
-    # This commonly happens when uvloop is installed and running
-    if "Can't patch loop" in str(e):
-        pass
-    else:
-        # Re-raise other ValueError exceptions
-        raise
 
 
 def _run_async(coroutine):
