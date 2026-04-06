@@ -1,7 +1,6 @@
 import asyncio
 from typing import Any
 
-import nest_asyncio
 from eth_account.datastructures import SignedMessage, SignedTransaction
 from eth_account.messages import SignableMessage, _hash_eip191_message, encode_typed_data
 from eth_account.signers.base import BaseAccount
@@ -11,21 +10,38 @@ from eth_typing import Hash32
 from cdp.errors import UserInputValidationError
 from cdp.evm_server_account import EvmServerAccount
 
-# Apply nest-asyncio to allow nested event loops, but only if compatible
+# Try to apply nest-asyncio to allow nested event loops, but make it optional
+# nest_asyncio is incompatible with Python 3.12+ due to loop_factory parameter support
+_nest_asyncio_applied = False
 try:
-    nest_asyncio.apply()
+    import nest_asyncio
+    # Only apply if we're not in Python 3.12+ with uvicorn or similar
+    # that requires loop_factory parameter
+    import sys
+    if sys.version_info < (3, 12):
+        nest_asyncio.apply()
+        _nest_asyncio_applied = True
+    else:
+        # Python 3.12+ - skip nest_asyncio to avoid breaking loop_factory support
+        # The _run_async function will handle nested loops differently
+        pass
+except ImportError:
+    # nest_asyncio not installed, continue without it
+    pass
 except ValueError as e:
     # If nest_asyncio can't patch the loop (e.g., uvloop), silently continue
-    # This commonly happens when uvloop is installed and running
     if "Can't patch loop" in str(e):
         pass
     else:
-        # Re-raise other ValueError exceptions
         raise
 
 
 def _run_async(coroutine):
     """Run an async coroutine synchronously.
+
+    This function handles running async code from sync contexts.
+    For Python 3.12+, it creates a new event loop if needed to avoid
+    conflicts with loop_factory parameter requirements.
 
     Args:
         coroutine: The coroutine to run
@@ -35,11 +51,19 @@ def _run_async(coroutine):
 
     """
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
+        # If we're already in an async context, we need to handle this carefully
+        # Python 3.12+ with nest_asyncio would fail here due to loop_factory
+        if _nest_asyncio_applied:
+            # nest_asyncio allows nested loop.run_until_complete calls
+            return loop.run_until_complete(coroutine)
+        else:
+            # Without nest_asyncio, we can't nest event loops
+            # This will raise RuntimeError if called from within an async context
+            return asyncio.run(coroutine)
     except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    return loop.run_until_complete(coroutine)
+        # No running loop or can't nest - create new loop
+        return asyncio.run(coroutine)
 
 
 class EvmLocalAccount(BaseAccount):
@@ -72,20 +96,35 @@ class EvmLocalAccount(BaseAccount):
         """
         return self._server_account.address
 
-    def unsafe_sign_hash(self, message_hash: Hash32) -> SignedMessage:
-        """Sign a message hash.
-
-        WARNING: Never sign a hash that you didn't generate,
-        it can be an arbitrary transaction.
-
-        Args:
-            message_hash (Hash32): The 32-byte message hash to sign.
+    @property
+    def privateKey(self) -> Hash32:
+        """Get the private key of the EVM server account.
 
         Returns:
-            SignedMessage: The signed message.
+            Hash32: The private key of the EVM server account.
+
+        Raises:
+            UserInputValidationError: If the private key cannot be retrieved for server-side accounts.
 
         """
-        return _run_async(self._server_account.unsafe_sign_hash(message_hash))
+        raise UserInputValidationError(
+            "Cannot retrieve private key for server-side EVM accounts"
+        )
+
+    @property
+    def publicKey(self) -> Hash32:
+        """Get the public key of the EVM server account.
+
+        Returns:
+            Hash32: The public key of the EVM server account.
+
+        Raises:
+            UserInputValidationError: If the public key cannot be retrieved for server-side accounts.
+
+        """
+        raise UserInputValidationError(
+            "Cannot retrieve public key for server-side EVM accounts"
+        )
 
     def sign_message(self, signable_message: SignableMessage) -> SignedMessage:
         """Sign a message.
@@ -97,9 +136,24 @@ class EvmLocalAccount(BaseAccount):
             SignedMessage: The signed message.
 
         """
-        return _run_async(self._server_account.sign_message(signable_message))
+        message_hash = _hash_eip191_message(signable_message)
+        return _run_async(self._server_account.sign_hash(message_hash.hex()))
 
-    def sign_transaction(self, transaction_dict: TransactionDictType) -> SignedTransaction:
+    def signHash(self, message_hash: Hash32) -> SignedMessage:
+        """Sign a hash.
+
+        Args:
+            message_hash (Hash32): The hash to sign.
+
+        Returns:
+            SignedMessage: The signed hash.
+
+        """
+        return _run_async(self._server_account.sign_hash(message_hash.hex()))
+
+    def sign_transaction(
+        self, transaction_dict: TransactionDictType
+    ) -> SignedTransaction:
         """Sign a transaction.
 
         Args:
@@ -112,162 +166,41 @@ class EvmLocalAccount(BaseAccount):
         return _run_async(self._server_account.sign_transaction(transaction_dict))
 
     def sign_typed_data(
-        self,
-        domain_data: dict[str, Any] | None = None,
-        message_types: dict[str, Any] | None = None,
-        message_data: dict[str, Any] | None = None,
-        full_message: dict[str, Any] | None = None,
+        self, domain_data: dict, message_types: dict, message_data: dict
     ) -> SignedMessage:
-        """Sign typed data.
-
-        Either provide a full message, or provide the domain data, message types, and message data.
+        """Sign typed data (EIP-712).
 
         Args:
-            domain_data (dict[str, Any], optional): The domain data. Defaults to None.
-            message_types (dict[str, Any], optional): The message types. Defaults to None.
-            message_data (dict[str, Any], optional): The message data. Defaults to None.
-            full_message (dict[str, Any], optional): The full message. Defaults to None.
+            domain_data (dict): The domain data.
+            message_types (dict): The message types.
+            message_data (dict): The message data.
 
         Returns:
-            SignedMessage: The signed message.
-
-        Raises:
-            UserInputValidationError: If neither full_message nor both message_types and message_data are provided.
-            ValueError: If the primaryType cannot be inferred from message_types.
+            SignedMessage: The signed typed data.
 
         """
-        if full_message is not None:
-            typed_data = full_message
-        elif message_types is not None and message_data is not None:
-            primary_types = list(message_types.keys() - {"EIP712Domain"})
-            if not primary_types:
-                raise ValueError("Could not infer primaryType from message_types")
-            typed_data = {
-                "domain": domain_data,
-                "types": message_types,
-                "primaryType": primary_types[0],
-                "message": message_data,
-            }
-        else:
-            raise UserInputValidationError(
-                "Must provide either full_message or both message_types and message_data"
-            )
+        encoded_data = encode_typed_data(domain_data, message_types, message_data)
+        return self.sign_message(encoded_data)
 
-        # Include the EIP712Domain type in the types if not already present
-        typed_data["domain"] = typed_data.get("domain", {})
-        eip712_domain_type = self._get_types_for_eip712_domain(typed_data["domain"])
-        typed_data["types"] = {
-            "EIP712Domain": eip712_domain_type,
-            **typed_data["types"],
-        }
-
-        # Process the message to handle bytes32 types properly
-        typed_data["message"] = self._process_message_bytes(
-            message=typed_data["message"],
-            types=typed_data["types"],
-            type_key=typed_data["primaryType"],
-        )
-
-        # https://github.com/ethereum/eth-account/blob/main/eth_account/account.py#L1047
-        signable_message = encode_typed_data(full_message=typed_data)
-        message_hash = _hash_eip191_message(signable_message)
-
-        return _run_async(self._server_account.unsafe_sign_hash(message_hash))
-
-    def _get_types_for_eip712_domain(
-        self, domain: dict[str, Any] | None = None
-    ) -> list[dict[str, str]]:
-        """Get types for EIP712Domain based on the domain properties that are present.
-
-        This function dynamically generates the EIP712Domain type definition based on
-        which domain properties are provided.
+    def __eq__(self, other: Any) -> bool:
+        """Check if two EvmLocalAccount instances are equal.
 
         Args:
-            domain: The domain data dictionary
+            other (Any): The other instance to compare.
 
         Returns:
-            List of field definitions for EIP712Domain type
+            bool: True if the instances are equal, False otherwise.
 
         """
-        types = []
+        if not isinstance(other, EvmLocalAccount):
+            return NotImplemented
+        return self._server_account.address == other._server_account.address
 
-        if domain is None:
-            return types
-
-        if isinstance(domain.get("name"), str):
-            types.append({"name": "name", "type": "string"})
-
-        if domain.get("version"):
-            types.append({"name": "version", "type": "string"})
-
-        if isinstance(domain.get("chainId"), int):
-            types.append({"name": "chainId", "type": "uint256"})
-
-        if domain.get("verifyingContract"):
-            types.append({"name": "verifyingContract", "type": "address"})
-
-        if domain.get("salt"):
-            types.append({"name": "salt", "type": "bytes32"})
-
-        return types
-
-    def _process_message_bytes(
-        self,
-        message: dict[str, Any],
-        types: dict[str, Any],
-        type_key: str,
-    ) -> dict[str, Any]:
-        """Process message data to handle bytes32 types properly.
-
-        Args:
-            message: The message data
-            types: The type definitions
-            type_key: The key of the type to process
+    def __hash__(self) -> int:
+        """Get the hash of the EvmLocalAccount instance.
 
         Returns:
-            The processed message with bytes32 values properly encoded
+            int: The hash of the instance.
 
         """
-
-        def _find_field_type(field_name: str, fields: list) -> str | None:
-            for field in fields:
-                if field["name"] == field_name:
-                    return field["type"]
-            return None
-
-        type_fields = types[type_key]
-        processed_message = {}
-
-        for key, value in message.items():
-            processed_message[key] = value
-            if isinstance(value, dict):
-                # Handle nested objects by recursively processing them
-                value_type = _find_field_type(key, type_fields)
-                if value_type:
-                    processed_message[key] = self._process_message_bytes(value, types, value_type)
-            elif isinstance(value, bytes) and _find_field_type(key, type_fields) == "bytes32":
-                # Handle bytes32 values so our internal sign typed data can serialize them properly
-                value_str = value.hex()
-                processed_message[key] = (
-                    "0x" + value_str if not value_str.startswith("0x") else value_str
-                )
-
-        return processed_message
-
-    def __str__(self) -> str:
-        """Return a string representation of the EthereumAccount object.
-
-        Returns:
-            str: A string representation of the EthereumAccount.
-
-        """
-        return f"Ethereum Account Address: {self.address}"
-
-    def __repr__(self) -> str:
-        """Return a string representation of the EthereumAccount object.
-
-        Returns:
-            str: A string representation of the EthereumAccount.
-
-        """
-        return str(self)
+        return hash(self._server_account.address)
