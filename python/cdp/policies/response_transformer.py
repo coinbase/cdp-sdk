@@ -1,5 +1,6 @@
 from cdp.openapi_client.models.rule import Rule
 from cdp.policies.types import (
+    CreateEndUserEvmSwapRule as CreateEndUserEvmSwapRuleModel,
     EthValueCriterion as EthValueCriterionModel,
     EvmAddressCriterion as EvmAddressCriterionModel,
     EvmDataCondition as EvmDataConditionModel,
@@ -351,6 +352,9 @@ response_criterion_mapping["sendEndUserEvmTransaction"] = response_criterion_map
     "sendEvmTransaction"
 ]
 response_criterion_mapping["signEndUserEvmMessage"] = response_criterion_mapping["signEvmMessage"]
+response_criterion_mapping["createEndUserEvmSwap"] = response_criterion_mapping[
+    "sendEvmTransaction"
+]
 response_criterion_mapping["signEndUserEvmTypedData"] = response_criterion_mapping[
     "signEvmTypedData"
 ]
@@ -376,6 +380,7 @@ response_rule_mapping = {
     "sendUserOperation": SendUserOperationRuleModel,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRuleModel,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRuleModel,
+    "createEndUserEvmSwap": CreateEndUserEvmSwapRuleModel,
     "signEndUserEvmMessage": SignEndUserEvmMessageRuleModel,
     "signEndUserEvmTypedData": SignEndUserEvmTypedDataRuleModel,
     "signEndUserSolTransaction": SignEndUserSolTransactionRuleModel,

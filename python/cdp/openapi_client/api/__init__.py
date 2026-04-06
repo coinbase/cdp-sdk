@@ -10,7 +10,7 @@ from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.onramp_api import OnrampApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
-from cdp.openapi_client.api.sqlapi_alpha_api import SQLAPIAlphaApi
+from cdp.openapi_client.api.sqlapi_api import SQLAPIApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 from cdp.openapi_client.api.webhooks_api import WebhooksApi

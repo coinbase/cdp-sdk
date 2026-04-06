@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## Unreleased
+
+### Minor Changes
+
+- Added support for the `createEndUserEvmSwap` policy rule, enabling policy controls for end user EVM swap operations with all existing EVM criteria (ethValue, evmAddress, evmNetwork, evmData, netUSDChange).
+
 ## [1.46.1] - 2026-03-30
 
 ### Security fix

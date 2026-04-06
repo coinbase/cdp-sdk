@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
+from cdp.openapi_client.models.sign_end_user_evm_hash_rule import SignEndUserEvmHashRule
 
-class TestX402SupportedPaymentKind(unittest.TestCase):
-    """X402SupportedPaymentKind unit test stubs"""
+class TestSignEndUserEvmHashRule(unittest.TestCase):
+    """SignEndUserEvmHashRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,31 +26,28 @@ class TestX402SupportedPaymentKind(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402SupportedPaymentKind:
-        """Test X402SupportedPaymentKind
+    def make_instance(self, include_optional) -> SignEndUserEvmHashRule:
+        """Test SignEndUserEvmHashRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402SupportedPaymentKind`
+        # uncomment below to create an instance of `SignEndUserEvmHashRule`
         """
-        model = X402SupportedPaymentKind()
+        model = SignEndUserEvmHashRule()
         if include_optional:
-            return X402SupportedPaymentKind(
-                x402_version = 2,
-                scheme = 'exact',
-                network = 'base',
-                extra = {feePayer=HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT}
+            return SignEndUserEvmHashRule(
+                action = 'accept',
+                operation = 'signEndUserEvmHash'
             )
         else:
-            return X402SupportedPaymentKind(
-                x402_version = 2,
-                scheme = 'exact',
-                network = 'base',
+            return SignEndUserEvmHashRule(
+                action = 'accept',
+                operation = 'signEndUserEvmHash',
         )
         """
 
-    def testX402SupportedPaymentKind(self):
-        """Test X402SupportedPaymentKind"""
+    def testSignEndUserEvmHashRule(self):
+        """Test SignEndUserEvmHashRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

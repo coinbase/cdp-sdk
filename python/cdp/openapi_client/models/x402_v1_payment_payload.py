@@ -20,7 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
+from cdp.openapi_client.models.x402_v2_payment_payload_payload import X402V2PaymentPayloadPayload
 from cdp.openapi_client.models.x402_version import X402Version
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,7 +32,7 @@ class X402V1PaymentPayload(BaseModel):
     x402_version: X402Version = Field(alias="x402Version")
     scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
     network: StrictStr = Field(description="The network of the blockchain to send payment on.")
-    payload: X402V1PaymentPayloadPayload
+    payload: X402V2PaymentPayloadPayload
     __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "payload"]
 
     @field_validator('scheme')
@@ -106,7 +106,7 @@ class X402V1PaymentPayload(BaseModel):
             "x402Version": obj.get("x402Version"),
             "scheme": obj.get("scheme"),
             "network": obj.get("network"),
-            "payload": X402V1PaymentPayloadPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None
+            "payload": X402V2PaymentPayloadPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None
         })
         return _obj
 

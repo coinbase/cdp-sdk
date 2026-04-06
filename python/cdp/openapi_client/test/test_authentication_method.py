@@ -47,7 +47,8 @@ class TestAuthenticationMethod(unittest.TestCase):
                 first_name = 'Satoshi',
                 last_name = 'Nakamoto',
                 photo_url = 'https://image.url/profile.png',
-                auth_date = 1770681412
+                auth_date = 1770681412,
+                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             )
         else:
             return AuthenticationMethod(
@@ -58,6 +59,7 @@ class TestAuthenticationMethod(unittest.TestCase):
                 sub = 'e051beeb-7163-4527-a5b6-35e301529ff2',
                 id = 123456,
                 auth_date = 1770681412,
+                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
         )
         """
 

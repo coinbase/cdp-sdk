@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
+from cdp.openapi_client.models.x402_v2_payment_payload_payload import X402V2PaymentPayloadPayload
 
-class TestX402V1PaymentPayloadPayload(unittest.TestCase):
-    """X402V1PaymentPayloadPayload unit test stubs"""
+class TestX402V2PaymentPayloadPayload(unittest.TestCase):
+    """X402V2PaymentPayloadPayload unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,23 +26,23 @@ class TestX402V1PaymentPayloadPayload(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402V1PaymentPayloadPayload:
-        """Test X402V1PaymentPayloadPayload
+    def make_instance(self, include_optional) -> X402V2PaymentPayloadPayload:
+        """Test X402V2PaymentPayloadPayload
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402V1PaymentPayloadPayload`
+        # uncomment below to create an instance of `X402V2PaymentPayloadPayload`
         """
-        model = X402V1PaymentPayloadPayload()
+        model = X402V2PaymentPayloadPayload()
         if include_optional:
-            return X402V1PaymentPayloadPayload(
+            return X402V2PaymentPayloadPayload(
                 signature = '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
                 authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, value=1000000000000000000, validAfter=1716150000, validBefore=1716150000, nonce=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef},
                 permit2_authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, permitted={token=0x036CbD53842c5426634e7929541eC2318f3dCF7e, amount=1000000}, spender=0x4020615294c913F045dc10f0a5cdEbd86c280001, nonce=12345678901234567890, deadline=1716150000, witness={to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, validAfter=1716150000, extra=0x}},
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA='
             )
         else:
-            return X402V1PaymentPayloadPayload(
+            return X402V2PaymentPayloadPayload(
                 signature = '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
                 authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, value=1000000000000000000, validAfter=1716150000, validBefore=1716150000, nonce=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef},
                 permit2_authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, permitted={token=0x036CbD53842c5426634e7929541eC2318f3dCF7e, amount=1000000}, spender=0x4020615294c913F045dc10f0a5cdEbd86c280001, nonce=12345678901234567890, deadline=1716150000, witness={to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, validAfter=1716150000, extra=0x}},
@@ -50,8 +50,8 @@ class TestX402V1PaymentPayloadPayload(unittest.TestCase):
         )
         """
 
-    def testX402V1PaymentPayloadPayload(self):
-        """Test X402V1PaymentPayloadPayload"""
+    def testX402V2PaymentPayloadPayload(self):
+        """Test X402V2PaymentPayloadPayload"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

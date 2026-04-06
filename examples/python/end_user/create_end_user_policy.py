@@ -4,6 +4,7 @@ import asyncio
 
 from cdp import CdpClient
 from cdp.policies.types import (
+    CreateEndUserEvmSwapRule,
     CreatePolicyOptions,
     EthValueCriterion,
     EvmAddressCriterion,
@@ -51,6 +52,20 @@ async def main():
                 ),
                 # Restrict end-user EVM transaction sending to a specific network and max USD exposure
                 SendEndUserEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base", "base-sepolia"],
+                            operator="in",
+                        ),
+                        NetUSDChangeCriterion(
+                            changeCents=10000,  # $100.00
+                            operator="<=",
+                        ),
+                    ],
+                ),
+                # Restrict end-user EVM swaps to a specific network and max USD exposure
+                CreateEndUserEvmSwapRule(
                     action="accept",
                     criteria=[
                         EvmNetworkCriterion(

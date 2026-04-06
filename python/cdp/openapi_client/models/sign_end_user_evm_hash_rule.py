@@ -20,30 +20,29 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class SignEndUserEvmHashRule(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    SignEndUserEvmHashRule
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
+    action: StrictStr = Field(description="Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.")
+    operation: StrictStr = Field(description="The operation to which the rule applies.")
+    __properties: ClassVar[List[str]] = ["action", "operation"]
 
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
+    @field_validator('action')
+    def action_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['reject', 'accept']):
+            raise ValueError("must be one of enum values ('reject', 'accept')")
         return value
 
-    @field_validator('token')
-    def token_validate_enum(cls, value):
+    @field_validator('operation')
+    def operation_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
+        if value not in set(['signEndUserEvmHash']):
+            raise ValueError("must be one of enum values ('signEndUserEvmHash')")
         return value
 
     model_config = ConfigDict(
@@ -64,7 +63,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of SignEndUserEvmHashRule from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -89,7 +88,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of SignEndUserEvmHashRule from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +96,8 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "action": obj.get("action"),
+            "operation": obj.get("operation")
         })
         return _obj
 

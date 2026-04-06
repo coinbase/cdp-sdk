@@ -11,6 +11,7 @@ from cdp.openapi_client.models.list_policies200_response import ListPolicies200R
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
 from cdp.policies.types import (
+    CreateEndUserEvmSwapRule,
     CreatePolicyOptions,
     EvmAddressCriterion,
     EvmNetworkCriterion,
@@ -172,6 +173,62 @@ async def test_create_policy_with_send_end_user_evm_transaction_rule(
             SendEndUserEvmTransactionRule(
                 action="reject",
                 operation="sendEndUserEvmTransaction",
+                criteria=[
+                    EvmAddressCriterion(
+                        type="evmAddress",
+                        addresses=["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        operator="not in",
+                    ),
+                    NetUSDChangeCriterion(
+                        type="netUSDChange",
+                        changeCents=10000,
+                        operator=">=",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_create_end_user_evm_swap_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with a CreateEndUserEvmSwapRule."""
+    openapi_policy_model = openapi_policy_model_factory()
+
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="EndUser EVM Swap Policy",
+        rules=[
+            CreateEndUserEvmSwapRule(
+                action="reject",
+                operation="createEndUserEvmSwap",
                 criteria=[
                     EvmAddressCriterion(
                         type="evmAddress",

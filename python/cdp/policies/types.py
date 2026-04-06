@@ -811,6 +811,29 @@ class SendEndUserEvmTransactionRule(BaseModel):
     )
 
 
+class CreateEndUserEvmSwapRule(BaseModel):
+    """Type representing a 'createEndUserEvmSwap' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the swap, 'reject' will block it.",
+    )
+    operation: Literal["createEndUserEvmSwap"] = Field(
+        "createEndUserEvmSwap",
+        description="The operation to which this rule applies. Must be 'createEndUserEvmSwap'.",
+    )
+    criteria: list[
+        EthValueCriterion
+        | EvmAddressCriterion
+        | EvmNetworkCriterion
+        | EvmDataCriterion
+        | NetUSDChangeCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 class SignEndUserEvmMessageRule(BaseModel):
     """Type representing a 'signEndUserEvmMessage' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -976,6 +999,7 @@ Rule = (
     | SendUserOperationRule
     | SignEndUserEvmTransactionRule
     | SendEndUserEvmTransactionRule
+    | CreateEndUserEvmSwapRule
     | SignEndUserEvmMessageRule
     | SignEndUserEvmTypedDataRule
     | SignEndUserSolTransactionRule

@@ -18,33 +18,22 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class OnchainDataColumnSchema(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    Schema definition for a table column.
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('token')
-    def token_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
-        return value
+    name: Optional[StrictStr] = Field(default=None, description="Column name.")
+    type: Optional[StrictStr] = Field(default=None, description="Column data type.")
+    nullable: Optional[StrictBool] = Field(default=None, description="Whether this column can contain NULL values.")
+    description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Human-readable description of the column.")
+    index_order: Optional[StrictInt] = Field(default=None, description="The order of the column in the index. A lower number means the column is more important for the index and should be first in the query.", alias="indexOrder")
+    __properties: ClassVar[List[str]] = ["name", "type", "nullable", "description", "indexOrder"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -64,7 +53,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of OnchainDataColumnSchema from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -89,7 +78,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of OnchainDataColumnSchema from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +86,11 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "name": obj.get("name"),
+            "type": obj.get("type"),
+            "nullable": obj.get("nullable"),
+            "description": obj.get("description"),
+            "indexOrder": obj.get("indexOrder")
         })
         return _obj
 

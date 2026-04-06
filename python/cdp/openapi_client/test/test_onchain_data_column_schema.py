@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
+from cdp.openapi_client.models.onchain_data_column_schema import OnchainDataColumnSchema
 
-class TestX402SupportedPaymentKind(unittest.TestCase):
-    """X402SupportedPaymentKind unit test stubs"""
+class TestOnchainDataColumnSchema(unittest.TestCase):
+    """OnchainDataColumnSchema unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,31 +26,29 @@ class TestX402SupportedPaymentKind(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402SupportedPaymentKind:
-        """Test X402SupportedPaymentKind
+    def make_instance(self, include_optional) -> OnchainDataColumnSchema:
+        """Test OnchainDataColumnSchema
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402SupportedPaymentKind`
+        # uncomment below to create an instance of `OnchainDataColumnSchema`
         """
-        model = X402SupportedPaymentKind()
+        model = OnchainDataColumnSchema()
         if include_optional:
-            return X402SupportedPaymentKind(
-                x402_version = 2,
-                scheme = 'exact',
-                network = 'base',
-                extra = {feePayer=HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT}
+            return OnchainDataColumnSchema(
+                name = 'event_signature',
+                type = 'String',
+                nullable = False,
+                description = 'A description of the resource.',
+                index_order = 0
             )
         else:
-            return X402SupportedPaymentKind(
-                x402_version = 2,
-                scheme = 'exact',
-                network = 'base',
+            return OnchainDataColumnSchema(
         )
         """
 
-    def testX402SupportedPaymentKind(self):
-        """Test X402SupportedPaymentKind"""
+    def testOnchainDataColumnSchema(self):
+        """Test OnchainDataColumnSchema"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

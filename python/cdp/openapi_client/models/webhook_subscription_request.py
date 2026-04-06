@@ -30,7 +30,7 @@ class WebhookSubscriptionRequest(BaseModel):
     Request to create a new webhook subscription with support for multi-label filtering. 
     """ # noqa: E501
     description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). The subscription will only receive events matching these types AND the label filter(s). ", alias="eventTypes")
+    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\", \"acceptance.payment_session\"). The subscription will only receive events matching these types AND the label filter(s). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     target: WebhookTarget
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")

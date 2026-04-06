@@ -20,30 +20,31 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from cdp.openapi_client.models.send_evm_transaction_criteria_inner import SendEvmTransactionCriteriaInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class CreateEndUserEvmSwapRule(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    CreateEndUserEvmSwapRule
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
+    action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
+    operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
+    criteria: List[SendEvmTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the createEndUserEvmSwap operation.")
+    __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
 
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
+    @field_validator('action')
+    def action_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['reject', 'accept']):
+            raise ValueError("must be one of enum values ('reject', 'accept')")
         return value
 
-    @field_validator('token')
-    def token_validate_enum(cls, value):
+    @field_validator('operation')
+    def operation_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
+        if value not in set(['createEndUserEvmSwap']):
+            raise ValueError("must be one of enum values ('createEndUserEvmSwap')")
         return value
 
     model_config = ConfigDict(
@@ -64,7 +65,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of CreateEndUserEvmSwapRule from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -85,11 +86,18 @@ class RequestSolanaFaucetRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in criteria (list)
+        _items = []
+        if self.criteria:
+            for _item_criteria in self.criteria:
+                if _item_criteria:
+                    _items.append(_item_criteria.to_dict())
+            _dict['criteria'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of CreateEndUserEvmSwapRule from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +105,9 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "action": obj.get("action"),
+            "operation": obj.get("operation"),
+            "criteria": [SendEvmTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
         })
         return _obj
 

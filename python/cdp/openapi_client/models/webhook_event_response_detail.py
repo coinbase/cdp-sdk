@@ -18,33 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class WebhookEventResponseDetail(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    Details of the HTTP response received from the webhook target.
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('token')
-    def token_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
-        return value
+    http_code: Optional[StrictInt] = Field(default=None, description="HTTP status code returned by the webhook target.", alias="httpCode")
+    elapsed_time_ms: Optional[StrictInt] = Field(default=None, description="Round-trip time of the webhook delivery in milliseconds.", alias="elapsedTimeMs")
+    body: Optional[StrictStr] = Field(default=None, description="Response body returned by the webhook target.")
+    error_name: Optional[StrictStr] = Field(default=None, description="Error name if the delivery failed (e.g., timeout, connection_refused).", alias="errorName")
+    __properties: ClassVar[List[str]] = ["httpCode", "elapsedTimeMs", "body", "errorName"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -64,7 +51,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of WebhookEventResponseDetail from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -89,7 +76,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of WebhookEventResponseDetail from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +84,10 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "httpCode": obj.get("httpCode"),
+            "elapsedTimeMs": obj.get("elapsedTimeMs"),
+            "body": obj.get("body"),
+            "errorName": obj.get("errorName")
         })
         return _obj
 

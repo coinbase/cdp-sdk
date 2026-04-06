@@ -18,33 +18,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from cdp.openapi_client.models.webhook_event_response import WebhookEventResponse
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class WebhookEventListResponse(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    Response containing a list of webhook event delivery attempts.
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('token')
-    def token_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
-        return value
+    events: List[WebhookEventResponse] = Field(description="The list of webhook event delivery attempts.")
+    __properties: ClassVar[List[str]] = ["events"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -64,7 +49,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of WebhookEventListResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -85,11 +70,18 @@ class RequestSolanaFaucetRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in events (list)
+        _items = []
+        if self.events:
+            for _item_events in self.events:
+                if _item_events:
+                    _items.append(_item_events.to_dict())
+            _dict['events'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of WebhookEventListResponse from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +89,7 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "events": [WebhookEventResponse.from_dict(_item) for _item in obj["events"]] if obj.get("events") is not None else None
         })
         return _obj
 

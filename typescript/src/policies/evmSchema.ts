@@ -552,6 +552,26 @@ export type SendEndUserEvmTransactionCriteria = z.infer<
 >;
 
 /**
+ * Schema for criteria used in CreateEndUserEvmSwap operations
+ */
+export const CreateEndUserEvmSwapCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      PrepareUserOperationEvmNetworkCriterionSchema,
+      EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the createEndUserEvmSwap operation.
+ */
+export type CreateEndUserEvmSwapCriteria = z.infer<typeof CreateEndUserEvmSwapCriteriaSchema>;
+
+/**
  * Schema for criteria used in SignEndUserEvmMessage operations
  */
 export const SignEndUserEvmMessageCriteriaSchema = z
@@ -809,6 +829,29 @@ export const SendEndUserEvmTransactionRuleSchema = z.object({
   criteria: SendEndUserEvmTransactionCriteriaSchema,
 });
 export type SendEndUserEvmTransactionRule = z.infer<typeof SendEndUserEvmTransactionRuleSchema>;
+
+/**
+ * Type representing a 'createEndUserEvmSwap' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const CreateEndUserEvmSwapRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the swap, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "createEndUserEvmSwap".
+   */
+  operation: z.literal("createEndUserEvmSwap"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: CreateEndUserEvmSwapCriteriaSchema,
+});
+export type CreateEndUserEvmSwapRule = z.infer<typeof CreateEndUserEvmSwapRuleSchema>;
 
 /**
  * Type representing a 'signEndUserEvmMessage' policy rule that can accept or reject specific operations

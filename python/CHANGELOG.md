@@ -2,6 +2,12 @@
 
 <!-- towncrier release notes start -->
 
+## Unreleased
+
+### Features
+
+- Added support for the `createEndUserEvmSwap` policy rule, enabling policy controls for end user EVM swap operations with all existing EVM criteria (ethValue, evmAddress, evmNetwork, evmData, netUSDChange).
+
 ## [1.40.0] - 2026-03-06
 
 ### Features

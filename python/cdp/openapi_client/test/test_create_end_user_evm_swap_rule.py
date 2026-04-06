@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.create_end_user_evm_swap_rule import CreateEndUserEvmSwapRule
 
-class TestRule(unittest.TestCase):
-    """Rule unit test stubs"""
+class TestCreateEndUserEvmSwapRule(unittest.TestCase):
+    """CreateEndUserEvmSwapRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,30 @@ class TestRule(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Rule:
-        """Test Rule
+    def make_instance(self, include_optional) -> CreateEndUserEvmSwapRule:
+        """Test CreateEndUserEvmSwapRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Rule`
+        # uncomment below to create an instance of `CreateEndUserEvmSwapRule`
         """
-        model = Rule()
+        model = CreateEndUserEvmSwapRule()
         if include_optional:
-            return Rule(
+            return CreateEndUserEvmSwapRule(
                 action = 'accept',
                 operation = 'createEndUserEvmSwap',
                 criteria = [{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}, {type=evmNetwork, networks=[base, ethereum], operator=in}, {type=evmData, abi=erc20, conditions=[{function=transfer, params=[{name=value, operator=<=, value=10000}]}]}, {type=netUSDChange, changeCents=10000, operator=<=}]
             )
         else:
-            return Rule(
+            return CreateEndUserEvmSwapRule(
                 action = 'accept',
                 operation = 'createEndUserEvmSwap',
                 criteria = [{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}, {type=evmNetwork, networks=[base, ethereum], operator=in}, {type=evmData, abi=erc20, conditions=[{function=transfer, params=[{name=value, operator=<=, value=10000}]}]}, {type=netUSDChange, changeCents=10000, operator=<=}],
         )
         """
 
-    def testRule(self):
-        """Test Rule"""
+    def testCreateEndUserEvmSwapRule(self):
+        """Test CreateEndUserEvmSwapRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

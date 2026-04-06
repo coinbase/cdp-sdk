@@ -18,33 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.onchain_data_column_schema import OnchainDataColumnSchema
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class OnchainDataTableSchema(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    Schema definition for a data table.
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('token')
-    def token_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
-        return value
+    database: Optional[StrictStr] = Field(default=None, description="The blockchain network database this table belongs to.")
+    table: Optional[StrictStr] = Field(default=None, description="Table name.")
+    columns: Optional[List[OnchainDataColumnSchema]] = Field(default=None, description="Column definitions for this table.")
+    __properties: ClassVar[List[str]] = ["database", "table", "columns"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -64,7 +51,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of OnchainDataTableSchema from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -85,11 +72,18 @@ class RequestSolanaFaucetRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in columns (list)
+        _items = []
+        if self.columns:
+            for _item_columns in self.columns:
+                if _item_columns:
+                    _items.append(_item_columns.to_dict())
+            _dict['columns'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of OnchainDataTableSchema from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +91,9 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "database": obj.get("database"),
+            "table": obj.get("table"),
+            "columns": [OnchainDataColumnSchema.from_dict(_item) for _item in obj["columns"]] if obj.get("columns") is not None else None
         })
         return _obj
 

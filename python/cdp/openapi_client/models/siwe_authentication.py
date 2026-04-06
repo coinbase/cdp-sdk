@@ -24,26 +24,19 @@ from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestSolanaFaucetRequest(BaseModel):
+class SiweAuthentication(BaseModel):
     """
-    RequestSolanaFaucetRequest
+    Information about an end user who authenticates using Sign In With Ethereum (EIP-4361).
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a base58-encoded string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["address", "token"]
+    type: StrictStr = Field(description="The type of authentication information.")
+    address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The ERC-55 checksummed Ethereum address of the end user.")
+    __properties: ClassVar[List[str]] = ["type", "address"]
 
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('token')
-    def token_validate_enum(cls, value):
+    @field_validator('type')
+    def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['sol', 'usdc', 'cbtusd']):
-            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
+        if value not in set(['siwe']):
+            raise ValueError("must be one of enum values ('siwe')")
         return value
 
     model_config = ConfigDict(
@@ -64,7 +57,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a JSON string"""
+        """Create an instance of SiweAuthentication from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -89,7 +82,7 @@ class RequestSolanaFaucetRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestSolanaFaucetRequest from a dict"""
+        """Create an instance of SiweAuthentication from a dict"""
         if obj is None:
             return None
 
@@ -97,8 +90,8 @@ class RequestSolanaFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "type": obj.get("type"),
+            "address": obj.get("address")
         })
         return _obj
 

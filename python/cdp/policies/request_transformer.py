@@ -1,3 +1,4 @@
+from cdp.openapi_client.models.create_end_user_evm_swap_rule import CreateEndUserEvmSwapRule
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_data_condition import EvmDataCondition as OpenAPIEvmDataCondition
@@ -587,6 +588,9 @@ openapi_criterion_mapping["sendEndUserEvmTransaction"] = openapi_criterion_mappi
     "sendEvmTransaction"
 ]
 openapi_criterion_mapping["signEndUserEvmMessage"] = openapi_criterion_mapping["signEvmMessage"]
+openapi_criterion_mapping["createEndUserEvmSwap"] = openapi_criterion_mapping[
+    "sendEvmTransaction"
+]
 openapi_criterion_mapping["signEndUserEvmTypedData"] = openapi_criterion_mapping["signEvmTypedData"]
 openapi_criterion_mapping["signEndUserSolTransaction"] = openapi_criterion_mapping[
     "signSolTransaction"
@@ -610,6 +614,7 @@ openapi_rule_mapping = {
     "sendUserOperation": SendUserOperationRule,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRule,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRule,
+    "createEndUserEvmSwap": CreateEndUserEvmSwapRule,
     "signEndUserEvmMessage": SignEndUserEvmMessageRule,
     "signEndUserEvmTypedData": SignEndUserEvmTypedDataRule,
     "signEndUserSolTransaction": SignEndUserSolTransactionRule,

@@ -2209,5 +2209,86 @@ describe("PoliciesClient", () => {
       expect(result).toEqual(mockPolicy);
       expect(createPolicyMock).toHaveBeenCalledWith(policyWithEvmNetwork, "idem-key");
     });
+
+    it("should permit valid createEndUserEvmSwap policies", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const validSwapPolicy = {
+        scope: "account" as const,
+        description: "Swap policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "createEndUserEvmSwap" as const,
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "1000000000000000000",
+                operator: "<=" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: validSwapPolicy,
+        idempotencyKey: "idem-key",
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(validSwapPolicy, "idem-key");
+    });
+
+    it("should create policies with createEndUserEvmSwap rules using all supported criteria", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const swapPolicyAllCriteria = {
+        scope: "account" as const,
+        description: "Swap all criteria",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "createEndUserEvmSwap" as const,
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "500000000000000000",
+                operator: "<=" as const,
+              },
+              {
+                type: "evmAddress" as const,
+                addresses: ["0x1234567890123456789012345678901234567890" as const],
+                operator: "in" as const,
+              },
+              {
+                type: "evmNetwork" as const,
+                networks: ["base", "base-sepolia"] as const,
+                operator: "in" as const,
+              },
+              {
+                type: "netUSDChange" as const,
+                changeCents: 10000,
+                operator: "<=" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: swapPolicyAllCriteria,
+        idempotencyKey: "idem-key",
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(swapPolicyAllCriteria, "idem-key");
+    });
   });
 });
