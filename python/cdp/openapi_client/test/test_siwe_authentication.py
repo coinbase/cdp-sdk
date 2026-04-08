@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
+from cdp.openapi_client.models.siwe_authentication import SiweAuthentication
 
-class TestX402SupportedPaymentKind(unittest.TestCase):
-    """X402SupportedPaymentKind unit test stubs"""
+class TestSiweAuthentication(unittest.TestCase):
+    """SiweAuthentication unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,31 +26,28 @@ class TestX402SupportedPaymentKind(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402SupportedPaymentKind:
-        """Test X402SupportedPaymentKind
+    def make_instance(self, include_optional) -> SiweAuthentication:
+        """Test SiweAuthentication
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402SupportedPaymentKind`
+        # uncomment below to create an instance of `SiweAuthentication`
         """
-        model = X402SupportedPaymentKind()
+        model = SiweAuthentication()
         if include_optional:
-            return X402SupportedPaymentKind(
-                x402_version = 2,
-                scheme = 'exact',
-                network = 'base',
-                extra = {feePayer=HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT}
+            return SiweAuthentication(
+                type = 'siwe',
+                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             )
         else:
-            return X402SupportedPaymentKind(
-                x402_version = 2,
-                scheme = 'exact',
-                network = 'base',
+            return SiweAuthentication(
+                type = 'siwe',
+                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
         )
         """
 
-    def testX402SupportedPaymentKind(self):
-        """Test X402SupportedPaymentKind"""
+    def testSiweAuthentication(self):
+        """Test SiweAuthentication"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

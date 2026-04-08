@@ -18,25 +18,31 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolanaTransactionRequest(BaseModel):
+class SignEndUserEvmHashRule(BaseModel):
     """
-    SendSolanaTransactionRequest
+    SignEndUserEvmHashRule
     """ # noqa: E501
-    network: StrictStr = Field(description="The Solana network to send the transaction to.")
-    transaction: StrictStr = Field(description="The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.")
-    use_cdp_sponsor: Optional[StrictBool] = Field(default=None, description="Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.", alias="useCdpSponsor")
-    __properties: ClassVar[List[str]] = ["network", "transaction", "useCdpSponsor"]
+    action: StrictStr = Field(description="Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.")
+    operation: StrictStr = Field(description="The operation to which the rule applies.")
+    __properties: ClassVar[List[str]] = ["action", "operation"]
 
-    @field_validator('network')
-    def network_validate_enum(cls, value):
+    @field_validator('action')
+    def action_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['solana', 'solana-devnet']):
-            raise ValueError("must be one of enum values ('solana', 'solana-devnet')")
+        if value not in set(['reject', 'accept']):
+            raise ValueError("must be one of enum values ('reject', 'accept')")
+        return value
+
+    @field_validator('operation')
+    def operation_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['signEndUserEvmHash']):
+            raise ValueError("must be one of enum values ('signEndUserEvmHash')")
         return value
 
     model_config = ConfigDict(
@@ -57,7 +63,7 @@ class SendSolanaTransactionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a JSON string"""
+        """Create an instance of SignEndUserEvmHashRule from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -82,7 +88,7 @@ class SendSolanaTransactionRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a dict"""
+        """Create an instance of SignEndUserEvmHashRule from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +96,8 @@ class SendSolanaTransactionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "transaction": obj.get("transaction"),
-            "useCdpSponsor": obj.get("useCdpSponsor")
+            "action": obj.get("action"),
+            "operation": obj.get("operation")
         })
         return _obj
 

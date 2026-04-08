@@ -375,6 +375,7 @@ class SolanaClient:
         network: str,
         transaction: str,
         idempotency_key: str | None = None,
+        use_cdp_sponsor: bool | None = None,
     ) -> str:
         """Send a Solana transaction.
 
@@ -382,6 +383,7 @@ class SolanaClient:
             network (str): The network to send the transaction to.
             transaction (str): The transaction to send.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
+            use_cdp_sponsor (bool, optional): Whether CDP should sponsor the transaction fees. Defaults to None.
 
         """
         track_action(
@@ -393,6 +395,7 @@ class SolanaClient:
                 transaction,
                 network,
                 idempotency_key,
+                use_cdp_sponsor,
             )
         except Exception as error:
             track_error(error, "send_transaction")

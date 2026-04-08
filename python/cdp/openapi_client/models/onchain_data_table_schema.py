@@ -18,26 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.onchain_data_column_schema import OnchainDataColumnSchema
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolanaTransactionRequest(BaseModel):
+class OnchainDataTableSchema(BaseModel):
     """
-    SendSolanaTransactionRequest
+    Schema definition for a data table.
     """ # noqa: E501
-    network: StrictStr = Field(description="The Solana network to send the transaction to.")
-    transaction: StrictStr = Field(description="The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.")
-    use_cdp_sponsor: Optional[StrictBool] = Field(default=None, description="Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.", alias="useCdpSponsor")
-    __properties: ClassVar[List[str]] = ["network", "transaction", "useCdpSponsor"]
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['solana', 'solana-devnet']):
-            raise ValueError("must be one of enum values ('solana', 'solana-devnet')")
-        return value
+    database: Optional[StrictStr] = Field(default=None, description="The blockchain network database this table belongs to.")
+    table: Optional[StrictStr] = Field(default=None, description="Table name.")
+    columns: Optional[List[OnchainDataColumnSchema]] = Field(default=None, description="Column definitions for this table.")
+    __properties: ClassVar[List[str]] = ["database", "table", "columns"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -57,7 +51,7 @@ class SendSolanaTransactionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a JSON string"""
+        """Create an instance of OnchainDataTableSchema from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -78,11 +72,18 @@ class SendSolanaTransactionRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in columns (list)
+        _items = []
+        if self.columns:
+            for _item_columns in self.columns:
+                if _item_columns:
+                    _items.append(_item_columns.to_dict())
+            _dict['columns'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a dict"""
+        """Create an instance of OnchainDataTableSchema from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +91,9 @@ class SendSolanaTransactionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "transaction": obj.get("transaction"),
-            "useCdpSponsor": obj.get("useCdpSponsor")
+            "database": obj.get("database"),
+            "table": obj.get("table"),
+            "columns": [OnchainDataColumnSchema.from_dict(_item) for _item in obj["columns"]] if obj.get("columns") is not None else None
         })
         return _obj
 

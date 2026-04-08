@@ -18,26 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolanaTransactionRequest(BaseModel):
+class WebhookEventResponseDetail(BaseModel):
     """
-    SendSolanaTransactionRequest
+    Details of the HTTP response received from the webhook target.
     """ # noqa: E501
-    network: StrictStr = Field(description="The Solana network to send the transaction to.")
-    transaction: StrictStr = Field(description="The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.")
-    use_cdp_sponsor: Optional[StrictBool] = Field(default=None, description="Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.", alias="useCdpSponsor")
-    __properties: ClassVar[List[str]] = ["network", "transaction", "useCdpSponsor"]
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['solana', 'solana-devnet']):
-            raise ValueError("must be one of enum values ('solana', 'solana-devnet')")
-        return value
+    http_code: Optional[StrictInt] = Field(default=None, description="HTTP status code returned by the webhook target.", alias="httpCode")
+    elapsed_time_ms: Optional[StrictInt] = Field(default=None, description="Round-trip time of the webhook delivery in milliseconds.", alias="elapsedTimeMs")
+    body: Optional[StrictStr] = Field(default=None, description="Response body returned by the webhook target.")
+    error_name: Optional[StrictStr] = Field(default=None, description="Error name if the delivery failed (e.g., timeout, connection_refused).", alias="errorName")
+    __properties: ClassVar[List[str]] = ["httpCode", "elapsedTimeMs", "body", "errorName"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -57,7 +51,7 @@ class SendSolanaTransactionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a JSON string"""
+        """Create an instance of WebhookEventResponseDetail from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -82,7 +76,7 @@ class SendSolanaTransactionRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a dict"""
+        """Create an instance of WebhookEventResponseDetail from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +84,10 @@ class SendSolanaTransactionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "transaction": obj.get("transaction"),
-            "useCdpSponsor": obj.get("useCdpSponsor")
+            "httpCode": obj.get("httpCode"),
+            "elapsedTimeMs": obj.get("elapsedTimeMs"),
+            "body": obj.get("body"),
+            "errorName": obj.get("errorName")
         })
         return _obj
 

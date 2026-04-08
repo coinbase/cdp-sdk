@@ -18,26 +18,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.webhook_event_response import WebhookEventResponse
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolanaTransactionRequest(BaseModel):
+class WebhookEventListResponse(BaseModel):
     """
-    SendSolanaTransactionRequest
+    Response containing a list of webhook event delivery attempts.
     """ # noqa: E501
-    network: StrictStr = Field(description="The Solana network to send the transaction to.")
-    transaction: StrictStr = Field(description="The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.")
-    use_cdp_sponsor: Optional[StrictBool] = Field(default=None, description="Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.", alias="useCdpSponsor")
-    __properties: ClassVar[List[str]] = ["network", "transaction", "useCdpSponsor"]
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['solana', 'solana-devnet']):
-            raise ValueError("must be one of enum values ('solana', 'solana-devnet')")
-        return value
+    events: List[WebhookEventResponse] = Field(description="The list of webhook event delivery attempts.")
+    __properties: ClassVar[List[str]] = ["events"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -57,7 +49,7 @@ class SendSolanaTransactionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a JSON string"""
+        """Create an instance of WebhookEventListResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -78,11 +70,18 @@ class SendSolanaTransactionRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in events (list)
+        _items = []
+        if self.events:
+            for _item_events in self.events:
+                if _item_events:
+                    _items.append(_item_events.to_dict())
+            _dict['events'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolanaTransactionRequest from a dict"""
+        """Create an instance of WebhookEventListResponse from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +89,7 @@ class SendSolanaTransactionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "transaction": obj.get("transaction"),
-            "useCdpSponsor": obj.get("useCdpSponsor")
+            "events": [WebhookEventResponse.from_dict(_item) for _item in obj["events"]] if obj.get("events") is not None else None
         })
         return _obj
 

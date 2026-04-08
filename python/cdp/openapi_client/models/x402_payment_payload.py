@@ -30,10 +30,10 @@ class X402PaymentPayload(BaseModel):
     """
     The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header. For EVM networks, smart account signatures can be longer than 65 bytes.
     """
-    # data type: X402V1PaymentPayload
-    oneof_schema_1_validator: Optional[X402V1PaymentPayload] = None
     # data type: X402V2PaymentPayload
-    oneof_schema_2_validator: Optional[X402V2PaymentPayload] = None
+    oneof_schema_1_validator: Optional[X402V2PaymentPayload] = None
+    # data type: X402V1PaymentPayload
+    oneof_schema_2_validator: Optional[X402V1PaymentPayload] = None
     actual_instance: Optional[Union[X402V1PaymentPayload, X402V2PaymentPayload]] = None
     one_of_schemas: Set[str] = { "X402V1PaymentPayload", "X402V2PaymentPayload" }
 
@@ -58,14 +58,14 @@ class X402PaymentPayload(BaseModel):
         instance = X402PaymentPayload.model_construct()
         error_messages = []
         match = 0
-        # validate data type: X402V1PaymentPayload
-        if not isinstance(v, X402V1PaymentPayload):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `X402V1PaymentPayload`")
-        else:
-            match += 1
         # validate data type: X402V2PaymentPayload
         if not isinstance(v, X402V2PaymentPayload):
             error_messages.append(f"Error! Input type `{type(v)}` is not `X402V2PaymentPayload`")
+        else:
+            match += 1
+        # validate data type: X402V1PaymentPayload
+        if not isinstance(v, X402V1PaymentPayload):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `X402V1PaymentPayload`")
         else:
             match += 1
         if match > 1:
@@ -88,15 +88,15 @@ class X402PaymentPayload(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into X402V1PaymentPayload
-        try:
-            instance.actual_instance = X402V1PaymentPayload.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
         # deserialize data into X402V2PaymentPayload
         try:
             instance.actual_instance = X402V2PaymentPayload.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into X402V1PaymentPayload
+        try:
+            instance.actual_instance = X402V1PaymentPayload.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))

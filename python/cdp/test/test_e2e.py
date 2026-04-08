@@ -1473,6 +1473,35 @@ async def test_solana_send_transaction(cdp_client, solana_account):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_solana_send_sponsored_transaction(cdp_client, solana_account):
+    """Test sending a fee-sponsored transaction."""
+    response = await cdp_client.solana.send_transaction(
+        network="solana-devnet",
+        transaction=_get_transaction(
+            solana_account.address, "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo", 10
+        ),
+        use_cdp_sponsor=True,
+    )
+    assert response is not None
+    assert response.transaction_signature is not None
+
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
+
+    last_valid_block_height = connection.get_latest_blockhash()
+    confirmation = connection.confirm_transaction(
+        tx_sig=Signature.from_string(response.transaction_signature),
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 @retry_on_failure()
 async def test_create_account_policy(cdp_client):
     """Test creating an account policy."""

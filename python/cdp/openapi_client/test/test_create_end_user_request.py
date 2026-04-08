@@ -37,7 +37,7 @@ class TestCreateEndUserRequest(unittest.TestCase):
         if include_optional:
             return CreateEndUserRequest(
                 user_id = 'e051beeb-7163-4527-a5b6-35e301529ff2',
-                authentication_methods = [{type=email, email=user@example.com}, {type=sms, phoneNumber=+12055555555}, {type=jwt, sub=e051beeb-7163-4527-a5b6-35e301529ff2, kid=NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg}, {type=google, sub=115346410074741490243, email=test.user@gmail.com}, {type=telegram, id=1223456, firstName=Satoshi, lastName=Nakamoto, photoUrl=https://image.url/profile.jpg, authDate=1770681412, username=satoshinakamoto}],
+                authentication_methods = [{type=email, email=user@example.com}, {type=sms, phoneNumber=+12055555555}, {type=jwt, sub=e051beeb-7163-4527-a5b6-35e301529ff2, kid=NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg}, {type=google, sub=115346410074741490243, email=test.user@gmail.com}, {type=telegram, id=1223456, firstName=Satoshi, lastName=Nakamoto, photoUrl=https://image.url/profile.jpg, authDate=1770681412, username=satoshinakamoto}, {type=siwe, address=0x742d35Cc6634C0532925a3b844Bc454e4438f44e}],
                 evm_account = cdp.openapi_client.models.create_end_user_request_evm_account.createEndUser_request_evmAccount(
                     create_smart_account = True, 
                     enable_spend_permissions = True, ),
@@ -46,7 +46,7 @@ class TestCreateEndUserRequest(unittest.TestCase):
             )
         else:
             return CreateEndUserRequest(
-                authentication_methods = [{type=email, email=user@example.com}, {type=sms, phoneNumber=+12055555555}, {type=jwt, sub=e051beeb-7163-4527-a5b6-35e301529ff2, kid=NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg}, {type=google, sub=115346410074741490243, email=test.user@gmail.com}, {type=telegram, id=1223456, firstName=Satoshi, lastName=Nakamoto, photoUrl=https://image.url/profile.jpg, authDate=1770681412, username=satoshinakamoto}],
+                authentication_methods = [{type=email, email=user@example.com}, {type=sms, phoneNumber=+12055555555}, {type=jwt, sub=e051beeb-7163-4527-a5b6-35e301529ff2, kid=NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg}, {type=google, sub=115346410074741490243, email=test.user@gmail.com}, {type=telegram, id=1223456, firstName=Satoshi, lastName=Nakamoto, photoUrl=https://image.url/profile.jpg, authDate=1770681412, username=satoshinakamoto}, {type=siwe, address=0x742d35Cc6634C0532925a3b844Bc454e4438f44e}],
         )
         """
 

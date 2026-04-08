@@ -37,30 +37,30 @@ class TestX402PaymentRequirements(unittest.TestCase):
         if include_optional:
             return X402PaymentRequirements(
                 scheme = 'exact',
-                network = 'eip155:1',
+                network = 'base',
+                asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                amount = '1000000',
+                pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                max_timeout_seconds = 10,
+                extra = {gasLimit=1000000},
                 max_amount_required = '1000000',
                 resource = 'https://api.example.com/premium/resource/123',
                 description = 'A description of the resource.',
                 mime_type = 'application/json',
-                output_schema = {data=string},
-                pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                max_timeout_seconds = 10,
-                asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                extra = {name=USDC, version=2},
-                amount = '1000000'
+                output_schema = {data=string}
             )
         else:
             return X402PaymentRequirements(
                 scheme = 'exact',
-                network = 'eip155:1',
+                network = 'base',
+                asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                amount = '1000000',
+                pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                max_timeout_seconds = 10,
                 max_amount_required = '1000000',
                 resource = 'https://api.example.com/premium/resource/123',
                 description = 'A description of the resource.',
                 mime_type = 'application/json',
-                pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                max_timeout_seconds = 10,
-                asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                amount = '1000000',
         )
         """
 

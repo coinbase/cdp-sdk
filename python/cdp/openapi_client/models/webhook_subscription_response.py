@@ -32,15 +32,16 @@ class WebhookSubscriptionResponse(BaseModel):
     Response containing webhook subscription details.
     """ # noqa: E501
     created_at: datetime = Field(description="When the subscription was created.", alias="createdAt")
+    updated_at: Optional[datetime] = Field(default=None, description="When the subscription was last updated.", alias="updatedAt")
     description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
+    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\", \"acceptance.payment_session\"). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     metadata: Optional[WebhookSubscriptionResponseMetadata] = None
     secret: StrictStr = Field(description="Secret for webhook signature validation.")
     subscription_id: StrictStr = Field(description="Unique identifier for the subscription.", alias="subscriptionId")
     target: WebhookTarget
     labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs. Present when subscription uses multi-label format. ")
-    __properties: ClassVar[List[str]] = ["createdAt", "description", "eventTypes", "isEnabled", "metadata", "secret", "subscriptionId", "target", "labels"]
+    __properties: ClassVar[List[str]] = ["createdAt", "updatedAt", "description", "eventTypes", "isEnabled", "metadata", "secret", "subscriptionId", "target", "labels"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -100,6 +101,7 @@ class WebhookSubscriptionResponse(BaseModel):
 
         _obj = cls.model_validate({
             "createdAt": obj.get("createdAt"),
+            "updatedAt": obj.get("updatedAt"),
             "description": obj.get("description"),
             "eventTypes": obj.get("eventTypes"),
             "isEnabled": obj.get("isEnabled"),
