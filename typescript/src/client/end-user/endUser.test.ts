@@ -37,22 +37,20 @@ vi.mock("../../openapi-client", () => {
       getEndUser: vi.fn(),
       importEndUser: vi.fn(),
       addEndUserEvmAccount: vi.fn(),
-      addEndUserEvmSmartAccount: vi.fn(),
-      addEndUserSolanaAccount: vi.fn(),
-      revokeDelegationForEndUser: vi.fn(),
-      signEvmHashWithEndUserAccount: vi.fn(),
-      signEvmTransactionWithEndUserAccount: vi.fn(),
-      signEvmMessageWithEndUserAccount: vi.fn(),
-      signEvmTypedDataWithEndUserAccount: vi.fn(),
-      sendEvmTransactionWithEndUserAccount: vi.fn(),
-      sendEvmAssetWithEndUserAccount: vi.fn(),
-      sendUserOperationWithEndUserAccount: vi.fn(),
-      createEvmEip7702DelegationWithEndUserAccount: vi.fn(),
-      signSolanaHashWithEndUserAccount: vi.fn(),
-      signSolanaMessageWithEndUserAccount: vi.fn(),
-      signSolanaTransactionWithEndUserAccount: vi.fn(),
-      sendSolanaTransactionWithEndUserAccount: vi.fn(),
-      sendSolanaAssetWithEndUserAccount: vi.fn(),
+      revokeDelegationForEndUserDelegation: vi.fn(),
+      signEvmHashWithEndUserAccountDelegation: vi.fn(),
+      signEvmTransactionWithEndUserAccountDelegation: vi.fn(),
+      signEvmMessageWithEndUserAccountDelegation: vi.fn(),
+      signEvmTypedDataWithEndUserAccountDelegation: vi.fn(),
+      sendEvmTransactionWithEndUserAccountDelegation: vi.fn(),
+      sendEvmAssetWithEndUserAccountDelegation: vi.fn(),
+      sendUserOperationWithEndUserAccountDelegation: vi.fn(),
+      createEvmEip7702DelegationWithEndUserAccountDelegation: vi.fn(),
+      signSolanaHashWithEndUserAccountDelegation: vi.fn(),
+      signSolanaMessageWithEndUserAccountDelegation: vi.fn(),
+      signSolanaTransactionWithEndUserAccountDelegation: vi.fn(),
+      sendSolanaTransactionWithEndUserAccountDelegation: vi.fn(),
+      sendSolanaAssetWithEndUserAccountDelegation: vi.fn(),
     },
   };
 });
@@ -677,17 +675,14 @@ describe("EndUserClient", () => {
     it("should revoke delegation for an end user", async () => {
       const options: RevokeDelegationForEndUserOptions = {
         userId: "test-user-id",
-      };
-      (
-        CdpOpenApiClient.revokeDelegationForEndUser as MockedFunction<
-          typeof CdpOpenApiClient.revokeDelegationForEndUser
+        CdpOpenApiClient.revokeDelegationForEndUserDelegation as MockedFunction<
+          typeof CdpOpenApiClient.revokeDelegationForEndUserDelegation
         >
       ).mockResolvedValue(undefined);
 
       await client.revokeDelegationForEndUser(options);
 
-      expect(CdpOpenApiClient.revokeDelegationForEndUser).toHaveBeenCalledWith(
-        testProjectId,
+      expect(CdpOpenApiClient.revokeDelegationForEndUserDelegation).toHaveBeenCalledWith(
         "test-user-id",
         {},
       );
@@ -697,10 +692,8 @@ describe("EndUserClient", () => {
       const options: RevokeDelegationForEndUserOptions = {
         userId: "test-user-id",
       };
-      const expectedError = new APIError(404, "not_found", "End user not found");
-      (
-        CdpOpenApiClient.revokeDelegationForEndUser as MockedFunction<
-          typeof CdpOpenApiClient.revokeDelegationForEndUser
+      CdpOpenApiClient.revokeDelegationForEndUserDelegation as MockedFunction<
+          typeof CdpOpenApiClient.revokeDelegationForEndUserDelegation
         >
       ).mockRejectedValue(expectedError);
 
@@ -796,10 +789,8 @@ describe("EndUserClient", () => {
     it("should call revokeDelegation on EndUserAccount", async () => {
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.revokeDelegationForEndUser as MockedFunction<
-          typeof CdpOpenApiClient.revokeDelegationForEndUser
+          CdpOpenApiClient.revokeDelegationForEndUserDelegation as MockedFunction<
+          typeof CdpOpenApiClient.revokeDelegationForEndUserDelegation
         >
       ).mockResolvedValue(undefined);
 
@@ -807,10 +798,7 @@ describe("EndUserClient", () => {
         authenticationMethods: [{ type: "email", email: "test@example.com" }],
       });
 
-      await endUser.revokeDelegation();
-
-      expect(CdpOpenApiClient.revokeDelegationForEndUser).toHaveBeenCalledWith(
-        testProjectId,
+      expect(CdpOpenApiClient.revokeDelegationForEndUserDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         {},
       );
@@ -822,10 +810,8 @@ describe("EndUserClient", () => {
   describe("signEvmHash", () => {
     const mockResult = { signature: "0xsig123" };
 
-    it("should sign an EVM hash on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signEvmHashWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmHashWithEndUserAccount
+    CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -833,10 +819,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         hash: "0xhash123",
         address: "0x123",
-      });
-
-      expect(CdpOpenApiClient.signEvmHashWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { hash: "0xhash123", address: "0x123" },
       );
@@ -844,10 +827,8 @@ describe("EndUserClient", () => {
     });
 
     it("should handle errors", async () => {
-      const expectedError = new APIError(400, "invalid_request", "Invalid hash");
-      (
-        CdpOpenApiClient.signEvmHashWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmHashWithEndUserAccount
+      CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation
         >
       ).mockRejectedValue(expectedError);
 
@@ -860,10 +841,8 @@ describe("EndUserClient", () => {
   describe("signEvmTransaction", () => {
     const mockResult = { signedTransaction: "0xsigned123" };
 
-    it("should sign an EVM transaction on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signEvmTransactionWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmTransactionWithEndUserAccount
+    CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -871,10 +850,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         address: "0x123",
         transaction: "0x02abc",
-      });
-
-      expect(CdpOpenApiClient.signEvmTransactionWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { address: "0x123", transaction: "0x02abc" },
       );
@@ -885,10 +861,8 @@ describe("EndUserClient", () => {
   describe("signEvmMessage", () => {
     const mockResult = { signature: "0xmsgsig" };
 
-    it("should sign an EVM message on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signEvmMessageWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmMessageWithEndUserAccount
+    CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -896,10 +870,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         address: "0x123",
         message: "Hello",
-      });
-
-      expect(CdpOpenApiClient.signEvmMessageWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { address: "0x123", message: "Hello" },
       );
@@ -916,10 +887,8 @@ describe("EndUserClient", () => {
       message: { value: 1 },
     };
 
-    it("should sign EVM typed data on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signEvmTypedDataWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmTypedDataWithEndUserAccount
+    CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -927,10 +896,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         address: "0x123",
         typedData: mockTypedData,
-      });
-
-      expect(CdpOpenApiClient.signEvmTypedDataWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { address: "0x123", typedData: mockTypedData },
       );
@@ -941,10 +907,8 @@ describe("EndUserClient", () => {
   describe("sendEvmTransaction", () => {
     const mockResult = { transactionHash: "0xtxhash" };
 
-    it("should send an EVM transaction on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.sendEvmTransactionWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendEvmTransactionWithEndUserAccount
+    CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -953,10 +917,7 @@ describe("EndUserClient", () => {
         address: "0x123",
         transaction: "0x02abc",
         network: "base-sepolia",
-      });
-
-      expect(CdpOpenApiClient.sendEvmTransactionWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         {
           address: "0x123",
@@ -971,10 +932,8 @@ describe("EndUserClient", () => {
   describe("sendEvmAsset", () => {
     const mockResult = { transactionHash: "0xassethash", userOpHash: null };
 
-    it("should send an EVM asset on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.sendEvmAssetWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendEvmAssetWithEndUserAccount
+    CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -984,10 +943,7 @@ describe("EndUserClient", () => {
         to: "0xrecipient",
         amount: "1000000",
         network: "base-sepolia",
-      });
-
-      expect(CdpOpenApiClient.sendEvmAssetWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         "0x123",
         "usdc",
@@ -1002,10 +958,8 @@ describe("EndUserClient", () => {
       expect(result).toEqual(mockResult);
     });
 
-    it("should pass custom asset parameter", async () => {
-      (
-        CdpOpenApiClient.sendEvmAssetWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendEvmAssetWithEndUserAccount
+    CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1017,10 +971,7 @@ describe("EndUserClient", () => {
         amount: "1000000",
         network: "base-sepolia",
         useCdpPaymaster: true,
-      });
-
-      expect(CdpOpenApiClient.sendEvmAssetWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         "0x123",
         "usdc",
@@ -1043,10 +994,8 @@ describe("EndUserClient", () => {
       status: "pending" as const,
     };
 
-    it("should send a user operation on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.sendUserOperationWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendUserOperationWithEndUserAccount
+    CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1058,10 +1007,7 @@ describe("EndUserClient", () => {
         network: "base-sepolia",
         calls,
         useCdpPaymaster: true,
-      });
-
-      expect(CdpOpenApiClient.sendUserOperationWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         "0xsmart",
         {
@@ -1079,10 +1025,8 @@ describe("EndUserClient", () => {
   describe("createEvmEip7702Delegation", () => {
     const mockResult = { delegationOperationId: "op-123" };
 
-    it("should create an EIP-7702 delegation on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount
+    CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1091,10 +1035,7 @@ describe("EndUserClient", () => {
         address: "0x123",
         network: "base-sepolia",
         enableSpendPermissions: true,
-      });
-
-      expect(CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         {
           address: "0x123",
@@ -1109,10 +1050,8 @@ describe("EndUserClient", () => {
   describe("signSolanaHash", () => {
     const mockResult = { signature: "solsig123" };
 
-    it("should sign a Solana hash on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signSolanaHashWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signSolanaHashWithEndUserAccount
+    CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1120,10 +1059,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         hash: "base64hash",
         address: "So1ana123",
-      });
-
-      expect(CdpOpenApiClient.signSolanaHashWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { hash: "base64hash", address: "So1ana123" },
       );
@@ -1134,10 +1070,8 @@ describe("EndUserClient", () => {
   describe("signSolanaMessage", () => {
     const mockResult = { signature: "solmsgsig" };
 
-    it("should sign a Solana message on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signSolanaMessageWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signSolanaMessageWithEndUserAccount
+    CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1145,10 +1079,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         address: "So1ana123",
         message: "base64msg",
-      });
-
-      expect(CdpOpenApiClient.signSolanaMessageWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { address: "So1ana123", message: "base64msg" },
       );
@@ -1159,10 +1090,8 @@ describe("EndUserClient", () => {
   describe("signSolanaTransaction", () => {
     const mockResult = { signedTransaction: "solsignedtx" };
 
-    it("should sign a Solana transaction on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.signSolanaTransactionWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signSolanaTransactionWithEndUserAccount
+    CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1170,10 +1099,7 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         address: "So1ana123",
         transaction: "base64tx",
-      });
-
-      expect(CdpOpenApiClient.signSolanaTransactionWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         { address: "So1ana123", transaction: "base64tx" },
       );
@@ -1184,10 +1110,8 @@ describe("EndUserClient", () => {
   describe("sendSolanaTransaction", () => {
     const mockResult = { transactionSignature: "soltxsig" };
 
-    it("should send a Solana transaction on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount
+    CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1196,10 +1120,7 @@ describe("EndUserClient", () => {
         address: "So1ana123",
         transaction: "base64tx",
         network: "solana-devnet",
-      });
-
-      expect(CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         {
           address: "So1ana123",
@@ -1214,10 +1135,8 @@ describe("EndUserClient", () => {
   describe("sendSolanaAsset", () => {
     const mockResult = { transactionSignature: "solassetsig" };
 
-    it("should send a Solana asset on behalf of an end user", async () => {
-      (
-        CdpOpenApiClient.sendSolanaAssetWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendSolanaAssetWithEndUserAccount
+    CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1227,10 +1146,7 @@ describe("EndUserClient", () => {
         to: "Recipient123",
         amount: "1000000",
         network: "solana-devnet",
-      });
-
-      expect(CdpOpenApiClient.sendSolanaAssetWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation).toHaveBeenCalledWith(
         "test-user-id",
         "So1ana123",
         "usdc",
@@ -1252,10 +1168,8 @@ describe("EndUserClient", () => {
       const mockResult = { signature: "0xsig" };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.signEvmHashWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmHashWithEndUserAccount
+          CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1263,10 +1177,7 @@ describe("EndUserClient", () => {
         authenticationMethods: [{ type: "email", email: "test@example.com" }],
       });
 
-      const result = await endUser.signEvmHash({ hash: "0xhash" });
-
-      expect(CdpOpenApiClient.signEvmHashWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+      expect(CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         { hash: "0xhash", address: "0x123" },
       );
@@ -1277,10 +1188,8 @@ describe("EndUserClient", () => {
       const mockResult = { signature: "0xsig" };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.signEvmHashWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signEvmHashWithEndUserAccount
+          CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1288,10 +1197,7 @@ describe("EndUserClient", () => {
         authenticationMethods: [{ type: "email", email: "test@example.com" }],
       });
 
-      await endUser.signEvmHash({ hash: "0xhash", address: "0xcustom" });
-
-      expect(CdpOpenApiClient.signEvmHashWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+      expect(CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         { hash: "0xhash", address: "0xcustom" },
       );
@@ -1323,10 +1229,8 @@ describe("EndUserClient", () => {
       };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.sendUserOperationWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendUserOperationWithEndUserAccount
+          CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1340,10 +1244,7 @@ describe("EndUserClient", () => {
         network: "base-sepolia",
         calls,
         useCdpPaymaster: true,
-      });
-
-      expect(CdpOpenApiClient.sendUserOperationWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         "0x123", // auto-picked from evmSmartAccountObjects[0]
         {
@@ -1383,10 +1284,8 @@ describe("EndUserClient", () => {
       const mockResult = { signature: "solsig" };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.signSolanaHashWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.signSolanaHashWithEndUserAccount
+          CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1394,10 +1293,7 @@ describe("EndUserClient", () => {
         authenticationMethods: [{ type: "email", email: "test@example.com" }],
       });
 
-      const result = await endUser.signSolanaHash({ hash: "base64hash" });
-
-      expect(CdpOpenApiClient.signSolanaHashWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+      expect(CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         { hash: "base64hash", address: "test123" },
       );
@@ -1427,10 +1323,8 @@ describe("EndUserClient", () => {
       const mockResult = { transactionHash: "0xhash", userOpHash: null };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.sendEvmAssetWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendEvmAssetWithEndUserAccount
+          CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1442,10 +1336,7 @@ describe("EndUserClient", () => {
         to: "0xrecipient",
         amount: "1000000",
         network: "base-sepolia",
-      });
-
-      expect(CdpOpenApiClient.sendEvmAssetWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         "0x123",
         "usdc",
@@ -1463,10 +1354,8 @@ describe("EndUserClient", () => {
       const mockResult = { transactionSignature: "solsig" };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.sendSolanaAssetWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.sendSolanaAssetWithEndUserAccount
+          CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1478,10 +1367,7 @@ describe("EndUserClient", () => {
         to: "Recipient",
         amount: "1000000",
         network: "solana-devnet",
-      });
-
-      expect(CdpOpenApiClient.sendSolanaAssetWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         "test123",
         "usdc",
@@ -1498,10 +1384,8 @@ describe("EndUserClient", () => {
       const mockResult = { delegationOperationId: "op-123" };
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-      ).mockResolvedValue(mockEndUser);
-      (
-        CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount as MockedFunction<
-          typeof CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount
+          CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation as MockedFunction<
+          typeof CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation
         >
       ).mockResolvedValue(mockResult);
 
@@ -1511,10 +1395,7 @@ describe("EndUserClient", () => {
 
       const result = await endUser.createEvmEip7702Delegation({
         network: "base-sepolia",
-      });
-
-      expect(CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount).toHaveBeenCalledWith(
-        testProjectId,
+        expect(CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         {
           address: "0x123",
@@ -1524,161 +1405,3 @@ describe("EndUserClient", () => {
       );
       expect(result).toEqual(mockResult);
     });
-  });
-
-  describe("requireProjectId", () => {
-    const expectedMessage =
-      "Missing required project ID for delegation operation. " +
-      "Set the CDP_PROJECT_ID environment variable or pass projectId to the CdpClient constructor.";
-
-    let clientWithoutProjectId: CDPEndUserClient;
-
-    beforeEach(() => {
-      clientWithoutProjectId = new CDPEndUserClient();
-    });
-
-    it("should throw UserInputValidationError for revokeDelegationForEndUser", async () => {
-      await expect(
-        clientWithoutProjectId.revokeDelegationForEndUser({ userId: "user-1" }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signEvmHash", async () => {
-      await expect(
-        clientWithoutProjectId.signEvmHash({
-          userId: "user-1",
-          hash: "0xhash",
-          address: "0x123",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signEvmTransaction", async () => {
-      await expect(
-        clientWithoutProjectId.signEvmTransaction({
-          userId: "user-1",
-          address: "0x123",
-          transaction: "0x02",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signEvmMessage", async () => {
-      await expect(
-        clientWithoutProjectId.signEvmMessage({
-          userId: "user-1",
-          address: "0x123",
-          message: "hello",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signEvmTypedData", async () => {
-      await expect(
-        clientWithoutProjectId.signEvmTypedData({
-          userId: "user-1",
-          address: "0x123",
-          typedData: {},
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for sendEvmTransaction", async () => {
-      await expect(
-        clientWithoutProjectId.sendEvmTransaction({
-          userId: "user-1",
-          address: "0x123",
-          transaction: "0x02",
-          network: "base-sepolia",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for sendEvmAsset", async () => {
-      await expect(
-        clientWithoutProjectId.sendEvmAsset({
-          userId: "user-1",
-          address: "0x123",
-          to: "0xrecipient",
-          amount: "1000000",
-          network: "base-sepolia",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for sendUserOperation", async () => {
-      await expect(
-        clientWithoutProjectId.sendUserOperation({
-          userId: "user-1",
-          address: "0xsmart",
-          network: "base-sepolia",
-          calls: [{ to: "0x", value: "0", data: "0x" }],
-          useCdpPaymaster: true,
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for createEvmEip7702Delegation", async () => {
-      await expect(
-        clientWithoutProjectId.createEvmEip7702Delegation({
-          userId: "user-1",
-          address: "0x123",
-          network: "base-sepolia",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signSolanaHash", async () => {
-      await expect(
-        clientWithoutProjectId.signSolanaHash({
-          userId: "user-1",
-          hash: "base64hash",
-          address: "So1ana123",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signSolanaMessage", async () => {
-      await expect(
-        clientWithoutProjectId.signSolanaMessage({
-          userId: "user-1",
-          address: "So1ana123",
-          message: "base64msg",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for signSolanaTransaction", async () => {
-      await expect(
-        clientWithoutProjectId.signSolanaTransaction({
-          userId: "user-1",
-          address: "So1ana123",
-          transaction: "base64tx",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for sendSolanaTransaction", async () => {
-      await expect(
-        clientWithoutProjectId.sendSolanaTransaction({
-          userId: "user-1",
-          address: "So1ana123",
-          transaction: "base64tx",
-          network: "solana-devnet",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-
-    it("should throw UserInputValidationError for sendSolanaAsset", async () => {
-      await expect(
-        clientWithoutProjectId.sendSolanaAsset({
-          userId: "user-1",
-          address: "So1ana123",
-          to: "Recipient",
-          amount: "1000000",
-          network: "solana-devnet",
-        }),
-      ).rejects.toThrow(new UserInputValidationError(expectedMessage));
-    });
-  });
-});

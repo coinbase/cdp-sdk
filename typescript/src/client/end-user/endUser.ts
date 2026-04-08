@@ -102,9 +102,7 @@ export class CDPEndUserClient {
     const endUser = await CdpOpenApiClient.createEndUser({
       ...options,
       userId,
-    });
-
-    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
+      return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -175,9 +173,7 @@ export class CDPEndUserClient {
 
     const { userId } = options;
 
-    const endUser = await CdpOpenApiClient.getEndUser(userId);
-
-    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -293,9 +289,7 @@ export class CDPEndUserClient {
       action: "revoke_delegation_for_end_user",
     });
 
-    const { userId } = options;
-
-    await CdpOpenApiClient.revokeDelegationForEndUser(this.requireProjectId(), userId, {});
+    await CdpOpenApiClient.revokeDelegationForEndUserDelegation(userId, {});
   }
 
   // ─── Delegated EVM Sign Methods ───
@@ -319,9 +313,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmHash(options: SignEvmHashOptions): Promise<SignEvmHashResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_hash" });
-
-    return CdpOpenApiClient.signEvmHashWithEndUserAccount(this.requireProjectId(), options.userId, {
+    return CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation(options.userId, {
       hash: options.hash,
       address: options.address,
     });
@@ -345,10 +337,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmTransaction(options: SignEvmTransactionOptions): Promise<SignEvmTransactionResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
-
-    return CdpOpenApiClient.signEvmTransactionWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -375,10 +364,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmMessage(options: SignEvmMessageOptions): Promise<SignEvmMessageResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_message" });
-
-    return CdpOpenApiClient.signEvmMessageWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -405,10 +391,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmTypedData(options: SignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
-
-    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -438,10 +421,7 @@ export class CDPEndUserClient {
    * ```
    */
   async sendEvmTransaction(options: SendEvmTransactionOptions): Promise<SendEvmTransactionResult> {
-    Analytics.trackAction({ action: "end_user_send_evm_transaction" });
-
-    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -473,10 +453,7 @@ export class CDPEndUserClient {
   async sendEvmAsset(options: SendEvmAssetOptions): Promise<SendEvmAssetResult> {
     Analytics.trackAction({ action: "end_user_send_evm_asset" });
 
-    const asset = options.asset ?? "usdc";
-
-    return CdpOpenApiClient.sendEvmAssetWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation(
       options.userId,
       options.address,
       asset,
@@ -509,10 +486,7 @@ export class CDPEndUserClient {
    * ```
    */
   async sendUserOperation(options: SendUserOperationOptions): Promise<SendUserOperationResult> {
-    Analytics.trackAction({ action: "end_user_send_user_operation" });
-
-    return CdpOpenApiClient.sendUserOperationWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation(
       options.userId,
       options.address,
       {
@@ -547,10 +521,7 @@ export class CDPEndUserClient {
   async createEvmEip7702Delegation(
     options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
-    Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
-
-    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -580,10 +551,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_hash" });
-
-    return CdpOpenApiClient.signSolanaHashWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation(
       options.userId,
       {
         hash: options.hash,
@@ -610,10 +578,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signSolanaMessage(options: SignSolanaMessageOptions): Promise<SignSolanaMessageResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_message" });
-
-    return CdpOpenApiClient.signSolanaMessageWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -642,10 +607,7 @@ export class CDPEndUserClient {
   async signSolanaTransaction(
     options: SignSolanaTransactionOptions,
   ): Promise<SignSolanaTransactionResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
-
-    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -677,10 +639,7 @@ export class CDPEndUserClient {
   async sendSolanaTransaction(
     options: SendSolanaTransactionOptions,
   ): Promise<SendSolanaTransactionResult> {
-    Analytics.trackAction({ action: "end_user_send_solana_transaction" });
-
-    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation(
       options.userId,
       {
         address: options.address,
@@ -712,10 +671,7 @@ export class CDPEndUserClient {
   async sendSolanaAsset(options: SendSolanaAssetOptions): Promise<SendSolanaAssetResult> {
     Analytics.trackAction({ action: "end_user_send_solana_asset" });
 
-    const asset = options.asset ?? "usdc";
-
-    return CdpOpenApiClient.sendSolanaAssetWithEndUserAccount(
-      this.requireProjectId(),
+    return CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation(
       options.userId,
       options.address,
       asset,
@@ -744,9 +700,7 @@ export class CDPEndUserClient {
 
     const endUser = await CdpOpenApiClient.validateEndUserAccessToken({
       accessToken,
-    });
-
-    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
+      return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -833,24 +787,6 @@ export class CDPEndUserClient {
       authenticationMethods: options.authenticationMethods,
       encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
       keyType: options.keyType,
-    });
-
-    return toEndUserAccount(CdpOpenApiClient, { endUser, projectId: this.projectId });
-  }
-
-  /**
-   * Returns the configured project ID or throws if not configured.
-   *
-   * @returns The project ID.
-   */
-  private requireProjectId(): string {
-    if (!this.projectId) {
-      throw new UserInputValidationError(
-        "Missing required project ID for delegation operation. " +
-          "Set the CDP_PROJECT_ID environment variable or pass projectId to the CdpClient constructor.",
-      );
-    }
-
-    return this.projectId;
+      return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 }
