@@ -138,7 +138,9 @@ export function toEndUserAccount(
       return apiClient.addEndUserSolanaAccount(endUser.userId, {});
     },
 
-    await apiClient.revokeDelegationForEndUserDelegation(endUser.userId, {});
+    async revokeDelegation(): Promise<void> {
+      Analytics.trackAction({ action: "end_user_revoke_delegation" });
+      await apiClient.revokeDelegation(endUser.userId, {});
     },
 
     // ─── Delegated EVM Sign Methods ───

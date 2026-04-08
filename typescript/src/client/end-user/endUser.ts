@@ -53,16 +53,6 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
  * The CDP end user client.
  */
 export class CDPEndUserClient {
-  private projectId?: string;
-
-  /**
-   * Creates a new CDPEndUserClient.
-   *
-   * @param projectId - The CDP project ID. Required for delegation operations (signing, sending).
-   */
-  constructor(projectId?: string) {
-    this.projectId = projectId;
-  }
 
   /**
    * Creates an end user. An end user is an entity that can own CDP EVM accounts,
@@ -289,7 +279,9 @@ export class CDPEndUserClient {
       action: "revoke_delegation_for_end_user",
     });
 
-    await CdpOpenApiClient.revokeDelegationForEndUserDelegation(userId, {});
+    const { userId } = options;
+
+    await CdpOpenApiClient.revokeDelegation(userId, {});
   }
 
   // ─── Delegated EVM Sign Methods ───
@@ -337,13 +329,12 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmTransaction(options: SignEvmTransactionOptions): Promise<SignEvmTransactionResult> {
-    return CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        transaction: options.transaction,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
+
+    return CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      transaction: options.transaction,
+    });
   }
 
   /**
@@ -364,13 +355,12 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmMessage(options: SignEvmMessageOptions): Promise<SignEvmMessageResult> {
-    return CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        message: options.message,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_sign_evm_message" });
+
+    return CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      message: options.message,
+    });
   }
 
   /**
@@ -391,13 +381,12 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmTypedData(options: SignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
-    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        typedData: options.typedData,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
+
+    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      typedData: options.typedData,
+    });
   }
 
   // ─── Delegated EVM Send Methods ───
@@ -421,14 +410,13 @@ export class CDPEndUserClient {
    * ```
    */
   async sendEvmTransaction(options: SendEvmTransactionOptions): Promise<SendEvmTransactionResult> {
-    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        transaction: options.transaction,
-        network: options.network,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_send_evm_transaction" });
+
+    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      transaction: options.transaction,
+      network: options.network,
+    });
   }
 
   /**
@@ -521,14 +509,13 @@ export class CDPEndUserClient {
   async createEvmEip7702Delegation(
     options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
-    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        network: options.network,
-        enableSpendPermissions: options.enableSpendPermissions,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
+
+    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      network: options.network,
+      enableSpendPermissions: options.enableSpendPermissions,
+    });
   }
 
   // ─── Delegated Solana Sign Methods ───
@@ -551,13 +538,12 @@ export class CDPEndUserClient {
    * ```
    */
   async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
-    return CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation(
-      options.userId,
-      {
-        hash: options.hash,
-        address: options.address,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_sign_solana_hash" });
+
+    return CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation(options.userId, {
+      hash: options.hash,
+      address: options.address,
+    });
   }
 
   /**
@@ -578,13 +564,12 @@ export class CDPEndUserClient {
    * ```
    */
   async signSolanaMessage(options: SignSolanaMessageOptions): Promise<SignSolanaMessageResult> {
-    return CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        message: options.message,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_sign_solana_message" });
+
+    return CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      message: options.message,
+    });
   }
 
   /**
@@ -607,13 +592,12 @@ export class CDPEndUserClient {
   async signSolanaTransaction(
     options: SignSolanaTransactionOptions,
   ): Promise<SignSolanaTransactionResult> {
-    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        transaction: options.transaction,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
+
+    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      transaction: options.transaction,
+    });
   }
 
   // ─── Delegated Solana Send Methods ───
@@ -639,14 +623,13 @@ export class CDPEndUserClient {
   async sendSolanaTransaction(
     options: SendSolanaTransactionOptions,
   ): Promise<SendSolanaTransactionResult> {
-    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation(
-      options.userId,
-      {
-        address: options.address,
-        transaction: options.transaction,
-        network: options.network,
-      },
-    );
+    Analytics.trackAction({ action: "end_user_send_solana_transaction" });
+
+    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation(options.userId, {
+      address: options.address,
+      transaction: options.transaction,
+      network: options.network,
+    });
   }
 
   /**

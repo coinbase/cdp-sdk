@@ -4298,6 +4298,22 @@ Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/i
 export type IdempotencyKeyParameter = string;
 
 /**
+ * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+[Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+section of our Authentication docs for more details on how to generate your Wallet Token.
+
+ */
+export type XWalletAuthOptionalParameter = string;
+
+/**
+ * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+[Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+section of our Authentication docs for more details on how to generate your Wallet Token.
+
+ */
+export type XDeveloperAuthParameter = string;
+
+/**
  * The number of resources to return per page.
  */
 export type PageSizeParameter = number;
@@ -4424,7 +4440,17 @@ export type ImportEndUserBody = {
   encryptedPrivateKey: string;
   /** The type of key being imported. Determines what type of account will be associated for the end user. */
   keyType: ImportEndUserBodyKeyType;
-  export type SignEvmHashWithEndUserAccountDelegationBody = {
+};
+
+export type RevokeDelegationBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
+export type SignEvmHashWithEndUserAccountDelegationBody = {
   /** The arbitrary 32 byte hash to sign. */
   hash: string;
   /**
@@ -4776,14 +4802,6 @@ export type SendSolanaAssetWithEndUserAccountDelegationBody = {
 export type SendSolanaAssetWithEndUserAccountDelegation200 = {
   /** The base58 encoded transaction signature. */
   transactionSignature: string;
-};
-
-export type RevokeDelegationForEndUserDelegationBody = {
-  /**
-   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
-   */
-  walletSecretId?: string;
 };
 
 export type ListEvmAccountsParams = {

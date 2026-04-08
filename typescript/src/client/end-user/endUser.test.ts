@@ -76,13 +76,11 @@ describe("EndUserClient", () => {
     createdAt: "2024-01-01T00:00:00Z",
   };
 
-  const testProjectId = "test-project-id";
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockRandomUUID.mockReturnValue("generated-uuid");
     mockPublicEncrypt.mockReturnValue(Buffer.from("encrypted-private-key"));
-    client = new CDPEndUserClient(testProjectId);
+    client = new CDPEndUserClient();
   });
 
   describe("createEndUser", () => {
@@ -675,14 +673,16 @@ describe("EndUserClient", () => {
     it("should revoke delegation for an end user", async () => {
       const options: RevokeDelegationForEndUserOptions = {
         userId: "test-user-id",
-        CdpOpenApiClient.revokeDelegationForEndUserDelegation as MockedFunction<
-          typeof CdpOpenApiClient.revokeDelegationForEndUserDelegation
+      };
+      (
+        CdpOpenApiClient.revokeDelegation as MockedFunction<
+          typeof CdpOpenApiClient.revokeDelegation
         >
       ).mockResolvedValue(undefined);
 
       await client.revokeDelegationForEndUser(options);
 
-      expect(CdpOpenApiClient.revokeDelegationForEndUserDelegation).toHaveBeenCalledWith(
+      expect(CdpOpenApiClient.revokeDelegation).toHaveBeenCalledWith(
         "test-user-id",
         {},
       );
@@ -692,8 +692,10 @@ describe("EndUserClient", () => {
       const options: RevokeDelegationForEndUserOptions = {
         userId: "test-user-id",
       };
-      CdpOpenApiClient.revokeDelegationForEndUserDelegation as MockedFunction<
-          typeof CdpOpenApiClient.revokeDelegationForEndUserDelegation
+      const expectedError = new APIError(404, "not_found", "End user not found");
+      (
+        CdpOpenApiClient.revokeDelegation as MockedFunction<
+          typeof CdpOpenApiClient.revokeDelegation
         >
       ).mockRejectedValue(expectedError);
 
@@ -789,8 +791,10 @@ describe("EndUserClient", () => {
     it("should call revokeDelegation on EndUserAccount", async () => {
       (
         CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
-          CdpOpenApiClient.revokeDelegationForEndUserDelegation as MockedFunction<
-          typeof CdpOpenApiClient.revokeDelegationForEndUserDelegation
+      ).mockResolvedValue(mockEndUser);
+      (
+        CdpOpenApiClient.revokeDelegation as MockedFunction<
+          typeof CdpOpenApiClient.revokeDelegation
         >
       ).mockResolvedValue(undefined);
 
@@ -798,7 +802,9 @@ describe("EndUserClient", () => {
         authenticationMethods: [{ type: "email", email: "test@example.com" }],
       });
 
-      expect(CdpOpenApiClient.revokeDelegationForEndUserDelegation).toHaveBeenCalledWith(
+      await endUser.revokeDelegation();
+
+      expect(CdpOpenApiClient.revokeDelegation).toHaveBeenCalledWith(
         mockEndUser.userId,
         {},
       );
@@ -1035,14 +1041,15 @@ describe("EndUserClient", () => {
         address: "0x123",
         network: "base-sepolia",
         enableSpendPermissions: true,
-        expect(CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation).toHaveBeenCalledWith(
-        "test-user-id",
-        {
-          address: "0x123",
-          network: "base-sepolia",
-          enableSpendPermissions: true,
-        },
-      );
+      });
+
+      expect(
+        CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation,
+      ).toHaveBeenCalledWith("test-user-id", {
+        address: "0x123",
+        network: "base-sepolia",
+        enableSpendPermissions: true,
+      });
       expect(result).toEqual(mockResult);
     });
   });
@@ -1099,10 +1106,11 @@ describe("EndUserClient", () => {
         userId: "test-user-id",
         address: "So1ana123",
         transaction: "base64tx",
-        expect(CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation).toHaveBeenCalledWith(
-        "test-user-id",
-        { address: "So1ana123", transaction: "base64tx" },
-      );
+      });
+
+      expect(
+        CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation,
+      ).toHaveBeenCalledWith("test-user-id", { address: "So1ana123", transaction: "base64tx" });
       expect(result).toEqual(mockResult);
     });
   });
@@ -1120,14 +1128,15 @@ describe("EndUserClient", () => {
         address: "So1ana123",
         transaction: "base64tx",
         network: "solana-devnet",
-        expect(CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation).toHaveBeenCalledWith(
-        "test-user-id",
-        {
-          address: "So1ana123",
-          transaction: "base64tx",
-          network: "solana-devnet",
-        },
-      );
+      });
+
+      expect(
+        CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation,
+      ).toHaveBeenCalledWith("test-user-id", {
+        address: "So1ana123",
+        transaction: "base64tx",
+        network: "solana-devnet",
+      });
       expect(result).toEqual(mockResult);
     });
   });
@@ -1395,13 +1404,16 @@ describe("EndUserClient", () => {
 
       const result = await endUser.createEvmEip7702Delegation({
         network: "base-sepolia",
-        expect(CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation).toHaveBeenCalledWith(
-        mockEndUser.userId,
-        {
-          address: "0x123",
-          network: "base-sepolia",
-          enableSpendPermissions: undefined,
-        },
-      );
+      });
+
+      expect(
+        CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation,
+      ).toHaveBeenCalledWith(mockEndUser.userId, {
+        address: "0x123",
+        network: "base-sepolia",
+        enableSpendPermissions: undefined,
+      });
       expect(result).toEqual(mockResult);
     });
+  });
+});
