@@ -434,6 +434,16 @@ console.log(
 );
 ```
 
+To have CDP sponsor the transaction fees, pass `useCdpSponsor: true`. When enabled, CDP pays the network fee so the sender does not need SOL for fees.
+
+```typescript
+const txResult = await cdp.solana.sendTransaction({
+  network: "solana-devnet",
+  transaction: serializedTx,
+  useCdpSponsor: true,
+});
+```
+
 ### EIP-7702 delegation
 
 You can create an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) delegation for an existing EOA, upgrading it with smart account capabilities on supported networks. The delegated EOA can then use batched transactions and gas sponsorship via paymaster.

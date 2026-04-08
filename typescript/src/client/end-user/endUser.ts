@@ -49,6 +49,10 @@ import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { UserInputValidationError } from "../../errors.js";
 import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/index.js";
 
+// TODO: Remove cast when embedded-wallets-core-functionality endpoints return
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const EWClient = CdpOpenApiClient as any;
+
 /**
  * The CDP end user client.
  */
@@ -295,7 +299,7 @@ export class CDPEndUserClient {
 
     const { userId } = options;
 
-    await CdpOpenApiClient.revokeDelegationForEndUser(this.requireProjectId(), userId, {});
+    await EWClient.revokeDelegationForEndUser(this.requireProjectId(), userId, {});
   }
 
   // ─── Delegated EVM Sign Methods ───
@@ -321,7 +325,7 @@ export class CDPEndUserClient {
   async signEvmHash(options: SignEvmHashOptions): Promise<SignEvmHashResult> {
     Analytics.trackAction({ action: "end_user_sign_evm_hash" });
 
-    return CdpOpenApiClient.signEvmHashWithEndUserAccount(this.requireProjectId(), options.userId, {
+    return EWClient.signEvmHashWithEndUserAccount(this.requireProjectId(), options.userId, {
       hash: options.hash,
       address: options.address,
     });
@@ -347,14 +351,10 @@ export class CDPEndUserClient {
   async signEvmTransaction(options: SignEvmTransactionOptions): Promise<SignEvmTransactionResult> {
     Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
 
-    return CdpOpenApiClient.signEvmTransactionWithEndUserAccount(
-      this.requireProjectId(),
-      options.userId,
-      {
-        address: options.address,
-        transaction: options.transaction,
-      },
-    );
+    return EWClient.signEvmTransactionWithEndUserAccount(this.requireProjectId(), options.userId, {
+      address: options.address,
+      transaction: options.transaction,
+    });
   }
 
   /**
@@ -377,14 +377,10 @@ export class CDPEndUserClient {
   async signEvmMessage(options: SignEvmMessageOptions): Promise<SignEvmMessageResult> {
     Analytics.trackAction({ action: "end_user_sign_evm_message" });
 
-    return CdpOpenApiClient.signEvmMessageWithEndUserAccount(
-      this.requireProjectId(),
-      options.userId,
-      {
-        address: options.address,
-        message: options.message,
-      },
-    );
+    return EWClient.signEvmMessageWithEndUserAccount(this.requireProjectId(), options.userId, {
+      address: options.address,
+      message: options.message,
+    });
   }
 
   /**
@@ -407,14 +403,10 @@ export class CDPEndUserClient {
   async signEvmTypedData(options: SignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
     Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
 
-    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccount(
-      this.requireProjectId(),
-      options.userId,
-      {
-        address: options.address,
-        typedData: options.typedData,
-      },
-    );
+    return EWClient.signEvmTypedDataWithEndUserAccount(this.requireProjectId(), options.userId, {
+      address: options.address,
+      typedData: options.typedData,
+    });
   }
 
   // ─── Delegated EVM Send Methods ───
@@ -440,15 +432,11 @@ export class CDPEndUserClient {
   async sendEvmTransaction(options: SendEvmTransactionOptions): Promise<SendEvmTransactionResult> {
     Analytics.trackAction({ action: "end_user_send_evm_transaction" });
 
-    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccount(
-      this.requireProjectId(),
-      options.userId,
-      {
-        address: options.address,
-        transaction: options.transaction,
-        network: options.network,
-      },
-    );
+    return EWClient.sendEvmTransactionWithEndUserAccount(this.requireProjectId(), options.userId, {
+      address: options.address,
+      transaction: options.transaction,
+      network: options.network,
+    });
   }
 
   /**
@@ -475,7 +463,7 @@ export class CDPEndUserClient {
 
     const asset = options.asset ?? "usdc";
 
-    return CdpOpenApiClient.sendEvmAssetWithEndUserAccount(
+    return EWClient.sendEvmAssetWithEndUserAccount(
       this.requireProjectId(),
       options.userId,
       options.address,
@@ -511,7 +499,7 @@ export class CDPEndUserClient {
   async sendUserOperation(options: SendUserOperationOptions): Promise<SendUserOperationResult> {
     Analytics.trackAction({ action: "end_user_send_user_operation" });
 
-    return CdpOpenApiClient.sendUserOperationWithEndUserAccount(
+    return EWClient.sendUserOperationWithEndUserAccount(
       this.requireProjectId(),
       options.userId,
       options.address,
@@ -549,7 +537,7 @@ export class CDPEndUserClient {
   ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
     Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
 
-    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount(
+    return EWClient.createEvmEip7702DelegationWithEndUserAccount(
       this.requireProjectId(),
       options.userId,
       {
@@ -582,14 +570,10 @@ export class CDPEndUserClient {
   async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
     Analytics.trackAction({ action: "end_user_sign_solana_hash" });
 
-    return CdpOpenApiClient.signSolanaHashWithEndUserAccount(
-      this.requireProjectId(),
-      options.userId,
-      {
-        hash: options.hash,
-        address: options.address,
-      },
-    );
+    return EWClient.signSolanaHashWithEndUserAccount(this.requireProjectId(), options.userId, {
+      hash: options.hash,
+      address: options.address,
+    });
   }
 
   /**
@@ -612,14 +596,10 @@ export class CDPEndUserClient {
   async signSolanaMessage(options: SignSolanaMessageOptions): Promise<SignSolanaMessageResult> {
     Analytics.trackAction({ action: "end_user_sign_solana_message" });
 
-    return CdpOpenApiClient.signSolanaMessageWithEndUserAccount(
-      this.requireProjectId(),
-      options.userId,
-      {
-        address: options.address,
-        message: options.message,
-      },
-    );
+    return EWClient.signSolanaMessageWithEndUserAccount(this.requireProjectId(), options.userId, {
+      address: options.address,
+      message: options.message,
+    });
   }
 
   /**
@@ -644,7 +624,7 @@ export class CDPEndUserClient {
   ): Promise<SignSolanaTransactionResult> {
     Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
 
-    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccount(
+    return EWClient.signSolanaTransactionWithEndUserAccount(
       this.requireProjectId(),
       options.userId,
       {
@@ -679,7 +659,7 @@ export class CDPEndUserClient {
   ): Promise<SendSolanaTransactionResult> {
     Analytics.trackAction({ action: "end_user_send_solana_transaction" });
 
-    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount(
+    return EWClient.sendSolanaTransactionWithEndUserAccount(
       this.requireProjectId(),
       options.userId,
       {
@@ -714,7 +694,7 @@ export class CDPEndUserClient {
 
     const asset = options.asset ?? "usdc";
 
-    return CdpOpenApiClient.sendSolanaAssetWithEndUserAccount(
+    return EWClient.sendSolanaAssetWithEndUserAccount(
       this.requireProjectId(),
       options.userId,
       options.address,

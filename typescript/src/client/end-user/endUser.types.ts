@@ -7,29 +7,44 @@ import type {
   AddEndUserEvmSmartAccount201,
   AddEndUserSolanaAccount201,
   EndUser as OpenAPIEndUser,
-  SignEvmHashWithEndUserAccount200,
-  SignEvmTransactionWithEndUserAccount200,
-  SignEvmMessageWithEndUserAccount200,
-  SignEvmTypedDataWithEndUserAccount200,
-  SendEvmTransactionWithEndUserAccount200,
-  SendEvmTransactionWithEndUserAccountBodyNetwork,
-  SendEvmAssetWithEndUserAccount200,
-  SendEvmAssetWithEndUserAccountBodyNetwork,
-  SendUserOperationWithEndUserAccountResult,
   EvmUserOperationNetwork,
   EvmCall,
-  CreateEvmEip7702DelegationWithEndUserAccount201,
   EvmEip7702DelegationNetwork,
-  SignSolanaHashWithEndUserAccount200,
-  SignSolanaMessageWithEndUserAccount200,
-  SignSolanaTransactionWithEndUserAccount200,
-  SendSolanaTransactionWithEndUserAccount200,
-  SendSolanaTransactionWithEndUserAccountBodyNetwork,
-  SendSolanaAssetWithEndUserAccount200,
-  SendSolanaAssetWithEndUserAccountBodyNetwork,
   EIP712Message,
 } from "../../openapi-client/index.js";
 import type { Prettify } from "../../types/utils.js";
+
+// TODO: restore these imports from embedded-wallets-core-functionality when endpoints return
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignEvmHashWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignEvmTransactionWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignEvmMessageWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignEvmTypedDataWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SendEvmTransactionWithEndUserAccount200 = Record<string, any>;
+type SendEvmTransactionWithEndUserAccountBodyNetwork = string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SendEvmAssetWithEndUserAccount200 = Record<string, any>;
+type SendEvmAssetWithEndUserAccountBodyNetwork = string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SendUserOperationWithEndUserAccountResult = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CreateEvmEip7702DelegationWithEndUserAccount201 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignSolanaHashWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignSolanaMessageWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SignSolanaTransactionWithEndUserAccount200 = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SendSolanaTransactionWithEndUserAccount200 = Record<string, any>;
+type SendSolanaTransactionWithEndUserAccountBodyNetwork = string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SendSolanaAssetWithEndUserAccount200 = Record<string, any>;
+type SendSolanaAssetWithEndUserAccountBodyNetwork = string;
 
 /**
  * The options for validating an access token.
