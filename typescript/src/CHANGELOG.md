@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.47.0
+
+### Minor Changes
+
+- [#645](https://github.com/coinbase/cdp-sdk/pull/645) [`413b179`](https://github.com/coinbase/cdp-sdk/commit/413b179ff853f2786c5a5ab8f421eb09b035c9e7) Thanks [@sddioulde](https://github.com/sddioulde)! - Added solana fee sponsorship
+
 ## [1.46.1] - 2026-03-30
 
 ### Security fix
