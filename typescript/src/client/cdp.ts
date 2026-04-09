@@ -5,6 +5,7 @@ import { CDPEndUserClient } from "./end-user/endUser.js";
 import { EvmClient } from "./evm/evm.js";
 import { PoliciesClient } from "./policies/policies.js";
 import { SolanaClient } from "./solana/solana.js";
+import { WebhooksClient } from "./webhooks/webhooks.js";
 
 export interface CdpClientOptions {
   /** The API key ID. */
@@ -36,6 +37,9 @@ export class CdpClient {
 
   /** Namespace containing all end user methods. */
   public endUser: CDPEndUserClient;
+
+  /** Namespace containing all webhook methods. */
+  public webhooks: WebhooksClient;
 
   /**
    * The CdpClient is the main class for interacting with the CDP API.
@@ -141,5 +145,6 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
     this.solana = new SolanaClient();
     this.policies = new PoliciesClient();
     this.endUser = new CDPEndUserClient(projectId);
+    this.webhooks = new WebhooksClient();
   }
 }

@@ -51,4 +51,10 @@ export {
   SPEND_PERMISSION_MANAGER_ADDRESS as spendPermissionManagerAddress,
 } from "./spend-permissions/constants.js";
 
+export type {
+  CreateWebhookSubscriptionOptions,
+  CreateWebhookSubscriptionResult,
+  WebhookEventType,
+} from "./actions/webhooks/index.js";
+
 export { parseEther, parseUnits } from "viem";
