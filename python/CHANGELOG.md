@@ -2,6 +2,21 @@
 
 <!-- towncrier release notes start -->
 
+## [1.41.0] - 2026-04-09
+
+### Features
+
+- Added solana fee sponsorship ([#646](https://github.com/coinbase/cdp-sdk/pull/646))
+
+### Bugfixes
+
+- Added EIP-6492 signature wrapping for undeployed smart accounts ([#623](https://github.com/coinbase/cdp-sdk/pull/623))
+
+### Misc
+
+- [#622](https://github.com/coinbase/cdp-sdk/pull/622)
+
+
 ## [1.40.0] - 2026-03-06
 
 ### Features
