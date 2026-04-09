@@ -28,6 +28,8 @@
   - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
   - [Add Solana Account to End User](#add-solana-account-to-end-user)
   - [Validate Access Token](#validate-access-token)
+- [Webhooks](#webhooks)
+  - [Create Subscription](#create-subscription)
 - [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1505,6 +1507,48 @@ try:
 except Exception as e:
     # Access token is invalid or expired
 ```
+
+## Webhooks
+
+You can use the webhooks SDK to subscribe to on-chain and wallet events and receive notifications at a URL of your choice.
+
+### Create Subscription
+
+Create a webhook subscription to receive event notifications:
+
+```python
+from cdp.webhook_types import CreateWebhookSubscriptionOptions
+
+subscription = await cdp.webhooks.create_subscription(
+    CreateWebhookSubscriptionOptions(
+        description="Monitor wallet transactions",
+        event_types=[
+            "wallet.transaction.pending",
+            "wallet.transaction.confirmed",
+            "wallet.transaction.failed",
+        ],
+        target_url="https://example.com/webhook",
+        target_headers={"X-Custom-Header": "custom-value"},  # optional
+        is_enabled=True,  # optional, defaults to True
+        metadata={"env": "production"},  # optional
+    )
+)
+
+print(f"Subscription ID: {subscription.subscription_id}")
+print(f"Secret: {subscription.secret}")  # use to verify webhook signatures
+```
+
+The available wallet event types are:
+
+- `wallet.transaction.created`
+- `wallet.transaction.broadcast`
+- `wallet.transaction.pending`
+- `wallet.transaction.replaced`
+- `wallet.transaction.confirmed`
+- `wallet.transaction.failed`
+- `wallet.transaction.signed`
+
+For a complete working example, see [webhooks/create_webhook_subscription.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/webhooks/create_webhook_subscription.py).
 
 ## Authentication tools
 

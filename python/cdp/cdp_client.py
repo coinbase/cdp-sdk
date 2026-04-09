@@ -9,6 +9,7 @@ from cdp.evm_client import EvmClient
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.policies_client import PoliciesClient
 from cdp.solana_client import SolanaClient
+from cdp.webhooks_client import WebhooksClient
 
 
 class CdpClient:
@@ -93,6 +94,7 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         self._solana = SolanaClient(self.api_clients)
         self._policies = PoliciesClient(self.api_clients)
         self._end_user = EndUserClient(self.api_clients)
+        self._webhooks = WebhooksClient(self.api_clients)
         self._closed = False
 
         if (
@@ -124,6 +126,12 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         """Get the EndUserClient instance."""
         self._check_closed()
         return self._end_user
+
+    @property
+    def webhooks(self) -> WebhooksClient:
+        """Get the WebhooksClient instance."""
+        self._check_closed()
+        return self._webhooks
 
     def _check_closed(self) -> None:
         """Check if the client has been closed and raise an appropriate error."""

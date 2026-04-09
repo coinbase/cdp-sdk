@@ -26,6 +26,8 @@
   - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
   - [Add Solana Account to End User](#add-solana-account-to-end-user)
   - [Validate Access Token](#validate-access-token)
+- [Webhooks](#webhooks)
+  - [Create Subscription](#create-subscription)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1333,6 +1335,44 @@ try {
   // the access token is not valid or expired
 }
 ```
+
+## Webhooks
+
+You can use the webhooks SDK to subscribe to on-chain and wallet events and receive notifications at a URL of your choice.
+
+### Create Subscription
+
+Create a webhook subscription to receive event notifications:
+
+```typescript
+const subscription = await cdp.webhooks.createSubscription({
+  description: "Monitor wallet transactions",
+  eventTypes: [
+    "wallet.transaction.pending",
+    "wallet.transaction.confirmed",
+    "wallet.transaction.failed",
+  ],
+  targetUrl: "https://example.com/webhook",
+  targetHeaders: { "X-Custom-Header": "custom-value" }, // optional
+  isEnabled: true, // optional, defaults to true
+  metadata: { env: "production" }, // optional
+});
+
+console.log("Subscription ID:", subscription.subscriptionId);
+console.log("Secret:", subscription.secret); // use to verify webhook signatures
+```
+
+The available wallet event types are:
+
+- `wallet.transaction.created`
+- `wallet.transaction.broadcast`
+- `wallet.transaction.pending`
+- `wallet.transaction.replaced`
+- `wallet.transaction.confirmed`
+- `wallet.transaction.failed`
+- `wallet.transaction.signed`
+
+For a complete working example, see [webhooks/createWebhookSubscription.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/webhooks/createWebhookSubscription.ts).
 
 ## Authentication tools
 

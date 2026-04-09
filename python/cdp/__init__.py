@@ -18,6 +18,11 @@ from cdp.spend_permissions import (
 from cdp.to_evm_delegated_account import to_evm_delegated_account
 from cdp.update_account_types import UpdateAccountOptions
 from cdp.utils import parse_units
+from cdp.webhook_types import (
+    CreateWebhookSubscriptionOptions,
+    CreateWebhookSubscriptionResult,
+    WebhookEventType,
+)
 
 __all__ = [
     "CdpClient",
@@ -39,6 +44,9 @@ __all__ = [
     "TransactionRequestEIP1559",
     "to_evm_delegated_account",
     "UpdateAccountOptions",
+    "CreateWebhookSubscriptionOptions",
+    "CreateWebhookSubscriptionResult",
+    "WebhookEventType",
     "__version__",
     "parse_units",
 ]
