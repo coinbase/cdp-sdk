@@ -9,6 +9,7 @@ WebhookEventType = Literal[
     "wallet.transaction.replaced",
     "wallet.transaction.confirmed",
     "wallet.transaction.failed",
+    "wallet.transaction.signed",
 ]
 """The supported wallet transaction webhook event types."""
 

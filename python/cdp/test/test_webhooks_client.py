@@ -182,8 +182,8 @@ async def test_create_subscription_defaults_is_enabled_to_true():
 
 
 @pytest.mark.asyncio
-async def test_create_subscription_handles_all_six_event_types():
-    """Test that all six wallet transaction event types are handled."""
+async def test_create_subscription_handles_all_seven_event_types():
+    """Test that all seven wallet transaction event types are handled."""
     all_event_types = [
         "wallet.transaction.created",
         "wallet.transaction.broadcast",
@@ -191,6 +191,7 @@ async def test_create_subscription_handles_all_six_event_types():
         "wallet.transaction.replaced",
         "wallet.transaction.confirmed",
         "wallet.transaction.failed",
+        "wallet.transaction.signed",
     ]
 
     mock_response = WebhookSubscriptionResponse(
@@ -216,7 +217,7 @@ async def test_create_subscription_handles_all_six_event_types():
 
     result = await client.create_subscription(options)
 
-    assert len(result.event_types) == 6
+    assert len(result.event_types) == 7
     assert result.event_types == all_event_types
 
 

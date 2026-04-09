@@ -21,6 +21,7 @@ from cdp.utils import parse_units
 from cdp.webhook_types import (
     CreateWebhookSubscriptionOptions,
     CreateWebhookSubscriptionResult,
+    WebhookEventType,
 )
 
 __all__ = [
@@ -45,6 +46,7 @@ __all__ = [
     "UpdateAccountOptions",
     "CreateWebhookSubscriptionOptions",
     "CreateWebhookSubscriptionResult",
+    "WebhookEventType",
     "__version__",
     "parse_units",
 ]

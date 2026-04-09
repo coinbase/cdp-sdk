@@ -43,4 +43,5 @@ async def create_webhook_subscription(
         is_enabled=response.is_enabled,
         secret=response.secret,
         created_at=str(response.created_at),
+        updated_at=str(response.updated_at) if hasattr(response, "updated_at") and response.updated_at is not None else None,
     )

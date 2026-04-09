@@ -158,7 +158,7 @@ describe("createWebhookSubscription", () => {
     );
   });
 
-  it("should handle all six wallet transaction event types", async () => {
+  it("should handle all seven wallet transaction event types", async () => {
     const allEventTypes: WebhookEventType[] = [
       "wallet.transaction.created",
       "wallet.transaction.broadcast",
@@ -166,6 +166,7 @@ describe("createWebhookSubscription", () => {
       "wallet.transaction.replaced",
       "wallet.transaction.confirmed",
       "wallet.transaction.failed",
+      "wallet.transaction.signed",
     ];
 
     const mockResponse = {
@@ -186,7 +187,7 @@ describe("createWebhookSubscription", () => {
 
     const result = await createWebhookSubscription(mockClient, options);
 
-    expect(result.eventTypes).toHaveLength(6);
+    expect(result.eventTypes).toHaveLength(7);
     expect(result.eventTypes).toEqual(allEventTypes);
   });
 
