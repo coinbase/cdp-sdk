@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.X402ResourceInfo;
-import com.coinbase.cdp.openapi.model.X402V1PaymentPayloadPayload;
+import com.coinbase.cdp.openapi.model.X402V2PaymentPayloadPayload;
 import com.coinbase.cdp.openapi.model.X402V2PaymentRequirements;
 import com.coinbase.cdp.openapi.model.X402Version;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -53,7 +53,7 @@ public class X402V2PaymentPayload {
 
   public static final String JSON_PROPERTY_PAYLOAD = "payload";
   @jakarta.annotation.Nonnull
-  private X402V1PaymentPayloadPayload payload;
+  private X402V2PaymentPayloadPayload payload;
 
   public static final String JSON_PROPERTY_ACCEPTED = "accepted";
   @jakarta.annotation.Nonnull
@@ -94,7 +94,7 @@ public class X402V2PaymentPayload {
   }
 
 
-  public X402V2PaymentPayload payload(@jakarta.annotation.Nonnull X402V1PaymentPayloadPayload payload) {
+  public X402V2PaymentPayload payload(@jakarta.annotation.Nonnull X402V2PaymentPayloadPayload payload) {
     this.payload = payload;
     return this;
   }
@@ -106,14 +106,14 @@ public class X402V2PaymentPayload {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PAYLOAD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public X402V1PaymentPayloadPayload getPayload() {
+  public X402V2PaymentPayloadPayload getPayload() {
     return payload;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAYLOAD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPayload(@jakarta.annotation.Nonnull X402V1PaymentPayloadPayload payload) {
+  public void setPayload(@jakarta.annotation.Nonnull X402V2PaymentPayloadPayload payload) {
     this.payload = payload;
   }
 
@@ -326,7 +326,7 @@ public class X402V2PaymentPayload {
       this.instance.x402Version = x402Version;
       return this;
     }
-    public X402V2PaymentPayload.Builder payload(X402V1PaymentPayloadPayload payload) {
+    public X402V2PaymentPayload.Builder payload(X402V2PaymentPayloadPayload payload) {
       this.instance.payload = payload;
       return this;
     }

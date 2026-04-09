@@ -24,6 +24,7 @@ from cdp.openapi_client.models.send_end_user_sol_transaction_rule import SendEnd
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
+from cdp.openapi_client.models.sign_end_user_evm_hash_rule import SignEndUserEvmHashRule
 from cdp.openapi_client.models.sign_end_user_evm_message_rule import SignEndUserEvmMessageRule
 from cdp.openapi_client.models.sign_end_user_evm_transaction_rule import SignEndUserEvmTransactionRule
 from cdp.openapi_client.models.sign_end_user_evm_typed_data_rule import SignEndUserEvmTypedDataRule
@@ -39,7 +40,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-RULE_ONE_OF_SCHEMAS = ["PrepareUserOperationRule", "SendEndUserEvmTransactionRule", "SendEndUserSolTransactionRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEndUserEvmMessageRule", "SignEndUserEvmTransactionRule", "SignEndUserEvmTypedDataRule", "SignEndUserSolMessageRule", "SignEndUserSolTransactionRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolMessageRule", "SignSolTransactionRule"]
+RULE_ONE_OF_SCHEMAS = ["PrepareUserOperationRule", "SendEndUserEvmTransactionRule", "SendEndUserSolTransactionRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEndUserEvmHashRule", "SignEndUserEvmMessageRule", "SignEndUserEvmTransactionRule", "SignEndUserEvmTypedDataRule", "SignEndUserSolMessageRule", "SignEndUserSolTransactionRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolMessageRule", "SignSolTransactionRule"]
 
 class Rule(BaseModel):
     """
@@ -73,14 +74,16 @@ class Rule(BaseModel):
     oneof_schema_13_validator: Optional[SignEndUserEvmMessageRule] = None
     # data type: SignEndUserEvmTypedDataRule
     oneof_schema_14_validator: Optional[SignEndUserEvmTypedDataRule] = None
+    # data type: SignEndUserEvmHashRule
+    oneof_schema_15_validator: Optional[SignEndUserEvmHashRule] = None
     # data type: SignEndUserSolTransactionRule
-    oneof_schema_15_validator: Optional[SignEndUserSolTransactionRule] = None
+    oneof_schema_16_validator: Optional[SignEndUserSolTransactionRule] = None
     # data type: SendEndUserSolTransactionRule
-    oneof_schema_16_validator: Optional[SendEndUserSolTransactionRule] = None
+    oneof_schema_17_validator: Optional[SendEndUserSolTransactionRule] = None
     # data type: SignEndUserSolMessageRule
-    oneof_schema_17_validator: Optional[SignEndUserSolMessageRule] = None
-    actual_instance: Optional[Union[PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule]] = None
-    one_of_schemas: Set[str] = { "PrepareUserOperationRule", "SendEndUserEvmTransactionRule", "SendEndUserSolTransactionRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEndUserEvmMessageRule", "SignEndUserEvmTransactionRule", "SignEndUserEvmTypedDataRule", "SignEndUserSolMessageRule", "SignEndUserSolTransactionRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolMessageRule", "SignSolTransactionRule" }
+    oneof_schema_18_validator: Optional[SignEndUserSolMessageRule] = None
+    actual_instance: Optional[Union[PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule]] = None
+    one_of_schemas: Set[str] = { "PrepareUserOperationRule", "SendEndUserEvmTransactionRule", "SendEndUserSolTransactionRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEndUserEvmHashRule", "SignEndUserEvmMessageRule", "SignEndUserEvmTransactionRule", "SignEndUserEvmTypedDataRule", "SignEndUserSolMessageRule", "SignEndUserSolTransactionRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolMessageRule", "SignSolTransactionRule" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -173,6 +176,11 @@ class Rule(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `SignEndUserEvmTypedDataRule`")
         else:
             match += 1
+        # validate data type: SignEndUserEvmHashRule
+        if not isinstance(v, SignEndUserEvmHashRule):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SignEndUserEvmHashRule`")
+        else:
+            match += 1
         # validate data type: SignEndUserSolTransactionRule
         if not isinstance(v, SignEndUserSolTransactionRule):
             error_messages.append(f"Error! Input type `{type(v)}` is not `SignEndUserSolTransactionRule`")
@@ -190,10 +198,10 @@ class Rule(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -292,6 +300,12 @@ class Rule(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into SignEndUserEvmHashRule
+        try:
+            instance.actual_instance = SignEndUserEvmHashRule.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
         # deserialize data into SignEndUserSolTransactionRule
         try:
             instance.actual_instance = SignEndUserSolTransactionRule.from_json(json_str)
@@ -313,10 +327,10 @@ class Rule(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -330,7 +344,7 @@ class Rule(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], PrepareUserOperationRule, SendEndUserEvmTransactionRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

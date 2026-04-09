@@ -279,15 +279,15 @@ public class X402PaymentRequirements extends AbstractOpenApiSchema {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    if (getActualInstance() instanceof X402V1PaymentRequirements) {
+    if (getActualInstance() instanceof X402V2PaymentRequirements) {
         if (getActualInstance() != null) {
-          joiner.add(((X402V1PaymentRequirements)getActualInstance()).toUrlQueryString(prefix + "one_of_0" + suffix));
+          joiner.add(((X402V2PaymentRequirements)getActualInstance()).toUrlQueryString(prefix + "one_of_0" + suffix));
         }
         return joiner.toString();
     }
-    if (getActualInstance() instanceof X402V2PaymentRequirements) {
+    if (getActualInstance() instanceof X402V1PaymentRequirements) {
         if (getActualInstance() != null) {
-          joiner.add(((X402V2PaymentRequirements)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
+          joiner.add(((X402V1PaymentRequirements)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
         }
         return joiner.toString();
     }

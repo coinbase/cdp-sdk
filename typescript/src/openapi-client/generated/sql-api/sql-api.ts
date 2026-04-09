@@ -6,8 +6,10 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
+  GetSQLSchemaParams,
   OnchainDataQuery,
   OnchainDataResult,
+  OnchainDataSchemaResponse,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -88,5 +90,22 @@ LLMs interact well with ANTLR4 grammar. You can feed the grammar directly into t
 export const getSQLGrammar = (options?: SecondParameter<typeof cdpApiClient<string>>) => {
   return cdpApiClient<string>({ url: `/v2/data/query/grammar`, method: "GET" }, options);
 };
+/**
+ * Retrieve the schema information for the available tables in the SQL API's indexed data.
+
+This includes table names, column definitions, data types, and indexed fields.
+
+ * @summary Get schemas details
+ */
+export const getSQLSchema = (
+  params?: GetSQLSchemaParams,
+  options?: SecondParameter<typeof cdpApiClient<OnchainDataSchemaResponse>>,
+) => {
+  return cdpApiClient<OnchainDataSchemaResponse>(
+    { url: `/v2/data/query/schema`, method: "GET", params },
+    options,
+  );
+};
 export type RunSQLQueryResult = NonNullable<Awaited<ReturnType<typeof runSQLQuery>>>;
 export type GetSQLGrammarResult = NonNullable<Awaited<ReturnType<typeof getSQLGrammar>>>;
+export type GetSQLSchemaResult = NonNullable<Awaited<ReturnType<typeof getSQLSchema>>>;

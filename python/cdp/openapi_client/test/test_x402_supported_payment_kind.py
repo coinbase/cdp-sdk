@@ -36,14 +36,14 @@ class TestX402SupportedPaymentKind(unittest.TestCase):
         model = X402SupportedPaymentKind()
         if include_optional:
             return X402SupportedPaymentKind(
-                x402_version = 1,
+                x402_version = 2,
                 scheme = 'exact',
                 network = 'base',
                 extra = {feePayer=HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT}
             )
         else:
             return X402SupportedPaymentKind(
-                x402_version = 1,
+                x402_version = 2,
                 scheme = 'exact',
                 network = 'base',
         )

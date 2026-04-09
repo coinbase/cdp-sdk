@@ -46,10 +46,12 @@ import com.coinbase.cdp.openapi.ApiClient;
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class X402V2PaymentRequirements {
   /**
-   * The scheme of the payment protocol to use. Currently, the only supported scheme is &#x60;exact&#x60;.
+   * The scheme of the payment protocol to use. Supported schemes are &#x60;exact&#x60; and &#x60;upto&#x60;.
    */
   public enum SchemeEnum {
-    EXACT(String.valueOf("exact"));
+    EXACT(String.valueOf("exact")),
+    
+    UPTO(String.valueOf("upto"));
 
     private String value;
 
@@ -115,7 +117,7 @@ public class X402V2PaymentRequirements {
   }
 
   /**
-   * The scheme of the payment protocol to use. Currently, the only supported scheme is &#x60;exact&#x60;.
+   * The scheme of the payment protocol to use. Supported schemes are &#x60;exact&#x60; and &#x60;upto&#x60;.
    * @return scheme
    */
   @jakarta.annotation.Nonnull

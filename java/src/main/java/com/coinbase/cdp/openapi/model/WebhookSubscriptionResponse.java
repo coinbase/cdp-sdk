@@ -42,6 +42,7 @@ import com.coinbase.cdp.openapi.ApiClient;
  */
 @JsonPropertyOrder({
   WebhookSubscriptionResponse.JSON_PROPERTY_CREATED_AT,
+  WebhookSubscriptionResponse.JSON_PROPERTY_UPDATED_AT,
   WebhookSubscriptionResponse.JSON_PROPERTY_DESCRIPTION,
   WebhookSubscriptionResponse.JSON_PROPERTY_EVENT_TYPES,
   WebhookSubscriptionResponse.JSON_PROPERTY_IS_ENABLED,
@@ -56,6 +57,10 @@ public class WebhookSubscriptionResponse {
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @jakarta.annotation.Nonnull
   private OffsetDateTime createdAt;
+
+  public static final String JSON_PROPERTY_UPDATED_AT = "updatedAt";
+  @jakarta.annotation.Nullable
+  private OffsetDateTime updatedAt;
 
   public static final String JSON_PROPERTY_DESCRIPTION = "description";
   @jakarta.annotation.Nullable
@@ -116,6 +121,30 @@ public class WebhookSubscriptionResponse {
   }
 
 
+  public WebhookSubscriptionResponse updatedAt(@jakarta.annotation.Nullable OffsetDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
+  /**
+   * When the subscription was last updated.
+   * @return updatedAt
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_UPDATED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OffsetDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_UPDATED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUpdatedAt(@jakarta.annotation.Nullable OffsetDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+
   public WebhookSubscriptionResponse description(@jakarta.annotation.Nullable String description) {
     this.description = description;
     return this;
@@ -154,7 +183,7 @@ public class WebhookSubscriptionResponse {
   }
 
   /**
-   * Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;). 
+   * Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;, \&quot;acceptance.payment_session\&quot;). 
    * @return eventTypes
    */
   @jakarta.annotation.Nonnull
@@ -337,6 +366,7 @@ public class WebhookSubscriptionResponse {
     }
     WebhookSubscriptionResponse webhookSubscriptionResponse = (WebhookSubscriptionResponse) o;
     return Objects.equals(this.createdAt, webhookSubscriptionResponse.createdAt) &&
+        Objects.equals(this.updatedAt, webhookSubscriptionResponse.updatedAt) &&
         Objects.equals(this.description, webhookSubscriptionResponse.description) &&
         Objects.equals(this.eventTypes, webhookSubscriptionResponse.eventTypes) &&
         Objects.equals(this.isEnabled, webhookSubscriptionResponse.isEnabled) &&
@@ -349,7 +379,7 @@ public class WebhookSubscriptionResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(createdAt, description, eventTypes, isEnabled, metadata, secret, subscriptionId, target, labels);
+    return Objects.hash(createdAt, updatedAt, description, eventTypes, isEnabled, metadata, secret, subscriptionId, target, labels);
   }
 
   @Override
@@ -357,6 +387,7 @@ public class WebhookSubscriptionResponse {
     StringBuilder sb = new StringBuilder();
     sb.append("class WebhookSubscriptionResponse {\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
+    sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    eventTypes: ").append(toIndentedString(eventTypes)).append("\n");
     sb.append("    isEnabled: ").append(toIndentedString(isEnabled)).append("\n");
@@ -415,6 +446,11 @@ public class WebhookSubscriptionResponse {
     // add `createdAt` to the URL query string
     if (getCreatedAt() != null) {
       joiner.add(String.format("%screatedAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getCreatedAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `updatedAt` to the URL query string
+    if (getUpdatedAt() != null) {
+      joiner.add(String.format("%supdatedAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getUpdatedAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `description` to the URL query string
@@ -484,6 +520,10 @@ public class WebhookSubscriptionResponse {
       this.instance.createdAt = createdAt;
       return this;
     }
+    public WebhookSubscriptionResponse.Builder updatedAt(OffsetDateTime updatedAt) {
+      this.instance.updatedAt = updatedAt;
+      return this;
+    }
     public WebhookSubscriptionResponse.Builder description(String description) {
       this.instance.description = description;
       return this;
@@ -551,6 +591,7 @@ public class WebhookSubscriptionResponse {
   public WebhookSubscriptionResponse.Builder toBuilder() {
     return new WebhookSubscriptionResponse.Builder()
       .createdAt(getCreatedAt())
+      .updatedAt(getUpdatedAt())
       .description(getDescription())
       .eventTypes(getEventTypes())
       .isEnabled(getIsEnabled())

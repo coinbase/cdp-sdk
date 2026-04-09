@@ -645,6 +645,16 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+To have CDP sponsor the transaction fees, pass `use_cdp_sponsor=True`. When enabled, CDP pays the network fee so the sender does not need SOL for fees.
+
+```python
+response = await cdp.solana.send_transaction(
+    network="solana-devnet",
+    transaction=serialized_tx,
+    use_cdp_sponsor=True,
+)
+```
+
 ### Transferring tokens
 
 #### EVM

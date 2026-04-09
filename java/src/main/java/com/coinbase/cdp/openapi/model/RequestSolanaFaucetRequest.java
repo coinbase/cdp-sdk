@@ -48,7 +48,9 @@ public class RequestSolanaFaucetRequest {
   public enum TokenEnum {
     SOL(String.valueOf("sol")),
     
-    USDC(String.valueOf("usdc"));
+    USDC(String.valueOf("usdc")),
+    
+    CBTUSD(String.valueOf("cbtusd"));
 
     private String value;
 

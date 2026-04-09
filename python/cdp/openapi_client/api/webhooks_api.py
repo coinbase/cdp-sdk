@@ -17,9 +17,11 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
+from datetime import datetime
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.webhook_event_list_response import WebhookEventListResponse
 from cdp.openapi_client.models.webhook_subscription_list_response import WebhookSubscriptionListResponse
 from cdp.openapi_client.models.webhook_subscription_request import WebhookSubscriptionRequest
 from cdp.openapi_client.models.webhook_subscription_response import WebhookSubscriptionResponse
@@ -62,7 +64,7 @@ class WebhooksApi:
     ) -> WebhookSubscriptionResponse:
         """Create webhook subscription
 
-        Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - `onramp.transaction.created`, `onramp.transaction.updated` - `onramp.transaction.success`, `onramp.transaction.failed` - `offramp.transaction.created`, `offramp.transaction.updated` - `offramp.transaction.success`, `offramp.transaction.failed` - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - `payments.transfers.quoted` - `payments.transfers.processing` - `payments.transfers.completed` - `payments.transfers.failed` - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - `wallet.activity.detected`  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in `secret` field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - `network` (required) - Blockchain network - `contract_address` - Smart contract address - `event_name` - Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` - Event signature hash - `transaction_from` - Transaction sender address - `transaction_to` - Transaction recipient address - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)  **Examples**: - **Liquidity Pool Monitor**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xcd1f9777571493aeacb7eae45cd30a226d3e612d\", \"event_name\": \"Burn\"}` - **Price Oracle Tracker**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xbac4a9428ea707c51f171ed9890c3c2fa810305d\", \"event_name\": \"PriceUpdated\"}` - **DeFi Protocol Activity**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0x45c6e6a47a711b14d8357d5243f46704904578e3\", \"event_name\": \"Deposit\"}` 
+        Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - `onramp.transaction.created`, `onramp.transaction.updated` - `onramp.transaction.success`, `onramp.transaction.failed` - `offramp.transaction.created`, `offramp.transaction.updated` - `offramp.transaction.success`, `offramp.transaction.failed` - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - `payments.transfers.quoted` - `payments.transfers.processing` - `payments.transfers.completed` - `payments.transfers.failed` - `payments.transfers.travel_rule_incomplete` - `payments.transfers.travel_rule_completed` - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - `wallet.activity.detected`  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in `secret` field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - `network` (required) - Blockchain network - `contract_address` - Smart contract address - `event_name` - Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` - Event signature hash - `transaction_from` - Transaction sender address - `transaction_to` - Transaction recipient address - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)  **Examples**: - **Liquidity Pool Monitor**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xcd1f9777571493aeacb7eae45cd30a226d3e612d\", \"event_name\": \"Burn\"}` - **Price Oracle Tracker**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xbac4a9428ea707c51f171ed9890c3c2fa810305d\", \"event_name\": \"PriceUpdated\"}` - **DeFi Protocol Activity**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0x45c6e6a47a711b14d8357d5243f46704904578e3\", \"event_name\": \"Deposit\"}` 
 
         :param webhook_subscription_request: (required)
         :type webhook_subscription_request: WebhookSubscriptionRequest
@@ -133,7 +135,7 @@ class WebhooksApi:
     ) -> ApiResponse[WebhookSubscriptionResponse]:
         """Create webhook subscription
 
-        Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - `onramp.transaction.created`, `onramp.transaction.updated` - `onramp.transaction.success`, `onramp.transaction.failed` - `offramp.transaction.created`, `offramp.transaction.updated` - `offramp.transaction.success`, `offramp.transaction.failed` - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - `payments.transfers.quoted` - `payments.transfers.processing` - `payments.transfers.completed` - `payments.transfers.failed` - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - `wallet.activity.detected`  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in `secret` field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - `network` (required) - Blockchain network - `contract_address` - Smart contract address - `event_name` - Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` - Event signature hash - `transaction_from` - Transaction sender address - `transaction_to` - Transaction recipient address - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)  **Examples**: - **Liquidity Pool Monitor**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xcd1f9777571493aeacb7eae45cd30a226d3e612d\", \"event_name\": \"Burn\"}` - **Price Oracle Tracker**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xbac4a9428ea707c51f171ed9890c3c2fa810305d\", \"event_name\": \"PriceUpdated\"}` - **DeFi Protocol Activity**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0x45c6e6a47a711b14d8357d5243f46704904578e3\", \"event_name\": \"Deposit\"}` 
+        Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - `onramp.transaction.created`, `onramp.transaction.updated` - `onramp.transaction.success`, `onramp.transaction.failed` - `offramp.transaction.created`, `offramp.transaction.updated` - `offramp.transaction.success`, `offramp.transaction.failed` - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - `payments.transfers.quoted` - `payments.transfers.processing` - `payments.transfers.completed` - `payments.transfers.failed` - `payments.transfers.travel_rule_incomplete` - `payments.transfers.travel_rule_completed` - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - `wallet.activity.detected`  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in `secret` field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - `network` (required) - Blockchain network - `contract_address` - Smart contract address - `event_name` - Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` - Event signature hash - `transaction_from` - Transaction sender address - `transaction_to` - Transaction recipient address - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)  **Examples**: - **Liquidity Pool Monitor**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xcd1f9777571493aeacb7eae45cd30a226d3e612d\", \"event_name\": \"Burn\"}` - **Price Oracle Tracker**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xbac4a9428ea707c51f171ed9890c3c2fa810305d\", \"event_name\": \"PriceUpdated\"}` - **DeFi Protocol Activity**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0x45c6e6a47a711b14d8357d5243f46704904578e3\", \"event_name\": \"Deposit\"}` 
 
         :param webhook_subscription_request: (required)
         :type webhook_subscription_request: WebhookSubscriptionRequest
@@ -204,7 +206,7 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Create webhook subscription
 
-        Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - `onramp.transaction.created`, `onramp.transaction.updated` - `onramp.transaction.success`, `onramp.transaction.failed` - `offramp.transaction.created`, `offramp.transaction.updated` - `offramp.transaction.success`, `offramp.transaction.failed` - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - `payments.transfers.quoted` - `payments.transfers.processing` - `payments.transfers.completed` - `payments.transfers.failed` - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - `wallet.activity.detected`  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in `secret` field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - `network` (required) - Blockchain network - `contract_address` - Smart contract address - `event_name` - Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` - Event signature hash - `transaction_from` - Transaction sender address - `transaction_to` - Transaction recipient address - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)  **Examples**: - **Liquidity Pool Monitor**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xcd1f9777571493aeacb7eae45cd30a226d3e612d\", \"event_name\": \"Burn\"}` - **Price Oracle Tracker**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xbac4a9428ea707c51f171ed9890c3c2fa810305d\", \"event_name\": \"PriceUpdated\"}` - **DeFi Protocol Activity**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0x45c6e6a47a711b14d8357d5243f46704904578e3\", \"event_name\": \"Deposit\"}` 
+        Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - `onramp.transaction.created`, `onramp.transaction.updated` - `onramp.transaction.success`, `onramp.transaction.failed` - `offramp.transaction.created`, `offramp.transaction.updated` - `offramp.transaction.success`, `offramp.transaction.failed` - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - `payments.transfers.quoted` - `payments.transfers.processing` - `payments.transfers.completed` - `payments.transfers.failed` - `payments.transfers.travel_rule_incomplete` - `payments.transfers.travel_rule_completed` - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - `wallet.activity.detected`  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in `secret` field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - `network` (required) - Blockchain network - `contract_address` - Smart contract address - `event_name` - Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` - Event signature hash - `transaction_from` - Transaction sender address - `transaction_to` - Transaction recipient address - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)  **Examples**: - **Liquidity Pool Monitor**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xcd1f9777571493aeacb7eae45cd30a226d3e612d\", \"event_name\": \"Burn\"}` - **Price Oracle Tracker**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0xbac4a9428ea707c51f171ed9890c3c2fa810305d\", \"event_name\": \"PriceUpdated\"}` - **DeFi Protocol Activity**: `{\"network\": \"base-mainnet\", \"contract_address\": \"0x45c6e6a47a711b14d8357d5243f46704904578e3\", \"event_name\": \"Deposit\"}` 
 
         :param webhook_subscription_request: (required)
         :type webhook_subscription_request: WebhookSubscriptionRequest
@@ -860,6 +862,368 @@ class WebhooksApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/data/webhooks/subscriptions/{subscriptionId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_webhook_subscription_events(
+        self,
+        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        event_id: Annotated[Optional[StrictStr], Field(description="Filter by a specific event ID.")] = None,
+        min_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or after this timestamp (RFC 3339 format).")] = None,
+        max_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or before this timestamp (RFC 3339 format).")] = None,
+        event_type_names: Annotated[Optional[StrictStr], Field(description="Filter by event type names (comma-separated).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> WebhookEventListResponse:
+        """List webhook subscription events
+
+        Retrieve webhook event delivery attempts for a specific subscription. Returns event deliveries in descending order by creation time (newest first), including delivery status, retry count, and response details.  ### Use Cases - Debug webhook delivery failures and inspect response codes - Monitor delivery status and retry counts - Audit event delivery history for a subscription - Verify that expected events were sent to webhook URLs  ### Filtering Use optional query parameters to narrow results: - `eventId` — find a specific event by ID - `minCreatedAt` / `maxCreatedAt` — filter by time range - `eventTypeNames` — filter by event type (comma-separated)  **Note:** Results are limited to the 50 most recent events (newest first). No pagination is supported. 
+
+        :param subscription_id: Unique identifier for the webhook subscription. (required)
+        :type subscription_id: str
+        :param event_id: Filter by a specific event ID.
+        :type event_id: str
+        :param min_created_at: Filter events created at or after this timestamp (RFC 3339 format).
+        :type min_created_at: datetime
+        :param max_created_at: Filter events created at or before this timestamp (RFC 3339 format).
+        :type max_created_at: datetime
+        :param event_type_names: Filter by event type names (comma-separated).
+        :type event_type_names: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_webhook_subscription_events_serialize(
+            subscription_id=subscription_id,
+            event_id=event_id,
+            min_created_at=min_created_at,
+            max_created_at=max_created_at,
+            event_type_names=event_type_names,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookEventListResponse",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_webhook_subscription_events_with_http_info(
+        self,
+        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        event_id: Annotated[Optional[StrictStr], Field(description="Filter by a specific event ID.")] = None,
+        min_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or after this timestamp (RFC 3339 format).")] = None,
+        max_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or before this timestamp (RFC 3339 format).")] = None,
+        event_type_names: Annotated[Optional[StrictStr], Field(description="Filter by event type names (comma-separated).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[WebhookEventListResponse]:
+        """List webhook subscription events
+
+        Retrieve webhook event delivery attempts for a specific subscription. Returns event deliveries in descending order by creation time (newest first), including delivery status, retry count, and response details.  ### Use Cases - Debug webhook delivery failures and inspect response codes - Monitor delivery status and retry counts - Audit event delivery history for a subscription - Verify that expected events were sent to webhook URLs  ### Filtering Use optional query parameters to narrow results: - `eventId` — find a specific event by ID - `minCreatedAt` / `maxCreatedAt` — filter by time range - `eventTypeNames` — filter by event type (comma-separated)  **Note:** Results are limited to the 50 most recent events (newest first). No pagination is supported. 
+
+        :param subscription_id: Unique identifier for the webhook subscription. (required)
+        :type subscription_id: str
+        :param event_id: Filter by a specific event ID.
+        :type event_id: str
+        :param min_created_at: Filter events created at or after this timestamp (RFC 3339 format).
+        :type min_created_at: datetime
+        :param max_created_at: Filter events created at or before this timestamp (RFC 3339 format).
+        :type max_created_at: datetime
+        :param event_type_names: Filter by event type names (comma-separated).
+        :type event_type_names: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_webhook_subscription_events_serialize(
+            subscription_id=subscription_id,
+            event_id=event_id,
+            min_created_at=min_created_at,
+            max_created_at=max_created_at,
+            event_type_names=event_type_names,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookEventListResponse",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_webhook_subscription_events_without_preload_content(
+        self,
+        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        event_id: Annotated[Optional[StrictStr], Field(description="Filter by a specific event ID.")] = None,
+        min_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or after this timestamp (RFC 3339 format).")] = None,
+        max_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or before this timestamp (RFC 3339 format).")] = None,
+        event_type_names: Annotated[Optional[StrictStr], Field(description="Filter by event type names (comma-separated).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List webhook subscription events
+
+        Retrieve webhook event delivery attempts for a specific subscription. Returns event deliveries in descending order by creation time (newest first), including delivery status, retry count, and response details.  ### Use Cases - Debug webhook delivery failures and inspect response codes - Monitor delivery status and retry counts - Audit event delivery history for a subscription - Verify that expected events were sent to webhook URLs  ### Filtering Use optional query parameters to narrow results: - `eventId` — find a specific event by ID - `minCreatedAt` / `maxCreatedAt` — filter by time range - `eventTypeNames` — filter by event type (comma-separated)  **Note:** Results are limited to the 50 most recent events (newest first). No pagination is supported. 
+
+        :param subscription_id: Unique identifier for the webhook subscription. (required)
+        :type subscription_id: str
+        :param event_id: Filter by a specific event ID.
+        :type event_id: str
+        :param min_created_at: Filter events created at or after this timestamp (RFC 3339 format).
+        :type min_created_at: datetime
+        :param max_created_at: Filter events created at or before this timestamp (RFC 3339 format).
+        :type max_created_at: datetime
+        :param event_type_names: Filter by event type names (comma-separated).
+        :type event_type_names: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_webhook_subscription_events_serialize(
+            subscription_id=subscription_id,
+            event_id=event_id,
+            min_created_at=min_created_at,
+            max_created_at=max_created_at,
+            event_type_names=event_type_names,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookEventListResponse",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_webhook_subscription_events_serialize(
+        self,
+        subscription_id,
+        event_id,
+        min_created_at,
+        max_created_at,
+        event_type_names,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if subscription_id is not None:
+            _path_params['subscriptionId'] = subscription_id
+        # process the query parameters
+        if event_id is not None:
+            
+            _query_params.append(('eventId', event_id))
+            
+        if min_created_at is not None:
+            if isinstance(min_created_at, datetime):
+                _query_params.append(
+                    (
+                        'minCreatedAt',
+                        min_created_at.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('minCreatedAt', min_created_at))
+            
+        if max_created_at is not None:
+            if isinstance(max_created_at, datetime):
+                _query_params.append(
+                    (
+                        'maxCreatedAt',
+                        max_created_at.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('maxCreatedAt', max_created_at))
+            
+        if event_type_names is not None:
+            
+            _query_params.append(('eventTypeNames', event_type_names))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/data/webhooks/subscriptions/{subscriptionId}/events',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

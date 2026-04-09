@@ -36,13 +36,13 @@ class TestVerifyX402PaymentRequest(unittest.TestCase):
         model = VerifyX402PaymentRequest()
         if include_optional:
             return VerifyX402PaymentRequest(
-                x402_version = 1,
+                x402_version = 2,
                 payment_payload = cdp.openapi_client.models.x402_payment_payload.x402PaymentPayload(),
                 payment_requirements = cdp.openapi_client.models.x402_payment_requirements.x402PaymentRequirements()
             )
         else:
             return VerifyX402PaymentRequest(
-                x402_version = 1,
+                x402_version = 2,
                 payment_payload = cdp.openapi_client.models.x402_payment_payload.x402PaymentPayload(),
                 payment_requirements = cdp.openapi_client.models.x402_payment_requirements.x402PaymentRequirements(),
         )

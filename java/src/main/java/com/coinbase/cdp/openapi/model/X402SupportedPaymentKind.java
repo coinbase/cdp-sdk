@@ -51,7 +51,9 @@ public class X402SupportedPaymentKind {
    * The scheme of the payment protocol.
    */
   public enum SchemeEnum {
-    EXACT(String.valueOf("exact"));
+    EXACT(String.valueOf("exact")),
+    
+    UPTO(String.valueOf("upto"));
 
     private String value;
 

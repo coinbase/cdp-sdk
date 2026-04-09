@@ -39,7 +39,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   InlineObject1.JSON_PROPERTY_ERROR_MESSAGE,
   InlineObject1.JSON_PROPERTY_PAYER,
   InlineObject1.JSON_PROPERTY_TRANSACTION,
-  InlineObject1.JSON_PROPERTY_NETWORK
+  InlineObject1.JSON_PROPERTY_NETWORK,
+  InlineObject1.JSON_PROPERTY_AMOUNT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class InlineObject1 {
@@ -66,6 +67,10 @@ public class InlineObject1 {
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
   private String network;
+
+  public static final String JSON_PROPERTY_AMOUNT = "amount";
+  @jakarta.annotation.Nullable
+  private String amount;
 
   public InlineObject1() { 
   }
@@ -214,6 +219,30 @@ public class InlineObject1 {
   }
 
 
+  public InlineObject1 amount(@jakarta.annotation.Nullable String amount) {
+    this.amount = amount;
+    return this;
+  }
+
+  /**
+   * The amount that was settled, in atomic units.
+   * @return amount
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getAmount() {
+    return amount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAmount(@jakarta.annotation.Nullable String amount) {
+    this.amount = amount;
+  }
+
+
   /**
    * Return true if this inline_object_1 object is equal to o.
    */
@@ -231,12 +260,13 @@ public class InlineObject1 {
         Objects.equals(this.errorMessage, inlineObject1.errorMessage) &&
         Objects.equals(this.payer, inlineObject1.payer) &&
         Objects.equals(this.transaction, inlineObject1.transaction) &&
-        Objects.equals(this.network, inlineObject1.network);
+        Objects.equals(this.network, inlineObject1.network) &&
+        Objects.equals(this.amount, inlineObject1.amount);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(success, errorReason, errorMessage, payer, transaction, network);
+    return Objects.hash(success, errorReason, errorMessage, payer, transaction, network, amount);
   }
 
   @Override
@@ -249,6 +279,7 @@ public class InlineObject1 {
     sb.append("    payer: ").append(toIndentedString(payer)).append("\n");
     sb.append("    transaction: ").append(toIndentedString(transaction)).append("\n");
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
+    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -326,6 +357,11 @@ public class InlineObject1 {
       joiner.add(String.format("%snetwork%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getNetwork()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `amount` to the URL query string
+    if (getAmount() != null) {
+      joiner.add(String.format("%samount%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAmount()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -363,6 +399,10 @@ public class InlineObject1 {
     }
     public InlineObject1.Builder network(String network) {
       this.instance.network = network;
+      return this;
+    }
+    public InlineObject1.Builder amount(String amount) {
+      this.instance.amount = amount;
       return this;
     }
 
@@ -404,7 +444,8 @@ public class InlineObject1 {
       .errorMessage(getErrorMessage())
       .payer(getPayer())
       .transaction(getTransaction())
-      .network(getNetwork());
+      .network(getNetwork())
+      .amount(getAmount());
   }
 
 }

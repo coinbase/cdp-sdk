@@ -19,7 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.X402V1PaymentPayloadPayload;
+import com.coinbase.cdp.openapi.model.X402V2PaymentPayloadPayload;
 import com.coinbase.cdp.openapi.model.X402Version;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -130,7 +130,7 @@ public class X402V1PaymentPayload {
 
   public static final String JSON_PROPERTY_PAYLOAD = "payload";
   @jakarta.annotation.Nonnull
-  private X402V1PaymentPayloadPayload payload;
+  private X402V2PaymentPayloadPayload payload;
 
   public X402V1PaymentPayload() { 
   }
@@ -207,7 +207,7 @@ public class X402V1PaymentPayload {
   }
 
 
-  public X402V1PaymentPayload payload(@jakarta.annotation.Nonnull X402V1PaymentPayloadPayload payload) {
+  public X402V1PaymentPayload payload(@jakarta.annotation.Nonnull X402V2PaymentPayloadPayload payload) {
     this.payload = payload;
     return this;
   }
@@ -219,14 +219,14 @@ public class X402V1PaymentPayload {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PAYLOAD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public X402V1PaymentPayloadPayload getPayload() {
+  public X402V2PaymentPayloadPayload getPayload() {
     return payload;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAYLOAD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPayload(@jakarta.annotation.Nonnull X402V1PaymentPayloadPayload payload) {
+  public void setPayload(@jakarta.annotation.Nonnull X402V2PaymentPayloadPayload payload) {
     this.payload = payload;
   }
 
@@ -356,7 +356,7 @@ public class X402V1PaymentPayload {
       this.instance.network = network;
       return this;
     }
-    public X402V1PaymentPayload.Builder payload(X402V1PaymentPayloadPayload payload) {
+    public X402V1PaymentPayload.Builder payload(X402V2PaymentPayloadPayload payload) {
       this.instance.payload = payload;
       return this;
     }

@@ -113,7 +113,7 @@ public class WebhookSubscriptionRequest {
   }
 
   /**
-   * Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;). The subscription will only receive events matching these types AND the label filter(s). 
+   * Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;, \&quot;acceptance.payment_session\&quot;). The subscription will only receive events matching these types AND the label filter(s). 
    * @return eventTypes
    */
   @jakarta.annotation.Nonnull

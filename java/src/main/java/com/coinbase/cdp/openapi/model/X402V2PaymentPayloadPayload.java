@@ -57,37 +57,37 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.coinbase.cdp.openapi.JSON;
 
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-@JsonDeserialize(using = X402V1PaymentPayloadPayload.X402V1PaymentPayloadPayloadDeserializer.class)
-@JsonSerialize(using = X402V1PaymentPayloadPayload.X402V1PaymentPayloadPayloadSerializer.class)
-public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
-    private static final Logger log = Logger.getLogger(X402V1PaymentPayloadPayload.class.getName());
+@JsonDeserialize(using = X402V2PaymentPayloadPayload.X402V2PaymentPayloadPayloadDeserializer.class)
+@JsonSerialize(using = X402V2PaymentPayloadPayload.X402V2PaymentPayloadPayloadSerializer.class)
+public class X402V2PaymentPayloadPayload extends AbstractOpenApiSchema {
+    private static final Logger log = Logger.getLogger(X402V2PaymentPayloadPayload.class.getName());
 
-    public static class X402V1PaymentPayloadPayloadSerializer extends StdSerializer<X402V1PaymentPayloadPayload> {
-        public X402V1PaymentPayloadPayloadSerializer(Class<X402V1PaymentPayloadPayload> t) {
+    public static class X402V2PaymentPayloadPayloadSerializer extends StdSerializer<X402V2PaymentPayloadPayload> {
+        public X402V2PaymentPayloadPayloadSerializer(Class<X402V2PaymentPayloadPayload> t) {
             super(t);
         }
 
-        public X402V1PaymentPayloadPayloadSerializer() {
+        public X402V2PaymentPayloadPayloadSerializer() {
             this(null);
         }
 
         @Override
-        public void serialize(X402V1PaymentPayloadPayload value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        public void serialize(X402V2PaymentPayloadPayload value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeObject(value.getActualInstance());
         }
     }
 
-    public static class X402V1PaymentPayloadPayloadDeserializer extends StdDeserializer<X402V1PaymentPayloadPayload> {
-        public X402V1PaymentPayloadPayloadDeserializer() {
-            this(X402V1PaymentPayloadPayload.class);
+    public static class X402V2PaymentPayloadPayloadDeserializer extends StdDeserializer<X402V2PaymentPayloadPayload> {
+        public X402V2PaymentPayloadPayloadDeserializer() {
+            this(X402V2PaymentPayloadPayload.class);
         }
 
-        public X402V1PaymentPayloadPayloadDeserializer(Class<?> vc) {
+        public X402V2PaymentPayloadPayloadDeserializer(Class<?> vc) {
             super(vc);
         }
 
         @Override
-        public X402V1PaymentPayloadPayload deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public X402V2PaymentPayloadPayload deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
             JsonNode tree = jp.readValueAsTree();
             Object deserialized = null;
             boolean typeCoercion = ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS);
@@ -172,40 +172,40 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
             }
 
             if (match == 1) {
-                X402V1PaymentPayloadPayload ret = new X402V1PaymentPayloadPayload();
+                X402V2PaymentPayloadPayload ret = new X402V2PaymentPayloadPayload();
                 ret.setActualInstance(deserialized);
                 return ret;
             }
-            throw new IOException(String.format("Failed deserialization for X402V1PaymentPayloadPayload: %d classes match result, expected 1", match));
+            throw new IOException(String.format("Failed deserialization for X402V2PaymentPayloadPayload: %d classes match result, expected 1", match));
         }
 
         /**
          * Handle deserialization of the 'null' value.
          */
         @Override
-        public X402V1PaymentPayloadPayload getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-            throw new JsonMappingException(ctxt.getParser(), "X402V1PaymentPayloadPayload cannot be null");
+        public X402V2PaymentPayloadPayload getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+            throw new JsonMappingException(ctxt.getParser(), "X402V2PaymentPayloadPayload cannot be null");
         }
     }
 
     // store a list of schema names defined in oneOf
     public static final Map<String, Class<?>> schemas = new HashMap<>();
 
-    public X402V1PaymentPayloadPayload() {
+    public X402V2PaymentPayloadPayload() {
         super("oneOf", Boolean.FALSE);
     }
 
-    public X402V1PaymentPayloadPayload(X402ExactEvmPayload o) {
-        super("oneOf", Boolean.FALSE);
-        setActualInstance(o);
-    }
-
-    public X402V1PaymentPayloadPayload(X402ExactEvmPermit2Payload o) {
+    public X402V2PaymentPayloadPayload(X402ExactEvmPayload o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
 
-    public X402V1PaymentPayloadPayload(X402ExactSolanaPayload o) {
+    public X402V2PaymentPayloadPayload(X402ExactEvmPermit2Payload o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
+    public X402V2PaymentPayloadPayload(X402ExactSolanaPayload o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
@@ -214,12 +214,12 @@ public class X402V1PaymentPayloadPayload extends AbstractOpenApiSchema {
         schemas.put("X402ExactEvmPayload", X402ExactEvmPayload.class);
         schemas.put("X402ExactEvmPermit2Payload", X402ExactEvmPermit2Payload.class);
         schemas.put("X402ExactSolanaPayload", X402ExactSolanaPayload.class);
-        JSON.registerDescendants(X402V1PaymentPayloadPayload.class, Collections.unmodifiableMap(schemas));
+        JSON.registerDescendants(X402V2PaymentPayloadPayload.class, Collections.unmodifiableMap(schemas));
     }
 
     @Override
     public Map<String, Class<?>> getSchemas() {
-        return X402V1PaymentPayloadPayload.schemas;
+        return X402V2PaymentPayloadPayload.schemas;
     }
 
     /**
