@@ -18,6 +18,10 @@ async def main():
                     "wallet.transaction.pending",
                     "wallet.transaction.confirmed",
                     "wallet.transaction.failed",
+                    "wallet.transaction.created",
+                    "wallet.transaction.broadcast",
+                    "wallet.transaction.replaced",
+                    "wallet.transaction.signed",
                 ],
                 target_url="https://example.com/webhook",
             )
@@ -27,6 +31,7 @@ async def main():
         print(f"Event Types: {subscription.event_types}")
         print(f"Target URL: {subscription.target_url}")
         print(f"Enabled: {subscription.is_enabled}")
+        print(f"Created At: {subscription.created_at}")
 
 
 asyncio.run(main())
