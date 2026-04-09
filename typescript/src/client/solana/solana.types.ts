@@ -201,6 +201,8 @@ export interface SendTransactionOptions {
   network: SendSolanaTransactionBodyNetwork;
   /** The base64 encoded transaction to send. */
   transaction: string;
+  /** Whether CDP should sponsor the transaction fees. */
+  useCdpSponsor?: boolean;
   /** The idempotency key. */
   idempotencyKey?: string;
 }

@@ -15,14 +15,14 @@
 
 import unittest
 
-from cdp.openapi_client.api.sqlapi_alpha_api import SQLAPIAlphaApi
+from cdp.openapi_client.api.sqlapi_api import SQLAPIApi
 
 
-class TestSQLAPIAlphaApi(unittest.IsolatedAsyncioTestCase):
-    """SQLAPIAlphaApi unit test stubs"""
+class TestSQLAPIApi(unittest.IsolatedAsyncioTestCase):
+    """SQLAPIApi unit test stubs"""
 
     async def asyncSetUp(self) -> None:
-        self.api = SQLAPIAlphaApi()
+        self.api = SQLAPIApi()
 
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
@@ -31,6 +31,13 @@ class TestSQLAPIAlphaApi(unittest.IsolatedAsyncioTestCase):
         """Test case for get_sql_grammar
 
         Get SQL grammar
+        """
+        pass
+
+    async def test_get_sql_schema(self) -> None:
+        """Test case for get_sql_schema
+
+        Get schemas details
         """
         pass
 

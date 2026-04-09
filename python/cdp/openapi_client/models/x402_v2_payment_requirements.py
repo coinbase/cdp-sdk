@@ -28,7 +28,7 @@ class X402V2PaymentRequirements(BaseModel):
     """
     The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
     """ # noqa: E501
-    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
+    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.")
     network: StrictStr = Field(description="The network of the blockchain to send payment on in caip2 format.")
     asset: Annotated[str, Field(strict=True)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
     amount: StrictStr = Field(description="The amount to pay for the resource in atomic units of the payment asset.")
@@ -40,8 +40,8 @@ class X402V2PaymentRequirements(BaseModel):
     @field_validator('scheme')
     def scheme_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['exact']):
-            raise ValueError("must be one of enum values ('exact')")
+        if value not in set(['exact', 'upto']):
+            raise ValueError("must be one of enum values ('exact', 'upto')")
         return value
 
     @field_validator('asset')

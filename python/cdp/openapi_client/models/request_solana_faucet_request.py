@@ -42,8 +42,8 @@ class RequestSolanaFaucetRequest(BaseModel):
     @field_validator('token')
     def token_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['sol', 'usdc']):
-            raise ValueError("must be one of enum values ('sol', 'usdc')")
+        if value not in set(['sol', 'usdc', 'cbtusd']):
+            raise ValueError("must be one of enum values ('sol', 'usdc', 'cbtusd')")
         return value
 
     model_config = ConfigDict(

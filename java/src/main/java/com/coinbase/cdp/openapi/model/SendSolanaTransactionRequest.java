@@ -34,7 +34,8 @@ import com.coinbase.cdp.openapi.ApiClient;
  */
 @JsonPropertyOrder({
   SendSolanaTransactionRequest.JSON_PROPERTY_NETWORK,
-  SendSolanaTransactionRequest.JSON_PROPERTY_TRANSACTION
+  SendSolanaTransactionRequest.JSON_PROPERTY_TRANSACTION,
+  SendSolanaTransactionRequest.JSON_PROPERTY_USE_CDP_SPONSOR
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class SendSolanaTransactionRequest {
@@ -80,6 +81,10 @@ public class SendSolanaTransactionRequest {
   public static final String JSON_PROPERTY_TRANSACTION = "transaction";
   @jakarta.annotation.Nonnull
   private String transaction;
+
+  public static final String JSON_PROPERTY_USE_CDP_SPONSOR = "useCdpSponsor";
+  @jakarta.annotation.Nullable
+  private Boolean useCdpSponsor;
 
   public SendSolanaTransactionRequest() { 
   }
@@ -132,6 +137,30 @@ public class SendSolanaTransactionRequest {
   }
 
 
+  public SendSolanaTransactionRequest useCdpSponsor(@jakarta.annotation.Nullable Boolean useCdpSponsor) {
+    this.useCdpSponsor = useCdpSponsor;
+    return this;
+  }
+
+  /**
+   * Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.
+   * @return useCdpSponsor
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_USE_CDP_SPONSOR)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getUseCdpSponsor() {
+    return useCdpSponsor;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_USE_CDP_SPONSOR)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUseCdpSponsor(@jakarta.annotation.Nullable Boolean useCdpSponsor) {
+    this.useCdpSponsor = useCdpSponsor;
+  }
+
+
   /**
    * Return true if this sendSolanaTransaction_request object is equal to o.
    */
@@ -145,12 +174,13 @@ public class SendSolanaTransactionRequest {
     }
     SendSolanaTransactionRequest sendSolanaTransactionRequest = (SendSolanaTransactionRequest) o;
     return Objects.equals(this.network, sendSolanaTransactionRequest.network) &&
-        Objects.equals(this.transaction, sendSolanaTransactionRequest.transaction);
+        Objects.equals(this.transaction, sendSolanaTransactionRequest.transaction) &&
+        Objects.equals(this.useCdpSponsor, sendSolanaTransactionRequest.useCdpSponsor);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(network, transaction);
+    return Objects.hash(network, transaction, useCdpSponsor);
   }
 
   @Override
@@ -159,6 +189,7 @@ public class SendSolanaTransactionRequest {
     sb.append("class SendSolanaTransactionRequest {\n");
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
     sb.append("    transaction: ").append(toIndentedString(transaction)).append("\n");
+    sb.append("    useCdpSponsor: ").append(toIndentedString(useCdpSponsor)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -216,6 +247,11 @@ public class SendSolanaTransactionRequest {
       joiner.add(String.format("%stransaction%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getTransaction()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `useCdpSponsor` to the URL query string
+    if (getUseCdpSponsor() != null) {
+      joiner.add(String.format("%suseCdpSponsor%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getUseCdpSponsor()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -237,6 +273,10 @@ public class SendSolanaTransactionRequest {
     }
     public SendSolanaTransactionRequest.Builder transaction(String transaction) {
       this.instance.transaction = transaction;
+      return this;
+    }
+    public SendSolanaTransactionRequest.Builder useCdpSponsor(Boolean useCdpSponsor) {
+      this.instance.useCdpSponsor = useCdpSponsor;
       return this;
     }
 
@@ -274,7 +314,8 @@ public class SendSolanaTransactionRequest {
   public SendSolanaTransactionRequest.Builder toBuilder() {
     return new SendSolanaTransactionRequest.Builder()
       .network(getNetwork())
-      .transaction(getTransaction());
+      .transaction(getTransaction())
+      .useCdpSponsor(getUseCdpSponsor());
   }
 
 }

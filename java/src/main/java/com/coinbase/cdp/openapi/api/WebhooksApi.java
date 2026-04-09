@@ -18,7 +18,9 @@ import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
 import com.coinbase.cdp.openapi.model.Error;
+import java.time.OffsetDateTime;
 import java.util.UUID;
+import com.coinbase.cdp.openapi.model.WebhookEventListResponse;
 import com.coinbase.cdp.openapi.model.WebhookSubscriptionListResponse;
 import com.coinbase.cdp.openapi.model.WebhookSubscriptionRequest;
 import com.coinbase.cdp.openapi.model.WebhookSubscriptionResponse;
@@ -88,7 +90,7 @@ public class WebhooksApi {
 
   /**
    * Create webhook subscription
-   * Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - &#x60;onchain.activity.detected&#x60; - Smart contract events, transfers, swaps, NFT activity - **Requires** &#x60;labels&#x60; for filtering (e.g., &#x60;contract_address&#x60;, &#x60;event_name&#x60;)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - &#x60;onramp.transaction.created&#x60;, &#x60;onramp.transaction.updated&#x60; - &#x60;onramp.transaction.success&#x60;, &#x60;onramp.transaction.failed&#x60; - &#x60;offramp.transaction.created&#x60;, &#x60;offramp.transaction.updated&#x60; - &#x60;offramp.transaction.success&#x60;, &#x60;offramp.transaction.failed&#x60; - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - &#x60;payments.transfers.quoted&#x60; - &#x60;payments.transfers.processing&#x60; - &#x60;payments.transfers.completed&#x60; - &#x60;payments.transfers.failed&#x60; - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - &#x60;wallet.activity.detected&#x60;  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in &#x60;secret&#x60; field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For &#x60;onchain.activity.detected&#x60; events, use &#x60;labels&#x60; for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - &#x60;network&#x60; (required) - Blockchain network - &#x60;contract_address&#x60; - Smart contract address - &#x60;event_name&#x60; - Event name (e.g., \&quot;Transfer\&quot;, \&quot;Burn\&quot;) - &#x60;event_signature&#x60; - Event signature hash - &#x60;transaction_from&#x60; - Transaction sender address - &#x60;transaction_to&#x60; - Transaction recipient address - &#x60;params.*&#x60; - Any event parameter (e.g., &#x60;params.from&#x60;, &#x60;params.to&#x60;, &#x60;params.sender&#x60;, &#x60;params.tokenId&#x60;)  **Examples**: - **Liquidity Pool Monitor**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xcd1f9777571493aeacb7eae45cd30a226d3e612d\&quot;, \&quot;event_name\&quot;: \&quot;Burn\&quot;}&#x60; - **Price Oracle Tracker**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xbac4a9428ea707c51f171ed9890c3c2fa810305d\&quot;, \&quot;event_name\&quot;: \&quot;PriceUpdated\&quot;}&#x60; - **DeFi Protocol Activity**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0x45c6e6a47a711b14d8357d5243f46704904578e3\&quot;, \&quot;event_name\&quot;: \&quot;Deposit\&quot;}&#x60; 
+   * Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - &#x60;onchain.activity.detected&#x60; - Smart contract events, transfers, swaps, NFT activity - **Requires** &#x60;labels&#x60; for filtering (e.g., &#x60;contract_address&#x60;, &#x60;event_name&#x60;)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - &#x60;onramp.transaction.created&#x60;, &#x60;onramp.transaction.updated&#x60; - &#x60;onramp.transaction.success&#x60;, &#x60;onramp.transaction.failed&#x60; - &#x60;offramp.transaction.created&#x60;, &#x60;offramp.transaction.updated&#x60; - &#x60;offramp.transaction.success&#x60;, &#x60;offramp.transaction.failed&#x60; - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - &#x60;payments.transfers.quoted&#x60; - &#x60;payments.transfers.processing&#x60; - &#x60;payments.transfers.completed&#x60; - &#x60;payments.transfers.failed&#x60; - &#x60;payments.transfers.travel_rule_incomplete&#x60; - &#x60;payments.transfers.travel_rule_completed&#x60; - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - &#x60;wallet.activity.detected&#x60;  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in &#x60;secret&#x60; field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For &#x60;onchain.activity.detected&#x60; events, use &#x60;labels&#x60; for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - &#x60;network&#x60; (required) - Blockchain network - &#x60;contract_address&#x60; - Smart contract address - &#x60;event_name&#x60; - Event name (e.g., \&quot;Transfer\&quot;, \&quot;Burn\&quot;) - &#x60;event_signature&#x60; - Event signature hash - &#x60;transaction_from&#x60; - Transaction sender address - &#x60;transaction_to&#x60; - Transaction recipient address - &#x60;params.*&#x60; - Any event parameter (e.g., &#x60;params.from&#x60;, &#x60;params.to&#x60;, &#x60;params.sender&#x60;, &#x60;params.tokenId&#x60;)  **Examples**: - **Liquidity Pool Monitor**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xcd1f9777571493aeacb7eae45cd30a226d3e612d\&quot;, \&quot;event_name\&quot;: \&quot;Burn\&quot;}&#x60; - **Price Oracle Tracker**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xbac4a9428ea707c51f171ed9890c3c2fa810305d\&quot;, \&quot;event_name\&quot;: \&quot;PriceUpdated\&quot;}&#x60; - **DeFi Protocol Activity**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0x45c6e6a47a711b14d8357d5243f46704904578e3\&quot;, \&quot;event_name\&quot;: \&quot;Deposit\&quot;}&#x60; 
    * @param webhookSubscriptionRequest  (required)
    * @return WebhookSubscriptionResponse
    * @throws ApiException if fails to make API call
@@ -100,7 +102,7 @@ public class WebhooksApi {
 
   /**
    * Create webhook subscription
-   * Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - &#x60;onchain.activity.detected&#x60; - Smart contract events, transfers, swaps, NFT activity - **Requires** &#x60;labels&#x60; for filtering (e.g., &#x60;contract_address&#x60;, &#x60;event_name&#x60;)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - &#x60;onramp.transaction.created&#x60;, &#x60;onramp.transaction.updated&#x60; - &#x60;onramp.transaction.success&#x60;, &#x60;onramp.transaction.failed&#x60; - &#x60;offramp.transaction.created&#x60;, &#x60;offramp.transaction.updated&#x60; - &#x60;offramp.transaction.success&#x60;, &#x60;offramp.transaction.failed&#x60; - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - &#x60;payments.transfers.quoted&#x60; - &#x60;payments.transfers.processing&#x60; - &#x60;payments.transfers.completed&#x60; - &#x60;payments.transfers.failed&#x60; - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - &#x60;wallet.activity.detected&#x60;  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in &#x60;secret&#x60; field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For &#x60;onchain.activity.detected&#x60; events, use &#x60;labels&#x60; for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - &#x60;network&#x60; (required) - Blockchain network - &#x60;contract_address&#x60; - Smart contract address - &#x60;event_name&#x60; - Event name (e.g., \&quot;Transfer\&quot;, \&quot;Burn\&quot;) - &#x60;event_signature&#x60; - Event signature hash - &#x60;transaction_from&#x60; - Transaction sender address - &#x60;transaction_to&#x60; - Transaction recipient address - &#x60;params.*&#x60; - Any event parameter (e.g., &#x60;params.from&#x60;, &#x60;params.to&#x60;, &#x60;params.sender&#x60;, &#x60;params.tokenId&#x60;)  **Examples**: - **Liquidity Pool Monitor**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xcd1f9777571493aeacb7eae45cd30a226d3e612d\&quot;, \&quot;event_name\&quot;: \&quot;Burn\&quot;}&#x60; - **Price Oracle Tracker**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xbac4a9428ea707c51f171ed9890c3c2fa810305d\&quot;, \&quot;event_name\&quot;: \&quot;PriceUpdated\&quot;}&#x60; - **DeFi Protocol Activity**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0x45c6e6a47a711b14d8357d5243f46704904578e3\&quot;, \&quot;event_name\&quot;: \&quot;Deposit\&quot;}&#x60; 
+   * Subscribe to real-time events across CDP products using flexible filtering.  ### Event Types  **Onchain Events** - Monitor Base mainnet with microsecond precision: - &#x60;onchain.activity.detected&#x60; - Smart contract events, transfers, swaps, NFT activity - **Requires** &#x60;labels&#x60; for filtering (e.g., &#x60;contract_address&#x60;, &#x60;event_name&#x60;)  **Onramp/Offramp Events** - Transaction lifecycle notifications: - &#x60;onramp.transaction.created&#x60;, &#x60;onramp.transaction.updated&#x60; - &#x60;onramp.transaction.success&#x60;, &#x60;onramp.transaction.failed&#x60; - &#x60;offramp.transaction.created&#x60;, &#x60;offramp.transaction.updated&#x60; - &#x60;offramp.transaction.success&#x60;, &#x60;offramp.transaction.failed&#x60; - **No labels required** - maximum simplicity for transaction monitoring  **Payments Transfers Events** - Transfer lifecycle notifications: - &#x60;payments.transfers.quoted&#x60; - &#x60;payments.transfers.processing&#x60; - &#x60;payments.transfers.completed&#x60; - &#x60;payments.transfers.failed&#x60; - &#x60;payments.transfers.travel_rule_incomplete&#x60; - &#x60;payments.transfers.travel_rule_completed&#x60; - **No labels required** - enable the transfers webhook to monitor status transitions  **Wallet Events** - Wallet activity notifications: - &#x60;wallet.activity.detected&#x60;  ### Webhook Signature Verification All webhooks include cryptographic signatures for security. The signature secret is returned in &#x60;secret&#x60; field when creating a subscription.  **Note:** Webhooks are in beta and this interface is subject to change.  See the [verification guide](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/webhooks#webhook-signature-verification) for implementation details.  ### Onchain Label Filtering  For &#x60;onchain.activity.detected&#x60; events, use &#x60;labels&#x60; for precise filtering with AND logic (max 20 labels per webhook).  **Allowed labels** (all in snake_case format): - &#x60;network&#x60; (required) - Blockchain network - &#x60;contract_address&#x60; - Smart contract address - &#x60;event_name&#x60; - Event name (e.g., \&quot;Transfer\&quot;, \&quot;Burn\&quot;) - &#x60;event_signature&#x60; - Event signature hash - &#x60;transaction_from&#x60; - Transaction sender address - &#x60;transaction_to&#x60; - Transaction recipient address - &#x60;params.*&#x60; - Any event parameter (e.g., &#x60;params.from&#x60;, &#x60;params.to&#x60;, &#x60;params.sender&#x60;, &#x60;params.tokenId&#x60;)  **Examples**: - **Liquidity Pool Monitor**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xcd1f9777571493aeacb7eae45cd30a226d3e612d\&quot;, \&quot;event_name\&quot;: \&quot;Burn\&quot;}&#x60; - **Price Oracle Tracker**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0xbac4a9428ea707c51f171ed9890c3c2fa810305d\&quot;, \&quot;event_name\&quot;: \&quot;PriceUpdated\&quot;}&#x60; - **DeFi Protocol Activity**: &#x60;{\&quot;network\&quot;: \&quot;base-mainnet\&quot;, \&quot;contract_address\&quot;: \&quot;0x45c6e6a47a711b14d8357d5243f46704904578e3\&quot;, \&quot;event_name\&quot;: \&quot;Deposit\&quot;}&#x60; 
    * @param webhookSubscriptionRequest  (required)
    * @return ApiResponse&lt;WebhookSubscriptionResponse&gt;
    * @throws ApiException if fails to make API call
@@ -322,6 +324,119 @@ public class WebhooksApi {
         .replace("{subscriptionId}", ApiClient.urlEncode(subscriptionId.toString()));
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * List webhook subscription events
+   * Retrieve webhook event delivery attempts for a specific subscription. Returns event deliveries in descending order by creation time (newest first), including delivery status, retry count, and response details.  ### Use Cases - Debug webhook delivery failures and inspect response codes - Monitor delivery status and retry counts - Audit event delivery history for a subscription - Verify that expected events were sent to webhook URLs  ### Filtering Use optional query parameters to narrow results: - &#x60;eventId&#x60; — find a specific event by ID - &#x60;minCreatedAt&#x60; / &#x60;maxCreatedAt&#x60; — filter by time range - &#x60;eventTypeNames&#x60; — filter by event type (comma-separated)  **Note:** Results are limited to the 50 most recent events (newest first). No pagination is supported. 
+   * @param subscriptionId Unique identifier for the webhook subscription. (required)
+   * @param eventId Filter by a specific event ID. (optional)
+   * @param minCreatedAt Filter events created at or after this timestamp (RFC 3339 format). (optional)
+   * @param maxCreatedAt Filter events created at or before this timestamp (RFC 3339 format). (optional)
+   * @param eventTypeNames Filter by event type names (comma-separated). (optional)
+   * @return WebhookEventListResponse
+   * @throws ApiException if fails to make API call
+   */
+  public WebhookEventListResponse listWebhookSubscriptionEvents(UUID subscriptionId, UUID eventId, OffsetDateTime minCreatedAt, OffsetDateTime maxCreatedAt, String eventTypeNames) throws ApiException {
+    ApiResponse<WebhookEventListResponse> localVarResponse = listWebhookSubscriptionEventsWithHttpInfo(subscriptionId, eventId, minCreatedAt, maxCreatedAt, eventTypeNames);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List webhook subscription events
+   * Retrieve webhook event delivery attempts for a specific subscription. Returns event deliveries in descending order by creation time (newest first), including delivery status, retry count, and response details.  ### Use Cases - Debug webhook delivery failures and inspect response codes - Monitor delivery status and retry counts - Audit event delivery history for a subscription - Verify that expected events were sent to webhook URLs  ### Filtering Use optional query parameters to narrow results: - &#x60;eventId&#x60; — find a specific event by ID - &#x60;minCreatedAt&#x60; / &#x60;maxCreatedAt&#x60; — filter by time range - &#x60;eventTypeNames&#x60; — filter by event type (comma-separated)  **Note:** Results are limited to the 50 most recent events (newest first). No pagination is supported. 
+   * @param subscriptionId Unique identifier for the webhook subscription. (required)
+   * @param eventId Filter by a specific event ID. (optional)
+   * @param minCreatedAt Filter events created at or after this timestamp (RFC 3339 format). (optional)
+   * @param maxCreatedAt Filter events created at or before this timestamp (RFC 3339 format). (optional)
+   * @param eventTypeNames Filter by event type names (comma-separated). (optional)
+   * @return ApiResponse&lt;WebhookEventListResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<WebhookEventListResponse> listWebhookSubscriptionEventsWithHttpInfo(UUID subscriptionId, UUID eventId, OffsetDateTime minCreatedAt, OffsetDateTime maxCreatedAt, String eventTypeNames) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listWebhookSubscriptionEventsRequestBuilder(subscriptionId, eventId, minCreatedAt, maxCreatedAt, eventTypeNames);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listWebhookSubscriptionEvents", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<WebhookEventListResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<WebhookEventListResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<WebhookEventListResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listWebhookSubscriptionEventsRequestBuilder(UUID subscriptionId, UUID eventId, OffsetDateTime minCreatedAt, OffsetDateTime maxCreatedAt, String eventTypeNames) throws ApiException {
+    // verify the required parameter 'subscriptionId' is set
+    if (subscriptionId == null) {
+      throw new ApiException(400, "Missing the required parameter 'subscriptionId' when calling listWebhookSubscriptionEvents");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/data/webhooks/subscriptions/{subscriptionId}/events"
+        .replace("{subscriptionId}", ApiClient.urlEncode(subscriptionId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "eventId";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("eventId", eventId));
+    localVarQueryParameterBaseName = "minCreatedAt";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("minCreatedAt", minCreatedAt));
+    localVarQueryParameterBaseName = "maxCreatedAt";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("maxCreatedAt", maxCreatedAt));
+    localVarQueryParameterBaseName = "eventTypeNames";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("eventTypeNames", eventTypeNames));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     localVarRequestBuilder.header("Accept", "application/json");
 

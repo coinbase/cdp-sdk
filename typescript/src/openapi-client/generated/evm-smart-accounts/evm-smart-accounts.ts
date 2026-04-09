@@ -9,7 +9,6 @@ import type {
   CreateEvmSmartAccountBody,
   CreateSpendPermissionRequest,
   EvmSmartAccount,
-  EvmSpendPermissionsRevokeSpendPermissionRequest,
   EvmUserOperation,
   ListEvmSmartAccounts200,
   ListEvmSmartAccountsParams,
@@ -17,6 +16,7 @@ import type {
   ListSpendPermissionsParams,
   PrepareAndSendUserOperationBody,
   PrepareUserOperationBody,
+  RevokeSpendPermissionRequest,
   SendUserOperationBody,
   UpdateEvmSmartAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
@@ -216,7 +216,7 @@ export const listSpendPermissions = (
  */
 export const revokeSpendPermission = (
   address: string,
-  evmSpendPermissionsRevokeSpendPermissionRequest: EvmSpendPermissionsRevokeSpendPermissionRequest,
+  revokeSpendPermissionRequest: RevokeSpendPermissionRequest,
   options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
 ) => {
   return cdpApiClient<EvmUserOperation>(
@@ -224,7 +224,7 @@ export const revokeSpendPermission = (
       url: `/v2/evm/smart-accounts/${address}/spend-permissions/revoke`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: evmSpendPermissionsRevokeSpendPermissionRequest,
+      data: revokeSpendPermissionRequest,
     },
     options,
   );

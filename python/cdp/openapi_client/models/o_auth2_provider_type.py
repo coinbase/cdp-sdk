@@ -31,6 +31,7 @@ class OAuth2ProviderType(str, Enum):
     APPLE = 'apple'
     X = 'x'
     TELEGRAM = 'telegram'
+    GITHUB = 'github'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

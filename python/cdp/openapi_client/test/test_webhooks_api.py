@@ -48,6 +48,13 @@ class TestWebhooksApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_list_webhook_subscription_events(self) -> None:
+        """Test case for list_webhook_subscription_events
+
+        List webhook subscription events
+        """
+        pass
+
     async def test_list_webhook_subscriptions(self) -> None:
         """Test case for list_webhook_subscriptions
 

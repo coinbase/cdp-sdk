@@ -37,8 +37,8 @@ class X402SupportedPaymentKind(BaseModel):
     @field_validator('scheme')
     def scheme_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['exact']):
-            raise ValueError("must be one of enum values ('exact')")
+        if value not in set(['exact', 'upto']):
+            raise ValueError("must be one of enum values ('exact', 'upto')")
         return value
 
     @field_validator('network')

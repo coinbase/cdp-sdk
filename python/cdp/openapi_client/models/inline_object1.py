@@ -35,7 +35,8 @@ class InlineObject1(BaseModel):
     payer: Annotated[str, Field(strict=True)] = Field(description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
     transaction: Annotated[str, Field(strict=True)] = Field(description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.")
     network: StrictStr = Field(description="The network where the settlement occurred.")
-    __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network"]
+    amount: Optional[StrictStr] = Field(default=None, description="The amount that was settled, in atomic units.")
+    __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network", "amount"]
 
     @field_validator('payer')
     def payer_validate_regular_expression(cls, value):
@@ -107,7 +108,8 @@ class InlineObject1(BaseModel):
             "errorMessage": obj.get("errorMessage"),
             "payer": obj.get("payer"),
             "transaction": obj.get("transaction"),
-            "network": obj.get("network")
+            "network": obj.get("network"),
+            "amount": obj.get("amount")
         })
         return _obj
 

@@ -18,8 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +29,8 @@ class SendSolanaTransactionRequest(BaseModel):
     """ # noqa: E501
     network: StrictStr = Field(description="The Solana network to send the transaction to.")
     transaction: StrictStr = Field(description="The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.")
-    __properties: ClassVar[List[str]] = ["network", "transaction"]
+    use_cdp_sponsor: Optional[StrictBool] = Field(default=None, description="Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.", alias="useCdpSponsor")
+    __properties: ClassVar[List[str]] = ["network", "transaction", "useCdpSponsor"]
 
     @field_validator('network')
     def network_validate_enum(cls, value):
@@ -90,7 +91,8 @@ class SendSolanaTransactionRequest(BaseModel):
 
         _obj = cls.model_validate({
             "network": obj.get("network"),
-            "transaction": obj.get("transaction")
+            "transaction": obj.get("transaction"),
+            "useCdpSponsor": obj.get("useCdpSponsor")
         })
         return _obj
 

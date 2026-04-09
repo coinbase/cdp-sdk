@@ -7,35 +7,163 @@
  */
 import type {
   BlockchainAddress,
-  CreateEvmEip7702DelegationWithEndUserAccount201,
-  CreateEvmEip7702DelegationWithEndUserAccountBody,
+  EIP712Message,
+  EvmCall,
+  EvmEip7702DelegationNetwork,
   EvmUserOperation,
-  RevokeDelegationForEndUserBody,
+  EvmUserOperationNetwork,
   RevokeSpendPermissionRequest,
-  SendEvmAssetWithEndUserAccount200,
-  SendEvmAssetWithEndUserAccountBody,
-  SendEvmTransactionWithEndUserAccount200,
-  SendEvmTransactionWithEndUserAccountBody,
-  SendSolanaAssetWithEndUserAccount200,
-  SendSolanaAssetWithEndUserAccountBody,
-  SendSolanaTransactionWithEndUserAccount200,
-  SendSolanaTransactionWithEndUserAccountBody,
-  SendUserOperationWithEndUserAccountBody,
-  SignEvmHashWithEndUserAccount200,
-  SignEvmHashWithEndUserAccountBody,
-  SignEvmMessageWithEndUserAccount200,
-  SignEvmMessageWithEndUserAccountBody,
-  SignEvmTransactionWithEndUserAccount200,
-  SignEvmTransactionWithEndUserAccountBody,
-  SignEvmTypedDataWithEndUserAccount200,
-  SignEvmTypedDataWithEndUserAccountBody,
-  SignSolanaHashWithEndUserAccount200,
-  SignSolanaHashWithEndUserAccountBody,
-  SignSolanaMessageWithEndUserAccount200,
-  SignSolanaMessageWithEndUserAccountBody,
-  SignSolanaTransactionWithEndUserAccount200,
-  SignSolanaTransactionWithEndUserAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
+
+// These types were removed from the shared schemas when the embedded-wallet-api
+// paths were temporarily pulled from the public spec. Defined inline until restored.
+type Url = string;
+
+export type SignEvmHashWithEndUserAccountBody = {
+  hash: string;
+  address: string;
+  walletSecretId?: string;
+};
+export type SignEvmHashWithEndUserAccount200 = { signature: string };
+
+export type SignEvmTransactionWithEndUserAccountBody = {
+  address: string;
+  transaction: string;
+  walletSecretId?: string;
+};
+export type SignEvmTransactionWithEndUserAccount200 = { signedTransaction: string };
+
+export type SendEvmTransactionWithEndUserAccountBodyNetwork =
+  (typeof SendEvmTransactionWithEndUserAccountBodyNetwork)[keyof typeof SendEvmTransactionWithEndUserAccountBodyNetwork];
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEvmTransactionWithEndUserAccountBodyNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+} as const;
+export type SendEvmTransactionWithEndUserAccountBody = {
+  address: string;
+  network: SendEvmTransactionWithEndUserAccountBodyNetwork;
+  transaction: string;
+  walletSecretId?: string;
+};
+export type SendEvmTransactionWithEndUserAccount200 = { transactionHash: string };
+
+export type SendEvmAssetWithEndUserAccountBodyNetwork =
+  (typeof SendEvmAssetWithEndUserAccountBodyNetwork)[keyof typeof SendEvmAssetWithEndUserAccountBodyNetwork];
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEvmAssetWithEndUserAccountBodyNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+} as const;
+export type SendEvmAssetWithEndUserAccountBody = {
+  to: BlockchainAddress;
+  amount: string;
+  network: SendEvmAssetWithEndUserAccountBodyNetwork;
+  useCdpPaymaster?: boolean;
+  paymasterUrl?: Url;
+  walletSecretId?: string;
+};
+export type SendEvmAssetWithEndUserAccount200 = {
+  transactionHash?: string | null;
+  userOpHash?: string | null;
+};
+
+export type SignEvmMessageWithEndUserAccountBody = {
+  address: string;
+  message: string;
+  walletSecretId?: string;
+};
+export type SignEvmMessageWithEndUserAccount200 = { signature: string };
+
+export type SignEvmTypedDataWithEndUserAccountBody = {
+  address: string;
+  typedData: EIP712Message;
+  walletSecretId?: string;
+};
+export type SignEvmTypedDataWithEndUserAccount200 = { signature: string };
+
+export type RevokeDelegationForEndUserBody = { walletSecretId?: string };
+
+export type CreateEvmEip7702DelegationWithEndUserAccountBody = {
+  address: string;
+  network: EvmEip7702DelegationNetwork;
+  enableSpendPermissions?: boolean;
+  walletSecretId?: string;
+};
+export type CreateEvmEip7702DelegationWithEndUserAccount201 = { delegationOperationId: string };
+
+export type SendUserOperationWithEndUserAccountBody = {
+  network: EvmUserOperationNetwork;
+  calls: EvmCall[];
+  useCdpPaymaster: boolean;
+  paymasterUrl?: Url;
+  walletSecretId?: string;
+  dataSuffix?: string;
+};
+
+export type SignSolanaHashWithEndUserAccountBody = {
+  hash: string;
+  address: string;
+  walletSecretId?: string;
+};
+export type SignSolanaHashWithEndUserAccount200 = { signature: string };
+
+export type SignSolanaMessageWithEndUserAccountBody = {
+  address: string;
+  message: string;
+  walletSecretId?: string;
+};
+export type SignSolanaMessageWithEndUserAccount200 = { signature: string };
+
+export type SignSolanaTransactionWithEndUserAccountBody = {
+  address: string;
+  transaction: string;
+  walletSecretId?: string;
+};
+export type SignSolanaTransactionWithEndUserAccount200 = { signedTransaction: string };
+
+export type SendSolanaTransactionWithEndUserAccountBodyNetwork =
+  (typeof SendSolanaTransactionWithEndUserAccountBodyNetwork)[keyof typeof SendSolanaTransactionWithEndUserAccountBodyNetwork];
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolanaTransactionWithEndUserAccountBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+export type SendSolanaTransactionWithEndUserAccountBody = {
+  address: string;
+  network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
+  transaction: string;
+  walletSecretId?: string;
+};
+export type SendSolanaTransactionWithEndUserAccount200 = { transactionSignature: string };
+
+export type SendSolanaAssetWithEndUserAccountBodyNetwork =
+  (typeof SendSolanaAssetWithEndUserAccountBodyNetwork)[keyof typeof SendSolanaAssetWithEndUserAccountBodyNetwork];
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolanaAssetWithEndUserAccountBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+export type SendSolanaAssetWithEndUserAccountBody = {
+  to: BlockchainAddress;
+  amount: string;
+  network: SendSolanaAssetWithEndUserAccountBodyNetwork;
+  createRecipientAta?: boolean;
+  walletSecretId?: string;
+};
+export type SendSolanaAssetWithEndUserAccount200 = { transactionSignature: string };
 
 import { cdpApiClient } from "../../cdpApiClient.js";
 

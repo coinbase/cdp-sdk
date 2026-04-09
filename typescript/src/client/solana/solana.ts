@@ -613,6 +613,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @param {SendTransactionOptions} options - Parameters for sending the Solana transaction.
    * @param {string} options.network - The network to send the transaction to.
    * @param {string} options.transaction - The base64 encoded transaction to send.
+   * @param {boolean} [options.useCdpSponsor] - Whether CDP should sponsor the transaction fees.
    * @param {string} [options.idempotencyKey] - An idempotency key.
    *
    * @returns A promise that resolves to the transaction result.
@@ -622,6 +623,7 @@ export class SolanaClient implements SolanaClientInterface {
    * const signature = await cdp.solana.sendTransaction({
    *   network: "solana-devnet",
    *   transaction: "...",
+   *   useCdpSponsor: true,
    * });
    * ```
    */

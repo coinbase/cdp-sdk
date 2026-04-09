@@ -15,6 +15,7 @@ export interface SendTransactionResult {
  * @param {SendTransactionOptions} options - Parameters for sending the Solana transaction.
  * @param {string} options.network - The network to send the transaction to.
  * @param {string} options.transaction - The base64 encoded transaction to send.
+ * @param {boolean} [options.useCdpSponsor] - Whether CDP should sponsor the transaction fees.
  * @param {string} [options.idempotencyKey] - An idempotency key.
  *
  * @returns A promise that resolves to the transaction result.
@@ -24,6 +25,7 @@ export interface SendTransactionResult {
  * const signature = await sendTransaction({
  *   network: "solana-devnet",
  *   transaction: "...",
+ *   useCdpSponsor: true,
  * });
  * ```
  */
@@ -35,6 +37,7 @@ export async function sendTransaction(
     {
       network: options.network,
       transaction: options.transaction,
+      useCdpSponsor: options.useCdpSponsor,
     },
     options.idempotencyKey,
   );

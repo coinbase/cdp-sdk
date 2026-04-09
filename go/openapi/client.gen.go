@@ -80,7 +80,9 @@ const (
 	ErrorTypeGuestTransactionCount          ErrorType = "guest_transaction_count"
 	ErrorTypeGuestTransactionLimit          ErrorType = "guest_transaction_limit"
 	ErrorTypeIdempotencyError               ErrorType = "idempotency_error"
+	ErrorTypeInsufficientAllowance          ErrorType = "insufficient_allowance"
 	ErrorTypeInsufficientBalance            ErrorType = "insufficient_balance"
+	ErrorTypeInsufficientLiquidity          ErrorType = "insufficient_liquidity"
 	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
 	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
 	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
@@ -119,6 +121,7 @@ const (
 	ErrorTypeTargetEmailInvalid             ErrorType = "target_email_invalid"
 	ErrorTypeTargetOnchainAddressInvalid    ErrorType = "target_onchain_address_invalid"
 	ErrorTypeTimedOut                       ErrorType = "timed_out"
+	ErrorTypeTransactionSimulationFailed    ErrorType = "transaction_simulation_failed"
 	ErrorTypeTransferAmountInvalid          ErrorType = "transfer_amount_invalid"
 	ErrorTypeTransferAssetNotSupported      ErrorType = "transfer_asset_not_supported"
 	ErrorTypeTravelRulesFieldMissing        ErrorType = "travel_rules_field_missing"
@@ -247,12 +250,12 @@ const (
 
 // Defines values for EvmUserOperationStatus.
 const (
-	Broadcast EvmUserOperationStatus = "broadcast"
-	Complete  EvmUserOperationStatus = "complete"
-	Dropped   EvmUserOperationStatus = "dropped"
-	Failed    EvmUserOperationStatus = "failed"
-	Pending   EvmUserOperationStatus = "pending"
-	Signed    EvmUserOperationStatus = "signed"
+	EvmUserOperationStatusBroadcast EvmUserOperationStatus = "broadcast"
+	EvmUserOperationStatusComplete  EvmUserOperationStatus = "complete"
+	EvmUserOperationStatusDropped   EvmUserOperationStatus = "dropped"
+	EvmUserOperationStatusFailed    EvmUserOperationStatus = "failed"
+	EvmUserOperationStatusPending   EvmUserOperationStatus = "pending"
+	EvmUserOperationStatusSigned    EvmUserOperationStatus = "signed"
 )
 
 // Defines values for EvmUserOperationNetwork.
@@ -329,6 +332,7 @@ const (
 // Defines values for OAuth2ProviderType.
 const (
 	Apple    OAuth2ProviderType = "apple"
+	Github   OAuth2ProviderType = "github"
 	Google   OAuth2ProviderType = "google"
 	Telegram OAuth2ProviderType = "telegram"
 	X        OAuth2ProviderType = "x"
@@ -488,6 +492,17 @@ const (
 	SendUserOperation SendUserOperationRuleOperation = "sendUserOperation"
 )
 
+// Defines values for SignEndUserEvmHashRuleAction.
+const (
+	SignEndUserEvmHashRuleActionAccept SignEndUserEvmHashRuleAction = "accept"
+	SignEndUserEvmHashRuleActionReject SignEndUserEvmHashRuleAction = "reject"
+)
+
+// Defines values for SignEndUserEvmHashRuleOperation.
+const (
+	SignEndUserEvmHash SignEndUserEvmHashRuleOperation = "signEndUserEvmHash"
+)
+
 // Defines values for SignEndUserEvmMessageRuleAction.
 const (
 	SignEndUserEvmMessageRuleActionAccept SignEndUserEvmMessageRuleAction = "accept"
@@ -616,13 +631,18 @@ const (
 
 // Defines values for SignSolTransactionRuleAction.
 const (
-	Accept SignSolTransactionRuleAction = "accept"
-	Reject SignSolTransactionRuleAction = "reject"
+	SignSolTransactionRuleActionAccept SignSolTransactionRuleAction = "accept"
+	SignSolTransactionRuleActionReject SignSolTransactionRuleAction = "reject"
 )
 
 // Defines values for SignSolTransactionRuleOperation.
 const (
 	SignSolTransaction SignSolTransactionRuleOperation = "signSolTransaction"
+)
+
+// Defines values for SiweAuthenticationType.
+const (
+	Siwe SiweAuthenticationType = "siwe"
 )
 
 // Defines values for SmsAuthenticationType.
@@ -739,6 +759,15 @@ const (
 	False SwapUnavailableResponseLiquidityAvailable = false
 )
 
+// Defines values for WebhookEventResponseStatus.
+const (
+	WebhookEventResponseStatusFailed     WebhookEventResponseStatus = "failed"
+	WebhookEventResponseStatusPending    WebhookEventResponseStatus = "pending"
+	WebhookEventResponseStatusProcessing WebhookEventResponseStatus = "processing"
+	WebhookEventResponseStatusRetrying   WebhookEventResponseStatus = "retrying"
+	WebhookEventResponseStatusSucceeded  WebhookEventResponseStatus = "succeeded"
+)
+
 // Defines values for X402Version.
 const (
 	X402VersionN1 X402Version = 1
@@ -814,6 +843,7 @@ const (
 // Defines values for X402SupportedPaymentKindScheme.
 const (
 	X402SupportedPaymentKindSchemeExact X402SupportedPaymentKindScheme = "exact"
+	X402SupportedPaymentKindSchemeUpto  X402SupportedPaymentKindScheme = "upto"
 )
 
 // Defines values for X402V1PaymentPayloadNetwork.
@@ -847,6 +877,7 @@ const (
 // Defines values for X402V2PaymentRequirementsScheme.
 const (
 	X402V2PaymentRequirementsSchemeExact X402V2PaymentRequirementsScheme = "exact"
+	X402V2PaymentRequirementsSchemeUpto  X402V2PaymentRequirementsScheme = "upto"
 )
 
 // Defines values for X402VerifyInvalidReason.
@@ -902,6 +933,12 @@ const (
 	ListTokensForAccountParamsNetworkBaseSepolia ListTokensForAccountParamsNetwork = "base-sepolia"
 )
 
+// Defines values for GetSQLSchemaParamsDatabase.
+const (
+	GetSQLSchemaParamsDatabaseBase        GetSQLSchemaParamsDatabase = "base"
+	GetSQLSchemaParamsDatabaseBaseSepolia GetSQLSchemaParamsDatabase = "base_sepolia"
+)
+
 // Defines values for ListEndUsersParamsSort.
 const (
 	CreatedAtAsc  ListEndUsersParamsSort = "createdAt=asc"
@@ -928,9 +965,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -961,8 +998,9 @@ const (
 
 // Defines values for RequestSolanaFaucetJSONBodyToken.
 const (
-	RequestSolanaFaucetJSONBodyTokenSol  RequestSolanaFaucetJSONBodyToken = "sol"
-	RequestSolanaFaucetJSONBodyTokenUsdc RequestSolanaFaucetJSONBodyToken = "usdc"
+	RequestSolanaFaucetJSONBodyTokenCbtusd RequestSolanaFaucetJSONBodyToken = "cbtusd"
+	RequestSolanaFaucetJSONBodyTokenSol    RequestSolanaFaucetJSONBodyToken = "sol"
+	RequestSolanaFaucetJSONBodyTokenUsdc   RequestSolanaFaucetJSONBodyToken = "usdc"
 )
 
 // Abi Contract ABI Specification following Solidity's external JSON interface format.
@@ -1852,7 +1890,7 @@ type MFAMethods struct {
 	} `json:"totp,omitempty"`
 }
 
-// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 type Metadata map[string]string
 
 // MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
@@ -1912,6 +1950,24 @@ type OAuth2Authentication struct {
 // OAuth2ProviderType The type of OAuth2 provider.
 type OAuth2ProviderType string
 
+// OnchainDataColumnSchema Schema definition for a table column.
+type OnchainDataColumnSchema struct {
+	// Description Human-readable description of the column.
+	Description *Description `json:"description,omitempty"`
+
+	// IndexOrder The order of the column in the index. A lower number means the column is more important for the index and should be first in the query.
+	IndexOrder *int `json:"indexOrder,omitempty"`
+
+	// Name Column name.
+	Name *string `json:"name,omitempty"`
+
+	// Nullable Whether this column can contain NULL values.
+	Nullable *bool `json:"nullable,omitempty"`
+
+	// Type Column data type.
+	Type *string `json:"type,omitempty"`
+}
+
 // OnchainDataQuery Request to execute a SQL query against indexed blockchain data.
 type OnchainDataQuery struct {
 	// Cache Enables control over how often queries need to be fully re-executed on the backing store.
@@ -1961,6 +2017,24 @@ type OnchainDataResult struct {
 
 // OnchainDataResultSchemaColumnsType Column data type (ClickHouse types).
 type OnchainDataResultSchemaColumnsType string
+
+// OnchainDataSchemaResponse Schema information for available blockchain data tables.
+type OnchainDataSchemaResponse struct {
+	// Tables List of available tables.
+	Tables *[]OnchainDataTableSchema `json:"tables,omitempty"`
+}
+
+// OnchainDataTableSchema Schema definition for a data table.
+type OnchainDataTableSchema struct {
+	// Columns Column definitions for this table.
+	Columns *[]OnchainDataColumnSchema `json:"columns,omitempty"`
+
+	// Database The blockchain network database this table belongs to.
+	Database *string `json:"database,omitempty"`
+
+	// Table Table name.
+	Table *string `json:"table,omitempty"`
+}
 
 // OnrampLimitType The type of limit:
 //   - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
@@ -2334,6 +2408,21 @@ type SendUserOperationRuleAction string
 // SendUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendUserOperationRuleOperation string
 
+// SignEndUserEvmHashRule defines model for SignEndUserEvmHashRule.
+type SignEndUserEvmHashRule struct {
+	// Action Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
+	Action SignEndUserEvmHashRuleAction `json:"action"`
+
+	// Operation The operation to which the rule applies.
+	Operation SignEndUserEvmHashRuleOperation `json:"operation"`
+}
+
+// SignEndUserEvmHashRuleAction Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
+type SignEndUserEvmHashRuleAction string
+
+// SignEndUserEvmHashRuleOperation The operation to which the rule applies.
+type SignEndUserEvmHashRuleOperation string
+
 // SignEndUserEvmMessageCriteria A schema for specifying criteria for the signEndUserEvmMessage operation.
 type SignEndUserEvmMessageCriteria = []SignEndUserEvmMessageCriteria_Item
 
@@ -2658,6 +2747,18 @@ type SignSolTransactionRuleAction string
 
 // SignSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignSolTransactionRuleOperation string
+
+// SiweAuthentication Information about an end user who authenticates using Sign In With Ethereum (EIP-4361).
+type SiweAuthentication struct {
+	// Address The ERC-55 checksummed Ethereum address of the end user.
+	Address BlockchainAddress `json:"address"`
+
+	// Type The type of authentication information.
+	Type SiweAuthenticationType `json:"type"`
+}
+
+// SiweAuthenticationType The type of authentication information.
+type SiweAuthenticationType string
 
 // SmsAuthentication Information about an end user who authenticates using a one-time password sent to their phone number via SMS.
 type SmsAuthentication struct {
@@ -3072,6 +3173,54 @@ type UserOperationReceiptRevert struct {
 	Message string `json:"message"`
 }
 
+// WebhookEventListResponse Response containing a list of webhook event delivery attempts.
+type WebhookEventListResponse struct {
+	// Events The list of webhook event delivery attempts.
+	Events []WebhookEventResponse `json:"events"`
+}
+
+// WebhookEventResponse Details of a webhook event delivery attempt for a subscription.
+type WebhookEventResponse struct {
+	// CreatedAt Timestamp when the event delivery attempt was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// EventId Unique identifier for the webhook event.
+	EventId string `json:"eventId"`
+
+	// EventTypeName The type of event that was delivered (e.g., "onchain.activity.detected").
+	EventTypeName string `json:"eventTypeName"`
+
+	// Response Details of the HTTP response received from the webhook target.
+	Response *WebhookEventResponseDetail `json:"response,omitempty"`
+
+	// RetryCount Number of delivery retry attempts so far.
+	RetryCount int `json:"retryCount"`
+
+	// Status Current delivery status of the event.
+	Status WebhookEventResponseStatus `json:"status"`
+
+	// SucceededAt Timestamp when the event was successfully delivered. Only present if status is "succeeded".
+	SucceededAt *time.Time `json:"succeededAt,omitempty"`
+}
+
+// WebhookEventResponseStatus Current delivery status of the event.
+type WebhookEventResponseStatus string
+
+// WebhookEventResponseDetail Details of the HTTP response received from the webhook target.
+type WebhookEventResponseDetail struct {
+	// Body Response body returned by the webhook target.
+	Body *string `json:"body,omitempty"`
+
+	// ElapsedTimeMs Round-trip time of the webhook delivery in milliseconds.
+	ElapsedTimeMs *int `json:"elapsedTimeMs,omitempty"`
+
+	// ErrorName Error name if the delivery failed (e.g., timeout, connection_refused).
+	ErrorName *string `json:"errorName,omitempty"`
+
+	// HttpCode HTTP status code returned by the webhook target.
+	HttpCode *int `json:"httpCode,omitempty"`
+}
+
 // WebhookSubscriptionListResponse defines model for WebhookSubscriptionListResponse.
 type WebhookSubscriptionListResponse struct {
 	// NextPageToken The token for the next page of items, if any.
@@ -3087,7 +3236,8 @@ type WebhookSubscriptionRequest struct {
 	Description *Description `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
-	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
+	// "acceptance.payment_session").
 	// The subscription will only receive events matching these types AND the label filter(s).
 	EventTypes []string `json:"eventTypes"`
 
@@ -3103,7 +3253,7 @@ type WebhookSubscriptionRequest struct {
 	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 	Labels *map[string]string `json:"labels,omitempty"`
 
-	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 
 	// Target Target configuration for webhook delivery.
@@ -3120,7 +3270,8 @@ type WebhookSubscriptionResponse struct {
 	Description *Description `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
-	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
+	// "acceptance.payment_session").
 	EventTypes []string `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
@@ -3142,6 +3293,9 @@ type WebhookSubscriptionResponse struct {
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
 	Target WebhookTarget `json:"target"`
+
+	// UpdatedAt When the subscription was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // WebhookSubscriptionResponse_Metadata defines model for WebhookSubscriptionResponse.Metadata.
@@ -3172,7 +3326,7 @@ type WebhookSubscriptionUpdateRequest struct {
 	// Omit to receive all events for the selected event types.
 	Labels *map[string]string `json:"labels,omitempty"`
 
-	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 
 	// Target Target configuration for webhook delivery.
@@ -3490,11 +3644,11 @@ type X402V2PaymentRequirements struct {
 	// For Solana-based networks, payTo will be a base58-encoded Solana address.
 	PayTo string `json:"payTo"`
 
-	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+	// Scheme The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.
 	Scheme X402V2PaymentRequirementsScheme `json:"scheme"`
 }
 
-// X402V2PaymentRequirementsScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+// X402V2PaymentRequirementsScheme The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.
 type X402V2PaymentRequirementsScheme string
 
 // X402VerifyInvalidReason The reason the payment is invalid on the x402 protocol.
@@ -3569,6 +3723,9 @@ type X402SettleError = X402SettlePaymentRejection
 
 // X402SettleResponse defines model for x402SettleResponse.
 type X402SettleResponse struct {
+	// Amount The amount that was settled, in atomic units.
+	Amount *string `json:"amount,omitempty"`
+
 	// ErrorMessage The message describing the error reason.
 	ErrorMessage *string `json:"errorMessage,omitempty"`
 
@@ -3640,6 +3797,18 @@ type ListDataTokenBalancesParams struct {
 // ListTokensForAccountParamsNetwork defines parameters for ListTokensForAccount.
 type ListTokensForAccountParamsNetwork string
 
+// GetSQLSchemaParams defines parameters for GetSQLSchema.
+type GetSQLSchemaParams struct {
+	// Database The name of the database to query. Defaults to "base" when not specified.
+	Database *GetSQLSchemaParamsDatabase `form:"database,omitempty" json:"database,omitempty"`
+
+	// Table Get the schema for a specific table.
+	Table *string `form:"table,omitempty" json:"table,omitempty"`
+}
+
+// GetSQLSchemaParamsDatabase defines parameters for GetSQLSchema.
+type GetSQLSchemaParamsDatabase string
+
 // ListWebhookSubscriptionsParams defines parameters for ListWebhookSubscriptions.
 type ListWebhookSubscriptionsParams struct {
 	// PageSize The number of subscriptions to return per page.
@@ -3647,6 +3816,21 @@ type ListWebhookSubscriptionsParams struct {
 
 	// PageToken The token for the next page of subscriptions, if any.
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ListWebhookSubscriptionEventsParams defines parameters for ListWebhookSubscriptionEvents.
+type ListWebhookSubscriptionEventsParams struct {
+	// EventId Filter by a specific event ID.
+	EventId *openapi_types.UUID `form:"eventId,omitempty" json:"eventId,omitempty"`
+
+	// MinCreatedAt Filter events created at or after this timestamp (RFC 3339 format).
+	MinCreatedAt *time.Time `form:"minCreatedAt,omitempty" json:"minCreatedAt,omitempty"`
+
+	// MaxCreatedAt Filter events created at or before this timestamp (RFC 3339 format).
+	MaxCreatedAt *time.Time `form:"maxCreatedAt,omitempty" json:"maxCreatedAt,omitempty"`
+
+	// EventTypeNames Filter by event type names (comma-separated).
+	EventTypeNames *string `form:"eventTypeNames,omitempty" json:"eventTypeNames,omitempty"`
 }
 
 // ListEndUsersParams defines parameters for ListEndUsers.
@@ -4481,6 +4665,9 @@ type SendSolanaTransactionJSONBody struct {
 
 	// Transaction The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
 	Transaction string `json:"transaction"`
+
+	// UseCdpSponsor Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.
+	UseCdpSponsor *bool `json:"useCdpSponsor,omitempty"`
 }
 
 // SendSolanaTransactionParams defines parameters for SendSolanaTransaction.
@@ -5006,6 +5193,32 @@ func (t *AuthenticationMethod) FromTelegramAuthentication(v TelegramAuthenticati
 
 // MergeTelegramAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided TelegramAuthentication
 func (t *AuthenticationMethod) MergeTelegramAuthentication(v TelegramAuthentication) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSiweAuthentication returns the union data inside the AuthenticationMethod as a SiweAuthentication
+func (t AuthenticationMethod) AsSiweAuthentication() (SiweAuthentication, error) {
+	var body SiweAuthentication
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSiweAuthentication overwrites any union data inside the AuthenticationMethod as the provided SiweAuthentication
+func (t *AuthenticationMethod) FromSiweAuthentication(v SiweAuthentication) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSiweAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided SiweAuthentication
+func (t *AuthenticationMethod) MergeSiweAuthentication(v SiweAuthentication) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -5768,6 +5981,32 @@ func (t *Rule) FromSignEndUserEvmTypedDataRule(v SignEndUserEvmTypedDataRule) er
 
 // MergeSignEndUserEvmTypedDataRule performs a merge with any union data inside the Rule, using the provided SignEndUserEvmTypedDataRule
 func (t *Rule) MergeSignEndUserEvmTypedDataRule(v SignEndUserEvmTypedDataRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmHashRule returns the union data inside the Rule as a SignEndUserEvmHashRule
+func (t Rule) AsSignEndUserEvmHashRule() (SignEndUserEvmHashRule, error) {
+	var body SignEndUserEvmHashRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmHashRule overwrites any union data inside the Rule as the provided SignEndUserEvmHashRule
+func (t *Rule) FromSignEndUserEvmHashRule(v SignEndUserEvmHashRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmHashRule performs a merge with any union data inside the Rule, using the provided SignEndUserEvmHashRule
+func (t *Rule) MergeSignEndUserEvmHashRule(v SignEndUserEvmHashRule) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -7788,32 +8027,6 @@ func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// AsX402V1PaymentPayload returns the union data inside the X402PaymentPayload as a X402V1PaymentPayload
-func (t X402PaymentPayload) AsX402V1PaymentPayload() (X402V1PaymentPayload, error) {
-	var body X402V1PaymentPayload
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromX402V1PaymentPayload overwrites any union data inside the X402PaymentPayload as the provided X402V1PaymentPayload
-func (t *X402PaymentPayload) FromX402V1PaymentPayload(v X402V1PaymentPayload) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeX402V1PaymentPayload performs a merge with any union data inside the X402PaymentPayload, using the provided X402V1PaymentPayload
-func (t *X402PaymentPayload) MergeX402V1PaymentPayload(v X402V1PaymentPayload) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
 // AsX402V2PaymentPayload returns the union data inside the X402PaymentPayload as a X402V2PaymentPayload
 func (t X402PaymentPayload) AsX402V2PaymentPayload() (X402V2PaymentPayload, error) {
 	var body X402V2PaymentPayload
@@ -7840,32 +8053,22 @@ func (t *X402PaymentPayload) MergeX402V2PaymentPayload(v X402V2PaymentPayload) e
 	return err
 }
 
-func (t X402PaymentPayload) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *X402PaymentPayload) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsX402V1PaymentRequirements returns the union data inside the X402PaymentRequirements as a X402V1PaymentRequirements
-func (t X402PaymentRequirements) AsX402V1PaymentRequirements() (X402V1PaymentRequirements, error) {
-	var body X402V1PaymentRequirements
+// AsX402V1PaymentPayload returns the union data inside the X402PaymentPayload as a X402V1PaymentPayload
+func (t X402PaymentPayload) AsX402V1PaymentPayload() (X402V1PaymentPayload, error) {
+	var body X402V1PaymentPayload
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromX402V1PaymentRequirements overwrites any union data inside the X402PaymentRequirements as the provided X402V1PaymentRequirements
-func (t *X402PaymentRequirements) FromX402V1PaymentRequirements(v X402V1PaymentRequirements) error {
+// FromX402V1PaymentPayload overwrites any union data inside the X402PaymentPayload as the provided X402V1PaymentPayload
+func (t *X402PaymentPayload) FromX402V1PaymentPayload(v X402V1PaymentPayload) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeX402V1PaymentRequirements performs a merge with any union data inside the X402PaymentRequirements, using the provided X402V1PaymentRequirements
-func (t *X402PaymentRequirements) MergeX402V1PaymentRequirements(v X402V1PaymentRequirements) error {
+// MergeX402V1PaymentPayload performs a merge with any union data inside the X402PaymentPayload, using the provided X402V1PaymentPayload
+func (t *X402PaymentPayload) MergeX402V1PaymentPayload(v X402V1PaymentPayload) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -7873,6 +8076,16 @@ func (t *X402PaymentRequirements) MergeX402V1PaymentRequirements(v X402V1Payment
 
 	merged, err := runtime.JsonMerge(t.union, b)
 	t.union = merged
+	return err
+}
+
+func (t X402PaymentPayload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402PaymentPayload) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
@@ -7892,6 +8105,32 @@ func (t *X402PaymentRequirements) FromX402V2PaymentRequirements(v X402V2PaymentR
 
 // MergeX402V2PaymentRequirements performs a merge with any union data inside the X402PaymentRequirements, using the provided X402V2PaymentRequirements
 func (t *X402PaymentRequirements) MergeX402V2PaymentRequirements(v X402V2PaymentRequirements) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402V1PaymentRequirements returns the union data inside the X402PaymentRequirements as a X402V1PaymentRequirements
+func (t X402PaymentRequirements) AsX402V1PaymentRequirements() (X402V1PaymentRequirements, error) {
+	var body X402V1PaymentRequirements
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402V1PaymentRequirements overwrites any union data inside the X402PaymentRequirements as the provided X402V1PaymentRequirements
+func (t *X402PaymentRequirements) FromX402V1PaymentRequirements(v X402V1PaymentRequirements) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402V1PaymentRequirements performs a merge with any union data inside the X402PaymentRequirements, using the provided X402V1PaymentRequirements
+func (t *X402PaymentRequirements) MergeX402V1PaymentRequirements(v X402V1PaymentRequirements) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -8175,6 +8414,9 @@ type ClientInterface interface {
 
 	RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetSQLSchema request
+	GetSQLSchema(ctx context.Context, params *GetSQLSchemaParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListWebhookSubscriptions request
 	ListWebhookSubscriptions(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -8193,6 +8435,9 @@ type ClientInterface interface {
 	UpdateWebhookSubscriptionWithBody(ctx context.Context, subscriptionId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListWebhookSubscriptionEvents request
+	ListWebhookSubscriptionEvents(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListEndUsers request
 	ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8531,6 +8776,18 @@ func (c *CDPClient) RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequest
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) GetSQLSchema(ctx context.Context, params *GetSQLSchemaParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSQLSchemaRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) ListWebhookSubscriptions(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListWebhookSubscriptionsRequest(c.Server, params)
 	if err != nil {
@@ -8605,6 +8862,18 @@ func (c *CDPClient) UpdateWebhookSubscriptionWithBody(ctx context.Context, subsc
 
 func (c *CDPClient) UpdateWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateWebhookSubscriptionRequest(c.Server, subscriptionId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListWebhookSubscriptionEvents(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListWebhookSubscriptionEventsRequest(c.Server, subscriptionId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -10074,6 +10343,71 @@ func NewRunSQLQueryRequestWithBody(server string, contentType string, body io.Re
 	return req, nil
 }
 
+// NewGetSQLSchemaRequest generates requests for GetSQLSchema
+func NewGetSQLSchemaRequest(server string, params *GetSQLSchemaParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/query/schema")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Database != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "database", runtime.ParamLocationQuery, *params.Database); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Table != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "table", runtime.ParamLocationQuery, *params.Table); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListWebhookSubscriptionsRequest generates requests for ListWebhookSubscriptions
 func NewListWebhookSubscriptionsRequest(server string, params *ListWebhookSubscriptionsParams) (*http.Request, error) {
 	var err error
@@ -10290,6 +10624,110 @@ func NewUpdateWebhookSubscriptionRequestWithBody(server string, subscriptionId o
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListWebhookSubscriptionEventsRequest generates requests for ListWebhookSubscriptionEvents
+func NewListWebhookSubscriptionEventsRequest(server string, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "subscriptionId", runtime.ParamLocationPath, subscriptionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/webhooks/subscriptions/%s/events", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.EventId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "eventId", runtime.ParamLocationQuery, *params.EventId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.MinCreatedAt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "minCreatedAt", runtime.ParamLocationQuery, *params.MinCreatedAt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.MaxCreatedAt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "maxCreatedAt", runtime.ParamLocationQuery, *params.MaxCreatedAt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.EventTypeNames != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "eventTypeNames", runtime.ParamLocationQuery, *params.EventTypeNames); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -14131,6 +14569,9 @@ type ClientWithResponsesInterface interface {
 
 	RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
 
+	// GetSQLSchemaWithResponse request
+	GetSQLSchemaWithResponse(ctx context.Context, params *GetSQLSchemaParams, reqEditors ...RequestEditorFn) (*GetSQLSchemaResponse, error)
+
 	// ListWebhookSubscriptionsWithResponse request
 	ListWebhookSubscriptionsWithResponse(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionsResponse, error)
 
@@ -14149,6 +14590,9 @@ type ClientWithResponsesInterface interface {
 	UpdateWebhookSubscriptionWithBodyWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateWebhookSubscriptionResponse, error)
 
 	UpdateWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateWebhookSubscriptionResponse, error)
+
+	// ListWebhookSubscriptionEventsWithResponse request
+	ListWebhookSubscriptionEventsWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionEventsResponse, error)
 
 	// ListEndUsersWithResponse request
 	ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error)
@@ -14518,6 +14962,7 @@ type RunSQLQueryResponse struct {
 	JSON200      *OnchainDataResult
 	JSON400      *InvalidSQLQueryError
 	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
 	JSON408      *Error
 	JSON429      *Error
 	JSON499      *ClientClosedRequestError
@@ -14535,6 +14980,30 @@ func (r RunSQLQueryResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RunSQLQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetSQLSchemaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OnchainDataSchemaResponse
+	JSON401      *UnauthorizedError
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSQLSchemaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSQLSchemaResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -14665,6 +15134,33 @@ func (r UpdateWebhookSubscriptionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateWebhookSubscriptionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListWebhookSubscriptionEventsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WebhookEventListResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListWebhookSubscriptionEventsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListWebhookSubscriptionEventsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -16638,6 +17134,15 @@ func (c *ClientWithResponses) RunSQLQueryWithResponse(ctx context.Context, body 
 	return ParseRunSQLQueryResponse(rsp)
 }
 
+// GetSQLSchemaWithResponse request returning *GetSQLSchemaResponse
+func (c *ClientWithResponses) GetSQLSchemaWithResponse(ctx context.Context, params *GetSQLSchemaParams, reqEditors ...RequestEditorFn) (*GetSQLSchemaResponse, error) {
+	rsp, err := c.GetSQLSchema(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSQLSchemaResponse(rsp)
+}
+
 // ListWebhookSubscriptionsWithResponse request returning *ListWebhookSubscriptionsResponse
 func (c *ClientWithResponses) ListWebhookSubscriptionsWithResponse(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionsResponse, error) {
 	rsp, err := c.ListWebhookSubscriptions(ctx, params, reqEditors...)
@@ -16697,6 +17202,15 @@ func (c *ClientWithResponses) UpdateWebhookSubscriptionWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseUpdateWebhookSubscriptionResponse(rsp)
+}
+
+// ListWebhookSubscriptionEventsWithResponse request returning *ListWebhookSubscriptionEventsResponse
+func (c *ClientWithResponses) ListWebhookSubscriptionEventsWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionEventsResponse, error) {
+	rsp, err := c.ListWebhookSubscriptionEvents(ctx, subscriptionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListWebhookSubscriptionEventsResponse(rsp)
 }
 
 // ListEndUsersWithResponse request returning *ListEndUsersResponse
@@ -17821,6 +18335,13 @@ func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) 
 		}
 		response.JSON401 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 408:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -17855,6 +18376,46 @@ func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) 
 			return nil, err
 		}
 		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetSQLSchemaResponse parses an HTTP response from a GetSQLSchemaWithResponse call
+func ParseGetSQLSchemaResponse(rsp *http.Response) (*GetSQLSchemaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSQLSchemaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OnchainDataSchemaResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 
@@ -18086,6 +18647,67 @@ func ParseUpdateWebhookSubscriptionResponse(rsp *http.Response) (*UpdateWebhookS
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest WebhookSubscriptionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListWebhookSubscriptionEventsResponse parses an HTTP response from a ListWebhookSubscriptionEventsWithResponse call
+func ParseListWebhookSubscriptionEventsResponse(rsp *http.Response) (*ListWebhookSubscriptionEventsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListWebhookSubscriptionEventsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WebhookEventListResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

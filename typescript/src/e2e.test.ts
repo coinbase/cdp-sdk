@@ -1818,6 +1818,26 @@ describe("CDP Client E2E Tests", () => {
 
         await confirmTransaction(rpc, signature as Signature);
       });
+
+      it("should send a fee-sponsored transaction", async () => {
+        const rpc = createSolanaRpc(
+          process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+        );
+
+        const { signature } = await cdp.solana.sendTransaction({
+          network: "solana-devnet",
+          transaction: createAndEncodeTransaction(
+            testSolanaAccount.address,
+            "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+            10,
+          ),
+          useCdpSponsor: true,
+        });
+
+        expect(signature).toBeDefined();
+
+        await confirmTransaction(rpc, signature as Signature);
+      });
     });
 
     describe("transfer", () => {
