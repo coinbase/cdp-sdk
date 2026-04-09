@@ -9,7 +9,8 @@ export type WebhookEventType =
   | "wallet.transaction.pending"
   | "wallet.transaction.replaced"
   | "wallet.transaction.confirmed"
-  | "wallet.transaction.failed";
+  | "wallet.transaction.failed"
+  | "wallet.transaction.signed";
 
 /**
  * Options for creating a webhook subscription.
