@@ -33,7 +33,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
-          node-version: 22
+          node-version: 22.22.1
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
           cache-dependency-path: ./typescript
