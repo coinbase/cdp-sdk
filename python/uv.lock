@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -363,7 +363,7 @@ requires-dist = [
     { name = "sphinxcontrib-napoleon", marker = "extra == 'dev'", specifier = ">=0.7" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = ">=24.8.0,<25" },
     { name = "urllib3", specifier = ">=2.2.3" },
-    { name = "web3", specifier = ">=7.6.0,<=7.10.0" },
+    { name = "web3", specifier = ">=7.6.0,<=7.15.0" },
 ]
 provides-extras = ["dev"]
 
@@ -2297,7 +2297,7 @@ wheels = [
 
 [[package]]
 name = "web3"
-version = "7.6.0"
+version = "7.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2316,9 +2316,9 @@ dependencies = [
     { name = "typing-extensions", version = "4.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/4a/7679004558ff677248e90952cf05789ddba19b52389fccf5387d2b602de4/web3-7.6.0.tar.gz", hash = "sha256:25df8acdcb78eb872c3299408b79e8b4fd091602de5e3d29cbd8459e8f75ff23", size = 2172471, upload-time = "2024-11-22T17:54:10.9Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/93/84/1516ee335e89e4d7d0837895d21091244ee3189d1ffe76fa435d2bd15f4e/web3-7.15.0.tar.gz", hash = "sha256:2a2bcbab8fcf120c2256ddbdc88fcc80a47c100ad758659a980e9fab66609171", size = 2211838, upload-time = "2026-04-02T18:20:40.355Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/81/580fe1e55face22795025bc303c38a035d81865413d81ca2836dc6c4ce83/web3-7.6.0-py3-none-any.whl", hash = "sha256:670dac222b2ec5ce72f4572d8e5d91afe79fcac03af9dabfc69da4fe9f6621df", size = 1351846, upload-time = "2024-11-22T17:54:08.941Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/f0/ef9b82557b22b1cdb95ec7863d1d9897ed3b9e096a1af5e046fb892efdc0/web3-7.15.0-py3-none-any.whl", hash = "sha256:bbeba510aaa4eb3c99662d911db9d2a648ab40f608cf0269065f7db1d1d0b0c0", size = 1373052, upload-time = "2026-04-02T18:20:36.757Z" },
 ]
 
 [[package]]

@@ -14,7 +14,7 @@ dependencies = [
     "urllib3>=2.2.3",
     "aiohttp>=3.11.16",
     "aiohttp-retry>=2.9.1",
-    "web3>=7.6.0,<=7.10.0",
+    "web3>=7.6.0,<=7.15.0",
     "solana>=0.36.6",
     "solders>=0.26.0",
     "nest-asyncio>=1.6.0,<2",
