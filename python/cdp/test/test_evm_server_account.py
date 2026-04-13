@@ -1,4 +1,3 @@
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -474,9 +473,7 @@ async def test_use_network(server_account_model_factory):
     account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
 
     # Test the use_network method
-    network_account = asyncio.get_event_loop().run_until_complete(
-        account.__experimental_use_network__(network)
-    )
+    network_account = await account.__experimental_use_network__(network)
 
     assert network_account.address == address
     assert network_account.network == network

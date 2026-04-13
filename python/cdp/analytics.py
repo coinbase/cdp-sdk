@@ -30,7 +30,9 @@ class ActionEventData(BaseModel):
     """The data in an action event."""
 
     action: str  # The operation being performed, e.g. "transfer", "swap", "fund", "requestFaucet"
-    account_type: Literal["evm_server", "evm_smart", "solana"] | None = None  # The account type
+    account_type: Literal["evm_server", "evm_smart", "evm_local", "solana"] | None = (
+        None  # The account type
+    )
     properties: dict[str, Any] | None = None  # Additional properties specific to the action
     name: Literal["action"]  # The name of the event
 
@@ -44,7 +46,7 @@ Analytics = {
 
 def track_action(
     action: str,
-    account_type: Literal["evm_server", "evm_smart", "solana"] | None = None,
+    account_type: Literal["evm_server", "evm_smart", "evm_local", "solana"] | None = None,
     properties: dict[str, Any] | None = None,
 ) -> None:
     """Track an action being performed.

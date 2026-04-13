@@ -2385,6 +2385,59 @@ async def test_update_evm_smart_account(cdp_client):
 
 
 @pytest.mark.e2e
+def test_evm_local_account_from_sync_context():
+    """Regression test for #591.
+
+    EvmLocalAccount must work from a purely synchronous context (no running event loop)
+    without nest_asyncio.
+    """
+
+    async def _setup():
+        client = CdpClient(**client_args)
+        account = await client.evm.create_account()
+        local_account = EvmLocalAccount(account)
+        await client.close()
+        return local_account
+
+    # asyncio.run() creates a fresh loop, runs setup, then closes the loop.
+    # After it returns we are in a pure sync context with no running event loop.
+    local_account = asyncio.run(_setup())
+
+    message_hash = "0x1234567890123456789012345678901234567890123456789012345678901234"
+    signed_hash = local_account.unsafe_sign_hash(message_hash)
+    assert signed_hash is not None
+    assert signed_hash.signature is not None
+
+    signable_message = encode_defunct(text="Hello from sync context!")
+    signed_message = local_account.sign_message(signable_message)
+    assert signed_message is not None
+    assert signed_message.signature is not None
+
+    signed_transaction = local_account.sign_transaction(
+        transaction_dict={
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0,
+            "chainId": 84532,
+            "gas": 21000,
+            "maxFeePerGas": 1000000000,
+            "maxPriorityFeePerGas": 1000000000,
+            "nonce": 0,
+            "type": "0x2",
+        }
+    )
+    assert signed_transaction is not None
+    assert signed_transaction.raw_transaction is not None
+
+    signed_typed_data = local_account.sign_typed_data(
+        domain_data={"name": "Test", "version": "1", "chainId": 1},
+        message_types={"Message": [{"name": "value", "type": "string"}]},
+        message_data={"value": "Hello from sync context!"},
+    )
+    assert signed_typed_data is not None
+    assert signed_typed_data.signature is not None
+
+
+@pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_evm_local_account_sign_hash(cdp_client):
     """Test signing a hash with an EVM local account."""
