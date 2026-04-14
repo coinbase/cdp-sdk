@@ -51,12 +51,7 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
 
 /**
  * The CDP end user client.
- */
-export class CDPEndUserClient {
 
-  /**
-   * Creates an end user. An end user is an entity that can own CDP EVM accounts,
-   * EVM smart accounts, and/or Solana accounts.
    *
    * @param options - The options for creating an end user.
    *
@@ -279,9 +274,7 @@ export class CDPEndUserClient {
       action: "revoke_delegation_for_end_user",
     });
 
-    const { userId } = options;
-
-    await CdpOpenApiClient.revokeDelegation(userId, {});
+    await CdpOpenApiClient.revokeDelegationForEndUser(userId, {});
   }
 
   // ─── Delegated EVM Sign Methods ───
@@ -303,9 +296,9 @@ export class CDPEndUserClient {
    * });
    * console.log(result.signature);
    * ```
-   */
-  async signEvmHash(options: SignEvmHashOptions): Promise<SignEvmHashResult> {
-    return CdpOpenApiClient.signEvmHashWithEndUserAccountDelegation(options.userId, {
+   Analytics.trackAction({ action: "end_user_sign_evm_hash" });
+
+    return CdpOpenApiClient.signEvmHashWithEndUserAccount(options.userId, {
       hash: options.hash,
       address: options.address,
     });
@@ -329,9 +322,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmTransaction(options: SignEvmTransactionOptions): Promise<SignEvmTransactionResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
-
-    return CdpOpenApiClient.signEvmTransactionWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.signEvmTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
     });
@@ -355,9 +346,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmMessage(options: SignEvmMessageOptions): Promise<SignEvmMessageResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_message" });
-
-    return CdpOpenApiClient.signEvmMessageWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.signEvmMessageWithEndUserAccount(options.userId, {
       address: options.address,
       message: options.message,
     });
@@ -381,9 +370,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signEvmTypedData(options: SignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
-
-    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.signEvmTypedDataWithEndUserAccount(options.userId, {
       address: options.address,
       typedData: options.typedData,
     });
@@ -410,9 +397,7 @@ export class CDPEndUserClient {
    * ```
    */
   async sendEvmTransaction(options: SendEvmTransactionOptions): Promise<SendEvmTransactionResult> {
-    Analytics.trackAction({ action: "end_user_send_evm_transaction" });
-
-    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.sendEvmTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
       network: options.network,
@@ -439,20 +424,15 @@ export class CDPEndUserClient {
    * ```
    */
   async sendEvmAsset(options: SendEvmAssetOptions): Promise<SendEvmAssetResult> {
-    Analytics.trackAction({ action: "end_user_send_evm_asset" });
+    const asset = options.asset ?? "usdc";
 
-    return CdpOpenApiClient.sendEvmAssetWithEndUserAccountDelegation(
-      options.userId,
-      options.address,
-      asset,
-      {
-        to: options.to,
-        amount: options.amount,
-        network: options.network,
-        useCdpPaymaster: options.useCdpPaymaster,
-        paymasterUrl: options.paymasterUrl,
-      },
-    );
+    return CdpOpenApiClient.sendEvmAssetWithEndUserAccount(options.userId, options.address, asset, {
+      to: options.to,
+      amount: options.amount,
+      network: options.network,
+      useCdpPaymaster: options.useCdpPaymaster,
+      paymasterUrl: options.paymasterUrl,
+    });
   }
 
   /**
@@ -472,19 +452,15 @@ export class CDPEndUserClient {
    *   useCdpPaymaster: true
    * });
    * ```
-   */
-  async sendUserOperation(options: SendUserOperationOptions): Promise<SendUserOperationResult> {
-    return CdpOpenApiClient.sendUserOperationWithEndUserAccountDelegation(
-      options.userId,
-      options.address,
-      {
-        network: options.network,
-        calls: options.calls,
-        useCdpPaymaster: options.useCdpPaymaster,
-        paymasterUrl: options.paymasterUrl,
-        dataSuffix: options.dataSuffix,
-      },
-    );
+   Analytics.trackAction({ action: "end_user_send_user_operation" });
+
+    return CdpOpenApiClient.sendUserOperationWithEndUserAccount(options.userId, options.address, {
+      network: options.network,
+      calls: options.calls,
+      useCdpPaymaster: options.useCdpPaymaster,
+      paymasterUrl: options.paymasterUrl,
+      dataSuffix: options.dataSuffix,
+    });
   }
 
   // ─── Delegated EVM EIP-7702 Delegation Method ───
@@ -509,9 +485,7 @@ export class CDPEndUserClient {
   async createEvmEip7702Delegation(
     options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
-    Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
-
-    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount(options.userId, {
       address: options.address,
       network: options.network,
       enableSpendPermissions: options.enableSpendPermissions,
@@ -538,9 +512,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_hash" });
-
-    return CdpOpenApiClient.signSolanaHashWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.signSolanaHashWithEndUserAccount(options.userId, {
       hash: options.hash,
       address: options.address,
     });
@@ -564,9 +536,7 @@ export class CDPEndUserClient {
    * ```
    */
   async signSolanaMessage(options: SignSolanaMessageOptions): Promise<SignSolanaMessageResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_message" });
-
-    return CdpOpenApiClient.signSolanaMessageWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.signSolanaMessageWithEndUserAccount(options.userId, {
       address: options.address,
       message: options.message,
     });
@@ -592,9 +562,7 @@ export class CDPEndUserClient {
   async signSolanaTransaction(
     options: SignSolanaTransactionOptions,
   ): Promise<SignSolanaTransactionResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
-
-    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.signSolanaTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
     });
@@ -623,9 +591,7 @@ export class CDPEndUserClient {
   async sendSolanaTransaction(
     options: SendSolanaTransactionOptions,
   ): Promise<SendSolanaTransactionResult> {
-    Analytics.trackAction({ action: "end_user_send_solana_transaction" });
-
-    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccountDelegation(options.userId, {
+    return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
       network: options.network,
@@ -652,9 +618,9 @@ export class CDPEndUserClient {
    * ```
    */
   async sendSolanaAsset(options: SendSolanaAssetOptions): Promise<SendSolanaAssetResult> {
-    Analytics.trackAction({ action: "end_user_send_solana_asset" });
+    const asset = options.asset ?? "usdc";
 
-    return CdpOpenApiClient.sendSolanaAssetWithEndUserAccountDelegation(
+    return CdpOpenApiClient.sendSolanaAssetWithEndUserAccount(
       options.userId,
       options.address,
       asset,

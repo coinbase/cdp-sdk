@@ -6,13 +6,13 @@ export * from "./generated/evm-token-balances/evm-token-balances.js";
 export * from "./generated/solana-accounts/solana-accounts.js";
 export * from "./generated/solana-token-balances/solana-token-balances.js";
 export * from "./generated/faucets/faucets.js";
-export * from "./generated/policy-engine/policy-engine.js";
-export * from "./generated/onramp/onramp.js";
-export * from "./generated/embedded-wallets-delegated-signing/embedded-wallets-delegated-signing.js";
+export * from "./generated/onchain-data/onchain-data.js";
+export * from "./generated/end-user-accounts/end-user-accounts.js";
+export * from "./generated/embedded-wallets/embedded-wallets.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
 
 import { configure } from "./cdpApiClient.js";
-import * as embeddedWalletsDelegated from "./generated/embedded-wallets-delegated-signing/embedded-wallets-delegated-signing.js";
+import * as embeddedWallets from "./generated/embedded-wallets/embedded-wallets.js";
 import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
 import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
@@ -33,9 +33,9 @@ export const CdpOpenApiClient = {
   ...webhooks,
   ...solana,
   ...solanaTokenBalances,
-  ...faucets,
-  ...onchainData,
-  ...embeddedWalletsDelegated,
+  ...policies,
+  ...endUserAccounts,
+  ...embeddedWallets,
   configure,
 };
 

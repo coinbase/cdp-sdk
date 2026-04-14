@@ -1543,72 +1543,7 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
-<<<<<<< HEAD
   /v2/embedded-wallet-api/end-users/{userId}/evm/sign:
-=======
-  /v2/embedded-wallet-api/delegated/end-users/{userId}/delegation:
-    delete:
-      x-audience: public
-      summary: Revoke delegation for end user
-      description: Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
-      operationId: revokeDelegation
-      tags:
-        - Embedded Wallets (Delegated Signing)
-      security:
-        - apiKeyAuth: []
-      parameters:
-        - $ref: '#/components/parameters/XWalletAuthOptional'
-        - $ref: '#/components/parameters/XDeveloperAuth'
-          required: false
-        - $ref: '#/components/parameters/IdempotencyKey'
-        - name: userId
-          in: path
-          required: true
-          description: The ID of the end user.
-          schema:
-            type: string
-            pattern: ^[a-zA-Z0-9-]{1,100}$
-            example: e051beeb-7163-4527-a5b6-35e301529ff2
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                walletSecretId:
-                  description: When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-                  type: string
-                  pattern: ^[a-zA-Z0-9-]{1,100}$
-                  example: e051beeb-7163-4527-a5b6-35e301529ff2
-            example:
-              walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
-      responses:
-        '204':
-          description: Delegation revoked successfully.
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Delegation not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                not_found:
-                  value:
-                    errorType: not_found
-                    errorMessage: No active delegation found for the specified end user.
-                    errorParam: userId
-                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '502':
-          $ref: '#/components/responses/BadGatewayError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailableError'
-  /v2/embedded-wallet-api/delegated/end-users/{userId}/evm/sign:
->>>>>>> 0d1ded0 (chore: use latest public cdp-api for delegated ops, fix end user client)
     post:
       x-audience: public
       summary: Sign a hash with end user EVM account
@@ -15307,20 +15242,6 @@ components:
       example: 8e03978e-40d5-43e8-bc93-6894a57f9324
     XWalletAuthOptional:
       name: X-Wallet-Auth
-<<<<<<< HEAD
-=======
-      in: header
-      required: false
-      description: |
-        A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
-        section of our Authentication docs for more details on how to generate your Wallet Token.
-      schema:
-        type: string
-      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
-    XDeveloperAuth:
-      name: X-Developer-Auth
->>>>>>> 0d1ded0 (chore: use latest public cdp-api for delegated ops, fix end user client)
       in: header
       required: false
       description: |

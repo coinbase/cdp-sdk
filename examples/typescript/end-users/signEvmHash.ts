@@ -11,10 +11,8 @@ if (!userId) {
   process.exit(1);
 }
 
-const cdp = new CdpClient();
+const cdp = new CdpClient({ debugging: true });
 
-try {
-  const endUser = await cdp.endUser.getEndUser({ userId });
 
   console.log("EVM address:", endUser.evmAccountObjects[0]?.address);
 
