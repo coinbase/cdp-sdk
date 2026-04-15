@@ -1492,8 +1492,11 @@ export const EvmNetworkCriterionNetworksItem = {
   polygon: "polygon",
   optimism: "optimism",
   arbitrum: "arbitrum",
+  "arbitrum-sepolia": "arbitrum-sepolia",
   zora: "zora",
   bnb: "bnb",
+  world: "world",
+  "world-sepolia": "world-sepolia",
 } as const;
 
 /**
@@ -4301,7 +4304,9 @@ section of our Authentication docs for more details on how to generate your Wall
 
  */
 export type XDeveloperAuthParameter = string;
- * The ID of the CDP Project. Required when not using delegated signing.
+
+/**
+ * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
  */
 export type ProjectIDOptionalParameter = string;
 
@@ -4434,7 +4439,7 @@ export type ImportEndUserBody = {
   keyType: ImportEndUserBodyKeyType;
   export type SignEvmHashWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4460,7 +4465,7 @@ export type SignEvmHashWithEndUserAccountBody = {
 
 export type SignEvmTransactionWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4486,7 +4491,7 @@ export type SignEvmTransactionWithEndUserAccountBody = {
 
 export type SendEvmTransactionWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4508,7 +4513,12 @@ export const SendEvmTransactionWithEndUserAccountBodyNetwork = {
   polygon: "polygon",
   optimism: "optimism",
   arbitrum: "arbitrum",
-  export type SendEvmTransactionWithEndUserAccountBody = {
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  world: "world",
+  "world-sepolia": "world-sepolia",
+} as const;
+
+export type SendEvmTransactionWithEndUserAccountBody = {
   /**
    * The 0x-prefixed address of the EVM account belonging to the end user.
    * @pattern ^0x[0-9a-fA-F]{40}$
@@ -4528,7 +4538,7 @@ export const SendEvmTransactionWithEndUserAccountBodyNetwork = {
 
 export type SendEvmAssetWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4550,7 +4560,12 @@ export const SendEvmAssetWithEndUserAccountBodyNetwork = {
   polygon: "polygon",
   optimism: "optimism",
   arbitrum: "arbitrum",
-  export type SendEvmAssetWithEndUserAccountBody = {
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  world: "world",
+  "world-sepolia": "world-sepolia",
+} as const;
+
+export type SendEvmAssetWithEndUserAccountBody = {
   /**
    * The 0x-prefixed address of the recipient.
    * @pattern ^0x[0-9a-fA-F]{40}$
@@ -4584,7 +4599,7 @@ export const SendEvmAssetWithEndUserAccountBodyNetwork = {
   userOpHash?: string | null;
   export type SignEvmMessageWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4612,7 +4627,7 @@ export type SignEvmMessageWithEndUserAccount200 = {
 
 export type SignEvmTypedDataWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4647,7 +4662,7 @@ export type RevokeDelegationForEndUserBody = {
 
 export type CreateEvmEip7702DelegationWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4676,7 +4691,7 @@ export type CreateEvmEip7702DelegationWithEndUserAccount201 = {
 
 export type SendUserOperationWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4702,7 +4717,7 @@ export type SendUserOperationWithEndUserAccountBody = {
   dataSuffix?: string;
   export type CreateEndUserEvmSwapParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4836,7 +4851,7 @@ export type CreateEndUserEvmSwap200 = {
 
 export type SignSolanaHashWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4862,7 +4877,7 @@ export type SignSolanaHashWithEndUserAccountBody = {
 
 export type SignSolanaMessageWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4888,7 +4903,7 @@ export type SignSolanaMessageWithEndUserAccountBody = {
 
 export type SignSolanaTransactionWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4914,7 +4929,7 @@ export type SignSolanaTransactionWithEndUserAccountBody = {
 
 export type SendSolanaTransactionWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -4954,7 +4969,7 @@ export type SendSolanaTransactionWithEndUserAccountBody = {
 
 export type SendSolanaAssetWithEndUserAccountParams = {
   /**
-   * The ID of the CDP Project. Required when not using delegated signing.
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
   projectID?: ProjectIDOptionalParameter;
@@ -5062,6 +5077,9 @@ export const SendEvmTransactionBodyNetwork = {
   polygon: "polygon",
   optimism: "optimism",
   arbitrum: "arbitrum",
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  world: "world",
+  "world-sepolia": "world-sepolia",
 } as const;
 
 export type SendEvmTransactionBody = {
