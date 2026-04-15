@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.42.0] - 2026-04-15
+
+### Features
+
+- Added CreateSubscription for Webhooks Client ([#634](https://github.com/coinbase/cdp-sdk/pull/634))
+
+### Bugfixes
+
+- Removed nest_asyncio dependency ([#652](https://github.com/coinbase/cdp-sdk/pull/652))
+
+
 ## [1.41.0] - 2026-04-09
 
 ### Features
