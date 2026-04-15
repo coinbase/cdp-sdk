@@ -364,7 +364,10 @@ export interface Error {
   /** A unique identifier for the request that generated the error. This can be used to help debug issues with the API. */
   correlationId?: string;
   /** A link to the corresponding error documentation. */
-  /**
+  errorLink?: Url;
+}
+
+/**
  * The symbol of the asset (e.g., eth, usd, usdc, usdt).
  * @minLength 1
  * @maxLength 42
@@ -416,6 +419,8 @@ export interface EIP712Message {
   /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
   primaryType: string;
   /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712MessageMessage;
+}
 
 /**
  * The network for the EIP-7702 delegation.
@@ -433,67 +438,6 @@ export const EvmEip7702DelegationNetwork = {
   ethereum: "ethereum",
   "ethereum-sepolia": "ethereum-sepolia",
 } as const;
-
-/**
- * The current status of the delegation operation.
-UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed.
- */
-export type EvmEip7702DelegationOperationStatus =
-  (typeof EvmEip7702DelegationOperationStatus)[keyof typeof EvmEip7702DelegationOperationStatus];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EvmEip7702DelegationOperationStatus = {
-  UNSPECIFIED: "UNSPECIFIED",
-  PENDING: "PENDING",
-  SUBMITTED: "SUBMITTED",
-  COMPLETED: "COMPLETED",
-  FAILED: "FAILED",
-} as const;
-
-/**
- * The status of an EIP-7702 delegation operation.
- */
-export interface EvmEip7702DelegationOperation {
-  /** The unique identifier for the delegation operation. */
-  delegationOperationId: string;
-  /** The current status of the delegation operation.
-UNSPECIFIED means the status has not been set. PENDING means the operation has been created but not yet submitted. SUBMITTED means the operation has been submitted to the network. COMPLETED means the operation has completed successfully. FAILED means the operation has failed. */
-  status: EvmEip7702DelegationOperationStatus;
-  /**
-   * The hash of the delegation transaction, if available. Present once the transaction has been submitted to the network.
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  transactionHash?: string;
-  network: EvmEip7702DelegationNetwork;
-  /**
-   * The address the account has delegated to, if any. Only present when the account has an active delegation.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  delegateAddress?: string;
-}
-
-export interface EvmSmartAccount {
-  /**
-   * The 0x-prefixed, checksum address of the Smart Account.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  address: string;
-  /** Today, only a single owner can be set for a Smart Account, but this is an array to allow having multiple owners in the future. The address is a 0x-prefixed, checksum address. */
-  owners: string[];
-  /**
-   * An optional name for the account.
-Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
-Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.
-   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  name?: string;
-  /** The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists. */
-  policies?: string[];
-  /** The UTC ISO 8601 timestamp at which the account was created. */
-  createdAt?: string;
-  /** The UTC ISO 8601 timestamp at which the account was last updated. */
-  updatedAt?: string;
-}
 
 /**
  * The network the user operation is for.
@@ -599,32 +543,7 @@ export interface EvmUserOperation {
    */
   transactionHash?: string;
   /** The list of receipts associated with the user operation. */
-
-/**
- * The network on which to perform the swap.
- */
-export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EvmSwapsNetwork = {
-  base: "base",
-  ethereum: "ethereum",
-  arbitrum: "arbitrum",
-  optimism: "optimism",
-  polygon: "polygon",
-} as const;
-
-export interface TokenFee {
-  /**
-   * The estimated amount of the fee in atomic units of the `token`. For example, `1000000000000000` if the fee is in ETH equates to 0.001 ETH, `10000` if the fee is in USDC equates to 0.01 USDC, etc.
-   * @pattern ^\d+$
-   */
-  amount: string;
-  /**
-   * The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
-   * @pattern ^0x[a-fA-F0-9]{40}$
-   */
-  token: string;
+  receipts?: UserOperationReceipt[];
 }
 
 export interface EvmAccount {
@@ -815,6 +734,24 @@ export interface RevokeSpendPermissionRequest {
   paymasterUrl?: Url;
 }
 
+/**
+ * The network on which to perform the swap.
+ */
+export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmSwapsNetwork = {
+  base: "base",
+  ethereum: "ethereum",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
+  polygon: "polygon",
+} as const;
+
+/**
+ * The 0x-prefixed contract address of the token to receive.
+ * @pattern ^0x[a-fA-F0-9]{40}$
+ */
 export type ToToken = string;
 
 /**
@@ -852,7 +789,24 @@ export type GasPrice = string;
  * @minimum 0
  * @maximum 10000
  */
+export type SlippageBps = number;
 
+export interface TokenFee {
+  /**
+   * The estimated amount of the fee in atomic units of the `token`. For example, `1000000000000000` if the fee is in ETH equates to 0.001 ETH, `10000` if the fee is in USDC equates to 0.01 USDC, etc.
+   * @pattern ^\d+$
+   */
+  amount: string;
+  /**
+   * The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+}
+
+/**
+ * The estimated gas fee for the swap.
+ * @nullable
  */
 export type CommonSwapResponseFeesGasFee = TokenFee | null;
 
@@ -3114,6 +3068,8 @@ export interface AccountTokenAddressesResponse {
    * Total number of unique token addresses discovered.
    * @minimum 0
    */
+  totalCount?: number;
+}
 
 /**
  * Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -3168,6 +3124,8 @@ export interface WebhookSubscriptionResponse {
   createdAt: string;
   /** When the subscription was last updated. */
   updatedAt?: string;
+  /** Description of the webhook subscription. */
+  description?: Description;
   /** Types of events to subscribe to. Event types follow a dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 "acceptance.payment_session.authorization_succeeded").
@@ -3215,6 +3173,8 @@ export type WebhookSubscriptionRequestLabels = { [key: string]: string };
 
  */
 export interface WebhookSubscriptionRequest {
+  /** Description of the webhook subscription. */
+  description?: Description;
   /** Types of events to subscribe to. Event types follow a dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 "acceptance.payment_session.authorization_succeeded").
@@ -4120,6 +4080,8 @@ export const OnrampUserIdType = {
   phone_number: "phone_number",
 } as const;
 
+/**
+ * The type of limit:
 - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
   within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
   $500 is the default limit.
@@ -4437,7 +4399,9 @@ export type ImportEndUserBody = {
   encryptedPrivateKey: string;
   /** The type of key being imported. Determines what type of account will be associated for the end user. */
   keyType: ImportEndUserBodyKeyType;
-  export type SignEvmHashWithEndUserAccountParams = {
+};
+
+export type SignEvmHashWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -4458,7 +4422,9 @@ export type SignEvmHashWithEndUserAccountBody = {
    * @pattern ^[a-zA-Z0-9-]{1,100}$
    */
   walletSecretId?: string;
-  export type SignEvmHashWithEndUserAccount200 = {
+};
+
+export type SignEvmHashWithEndUserAccount200 = {
   /** The signature of the hash, as a 0x-prefixed hex string. */
   signature: string;
 };
@@ -4484,7 +4450,9 @@ export type SignEvmTransactionWithEndUserAccountBody = {
    * @pattern ^[a-zA-Z0-9-]{1,100}$
    */
   walletSecretId?: string;
-  export type SignEvmTransactionWithEndUserAccount200 = {
+};
+
+export type SignEvmTransactionWithEndUserAccount200 = {
   /** The RLP-encoded signed transaction, as a 0x-prefixed hex string. */
   signedTransaction: string;
 };
@@ -4523,7 +4491,9 @@ export type SendEvmTransactionWithEndUserAccountBody = {
    * The 0x-prefixed address of the EVM account belonging to the end user.
    * @pattern ^0x[0-9a-fA-F]{40}$
    */
-   network: SendEvmTransactionWithEndUserAccountBodyNetwork;
+  address: string;
+  /** The network to send the transaction to. */
+  network: SendEvmTransactionWithEndUserAccountBodyNetwork;
   /**
    * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$
@@ -4531,7 +4501,9 @@ export type SendEvmTransactionWithEndUserAccountBody = {
   walletSecretId?: string;
   /** The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string. */
   transaction: string;
-  export type SendEvmTransactionWithEndUserAccount200 = {
+};
+
+export type SendEvmTransactionWithEndUserAccount200 = {
   /** The hash of the transaction, as a 0x-prefixed hex string. */
   transactionHash: string;
 };
@@ -4576,7 +4548,9 @@ export type SendEvmAssetWithEndUserAccountBody = {
    * @minLength 1
    * @maxLength 32
    */
-   network: SendEvmAssetWithEndUserAccountBodyNetwork;
+  amount: string;
+  /** The EVM network to send USDC on. */
+  network: SendEvmAssetWithEndUserAccountBodyNetwork;
   /** Whether to use CDP Paymaster to sponsor gas fees. Only applicable for EVM Smart Accounts. When true, the transaction gas will be paid by the Paymaster, allowing users to send USDC without holding native gas tokens. Ignored for EOA accounts. Cannot be used together with `paymasterUrl`. */
   useCdpPaymaster?: boolean;
   /** Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`. */
@@ -4586,7 +4560,9 @@ export type SendEvmAssetWithEndUserAccountBody = {
    * @pattern ^[a-zA-Z0-9-]{1,100}$
    */
   walletSecretId?: string;
-  export type SendEvmAssetWithEndUserAccount200 = {
+};
+
+export type SendEvmAssetWithEndUserAccount200 = {
   /**
    * The hash of the transaction, as a 0x-prefixed hex string. Populated for EOA accounts. Null for Smart Accounts (use userOpHash instead).
    * @nullable
@@ -4597,7 +4573,9 @@ export type SendEvmAssetWithEndUserAccountBody = {
    * @nullable
    */
   userOpHash?: string | null;
-  export type SignEvmMessageWithEndUserAccountParams = {
+};
+
+export type SignEvmMessageWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -4715,138 +4693,6 @@ export type SendUserOperationWithEndUserAccountBody = {
    * @pattern ^0x[0-9a-fA-F]+$
    */
   dataSuffix?: string;
-  export type CreateEndUserEvmSwapParams = {
-  /**
-   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-   */
-  projectID?: ProjectIDOptionalParameter;
-};
-
-/**
- * Request to execute a token swap on behalf of an end user.
- */
-export type CreateEndUserEvmSwapBody = {
-  /**
-   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header. Required when not using delegated signing.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
-   */
-  walletSecretId?: string;
-  /**
-   * The end user's EVM address (EOA or smart account) that will send `fromToken`. Must belong to this end user.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  taker: string;
-  network: EvmSwapsNetwork;
-  /**
-   * The 0x-prefixed contract address of the token to sell.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  fromToken: string;
-  /**
-   * The 0x-prefixed contract address of the token to buy.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  toToken: string;
-  /**
-   * The amount of `fromToken` to sell, in atomic units. For example, `100000000000000000` when selling WETH equates to 0.1 WETH.
-   * @pattern ^[1-9]\d*$
-   */
-  fromAmount: string;
-  /**
-   * Maximum slippage in basis points (100 = 1%). Sets the minimum output floor baked into the transaction calldata. If the onchain price moves beyond this tolerance, the transaction reverts. Default is 100 (1%).
-   * @minimum 0
-   * @maximum 10000
-   */
-  slippageBps?: number;
-  /** Whether to use the CDP Paymaster for the user operation. */
-  useCdpPaymaster?: boolean;
-  /** The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option. */
-  paymasterUrl?: Url;
-};
-
-/**
- * The gas fee for the swap.
- * @nullable
- */
-export type CreateEndUserEvmSwap200FeesGasFee = TokenFee | null;
-
-/**
- * The protocol fee for the swap.
- * @nullable
- */
-export type CreateEndUserEvmSwap200FeesProtocolFee = TokenFee | null;
-
-/**
- * The fees for the swap as quoted at execution time.
- * @nullable
- */
-export type CreateEndUserEvmSwap200Fees = {
-  /**
-   * The gas fee for the swap.
-   * @nullable
-   */
-  gasFee?: CreateEndUserEvmSwap200FeesGasFee;
-  /**
-   * The protocol fee for the swap.
-   * @nullable
-   */
-  protocolFee?: CreateEndUserEvmSwap200FeesProtocolFee;
-} | null;
-
-/**
- * Swap transaction submitted successfully. Returns immediately — does not wait for onchain confirmation. Exactly one of `transactionHash` or `userOpHash` will be non-null.
- */
-export type CreateEndUserEvmSwap200 = {
-  /**
-   * The submitted transaction hash. Set for EOA accounts. Null for smart accounts.
-   * @nullable
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  transactionHash: string | null;
-  /**
-   * The user operation hash. Set for smart accounts. Null for EOA accounts.
-   * @nullable
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  userOpHash: string | null;
-  network: EvmSwapsNetwork;
-  /**
-   * The 0x-prefixed contract address of the token sold.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  fromToken: string;
-  /**
-   * The amount of the `fromToken` sent in this swap, in atomic units of the `fromToken`. For example, `100000000000000000` when selling WETH equates to 0.1 WETH, `1000000` when selling USDC equates to 1 USDC, etc.
-   * @pattern ^[1-9]\d*$
-   */
-  fromAmount: string;
-  /**
-   * The 0x-prefixed contract address of the token bought.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  toToken: string;
-  /**
-   * The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This is the quoted amount at execution time — the actual onchain received amount may differ within the `slippageBps` tolerance.
-   * @pattern ^[1-9]\d*$
-   */
-  toAmount: string;
-  /**
-   * The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is baked into the transaction calldata via `slippageBps`. If the onchain price falls below this floor, the transaction reverts.
-   * @pattern ^[1-9]\d*$
-   */
-  minToAmount: string;
-  /**
-   * The estimated total gas cost of the swap in wei (the chain's native token). On L2 chains, this includes both the execution gas and the L1 data cost.
-   * @nullable
-   * @pattern ^\d+$
-   */
-  totalNetworkFee?: string | null;
-  /**
-   * The fees for the swap as quoted at execution time.
-   * @nullable
-   */
-  fees?: CreateEndUserEvmSwap200Fees;
 };
 
 export type SignSolanaHashWithEndUserAccountParams = {
@@ -4870,7 +4716,9 @@ export type SignSolanaHashWithEndUserAccountBody = {
    * @pattern ^[a-zA-Z0-9-]{1,100}$
    */
   walletSecretId?: string;
-  export type SignSolanaHashWithEndUserAccount200 = {
+};
+
+export type SignSolanaHashWithEndUserAccount200 = {
   /** The signature of the hash, as a base58 encoded string. */
   signature: string;
 };
@@ -4896,7 +4744,9 @@ export type SignSolanaMessageWithEndUserAccountBody = {
    * @pattern ^[a-zA-Z0-9-]{1,100}$
    */
   walletSecretId?: string;
-  export type SignSolanaMessageWithEndUserAccount200 = {
+};
+
+export type SignSolanaMessageWithEndUserAccount200 = {
   /** The signature of the message, as a base58 encoded string. */
   signature: string;
 };
@@ -4922,7 +4772,9 @@ export type SignSolanaTransactionWithEndUserAccountBody = {
    * @pattern ^[a-zA-Z0-9-]{1,100}$
    */
   walletSecretId?: string;
-  export type SignSolanaTransactionWithEndUserAccount200 = {
+};
+
+export type SignSolanaTransactionWithEndUserAccount200 = {
   /** The base64 encoded signed transaction. */
   signedTransaction: string;
 };
@@ -4952,7 +4804,9 @@ export type SendSolanaTransactionWithEndUserAccountBody = {
    * The base58 encoded address of the Solana account belonging to the end user.
    * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
    */
-   network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
+  address: string;
+  /** The Solana network to send the transaction to. */
+  network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
   /**
    * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$
@@ -4962,7 +4816,9 @@ export type SendSolanaTransactionWithEndUserAccountBody = {
   transaction: string;
   /** Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees. */
   useCdpSponsor?: boolean;
-  export type SendSolanaTransactionWithEndUserAccount200 = {
+};
+
+export type SendSolanaTransactionWithEndUserAccount200 = {
   /** The base58 encoded transaction signature. */
   transactionSignature: string;
 };
@@ -4998,7 +4854,9 @@ export type SendSolanaAssetWithEndUserAccountBody = {
    * @minLength 1
    * @maxLength 32
    */
-   network: SendSolanaAssetWithEndUserAccountBodyNetwork;
+  amount: string;
+  /** The Solana network to send USDC on. */
+  network: SendSolanaAssetWithEndUserAccountBodyNetwork;
   /** Whether to automatically create an Associated Token Account (ATA) for the recipient if it doesn't exist. When true, the sender pays the rent-exempt minimum to create the recipient's USDC ATA. When false, the transaction will fail if the recipient doesn't have a USDC ATA. */
   createRecipientAta?: boolean;
   /**
@@ -5008,7 +4866,9 @@ export type SendSolanaAssetWithEndUserAccountBody = {
   walletSecretId?: string;
   /** Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees. */
   useCdpSponsor?: boolean;
-  export type SendSolanaAssetWithEndUserAccount200 = {
+};
+
+export type SendSolanaAssetWithEndUserAccount200 = {
   /** The base58 encoded transaction signature. */
   transactionSignature: string;
 };
@@ -5553,6 +5413,8 @@ export const SendSolanaTransactionBodyNetwork = {
 } as const;
 
 export type SendSolanaTransactionBody = {
+  /** The Solana network to send the transaction to. */
+  network: SendSolanaTransactionBodyNetwork;
   /** The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching. */
   transaction: string;
   /** Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees. */

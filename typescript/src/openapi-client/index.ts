@@ -6,6 +6,8 @@ export * from "./generated/evm-token-balances/evm-token-balances.js";
 export * from "./generated/solana-accounts/solana-accounts.js";
 export * from "./generated/solana-token-balances/solana-token-balances.js";
 export * from "./generated/faucets/faucets.js";
+export * from "./generated/policy-engine/policy-engine.js";
+export * from "./generated/onramp/onramp.js";
 export * from "./generated/onchain-data/onchain-data.js";
 export * from "./generated/end-user-accounts/end-user-accounts.js";
 export * from "./generated/embedded-wallets/embedded-wallets.js";
@@ -33,6 +35,8 @@ export const CdpOpenApiClient = {
   ...webhooks,
   ...solana,
   ...solanaTokenBalances,
+  ...faucets,
+  ...onchainData,
   ...policies,
   ...endUserAccounts,
   ...embeddedWallets,

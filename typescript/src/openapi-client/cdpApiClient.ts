@@ -338,7 +338,7 @@ export const cdpApiClient = async <T>(
  * @returns True if the path should be routed through /platform/delegated.
  */
 const isDelegatedEndUserPath = (url: string): boolean => {
-  return /^\/v2\/embedded-wallet-api\/projects\/[^/]+\/end-users\//.test(url);
+  return /^\/v2\/embedded-wallet-api\/end-users\//.test(url);
 };
 
 /**

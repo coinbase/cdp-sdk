@@ -3,6 +3,8 @@ import type {
   ListEndUsersParams,
   ImportEndUserBodyKeyType,
   AuthenticationMethods,
+  AddEndUserEvmAccount201,
+  AddEndUserEvmSmartAccount201,
   AddEndUserSolanaAccount201,
   EndUser as OpenAPIEndUser,
   SignEvmHashWithEndUserAccount200,
@@ -13,6 +15,7 @@ import type {
   SendEvmTransactionWithEndUserAccountBodyNetwork,
   SendEvmAssetWithEndUserAccount200,
   SendEvmAssetWithEndUserAccountBodyNetwork,
+  SendUserOperationWithEndUserAccountResult,
   EvmUserOperationNetwork,
   EvmCall,
   CreateEvmEip7702DelegationWithEndUserAccount201,
@@ -25,7 +28,6 @@ import type {
   SendSolanaAssetWithEndUserAccount200,
   SendSolanaAssetWithEndUserAccountBodyNetwork,
   EIP712Message,
-  EvmUserOperation,
 } from "../../openapi-client/index.js";
 import type { Prettify } from "../../types/utils.js";
 
@@ -162,6 +164,8 @@ export interface SignEvmHashOptions {
   /** The EVM address to sign with. */
   address: string;
 }
+
+/**
  * The result of signing an EVM hash on behalf of an end user.
  */
 export type SignEvmHashResult = SignEvmHashWithEndUserAccount200;
@@ -177,6 +181,8 @@ export interface SignEvmTransactionOptions {
   /** The RLP-serialized EIP-1559 transaction to sign, hex-encoded. */
   transaction: string;
 }
+
+/**
  * The result of signing an EVM transaction on behalf of an end user.
  */
 export type SignEvmTransactionResult = SignEvmTransactionWithEndUserAccount200;
@@ -192,6 +198,8 @@ export interface SignEvmMessageOptions {
   /** The EIP-191 message to sign. */
   message: string;
 }
+
+/**
  * The result of signing an EVM message on behalf of an end user.
  */
 export type SignEvmMessageResult = SignEvmMessageWithEndUserAccount200;
@@ -207,6 +215,8 @@ export interface SignEvmTypedDataOptions {
   /** The EIP-712 typed data to sign. */
   typedData: EIP712Message;
 }
+
+/**
  * The result of signing EVM typed data on behalf of an end user.
  */
 export type SignEvmTypedDataResult = SignEvmTypedDataWithEndUserAccount200;
@@ -220,6 +230,8 @@ export interface SendEvmTransactionOptions {
   /** The unique identifier of the end user. */
   userId: string;
   /** The EVM address to send from. */
+  address: string;
+  /** The RLP-serialized EIP-1559 transaction to send, hex-encoded. */
   transaction: string;
   /** The network to send the transaction on. */
   network: SendEvmTransactionWithEndUserAccountBodyNetwork;
@@ -241,6 +253,8 @@ export interface SendEvmAssetOptions {
   /** The asset to send. Defaults to "usdc". */
   asset?: "usdc";
   /** The recipient address. */
+  to: string;
+  /** The amount to send. */
   amount: string;
   /** The network to send on. */
   network: SendEvmAssetWithEndUserAccountBodyNetwork;
@@ -249,6 +263,8 @@ export interface SendEvmAssetOptions {
   /** A custom paymaster URL. */
   paymasterUrl?: string;
 }
+
+/**
  * The result of sending an EVM asset on behalf of an end user.
  */
 export type SendEvmAssetResult = SendEvmAssetWithEndUserAccount200;
@@ -274,7 +290,9 @@ export interface SendUserOperationOptions {
 }
 
 /**
-export type SendUserOperationResult = EvmUserOperation;
+ * The result of sending a user operation on behalf of an end user.
+ */
+export type SendUserOperationResult = SendUserOperationWithEndUserAccountResult;
 
 // ─── EVM EIP-7702 Delegation Options/Results ───
 
@@ -292,7 +310,9 @@ export interface CreateEvmEip7702DelegationOptions {
   enableSpendPermissions?: boolean;
 }
 
-*/
+/**
+ * The result of creating an EVM EIP-7702 delegation on behalf of an end user.
+ */
 export type CreateEvmEip7702DelegationForEndUserResult =
   CreateEvmEip7702DelegationWithEndUserAccount201;
 
@@ -309,6 +329,8 @@ export interface SignSolanaHashOptions {
   /** The Solana address to sign with. */
   address: string;
 }
+
+/**
  * The result of signing a Solana hash on behalf of an end user.
  */
 export type SignSolanaHashResult = SignSolanaHashWithEndUserAccount200;
@@ -324,6 +346,8 @@ export interface SignSolanaMessageOptions {
   /** The base64-encoded message to sign. */
   message: string;
 }
+
+/**
  * The result of signing a Solana message on behalf of an end user.
  */
 export type SignSolanaMessageResult = SignSolanaMessageWithEndUserAccount200;
@@ -339,6 +363,8 @@ export interface SignSolanaTransactionOptions {
   /** The base64-encoded Solana transaction to sign. */
   transaction: string;
 }
+
+/**
  * The result of signing a Solana transaction on behalf of an end user.
  */
 export type SignSolanaTransactionResult = SignSolanaTransactionWithEndUserAccount200;
@@ -352,6 +378,8 @@ export interface SendSolanaTransactionOptions {
   /** The unique identifier of the end user. */
   userId: string;
   /** The Solana address to send from. */
+  address: string;
+  /** The base64-encoded Solana transaction to send. */
   transaction: string;
   /** The Solana network to send on. */
   network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
@@ -373,6 +401,8 @@ export interface SendSolanaAssetOptions {
   /** The asset to send. Defaults to "usdc". */
   asset?: "usdc";
   /** The recipient address. */
+  to: string;
+  /** The amount to send. */
   amount: string;
   /** The Solana network to send on. */
   network: SendSolanaAssetWithEndUserAccountBodyNetwork;
@@ -432,6 +462,8 @@ export interface AccountSignEvmTypedDataOptions {
  */
 export interface AccountSendEvmTransactionOptions {
   /** The EVM address to send from. Uses the first EVM account if not provided. */
+  address?: string;
+  /** The RLP-serialized EIP-1559 transaction to send, hex-encoded. */
   transaction: string;
   /** The network to send the transaction on. */
   network: SendEvmTransactionWithEndUserAccountBodyNetwork;
@@ -446,6 +478,8 @@ export interface AccountSendEvmAssetOptions {
   /** The asset to send. Defaults to "usdc". */
   asset?: "usdc";
   /** The recipient address. */
+  to: string;
+  /** The amount to send. */
   amount: string;
   /** The network to send on. */
   network: SendEvmAssetWithEndUserAccountBodyNetwork;
@@ -520,6 +554,8 @@ export interface AccountSignSolanaTransactionOptions {
  */
 export interface AccountSendSolanaTransactionOptions {
   /** The Solana address to send from. Uses the first Solana account if not provided. */
+  address?: string;
+  /** The base64-encoded Solana transaction to send. */
   transaction: string;
   /** The Solana network to send on. */
   network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
@@ -534,6 +570,8 @@ export interface AccountSendSolanaAssetOptions {
   /** The asset to send. Defaults to "usdc". */
   asset?: "usdc";
   /** The recipient address. */
+  to: string;
+  /** The amount to send. */
   amount: string;
   /** The Solana network to send on. */
   network: SendSolanaAssetWithEndUserAccountBodyNetwork;

@@ -1,7 +1,7 @@
 import { Analytics } from "../analytics.js";
 import { CdpOpenApiClient } from "../openapi-client/index.js";
 import { version } from "../version.js";
-import { CDPEndUserClient } from "./end-user/endUser.js";
+import { EndUserClient } from "./end-user/endUser.js";
 import { EvmClient } from "./evm/evm.js";
 import { PoliciesClient } from "./policies/policies.js";
 import { SolanaClient } from "./solana/solana.js";
@@ -34,7 +34,7 @@ export class CdpClient {
   public policies: PoliciesClient;
 
   /** Namespace containing all end user methods. */
-  public endUser: CDPEndUserClient;
+  public endUser: EndUserClient;
 
   /** Namespace containing all webhook methods. */
   public webhooks: WebhooksClient;
@@ -139,6 +139,7 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
     this.evm = new EvmClient();
     this.solana = new SolanaClient();
     this.policies = new PoliciesClient();
-    this.endUser = new CDPEndUserClient();
+    this.endUser = new EndUserClient();
+    this.webhooks = new WebhooksClient();
   }
 }

@@ -656,72 +656,68 @@ describe("cdpApiClient", () => {
 
     it("should prepend /delegated to end-user EVM sign URLs", () => {
       const config = {
-        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/sign",
+        url: "/v2/embedded-wallet-api/end-users/test-user/evm/sign",
       };
 
       const result = delegatedRoutingInterceptor(config);
 
-      expect(result.url).toBe(
-        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/sign",
-      );
+      expect(result.url).toBe("/delegated/v2/embedded-wallet-api/end-users/test-user/evm/sign");
     });
 
     it("should prepend /delegated to revokeDelegation URLs", () => {
       const config = {
-        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/delegation",
+        url: "/v2/embedded-wallet-api/end-users/test-user/delegation",
       };
 
       const result = delegatedRoutingInterceptor(config);
 
-      expect(result.url).toBe(
-        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/delegation",
-      );
+      expect(result.url).toBe("/delegated/v2/embedded-wallet-api/end-users/test-user/delegation");
     });
 
     it("should prepend /delegated to EVM send transaction URLs", () => {
       const config = {
-        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/send/transaction",
+        url: "/v2/embedded-wallet-api/end-users/test-user/evm/send/transaction",
       };
 
       const result = delegatedRoutingInterceptor(config);
 
       expect(result.url).toBe(
-        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/send/transaction",
+        "/delegated/v2/embedded-wallet-api/end-users/test-user/evm/send/transaction",
       );
     });
 
     it("should prepend /delegated to Solana sign URLs", () => {
       const config = {
-        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/solana/sign/message",
+        url: "/v2/embedded-wallet-api/end-users/test-user/solana/sign/message",
       };
 
       const result = delegatedRoutingInterceptor(config);
 
       expect(result.url).toBe(
-        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/solana/sign/message",
+        "/delegated/v2/embedded-wallet-api/end-users/test-user/solana/sign/message",
       );
     });
 
     it("should prepend /delegated to smart account send URLs", () => {
       const config = {
-        url: "/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/smart-accounts/0x1234/send",
+        url: "/v2/embedded-wallet-api/end-users/test-user/evm/smart-accounts/0x1234/send",
       };
 
       const result = delegatedRoutingInterceptor(config);
 
       expect(result.url).toBe(
-        "/delegated/v2/embedded-wallet-api/projects/test-project/end-users/test-user/evm/smart-accounts/0x1234/send",
+        "/delegated/v2/embedded-wallet-api/end-users/test-user/evm/smart-accounts/0x1234/send",
       );
     });
 
     it("should NOT rewrite non-end-user embedded-wallet-api URLs", () => {
       const paths = [
-        "/v2/embedded-wallet-api/projects/test-project/auth/init",
-        "/v2/embedded-wallet-api/projects/test-project/auth/refresh",
-        "/v2/embedded-wallet-api/projects/test-project/auth/logout",
-        "/v2/embedded-wallet-api/projects/test-project/auth/verify/email",
-        "/v2/embedded-wallet-api/projects/test-project/config",
-        "/v2/embedded-wallet-api/projects/test-project/attestation/challenge",
+        "/v2/embedded-wallet-api/auth/init",
+        "/v2/embedded-wallet-api/auth/refresh",
+        "/v2/embedded-wallet-api/auth/logout",
+        "/v2/embedded-wallet-api/auth/verify/email",
+        "/v2/embedded-wallet-api/config",
+        "/v2/embedded-wallet-api/attestation/challenge",
       ];
 
       for (const url of paths) {

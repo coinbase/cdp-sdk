@@ -55,6 +55,8 @@ export const listWebhookSubscriptions = (
 - `offramp.transaction.created`, `offramp.transaction.updated`
 - `offramp.transaction.success`, `offramp.transaction.failed`
 - **No labels required** - maximum simplicity for transaction monitoring
+
+**Payments Transfers Events** - Transfer lifecycle notifications:
 - `payments.transfers.quoted` - Transfer created and awaiting execution
 - `payments.transfers.processing` - Transfer execution in progress
 - `payments.transfers.completed` - Transfer completed successfully

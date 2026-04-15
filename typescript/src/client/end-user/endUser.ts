@@ -51,7 +51,11 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
 
 /**
  * The CDP end user client.
-
+ */
+export class EndUserClient {
+  /**
+   * Creates an end user. An end user is an entity that can own CDP EVM accounts,
+   * EVM smart accounts, and/or Solana accounts.
    *
    * @param options - The options for creating an end user.
    *
@@ -87,7 +91,9 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
     const endUser = await CdpOpenApiClient.createEndUser({
       ...options,
       userId,
-      return toEndUserAccount(CdpOpenApiClient, { endUser });
+    });
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -157,6 +163,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
     });
 
     const { userId } = options;
+
+    const endUser = await CdpOpenApiClient.getEndUser(userId);
 
     return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
@@ -274,6 +282,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
       action: "revoke_delegation_for_end_user",
     });
 
+    const { userId } = options;
+
     await CdpOpenApiClient.revokeDelegationForEndUser(userId, {});
   }
 
@@ -296,7 +306,9 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * });
    * console.log(result.signature);
    * ```
-   Analytics.trackAction({ action: "end_user_sign_evm_hash" });
+   */
+  async signEvmHash(options: SignEvmHashOptions): Promise<SignEvmHashResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_hash" });
 
     return CdpOpenApiClient.signEvmHashWithEndUserAccount(options.userId, {
       hash: options.hash,
@@ -322,6 +334,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async signEvmTransaction(options: SignEvmTransactionOptions): Promise<SignEvmTransactionResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
+
     return CdpOpenApiClient.signEvmTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
@@ -346,6 +360,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async signEvmMessage(options: SignEvmMessageOptions): Promise<SignEvmMessageResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_message" });
+
     return CdpOpenApiClient.signEvmMessageWithEndUserAccount(options.userId, {
       address: options.address,
       message: options.message,
@@ -370,6 +386,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async signEvmTypedData(options: SignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
+    Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
+
     return CdpOpenApiClient.signEvmTypedDataWithEndUserAccount(options.userId, {
       address: options.address,
       typedData: options.typedData,
@@ -397,6 +415,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async sendEvmTransaction(options: SendEvmTransactionOptions): Promise<SendEvmTransactionResult> {
+    Analytics.trackAction({ action: "end_user_send_evm_transaction" });
+
     return CdpOpenApiClient.sendEvmTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
@@ -424,6 +444,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async sendEvmAsset(options: SendEvmAssetOptions): Promise<SendEvmAssetResult> {
+    Analytics.trackAction({ action: "end_user_send_evm_asset" });
+
     const asset = options.asset ?? "usdc";
 
     return CdpOpenApiClient.sendEvmAssetWithEndUserAccount(options.userId, options.address, asset, {
@@ -452,7 +474,9 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    *   useCdpPaymaster: true
    * });
    * ```
-   Analytics.trackAction({ action: "end_user_send_user_operation" });
+   */
+  async sendUserOperation(options: SendUserOperationOptions): Promise<SendUserOperationResult> {
+    Analytics.trackAction({ action: "end_user_send_user_operation" });
 
     return CdpOpenApiClient.sendUserOperationWithEndUserAccount(options.userId, options.address, {
       network: options.network,
@@ -485,6 +509,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
   async createEvmEip7702Delegation(
     options: CreateEvmEip7702DelegationOptions,
   ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
+    Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
+
     return CdpOpenApiClient.createEvmEip7702DelegationWithEndUserAccount(options.userId, {
       address: options.address,
       network: options.network,
@@ -512,6 +538,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
+    Analytics.trackAction({ action: "end_user_sign_solana_hash" });
+
     return CdpOpenApiClient.signSolanaHashWithEndUserAccount(options.userId, {
       hash: options.hash,
       address: options.address,
@@ -536,6 +564,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async signSolanaMessage(options: SignSolanaMessageOptions): Promise<SignSolanaMessageResult> {
+    Analytics.trackAction({ action: "end_user_sign_solana_message" });
+
     return CdpOpenApiClient.signSolanaMessageWithEndUserAccount(options.userId, {
       address: options.address,
       message: options.message,
@@ -562,6 +592,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
   async signSolanaTransaction(
     options: SignSolanaTransactionOptions,
   ): Promise<SignSolanaTransactionResult> {
+    Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
+
     return CdpOpenApiClient.signSolanaTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
@@ -591,6 +623,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
   async sendSolanaTransaction(
     options: SendSolanaTransactionOptions,
   ): Promise<SendSolanaTransactionResult> {
+    Analytics.trackAction({ action: "end_user_send_solana_transaction" });
+
     return CdpOpenApiClient.sendSolanaTransactionWithEndUserAccount(options.userId, {
       address: options.address,
       transaction: options.transaction,
@@ -618,6 +652,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
    * ```
    */
   async sendSolanaAsset(options: SendSolanaAssetOptions): Promise<SendSolanaAssetResult> {
+    Analytics.trackAction({ action: "end_user_send_solana_asset" });
+
     const asset = options.asset ?? "usdc";
 
     return CdpOpenApiClient.sendSolanaAssetWithEndUserAccount(
@@ -649,7 +685,9 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
 
     const endUser = await CdpOpenApiClient.validateEndUserAccessToken({
       accessToken,
-      return toEndUserAccount(CdpOpenApiClient, { endUser });
+    });
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -736,6 +774,8 @@ import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/ind
       authenticationMethods: options.authenticationMethods,
       encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
       keyType: options.keyType,
-      return toEndUserAccount(CdpOpenApiClient, { endUser });
+    });
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 }
