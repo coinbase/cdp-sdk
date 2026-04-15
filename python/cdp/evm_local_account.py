@@ -158,6 +158,10 @@ class EvmLocalAccount(BaseAccount):
 
         """
         cdp_client = server_account.api_clients._cdp_client
+        # EvmLocalAccount exposes a synchronous interface (required by eth_account's BaseAccount).
+        # To avoid bridging sync→async (which requires nest_asyncio and breaks on Python 3.12+),
+        # we use a dedicated synchronous HTTP client (urllib3) for signing requests instead of
+        # reusing the async aiohttp client used by EvmServerAccount.
         http_client = Urllib3AuthClient(
             options=Urllib3AuthClientOptions(
                 api_key_id=cdp_client.api_key_id,
