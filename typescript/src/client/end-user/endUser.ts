@@ -15,8 +15,6 @@ import {
   type AddEndUserSolanaAccountOptions,
   type AddEndUserSolanaAccountResult,
   type RevokeDelegationForEndUserOptions,
-  type SignEvmHashOptions,
-  type SignEvmHashResult,
   type SignEvmTransactionOptions,
   type SignEvmTransactionResult,
   type SignEvmMessageOptions,
@@ -31,8 +29,6 @@ import {
   type SendUserOperationResult,
   type CreateEvmEip7702DelegationOptions,
   type CreateEvmEip7702DelegationForEndUserResult,
-  type SignSolanaHashOptions,
-  type SignSolanaHashResult,
   type SignSolanaMessageOptions,
   type SignSolanaMessageResult,
   type SignSolanaTransactionOptions,
@@ -290,33 +286,6 @@ export class EndUserClient {
   // ─── Delegated EVM Sign Methods ───
 
   /**
-   * Signs an EVM hash on behalf of an end user using a delegation.
-   * The end user must have previously created a delegation granting signing permissions.
-   *
-   * @param options - The options for signing an EVM hash.
-   *
-   * @returns A promise that resolves to the signature.
-   *
-   * @example
-   * ```ts
-   * const result = await cdp.endUser.signEvmHash({
-   *   userId: "user-123",
-   *   hash: "0xabcdef...",
-   *   address: "0x1234..."
-   * });
-   * console.log(result.signature);
-   * ```
-   */
-  async signEvmHash(options: SignEvmHashOptions): Promise<SignEvmHashResult> {
-    Analytics.trackAction({ action: "end_user_sign_evm_hash" });
-
-    return CdpOpenApiClient.signEvmHashWithEndUserAccount(options.userId, {
-      hash: options.hash,
-      address: options.address,
-    });
-  }
-
-  /**
    * Signs an EVM transaction on behalf of an end user using a delegation.
    *
    * @param options - The options for signing an EVM transaction.
@@ -519,32 +488,6 @@ export class EndUserClient {
   }
 
   // ─── Delegated Solana Sign Methods ───
-
-  /**
-   * Signs a Solana hash on behalf of an end user using a delegation.
-   *
-   * @param options - The options for signing a Solana hash.
-   *
-   * @returns A promise that resolves to the signature.
-   *
-   * @example
-   * ```ts
-   * const result = await cdp.endUser.signSolanaHash({
-   *   userId: "user-123",
-   *   hash: "base64hash...",
-   *   address: "So1ana..."
-   * });
-   * console.log(result.signature);
-   * ```
-   */
-  async signSolanaHash(options: SignSolanaHashOptions): Promise<SignSolanaHashResult> {
-    Analytics.trackAction({ action: "end_user_sign_solana_hash" });
-
-    return CdpOpenApiClient.signSolanaHashWithEndUserAccount(options.userId, {
-      hash: options.hash,
-      address: options.address,
-    });
-  }
 
   /**
    * Signs a Solana message on behalf of an end user using a delegation.

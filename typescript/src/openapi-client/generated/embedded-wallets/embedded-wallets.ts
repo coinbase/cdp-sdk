@@ -26,9 +26,6 @@ import type {
   SendSolanaTransactionWithEndUserAccountParams,
   SendUserOperationWithEndUserAccountBody,
   SendUserOperationWithEndUserAccountParams,
-  SignEvmHashWithEndUserAccount200,
-  SignEvmHashWithEndUserAccountBody,
-  SignEvmHashWithEndUserAccountParams,
   SignEvmMessageWithEndUserAccount200,
   SignEvmMessageWithEndUserAccountBody,
   SignEvmMessageWithEndUserAccountParams,
@@ -38,9 +35,6 @@ import type {
   SignEvmTypedDataWithEndUserAccount200,
   SignEvmTypedDataWithEndUserAccountBody,
   SignEvmTypedDataWithEndUserAccountParams,
-  SignSolanaHashWithEndUserAccount200,
-  SignSolanaHashWithEndUserAccountBody,
-  SignSolanaHashWithEndUserAccountParams,
   SignSolanaMessageWithEndUserAccount200,
   SignSolanaMessageWithEndUserAccountBody,
   SignSolanaMessageWithEndUserAccountParams,
@@ -53,27 +47,6 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-/**
- * Signs an arbitrary 32 byte hash with the end user's given EVM account.
- * @summary Sign a hash with end user EVM account
- */
-export const signEvmHashWithEndUserAccount = (
-  userId: string,
-  signEvmHashWithEndUserAccountBody: SignEvmHashWithEndUserAccountBody,
-  params?: SignEvmHashWithEndUserAccountParams,
-  options?: SecondParameter<typeof cdpApiClient<SignEvmHashWithEndUserAccount200>>,
-) => {
-  return cdpApiClient<SignEvmHashWithEndUserAccount200>(
-    {
-      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: signEvmHashWithEndUserAccountBody,
-      params,
-    },
-    options,
-  );
-};
 /**
  * Signs a transaction with the given end user EVM account.
 The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
@@ -283,27 +256,6 @@ export const sendUserOperationWithEndUserAccount = (
   );
 };
 /**
- * Signs an arbitrary 32 byte hash with the end user's given Solana account.
- * @summary Sign a hash with end user Solana account
- */
-export const signSolanaHashWithEndUserAccount = (
-  userId: string,
-  signSolanaHashWithEndUserAccountBody: SignSolanaHashWithEndUserAccountBody,
-  params?: SignSolanaHashWithEndUserAccountParams,
-  options?: SecondParameter<typeof cdpApiClient<SignSolanaHashWithEndUserAccount200>>,
-) => {
-  return cdpApiClient<SignSolanaHashWithEndUserAccount200>(
-    {
-      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: signSolanaHashWithEndUserAccountBody,
-      params,
-    },
-    options,
-  );
-};
-/**
  * Signs an arbitrary Base64 encoded message with the given Solana account.
  **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
  * @summary Sign a Base64 encoded message
@@ -411,9 +363,6 @@ export const sendSolanaAssetWithEndUserAccount = (
     options,
   );
 };
-export type SignEvmHashWithEndUserAccountResult = NonNullable<
-  Awaited<ReturnType<typeof signEvmHashWithEndUserAccount>>
->;
 export type SignEvmTransactionWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signEvmTransactionWithEndUserAccount>>
 >;
@@ -437,9 +386,6 @@ export type CreateEvmEip7702DelegationWithEndUserAccountResult = NonNullable<
 >;
 export type SendUserOperationWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof sendUserOperationWithEndUserAccount>>
->;
-export type SignSolanaHashWithEndUserAccountResult = NonNullable<
-  Awaited<ReturnType<typeof signSolanaHashWithEndUserAccount>>
 >;
 export type SignSolanaMessageWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signSolanaMessageWithEndUserAccount>>

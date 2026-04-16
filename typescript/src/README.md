@@ -1368,27 +1368,6 @@ For a complete example, see [end-users/revokeDelegation.ts](https://github.com/c
 
 ### EVM Signing
 
-#### Sign an EVM Hash
-
-```typescript
-// Using the client method
-const result = await cdp.endUser.signEvmHash({
-  userId: "user-123",
-  hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-  address: "0x1234...",
-});
-console.log(result.signature);
-
-// Or using the EndUser object (address defaults to the first EVM account)
-const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
-const result = await endUser.signEvmHash({
-  hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-});
-console.log(result.signature);
-```
-
-For a complete example, see [end-users/signEvmHash.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/signEvmHash.ts).
-
 #### Sign an EVM Transaction
 
 ```typescript
@@ -1558,23 +1537,6 @@ console.log(result.delegationOperationId);
 For a complete example, see [end-users/createEvmEip7702Delegation.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/createEvmEip7702Delegation.ts).
 
 ### Solana Signing
-
-#### Sign a Solana Hash
-
-```typescript
-const result = await cdp.endUser.signSolanaHash({
-  userId: "user-123",
-  hash: "base64hash...",
-  address: "So1ana...",
-});
-console.log(result.signature);
-
-// Or using the EndUser object (address defaults to the first Solana account)
-const result = await endUser.signSolanaHash({
-  hash: "base64hash...",
-});
-console.log(result.signature);
-```
 
 #### Sign a Solana Message
 

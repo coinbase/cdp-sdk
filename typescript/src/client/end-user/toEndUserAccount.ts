@@ -6,7 +6,6 @@ import type {
   AddEndUserEvmSmartAccountResult,
   AddEndUserSolanaAccountResult,
   AddEvmSmartAccountOptions,
-  SignEvmHashResult,
   SignEvmTransactionResult,
   SignEvmMessageResult,
   SignEvmTypedDataResult,
@@ -14,12 +13,10 @@ import type {
   SendEvmAssetResult,
   SendUserOperationResult,
   CreateEvmEip7702DelegationForEndUserResult,
-  SignSolanaHashResult,
   SignSolanaMessageResult,
   SignSolanaTransactionResult,
   SendSolanaTransactionResult,
   SendSolanaAssetResult,
-  AccountSignEvmHashOptions,
   AccountSignEvmTransactionOptions,
   AccountSignEvmMessageOptions,
   AccountSignEvmTypedDataOptions,
@@ -27,7 +24,6 @@ import type {
   AccountSendEvmAssetOptions,
   AccountSendUserOperationOptions,
   AccountCreateEvmEip7702DelegationOptions,
-  AccountSignSolanaHashOptions,
   AccountSignSolanaMessageOptions,
   AccountSignSolanaTransactionOptions,
   AccountSendSolanaTransactionOptions,
@@ -154,15 +150,6 @@ export function toEndUserAccount(
 
     // ─── Delegated EVM Sign Methods ───
 
-    async signEvmHash(opts: AccountSignEvmHashOptions): Promise<SignEvmHashResult> {
-      Analytics.trackAction({ action: "end_user_sign_evm_hash" });
-      const address = resolveEvmAddress(endUser, opts.address);
-      return apiClient.signEvmHashWithEndUserAccount(endUser.userId, {
-        hash: opts.hash,
-        address,
-      });
-    },
-
     async signEvmTransaction(
       opts: AccountSignEvmTransactionOptions,
     ): Promise<SignEvmTransactionResult> {
@@ -248,15 +235,6 @@ export function toEndUserAccount(
     },
 
     // ─── Delegated Solana Sign Methods ───
-
-    async signSolanaHash(opts: AccountSignSolanaHashOptions): Promise<SignSolanaHashResult> {
-      Analytics.trackAction({ action: "end_user_sign_solana_hash" });
-      const address = resolveSolanaAddress(endUser, opts.address);
-      return apiClient.signSolanaHashWithEndUserAccount(endUser.userId, {
-        hash: opts.hash,
-        address,
-      });
-    },
 
     async signSolanaMessage(
       opts: AccountSignSolanaMessageOptions,

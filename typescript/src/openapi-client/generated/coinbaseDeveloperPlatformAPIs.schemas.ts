@@ -4401,34 +4401,6 @@ export type ImportEndUserBody = {
   keyType: ImportEndUserBodyKeyType;
 };
 
-export type SignEvmHashWithEndUserAccountParams = {
-  /**
-   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-   */
-  projectID?: ProjectIDOptionalParameter;
-};
-
-export type SignEvmHashWithEndUserAccountBody = {
-  /** The arbitrary 32 byte hash to sign. */
-  hash: string;
-  /**
-   * The 0x-prefixed address of the EVM account belonging to the end user.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  address: string;
-  /**
-   * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
-   */
-  walletSecretId?: string;
-};
-
-export type SignEvmHashWithEndUserAccount200 = {
-  /** The signature of the hash, as a 0x-prefixed hex string. */
-  signature: string;
-};
-
 export type SignEvmTransactionWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -4693,34 +4665,6 @@ export type SendUserOperationWithEndUserAccountBody = {
    * @pattern ^0x[0-9a-fA-F]+$
    */
   dataSuffix?: string;
-};
-
-export type SignSolanaHashWithEndUserAccountParams = {
-  /**
-   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-   */
-  projectID?: ProjectIDOptionalParameter;
-};
-
-export type SignSolanaHashWithEndUserAccountBody = {
-  /** The arbitrary 32 byte hash to sign as base58 encoded string. */
-  hash: string;
-  /**
-   * The base58 encoded address of the Solana account belonging to the end user.
-   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
-   */
-  address: string;
-  /**
-   * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
-   */
-  walletSecretId?: string;
-};
-
-export type SignSolanaHashWithEndUserAccount200 = {
-  /** The signature of the hash, as a base58 encoded string. */
-  signature: string;
 };
 
 export type SignSolanaMessageWithEndUserAccountParams = {
