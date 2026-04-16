@@ -82,7 +82,7 @@ export async function listTokenBalances(
   client: CdpOpenApiClientType,
   options: ListTokenBalancesOptions,
 ): Promise<ListTokenBalancesResult> {
-  const response = await client.listEvmTokenBalances(options.network, options.address, {
+  const response = await client.listDataTokenBalances(options.network, options.address, {
     pageSize: options.pageSize,
     pageToken: options.pageToken,
   });
