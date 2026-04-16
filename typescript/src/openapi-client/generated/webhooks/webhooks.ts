@@ -57,12 +57,12 @@ export const listWebhookSubscriptions = (
 - **No labels required** - maximum simplicity for transaction monitoring
 
 **Payments Transfers Events** - Transfer lifecycle notifications:
-- `payments.transfers.quoted`
-- `payments.transfers.processing`
-- `payments.transfers.completed`
-- `payments.transfers.failed`
-- `payments.transfers.travel_rule_incomplete`
-- `payments.transfers.travel_rule_completed`
+- `payments.transfers.quoted` - Transfer created and awaiting execution
+- `payments.transfers.processing` - Transfer execution in progress
+- `payments.transfers.completed` - Transfer completed successfully
+- `payments.transfers.failed` - Transfer failed
+- `payments.transfers.travel_rule_incomplete` - Travel rule information is missing
+- `payments.transfers.travel_rule_completed` - Travel rule information has been provided and the transfer will proceed
 - **No labels required** - enable the transfers webhook to monitor status transitions
 
 **Wallet Events** - Wallet activity notifications:

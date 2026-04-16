@@ -1360,10 +1360,10 @@ describe("EvmClient", () => {
     const clientTokenBalances = [clientTokenBalance1, clientTokenBalance2, clientTokenBalance3];
 
     it("should list token balances", async () => {
-      const listDataTokenBalancesMock = CdpOpenApiClient.listDataTokenBalances as MockedFunction<
-        typeof CdpOpenApiClient.listDataTokenBalances
+      const listEvmTokenBalancesMock = CdpOpenApiClient.listEvmTokenBalances as MockedFunction<
+        typeof CdpOpenApiClient.listEvmTokenBalances
       >;
-      listDataTokenBalancesMock.mockResolvedValue({
+      listEvmTokenBalancesMock.mockResolvedValue({
         balances: serverTokenBalances,
       });
 
@@ -1372,7 +1372,7 @@ describe("EvmClient", () => {
         network: "base-sepolia",
       });
 
-      expect(CdpOpenApiClient.listDataTokenBalances).toHaveBeenCalledWith(
+      expect(CdpOpenApiClient.listEvmTokenBalances).toHaveBeenCalledWith(
         "base-sepolia",
         "0xa12539f14e2fc01c4f9360deb0745528b3946048",
         {

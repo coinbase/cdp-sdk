@@ -26,6 +26,13 @@
   - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
   - [Add Solana Account to End User](#add-solana-account-to-end-user)
   - [Validate Access Token](#validate-access-token)
+- [Delegated Signing Operations](#delegated-signing-operations)
+  - [Revoke Delegation](#revoke-delegation)
+  - [EVM Signing](#evm-signing)
+  - [EVM Sending](#evm-sending)
+  - [EVM EIP-7702 Delegation](#evm-eip-7702-delegation)
+  - [Solana Signing](#solana-signing)
+  - [Solana Sending](#solana-sending)
 - [Webhooks](#webhooks)
   - [Create Subscription](#create-subscription)
 - [Authentication tools](#authentication-tools)
@@ -1334,6 +1341,319 @@ try {
 } catch(e) {
   // the access token is not valid or expired
 }
+```
+
+## Delegated Signing Operations
+
+When an end user has granted a delegation, you can sign and send transactions on their behalf using the `cdp.endUser` client methods or directly on the `EndUserAccount` object.
+
+All delegated operations are available both as client methods (passing `userId` explicitly) and as convenience methods on the `EndUserAccount` object (where `userId` is automatically bound and `address` defaults to the first account if not specified).
+
+### Revoke Delegation
+
+Revoke all active delegations for an end user:
+
+```typescript
+// Using the client method
+await cdp.endUser.revokeDelegationForEndUser({
+  userId: "user-123",
+});
+
+// Or using the EndUser object
+const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
+await endUser.revokeDelegation();
+```
+
+For a complete example, see [end-users/revokeDelegation.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/revokeDelegation.ts).
+
+### EVM Signing
+
+#### Sign an EVM Hash
+
+```typescript
+// Using the client method
+const result = await cdp.endUser.signEvmHash({
+  userId: "user-123",
+  hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+  address: "0x1234...",
+});
+console.log(result.signature);
+
+// Or using the EndUser object (address defaults to the first EVM account)
+const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
+const result = await endUser.signEvmHash({
+  hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+});
+console.log(result.signature);
+```
+
+For a complete example, see [end-users/signEvmHash.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/signEvmHash.ts).
+
+#### Sign an EVM Transaction
+
+```typescript
+const result = await cdp.endUser.signEvmTransaction({
+  userId: "user-123",
+  address: "0x1234...",
+  transaction: "0x02...", // RLP-serialized EIP-1559 transaction, hex-encoded
+});
+console.log(result.signedTransaction);
+
+// Or using the EndUser object
+const result = await endUser.signEvmTransaction({
+  transaction: "0x02...",
+});
+console.log(result.signedTransaction);
+```
+
+#### Sign an EVM Message (EIP-191)
+
+```typescript
+const result = await cdp.endUser.signEvmMessage({
+  userId: "user-123",
+  address: "0x1234...",
+  message: "Hello, World!",
+});
+console.log(result.signature);
+
+// Or using the EndUser object
+const result = await endUser.signEvmMessage({
+  message: "Hello, World!",
+});
+console.log(result.signature);
+```
+
+#### Sign EVM Typed Data (EIP-712)
+
+```typescript
+const result = await cdp.endUser.signEvmTypedData({
+  userId: "user-123",
+  address: "0x1234...",
+  typedData: {
+    domain: { name: "Example" },
+    types: { Message: [{ name: "content", type: "string" }] },
+    primaryType: "Message",
+    message: { content: "Hello" },
+  },
+});
+console.log(result.signature);
+
+// Or using the EndUser object
+const result = await endUser.signEvmTypedData({
+  typedData: {
+    domain: { name: "Example" },
+    types: { Message: [{ name: "content", type: "string" }] },
+    primaryType: "Message",
+    message: { content: "Hello" },
+  },
+});
+console.log(result.signature);
+```
+
+### EVM Sending
+
+#### Send an EVM Transaction
+
+```typescript
+const result = await cdp.endUser.sendEvmTransaction({
+  userId: "user-123",
+  address: "0x1234...",
+  transaction: "0x02...", // RLP-serialized EIP-1559 transaction, hex-encoded
+  network: "base-sepolia",
+});
+console.log(result.transactionHash);
+
+// Or using the EndUser object
+const result = await endUser.sendEvmTransaction({
+  transaction: "0x02...",
+  network: "base-sepolia",
+});
+console.log(result.transactionHash);
+```
+
+For a complete example, see [end-users/sendEvmTransaction.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/sendEvmTransaction.ts).
+
+#### Send an EVM Asset
+
+Send tokens (e.g. USDC) on behalf of an end user:
+
+```typescript
+const result = await cdp.endUser.sendEvmAsset({
+  userId: "user-123",
+  address: "0x1234...",
+  to: "0xabcd...",
+  amount: "1000000",
+  network: "base-sepolia",
+  asset: "usdc", // optional, defaults to "usdc"
+  useCdpPaymaster: true, // optional
+});
+console.log(result.transactionHash);
+
+// Or using the EndUser object
+const result = await endUser.sendEvmAsset({
+  to: "0xabcd...",
+  amount: "1000000",
+  network: "base-sepolia",
+});
+console.log(result.transactionHash);
+```
+
+For a complete example, see [end-users/sendEvmAsset.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/sendEvmAsset.ts).
+
+#### Send a User Operation (Smart Account)
+
+Send a user operation via an end user's smart account:
+
+```typescript
+const result = await cdp.endUser.sendUserOperation({
+  userId: "user-123",
+  address: "0x1234...", // smart account address
+  network: "base-sepolia",
+  calls: [
+    {
+      to: "0xabcd...",
+      value: "0",
+      data: "0x",
+    },
+  ],
+  useCdpPaymaster: true,
+});
+
+// Or using the EndUser object (address defaults to the first smart account)
+const result = await endUser.sendUserOperation({
+  network: "base-sepolia",
+  calls: [
+    {
+      to: "0xabcd...",
+      value: "0",
+      data: "0x",
+    },
+  ],
+  useCdpPaymaster: true,
+});
+```
+
+For a complete example, see [end-users/sendUserOperation.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/sendUserOperation.ts).
+
+### EVM EIP-7702 Delegation
+
+Create an EIP-7702 delegation on behalf of an end user, upgrading their EOA with smart account capabilities:
+
+```typescript
+const result = await cdp.endUser.createEvmEip7702Delegation({
+  userId: "user-123",
+  address: "0x1234...",
+  network: "base-sepolia",
+  enableSpendPermissions: false, // optional
+});
+console.log(result.delegationOperationId);
+
+// Or using the EndUser object
+const result = await endUser.createEvmEip7702Delegation({
+  network: "base-sepolia",
+});
+console.log(result.delegationOperationId);
+```
+
+For a complete example, see [end-users/createEvmEip7702Delegation.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/createEvmEip7702Delegation.ts).
+
+### Solana Signing
+
+#### Sign a Solana Hash
+
+```typescript
+const result = await cdp.endUser.signSolanaHash({
+  userId: "user-123",
+  hash: "base64hash...",
+  address: "So1ana...",
+});
+console.log(result.signature);
+
+// Or using the EndUser object (address defaults to the first Solana account)
+const result = await endUser.signSolanaHash({
+  hash: "base64hash...",
+});
+console.log(result.signature);
+```
+
+#### Sign a Solana Message
+
+```typescript
+const result = await cdp.endUser.signSolanaMessage({
+  userId: "user-123",
+  address: "So1ana...",
+  message: "base64message...",
+});
+console.log(result.signature);
+
+// Or using the EndUser object
+const result = await endUser.signSolanaMessage({
+  message: "base64message...",
+});
+console.log(result.signature);
+```
+
+For a complete example, see [end-users/signSolanaMessage.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/end-users/signSolanaMessage.ts).
+
+#### Sign a Solana Transaction
+
+```typescript
+const result = await cdp.endUser.signSolanaTransaction({
+  userId: "user-123",
+  address: "So1ana...",
+  transaction: "base64tx...",
+});
+console.log(result.signedTransaction);
+
+// Or using the EndUser object
+const result = await endUser.signSolanaTransaction({
+  transaction: "base64tx...",
+});
+console.log(result.signedTransaction);
+```
+
+### Solana Sending
+
+#### Send a Solana Transaction
+
+```typescript
+const result = await cdp.endUser.sendSolanaTransaction({
+  userId: "user-123",
+  address: "So1ana...",
+  transaction: "base64tx...",
+  network: "solana-devnet",
+});
+console.log(result.transactionSignature);
+
+// Or using the EndUser object
+const result = await endUser.sendSolanaTransaction({
+  transaction: "base64tx...",
+  network: "solana-devnet",
+});
+console.log(result.transactionSignature);
+```
+
+#### Send a Solana Asset
+
+```typescript
+const result = await cdp.endUser.sendSolanaAsset({
+  userId: "user-123",
+  address: "So1ana...",
+  to: "Recipi...",
+  amount: "1000000",
+  network: "solana-devnet",
+  asset: "usdc", // optional, defaults to "usdc"
+  createRecipientAta: true, // optional, creates recipient's associated token account
+});
+console.log(result.transactionSignature);
+
+// Or using the EndUser object
+const result = await endUser.sendSolanaAsset({
+  to: "Recipi...",
+  amount: "1000000",
+  network: "solana-devnet",
+});
+console.log(result.transactionSignature);
 ```
 
 ## Webhooks

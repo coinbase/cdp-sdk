@@ -85,26 +85,6 @@ export const configure = (options: CdpOptions) => {
     expiresIn: options.expiresIn,
     debug: options.debugging,
   });
-
-  /*
-   * Delegated routing interceptor.
-   * Embedded Wallet API's are exposed to the developer for delegated signing
-   * via the /delegated path, which properly forwards the Authorization and
-   * X-Wallet-Auth headers from the edge.
-   *
-   * Registered after withAuth so it runs BEFORE the auth interceptor (LIFO order).
-   * This rewrites the URL first, then the auth interceptor computes JWT headers
-   * (Authorization and X-Wallet-Auth) against the rewritten URL path, ensuring
-   * the `uris` claim matches the actual request URL.
-   * The API gateway validates the JWT, strips the /delegated prefix, and forwards
-   * to the backend.
-   */
-  axiosInstance.interceptors.request.use(config => {
-    if (config.url && isDelegatedEndUserPath(config.url)) {
-      config.url = `/delegated${config.url}`;
-    }
-    return config;
-  });
 };
 
 /**
@@ -325,20 +305,6 @@ export const cdpApiClient = async <T>(
       error instanceof Error ? error : undefined,
     );
   }
-};
-
-/**
- * Checks if the given request URL is a delegated end-user operation that should
- * be routed through the /platform/delegated gateway prefix.
- *
- * These endpoints require both Authorization and X-Wallet-Auth headers to be
- * forwarded by the API gateway, which the /delegated prefix enables.
- *
- * @param url - The request URL (relative, without base path).
- * @returns True if the path should be routed through /platform/delegated.
- */
-const isDelegatedEndUserPath = (url: string): boolean => {
-  return /^\/v2\/embedded-wallet-api\/projects\/[^/]+\/end-users\//.test(url);
 };
 
 /**

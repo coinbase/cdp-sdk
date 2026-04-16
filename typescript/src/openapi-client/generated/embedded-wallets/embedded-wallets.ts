@@ -7,163 +7,47 @@
  */
 import type {
   BlockchainAddress,
-  EIP712Message,
-  EvmCall,
-  EvmEip7702DelegationNetwork,
+  CreateEvmEip7702DelegationWithEndUserAccount201,
+  CreateEvmEip7702DelegationWithEndUserAccountBody,
+  CreateEvmEip7702DelegationWithEndUserAccountParams,
   EvmUserOperation,
-  EvmUserOperationNetwork,
-  RevokeSpendPermissionRequest,
+  RevokeDelegationForEndUserBody,
+  SendEvmAssetWithEndUserAccount200,
+  SendEvmAssetWithEndUserAccountBody,
+  SendEvmAssetWithEndUserAccountParams,
+  SendEvmTransactionWithEndUserAccount200,
+  SendEvmTransactionWithEndUserAccountBody,
+  SendEvmTransactionWithEndUserAccountParams,
+  SendSolanaAssetWithEndUserAccount200,
+  SendSolanaAssetWithEndUserAccountBody,
+  SendSolanaAssetWithEndUserAccountParams,
+  SendSolanaTransactionWithEndUserAccount200,
+  SendSolanaTransactionWithEndUserAccountBody,
+  SendSolanaTransactionWithEndUserAccountParams,
+  SendUserOperationWithEndUserAccountBody,
+  SendUserOperationWithEndUserAccountParams,
+  SignEvmHashWithEndUserAccount200,
+  SignEvmHashWithEndUserAccountBody,
+  SignEvmHashWithEndUserAccountParams,
+  SignEvmMessageWithEndUserAccount200,
+  SignEvmMessageWithEndUserAccountBody,
+  SignEvmMessageWithEndUserAccountParams,
+  SignEvmTransactionWithEndUserAccount200,
+  SignEvmTransactionWithEndUserAccountBody,
+  SignEvmTransactionWithEndUserAccountParams,
+  SignEvmTypedDataWithEndUserAccount200,
+  SignEvmTypedDataWithEndUserAccountBody,
+  SignEvmTypedDataWithEndUserAccountParams,
+  SignSolanaHashWithEndUserAccount200,
+  SignSolanaHashWithEndUserAccountBody,
+  SignSolanaHashWithEndUserAccountParams,
+  SignSolanaMessageWithEndUserAccount200,
+  SignSolanaMessageWithEndUserAccountBody,
+  SignSolanaMessageWithEndUserAccountParams,
+  SignSolanaTransactionWithEndUserAccount200,
+  SignSolanaTransactionWithEndUserAccountBody,
+  SignSolanaTransactionWithEndUserAccountParams,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
-
-// These types were removed from the shared schemas when the embedded-wallet-api
-// paths were temporarily pulled from the public spec. Defined inline until restored.
-type Url = string;
-
-export type SignEvmHashWithEndUserAccountBody = {
-  hash: string;
-  address: string;
-  walletSecretId?: string;
-};
-export type SignEvmHashWithEndUserAccount200 = { signature: string };
-
-export type SignEvmTransactionWithEndUserAccountBody = {
-  address: string;
-  transaction: string;
-  walletSecretId?: string;
-};
-export type SignEvmTransactionWithEndUserAccount200 = { signedTransaction: string };
-
-export type SendEvmTransactionWithEndUserAccountBodyNetwork =
-  (typeof SendEvmTransactionWithEndUserAccountBodyNetwork)[keyof typeof SendEvmTransactionWithEndUserAccountBodyNetwork];
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SendEvmTransactionWithEndUserAccountBodyNetwork = {
-  base: "base",
-  "base-sepolia": "base-sepolia",
-  ethereum: "ethereum",
-  "ethereum-sepolia": "ethereum-sepolia",
-  avalanche: "avalanche",
-  polygon: "polygon",
-  optimism: "optimism",
-  arbitrum: "arbitrum",
-} as const;
-export type SendEvmTransactionWithEndUserAccountBody = {
-  address: string;
-  network: SendEvmTransactionWithEndUserAccountBodyNetwork;
-  transaction: string;
-  walletSecretId?: string;
-};
-export type SendEvmTransactionWithEndUserAccount200 = { transactionHash: string };
-
-export type SendEvmAssetWithEndUserAccountBodyNetwork =
-  (typeof SendEvmAssetWithEndUserAccountBodyNetwork)[keyof typeof SendEvmAssetWithEndUserAccountBodyNetwork];
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SendEvmAssetWithEndUserAccountBodyNetwork = {
-  base: "base",
-  "base-sepolia": "base-sepolia",
-  ethereum: "ethereum",
-  "ethereum-sepolia": "ethereum-sepolia",
-  avalanche: "avalanche",
-  polygon: "polygon",
-  optimism: "optimism",
-  arbitrum: "arbitrum",
-} as const;
-export type SendEvmAssetWithEndUserAccountBody = {
-  to: BlockchainAddress;
-  amount: string;
-  network: SendEvmAssetWithEndUserAccountBodyNetwork;
-  useCdpPaymaster?: boolean;
-  paymasterUrl?: Url;
-  walletSecretId?: string;
-};
-export type SendEvmAssetWithEndUserAccount200 = {
-  transactionHash?: string | null;
-  userOpHash?: string | null;
-};
-
-export type SignEvmMessageWithEndUserAccountBody = {
-  address: string;
-  message: string;
-  walletSecretId?: string;
-};
-export type SignEvmMessageWithEndUserAccount200 = { signature: string };
-
-export type SignEvmTypedDataWithEndUserAccountBody = {
-  address: string;
-  typedData: EIP712Message;
-  walletSecretId?: string;
-};
-export type SignEvmTypedDataWithEndUserAccount200 = { signature: string };
-
-export type RevokeDelegationForEndUserBody = { walletSecretId?: string };
-
-export type CreateEvmEip7702DelegationWithEndUserAccountBody = {
-  address: string;
-  network: EvmEip7702DelegationNetwork;
-  enableSpendPermissions?: boolean;
-  walletSecretId?: string;
-};
-export type CreateEvmEip7702DelegationWithEndUserAccount201 = { delegationOperationId: string };
-
-export type SendUserOperationWithEndUserAccountBody = {
-  network: EvmUserOperationNetwork;
-  calls: EvmCall[];
-  useCdpPaymaster: boolean;
-  paymasterUrl?: Url;
-  walletSecretId?: string;
-  dataSuffix?: string;
-};
-
-export type SignSolanaHashWithEndUserAccountBody = {
-  hash: string;
-  address: string;
-  walletSecretId?: string;
-};
-export type SignSolanaHashWithEndUserAccount200 = { signature: string };
-
-export type SignSolanaMessageWithEndUserAccountBody = {
-  address: string;
-  message: string;
-  walletSecretId?: string;
-};
-export type SignSolanaMessageWithEndUserAccount200 = { signature: string };
-
-export type SignSolanaTransactionWithEndUserAccountBody = {
-  address: string;
-  transaction: string;
-  walletSecretId?: string;
-};
-export type SignSolanaTransactionWithEndUserAccount200 = { signedTransaction: string };
-
-export type SendSolanaTransactionWithEndUserAccountBodyNetwork =
-  (typeof SendSolanaTransactionWithEndUserAccountBodyNetwork)[keyof typeof SendSolanaTransactionWithEndUserAccountBodyNetwork];
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SendSolanaTransactionWithEndUserAccountBodyNetwork = {
-  solana: "solana",
-  "solana-devnet": "solana-devnet",
-} as const;
-export type SendSolanaTransactionWithEndUserAccountBody = {
-  address: string;
-  network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
-  transaction: string;
-  walletSecretId?: string;
-};
-export type SendSolanaTransactionWithEndUserAccount200 = { transactionSignature: string };
-
-export type SendSolanaAssetWithEndUserAccountBodyNetwork =
-  (typeof SendSolanaAssetWithEndUserAccountBodyNetwork)[keyof typeof SendSolanaAssetWithEndUserAccountBodyNetwork];
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SendSolanaAssetWithEndUserAccountBodyNetwork = {
-  solana: "solana",
-  "solana-devnet": "solana-devnet",
-} as const;
-export type SendSolanaAssetWithEndUserAccountBody = {
-  to: BlockchainAddress;
-  amount: string;
-  network: SendSolanaAssetWithEndUserAccountBodyNetwork;
-  createRecipientAta?: boolean;
-  walletSecretId?: string;
-};
-export type SendSolanaAssetWithEndUserAccount200 = { transactionSignature: string };
 
 import { cdpApiClient } from "../../cdpApiClient.js";
 
@@ -174,17 +58,18 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * @summary Sign a hash with end user EVM account
  */
 export const signEvmHashWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signEvmHashWithEndUserAccountBody: SignEvmHashWithEndUserAccountBody,
+  params?: SignEvmHashWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignEvmHashWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignEvmHashWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/sign`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signEvmHashWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -197,17 +82,18 @@ The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com
  * @summary Sign a transaction with end user EVM account
  */
 export const signEvmTransactionWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signEvmTransactionWithEndUserAccountBody: SignEvmTransactionWithEndUserAccountBody,
+  params?: SignEvmTransactionWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignEvmTransactionWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignEvmTransactionWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/sign/transaction`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign/transaction`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signEvmTransactionWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -242,17 +128,18 @@ The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com
  * @summary Send a transaction with end user EVM account
  */
 export const sendEvmTransactionWithEndUserAccount = (
-  projectId: string,
   userId: string,
   sendEvmTransactionWithEndUserAccountBody: SendEvmTransactionWithEndUserAccountBody,
+  params?: SendEvmTransactionWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SendEvmTransactionWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SendEvmTransactionWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/send/transaction`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/send/transaction`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: sendEvmTransactionWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -263,19 +150,20 @@ The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5
  * @summary Send USDC on EVM
  */
 export const sendEvmAssetWithEndUserAccount = (
-  projectId: string,
   userId: string,
   address: BlockchainAddress,
   asset: "usdc",
   sendEvmAssetWithEndUserAccountBody: SendEvmAssetWithEndUserAccountBody,
+  params?: SendEvmAssetWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SendEvmAssetWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SendEvmAssetWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/${address}/send/${asset}`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/${address}/send/${asset}`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: sendEvmAssetWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -287,17 +175,18 @@ Per the specification, the message in the request body is prepended with `0x19 <
  * @summary Sign an EIP-191 message with end user EVM account
  */
 export const signEvmMessageWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signEvmMessageWithEndUserAccountBody: SignEvmMessageWithEndUserAccountBody,
+  params?: SignEvmMessageWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignEvmMessageWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignEvmMessageWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/sign/message`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign/message`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signEvmMessageWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -307,17 +196,18 @@ export const signEvmMessageWithEndUserAccount = (
  * @summary Sign EIP-712 typed data with end user EVM account
  */
 export const signEvmTypedDataWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signEvmTypedDataWithEndUserAccountBody: SignEvmTypedDataWithEndUserAccountBody,
+  params?: SignEvmTypedDataWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignEvmTypedDataWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignEvmTypedDataWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/sign/typed-data`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign/typed-data`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signEvmTypedDataWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -327,14 +217,13 @@ export const signEvmTypedDataWithEndUserAccount = (
  * @summary Revoke delegation for end user
  */
 export const revokeDelegationForEndUser = (
-  projectId: string,
   userId: string,
   revokeDelegationForEndUserBody: RevokeDelegationForEndUserBody,
   options?: SecondParameter<typeof cdpApiClient<void>>,
 ) => {
   return cdpApiClient<void>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/delegation`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/delegation`,
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       data: revokeDelegationForEndUserBody,
@@ -355,17 +244,18 @@ The delegation allows the EVM EOA to be used as a smart account, which enables b
  * @summary Create EIP-7702 delegation for end user EVM account
  */
 export const createEvmEip7702DelegationWithEndUserAccount = (
-  projectId: string,
   userId: string,
   createEvmEip7702DelegationWithEndUserAccountBody: CreateEvmEip7702DelegationWithEndUserAccountBody,
+  params?: CreateEvmEip7702DelegationWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<CreateEvmEip7702DelegationWithEndUserAccount201>>,
 ) => {
   return cdpApiClient<CreateEvmEip7702DelegationWithEndUserAccount201>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/eip7702/delegation`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/eip7702/delegation`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createEvmEip7702DelegationWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -375,39 +265,19 @@ export const createEvmEip7702DelegationWithEndUserAccount = (
  * @summary Send a user operation for end user Smart Account
  */
 export const sendUserOperationWithEndUserAccount = (
-  projectId: string,
   userId: string,
   address: string,
   sendUserOperationWithEndUserAccountBody: SendUserOperationWithEndUserAccountBody,
+  params?: SendUserOperationWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
 ) => {
   return cdpApiClient<EvmUserOperation>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/smart-accounts/${address}/send`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/send`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: sendUserOperationWithEndUserAccountBody,
-    },
-    options,
-  );
-};
-/**
- * Revokes an existing spend permission.
- * @summary Revoke a spend permission
- */
-export const revokeSpendPermissionWithEndUserAccount = (
-  projectId: string,
-  userId: string,
-  address: string,
-  revokeSpendPermissionRequest: RevokeSpendPermissionRequest,
-  options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
-) => {
-  return cdpApiClient<EvmUserOperation>(
-    {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/evm/smart-accounts/${address}/spend-permissions/revoke`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: revokeSpendPermissionRequest,
+      params,
     },
     options,
   );
@@ -417,17 +287,18 @@ export const revokeSpendPermissionWithEndUserAccount = (
  * @summary Sign a hash with end user Solana account
  */
 export const signSolanaHashWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signSolanaHashWithEndUserAccountBody: SignSolanaHashWithEndUserAccountBody,
+  params?: SignSolanaHashWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignSolanaHashWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignSolanaHashWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/solana/sign`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signSolanaHashWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -438,17 +309,18 @@ export const signSolanaHashWithEndUserAccount = (
  * @summary Sign a Base64 encoded message
  */
 export const signSolanaMessageWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signSolanaMessageWithEndUserAccountBody: SignSolanaMessageWithEndUserAccountBody,
+  params?: SignSolanaMessageWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignSolanaMessageWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignSolanaMessageWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/solana/sign/message`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign/message`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signSolanaMessageWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -464,17 +336,18 @@ The developer is responsible for ensuring that the unsigned transaction is valid
  * @summary Sign a transaction with end user Solana account
  */
 export const signSolanaTransactionWithEndUserAccount = (
-  projectId: string,
   userId: string,
   signSolanaTransactionWithEndUserAccountBody: SignSolanaTransactionWithEndUserAccountBody,
+  params?: SignSolanaTransactionWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SignSolanaTransactionWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SignSolanaTransactionWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/solana/sign/transaction`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign/transaction`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signSolanaTransactionWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -497,17 +370,18 @@ The developer is responsible for ensuring that the unsigned transaction is valid
  * @summary Send a transaction with end user Solana account
  */
 export const sendSolanaTransactionWithEndUserAccount = (
-  projectId: string,
   userId: string,
   sendSolanaTransactionWithEndUserAccountBody: SendSolanaTransactionWithEndUserAccountBody,
+  params?: SendSolanaTransactionWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SendSolanaTransactionWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SendSolanaTransactionWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/solana/send/transaction`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/send/transaction`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: sendSolanaTransactionWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -519,19 +393,20 @@ Use the optional `createRecipientAta` parameter to control whether the sender pa
  * @summary Send USDC on Solana
  */
 export const sendSolanaAssetWithEndUserAccount = (
-  projectId: string,
   userId: string,
   address: BlockchainAddress,
   asset: "usdc",
   sendSolanaAssetWithEndUserAccountBody: SendSolanaAssetWithEndUserAccountBody,
+  params?: SendSolanaAssetWithEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<SendSolanaAssetWithEndUserAccount200>>,
 ) => {
   return cdpApiClient<SendSolanaAssetWithEndUserAccount200>(
     {
-      url: `/v2/embedded-wallet-api/projects/${projectId}/end-users/${userId}/solana/${address}/send/${asset}`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/${address}/send/${asset}`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: sendSolanaAssetWithEndUserAccountBody,
+      params,
     },
     options,
   );
@@ -562,9 +437,6 @@ export type CreateEvmEip7702DelegationWithEndUserAccountResult = NonNullable<
 >;
 export type SendUserOperationWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof sendUserOperationWithEndUserAccount>>
->;
-export type RevokeSpendPermissionWithEndUserAccountResult = NonNullable<
-  Awaited<ReturnType<typeof revokeSpendPermissionWithEndUserAccount>>
 >;
 export type SignSolanaHashWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signSolanaHashWithEndUserAccount>>
