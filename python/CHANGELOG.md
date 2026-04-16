@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.43.0] - 2026-04-15
+
+### Features
+
+- Added delegated signing operations for end users, enabling signing and sending EVM/Solana transactions on behalf of delegated end users via the EmbeddedWalletsApi
+
+
 ## [1.42.0] - 2026-04-15
 
 ### Features
