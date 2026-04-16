@@ -17,6 +17,13 @@
   - [Retrieving EVM Accounts](#retrieving-evm-accounts)
   - [Updating EVM Accounts](#updating-evm-accounts)
   - [Listing EVM Accounts](#listing-evm-accounts)
+- [Delegated Signing Operations](#delegated-signing-operations)
+  - [Revoke Delegation](#revoke-delegation)
+  - [EVM Signing](#evm-signing)
+  - [EVM Sending](#evm-sending)
+  - [EVM EIP-7702 Delegation](#evm-eip-7702-delegation)
+  - [Solana Signing](#solana-signing)
+  - [Solana Sending](#solana-sending)
 - [Authentication Tools](#authentication-tools)
 - [Development](#development)
 - [License](#license)
@@ -216,6 +223,308 @@ println!("Found {} accounts", accounts_list.accounts.len());
 for account in accounts_list.accounts {
     println!("Account: {} - {:?}", account.address, account.name);
 }
+```
+
+## Delegated Signing Operations
+
+When an end user has granted a delegation, you can sign and send transactions on their behalf using the delegated signing methods on the `Client`.
+
+All delegated signing operations accept an optional `wallet_secret_id` field in the request body. When using delegated signing (where the developer signs on behalf of the user), this field can be omitted.
+
+### Revoke Delegation
+
+Revoke all active delegations for an end user:
+
+```rust
+use cdp_sdk::types;
+
+let body = types::RevokeDelegationForEndUserBody::builder();
+
+client
+    .revoke_delegation_for_end_user()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+```
+
+### EVM Signing
+
+#### Sign an EVM Hash
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignEvmHashWithEndUserAccountBody::builder()
+    .hash("0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890")
+    .address("0x1234...".parse()?);
+
+let response = client
+    .sign_evm_hash_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signature: {}", result.signature);
+```
+
+#### Sign an EVM Transaction
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignEvmTransactionWithEndUserAccountBody::builder()
+    .address("0x1234...".parse()?)
+    .transaction("0x02..."); // RLP-serialized EIP-1559 transaction, hex-encoded
+
+let response = client
+    .sign_evm_transaction_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signed transaction: {}", result.signed_transaction);
+```
+
+#### Sign an EVM Message (EIP-191)
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignEvmMessageWithEndUserAccountBody::builder()
+    .address("0x1234...".parse()?)
+    .message("Hello, World!");
+
+let response = client
+    .sign_evm_message_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signature: {}", result.signature);
+```
+
+#### Sign EVM Typed Data (EIP-712)
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignEvmTypedDataWithEndUserAccountBody::builder()
+    .address("0x1234...".parse()?)
+    .typed_data(
+        types::Eip712Message::builder()
+            .domain(
+                types::Eip712Domain::builder()
+                    .name(Some("Example".to_string()))
+            )
+            .types(serde_json::json!({
+                "Message": [{"name": "content", "type": "string"}]
+            }))
+            .primary_type("Message")
+            .message(serde_json::json!({"content": "Hello"}))
+    );
+
+let response = client
+    .sign_evm_typed_data_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signature: {}", result.signature);
+```
+
+### EVM Sending
+
+#### Send an EVM Transaction
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SendEvmTransactionWithEndUserAccountBody::builder()
+    .address("0x1234...".parse()?)
+    .transaction("0x02...") // RLP-serialized EIP-1559 transaction, hex-encoded
+    .network("base-sepolia".parse()?);
+
+let response = client
+    .send_evm_transaction_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Transaction hash: {}", result.transaction_hash);
+```
+
+#### Send an EVM Asset
+
+Send tokens (e.g. USDC) on behalf of an end user:
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SendEvmAssetWithEndUserAccountBody::builder()
+    .to("0xabcd...".parse()?)
+    .amount("1000000".parse()?)
+    .network("base-sepolia".parse()?)
+    .use_cdp_paymaster(Some(true)); // optional
+
+let response = client
+    .send_evm_asset_with_end_user_account()
+    .user_id("user-123")
+    .address("0x1234...")
+    .asset("usdc")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Transaction hash: {}", result.transaction_hash);
+```
+
+#### Send a User Operation (Smart Account)
+
+Send a user operation via an end user's smart account:
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SendUserOperationWithEndUserAccountBody::builder()
+    .network(types::EvmUserOperationNetwork::BaseSepolia)
+    .calls(vec![
+        types::EvmCall::builder()
+            .to("0xabcd...".parse()?)
+            .value("0")
+            .data("0x".parse()?)
+    ])
+    .use_cdp_paymaster(true);
+
+let response = client
+    .send_user_operation_with_end_user_account()
+    .user_id("user-123")
+    .address("0x1234...") // smart account address
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("User operation hash: {}", result.user_op_hash);
+```
+
+### EVM EIP-7702 Delegation
+
+Create an EIP-7702 delegation on behalf of an end user, upgrading their EOA with smart account capabilities:
+
+```rust
+use cdp_sdk::types;
+
+let body = types::CreateEvmEip7702DelegationWithEndUserAccountBody::builder()
+    .address("0x1234...".parse()?)
+    .network(types::EvmEip7702DelegationNetwork::BaseSepolia)
+    .enable_spend_permissions(false); // optional
+
+let response = client
+    .create_evm_eip7702_delegation_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Delegation operation ID: {}", result.delegation_operation_id);
+```
+
+### Solana Signing
+
+#### Sign a Solana Hash
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignSolanaHashWithEndUserAccountBody::builder()
+    .hash("base58hash...")
+    .address("So1ana...".parse()?);
+
+let response = client
+    .sign_solana_hash_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signature: {}", result.signature);
+```
+
+#### Sign a Solana Message
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignSolanaMessageWithEndUserAccountBody::builder()
+    .address("So1ana...".parse()?)
+    .message("base64message...");
+
+let response = client
+    .sign_solana_message_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signature: {}", result.signature);
+```
+
+#### Sign a Solana Transaction
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SignSolanaTransactionWithEndUserAccountBody::builder()
+    .address("So1ana...".parse()?)
+    .transaction("base64tx...");
+
+let response = client
+    .sign_solana_transaction_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Signed transaction: {}", result.signed_transaction);
+```
+
+### Solana Sending
+
+#### Send a Solana Transaction
+
+```rust
+use cdp_sdk::types;
+
+let body = types::SendSolanaTransactionWithEndUserAccountBody::builder()
+    .address("So1ana...".parse()?)
+    .transaction("base64tx...")
+    .network("solana-devnet".parse()?);
+
+let response = client
+    .send_solana_transaction_with_end_user_account()
+    .user_id("user-123")
+    .body(body)
+    .send()
+    .await?;
+
+let result = response.into_inner();
+println!("Transaction signature: {}", result.transaction_signature);
 ```
 
 ## Authentication Tools
