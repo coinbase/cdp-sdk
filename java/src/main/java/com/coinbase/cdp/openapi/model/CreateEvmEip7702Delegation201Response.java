@@ -70,7 +70,7 @@ public class CreateEvmEip7702Delegation201Response {
 
 
   /**
-   * Return true if this createEvmEip7702Delegation_201_response object is equal to o.
+   * Return true if this CreateEvmEip7702Delegation201Response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {

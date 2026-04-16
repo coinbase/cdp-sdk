@@ -98,9 +98,15 @@ public class EvmNetworkCriterion {
     
     ARBITRUM(String.valueOf("arbitrum")),
     
+    ARBITRUM_SEPOLIA(String.valueOf("arbitrum-sepolia")),
+    
     ZORA(String.valueOf("zora")),
     
-    BNB(String.valueOf("bnb"));
+    BNB(String.valueOf("bnb")),
+    
+    WORLD(String.valueOf("world")),
+    
+    WORLD_SEPOLIA(String.valueOf("world-sepolia"));
 
     private String value;
 

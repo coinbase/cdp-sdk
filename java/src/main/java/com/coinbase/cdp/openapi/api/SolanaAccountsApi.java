@@ -23,12 +23,12 @@ import com.coinbase.cdp.openapi.model.ExportEvmAccountRequest;
 import com.coinbase.cdp.openapi.model.ExportSolanaAccount200Response;
 import com.coinbase.cdp.openapi.model.ImportSolanaAccountRequest;
 import com.coinbase.cdp.openapi.model.ListSolanaAccounts200Response;
-import com.coinbase.cdp.openapi.model.SendSolanaTransaction200Response;
 import com.coinbase.cdp.openapi.model.SendSolanaTransactionRequest;
-import com.coinbase.cdp.openapi.model.SignSolanaMessage200Response;
+import com.coinbase.cdp.openapi.model.SendSolanaTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignSolanaMessageRequest;
-import com.coinbase.cdp.openapi.model.SignSolanaTransaction200Response;
+import com.coinbase.cdp.openapi.model.SignSolanaMessageWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignSolanaTransactionRequest;
+import com.coinbase.cdp.openapi.model.SignSolanaTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SolanaAccount;
 import com.coinbase.cdp.openapi.model.UpdateSolanaAccountRequest;
 
@@ -760,11 +760,11 @@ public class SolanaAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param sendSolanaTransactionRequest  (optional)
-   * @return SendSolanaTransaction200Response
+   * @return SendSolanaTransactionWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SendSolanaTransaction200Response sendSolanaTransaction(String xWalletAuth, String xIdempotencyKey, SendSolanaTransactionRequest sendSolanaTransactionRequest) throws ApiException {
-    ApiResponse<SendSolanaTransaction200Response> localVarResponse = sendSolanaTransactionWithHttpInfo(xWalletAuth, xIdempotencyKey, sendSolanaTransactionRequest);
+  public SendSolanaTransactionWithEndUserAccount200Response sendSolanaTransaction(String xWalletAuth, String xIdempotencyKey, SendSolanaTransactionRequest sendSolanaTransactionRequest) throws ApiException {
+    ApiResponse<SendSolanaTransactionWithEndUserAccount200Response> localVarResponse = sendSolanaTransactionWithHttpInfo(xWalletAuth, xIdempotencyKey, sendSolanaTransactionRequest);
     return localVarResponse.getData();
   }
 
@@ -774,10 +774,10 @@ public class SolanaAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param sendSolanaTransactionRequest  (optional)
-   * @return ApiResponse&lt;SendSolanaTransaction200Response&gt;
+   * @return ApiResponse&lt;SendSolanaTransactionWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SendSolanaTransaction200Response> sendSolanaTransactionWithHttpInfo(String xWalletAuth, String xIdempotencyKey, SendSolanaTransactionRequest sendSolanaTransactionRequest) throws ApiException {
+  public ApiResponse<SendSolanaTransactionWithEndUserAccount200Response> sendSolanaTransactionWithHttpInfo(String xWalletAuth, String xIdempotencyKey, SendSolanaTransactionRequest sendSolanaTransactionRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = sendSolanaTransactionRequestBuilder(xWalletAuth, xIdempotencyKey, sendSolanaTransactionRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -791,7 +791,7 @@ public class SolanaAccountsApi {
           throw getApiException("sendSolanaTransaction", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SendSolanaTransaction200Response>(
+          return new ApiResponse<SendSolanaTransactionWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -801,10 +801,10 @@ public class SolanaAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SendSolanaTransaction200Response>(
+        return new ApiResponse<SendSolanaTransactionWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SendSolanaTransaction200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SendSolanaTransactionWithEndUserAccount200Response>() {})
         );
       } finally {
       }
@@ -856,11 +856,11 @@ public class SolanaAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signSolanaMessageRequest  (optional)
-   * @return SignSolanaMessage200Response
+   * @return SignSolanaMessageWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SignSolanaMessage200Response signSolanaMessage(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaMessageRequest signSolanaMessageRequest) throws ApiException {
-    ApiResponse<SignSolanaMessage200Response> localVarResponse = signSolanaMessageWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signSolanaMessageRequest);
+  public SignSolanaMessageWithEndUserAccount200Response signSolanaMessage(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaMessageRequest signSolanaMessageRequest) throws ApiException {
+    ApiResponse<SignSolanaMessageWithEndUserAccount200Response> localVarResponse = signSolanaMessageWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signSolanaMessageRequest);
     return localVarResponse.getData();
   }
 
@@ -871,10 +871,10 @@ public class SolanaAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signSolanaMessageRequest  (optional)
-   * @return ApiResponse&lt;SignSolanaMessage200Response&gt;
+   * @return ApiResponse&lt;SignSolanaMessageWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SignSolanaMessage200Response> signSolanaMessageWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaMessageRequest signSolanaMessageRequest) throws ApiException {
+  public ApiResponse<SignSolanaMessageWithEndUserAccount200Response> signSolanaMessageWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaMessageRequest signSolanaMessageRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = signSolanaMessageRequestBuilder(address, xWalletAuth, xIdempotencyKey, signSolanaMessageRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -888,7 +888,7 @@ public class SolanaAccountsApi {
           throw getApiException("signSolanaMessage", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SignSolanaMessage200Response>(
+          return new ApiResponse<SignSolanaMessageWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -898,10 +898,10 @@ public class SolanaAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SignSolanaMessage200Response>(
+        return new ApiResponse<SignSolanaMessageWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignSolanaMessage200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignSolanaMessageWithEndUserAccount200Response>() {})
         );
       } finally {
       }
@@ -958,11 +958,11 @@ public class SolanaAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signSolanaTransactionRequest  (optional)
-   * @return SignSolanaTransaction200Response
+   * @return SignSolanaTransactionWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SignSolanaTransaction200Response signSolanaTransaction(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaTransactionRequest signSolanaTransactionRequest) throws ApiException {
-    ApiResponse<SignSolanaTransaction200Response> localVarResponse = signSolanaTransactionWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signSolanaTransactionRequest);
+  public SignSolanaTransactionWithEndUserAccount200Response signSolanaTransaction(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaTransactionRequest signSolanaTransactionRequest) throws ApiException {
+    ApiResponse<SignSolanaTransactionWithEndUserAccount200Response> localVarResponse = signSolanaTransactionWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signSolanaTransactionRequest);
     return localVarResponse.getData();
   }
 
@@ -973,10 +973,10 @@ public class SolanaAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signSolanaTransactionRequest  (optional)
-   * @return ApiResponse&lt;SignSolanaTransaction200Response&gt;
+   * @return ApiResponse&lt;SignSolanaTransactionWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SignSolanaTransaction200Response> signSolanaTransactionWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaTransactionRequest signSolanaTransactionRequest) throws ApiException {
+  public ApiResponse<SignSolanaTransactionWithEndUserAccount200Response> signSolanaTransactionWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignSolanaTransactionRequest signSolanaTransactionRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = signSolanaTransactionRequestBuilder(address, xWalletAuth, xIdempotencyKey, signSolanaTransactionRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -990,7 +990,7 @@ public class SolanaAccountsApi {
           throw getApiException("signSolanaTransaction", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SignSolanaTransaction200Response>(
+          return new ApiResponse<SignSolanaTransactionWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -1000,10 +1000,10 @@ public class SolanaAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SignSolanaTransaction200Response>(
+        return new ApiResponse<SignSolanaTransactionWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignSolanaTransaction200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignSolanaTransactionWithEndUserAccount200Response>() {})
         );
       } finally {
       }

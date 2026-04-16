@@ -56,7 +56,13 @@ public class SendEvmTransactionRequest {
     
     OPTIMISM(String.valueOf("optimism")),
     
-    ARBITRUM(String.valueOf("arbitrum"));
+    ARBITRUM(String.valueOf("arbitrum")),
+    
+    ARBITRUM_SEPOLIA(String.valueOf("arbitrum-sepolia")),
+    
+    WORLD(String.valueOf("world")),
+    
+    WORLD_SEPOLIA(String.valueOf("world-sepolia"));
 
     private String value;
 

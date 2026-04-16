@@ -69,7 +69,7 @@ public class SendSolanaTransaction200Response {
 
 
   /**
-   * Return true if this sendSolanaTransaction_200_response object is equal to o.
+   * Return true if this SendSolanaTransaction200Response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {

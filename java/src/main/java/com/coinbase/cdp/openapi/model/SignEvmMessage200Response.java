@@ -69,7 +69,7 @@ public class SignEvmMessage200Response {
 
 
   /**
-   * Return true if this signEvmMessage_200_response object is equal to o.
+   * Return true if this SignEvmMessage200Response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
