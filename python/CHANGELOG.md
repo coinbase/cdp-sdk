@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.42.1] - 2026-04-16
+
+### Bugfixes
+
+- Removed upper bound pin on web3.py dependency ([#657](https://github.com/coinbase/cdp-sdk/pull/657))
+
+
 ## [1.42.0] - 2026-04-15
 
 ### Features
