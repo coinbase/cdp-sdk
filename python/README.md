@@ -28,6 +28,13 @@
   - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
   - [Add Solana Account to End User](#add-solana-account-to-end-user)
   - [Validate Access Token](#validate-access-token)
+- [Delegated Signing Operations](#delegated-signing-operations)
+  - [Revoke Delegation](#revoke-delegation)
+  - [EVM Signing](#evm-signing)
+  - [EVM Sending](#evm-sending)
+  - [EVM EIP-7702 Delegation](#evm-eip-7702-delegation)
+  - [Solana Signing](#solana-signing)
+  - [Solana Sending](#solana-sending)
 - [Webhooks](#webhooks)
   - [Create Subscription](#create-subscription)
 - [Authentication Tools](#authentication-tools)
@@ -1506,6 +1513,249 @@ try:
     # Access token is valid
 except Exception as e:
     # Access token is invalid or expired
+```
+
+## Delegated Signing Operations
+
+When an end user has granted a delegation, you can sign and send transactions on their behalf using the `EmbeddedWalletsApi` class from the OpenAPI-generated client.
+
+To use delegated signing operations, create an `EmbeddedWalletsApi` instance from the `CdpClient`:
+
+```python
+from cdp import CdpClient
+from cdp.openapi_client.api.embedded_wallets_api import EmbeddedWalletsApi
+
+async with CdpClient() as cdp:
+    embedded_wallets = EmbeddedWalletsApi(api_client=cdp.cdp_api_client)
+```
+
+### Revoke Delegation
+
+Revoke all active delegations for an end user:
+
+```python
+from cdp.openapi_client.models.revoke_delegation_for_end_user_request import RevokeDelegationForEndUserRequest
+
+await embedded_wallets.revoke_delegation_for_end_user(
+    user_id="user-123",
+    revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+)
+```
+
+### EVM Signing
+
+#### Sign an EVM Hash
+
+```python
+from cdp.openapi_client.models.sign_evm_hash_with_end_user_account_request import SignEvmHashWithEndUserAccountRequest
+
+result = await embedded_wallets.sign_evm_hash_with_end_user_account(
+    user_id="user-123",
+    sign_evm_hash_with_end_user_account_request=SignEvmHashWithEndUserAccountRequest(
+        hash="0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        address="0x1234...",
+    ),
+)
+print(result.signature)
+```
+
+#### Sign an EVM Transaction
+
+```python
+from cdp.openapi_client.models.sign_evm_transaction_with_end_user_account_request import SignEvmTransactionWithEndUserAccountRequest
+
+result = await embedded_wallets.sign_evm_transaction_with_end_user_account(
+    user_id="user-123",
+    sign_evm_transaction_with_end_user_account_request=SignEvmTransactionWithEndUserAccountRequest(
+        address="0x1234...",
+        transaction="0x02...",  # RLP-serialized EIP-1559 transaction, hex-encoded
+    ),
+)
+print(result.signed_transaction)
+```
+
+#### Sign an EVM Message (EIP-191)
+
+```python
+from cdp.openapi_client.models.sign_evm_message_with_end_user_account_request import SignEvmMessageWithEndUserAccountRequest
+
+result = await embedded_wallets.sign_evm_message_with_end_user_account(
+    user_id="user-123",
+    sign_evm_message_with_end_user_account_request=SignEvmMessageWithEndUserAccountRequest(
+        address="0x1234...",
+        message="Hello, World!",
+    ),
+)
+print(result.signature)
+```
+
+#### Sign EVM Typed Data (EIP-712)
+
+```python
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account_request import SignEvmTypedDataWithEndUserAccountRequest
+from cdp.openapi_client.models.eip712_message import EIP712Message
+
+result = await embedded_wallets.sign_evm_typed_data_with_end_user_account(
+    user_id="user-123",
+    sign_evm_typed_data_with_end_user_account_request=SignEvmTypedDataWithEndUserAccountRequest(
+        address="0x1234...",
+        typed_data=EIP712Message(
+            domain={"name": "Example"},
+            types={"Message": [{"name": "content", "type": "string"}]},
+            primaryType="Message",
+            message={"content": "Hello"},
+        ),
+    ),
+)
+print(result.signature)
+```
+
+### EVM Sending
+
+#### Send an EVM Transaction
+
+```python
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account_request import SendEvmTransactionWithEndUserAccountRequest
+
+result = await embedded_wallets.send_evm_transaction_with_end_user_account(
+    user_id="user-123",
+    send_evm_transaction_with_end_user_account_request=SendEvmTransactionWithEndUserAccountRequest(
+        address="0x1234...",
+        transaction="0x02...",  # RLP-serialized EIP-1559 transaction, hex-encoded
+        network="base-sepolia",
+    ),
+)
+print(result.transaction_hash)
+```
+
+#### Send an EVM Asset
+
+Send tokens (e.g. USDC) on behalf of an end user:
+
+```python
+from cdp.openapi_client.models.send_evm_asset_with_end_user_account_request import SendEvmAssetWithEndUserAccountRequest
+
+result = await embedded_wallets.send_evm_asset_with_end_user_account(
+    user_id="user-123",
+    address="0x1234...",
+    asset="usdc",
+    send_evm_asset_with_end_user_account_request=SendEvmAssetWithEndUserAccountRequest(
+        to="0xabcd...",
+        amount="1000000",
+        network="base-sepolia",
+        use_cdp_paymaster=True,  # optional
+    ),
+)
+print(result.transaction_hash)
+```
+
+#### Send a User Operation (Smart Account)
+
+Send a user operation via an end user's smart account:
+
+```python
+from cdp.openapi_client.models.send_user_operation_with_end_user_account_request import SendUserOperationWithEndUserAccountRequest
+from cdp.openapi_client.models.evm_call import EvmCall
+
+result = await embedded_wallets.send_user_operation_with_end_user_account(
+    user_id="user-123",
+    address="0x1234...",  # smart account address
+    send_user_operation_with_end_user_account_request=SendUserOperationWithEndUserAccountRequest(
+        network="base-sepolia",
+        calls=[
+            EvmCall(
+                to="0xabcd...",
+                value="0",
+                data="0x",
+            ),
+        ],
+        use_cdp_paymaster=True,
+    ),
+)
+print(result.user_op_hash)
+```
+
+### EVM EIP-7702 Delegation
+
+Create an EIP-7702 delegation on behalf of an end user, upgrading their EOA with smart account capabilities:
+
+```python
+from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account_request import CreateEvmEip7702DelegationWithEndUserAccountRequest
+
+result = await embedded_wallets.create_evm_eip7702_delegation_with_end_user_account(
+    user_id="user-123",
+    create_evm_eip7702_delegation_with_end_user_account_request=CreateEvmEip7702DelegationWithEndUserAccountRequest(
+        address="0x1234...",
+        network="base-sepolia",
+        enable_spend_permissions=False,  # optional
+    ),
+)
+print(result.delegation_operation_id)
+```
+
+### Solana Signing
+
+#### Sign a Solana Hash
+
+```python
+from cdp.openapi_client.models.sign_solana_hash_with_end_user_account_request import SignSolanaHashWithEndUserAccountRequest
+
+result = await embedded_wallets.sign_solana_hash_with_end_user_account(
+    user_id="user-123",
+    sign_solana_hash_with_end_user_account_request=SignSolanaHashWithEndUserAccountRequest(
+        hash="base58hash...",
+        address="So1ana...",
+    ),
+)
+print(result.signature)
+```
+
+#### Sign a Solana Message
+
+```python
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account_request import SignSolanaMessageWithEndUserAccountRequest
+
+result = await embedded_wallets.sign_solana_message_with_end_user_account(
+    user_id="user-123",
+    sign_solana_message_with_end_user_account_request=SignSolanaMessageWithEndUserAccountRequest(
+        address="So1ana...",
+        message="base64message...",
+    ),
+)
+print(result.signature)
+```
+
+#### Sign a Solana Transaction
+
+```python
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account_request import SignSolanaTransactionWithEndUserAccountRequest
+
+result = await embedded_wallets.sign_solana_transaction_with_end_user_account(
+    user_id="user-123",
+    sign_solana_transaction_with_end_user_account_request=SignSolanaTransactionWithEndUserAccountRequest(
+        address="So1ana...",
+        transaction="base64tx...",
+    ),
+)
+print(result.signed_transaction)
+```
+
+### Solana Sending
+
+#### Send a Solana Transaction
+
+```python
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account_request import SendSolanaTransactionWithEndUserAccountRequest
+
+result = await embedded_wallets.send_solana_transaction_with_end_user_account(
+    user_id="user-123",
+    send_solana_transaction_with_end_user_account_request=SendSolanaTransactionWithEndUserAccountRequest(
+        address="So1ana...",
+        transaction="base64tx...",
+        network="solana-devnet",
+    ),
+)
+print(result.transaction_signature)
 ```
 
 ## Webhooks

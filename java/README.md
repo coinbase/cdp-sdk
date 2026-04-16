@@ -14,6 +14,13 @@ The official Java SDK for the [Coinbase Developer Platform (CDP)](https://docs.c
   - [Testnet Faucet](#testnet-faucet)
   - [Signing Messages](#signing-messages)
   - [Transferring Tokens](#transferring-tokens)
+- [Delegated Signing Operations](#delegated-signing-operations)
+  - [Revoke Delegation](#revoke-delegation)
+  - [EVM Signing](#evm-signing)
+  - [EVM Sending](#evm-sending)
+  - [EVM EIP-7702 Delegation](#evm-eip-7702-delegation)
+  - [Solana Signing](#solana-signing)
+  - [Solana Sending](#solana-sending)
 - [HTTP Retry Configuration](#http-retry-configuration)
 - [TokenProvider Pattern](#tokenprovider-pattern)
 - [Low-Level API Access](#low-level-api-access)
@@ -305,6 +312,258 @@ var result = cdp.solana().transfer(
 );
 
 System.out.println("Signature: " + result.getSignature());
+```
+
+## Delegated Signing Operations
+
+When an end user has granted a delegation, you can sign and send transactions on their behalf using the `EmbeddedWalletsApi` class from the OpenAPI-generated client.
+
+To use delegated signing operations, create an `EmbeddedWalletsApi` instance from the `CdpClient`:
+
+```java
+import com.coinbase.cdp.CdpClient;
+import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
+
+try (CdpClient cdp = CdpClient.create()) {
+    EmbeddedWalletsApi embeddedWallets = new EmbeddedWalletsApi(cdp.getApiClient());
+    // Use embeddedWallets for delegated signing operations...
+}
+```
+
+### Revoke Delegation
+
+Revoke all active delegations for an end user:
+
+```java
+import com.coinbase.cdp.openapi.model.RevokeDelegationForEndUserRequest;
+
+embeddedWallets.revokeDelegationForEndUser(
+    "user-123",
+    new RevokeDelegationForEndUserRequest(),
+    null, // xWalletAuth
+    null, // xDeveloperAuth
+    null  // xIdempotencyKey
+);
+```
+
+### EVM Signing
+
+#### Sign an EVM Hash
+
+```java
+import com.coinbase.cdp.openapi.model.SignEvmHashWithEndUserAccountRequest;
+
+var result = embeddedWallets.signEvmHashWithEndUserAccount(
+    "user-123",
+    null, // xWalletAuth
+    null, // xIdempotencyKey
+    null, // xDeveloperAuth
+    null, // projectID
+    new SignEvmHashWithEndUserAccountRequest()
+        .hash("0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890")
+        .address("0x1234...")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+#### Sign an EVM Transaction
+
+```java
+import com.coinbase.cdp.openapi.model.SignEvmTransactionWithEndUserAccountRequest;
+
+var result = embeddedWallets.signEvmTransactionWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SignEvmTransactionWithEndUserAccountRequest()
+        .address("0x1234...")
+        .transaction("0x02...") // RLP-serialized EIP-1559 transaction, hex-encoded
+);
+System.out.println("Signed transaction: " + result.getSignedTransaction());
+```
+
+#### Sign an EVM Message (EIP-191)
+
+```java
+import com.coinbase.cdp.openapi.model.SignEvmMessageWithEndUserAccountRequest;
+
+var result = embeddedWallets.signEvmMessageWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SignEvmMessageWithEndUserAccountRequest()
+        .address("0x1234...")
+        .message("Hello, World!")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+#### Sign EVM Typed Data (EIP-712)
+
+```java
+import com.coinbase.cdp.openapi.model.SignEvmTypedDataWithEndUserAccountRequest;
+import com.coinbase.cdp.openapi.model.EIP712Message;
+import com.coinbase.cdp.openapi.model.EIP712Domain;
+
+var result = embeddedWallets.signEvmTypedDataWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SignEvmTypedDataWithEndUserAccountRequest()
+        .address("0x1234...")
+        .typedData(new EIP712Message()
+            .domain(new EIP712Domain().name("Example"))
+            .types(Map.of("Message", List.of(Map.of("name", "content", "type", "string"))))
+            .primaryType("Message")
+            .message(Map.of("content", "Hello")))
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+### EVM Sending
+
+#### Send an EVM Transaction
+
+```java
+import com.coinbase.cdp.openapi.model.SendEvmTransactionWithEndUserAccountRequest;
+
+var result = embeddedWallets.sendEvmTransactionWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SendEvmTransactionWithEndUserAccountRequest()
+        .address("0x1234...")
+        .transaction("0x02...") // RLP-serialized EIP-1559 transaction, hex-encoded
+        .network(SendEvmTransactionWithEndUserAccountRequest.NetworkEnum.BASE_SEPOLIA)
+);
+System.out.println("Transaction hash: " + result.getTransactionHash());
+```
+
+#### Send an EVM Asset
+
+Send tokens (e.g. USDC) on behalf of an end user:
+
+```java
+import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccountRequest;
+
+var result = embeddedWallets.sendEvmAssetWithEndUserAccount(
+    "user-123",
+    "0x1234...", // address
+    "usdc",      // asset
+    null, null, null, null,
+    new SendEvmAssetWithEndUserAccountRequest()
+        .to("0xabcd...")
+        .amount("1000000")
+        .network(SendEvmAssetWithEndUserAccountRequest.NetworkEnum.BASE_SEPOLIA)
+        .useCdpPaymaster(true) // optional
+);
+System.out.println("Transaction hash: " + result.getTransactionHash());
+```
+
+#### Send a User Operation (Smart Account)
+
+Send a user operation via an end user's smart account:
+
+```java
+import com.coinbase.cdp.openapi.model.SendUserOperationWithEndUserAccountRequest;
+import com.coinbase.cdp.openapi.model.EvmCall;
+import com.coinbase.cdp.openapi.model.EvmUserOperationNetwork;
+
+var result = embeddedWallets.sendUserOperationWithEndUserAccount(
+    "user-123",
+    "0x1234...", // smart account address
+    null, null, null, null,
+    new SendUserOperationWithEndUserAccountRequest()
+        .network(EvmUserOperationNetwork.BASE_SEPOLIA)
+        .calls(List.of(
+            new EvmCall()
+                .to("0xabcd...")
+                .value("0")
+                .data("0x")
+        ))
+        .useCdpPaymaster(true)
+);
+System.out.println("User operation hash: " + result.getUserOpHash());
+```
+
+### EVM EIP-7702 Delegation
+
+Create an EIP-7702 delegation on behalf of an end user, upgrading their EOA with smart account capabilities:
+
+```java
+import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccountRequest;
+import com.coinbase.cdp.openapi.model.EvmEip7702DelegationNetwork;
+
+var result = embeddedWallets.createEvmEip7702DelegationWithEndUserAccount(
+    "user-123",
+    new CreateEvmEip7702DelegationWithEndUserAccountRequest()
+        .address("0x1234...")
+        .network(EvmEip7702DelegationNetwork.BASE_SEPOLIA)
+        .enableSpendPermissions(false), // optional
+    null, null, null, null
+);
+System.out.println("Delegation operation ID: " + result.getDelegationOperationId());
+```
+
+### Solana Signing
+
+#### Sign a Solana Hash
+
+```java
+import com.coinbase.cdp.openapi.model.SignSolanaHashWithEndUserAccountRequest;
+
+var result = embeddedWallets.signSolanaHashWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SignSolanaHashWithEndUserAccountRequest()
+        .hash("base58hash...")
+        .address("So1ana...")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+#### Sign a Solana Message
+
+```java
+import com.coinbase.cdp.openapi.model.SignSolanaMessageWithEndUserAccountRequest;
+
+var result = embeddedWallets.signSolanaMessageWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SignSolanaMessageWithEndUserAccountRequest()
+        .address("So1ana...")
+        .message("base64message...")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+#### Sign a Solana Transaction
+
+```java
+import com.coinbase.cdp.openapi.model.SignSolanaTransactionWithEndUserAccountRequest;
+
+var result = embeddedWallets.signSolanaTransactionWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SignSolanaTransactionWithEndUserAccountRequest()
+        .address("So1ana...")
+        .transaction("base64tx...")
+);
+System.out.println("Signed transaction: " + result.getSignedTransaction());
+```
+
+### Solana Sending
+
+#### Send a Solana Transaction
+
+```java
+import com.coinbase.cdp.openapi.model.SendSolanaTransactionWithEndUserAccountRequest;
+
+var result = embeddedWallets.sendSolanaTransactionWithEndUserAccount(
+    "user-123",
+    null, null, null, null,
+    new SendSolanaTransactionWithEndUserAccountRequest()
+        .address("So1ana...")
+        .transaction("base64tx...")
+        .network(SendSolanaTransactionWithEndUserAccountRequest.NetworkEnum.SOLANA_DEVNET)
+);
+System.out.println("Transaction signature: " + result.getTransactionHash());
 ```
 
 ## HTTP Retry Configuration
