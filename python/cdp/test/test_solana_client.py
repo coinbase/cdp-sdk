@@ -22,23 +22,23 @@ from cdp.openapi_client.models.request_solana_faucet200_response import (
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
-from cdp.openapi_client.models.send_solana_transaction200_response import (
-    SendSolanaTransaction200Response as SendSolanaTransactionResponse,
-)
 from cdp.openapi_client.models.send_solana_transaction_request import (
     SendSolanaTransactionRequest,
 )
-from cdp.openapi_client.models.sign_solana_message200_response import (
-    SignSolanaMessage200Response as SignSolanaMessageResponse,
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account200_response import (
+    SendSolanaTransactionWithEndUserAccount200Response as SendSolanaTransactionResponse,
 )
 from cdp.openapi_client.models.sign_solana_message_request import (
     SignSolanaMessageRequest,
 )
-from cdp.openapi_client.models.sign_solana_transaction200_response import (
-    SignSolanaTransaction200Response as SignSolanaTransactionResponse,
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account200_response import (
+    SignSolanaMessageWithEndUserAccount200Response as SignSolanaMessageResponse,
 )
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
+)
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account200_response import (
+    SignSolanaTransactionWithEndUserAccount200Response as SignSolanaTransactionResponse,
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest

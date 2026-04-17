@@ -40,6 +40,73 @@ fn fix_enum_values(value: &mut serde_json::Value) {
     }
 }
 
+// Simplify allOf with a single $ref and sibling constraints (pattern, enum, etc.)
+// into just the $ref. typify-impl 0.4.3 panics when trying to merge these patterns.
+// The sibling constraints are validation-only and don't affect the generated Rust types.
+fn simplify_single_ref_allof(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(map) => {
+            // Check if this object has allOf with exactly one $ref element AND sibling properties
+            let should_simplify = if let Some(serde_json::Value::Array(arr)) = map.get("allOf") {
+                arr.len() == 1
+                    && arr[0].is_object()
+                    && arr[0].as_object().unwrap().contains_key("$ref")
+                    && map.keys().any(|k| {
+                        matches!(
+                            k.as_str(),
+                            "pattern"
+                                | "enum"
+                                | "minLength"
+                                | "maxLength"
+                                | "minimum"
+                                | "maximum"
+                                | "format"
+                                | "default"
+                        )
+                    })
+            } else {
+                false
+            };
+
+            if should_simplify {
+                // Extract the $ref value
+                let ref_value = map
+                    .get("allOf")
+                    .and_then(|v| v.as_array())
+                    .and_then(|arr| arr[0].as_object())
+                    .and_then(|obj| obj.get("$ref"))
+                    .cloned();
+
+                if let Some(ref_val) = ref_value {
+                    // Remove allOf and sibling constraint properties, keep description/example
+                    map.remove("allOf");
+                    map.remove("pattern");
+                    map.remove("enum");
+                    map.remove("minLength");
+                    map.remove("maxLength");
+                    map.remove("minimum");
+                    map.remove("maximum");
+                    map.remove("format");
+                    map.remove("default");
+                    // Insert the $ref directly
+                    map.insert("$ref".to_string(), ref_val);
+                }
+            }
+
+            // Recursively process all values in the object
+            for (_, v) in map.iter_mut() {
+                simplify_single_ref_allof(v);
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for item in arr.iter_mut() {
+                simplify_single_ref_allof(item);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn main() {
     // Only generate code if CDP_GENERATE environment variable is set
     // This prevents the toolchain from automatically regenerating.
@@ -56,6 +123,9 @@ fn main() {
 
     // Fix enum values that aren't valid Rust identifiers
     fix_enum_values(&mut json);
+
+    // Simplify allOf patterns that typify can't handle
+    simplify_single_ref_allof(&mut json);
 
     let spec = serde_json::from_str(&serde_json::to_string_pretty(&json).unwrap()).unwrap();
 

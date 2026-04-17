@@ -4,11 +4,11 @@ import pytest
 
 from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
-from cdp.openapi_client.models.sign_solana_transaction200_response import (
-    SignSolanaTransaction200Response as SignSolanaTransactionResponse,
-)
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
+)
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account200_response import (
+    SignSolanaTransactionWithEndUserAccount200Response as SignSolanaTransactionResponse,
 )
 
 

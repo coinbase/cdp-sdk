@@ -114,6 +114,7 @@ AuthSettings = TypedDict(
     "AuthSettings",
     {
         "apiKeyAuth": BearerFormatAuthSetting,
+        "endUserAuth": BearerFormatAuthSetting,
     },
     total=False,
 )
@@ -484,6 +485,14 @@ class Configuration:
         auth: AuthSettings = {}
         if self.access_token is not None:
             auth['apiKeyAuth'] = {
+                'type': 'bearer',
+                'in': 'header',
+                'format': 'JWT',
+                'key': 'Authorization',
+                'value': 'Bearer ' + self.access_token
+            }
+        if self.access_token is not None:
+            auth['endUserAuth'] = {
                 'type': 'bearer',
                 'in': 'header',
                 'format': 'JWT',
