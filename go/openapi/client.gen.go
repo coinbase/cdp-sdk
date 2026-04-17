@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	ApiKeyAuthScopes = "apiKeyAuth.Scopes"
+	ApiKeyAuthScopes  = "apiKeyAuth.Scopes"
+	EndUserAuthScopes = "endUserAuth.Scopes"
 )
 
 // Defines values for AbiFunctionType.
@@ -202,6 +203,7 @@ const (
 // Defines values for EvmNetworkCriterionNetworks.
 const (
 	EvmNetworkCriterionNetworksArbitrum        EvmNetworkCriterionNetworks = "arbitrum"
+	EvmNetworkCriterionNetworksArbitrumSepolia EvmNetworkCriterionNetworks = "arbitrum-sepolia"
 	EvmNetworkCriterionNetworksAvalanche       EvmNetworkCriterionNetworks = "avalanche"
 	EvmNetworkCriterionNetworksBase            EvmNetworkCriterionNetworks = "base"
 	EvmNetworkCriterionNetworksBaseSepolia     EvmNetworkCriterionNetworks = "base-sepolia"
@@ -210,6 +212,8 @@ const (
 	EvmNetworkCriterionNetworksEthereumSepolia EvmNetworkCriterionNetworks = "ethereum-sepolia"
 	EvmNetworkCriterionNetworksOptimism        EvmNetworkCriterionNetworks = "optimism"
 	EvmNetworkCriterionNetworksPolygon         EvmNetworkCriterionNetworks = "polygon"
+	EvmNetworkCriterionNetworksWorld           EvmNetworkCriterionNetworks = "world"
+	EvmNetworkCriterionNetworksWorldSepolia    EvmNetworkCriterionNetworks = "world-sepolia"
 	EvmNetworkCriterionNetworksZora            EvmNetworkCriterionNetworks = "zora"
 )
 
@@ -939,6 +943,48 @@ const (
 	GetSQLSchemaParamsDatabaseBaseSepolia GetSQLSchemaParamsDatabase = "base_sepolia"
 )
 
+// Defines values for SendEvmTransactionWithEndUserAccountJSONBodyNetwork.
+const (
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkArbitrum        SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "arbitrum"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkArbitrumSepolia SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "arbitrum-sepolia"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkAvalanche       SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "avalanche"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkBase            SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "base"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkBaseSepolia     SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "base-sepolia"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkEthereum        SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "ethereum"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkEthereumSepolia SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "ethereum-sepolia"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkOptimism        SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "optimism"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkPolygon         SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "polygon"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkWorld           SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "world"
+	SendEvmTransactionWithEndUserAccountJSONBodyNetworkWorldSepolia    SendEvmTransactionWithEndUserAccountJSONBodyNetwork = "world-sepolia"
+)
+
+// Defines values for SendEvmAssetWithEndUserAccountJSONBodyNetwork.
+const (
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkArbitrum        SendEvmAssetWithEndUserAccountJSONBodyNetwork = "arbitrum"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkArbitrumSepolia SendEvmAssetWithEndUserAccountJSONBodyNetwork = "arbitrum-sepolia"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkAvalanche       SendEvmAssetWithEndUserAccountJSONBodyNetwork = "avalanche"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkBase            SendEvmAssetWithEndUserAccountJSONBodyNetwork = "base"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkBaseSepolia     SendEvmAssetWithEndUserAccountJSONBodyNetwork = "base-sepolia"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkEthereum        SendEvmAssetWithEndUserAccountJSONBodyNetwork = "ethereum"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkEthereumSepolia SendEvmAssetWithEndUserAccountJSONBodyNetwork = "ethereum-sepolia"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkOptimism        SendEvmAssetWithEndUserAccountJSONBodyNetwork = "optimism"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkPolygon         SendEvmAssetWithEndUserAccountJSONBodyNetwork = "polygon"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkWorld           SendEvmAssetWithEndUserAccountJSONBodyNetwork = "world"
+	SendEvmAssetWithEndUserAccountJSONBodyNetworkWorldSepolia    SendEvmAssetWithEndUserAccountJSONBodyNetwork = "world-sepolia"
+)
+
+// Defines values for SendSolanaTransactionWithEndUserAccountJSONBodyNetwork.
+const (
+	SendSolanaTransactionWithEndUserAccountJSONBodyNetworkSolana       SendSolanaTransactionWithEndUserAccountJSONBodyNetwork = "solana"
+	SendSolanaTransactionWithEndUserAccountJSONBodyNetworkSolanaDevnet SendSolanaTransactionWithEndUserAccountJSONBodyNetwork = "solana-devnet"
+)
+
+// Defines values for SendSolanaAssetWithEndUserAccountJSONBodyNetwork.
+const (
+	SendSolanaAssetWithEndUserAccountJSONBodyNetworkSolana       SendSolanaAssetWithEndUserAccountJSONBodyNetwork = "solana"
+	SendSolanaAssetWithEndUserAccountJSONBodyNetworkSolanaDevnet SendSolanaAssetWithEndUserAccountJSONBodyNetwork = "solana-devnet"
+)
+
 // Defines values for ListEndUsersParamsSort.
 const (
 	CreatedAtAsc  ListEndUsersParamsSort = "createdAt=asc"
@@ -954,6 +1000,7 @@ const (
 // Defines values for SendEvmTransactionJSONBodyNetwork.
 const (
 	SendEvmTransactionJSONBodyNetworkArbitrum        SendEvmTransactionJSONBodyNetwork = "arbitrum"
+	SendEvmTransactionJSONBodyNetworkArbitrumSepolia SendEvmTransactionJSONBodyNetwork = "arbitrum-sepolia"
 	SendEvmTransactionJSONBodyNetworkAvalanche       SendEvmTransactionJSONBodyNetwork = "avalanche"
 	SendEvmTransactionJSONBodyNetworkBase            SendEvmTransactionJSONBodyNetwork = "base"
 	SendEvmTransactionJSONBodyNetworkBaseSepolia     SendEvmTransactionJSONBodyNetwork = "base-sepolia"
@@ -961,6 +1008,8 @@ const (
 	SendEvmTransactionJSONBodyNetworkEthereumSepolia SendEvmTransactionJSONBodyNetwork = "ethereum-sepolia"
 	SendEvmTransactionJSONBodyNetworkOptimism        SendEvmTransactionJSONBodyNetwork = "optimism"
 	SendEvmTransactionJSONBodyNetworkPolygon         SendEvmTransactionJSONBodyNetwork = "polygon"
+	SendEvmTransactionJSONBodyNetworkWorld           SendEvmTransactionJSONBodyNetwork = "world"
+	SendEvmTransactionJSONBodyNetworkWorldSepolia    SendEvmTransactionJSONBodyNetwork = "world-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
@@ -1082,6 +1131,9 @@ type AccountTokenAddressesResponse struct {
 	// TotalCount Total number of unique token addresses discovered.
 	TotalCount *int `json:"totalCount,omitempty"`
 }
+
+// Asset The symbol of the asset (e.g., eth, usd, usdc, usdt).
+type Asset = string
 
 // AuthenticationMethod Information about how the end user is authenticated.
 type AuthenticationMethod struct {
@@ -3235,9 +3287,9 @@ type WebhookSubscriptionRequest struct {
 	// Description Description of the webhook subscription.
 	Description *Description `json:"description,omitempty"`
 
-	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
+	// EventTypes Types of events to subscribe to. Event types follow a dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
-	// "acceptance.payment_session").
+	// "acceptance.payment_session.authorization_succeeded").
 	// The subscription will only receive events matching these types AND the label filter(s).
 	EventTypes []string `json:"eventTypes"`
 
@@ -3269,9 +3321,9 @@ type WebhookSubscriptionResponse struct {
 	// Description Description of the webhook subscription.
 	Description *Description `json:"description,omitempty"`
 
-	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
+	// EventTypes Types of events to subscribe to. Event types follow a dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
-	// "acceptance.payment_session").
+	// "acceptance.payment_session.authorization_succeeded").
 	EventTypes []string `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
@@ -3682,8 +3734,17 @@ type PageSize = int
 // PageToken defines model for PageToken.
 type PageToken = string
 
+// ProjectIDOptional defines model for ProjectIDOptional.
+type ProjectIDOptional = string
+
+// XDeveloperAuth defines model for XDeveloperAuth.
+type XDeveloperAuth = string
+
 // XWalletAuth defines model for XWalletAuth.
 type XWalletAuth = string
+
+// XWalletAuthOptional defines model for XWalletAuthOptional.
+type XWalletAuthOptional = string
 
 // AlreadyExistsError An error response including the code for the type of error and a human-readable message describing the error.
 type AlreadyExistsError = Error
@@ -3832,6 +3893,444 @@ type ListWebhookSubscriptionEventsParams struct {
 	// EventTypeNames Filter by event type names (comma-separated).
 	EventTypeNames *string `form:"eventTypeNames,omitempty" json:"eventTypeNames,omitempty"`
 }
+
+// RevokeDelegationForEndUserJSONBody defines parameters for RevokeDelegationForEndUser.
+type RevokeDelegationForEndUserJSONBody struct {
+	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
+type RevokeDelegationForEndUserParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// CreateEvmEip7702DelegationWithEndUserAccountJSONBody defines parameters for CreateEvmEip7702DelegationWithEndUserAccount.
+type CreateEvmEip7702DelegationWithEndUserAccountJSONBody struct {
+	// Address The 0x-prefixed address of the EVM account to delegate.
+	Address string `json:"address"`
+
+	// EnableSpendPermissions Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.
+	EnableSpendPermissions *bool `json:"enableSpendPermissions,omitempty"`
+
+	// Network The network for the EIP-7702 delegation.
+	Network EvmEip7702DelegationNetwork `json:"network"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// CreateEvmEip7702DelegationWithEndUserAccountParams defines parameters for CreateEvmEip7702DelegationWithEndUserAccount.
+type CreateEvmEip7702DelegationWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendEvmTransactionWithEndUserAccountJSONBody defines parameters for SendEvmTransactionWithEndUserAccount.
+type SendEvmTransactionWithEndUserAccountJSONBody struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Network The network to send the transaction to.
+	Network SendEvmTransactionWithEndUserAccountJSONBodyNetwork `json:"network"`
+
+	// Transaction The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.
+	Transaction string `json:"transaction"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SendEvmTransactionWithEndUserAccountParams defines parameters for SendEvmTransactionWithEndUserAccount.
+type SendEvmTransactionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendEvmTransactionWithEndUserAccountJSONBodyNetwork defines parameters for SendEvmTransactionWithEndUserAccount.
+type SendEvmTransactionWithEndUserAccountJSONBodyNetwork string
+
+// SignEvmMessageWithEndUserAccountJSONBody defines parameters for SignEvmMessageWithEndUserAccount.
+type SignEvmMessageWithEndUserAccountJSONBody struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Message The message to sign.
+	Message string `json:"message"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SignEvmMessageWithEndUserAccountParams defines parameters for SignEvmMessageWithEndUserAccount.
+type SignEvmMessageWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SignEvmTransactionWithEndUserAccountJSONBody defines parameters for SignEvmTransactionWithEndUserAccount.
+type SignEvmTransactionWithEndUserAccountJSONBody struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Transaction The RLP-encoded transaction to sign, as a 0x-prefixed hex string.
+	Transaction string `json:"transaction"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SignEvmTransactionWithEndUserAccountParams defines parameters for SignEvmTransactionWithEndUserAccount.
+type SignEvmTransactionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SignEvmTypedDataWithEndUserAccountJSONBody defines parameters for SignEvmTypedDataWithEndUserAccount.
+type SignEvmTypedDataWithEndUserAccountJSONBody struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// TypedData The message to sign using EIP-712.
+	TypedData EIP712Message `json:"typedData"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SignEvmTypedDataWithEndUserAccountParams defines parameters for SignEvmTypedDataWithEndUserAccount.
+type SignEvmTypedDataWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendUserOperationWithEndUserAccountJSONBody defines parameters for SendUserOperationWithEndUserAccount.
+type SendUserOperationWithEndUserAccountJSONBody struct {
+	// Calls The list of calls to make from the Smart Account.
+	Calls []EvmCall `json:"calls"`
+
+	// DataSuffix The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+	DataSuffix *string `json:"dataSuffix,omitempty"`
+
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// UseCdpPaymaster Whether to use the CDP Paymaster for the user operation.
+	UseCdpPaymaster bool `json:"useCdpPaymaster"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SendUserOperationWithEndUserAccountParams defines parameters for SendUserOperationWithEndUserAccount.
+type SendUserOperationWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendEvmAssetWithEndUserAccountJSONBody defines parameters for SendEvmAssetWithEndUserAccount.
+type SendEvmAssetWithEndUserAccountJSONBody struct {
+	// Amount The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+	Amount string `json:"amount"`
+
+	// Network The EVM network to send USDC on.
+	Network SendEvmAssetWithEndUserAccountJSONBodyNetwork `json:"network"`
+
+	// PaymasterUrl Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// To The 0x-prefixed address of the recipient.
+	To BlockchainAddress `json:"to"`
+
+	// UseCdpPaymaster Whether to use CDP Paymaster to sponsor gas fees. Only applicable for EVM Smart Accounts. When true, the transaction gas will be paid by the Paymaster, allowing users to send USDC without holding native gas tokens. Ignored for EOA accounts. Cannot be used together with `paymasterUrl`.
+	UseCdpPaymaster *bool `json:"useCdpPaymaster,omitempty"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SendEvmAssetWithEndUserAccountParams defines parameters for SendEvmAssetWithEndUserAccount.
+type SendEvmAssetWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendEvmAssetWithEndUserAccountJSONBodyNetwork defines parameters for SendEvmAssetWithEndUserAccount.
+type SendEvmAssetWithEndUserAccountJSONBodyNetwork string
+
+// SendSolanaTransactionWithEndUserAccountJSONBody defines parameters for SendSolanaTransactionWithEndUserAccount.
+type SendSolanaTransactionWithEndUserAccountJSONBody struct {
+	// Address The base58 encoded address of the Solana account belonging to the end user.
+	Address string `json:"address"`
+
+	// Network The Solana network to send the transaction to.
+	Network SendSolanaTransactionWithEndUserAccountJSONBodyNetwork `json:"network"`
+
+	// Transaction The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
+	Transaction string `json:"transaction"`
+
+	// UseCdpSponsor Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+	UseCdpSponsor *bool `json:"useCdpSponsor,omitempty"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SendSolanaTransactionWithEndUserAccountParams defines parameters for SendSolanaTransactionWithEndUserAccount.
+type SendSolanaTransactionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendSolanaTransactionWithEndUserAccountJSONBodyNetwork defines parameters for SendSolanaTransactionWithEndUserAccount.
+type SendSolanaTransactionWithEndUserAccountJSONBodyNetwork string
+
+// SignSolanaMessageWithEndUserAccountJSONBody defines parameters for SignSolanaMessageWithEndUserAccount.
+type SignSolanaMessageWithEndUserAccountJSONBody struct {
+	// Address The base58 encoded address of the Solana account belonging to the end user.
+	Address string `json:"address"`
+
+	// Message The base64 encoded arbitrary message to sign.
+	Message string `json:"message"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SignSolanaMessageWithEndUserAccountParams defines parameters for SignSolanaMessageWithEndUserAccount.
+type SignSolanaMessageWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SignSolanaTransactionWithEndUserAccountJSONBody defines parameters for SignSolanaTransactionWithEndUserAccount.
+type SignSolanaTransactionWithEndUserAccountJSONBody struct {
+	// Address The base58 encoded address of the Solana account belonging to the end user.
+	Address string `json:"address"`
+
+	// Transaction The base64 encoded transaction to sign.
+	Transaction string `json:"transaction"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SignSolanaTransactionWithEndUserAccountParams defines parameters for SignSolanaTransactionWithEndUserAccount.
+type SignSolanaTransactionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendSolanaAssetWithEndUserAccountJSONBody defines parameters for SendSolanaAssetWithEndUserAccount.
+type SendSolanaAssetWithEndUserAccountJSONBody struct {
+	// Amount The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+	Amount string `json:"amount"`
+
+	// CreateRecipientAta Whether to automatically create an Associated Token Account (ATA) for the recipient if it doesn't exist. When true, the sender pays the rent-exempt minimum to create the recipient's USDC ATA. When false, the transaction will fail if the recipient doesn't have a USDC ATA.
+	CreateRecipientAta *bool `json:"createRecipientAta,omitempty"`
+
+	// Network The Solana network to send USDC on.
+	Network SendSolanaAssetWithEndUserAccountJSONBodyNetwork `json:"network"`
+
+	// To The base58 encoded address of the recipient.
+	To BlockchainAddress `json:"to"`
+
+	// UseCdpSponsor Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+	UseCdpSponsor *bool `json:"useCdpSponsor,omitempty"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SendSolanaAssetWithEndUserAccountParams defines parameters for SendSolanaAssetWithEndUserAccount.
+type SendSolanaAssetWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SendSolanaAssetWithEndUserAccountJSONBodyNetwork defines parameters for SendSolanaAssetWithEndUserAccount.
+type SendSolanaAssetWithEndUserAccountJSONBodyNetwork string
 
 // ListEndUsersParams defines parameters for ListEndUsers.
 type ListEndUsersParams struct {
@@ -4816,6 +5315,42 @@ type CreateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionRequest
 
 // UpdateWebhookSubscriptionJSONRequestBody defines body for UpdateWebhookSubscription for application/json ContentType.
 type UpdateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionUpdateRequest
+
+// RevokeDelegationForEndUserJSONRequestBody defines body for RevokeDelegationForEndUser for application/json ContentType.
+type RevokeDelegationForEndUserJSONRequestBody RevokeDelegationForEndUserJSONBody
+
+// CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody defines body for CreateEvmEip7702DelegationWithEndUserAccount for application/json ContentType.
+type CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody CreateEvmEip7702DelegationWithEndUserAccountJSONBody
+
+// SendEvmTransactionWithEndUserAccountJSONRequestBody defines body for SendEvmTransactionWithEndUserAccount for application/json ContentType.
+type SendEvmTransactionWithEndUserAccountJSONRequestBody SendEvmTransactionWithEndUserAccountJSONBody
+
+// SignEvmMessageWithEndUserAccountJSONRequestBody defines body for SignEvmMessageWithEndUserAccount for application/json ContentType.
+type SignEvmMessageWithEndUserAccountJSONRequestBody SignEvmMessageWithEndUserAccountJSONBody
+
+// SignEvmTransactionWithEndUserAccountJSONRequestBody defines body for SignEvmTransactionWithEndUserAccount for application/json ContentType.
+type SignEvmTransactionWithEndUserAccountJSONRequestBody SignEvmTransactionWithEndUserAccountJSONBody
+
+// SignEvmTypedDataWithEndUserAccountJSONRequestBody defines body for SignEvmTypedDataWithEndUserAccount for application/json ContentType.
+type SignEvmTypedDataWithEndUserAccountJSONRequestBody SignEvmTypedDataWithEndUserAccountJSONBody
+
+// SendUserOperationWithEndUserAccountJSONRequestBody defines body for SendUserOperationWithEndUserAccount for application/json ContentType.
+type SendUserOperationWithEndUserAccountJSONRequestBody SendUserOperationWithEndUserAccountJSONBody
+
+// SendEvmAssetWithEndUserAccountJSONRequestBody defines body for SendEvmAssetWithEndUserAccount for application/json ContentType.
+type SendEvmAssetWithEndUserAccountJSONRequestBody SendEvmAssetWithEndUserAccountJSONBody
+
+// SendSolanaTransactionWithEndUserAccountJSONRequestBody defines body for SendSolanaTransactionWithEndUserAccount for application/json ContentType.
+type SendSolanaTransactionWithEndUserAccountJSONRequestBody SendSolanaTransactionWithEndUserAccountJSONBody
+
+// SignSolanaMessageWithEndUserAccountJSONRequestBody defines body for SignSolanaMessageWithEndUserAccount for application/json ContentType.
+type SignSolanaMessageWithEndUserAccountJSONRequestBody SignSolanaMessageWithEndUserAccountJSONBody
+
+// SignSolanaTransactionWithEndUserAccountJSONRequestBody defines body for SignSolanaTransactionWithEndUserAccount for application/json ContentType.
+type SignSolanaTransactionWithEndUserAccountJSONRequestBody SignSolanaTransactionWithEndUserAccountJSONBody
+
+// SendSolanaAssetWithEndUserAccountJSONRequestBody defines body for SendSolanaAssetWithEndUserAccount for application/json ContentType.
+type SendSolanaAssetWithEndUserAccountJSONRequestBody SendSolanaAssetWithEndUserAccountJSONBody
 
 // CreateEndUserJSONRequestBody defines body for CreateEndUser for application/json ContentType.
 type CreateEndUserJSONRequestBody CreateEndUserJSONBody
@@ -8439,6 +8974,66 @@ type ClientInterface interface {
 	// ListWebhookSubscriptionEvents request
 	ListWebhookSubscriptionEvents(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RevokeDelegationForEndUserWithBody request with any body
+	RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateEvmEip7702DelegationWithEndUserAccountWithBody request with any body
+	CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateEvmEip7702DelegationWithEndUserAccount(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, body CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendEvmTransactionWithEndUserAccountWithBody request with any body
+	SendEvmTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendEvmTransactionWithEndUserAccount(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, body SendEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignEvmMessageWithEndUserAccountWithBody request with any body
+	SignEvmMessageWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignEvmMessageWithEndUserAccount(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, body SignEvmMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignEvmTransactionWithEndUserAccountWithBody request with any body
+	SignEvmTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignEvmTransactionWithEndUserAccount(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, body SignEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignEvmTypedDataWithEndUserAccountWithBody request with any body
+	SignEvmTypedDataWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignEvmTypedDataWithEndUserAccount(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendUserOperationWithEndUserAccountWithBody request with any body
+	SendUserOperationWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendUserOperationWithEndUserAccount(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendEvmAssetWithEndUserAccountWithBody request with any body
+	SendEvmAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendEvmAssetWithEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, body SendEvmAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendSolanaTransactionWithEndUserAccountWithBody request with any body
+	SendSolanaTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendSolanaTransactionWithEndUserAccount(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, body SendSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignSolanaMessageWithEndUserAccountWithBody request with any body
+	SignSolanaMessageWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignSolanaMessageWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, body SignSolanaMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignSolanaTransactionWithEndUserAccountWithBody request with any body
+	SignSolanaTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignSolanaTransactionWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendSolanaAssetWithEndUserAccountWithBody request with any body
+	SendSolanaAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendSolanaAssetWithEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListEndUsers request
 	ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -8874,6 +9469,294 @@ func (c *CDPClient) UpdateWebhookSubscription(ctx context.Context, subscriptionI
 
 func (c *CDPClient) ListWebhookSubscriptionEvents(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListWebhookSubscriptionEventsRequest(c.Server, subscriptionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEvmEip7702DelegationWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateEvmEip7702DelegationWithEndUserAccount(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, body CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEvmEip7702DelegationWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendEvmTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendEvmTransactionWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendEvmTransactionWithEndUserAccount(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, body SendEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendEvmTransactionWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmMessageWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmMessageWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmMessageWithEndUserAccount(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, body SignEvmMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmMessageWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmTransactionWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmTransactionWithEndUserAccount(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, body SignEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmTransactionWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmTypedDataWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmTypedDataWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmTypedDataWithEndUserAccount(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmTypedDataWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendUserOperationWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendUserOperationWithEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendUserOperationWithEndUserAccount(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendUserOperationWithEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendEvmAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendEvmAssetWithEndUserAccountRequestWithBody(c.Server, userId, address, asset, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendEvmAssetWithEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, body SendEvmAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendEvmAssetWithEndUserAccountRequest(c.Server, userId, address, asset, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendSolanaTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSolanaTransactionWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendSolanaTransactionWithEndUserAccount(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, body SendSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSolanaTransactionWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignSolanaMessageWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignSolanaMessageWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignSolanaMessageWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, body SignSolanaMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignSolanaMessageWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignSolanaTransactionWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignSolanaTransactionWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignSolanaTransactionWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignSolanaTransactionWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendSolanaAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSolanaAssetWithEndUserAccountRequestWithBody(c.Server, userId, address, asset, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendSolanaAssetWithEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSolanaAssetWithEndUserAccountRequest(c.Server, userId, address, asset, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10727,6 +11610,1291 @@ func NewListWebhookSubscriptionEventsRequest(server string, subscriptionId opena
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
+func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeDelegationForEndUserRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewRevokeDelegationForEndUserRequestWithBody generates requests for RevokeDelegationForEndUser with any type of body
+func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/delegation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam1)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewCreateEvmEip7702DelegationWithEndUserAccountRequest calls the generic CreateEvmEip7702DelegationWithEndUserAccount builder with application/json body
+func NewCreateEvmEip7702DelegationWithEndUserAccountRequest(server string, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, body CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateEvmEip7702DelegationWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewCreateEvmEip7702DelegationWithEndUserAccountRequestWithBody generates requests for CreateEvmEip7702DelegationWithEndUserAccount with any type of body
+func NewCreateEvmEip7702DelegationWithEndUserAccountRequestWithBody(server string, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/eip7702/delegation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSendEvmTransactionWithEndUserAccountRequest calls the generic SendEvmTransactionWithEndUserAccount builder with application/json body
+func NewSendEvmTransactionWithEndUserAccountRequest(server string, userId string, params *SendEvmTransactionWithEndUserAccountParams, body SendEvmTransactionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendEvmTransactionWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSendEvmTransactionWithEndUserAccountRequestWithBody generates requests for SendEvmTransactionWithEndUserAccount with any type of body
+func NewSendEvmTransactionWithEndUserAccountRequestWithBody(server string, userId string, params *SendEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/send/transaction", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSignEvmMessageWithEndUserAccountRequest calls the generic SignEvmMessageWithEndUserAccount builder with application/json body
+func NewSignEvmMessageWithEndUserAccountRequest(server string, userId string, params *SignEvmMessageWithEndUserAccountParams, body SignEvmMessageWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignEvmMessageWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSignEvmMessageWithEndUserAccountRequestWithBody generates requests for SignEvmMessageWithEndUserAccount with any type of body
+func NewSignEvmMessageWithEndUserAccountRequestWithBody(server string, userId string, params *SignEvmMessageWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/sign/message", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSignEvmTransactionWithEndUserAccountRequest calls the generic SignEvmTransactionWithEndUserAccount builder with application/json body
+func NewSignEvmTransactionWithEndUserAccountRequest(server string, userId string, params *SignEvmTransactionWithEndUserAccountParams, body SignEvmTransactionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignEvmTransactionWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSignEvmTransactionWithEndUserAccountRequestWithBody generates requests for SignEvmTransactionWithEndUserAccount with any type of body
+func NewSignEvmTransactionWithEndUserAccountRequestWithBody(server string, userId string, params *SignEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/sign/transaction", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSignEvmTypedDataWithEndUserAccountRequest calls the generic SignEvmTypedDataWithEndUserAccount builder with application/json body
+func NewSignEvmTypedDataWithEndUserAccountRequest(server string, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignEvmTypedDataWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSignEvmTypedDataWithEndUserAccountRequestWithBody generates requests for SignEvmTypedDataWithEndUserAccount with any type of body
+func NewSignEvmTypedDataWithEndUserAccountRequestWithBody(server string, userId string, params *SignEvmTypedDataWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/sign/typed-data", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSendUserOperationWithEndUserAccountRequest calls the generic SendUserOperationWithEndUserAccount builder with application/json body
+func NewSendUserOperationWithEndUserAccountRequest(server string, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendUserOperationWithEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewSendUserOperationWithEndUserAccountRequestWithBody generates requests for SendUserOperationWithEndUserAccount with any type of body
+func NewSendUserOperationWithEndUserAccountRequestWithBody(server string, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/smart-accounts/%s/send", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+		if params.XWalletAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSendEvmAssetWithEndUserAccountRequest calls the generic SendEvmAssetWithEndUserAccount builder with application/json body
+func NewSendEvmAssetWithEndUserAccountRequest(server string, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, body SendEvmAssetWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendEvmAssetWithEndUserAccountRequestWithBody(server, userId, address, asset, params, "application/json", bodyReader)
+}
+
+// NewSendEvmAssetWithEndUserAccountRequestWithBody generates requests for SendEvmAssetWithEndUserAccount with any type of body
+func NewSendEvmAssetWithEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "asset", runtime.ParamLocationPath, asset)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/%s/send/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSendSolanaTransactionWithEndUserAccountRequest calls the generic SendSolanaTransactionWithEndUserAccount builder with application/json body
+func NewSendSolanaTransactionWithEndUserAccountRequest(server string, userId string, params *SendSolanaTransactionWithEndUserAccountParams, body SendSolanaTransactionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendSolanaTransactionWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSendSolanaTransactionWithEndUserAccountRequestWithBody generates requests for SendSolanaTransactionWithEndUserAccount with any type of body
+func NewSendSolanaTransactionWithEndUserAccountRequestWithBody(server string, userId string, params *SendSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/solana/send/transaction", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSignSolanaMessageWithEndUserAccountRequest calls the generic SignSolanaMessageWithEndUserAccount builder with application/json body
+func NewSignSolanaMessageWithEndUserAccountRequest(server string, userId string, params *SignSolanaMessageWithEndUserAccountParams, body SignSolanaMessageWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignSolanaMessageWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSignSolanaMessageWithEndUserAccountRequestWithBody generates requests for SignSolanaMessageWithEndUserAccount with any type of body
+func NewSignSolanaMessageWithEndUserAccountRequestWithBody(server string, userId string, params *SignSolanaMessageWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/solana/sign/message", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSignSolanaTransactionWithEndUserAccountRequest calls the generic SignSolanaTransactionWithEndUserAccount builder with application/json body
+func NewSignSolanaTransactionWithEndUserAccountRequest(server string, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignSolanaTransactionWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSignSolanaTransactionWithEndUserAccountRequestWithBody generates requests for SignSolanaTransactionWithEndUserAccount with any type of body
+func NewSignSolanaTransactionWithEndUserAccountRequestWithBody(server string, userId string, params *SignSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/solana/sign/transaction", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSendSolanaAssetWithEndUserAccountRequest calls the generic SendSolanaAssetWithEndUserAccount builder with application/json body
+func NewSendSolanaAssetWithEndUserAccountRequest(server string, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendSolanaAssetWithEndUserAccountRequestWithBody(server, userId, address, asset, params, "application/json", bodyReader)
+}
+
+// NewSendSolanaAssetWithEndUserAccountRequestWithBody generates requests for SendSolanaAssetWithEndUserAccount with any type of body
+func NewSendSolanaAssetWithEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "asset", runtime.ParamLocationPath, asset)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/solana/%s/send/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
 	}
 
 	return req, nil
@@ -14594,6 +16762,66 @@ type ClientWithResponsesInterface interface {
 	// ListWebhookSubscriptionEventsWithResponse request
 	ListWebhookSubscriptionEventsWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionEventsResponse, error)
 
+	// RevokeDelegationForEndUserWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
+
+	RevokeDelegationForEndUserWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
+
+	// CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with any body
+	CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error)
+
+	CreateEvmEip7702DelegationWithEndUserAccountWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, body CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error)
+
+	// SendEvmTransactionWithEndUserAccountWithBodyWithResponse request with any body
+	SendEvmTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmTransactionWithEndUserAccountResponse, error)
+
+	SendEvmTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, body SendEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendEvmTransactionWithEndUserAccountResponse, error)
+
+	// SignEvmMessageWithEndUserAccountWithBodyWithResponse request with any body
+	SignEvmMessageWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmMessageWithEndUserAccountResponse, error)
+
+	SignEvmMessageWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, body SignEvmMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmMessageWithEndUserAccountResponse, error)
+
+	// SignEvmTransactionWithEndUserAccountWithBodyWithResponse request with any body
+	SignEvmTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTransactionWithEndUserAccountResponse, error)
+
+	SignEvmTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, body SignEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTransactionWithEndUserAccountResponse, error)
+
+	// SignEvmTypedDataWithEndUserAccountWithBodyWithResponse request with any body
+	SignEvmTypedDataWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTypedDataWithEndUserAccountResponse, error)
+
+	SignEvmTypedDataWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTypedDataWithEndUserAccountResponse, error)
+
+	// SendUserOperationWithEndUserAccountWithBodyWithResponse request with any body
+	SendUserOperationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error)
+
+	SendUserOperationWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error)
+
+	// SendEvmAssetWithEndUserAccountWithBodyWithResponse request with any body
+	SendEvmAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmAssetWithEndUserAccountResponse, error)
+
+	SendEvmAssetWithEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, body SendEvmAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendEvmAssetWithEndUserAccountResponse, error)
+
+	// SendSolanaTransactionWithEndUserAccountWithBodyWithResponse request with any body
+	SendSolanaTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaTransactionWithEndUserAccountResponse, error)
+
+	SendSolanaTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, body SendSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaTransactionWithEndUserAccountResponse, error)
+
+	// SignSolanaMessageWithEndUserAccountWithBodyWithResponse request with any body
+	SignSolanaMessageWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaMessageWithEndUserAccountResponse, error)
+
+	SignSolanaMessageWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, body SignSolanaMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaMessageWithEndUserAccountResponse, error)
+
+	// SignSolanaTransactionWithEndUserAccountWithBodyWithResponse request with any body
+	SignSolanaTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaTransactionWithEndUserAccountResponse, error)
+
+	SignSolanaTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaTransactionWithEndUserAccountResponse, error)
+
+	// SendSolanaAssetWithEndUserAccountWithBodyWithResponse request with any body
+	SendSolanaAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error)
+
+	SendSolanaAssetWithEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error)
+
 	// ListEndUsersWithResponse request
 	ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error)
 
@@ -15161,6 +17389,406 @@ func (r ListWebhookSubscriptionEventsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListWebhookSubscriptionEventsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeDelegationForEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeDelegationForEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeDelegationForEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateEvmEip7702DelegationWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// DelegationOperationId The unique identifier for the delegation operation. Use this to poll the operation status.
+		DelegationOperationId openapi_types.UUID `json:"delegationOperationId"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON409 *Error
+	JSON422 *IdempotencyError
+	JSON429 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateEvmEip7702DelegationWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateEvmEip7702DelegationWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendEvmTransactionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// TransactionHash The hash of the transaction, as a 0x-prefixed hex string.
+		TransactionHash string `json:"transactionHash"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON403 *Error
+	JSON404 *Error
+	JSON409 *AlreadyExistsError
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SendEvmTransactionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendEvmTransactionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignEvmMessageWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Signature The signature of the message, as a 0x-prefixed hex string.
+		Signature string `json:"signature"`
+	}
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON409 *AlreadyExistsError
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignEvmMessageWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignEvmMessageWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignEvmTransactionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// SignedTransaction The RLP-encoded signed transaction, as a 0x-prefixed hex string.
+		SignedTransaction string `json:"signedTransaction"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON403 *Error
+	JSON404 *Error
+	JSON409 *AlreadyExistsError
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignEvmTransactionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignEvmTransactionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignEvmTypedDataWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Signature The signature of the typed data, as a 0x-prefixed hex string.
+		Signature string `json:"signature"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignEvmTypedDataWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignEvmTypedDataWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendUserOperationWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *Error
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SendUserOperationWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendUserOperationWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendEvmAssetWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// TransactionHash The hash of the transaction, as a 0x-prefixed hex string. Populated for EOA accounts. Null for Smart Accounts (use userOpHash instead).
+		TransactionHash *string `json:"transactionHash"`
+
+		// UserOpHash The hash of the user operation, as a 0x-prefixed hex string. Populated for Smart Accounts. Null for EOA accounts (use transactionHash instead).
+		UserOpHash *string `json:"userOpHash"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SendEvmAssetWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendEvmAssetWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendSolanaTransactionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// TransactionSignature The base58 encoded transaction signature.
+		TransactionSignature string `json:"transactionSignature"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON403 *Error
+	JSON404 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SendSolanaTransactionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendSolanaTransactionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignSolanaMessageWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Signature The signature of the message, as a base58 encoded string.
+		Signature string `json:"signature"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON409 *AlreadyExistsError
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignSolanaMessageWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignSolanaMessageWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignSolanaTransactionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// SignedTransaction The base64 encoded signed transaction.
+		SignedTransaction string `json:"signedTransaction"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON403 *Error
+	JSON404 *Error
+	JSON409 *AlreadyExistsError
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignSolanaTransactionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignSolanaTransactionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendSolanaAssetWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// TransactionSignature The base58 encoded transaction signature.
+		TransactionSignature string `json:"transactionSignature"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SendSolanaAssetWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendSolanaAssetWithEndUserAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -17213,6 +19841,210 @@ func (c *ClientWithResponses) ListWebhookSubscriptionEventsWithResponse(ctx cont
 	return ParseListWebhookSubscriptionEventsResponse(rsp)
 }
 
+// RevokeDelegationForEndUserWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUser(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserResponse(rsp)
+}
+
+// CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationWithEndUserAccountResponse
+func (c *ClientWithResponses) CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error) {
+	rsp, err := c.CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEvmEip7702DelegationWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateEvmEip7702DelegationWithEndUserAccountWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, body CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error) {
+	rsp, err := c.CreateEvmEip7702DelegationWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEvmEip7702DelegationWithEndUserAccountResponse(rsp)
+}
+
+// SendEvmTransactionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendEvmTransactionWithEndUserAccountResponse
+func (c *ClientWithResponses) SendEvmTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SendEvmTransactionWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendEvmTransactionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendEvmTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SendEvmTransactionWithEndUserAccountParams, body SendEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendEvmTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SendEvmTransactionWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendEvmTransactionWithEndUserAccountResponse(rsp)
+}
+
+// SignEvmMessageWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SignEvmMessageWithEndUserAccountResponse
+func (c *ClientWithResponses) SignEvmMessageWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmMessageWithEndUserAccountResponse, error) {
+	rsp, err := c.SignEvmMessageWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmMessageWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignEvmMessageWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmMessageWithEndUserAccountParams, body SignEvmMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmMessageWithEndUserAccountResponse, error) {
+	rsp, err := c.SignEvmMessageWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmMessageWithEndUserAccountResponse(rsp)
+}
+
+// SignEvmTransactionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SignEvmTransactionWithEndUserAccountResponse
+func (c *ClientWithResponses) SignEvmTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SignEvmTransactionWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmTransactionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignEvmTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmTransactionWithEndUserAccountParams, body SignEvmTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SignEvmTransactionWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmTransactionWithEndUserAccountResponse(rsp)
+}
+
+// SignEvmTypedDataWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SignEvmTypedDataWithEndUserAccountResponse
+func (c *ClientWithResponses) SignEvmTypedDataWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTypedDataWithEndUserAccountResponse, error) {
+	rsp, err := c.SignEvmTypedDataWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmTypedDataWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignEvmTypedDataWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTypedDataWithEndUserAccountResponse, error) {
+	rsp, err := c.SignEvmTypedDataWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmTypedDataWithEndUserAccountResponse(rsp)
+}
+
+// SendUserOperationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendUserOperationWithEndUserAccountResponse
+func (c *ClientWithResponses) SendUserOperationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error) {
+	rsp, err := c.SendUserOperationWithEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendUserOperationWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendUserOperationWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error) {
+	rsp, err := c.SendUserOperationWithEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendUserOperationWithEndUserAccountResponse(rsp)
+}
+
+// SendEvmAssetWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendEvmAssetWithEndUserAccountResponse
+func (c *ClientWithResponses) SendEvmAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmAssetWithEndUserAccountResponse, error) {
+	rsp, err := c.SendEvmAssetWithEndUserAccountWithBody(ctx, userId, address, asset, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendEvmAssetWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendEvmAssetWithEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, body SendEvmAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendEvmAssetWithEndUserAccountResponse, error) {
+	rsp, err := c.SendEvmAssetWithEndUserAccount(ctx, userId, address, asset, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendEvmAssetWithEndUserAccountResponse(rsp)
+}
+
+// SendSolanaTransactionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendSolanaTransactionWithEndUserAccountResponse
+func (c *ClientWithResponses) SendSolanaTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SendSolanaTransactionWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSolanaTransactionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendSolanaTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SendSolanaTransactionWithEndUserAccountParams, body SendSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SendSolanaTransactionWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSolanaTransactionWithEndUserAccountResponse(rsp)
+}
+
+// SignSolanaMessageWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SignSolanaMessageWithEndUserAccountResponse
+func (c *ClientWithResponses) SignSolanaMessageWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaMessageWithEndUserAccountResponse, error) {
+	rsp, err := c.SignSolanaMessageWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignSolanaMessageWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignSolanaMessageWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaMessageWithEndUserAccountParams, body SignSolanaMessageWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaMessageWithEndUserAccountResponse, error) {
+	rsp, err := c.SignSolanaMessageWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignSolanaMessageWithEndUserAccountResponse(rsp)
+}
+
+// SignSolanaTransactionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SignSolanaTransactionWithEndUserAccountResponse
+func (c *ClientWithResponses) SignSolanaTransactionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SignSolanaTransactionWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignSolanaTransactionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignSolanaTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaTransactionWithEndUserAccountResponse, error) {
+	rsp, err := c.SignSolanaTransactionWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignSolanaTransactionWithEndUserAccountResponse(rsp)
+}
+
+// SendSolanaAssetWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendSolanaAssetWithEndUserAccountResponse
+func (c *ClientWithResponses) SendSolanaAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error) {
+	rsp, err := c.SendSolanaAssetWithEndUserAccountWithBody(ctx, userId, address, asset, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSolanaAssetWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendSolanaAssetWithEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error) {
+	rsp, err := c.SendSolanaAssetWithEndUserAccount(ctx, userId, address, asset, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSolanaAssetWithEndUserAccountResponse(rsp)
+}
+
 // ListEndUsersWithResponse request returning *ListEndUsersResponse
 func (c *ClientWithResponses) ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error) {
 	rsp, err := c.ListEndUsers(ctx, params, reqEditors...)
@@ -18747,6 +21579,1072 @@ func ParseListWebhookSubscriptionEventsResponse(rsp *http.Response) (*ListWebhoo
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeDelegationForEndUserResponse parses an HTTP response from a RevokeDelegationForEndUserWithResponse call
+func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegationForEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeDelegationForEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateEvmEip7702DelegationWithEndUserAccountResponse parses an HTTP response from a CreateEvmEip7702DelegationWithEndUserAccountWithResponse call
+func ParseCreateEvmEip7702DelegationWithEndUserAccountResponse(rsp *http.Response) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateEvmEip7702DelegationWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// DelegationOperationId The unique identifier for the delegation operation. Use this to poll the operation status.
+			DelegationOperationId openapi_types.UUID `json:"delegationOperationId"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendEvmTransactionWithEndUserAccountResponse parses an HTTP response from a SendEvmTransactionWithEndUserAccountWithResponse call
+func ParseSendEvmTransactionWithEndUserAccountResponse(rsp *http.Response) (*SendEvmTransactionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendEvmTransactionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// TransactionHash The hash of the transaction, as a 0x-prefixed hex string.
+			TransactionHash string `json:"transactionHash"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignEvmMessageWithEndUserAccountResponse parses an HTTP response from a SignEvmMessageWithEndUserAccountWithResponse call
+func ParseSignEvmMessageWithEndUserAccountResponse(rsp *http.Response) (*SignEvmMessageWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignEvmMessageWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Signature The signature of the message, as a 0x-prefixed hex string.
+			Signature string `json:"signature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignEvmTransactionWithEndUserAccountResponse parses an HTTP response from a SignEvmTransactionWithEndUserAccountWithResponse call
+func ParseSignEvmTransactionWithEndUserAccountResponse(rsp *http.Response) (*SignEvmTransactionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignEvmTransactionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// SignedTransaction The RLP-encoded signed transaction, as a 0x-prefixed hex string.
+			SignedTransaction string `json:"signedTransaction"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignEvmTypedDataWithEndUserAccountResponse parses an HTTP response from a SignEvmTypedDataWithEndUserAccountWithResponse call
+func ParseSignEvmTypedDataWithEndUserAccountResponse(rsp *http.Response) (*SignEvmTypedDataWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignEvmTypedDataWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Signature The signature of the typed data, as a 0x-prefixed hex string.
+			Signature string `json:"signature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendUserOperationWithEndUserAccountResponse parses an HTTP response from a SendUserOperationWithEndUserAccountWithResponse call
+func ParseSendUserOperationWithEndUserAccountResponse(rsp *http.Response) (*SendUserOperationWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendUserOperationWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendEvmAssetWithEndUserAccountResponse parses an HTTP response from a SendEvmAssetWithEndUserAccountWithResponse call
+func ParseSendEvmAssetWithEndUserAccountResponse(rsp *http.Response) (*SendEvmAssetWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendEvmAssetWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// TransactionHash The hash of the transaction, as a 0x-prefixed hex string. Populated for EOA accounts. Null for Smart Accounts (use userOpHash instead).
+			TransactionHash *string `json:"transactionHash"`
+
+			// UserOpHash The hash of the user operation, as a 0x-prefixed hex string. Populated for Smart Accounts. Null for EOA accounts (use transactionHash instead).
+			UserOpHash *string `json:"userOpHash"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendSolanaTransactionWithEndUserAccountResponse parses an HTTP response from a SendSolanaTransactionWithEndUserAccountWithResponse call
+func ParseSendSolanaTransactionWithEndUserAccountResponse(rsp *http.Response) (*SendSolanaTransactionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendSolanaTransactionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// TransactionSignature The base58 encoded transaction signature.
+			TransactionSignature string `json:"transactionSignature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignSolanaMessageWithEndUserAccountResponse parses an HTTP response from a SignSolanaMessageWithEndUserAccountWithResponse call
+func ParseSignSolanaMessageWithEndUserAccountResponse(rsp *http.Response) (*SignSolanaMessageWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignSolanaMessageWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Signature The signature of the message, as a base58 encoded string.
+			Signature string `json:"signature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignSolanaTransactionWithEndUserAccountResponse parses an HTTP response from a SignSolanaTransactionWithEndUserAccountWithResponse call
+func ParseSignSolanaTransactionWithEndUserAccountResponse(rsp *http.Response) (*SignSolanaTransactionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignSolanaTransactionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// SignedTransaction The base64 encoded signed transaction.
+			SignedTransaction string `json:"signedTransaction"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendSolanaAssetWithEndUserAccountResponse parses an HTTP response from a SendSolanaAssetWithEndUserAccountWithResponse call
+func ParseSendSolanaAssetWithEndUserAccountResponse(rsp *http.Response) (*SendSolanaAssetWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendSolanaAssetWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// TransactionSignature The base58 encoded transaction signature.
+			TransactionSignature string `json:"transactionSignature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
