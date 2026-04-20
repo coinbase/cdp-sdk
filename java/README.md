@@ -59,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.coinbase:cdp-sdk:0.2.0")
+    implementation("com.coinbase:cdp-sdk:0.3.0")
 }
 ```
 
