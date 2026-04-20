@@ -17,7 +17,8 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 struct Claims {
     sub: String,
     iss: String,
-    aud: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    aud: Option<Vec<String>>,
     exp: u64,
     iat: u64,
     nbf: u64,
@@ -53,6 +54,222 @@ pub struct WalletAuth {
     pub source_version: Option<String>,
     /// JWT expiration time in seconds
     pub expires_in: u64,
+}
+
+/// Configuration options for standalone JWT generation.
+///
+/// This struct holds all necessary parameters for generating a JWT token
+/// for authenticating with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/) REST APIs.
+/// It supports both EC (ES256) and Ed25519 (EdDSA) keys.
+///
+/// When `request_method`, `request_host`, and `request_path` are all `None`,
+/// the `uris` claim is omitted from the JWT (useful for websocket connections).
+///
+/// # Examples
+///
+/// ```no_run
+/// use cdp_sdk::auth::{generate_jwt, JwtOptions};
+///
+/// // For REST API requests
+/// let jwt = generate_jwt(JwtOptions::builder()
+///     .api_key_id("your-api-key-id".to_string())
+///     .api_key_secret("your-api-key-secret".to_string())
+///     .request_method("GET".to_string())
+///     .request_host("api.cdp.coinbase.com".to_string())
+///     .request_path("/platform/v2/evm/accounts".to_string())
+///     .build()
+/// )?;
+/// # Ok::<(), cdp_sdk::error::CdpError>(())
+/// ```
+#[derive(Debug, Clone)]
+pub struct JwtOptions {
+    /// The API key ID. Supported formats:
+    /// - `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+    /// - `organizations/{orgId}/apiKeys/{keyId}`
+    pub api_key_id: String,
+    /// The API key secret. Supported formats:
+    /// - Edwards key (Ed25519): base64-encoded 64-byte key
+    /// - Elliptic Curve key (ES256): PEM-encoded EC private key
+    pub api_key_secret: String,
+    /// HTTP method (e.g. "GET", "POST"). `None` for websocket JWTs.
+    pub request_method: Option<String>,
+    /// Request host (e.g. "api.cdp.coinbase.com"). `None` for websocket JWTs.
+    pub request_host: Option<String>,
+    /// Request path (e.g. "/platform/v2/evm/accounts"). `None` for websocket JWTs.
+    pub request_path: Option<String>,
+    /// JWT expiration time in seconds. Defaults to 120 (2 minutes).
+    pub expires_in: Option<u64>,
+    /// Optional audience claim for the JWT.
+    pub audience: Option<Vec<String>>,
+}
+
+#[bon::bon]
+impl JwtOptions {
+    #[builder]
+    pub fn new(
+        api_key_id: String,
+        api_key_secret: String,
+        request_method: Option<String>,
+        request_host: Option<String>,
+        request_path: Option<String>,
+        expires_in: Option<u64>,
+        audience: Option<Vec<String>>,
+    ) -> Self {
+        Self {
+            api_key_id,
+            api_key_secret,
+            request_method,
+            request_host,
+            request_path,
+            expires_in,
+            audience,
+        }
+    }
+}
+
+/// Generates a JWT (Bearer token) for authenticating with the CDP REST APIs.
+///
+/// This is a standalone function that accepts explicit options for JWT generation,
+/// matching the pattern used by the TypeScript, Python, and Go SDKs. Use this when
+/// you need to generate JWTs without constructing a [`WalletAuth`] instance.
+///
+/// Supports both EC (ES256) and Ed25519 (EdDSA) keys. When all request parameters
+/// (`request_method`, `request_host`, `request_path`) are `None`, the `uris` claim
+/// is omitted from the JWT (for websocket connections).
+///
+/// # Arguments
+///
+/// * `options` - Configuration options for JWT generation
+///
+/// # Returns
+///
+/// The signed JWT string.
+///
+/// # Errors
+///
+/// Returns [`CdpError::Auth`] if:
+/// - The key format is invalid (neither EC PEM nor base64 Ed25519)
+/// - Only some request parameters are provided (must be all or none)
+/// - JWT signing fails
+///
+/// # Examples
+///
+/// ```no_run
+/// use cdp_sdk::auth::{generate_jwt, JwtOptions};
+///
+/// // For REST API requests
+/// let jwt = generate_jwt(JwtOptions::builder()
+///     .api_key_id("your-key-id".to_string())
+///     .api_key_secret("your-key-secret".to_string())
+///     .request_method("GET".to_string())
+///     .request_host("api.cdp.coinbase.com".to_string())
+///     .request_path("/platform/v2/evm/accounts".to_string())
+///     .build()
+/// )?;
+///
+/// // For websocket connections (no uris claim)
+/// let ws_jwt = generate_jwt(JwtOptions::builder()
+///     .api_key_id("your-key-id".to_string())
+///     .api_key_secret("your-key-secret".to_string())
+///     .build()
+/// )?;
+/// # Ok::<(), cdp_sdk::error::CdpError>(())
+/// ```
+pub fn generate_jwt(options: JwtOptions) -> Result<String, CdpError> {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    let expires_in = options.expires_in.unwrap_or(120);
+
+    // Validate: either all request params or none
+    let uris = match (
+        &options.request_method,
+        &options.request_host,
+        &options.request_path,
+    ) {
+        (Some(method), Some(host), Some(path)) => {
+            Some(vec![format!("{} {}{}", method, host, path)])
+        }
+        (None, None, None) => None,
+        _ => {
+            return Err(CdpError::Auth(
+                "Either all request details (request_method, request_host, request_path) \
+                 must be provided, or all must be None for websocket JWTs"
+                    .to_string(),
+            ));
+        }
+    };
+
+    let claims = Claims {
+        sub: options.api_key_id.clone(),
+        iss: "cdp".to_string(),
+        aud: options.audience,
+        exp: now + expires_in,
+        iat: now,
+        nbf: now,
+        uris,
+    };
+
+    let (algorithm, encoding_key) = parse_signing_key(&options.api_key_secret)?;
+
+    let mut header = Header::new(algorithm);
+    header.kid = Some(options.api_key_id);
+
+    encode(&header, &claims, &encoding_key)
+        .map_err(|e| CdpError::Auth(format!("Failed to encode JWT: {}", e)))
+}
+
+/// Parses an API key secret and returns the appropriate signing algorithm and encoding key.
+///
+/// Supports EC PEM keys (ES256) and base64-encoded Ed25519 keys (EdDSA).
+fn parse_signing_key(api_key_secret: &str) -> Result<(Algorithm, EncodingKey), CdpError> {
+    if is_ec_pem_key(api_key_secret) {
+        // PEM format EC key - use ES256
+        let key = EncodingKey::from_ec_pem(api_key_secret.as_bytes())
+            .map_err(|e| CdpError::Auth(format!("Failed to parse EC PEM key: {}", e)))?;
+        Ok((Algorithm::ES256, key))
+    } else if is_ed25519_key(api_key_secret) {
+        // Base64 Ed25519 key - use EdDSA
+        let decoded = base64::engine::general_purpose::STANDARD
+            .decode(api_key_secret)
+            .map_err(|e| CdpError::Auth(format!("Failed to decode Ed25519 key: {}", e)))?;
+
+        if decoded.len() != 64 {
+            return Err(CdpError::Auth(
+                "Invalid Ed25519 key length, expected 64 bytes".to_string(),
+            ));
+        }
+
+        // Extract the seed (first 32 bytes) and create PKCS#8 DER format
+        let seed = &decoded[0..32];
+        let mut pkcs8_der = Vec::new();
+        let pkcs8_header = hex::decode("302e020100300506032b657004220420").unwrap();
+        pkcs8_der.extend_from_slice(&pkcs8_header);
+        pkcs8_der.extend_from_slice(seed);
+
+        // Convert to PEM format
+        let pem_content = base64::engine::general_purpose::STANDARD.encode(&pkcs8_der);
+        let pem_formatted = format!(
+            "-----BEGIN PRIVATE KEY-----\n{}\n-----END PRIVATE KEY-----",
+            pem_content
+                .chars()
+                .collect::<Vec<_>>()
+                .chunks(64)
+                .map(|chunk| chunk.iter().collect::<String>())
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
+
+        let key = EncodingKey::from_ed_pem(pem_formatted.as_bytes())
+            .map_err(|e| CdpError::Auth(format!("Failed to parse Ed25519 key: {}", e)))?;
+        Ok((Algorithm::EdDSA, key))
+    } else {
+        Err(CdpError::Auth(
+            "Invalid key format - must be either PEM EC key or base64 Ed25519 key".to_string(),
+        ))
+    }
 }
 
 #[bon]
@@ -120,7 +337,27 @@ impl WalletAuth {
         })
     }
 
-    fn generate_jwt(
+    /// Generates a JWT (Bearer token) for authenticating with the CDP REST APIs.
+    ///
+    /// Uses the `api_key_id` and `api_key_secret` from this [`WalletAuth`] instance
+    /// to sign the JWT. For a standalone function that doesn't require a `WalletAuth`
+    /// instance, see [`generate_jwt`].
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - The HTTP method (e.g. "GET", "POST")
+    /// * `host` - The request host (e.g. "api.cdp.coinbase.com")
+    /// * `path` - The request path (e.g. "/platform/v2/evm/accounts")
+    /// * `expires_in` - JWT expiration time in seconds
+    ///
+    /// # Returns
+    ///
+    /// The signed JWT string.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CdpError::Auth`] if the key format is invalid or signing fails.
+    pub fn generate_jwt(
         &self,
         method: &str,
         host: &str,
@@ -135,63 +372,14 @@ impl WalletAuth {
         let claims = Claims {
             sub: self.api_key_id.clone(),
             iss: "cdp".to_string(),
-            aud: vec![],
+            aud: None,
             exp: now + expires_in,
             iat: now,
             nbf: now,
             uris: Some(vec![format!("{} {}{}", method, host, path)]),
         };
 
-        // Determine key format and algorithm
-        let (algorithm, encoding_key) = if is_ec_pem_key(&self.api_key_secret) {
-            // PEM format EC key - use ES256
-            let key = EncodingKey::from_ec_pem(self.api_key_secret.as_bytes())
-                .map_err(|e| CdpError::Auth(format!("Failed to parse EC PEM key: {}", e)))?;
-            (Algorithm::ES256, key)
-        } else if is_ed25519_key(&self.api_key_secret) {
-            // Base64 Ed25519 key - use EdDSA
-            let decoded = base64::engine::general_purpose::STANDARD
-                .decode(&self.api_key_secret)
-                .map_err(|e| CdpError::Auth(format!("Failed to decode Ed25519 key: {}", e)))?;
-
-            if decoded.len() != 64 {
-                return Err(CdpError::Auth(
-                    "Invalid Ed25519 key length, expected 64 bytes".to_string(),
-                ));
-            }
-
-            // For Ed25519 keys, we need to create a proper PKCS#8 DER format
-            // Extract the seed (first 32 bytes)
-            let seed = &decoded[0..32];
-
-            // Create PKCS#8 DER format for Ed25519 private key
-            let mut pkcs8_der = Vec::new();
-            // PKCS#8 header for Ed25519
-            let header = hex::decode("302e020100300506032b657004220420").unwrap();
-            pkcs8_der.extend_from_slice(&header);
-            pkcs8_der.extend_from_slice(seed);
-
-            // Convert to PEM format
-            let pem_content = base64::engine::general_purpose::STANDARD.encode(&pkcs8_der);
-            let pem_formatted = format!(
-                "-----BEGIN PRIVATE KEY-----\n{}\n-----END PRIVATE KEY-----",
-                pem_content
-                    .chars()
-                    .collect::<Vec<_>>()
-                    .chunks(64)
-                    .map(|chunk| chunk.iter().collect::<String>())
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            );
-
-            let key = EncodingKey::from_ed_pem(pem_formatted.as_bytes())
-                .map_err(|e| CdpError::Auth(format!("Failed to parse Ed25519 key: {}", e)))?;
-            (Algorithm::EdDSA, key)
-        } else {
-            return Err(CdpError::Auth(
-                "Invalid key format - must be either PEM EC key or base64 Ed25519 key".to_string(),
-            ));
-        };
+        let (algorithm, encoding_key) = parse_signing_key(&self.api_key_secret)?;
 
         let mut header = Header::new(algorithm);
         header.kid = Some(self.api_key_id.clone());
@@ -384,8 +572,11 @@ fn sort_keys(value: Value) -> Value {
     }
 }
 
-fn is_ed25519_key(key: &str) -> bool {
-    // Try to decode as base64 and check if it's 64 bytes (Ed25519 format)
+/// Returns `true` if the given key string is a base64-encoded Ed25519 key (64 bytes when decoded).
+///
+/// Ed25519 keys in this format consist of 32 bytes of seed followed by 32 bytes of public key,
+/// encoded together as a single 64-byte base64 string.
+pub fn is_ed25519_key(key: &str) -> bool {
     if let Ok(decoded) = base64::engine::general_purpose::STANDARD.decode(key) {
         decoded.len() == 64
     } else {
@@ -393,8 +584,11 @@ fn is_ed25519_key(key: &str) -> bool {
     }
 }
 
-fn is_ec_pem_key(key: &str) -> bool {
-    // Check if the key looks like a PEM format EC key
+/// Returns `true` if the given key string looks like a PEM-format EC private key.
+///
+/// Checks for the presence of PEM markers (`BEGIN`/`END`) and key type indicators
+/// (`EC PRIVATE KEY` or `PRIVATE KEY`).
+pub fn is_ec_pem_key(key: &str) -> bool {
     key.contains("-----BEGIN")
         && key.contains("-----END")
         && (key.contains("EC PRIVATE KEY") || key.contains("PRIVATE KEY"))
@@ -553,5 +747,296 @@ mod tests {
 
         let not_pem_key = "just-a-string";
         assert!(!is_ec_pem_key(not_pem_key));
+    }
+
+    // --- Test helpers ---
+
+    fn generate_ec_pem_key() -> String {
+        use p256::ecdsa::SigningKey;
+        use p256::elliptic_curve::rand_core::OsRng;
+        use p256::pkcs8::EncodePrivateKey;
+
+        let signing_key = SigningKey::random(&mut OsRng);
+        let pkcs8_pem = signing_key
+            .to_pkcs8_pem(p256::pkcs8::LineEnding::LF)
+            .expect("Failed to export EC key as PKCS8 PEM");
+        pkcs8_pem.to_string()
+    }
+
+    fn generate_ed25519_key_base64() -> String {
+        use ed25519_dalek::SigningKey;
+
+        let mut csprng = p256::elliptic_curve::rand_core::OsRng;
+        let signing_key = SigningKey::generate(&mut csprng);
+        let seed = signing_key.to_bytes();
+        let public = signing_key.verifying_key().to_bytes();
+
+        let mut combined = Vec::with_capacity(64);
+        combined.extend_from_slice(&seed);
+        combined.extend_from_slice(&public);
+
+        base64::engine::general_purpose::STANDARD.encode(&combined)
+    }
+
+    fn decode_jwt_header(token: &str) -> serde_json::Value {
+        let parts: Vec<&str> = token.split('.').collect();
+        assert_eq!(parts.len(), 3, "JWT should have 3 parts");
+        let header_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .decode(parts[0])
+            .expect("Failed to decode JWT header");
+        serde_json::from_slice(&header_bytes).expect("Failed to parse JWT header as JSON")
+    }
+
+    fn decode_jwt_claims(token: &str) -> serde_json::Value {
+        let parts: Vec<&str> = token.split('.').collect();
+        assert_eq!(parts.len(), 3, "JWT should have 3 parts");
+        let claims_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .decode(parts[1])
+            .expect("Failed to decode JWT claims");
+        serde_json::from_slice(&claims_bytes).expect("Failed to parse JWT claims as JSON")
+    }
+
+    // --- Standalone generate_jwt tests ---
+
+    #[test]
+    fn test_generate_jwt_with_ec_key() {
+        let ec_key = generate_ec_pem_key();
+        let token = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("test-key-id".to_string())
+                .api_key_secret(ec_key)
+                .request_method("GET".to_string())
+                .request_host("api.cdp.coinbase.com".to_string())
+                .request_path("/platform/v2/evm/accounts".to_string())
+                .expires_in(120u64)
+                .build(),
+        )
+        .unwrap();
+
+        let header = decode_jwt_header(&token);
+        assert_eq!(header["alg"], "ES256");
+        assert_eq!(header["kid"], "test-key-id");
+
+        let claims = decode_jwt_claims(&token);
+        assert_eq!(claims["sub"], "test-key-id");
+        assert_eq!(claims["iss"], "cdp");
+        assert!(claims.get("aud").is_none() || claims["aud"].is_null());
+
+        let uris = claims["uris"].as_array().expect("uris should be an array");
+        assert_eq!(uris.len(), 1);
+        assert_eq!(uris[0], "GET api.cdp.coinbase.com/platform/v2/evm/accounts");
+
+        let exp = claims["exp"].as_u64().unwrap();
+        let iat = claims["iat"].as_u64().unwrap();
+        assert_eq!(exp - iat, 120);
+    }
+
+    #[test]
+    fn test_generate_jwt_with_ed25519_key() {
+        let ed_key = generate_ed25519_key_base64();
+        let token = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("ed-key-id".to_string())
+                .api_key_secret(ed_key)
+                .request_method("POST".to_string())
+                .request_host("api.cdp.coinbase.com".to_string())
+                .request_path("/platform/v2/evm/accounts".to_string())
+                .build(),
+        )
+        .unwrap();
+
+        let header = decode_jwt_header(&token);
+        assert_eq!(header["alg"], "EdDSA");
+        assert_eq!(header["kid"], "ed-key-id");
+
+        let claims = decode_jwt_claims(&token);
+        assert_eq!(claims["sub"], "ed-key-id");
+        assert_eq!(claims["iss"], "cdp");
+
+        let uris = claims["uris"].as_array().expect("uris should be an array");
+        assert_eq!(
+            uris[0],
+            "POST api.cdp.coinbase.com/platform/v2/evm/accounts"
+        );
+    }
+
+    #[test]
+    fn test_generate_jwt_websocket_no_uris() {
+        let ec_key = generate_ec_pem_key();
+        let token = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("ws-key-id".to_string())
+                .api_key_secret(ec_key)
+                .build(),
+        )
+        .unwrap();
+
+        let claims = decode_jwt_claims(&token);
+        assert_eq!(claims["sub"], "ws-key-id");
+        assert_eq!(claims["iss"], "cdp");
+        // uris should be absent for websocket JWTs
+        assert!(claims.get("uris").is_none() || claims["uris"].is_null());
+    }
+
+    #[test]
+    fn test_generate_jwt_partial_request_params_error() {
+        let ec_key = generate_ec_pem_key();
+        let result = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("test-key-id".to_string())
+                .api_key_secret(ec_key)
+                .request_method("GET".to_string())
+                // missing host and path
+                .build(),
+        );
+
+        assert!(result.is_err());
+        if let Err(CdpError::Auth(msg)) = result {
+            assert!(msg.contains("Either all request details"));
+        } else {
+            panic!("Expected Auth error for partial request params");
+        }
+    }
+
+    #[test]
+    fn test_generate_jwt_with_audience() {
+        let ec_key = generate_ec_pem_key();
+        let token = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("aud-key-id".to_string())
+                .api_key_secret(ec_key)
+                .audience(vec!["custom-audience".to_string()])
+                .build(),
+        )
+        .unwrap();
+
+        let claims = decode_jwt_claims(&token);
+        let aud = claims["aud"].as_array().expect("aud should be an array");
+        assert_eq!(aud.len(), 1);
+        assert_eq!(aud[0], "custom-audience");
+    }
+
+    #[test]
+    fn test_generate_jwt_default_expires_in() {
+        let ec_key = generate_ec_pem_key();
+        let token = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("default-exp-key".to_string())
+                .api_key_secret(ec_key)
+                .request_method("GET".to_string())
+                .request_host("api.cdp.coinbase.com".to_string())
+                .request_path("/test".to_string())
+                .build(),
+        )
+        .unwrap();
+
+        let claims = decode_jwt_claims(&token);
+        let exp = claims["exp"].as_u64().unwrap();
+        let iat = claims["iat"].as_u64().unwrap();
+        assert_eq!(exp - iat, 120); // default 120 seconds
+    }
+
+    #[test]
+    fn test_generate_jwt_custom_expires_in() {
+        let ec_key = generate_ec_pem_key();
+        let token = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("custom-exp-key".to_string())
+                .api_key_secret(ec_key)
+                .request_method("GET".to_string())
+                .request_host("api.cdp.coinbase.com".to_string())
+                .request_path("/test".to_string())
+                .expires_in(300u64)
+                .build(),
+        )
+        .unwrap();
+
+        let claims = decode_jwt_claims(&token);
+        let exp = claims["exp"].as_u64().unwrap();
+        let iat = claims["iat"].as_u64().unwrap();
+        assert_eq!(exp - iat, 300);
+    }
+
+    #[test]
+    fn test_generate_jwt_invalid_key_format() {
+        let result = generate_jwt(
+            JwtOptions::builder()
+                .api_key_id("bad-key-id".to_string())
+                .api_key_secret("not-a-valid-key-format".to_string())
+                .request_method("GET".to_string())
+                .request_host("api.cdp.coinbase.com".to_string())
+                .request_path("/test".to_string())
+                .build(),
+        );
+
+        assert!(result.is_err());
+        if let Err(CdpError::Auth(msg)) = result {
+            assert!(msg.contains("Invalid key format"));
+        } else {
+            panic!("Expected Auth error for invalid key format");
+        }
+    }
+
+    // --- WalletAuth::generate_jwt tests ---
+
+    #[test]
+    fn test_wallet_auth_generate_jwt_ec_key() {
+        let ec_key = generate_ec_pem_key();
+        let auth = WalletAuth::builder()
+            .api_key_id("wa-ec-key-id".to_string())
+            .api_key_secret(ec_key)
+            .build()
+            .unwrap();
+
+        let token = auth
+            .generate_jwt(
+                "GET",
+                "api.cdp.coinbase.com",
+                "/platform/v2/evm/accounts",
+                120,
+            )
+            .unwrap();
+
+        let header = decode_jwt_header(&token);
+        assert_eq!(header["alg"], "ES256");
+        assert_eq!(header["kid"], "wa-ec-key-id");
+
+        let claims = decode_jwt_claims(&token);
+        assert_eq!(claims["sub"], "wa-ec-key-id");
+        assert_eq!(claims["iss"], "cdp");
+
+        let uris = claims["uris"].as_array().expect("uris should be an array");
+        assert_eq!(uris[0], "GET api.cdp.coinbase.com/platform/v2/evm/accounts");
+    }
+
+    #[test]
+    fn test_wallet_auth_generate_jwt_ed25519_key() {
+        let ed_key = generate_ed25519_key_base64();
+        let auth = WalletAuth::builder()
+            .api_key_id("wa-ed-key-id".to_string())
+            .api_key_secret(ed_key)
+            .build()
+            .unwrap();
+
+        let token = auth
+            .generate_jwt(
+                "POST",
+                "api.cdp.coinbase.com",
+                "/platform/v2/evm/accounts",
+                60,
+            )
+            .unwrap();
+
+        let header = decode_jwt_header(&token);
+        assert_eq!(header["alg"], "EdDSA");
+        assert_eq!(header["kid"], "wa-ed-key-id");
+
+        let claims = decode_jwt_claims(&token);
+        assert_eq!(claims["sub"], "wa-ed-key-id");
+        assert_eq!(claims["iss"], "cdp");
+
+        let exp = claims["exp"].as_u64().unwrap();
+        let iat = claims["iat"].as_u64().unwrap();
+        assert_eq!(exp - iat, 60);
     }
 }

@@ -220,7 +220,91 @@ for account in accounts_list.accounts {
 
 ## Authentication Tools
 
-This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). The authentication is handled automatically when using the high-level client, but you can access the underlying authentication mechanisms if needed.
+This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). Choose the method that best suits your needs:
+
+| Method | Difficulty | Description |
+| :-- | :-- | :-- |
+| [Use the CDP Client](#use-the-cdp-client) | Easy | Use the built-in `WalletAuth` middleware that automatically handles authentication for all requests. |
+| [Generate a JWT from WalletAuth](#generate-a-jwt-from-walletauth) | Intermediate | Generate a JWT from an existing `WalletAuth` instance and apply it to your preferred HTTP client. |
+| [Generate a standalone JWT](#generate-a-standalone-jwt) | Advanced | Generate a JWT token with explicit options, manually create your authentication headers, and apply them to your preferred HTTP client. |
+
+Visit the [CDP Authentication docs](https://docs.cdp.coinbase.com/api-v2/docs/authentication) for more details.
+
+### Use the CDP Client
+
+The `WalletAuth` middleware automatically adds authentication headers to all requests. See the [Initialization](#initialization) section above for setup examples.
+
+### Generate a JWT from WalletAuth
+
+If you already have a `WalletAuth` instance, you can generate JWTs directly:
+
+```rust
+use cdp_sdk::auth::WalletAuth;
+
+let auth = WalletAuth::builder()
+    .api_key_id("your-api-key-id".to_string())
+    .api_key_secret("your-api-key-secret".to_string())
+    .build()?;
+
+let jwt = auth.generate_jwt(
+    "GET",
+    "api.cdp.coinbase.com",
+    "/platform/v2/evm/accounts",
+    120,
+)?;
+
+// Use the JWT in your Authorization header:
+// Authorization: Bearer {jwt}
+```
+
+### Generate a standalone JWT
+
+For cases where you need a JWT without constructing a `WalletAuth` instance (e.g., authenticating with the [x402 payment facilitator](https://www.x402.org/)), use the standalone `generate_jwt` function:
+
+```rust
+use cdp_sdk::auth::{generate_jwt, JwtOptions};
+
+// For REST API requests
+let jwt = generate_jwt(JwtOptions::builder()
+    .api_key_id("your-api-key-id".to_string())
+    .api_key_secret("your-api-key-secret".to_string())
+    .request_method("GET".to_string())
+    .request_host("api.cdp.coinbase.com".to_string())
+    .request_path("/platform/v2/evm/accounts".to_string())
+    .expires_in(120u64)
+    .build()
+)?;
+
+// For websocket connections (omits the uris claim)
+let ws_jwt = generate_jwt(JwtOptions::builder()
+    .api_key_id("your-api-key-id".to_string())
+    .api_key_secret("your-api-key-secret".to_string())
+    .build()
+)?;
+```
+
+Use your JWT (Bearer token) in the `Authorization` header of your HTTP request:
+
+```bash
+curl -L 'https://api.cdp.coinbase.com/platform/v2/evm/accounts' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer $jwt'
+```
+
+### Authentication parameters
+
+| Parameter | Required | Description |
+| :-- | :-- | :-- |
+| `api_key_id` | Yes | The unique identifier for your API key. Supported formats: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` or `organizations/{orgId}/apiKeys/{keyId}` |
+| `api_key_secret` | Yes | Your API key secret. Supported formats: Edwards key (Ed25519) as base64, or Elliptic Curve key (ES256) as PEM. |
+| `request_method` | Yes* | The HTTP method (e.g., `GET`, `POST`). `None` for websocket JWTs. |
+| `request_host` | Yes* | The API host (e.g., `api.cdp.coinbase.com`). `None` for websocket JWTs. |
+| `request_path` | Yes* | The API path (e.g., `/platform/v2/evm/accounts`). `None` for websocket JWTs. |
+| `expires_in` | No | JWT expiration time in seconds. Defaults to `120` (2 minutes). |
+| `audience` | No | Optional audience claim for the JWT. |
+
+\* Either all three request parameters (`request_method`, `request_host`, `request_path`) must be provided for REST API requests, or all three must be `None` for websocket JWTs.
 
 ## Development
 
