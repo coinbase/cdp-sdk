@@ -932,6 +932,25 @@ async def test_end_user_account_add_solana_account_method(
 
 
 @pytest.mark.asyncio
+async def test_get_delegation():
+    """Test getting delegation for an end user."""
+    mock_response = MagicMock()
+    mock_response.expires_at = "2025-12-31T23:59:59Z"
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.get_delegation_for_end_user = AsyncMock(
+        return_value=mock_response
+    )
+
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.get_delegation(user_id="user-123")
+
+    assert result == mock_response
+    mock_api_clients.embedded_wallets.get_delegation_for_end_user.assert_called_once()
+    call_args = mock_api_clients.embedded_wallets.get_delegation_for_end_user.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+
+
+@pytest.mark.asyncio
 async def test_revoke_delegation():
     """Test revoking delegation for an end user."""
     mock_api_clients = AsyncMock()
