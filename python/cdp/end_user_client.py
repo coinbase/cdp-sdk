@@ -199,6 +199,27 @@ class EndUserClient:
             next_page_token=response.next_page_token,
         )
 
+    async def get_end_user_by_email(
+        self,
+        email: str,
+    ) -> EndUserAccount:
+        """Get an end user by email address.
+
+        Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+
+        Args:
+            email: The email address to search for across all authentication methods.
+
+        Returns:
+            EndUserAccount: The end user with action methods.
+
+        """
+        track_action(action="get_end_user_by_email")
+
+        end_user = await self.api_clients.end_user.get_end_user_by_email(email=email)
+
+        return EndUserAccount(end_user, self.api_clients)
+
     async def validate_access_token(
         self,
         access_token: str,

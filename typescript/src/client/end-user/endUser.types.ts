@@ -51,6 +51,16 @@ export interface GetEndUserOptions {
 }
 
 /**
+ * The options for getting an end user by email.
+ */
+export interface GetEndUserByEmailOptions {
+  /**
+   * The email address to search for across all authentication methods (email, Google, Apple, GitHub).
+   */
+  email: string;
+}
+
+/**
  * The options for listing end users.
  */
 export type ListEndUsersOptions = ListEndUsersParams;

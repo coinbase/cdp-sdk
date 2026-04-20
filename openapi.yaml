@@ -1079,6 +1079,50 @@ paths:
                     errorMessage: End user with the given ID not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/end-users/by-email/{email}:
+    get:
+      x-audience: development
+      summary: Get an end user by email
+      description: |-
+        Gets an end user by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: getEndUserByEmail
+      tags:
+        - End User Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: The email address to search for across all authentication methods.
+          schema:
+            type: string
+            format: email
+          example: user@example.com
+      responses:
+        '200':
+          description: Successfully got end user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given email not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/end-users/{userId}/evm:
     post:
       summary: Add an EVM account to an end user

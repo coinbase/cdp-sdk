@@ -87,6 +87,18 @@ export const getEndUser = (
   return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
 };
 /**
+ * Gets an end user by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Get an end user by email
+ */
+export const getEndUserByEmail = (
+  email: string,
+  options?: SecondParameter<typeof cdpApiClient<EndUser>>,
+) => {
+  return cdpApiClient<EndUser>({ url: `/v2/end-users/by-email/${email}`, method: "GET" }, options);
+};
+/**
  * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts.
 This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
  * @summary Add an EVM account to an end user
@@ -172,6 +184,7 @@ export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;
 export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;
+export type GetEndUserByEmailResult = NonNullable<Awaited<ReturnType<typeof getEndUserByEmail>>>;
 export type AddEndUserEvmAccountResult = NonNullable<
   Awaited<ReturnType<typeof addEndUserEvmAccount>>
 >;

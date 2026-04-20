@@ -576,6 +576,90 @@ public class EndUserAccountsApi {
   }
 
   /**
+   * Get an end user by email
+   * Gets an end user by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param email The email address to search for across all authentication methods. (required)
+   * @return EndUser
+   * @throws ApiException if fails to make API call
+   */
+  public EndUser getEndUserByEmail(String email) throws ApiException {
+    ApiResponse<EndUser> localVarResponse = getEndUserByEmailWithHttpInfo(email);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get an end user by email
+   * Gets an end user by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param email The email address to search for across all authentication methods. (required)
+   * @return ApiResponse&lt;EndUser&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<EndUser> getEndUserByEmailWithHttpInfo(String email) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getEndUserByEmailRequestBuilder(email);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getEndUserByEmail", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<EndUser>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<EndUser>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<EndUser>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getEndUserByEmailRequestBuilder(String email) throws ApiException {
+    // verify the required parameter 'email' is set
+    if (email == null) {
+      throw new ApiException(400, "Missing the required parameter 'email' when calling getEndUserByEmail");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/end-users/by-email/{email}"
+        .replace("{email}", ApiClient.urlEncode(email.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Import a private key for an end user
    * Imports an existing private key for an end user into the developer&#39;s CDP Project. The private key must be encrypted using the CDP SDK&#39;s encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
