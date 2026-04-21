@@ -1695,6 +1695,11 @@ The available wallet event types are:
 - `wallet.transaction.confirmed`
 - `wallet.transaction.failed`
 - `wallet.transaction.signed`
+- `wallet.typed_data.signed`
+- `wallet.message.signed`
+- `wallet.hash.signed`
+- `wallet.delegation.created`
+- `wallet.delegation.revoked`
 
 For a complete working example, see [webhooks/create_webhook_subscription.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/webhooks/create_webhook_subscription.py).
 
