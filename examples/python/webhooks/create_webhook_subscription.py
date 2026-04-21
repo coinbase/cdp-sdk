@@ -22,6 +22,11 @@ async def main():
                     "wallet.transaction.broadcast",
                     "wallet.transaction.replaced",
                     "wallet.transaction.signed",
+                    "wallet.typed_data.signed",
+                    "wallet.message.signed",
+                    "wallet.hash.signed",
+                    "wallet.delegation.created",
+                    "wallet.delegation.revoked",
                 ],
                 target_url="https://example.com/webhook",
             )

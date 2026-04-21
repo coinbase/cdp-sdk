@@ -10,7 +10,12 @@ export type WebhookEventType =
   | "wallet.transaction.replaced"
   | "wallet.transaction.confirmed"
   | "wallet.transaction.failed"
-  | "wallet.transaction.signed";
+  | "wallet.transaction.signed"
+  | "wallet.typed_data.signed"
+  | "wallet.message.signed"
+  | "wallet.hash.signed"
+  | "wallet.delegation.created"
+  | "wallet.delegation.revoked";
 
 /**
  * Options for creating a webhook subscription.
