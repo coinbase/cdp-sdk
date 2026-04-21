@@ -1079,22 +1079,22 @@ paths:
                     errorMessage: End user with the given ID not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /v2/end-users/by-email/{email}:
+  /v2/end-users/lookup:
     get:
-      x-audience: development
-      summary: Get an end user by email
+      x-audience: public
+      summary: Look up an end user
       description: |-
-        Gets an end user by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+        Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).
 
         This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-      operationId: getEndUserByEmail
+      operationId: lookupEndUser
       tags:
         - End User Accounts
       security:
         - apiKeyAuth: []
       parameters:
         - name: email
-          in: path
+          in: query
           required: true
           description: The email address to search for across all authentication methods.
           schema:
@@ -1120,7 +1120,7 @@ paths:
                 not_found:
                   value:
                     errorType: not_found
-                    errorMessage: End user with the given email not found.
+                    errorMessage: End user not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
   /v2/end-users/{userId}/evm:
@@ -1329,7 +1329,7 @@ paths:
     post:
       summary: Add a Solana account to an end user
       description: |-
-        Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
         This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
       operationId: addEndUserSolanaAccount
       tags:
@@ -14530,11 +14530,11 @@ components:
       type: string
       description: |
         The type of limit:
-        - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions 
-          within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. 
+        - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
+          within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
           $500 is the default limit.
-        - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions 
-          across the user's entire history with no time-based expiration. Once the limit is reached, no further 
+        - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions
+          across the user's entire history with no time-based expiration. Once the limit is reached, no further
           transactions are allowed. 15 is the default limit.
       enum:
         - weekly_spending

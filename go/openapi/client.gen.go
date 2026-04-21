@@ -4432,6 +4432,12 @@ type ImportEndUserParams struct {
 // ImportEndUserJSONBodyKeyType defines parameters for ImportEndUser.
 type ImportEndUserJSONBodyKeyType string
 
+// LookupEndUserParams defines parameters for LookupEndUser.
+type LookupEndUserParams struct {
+	// Email The email address to search for across all authentication methods.
+	Email openapi_types.Email `form:"email" json:"email"`
+}
+
 // AddEndUserEvmAccountJSONBody defines parameters for AddEndUserEvmAccount.
 type AddEndUserEvmAccountJSONBody = map[string]interface{}
 
@@ -9064,6 +9070,9 @@ type ClientInterface interface {
 
 	ImportEndUser(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// LookupEndUser request
+	LookupEndUser(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetEndUser request
 	GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -9865,6 +9874,18 @@ func (c *CDPClient) ImportEndUserWithBody(ctx context.Context, params *ImportEnd
 
 func (c *CDPClient) ImportEndUser(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewImportEndUserRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) LookupEndUser(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLookupEndUserRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -13228,6 +13249,51 @@ func NewImportEndUserRequestWithBody(server string, params *ImportEndUserParams,
 			req.Header.Set("X-Idempotency-Key", headerParam1)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewLookupEndUserRequest generates requests for LookupEndUser
+func NewLookupEndUserRequest(server string, params *LookupEndUserParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users/lookup")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "email", runtime.ParamLocationQuery, params.Email); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -16923,6 +16989,9 @@ type ClientWithResponsesInterface interface {
 
 	ImportEndUserWithResponse(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportEndUserResponse, error)
 
+	// LookupEndUserWithResponse request
+	LookupEndUserWithResponse(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*LookupEndUserResponse, error)
+
 	// GetEndUserWithResponse request
 	GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error)
 
@@ -18018,6 +18087,31 @@ func (r ImportEndUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ImportEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LookupEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EndUser
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r LookupEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LookupEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -20225,6 +20319,15 @@ func (c *ClientWithResponses) ImportEndUserWithResponse(ctx context.Context, par
 		return nil, err
 	}
 	return ParseImportEndUserResponse(rsp)
+}
+
+// LookupEndUserWithResponse request returning *LookupEndUserResponse
+func (c *ClientWithResponses) LookupEndUserWithResponse(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*LookupEndUserResponse, error) {
+	rsp, err := c.LookupEndUser(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLookupEndUserResponse(rsp)
 }
 
 // GetEndUserWithResponse request returning *GetEndUserResponse
@@ -23095,6 +23198,53 @@ func ParseImportEndUserResponse(rsp *http.Response) (*ImportEndUserResponse, err
 			return nil, err
 		}
 		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseLookupEndUserResponse parses an HTTP response from a LookupEndUserWithResponse call
+func ParseLookupEndUserResponse(rsp *http.Response) (*LookupEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LookupEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EndUser
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 

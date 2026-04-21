@@ -62,13 +62,6 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
-    async def test_get_end_user_by_email(self) -> None:
-        """Test case for get_end_user_by_email
-
-        Get an end user by email
-        """
-        pass
-
     async def test_import_end_user(self) -> None:
         """Test case for import_end_user
 
@@ -80,6 +73,13 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
         """Test case for list_end_users
 
         List end users
+        """
+        pass
+
+    async def test_lookup_end_user(self) -> None:
+        """Test case for lookup_end_user
+
+        Look up an end user
         """
         pass
 

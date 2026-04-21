@@ -24839,7 +24839,7 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "The type of limit:\n- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions \n  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. \n  $500 is the default limit.\n- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions \n  across the user's entire history with no time-based expiration. Once the limit is reached, no further \n  transactions are allowed. 15 is the default limit.\n",
+    ///  "description": "The type of limit:\n- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions\n  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.\n  $500 is the default limit.\n- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions\n  across the user's entire history with no time-based expiration. Once the limit is reached, no further\n  transactions are allowed. 15 is the default limit.\n",
     ///  "examples": [
     ///    "weekly_spending"
     ///  ],
@@ -77369,6 +77369,25 @@ impl Client {
     pub fn import_end_user(&self) -> builder::ImportEndUser<'_> {
         builder::ImportEndUser::new(self)
     }
+    /**Look up an end user
+
+    Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).
+
+    This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+    Sends a `GET` request to `/v2/end-users/lookup`
+
+    Arguments:
+    - `email`: The email address to search for across all authentication methods.
+    ```ignore
+    let response = client.lookup_end_user()
+        .email(email)
+        .send()
+        .await;
+    ```*/
+    pub fn lookup_end_user(&self) -> builder::LookupEndUser<'_> {
+        builder::LookupEndUser::new(self)
+    }
     /**Get an end user
 
     Gets an end user by ID.
@@ -77450,7 +77469,7 @@ impl Client {
     }
     /**Add a Solana account to an end user
 
-    Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+    Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
     This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
     Sends a `POST` request to `/v2/end-users/{userId}/solana`
@@ -82971,6 +82990,75 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::lookup_end_user`]
+
+    [`Client::lookup_end_user`]: super::Client::lookup_end_user*/
+    #[derive(Debug, Clone)]
+    pub struct LookupEndUser<'a> {
+        client: &'a super::Client,
+        email: Result<::std::string::String, String>,
+    }
+    impl<'a> LookupEndUser<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                email: Err("email was not initialized".to_string()),
+            }
+        }
+        pub fn email<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.email = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for email failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/end-users/lookup`
+        pub async fn send(self) -> Result<ResponseValue<types::EndUser>, Error<types::Error>> {
+            let Self { client, email } = self;
+            let email = email.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/end-users/lookup", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "email", &email,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "lookup_end_user",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),

@@ -4085,11 +4085,11 @@ export const OnrampUserIdType = {
 
 /**
  * The type of limit:
-- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions 
-  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. 
+- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
+  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
   $500 is the default limit.
-- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions 
-  across the user's entire history with no time-based expiration. Once the limit is reached, no further 
+- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions
+  across the user's entire history with no time-based expiration. Once the limit is reached, no further
   transactions are allowed. 15 is the default limit.
 
  */
@@ -4356,6 +4356,13 @@ export type ListEndUsers200 = ListEndUsers200AllOf & ListResponse;
 export type ValidateEndUserAccessTokenBody = {
   /** The access token in JWT format to verify. */
   accessToken: string;
+};
+
+export type LookupEndUserParams = {
+  /**
+   * The email address to search for across all authentication methods.
+   */
+  email: string;
 };
 
 export type AddEndUserEvmAccountBody = { [key: string]: unknown };

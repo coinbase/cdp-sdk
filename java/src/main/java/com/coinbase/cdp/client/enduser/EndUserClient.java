@@ -182,7 +182,7 @@ public class EndUserClient {
   }
 
   /**
-   * Gets an end user by email address.
+   * Looks up an end user by email address.
    *
    * <p>Searches across all email-based authentication methods (email, Google, Apple, GitHub).
    *
@@ -190,8 +190,8 @@ public class EndUserClient {
    * @return the end user
    * @throws ApiException if the API call fails
    */
-  public EndUser getEndUserByEmail(String email) throws ApiException {
-    return endUserAccountsApi.getEndUserByEmail(email);
+  public EndUser lookupEndUser(String email) throws ApiException {
+    return endUserAccountsApi.lookupEndUser(email);
   }
 
   /**
