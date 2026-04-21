@@ -926,3 +926,376 @@ async def test_end_user_account_add_solana_account_method(
         user_id="test-user",
         body={},
     )
+
+
+# ─── Delegated Method Tests ───
+
+
+@pytest.mark.asyncio
+async def test_revoke_delegation():
+    """Test revoking delegation for an end user."""
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user = AsyncMock(return_value=None)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.revoke_delegation(user_id="user-123")
+
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user.assert_called_once()
+    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+
+
+@pytest.mark.asyncio
+async def test_sign_evm_transaction():
+    """Test signing an EVM transaction for an end user."""
+    mock_response = MagicMock()
+    mock_response.signed_transaction = "0xsigned"
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.sign_evm_transaction(
+        user_id="user-123", address=evm_addr, transaction="0x02..."
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["sign_evm_transaction_with_end_user_account_request"]
+    assert request.address == evm_addr
+    assert request.transaction == "0x02..."
+
+
+@pytest.mark.asyncio
+async def test_sign_evm_message():
+    """Test signing an EVM message for an end user."""
+    mock_response = MagicMock()
+    mock_response.signature = "0xsig"
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_evm_message_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.sign_evm_message(user_id="user-123", address=evm_addr, message="Hello")
+
+    assert result == mock_response
+    call_args = mock_api_clients.embedded_wallets.sign_evm_message_with_end_user_account.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["sign_evm_message_with_end_user_account_request"]
+    assert request.address == evm_addr
+    assert request.message == "Hello"
+
+
+@pytest.mark.asyncio
+async def test_sign_evm_typed_data():
+    """Test signing EVM typed data for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_evm_typed_data_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    typed_data = {"domain": {}, "types": {}, "primaryType": "Test", "message": {}}
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.sign_evm_typed_data(
+        user_id="user-123", address=evm_addr, typed_data=typed_data
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_evm_typed_data_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["sign_evm_typed_data_with_end_user_account_request"]
+    assert request.address == evm_addr
+
+
+@pytest.mark.asyncio
+async def test_send_evm_transaction():
+    """Test sending an EVM transaction for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_evm_transaction_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_evm_transaction(
+        user_id="user-123", address=evm_addr, transaction="0x02...", network="base-sepolia"
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.send_evm_transaction_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["send_evm_transaction_with_end_user_account_request"]
+    assert request.address == evm_addr
+    assert request.transaction == "0x02..."
+    assert request.network == "base-sepolia"
+
+
+@pytest.mark.asyncio
+async def test_send_evm_asset():
+    """Test sending an EVM asset for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_evm_asset_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    evm_recipient = "0xabcdefabcdefabcdefabcdefabcdefabcdefab01"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_evm_asset(
+        user_id="user-123",
+        address=evm_addr,
+        to=evm_recipient,
+        amount="1.5",
+        network="base-sepolia",
+    )
+
+    assert result == mock_response
+    call_args = mock_api_clients.embedded_wallets.send_evm_asset_with_end_user_account.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+    assert call_args.kwargs["address"] == evm_addr
+    assert call_args.kwargs["asset"] == "usdc"
+    request = call_args.kwargs["send_evm_asset_with_end_user_account_request"]
+    assert request.to == evm_recipient
+    assert request.amount == "1.5"
+    assert request.network == "base-sepolia"
+
+
+@pytest.mark.asyncio
+async def test_send_evm_asset_with_paymaster():
+    """Test sending an EVM asset with CDP Paymaster."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_evm_asset_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    evm_recipient = "0xabcdefabcdefabcdefabcdefabcdefabcdefab01"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_evm_asset(
+        user_id="user-123",
+        address=evm_addr,
+        to=evm_recipient,
+        amount="1.5",
+        network="base-sepolia",
+        use_cdp_paymaster=True,
+    )
+
+    assert result == mock_response
+    request = (
+        mock_api_clients.embedded_wallets.send_evm_asset_with_end_user_account.call_args.kwargs[
+            "send_evm_asset_with_end_user_account_request"
+        ]
+    )
+    assert request.use_cdp_paymaster is True
+
+
+@pytest.mark.asyncio
+async def test_send_user_operation():
+    """Test sending a user operation for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_user_operation_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    smart_addr = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+    call_target = "0xabcdefabcdefabcdefabcdefabcdefabcdefab01"
+    calls = [{"to": call_target, "value": "0", "data": "0x"}]
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_user_operation(
+        user_id="user-123",
+        address=smart_addr,
+        network="base-sepolia",
+        calls=calls,
+        use_cdp_paymaster=True,
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.send_user_operation_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    assert call_args.kwargs["address"] == smart_addr
+    request = call_args.kwargs["send_user_operation_with_end_user_account_request"]
+    assert request.network == "base-sepolia"
+    assert request.use_cdp_paymaster is True
+
+
+@pytest.mark.asyncio
+async def test_create_evm_eip7702_delegation():
+    """Test creating an EIP-7702 delegation for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.create_evm_eip7702_delegation_with_end_user_account = (
+        AsyncMock(return_value=mock_response)
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.create_evm_eip7702_delegation(
+        user_id="user-123",
+        address=evm_addr,
+        network="base-sepolia",
+        enable_spend_permissions=True,
+    )
+
+    assert result == mock_response
+    call_args = mock_api_clients.embedded_wallets.create_evm_eip7702_delegation_with_end_user_account.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["create_evm_eip7702_delegation_with_end_user_account_request"]
+    assert request.address == evm_addr
+    assert request.network == "base-sepolia"
+    assert request.enable_spend_permissions is True
+
+
+@pytest.mark.asyncio
+async def test_sign_solana_message():
+    """Test signing a Solana message for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.sign_solana_message(
+        user_id="user-123", address=sol_addr, message="base64msg"
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["sign_solana_message_with_end_user_account_request"]
+    assert request.address == sol_addr
+    assert request.message == "base64msg"
+
+
+@pytest.mark.asyncio
+async def test_sign_solana_transaction():
+    """Test signing a Solana transaction for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_solana_transaction_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.sign_solana_transaction(
+        user_id="user-123", address=sol_addr, transaction="base64tx"
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_solana_transaction_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["sign_solana_transaction_with_end_user_account_request"]
+    assert request.address == sol_addr
+    assert request.transaction == "base64tx"
+
+
+@pytest.mark.asyncio
+async def test_send_solana_transaction():
+    """Test sending a Solana transaction for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_solana_transaction_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_solana_transaction(
+        user_id="user-123", address=sol_addr, transaction="base64tx", network="solana-devnet"
+    )
+
+    assert result == mock_response
+    call_args = (
+        mock_api_clients.embedded_wallets.send_solana_transaction_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["user_id"] == "user-123"
+    request = call_args.kwargs["send_solana_transaction_with_end_user_account_request"]
+    assert request.address == sol_addr
+    assert request.transaction == "base64tx"
+    assert request.network == "solana-devnet"
+
+
+@pytest.mark.asyncio
+async def test_send_solana_asset():
+    """Test sending a Solana asset for an end user."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_solana_asset_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    sol_recipient = "DRpbCBMxVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_solana_asset(
+        user_id="user-123",
+        address=sol_addr,
+        to=sol_recipient,
+        amount="1.5",
+        network="solana-devnet",
+    )
+
+    assert result == mock_response
+    call_args = mock_api_clients.embedded_wallets.send_solana_asset_with_end_user_account.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+    assert call_args.kwargs["address"] == sol_addr
+    assert call_args.kwargs["asset"] == "usdc"
+    request = call_args.kwargs["send_solana_asset_with_end_user_account_request"]
+    assert request.to == sol_recipient
+    assert request.amount == "1.5"
+    assert request.network == "solana-devnet"
+
+
+@pytest.mark.asyncio
+async def test_send_solana_asset_with_ata():
+    """Test sending a Solana asset with ATA creation."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_solana_asset_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    sol_recipient = "DRpbCBMxVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy"
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.send_solana_asset(
+        user_id="user-123",
+        address=sol_addr,
+        to=sol_recipient,
+        amount="1.5",
+        network="solana-devnet",
+        create_recipient_ata=True,
+    )
+
+    assert result == mock_response
+    request = (
+        mock_api_clients.embedded_wallets.send_solana_asset_with_end_user_account.call_args.kwargs[
+            "send_solana_asset_with_end_user_account_request"
+        ]
+    )
+    assert request.create_recipient_ata is True

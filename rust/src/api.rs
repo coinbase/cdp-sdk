@@ -1525,6 +1525,87 @@ pub mod types {
                 })
         }
     }
+    ///The symbol of the asset (e.g., eth, usd, usdc, usdt).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The symbol of the asset (e.g., eth, usd, usdc, usdt).",
+    ///  "examples": [
+    ///    "usd"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 42,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct Asset(::std::string::String);
+    impl ::std::ops::Deref for Asset {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<Asset> for ::std::string::String {
+        fn from(value: Asset) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&Asset> for Asset {
+        fn from(value: &Asset) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for Asset {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 42usize {
+                return Err("longer than 42 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for Asset {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for Asset {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for Asset {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for Asset {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///Information about how the end user is authenticated.
     ///
     /// <details><summary>JSON schema</summary>
@@ -1547,6 +1628,9 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/TelegramAuthentication"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/SiweAuthentication"
     ///    }
     ///  ]
     ///}
@@ -1560,6 +1644,7 @@ pub mod types {
         DeveloperJwtAuthentication(DeveloperJwtAuthentication),
         OAuth2Authentication(OAuth2Authentication),
         TelegramAuthentication(TelegramAuthentication),
+        SiweAuthentication(SiweAuthentication),
     }
     impl ::std::convert::From<&Self> for AuthenticationMethod {
         fn from(value: &AuthenticationMethod) -> Self {
@@ -1589,6 +1674,11 @@ pub mod types {
     impl ::std::convert::From<TelegramAuthentication> for AuthenticationMethod {
         fn from(value: TelegramAuthentication) -> Self {
             Self::TelegramAuthentication(value)
+        }
+    }
+    impl ::std::convert::From<SiweAuthentication> for AuthenticationMethod {
+        fn from(value: SiweAuthentication) -> Self {
+            Self::SiweAuthentication(value)
         }
     }
     ///The list of valid authentication methods linked to the end user.
@@ -1626,6 +1716,10 @@ pub mod types {
     ///        "photoUrl": "https://image.url/profile.jpg",
     ///        "type": "telegram",
     ///        "username": "satoshinakamoto"
+    ///      },
+    ///      {
+    ///        "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "type": "siwe"
     ///      }
     ///    ]
     ///  ],
@@ -4119,6 +4213,572 @@ pub mod types {
     impl CreateEvmEip7702DelegationResponse {
         pub fn builder() -> builder::CreateEvmEip7702DelegationResponse {
             Default::default()
+        }
+    }
+    ///`CreateEvmEip7702DelegationWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "network"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The 0x-prefixed address of the EVM account to delegate.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "enableSpendPermissions": {
+    ///      "description": "Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.",
+    ///      "default": false,
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/EvmEip7702DelegationNetwork"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountBody {
+        ///The 0x-prefixed address of the EVM account to delegate.
+        pub address: CreateEvmEip7702DelegationWithEndUserAccountBodyAddress,
+        ///Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.
+        #[serde(rename = "enableSpendPermissions", default)]
+        pub enable_spend_permissions: bool,
+        pub network: EvmEip7702DelegationNetwork,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountBody>
+        for CreateEvmEip7702DelegationWithEndUserAccountBody
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateEvmEip7702DelegationWithEndUserAccountBody {
+        pub fn builder() -> builder::CreateEvmEip7702DelegationWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed address of the EVM account to delegate.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed address of the EVM account to delegate.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationWithEndUserAccountBodyAddress>
+        for ::std::string::String
+    {
+        fn from(value: CreateEvmEip7702DelegationWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountBodyAddress>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId(
+        ::std::string::String,
+    );
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de>
+        for CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId
+    {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateEvmEip7702DelegationWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: CreateEvmEip7702DelegationWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountProjectId>
+        for CreateEvmEip7702DelegationWithEndUserAccountProjectId
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateEvmEip7702DelegationWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "delegationOperationId"
+    ///  ],
+    ///  "properties": {
+    ///    "delegationOperationId": {
+    ///      "description": "The unique identifier for the delegation operation. Use this to poll the operation status.",
+    ///      "examples": [
+    ///        "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "uuid"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountResponse {
+        ///The unique identifier for the delegation operation. Use this to poll the operation status.
+        #[serde(rename = "delegationOperationId")]
+        pub delegation_operation_id: ::uuid::Uuid,
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountResponse>
+        for CreateEvmEip7702DelegationWithEndUserAccountResponse
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateEvmEip7702DelegationWithEndUserAccountResponse {
+        pub fn builder() -> builder::CreateEvmEip7702DelegationWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`CreateEvmEip7702DelegationWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationWithEndUserAccountUserId>
+        for ::std::string::String
+    {
+        fn from(value: CreateEvmEip7702DelegationWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountUserId>
+        for CreateEvmEip7702DelegationWithEndUserAccountUserId
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateEvmEip7702DelegationWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey>
+        for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de>
+        for CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey
+    {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`CreateEvmEip7702DelegationXIdempotencyKey`
@@ -10879,7 +11539,10 @@ pub mod types {
     ///    "order_quote_expired",
     ///    "order_already_filled",
     ///    "order_already_canceled",
-    ///    "account_not_ready"
+    ///    "account_not_ready",
+    ///    "insufficient_liquidity",
+    ///    "insufficient_allowance",
+    ///    "transaction_simulation_failed"
     ///  ],
     ///  "x-error-instructions": {
     ///    "account_not_ready": "This error occurs when an operation is attempted on an account that is still being provisioned.\n\n**Steps to resolve:**\n1. Wait a few moments and retry the request\n2. If the error persists, the account may still be completing setup — retry with exponential backoff",
@@ -10895,9 +11558,11 @@ pub mod types {
     ///    "guest_transaction_count": "This error occurs when the user has reached the lifetime guest onramp transaction count limit.\n\n**Steps to resolve:**\n1. Redirect the user to create a Coinbase account to buy and send crypto.",
     ///    "guest_transaction_limit": "This error occurs when the user has reached the weekly guest onramp transaction limit.\n\n**Steps to resolve:**\n1. Inform the user they have reached their weekly limit and will have to wait until next week.",
     ///    "idempotency_error": "This error occurs when an idempotency key is reused with different parameters.\n\n**Steps to resolve:**\n1. Generate a new UUID v4 for each unique request\n2. Only reuse idempotency keys for exact request duplicates\n3. Track used keys within your application\n\n**Example idempotency key implementation:**\n```typescript lines wrap\nimport { v4 as uuidv4 } from 'uuid';\n\nfunction createIdempotencyKey() {\n  return uuidv4();\n}\n```",
+    ///    "insufficient_allowance": "This error occurs when the taker has not approved the Permit2 contract to spend the `fromToken`\non their behalf. ERC-20 swaps require a Permit2 allowance. Native ETH swaps do not.\n\n**Steps to resolve:**\n1. Submit an ERC-20 `approve` transaction on the `fromToken` contract, granting the Permit2\n   contract (`0x000000000022D473030F116dDEE9F6B43aC78BA3`) an allowance of at least `fromAmount`\n2. Wait for the approval transaction to be confirmed on-chain\n3. Retry the swap\n\n**Example:**\n```typescript lines wrap\n// Approve Permit2 to spend fromToken\nawait walletClient.writeContract({\n  address: fromToken,\n  abi: erc20Abi,\n  functionName: \"approve\",\n  args: [\"0x000000000022D473030F116dDEE9F6B43aC78BA3\", fromAmount],\n});\n```",
     ///    "insufficient_balance": "This error occurs when the source account does not have enough funds to complete the transfer including fees.\n\n**Steps to resolve:**\n1. Check the source account balance\n2. Ensure the balance covers both the transfer amount and any fees\n3. Consider using `amountType: \"source\"` to transfer the maximum available amount minus fees\n4. Add funds to the source account if needed\n\n**Common causes:**\n- Transfer amount exceeds available balance\n- Not accounting for transfer fees\n- Pending transactions reducing available balance",
+    ///    "insufficient_liquidity": "This error occurs when no swap route is available for the requested token pair or amount.\n\n**Steps to resolve:**\n1. Try a smaller `fromAmount` — large orders may exceed available liquidity\n2. Try a different token pair\n3. Retry after a short delay; liquidity conditions change with market activity",
     ///    "internal_server_error": "This indicates an unexpected error that occurred on the CDP servers.\n\n**Important**: If you encounter this error, please note that your operation's status should be treated as unknown by your application, as it could have been a success within the CDP back-end.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - Your correlation ID\n   - Timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
-    ///    "invalid_request": "This error occurs when the request is malformed or contains invalid data, including issues with the request body, query parameters, path parameters, or headers.\n\n**Steps to resolve:**\n1. Check all required fields and parameters are present\n2. Ensure request body (if applicable) follows the correct schema\n3. Verify all parameter formats match the API specification:\n   - Query parameters\n   - Path parameters\n   - Request headers\n4. Validate any addresses, IDs, or other formatted strings meet requirements\n\n**Common validation issues:**\n- Missing required parameters\n- Invalid parameter types or formats\n- Malformed JSON in request body\n- Invalid enum values",
+    ///    "invalid_request": "This error occurs when the request is malformed or contains invalid data, including issues with the request body, query parameters, path parameters, or headers.\n\n**Steps to resolve:**\n1. Check all required fields and parameters are present\n2. Ensure request body (if applicable) follows the correct schema\n3. Verify all parameter formats match the API specification:\n   - Query parameters\n   - Path parameters\n   - Request headers\n4. Validate any addresses, IDs, or other formatted strings meet requirements\n\n**Common validation issues:**\n- Missing required parameters\n- Invalid parameter types or formats\n- Malformed JSON in request body\n- Invalid enum values\n\n#### Transfer-specific validation errors\n\nThe following transfer validation scenarios return `errorType: \"invalid_request\"`. Use the `errorMessage` field to identify the specific case.\n\n| Scenario | Example `errorMessage` |\n|----------|----------------------|\n| Source account ID is malformed | `\"source is invalid.\"` |\n| Target account ID is malformed | `\"target is invalid.\"` |\n| Source account does not exist | `\"source not found.\"` |\n| Target account does not exist | `\"target not found.\"` |\n| Asset not supported at source | `\"source is not supported.\"` |\n| Asset not supported at target | `\"target is not supported.\"` |\n| Target email address is malformed | `\"target has an invalid email format.\"` |\n| Target onchain address is invalid for network | `\"The recipient address is invalid for the selected network.\"` |\n| Asset not supported for this transfer route | `\"Transfer asset pair is not supported.\"` |\n| Insufficient balance | `\"Insufficient funds to complete this transfer.\"` |\n| Asset mismatch between request fields | `\"Currency mismatch in request.\"` |\n| Metadata has too many keys | `\"Metadata has too many keys. Up to 10 key/value pairs are permitted.\"` |\n| Metadata key exceeds length limit | `\"Metadata key is too long. Each key must be less than or equal to 40 characters.\"` |\n| Metadata value exceeds length limit | `\"Metadata value is too long. Each value must be less than or equal to 500 characters.\"` |\n| Travel rule fields missing | `\"Travel rule information is incomplete. Missing fields: ...\"` |\n| Recipient address not in account allowlist | `\"Your coinbase account allowlist does not include this address. Please update your allowlist at https://www.coinbase.com/settings/allowlist\"` |",
     ///    "invalid_signature": "This error occurs when the signature provided for the given user operation is invalid.\n\n**Steps to resolve:**\n1. Verify the signature was generated by the correct owner account\n2. Ensure the signature corresponds to the exact user operation hash\n3. Check that the signature format matches the expected format\n4. Confirm you're using the correct network for the Smart Account\n\n**Common causes:**\n- Using wrong owner account to sign\n- Signing modified/incorrect user operation data\n- Malformed signature encoding\n- Network mismatch between signature and broadcast",
     ///    "invalid_sql_query": "This error occurs when the SQL query is invalid or not allowed.\n\n**Common causes:**\n- Using non-SELECT SQL statements (INSERT, UPDATE, DELETE, etc.)\n- Invalid table or column names\n- Syntax errors in SQL query\n- Query exceeds character limit\n- Too many JOIN operations",
     ///    "malformed_transaction": "This error occurs when the transaction data provided is not properly formatted or is invalid.\n\n**Steps to resolve:**\n1. Verify transaction encoding:\n   - **EVM networks**: Check RLP encoding is correct\n   - **Solana**: Validate base64 encoding\n2. Ensure all required transaction fields are present\n3. Validate transaction parameters are within acceptable ranges\n4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/get-started/supported-networks) page for more details)\n\n**Common causes:**\n- Invalid hex encoding for EVM transactions\n- Missing required transaction fields\n- Incorrect parameter formats\n- Unsupported transaction types\n- Network-specific transaction format mismatches",
@@ -10933,6 +11598,7 @@ pub mod types {
     ///    "target_email_invalid": "This error occurs when the email address specified as the transfer target is invalid.\n\n**Steps to resolve:**\n1. Verify the email address format is valid (e.g., `user@example.com`)\n2. Check for typos in the email address\n3. Ensure the email domain is valid\n\n**Common causes:**\n- Invalid email format\n- Missing @ symbol or domain\n- Typo in the email address",
     ///    "target_onchain_address_invalid": "This error occurs when the onchain address specified as the transfer target is invalid for the specified network.\n\n**Steps to resolve:**\n1. Ensure the network is supported for the transfer type\n2. Verify the address format matches the target network\n3. Ensure you haven't mixed up addresses from different networks\n\n**Common causes:**\n- Network not supported for the transfer type\n- Address format doesn't match network\n- Address from a different blockchain network",
     ///    "timed_out": "This error occurs when a request exceeds the maximum allowed processing time.\n\n**Steps to resolve:**\n1. Break down large requests into smaller chunks (if applicable)\n2. Implement retry logic with exponential backoff\n3. Use streaming endpoints for large data sets\n\n**Example retry implementation:**\n```typescript lines wrap\nasync function withRetryAndTimeout<T>(\n  operation: () => Promise<T>,\n  maxRetries = 3,\n  timeout = 30000,\n): Promise<T> {\n  let attempts = 0;\n  while (attempts < maxRetries) {\n    try {\n      return await Promise.race([\n        operation(),\n        new Promise((_, reject) =>\n          setTimeout(() => reject(new Error(\"Timeout\")), timeout)\n        ),\n      ]);\n    } catch (error) {\n      attempts++;\n      if (attempts === maxRetries) throw error;\n      // Exponential backoff\n      await new Promise(resolve =>\n        setTimeout(resolve, Math.pow(2, attempts) * 1000)\n      );\n    }\n  }\n  throw new Error(\"Max retries exceeded\");\n}\n```",
+    ///    "transaction_simulation_failed": "This error occurs when the pre-broadcast simulation of the swap transaction predicted a revert.\nNo transaction was submitted and no gas was spent.\n\n**Common causes:**\n- The on-chain price moved past the `slippageBps` tolerance between the price estimate and execution\n- Taker balance changed between the price estimate and execution\n\n**Steps to resolve:**\n1. Retry immediately — prices change quickly and a new quote may succeed\n2. Increase `slippageBps` if retries continue to fail (e.g. from 100 to 200)\n3. For large swaps, consider splitting into smaller amounts to reduce price impact",
     ///    "transfer_amount_invalid": "This error occurs when the transfer amount is invalid.\n\n**Steps to resolve:**\n1. Ensure the amount is a positive number and greater than $1 USD equivalent amount\n2. Verify the amount format is a valid decimal string (e.g., `\"100.50\"`)\n3. Check the number of decimal places for the asset\n\n**Common causes:**\n- Zero or negative amount\n- Too many decimal places for the asset\n- Amount below minimum threshold ($1 USD equivalent amount)",
     ///    "transfer_asset_not_supported": "This error occurs when the asset specified for the transfer is not supported.\n\n**Steps to resolve:**\n1. Check the list of supported assets for transfers\n2. Verify the asset symbol is correctly specified\n3. Ensure the asset is supported for the transfer route (source → target)\n\n**Common causes:**\n- Asset not supported for transfers\n- Incorrect asset symbol",
     ///    "travel_rules_field_missing": "This error occurs when required travel rule fields are missing from the transfer request.\n\n**Steps to resolve:**\n1. Include the `travelRule` object in your transfer request\n2. Supply the required missing fields prompted by the error message\n3. Review the travel rule requirements for your jurisdiction\n\nNote: Required fields may vary by region.",
@@ -11071,6 +11737,12 @@ pub mod types {
         OrderAlreadyCanceled,
         #[serde(rename = "account_not_ready")]
         AccountNotReady,
+        #[serde(rename = "insufficient_liquidity")]
+        InsufficientLiquidity,
+        #[serde(rename = "insufficient_allowance")]
+        InsufficientAllowance,
+        #[serde(rename = "transaction_simulation_failed")]
+        TransactionSimulationFailed,
     }
     impl ::std::convert::From<&Self> for ErrorType {
         fn from(value: &ErrorType) -> Self {
@@ -11142,6 +11814,9 @@ pub mod types {
                 Self::OrderAlreadyFilled => f.write_str("order_already_filled"),
                 Self::OrderAlreadyCanceled => f.write_str("order_already_canceled"),
                 Self::AccountNotReady => f.write_str("account_not_ready"),
+                Self::InsufficientLiquidity => f.write_str("insufficient_liquidity"),
+                Self::InsufficientAllowance => f.write_str("insufficient_allowance"),
+                Self::TransactionSimulationFailed => f.write_str("transaction_simulation_failed"),
             }
         }
     }
@@ -11207,6 +11882,9 @@ pub mod types {
                 "order_already_filled" => Ok(Self::OrderAlreadyFilled),
                 "order_already_canceled" => Ok(Self::OrderAlreadyCanceled),
                 "account_not_ready" => Ok(Self::AccountNotReady),
+                "insufficient_liquidity" => Ok(Self::InsufficientLiquidity),
+                "insufficient_allowance" => Ok(Self::InsufficientAllowance),
+                "transaction_simulation_failed" => Ok(Self::TransactionSimulationFailed),
                 _ => Err("invalid value".into()),
             }
         }
@@ -13742,8 +14420,11 @@ pub mod types {
     ///          "polygon",
     ///          "optimism",
     ///          "arbitrum",
+    ///          "arbitrum-sepolia",
     ///          "zora",
-    ///          "bnb"
+    ///          "bnb",
+    ///          "world",
+    ///          "world-sepolia"
     ///        ]
     ///      }
     ///    },
@@ -13813,8 +14494,11 @@ pub mod types {
     ///    "polygon",
     ///    "optimism",
     ///    "arbitrum",
+    ///    "arbitrum-sepolia",
     ///    "zora",
-    ///    "bnb"
+    ///    "bnb",
+    ///    "world",
+    ///    "world-sepolia"
     ///  ]
     ///}
     /// ```
@@ -13848,10 +14532,16 @@ pub mod types {
         Optimism,
         #[serde(rename = "arbitrum")]
         Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
         #[serde(rename = "zora")]
         Zora,
         #[serde(rename = "bnb")]
         Bnb,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
     }
     impl ::std::convert::From<&Self> for EvmNetworkCriterionNetworksItem {
         fn from(value: &EvmNetworkCriterionNetworksItem) -> Self {
@@ -13869,8 +14559,11 @@ pub mod types {
                 Self::Polygon => f.write_str("polygon"),
                 Self::Optimism => f.write_str("optimism"),
                 Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
                 Self::Zora => f.write_str("zora"),
                 Self::Bnb => f.write_str("bnb"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
             }
         }
     }
@@ -13886,8 +14579,11 @@ pub mod types {
                 "polygon" => Ok(Self::Polygon),
                 "optimism" => Ok(Self::Optimism),
                 "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
                 "zora" => Ok(Self::Zora),
                 "bnb" => Ok(Self::Bnb),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
                 _ => Err("invalid value".into()),
             }
         }
@@ -17160,6 +17856,89 @@ pub mod types {
                 .map_err(|e: self::error::ConversionError| {
                     <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
+        }
+    }
+    ///`GetSqlSchemaDatabase`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "default": "base",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base",
+    ///    "base_sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum GetSqlSchemaDatabase {
+        #[serde(rename = "base")]
+        Base,
+        #[serde(rename = "base_sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for GetSqlSchemaDatabase {
+        fn from(value: &GetSqlSchemaDatabase) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for GetSqlSchemaDatabase {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Base => f.write_str("base"),
+                Self::BaseSepolia => f.write_str("base_sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for GetSqlSchemaDatabase {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base" => Ok(Self::Base),
+                "base_sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetSqlSchemaDatabase {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetSqlSchemaDatabase {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetSqlSchemaDatabase {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::default::Default for GetSqlSchemaDatabase {
+        fn default() -> Self {
+            GetSqlSchemaDatabase::Base
         }
     }
     ///`GetSwapPriceResponse`
@@ -21778,13 +22557,13 @@ pub mod types {
             value.parse()
         }
     }
-    ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+    ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.",
+    ///  "description": "Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.",
     ///  "examples": [
     ///    {
     ///      "customer_id": "cust_12345",
@@ -21792,7 +22571,7 @@ pub mod types {
     ///    }
     ///  ],
     ///  "type": "object",
-    ///  "maxProperties": 50,
+    ///  "maxProperties": 10,
     ///  "additionalProperties": {
     ///    "type": "string",
     ///    "maxLength": 500
@@ -22723,7 +23502,8 @@ pub mod types {
     ///    "google",
     ///    "apple",
     ///    "x",
-    ///    "telegram"
+    ///    "telegram",
+    ///    "github"
     ///  ]
     ///}
     /// ```
@@ -22749,6 +23529,8 @@ pub mod types {
         X,
         #[serde(rename = "telegram")]
         Telegram,
+        #[serde(rename = "github")]
+        Github,
     }
     impl ::std::convert::From<&Self> for OAuth2ProviderType {
         fn from(value: &OAuth2ProviderType) -> Self {
@@ -22762,6 +23544,7 @@ pub mod types {
                 Self::Apple => f.write_str("apple"),
                 Self::X => f.write_str("x"),
                 Self::Telegram => f.write_str("telegram"),
+                Self::Github => f.write_str("github"),
             }
         }
     }
@@ -22773,6 +23556,7 @@ pub mod types {
                 "apple" => Ok(Self::Apple),
                 "x" => Ok(Self::X),
                 "telegram" => Ok(Self::Telegram),
+                "github" => Ok(Self::Github),
                 _ => Err("invalid value".into()),
             }
         }
@@ -22797,6 +23581,114 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///Schema definition for a table column.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Schema definition for a table column.",
+    ///  "examples": [
+    ///    {
+    ///      "description": "The signature of the decoded event log.",
+    ///      "indexOrder": 0,
+    ///      "name": "event_signature",
+    ///      "nullable": false,
+    ///      "type": "String"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "description": {
+    ///      "description": "Human-readable description of the column.",
+    ///      "examples": [
+    ///        "The signature of the decoded event log."
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Description"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "indexOrder": {
+    ///      "description": "The order of the column in the index. A lower number means the column is more important for the index and should be first in the query.",
+    ///      "examples": [
+    ///        0
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "name": {
+    ///      "description": "Column name.",
+    ///      "examples": [
+    ///        "event_signature"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "nullable": {
+    ///      "description": "Whether this column can contain NULL values.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "type": {
+    ///      "description": "Column data type.",
+    ///      "examples": [
+    ///        "String"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnchainDataColumnSchema {
+        ///Human-readable description of the column.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub description: ::std::option::Option<Description>,
+        ///The order of the column in the index. A lower number means the column is more important for the index and should be first in the query.
+        #[serde(
+            rename = "indexOrder",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub index_order: ::std::option::Option<i64>,
+        ///Column name.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub name: ::std::option::Option<::std::string::String>,
+        ///Whether this column can contain NULL values.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub nullable: ::std::option::Option<bool>,
+        ///Column data type.
+        #[serde(
+            rename = "type",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub type_: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&OnchainDataColumnSchema> for OnchainDataColumnSchema {
+        fn from(value: &OnchainDataColumnSchema) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for OnchainDataColumnSchema {
+        fn default() -> Self {
+            Self {
+                description: Default::default(),
+                index_order: Default::default(),
+                name: Default::default(),
+                nullable: Default::default(),
+                type_: Default::default(),
+            }
+        }
+    }
+    impl OnchainDataColumnSchema {
+        pub fn builder() -> builder::OnchainDataColumnSchema {
+            Default::default()
         }
     }
     ///Request to execute a SQL query against indexed blockchain data.
@@ -23551,6 +24443,164 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///Schema information for available blockchain data tables.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Schema information for available blockchain data tables.",
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "tables": {
+    ///      "description": "List of available tables.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "columns": [
+    ///              {
+    ///                "description": "The signature of the decoded event log.",
+    ///                "indexOrder": 0,
+    ///                "name": "event_signature",
+    ///                "nullable": false,
+    ///                "type": "String"
+    ///              }
+    ///            ],
+    ///            "database": "base",
+    ///            "table": "events"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnchainDataTableSchema"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnchainDataSchemaResponse {
+        ///List of available tables.
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub tables: ::std::vec::Vec<OnchainDataTableSchema>,
+    }
+    impl ::std::convert::From<&OnchainDataSchemaResponse> for OnchainDataSchemaResponse {
+        fn from(value: &OnchainDataSchemaResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for OnchainDataSchemaResponse {
+        fn default() -> Self {
+            Self {
+                tables: Default::default(),
+            }
+        }
+    }
+    impl OnchainDataSchemaResponse {
+        pub fn builder() -> builder::OnchainDataSchemaResponse {
+            Default::default()
+        }
+    }
+    ///Schema definition for a data table.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Schema definition for a data table.",
+    ///  "examples": [
+    ///    {
+    ///      "columns": [
+    ///        {
+    ///          "description": "The signature of the decoded event log.",
+    ///          "indexOrder": 0,
+    ///          "name": "event_signature",
+    ///          "nullable": false,
+    ///          "type": "String"
+    ///        },
+    ///        {
+    ///          "description": "The address of the smart contract that emitted the event log.",
+    ///          "indexOrder": 1,
+    ///          "name": "address",
+    ///          "nullable": false,
+    ///          "type": "String"
+    ///        }
+    ///      ],
+    ///      "database": "base",
+    ///      "table": "events"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "columns": {
+    ///      "description": "Column definitions for this table.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "description": "The signature of the decoded event log.",
+    ///            "indexOrder": 0,
+    ///            "name": "event_signature",
+    ///            "nullable": false,
+    ///            "type": "String"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnchainDataColumnSchema"
+    ///      }
+    ///    },
+    ///    "database": {
+    ///      "description": "The blockchain network database this table belongs to.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "table": {
+    ///      "description": "Table name.",
+    ///      "examples": [
+    ///        "events"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnchainDataTableSchema {
+        ///Column definitions for this table.
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub columns: ::std::vec::Vec<OnchainDataColumnSchema>,
+        ///The blockchain network database this table belongs to.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub database: ::std::option::Option<::std::string::String>,
+        ///Table name.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub table: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&OnchainDataTableSchema> for OnchainDataTableSchema {
+        fn from(value: &OnchainDataTableSchema) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for OnchainDataTableSchema {
+        fn default() -> Self {
+            Self {
+                columns: Default::default(),
+                database: Default::default(),
+                table: Default::default(),
+            }
+        }
+    }
+    impl OnchainDataTableSchema {
+        pub fn builder() -> builder::OnchainDataTableSchema {
+            Default::default()
         }
     }
     /**The type of limit:
@@ -26707,7 +27757,8 @@ pub mod types {
     ///      "type": "string",
     ///      "enum": [
     ///        "sol",
-    ///        "usdc"
+    ///        "usdc",
+    ///        "cbtusd"
     ///      ]
     ///    }
     ///  }
@@ -26825,7 +27876,8 @@ pub mod types {
     ///  "type": "string",
     ///  "enum": [
     ///    "sol",
-    ///    "usdc"
+    ///    "usdc",
+    ///    "cbtusd"
     ///  ]
     ///}
     /// ```
@@ -26847,6 +27899,8 @@ pub mod types {
         Sol,
         #[serde(rename = "usdc")]
         Usdc,
+        #[serde(rename = "cbtusd")]
+        Cbtusd,
     }
     impl ::std::convert::From<&Self> for RequestSolanaFaucetBodyToken {
         fn from(value: &RequestSolanaFaucetBodyToken) -> Self {
@@ -26858,6 +27912,7 @@ pub mod types {
             match *self {
                 Self::Sol => f.write_str("sol"),
                 Self::Usdc => f.write_str("usdc"),
+                Self::Cbtusd => f.write_str("cbtusd"),
             }
         }
     }
@@ -26867,6 +27922,7 @@ pub mod types {
             match value {
                 "sol" => Ok(Self::Sol),
                 "usdc" => Ok(Self::Usdc),
+                "cbtusd" => Ok(Self::Cbtusd),
                 _ => Err("invalid value".into()),
             }
         }
@@ -26929,6 +27985,299 @@ pub mod types {
     impl RequestSolanaFaucetResponse {
         pub fn builder() -> builder::RequestSolanaFaucetResponse {
             Default::default()
+        }
+    }
+    ///`RevokeDelegationForEndUserBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "walletSecretId": {
+    ///      "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct RevokeDelegationForEndUserBody {
+        ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id: ::std::option::Option<RevokeDelegationForEndUserBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserBody> for RevokeDelegationForEndUserBody {
+        fn from(value: &RevokeDelegationForEndUserBody) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for RevokeDelegationForEndUserBody {
+        fn default() -> Self {
+            Self {
+                wallet_secret_id: Default::default(),
+            }
+        }
+    }
+    impl RevokeDelegationForEndUserBody {
+        pub fn builder() -> builder::RevokeDelegationForEndUserBody {
+            Default::default()
+        }
+    }
+    ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserBodyWalletSecretId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserBodyWalletSecretId>
+        for RevokeDelegationForEndUserBodyWalletSecretId
+    {
+        fn from(value: &RevokeDelegationForEndUserBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserUserId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserUserId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserUserId> for RevokeDelegationForEndUserUserId {
+        fn from(value: &RevokeDelegationForEndUserUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserXIdempotencyKey> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserXIdempotencyKey>
+        for RevokeDelegationForEndUserXIdempotencyKey
+    {
+        fn from(value: &RevokeDelegationForEndUserXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`RevokeSpendPermissionAddress`
@@ -27221,6 +28570,9 @@ pub mod types {
     ///      "$ref": "#/components/schemas/SignEndUserEvmTypedDataRule"
     ///    },
     ///    {
+    ///      "$ref": "#/components/schemas/SignEndUserEvmHashRule"
+    ///    },
+    ///    {
     ///      "$ref": "#/components/schemas/SignEndUserSolTransactionRule"
     ///    },
     ///    {
@@ -27250,6 +28602,7 @@ pub mod types {
         SendEndUserEvmTransactionRule(SendEndUserEvmTransactionRule),
         SignEndUserEvmMessageRule(SignEndUserEvmMessageRule),
         SignEndUserEvmTypedDataRule(SignEndUserEvmTypedDataRule),
+        SignEndUserEvmHashRule(SignEndUserEvmHashRule),
         SignEndUserSolTransactionRule(SignEndUserSolTransactionRule),
         SendEndUserSolTransactionRule(SendEndUserSolTransactionRule),
         SignEndUserSolMessageRule(SignEndUserSolMessageRule),
@@ -27327,6 +28680,11 @@ pub mod types {
     impl ::std::convert::From<SignEndUserEvmTypedDataRule> for Rule {
         fn from(value: SignEndUserEvmTypedDataRule) -> Self {
             Self::SignEndUserEvmTypedDataRule(value)
+        }
+    }
+    impl ::std::convert::From<SignEndUserEvmHashRule> for Rule {
+        fn from(value: SignEndUserEvmHashRule) -> Self {
+            Self::SignEndUserEvmHashRule(value)
         }
     }
     impl ::std::convert::From<SignEndUserSolTransactionRule> for Rule {
@@ -28183,6 +29541,740 @@ pub mod types {
             value.parse()
         }
     }
+    ///`SendEvmAssetWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "amount",
+    ///    "network",
+    ///    "to"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "description": "The amount of USDC to send as a decimal string (e.g., \"1.5\" or \"25.50\").",
+    ///      "examples": [
+    ///        "1.50"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 32,
+    ///      "minLength": 1
+    ///    },
+    ///    "network": {
+    ///      "description": "The EVM network to send USDC on.",
+    ///      "examples": [
+    ///        "base-sepolia"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base",
+    ///        "base-sepolia",
+    ///        "ethereum",
+    ///        "ethereum-sepolia",
+    ///        "avalanche",
+    ///        "polygon",
+    ///        "optimism",
+    ///        "arbitrum",
+    ///        "arbitrum-sepolia",
+    ///        "world",
+    ///        "world-sepolia"
+    ///      ]
+    ///    },
+    ///    "paymasterUrl": {
+    ///      "description": "Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.",
+    ///      "examples": [
+    ///        "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "to": {
+    ///      "$ref": "#/components/schemas/BlockchainAddress"
+    ///    },
+    ///    "useCdpPaymaster": {
+    ///      "description": "Whether to use CDP Paymaster to sponsor gas fees. Only applicable for EVM Smart Accounts. When true, the transaction gas will be paid by the Paymaster, allowing users to send USDC without holding native gas tokens. Ignored for EOA accounts. Cannot be used together with `paymasterUrl`.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendEvmAssetWithEndUserAccountBody {
+        ///The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+        pub amount: SendEvmAssetWithEndUserAccountBodyAmount,
+        ///The EVM network to send USDC on.
+        pub network: SendEvmAssetWithEndUserAccountBodyNetwork,
+        ///Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<Url>,
+        pub to: BlockchainAddress,
+        ///Whether to use CDP Paymaster to sponsor gas fees. Only applicable for EVM Smart Accounts. When true, the transaction gas will be paid by the Paymaster, allowing users to send USDC without holding native gas tokens. Ignored for EOA accounts. Cannot be used together with `paymasterUrl`.
+        #[serde(
+            rename = "useCdpPaymaster",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub use_cdp_paymaster: ::std::option::Option<bool>,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SendEvmAssetWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountBody>
+        for SendEvmAssetWithEndUserAccountBody
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SendEvmAssetWithEndUserAccountBody {
+        pub fn builder() -> builder::SendEvmAssetWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The amount of USDC to send as a decimal string (e.g., \"1.5\" or \"25.50\").",
+    ///  "examples": [
+    ///    "1.50"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 32,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmAssetWithEndUserAccountBodyAmount(::std::string::String);
+    impl ::std::ops::Deref for SendEvmAssetWithEndUserAccountBodyAmount {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmAssetWithEndUserAccountBodyAmount> for ::std::string::String {
+        fn from(value: SendEvmAssetWithEndUserAccountBodyAmount) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountBodyAmount>
+        for SendEvmAssetWithEndUserAccountBodyAmount
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountBodyAmount) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmAssetWithEndUserAccountBodyAmount {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 32usize {
+                return Err("longer than 32 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmAssetWithEndUserAccountBodyAmount {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SendEvmAssetWithEndUserAccountBodyAmount {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendEvmAssetWithEndUserAccountBodyAmount {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmAssetWithEndUserAccountBodyAmount {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The EVM network to send USDC on.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The EVM network to send USDC on.",
+    ///  "examples": [
+    ///    "base-sepolia"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base",
+    ///    "base-sepolia",
+    ///    "ethereum",
+    ///    "ethereum-sepolia",
+    ///    "avalanche",
+    ///    "polygon",
+    ///    "optimism",
+    ///    "arbitrum",
+    ///    "arbitrum-sepolia",
+    ///    "world",
+    ///    "world-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SendEvmAssetWithEndUserAccountBodyNetwork {
+        #[serde(rename = "base")]
+        Base,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+        #[serde(rename = "ethereum")]
+        Ethereum,
+        #[serde(rename = "ethereum-sepolia")]
+        EthereumSepolia,
+        #[serde(rename = "avalanche")]
+        Avalanche,
+        #[serde(rename = "polygon")]
+        Polygon,
+        #[serde(rename = "optimism")]
+        Optimism,
+        #[serde(rename = "arbitrum")]
+        Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
+    }
+    impl ::std::convert::From<&Self> for SendEvmAssetWithEndUserAccountBodyNetwork {
+        fn from(value: &SendEvmAssetWithEndUserAccountBodyNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SendEvmAssetWithEndUserAccountBodyNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Base => f.write_str("base"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+                Self::Ethereum => f.write_str("ethereum"),
+                Self::EthereumSepolia => f.write_str("ethereum-sepolia"),
+                Self::Avalanche => f.write_str("avalanche"),
+                Self::Polygon => f.write_str("polygon"),
+                Self::Optimism => f.write_str("optimism"),
+                Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SendEvmAssetWithEndUserAccountBodyNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base" => Ok(Self::Base),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                "ethereum" => Ok(Self::Ethereum),
+                "ethereum-sepolia" => Ok(Self::EthereumSepolia),
+                "avalanche" => Ok(Self::Avalanche),
+                "polygon" => Ok(Self::Polygon),
+                "optimism" => Ok(Self::Optimism),
+                "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmAssetWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SendEvmAssetWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendEvmAssetWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmAssetWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SendEvmAssetWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmAssetWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SendEvmAssetWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountBodyWalletSecretId>
+        for SendEvmAssetWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmAssetWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmAssetWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmAssetWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmAssetWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmAssetWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendEvmAssetWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmAssetWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SendEvmAssetWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmAssetWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SendEvmAssetWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountProjectId>
+        for SendEvmAssetWithEndUserAccountProjectId
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmAssetWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmAssetWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SendEvmAssetWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendEvmAssetWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmAssetWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendEvmAssetWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "transactionHash": {
+    ///      "description": "The hash of the transaction, as a 0x-prefixed hex string. Populated for EOA accounts. Null for Smart Accounts (use userOpHash instead).",
+    ///      "examples": [
+    ///        "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7"
+    ///      ],
+    ///      "type": [
+    ///        "string",
+    ///        "null"
+    ///      ]
+    ///    },
+    ///    "userOpHash": {
+    ///      "description": "The hash of the user operation, as a 0x-prefixed hex string. Populated for Smart Accounts. Null for EOA accounts (use transactionHash instead).",
+    ///      "examples": [
+    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///      ],
+    ///      "type": [
+    ///        "string",
+    ///        "null"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendEvmAssetWithEndUserAccountResponse {
+        ///The hash of the transaction, as a 0x-prefixed hex string. Populated for EOA accounts. Null for Smart Accounts (use userOpHash instead).
+        #[serde(
+            rename = "transactionHash",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub transaction_hash: ::std::option::Option<::std::string::String>,
+        ///The hash of the user operation, as a 0x-prefixed hex string. Populated for Smart Accounts. Null for EOA accounts (use transactionHash instead).
+        #[serde(
+            rename = "userOpHash",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub user_op_hash: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountResponse>
+        for SendEvmAssetWithEndUserAccountResponse
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for SendEvmAssetWithEndUserAccountResponse {
+        fn default() -> Self {
+            Self {
+                transaction_hash: Default::default(),
+                user_op_hash: Default::default(),
+            }
+        }
+    }
+    impl SendEvmAssetWithEndUserAccountResponse {
+        pub fn builder() -> builder::SendEvmAssetWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SendEvmAssetWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmAssetWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SendEvmAssetWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmAssetWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SendEvmAssetWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountUserId>
+        for SendEvmAssetWithEndUserAccountUserId
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmAssetWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmAssetWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SendEvmAssetWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendEvmAssetWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmAssetWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendEvmAssetWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmAssetWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SendEvmAssetWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmAssetWithEndUserAccountXIdempotencyKey> for ::std::string::String {
+        fn from(value: SendEvmAssetWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmAssetWithEndUserAccountXIdempotencyKey>
+        for SendEvmAssetWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SendEvmAssetWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmAssetWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmAssetWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmAssetWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmAssetWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmAssetWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SendEvmTransactionAddress`
     ///
     /// <details><summary>JSON schema</summary>
@@ -28286,7 +30378,10 @@ pub mod types {
     ///        "avalanche",
     ///        "polygon",
     ///        "optimism",
-    ///        "arbitrum"
+    ///        "arbitrum",
+    ///        "arbitrum-sepolia",
+    ///        "world",
+    ///        "world-sepolia"
     ///      ]
     ///    },
     ///    "transaction": {
@@ -28336,7 +30431,10 @@ pub mod types {
     ///    "avalanche",
     ///    "polygon",
     ///    "optimism",
-    ///    "arbitrum"
+    ///    "arbitrum",
+    ///    "arbitrum-sepolia",
+    ///    "world",
+    ///    "world-sepolia"
     ///  ]
     ///}
     /// ```
@@ -28370,6 +30468,12 @@ pub mod types {
         Optimism,
         #[serde(rename = "arbitrum")]
         Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
     }
     impl ::std::convert::From<&Self> for SendEvmTransactionBodyNetwork {
         fn from(value: &SendEvmTransactionBodyNetwork) -> Self {
@@ -28387,6 +30491,9 @@ pub mod types {
                 Self::Polygon => f.write_str("polygon"),
                 Self::Optimism => f.write_str("optimism"),
                 Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
             }
         }
     }
@@ -28402,6 +30509,9 @@ pub mod types {
                 "polygon" => Ok(Self::Polygon),
                 "optimism" => Ok(Self::Optimism),
                 "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
                 _ => Err("invalid value".into()),
             }
         }
@@ -28821,6 +30931,704 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///`SendEvmTransactionWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "network",
+    ///    "transaction"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "network": {
+    ///      "description": "The network to send the transaction to.",
+    ///      "examples": [
+    ///        "base-sepolia"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base",
+    ///        "base-sepolia",
+    ///        "ethereum",
+    ///        "ethereum-sepolia",
+    ///        "avalanche",
+    ///        "polygon",
+    ///        "optimism",
+    ///        "arbitrum",
+    ///        "arbitrum-sepolia",
+    ///        "world",
+    ///        "world-sepolia"
+    ///      ]
+    ///    },
+    ///    "transaction": {
+    ///      "description": "The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0xf86b098505d21dba00830334509431415daf58e2c6b7323b4c58712fd92952145da79018080"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendEvmTransactionWithEndUserAccountBody {
+        ///The 0x-prefixed address of the EVM account belonging to the end user.
+        pub address: SendEvmTransactionWithEndUserAccountBodyAddress,
+        ///The network to send the transaction to.
+        pub network: SendEvmTransactionWithEndUserAccountBodyNetwork,
+        ///The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.
+        pub transaction: ::std::string::String,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SendEvmTransactionWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountBody>
+        for SendEvmTransactionWithEndUserAccountBody
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SendEvmTransactionWithEndUserAccountBody {
+        pub fn builder() -> builder::SendEvmTransactionWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed address of the EVM account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmTransactionWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SendEvmTransactionWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmTransactionWithEndUserAccountBodyAddress>
+        for ::std::string::String
+    {
+        fn from(value: SendEvmTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountBodyAddress>
+        for SendEvmTransactionWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmTransactionWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmTransactionWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmTransactionWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The network to send the transaction to.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The network to send the transaction to.",
+    ///  "examples": [
+    ///    "base-sepolia"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base",
+    ///    "base-sepolia",
+    ///    "ethereum",
+    ///    "ethereum-sepolia",
+    ///    "avalanche",
+    ///    "polygon",
+    ///    "optimism",
+    ///    "arbitrum",
+    ///    "arbitrum-sepolia",
+    ///    "world",
+    ///    "world-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SendEvmTransactionWithEndUserAccountBodyNetwork {
+        #[serde(rename = "base")]
+        Base,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+        #[serde(rename = "ethereum")]
+        Ethereum,
+        #[serde(rename = "ethereum-sepolia")]
+        EthereumSepolia,
+        #[serde(rename = "avalanche")]
+        Avalanche,
+        #[serde(rename = "polygon")]
+        Polygon,
+        #[serde(rename = "optimism")]
+        Optimism,
+        #[serde(rename = "arbitrum")]
+        Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
+    }
+    impl ::std::convert::From<&Self> for SendEvmTransactionWithEndUserAccountBodyNetwork {
+        fn from(value: &SendEvmTransactionWithEndUserAccountBodyNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SendEvmTransactionWithEndUserAccountBodyNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Base => f.write_str("base"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+                Self::Ethereum => f.write_str("ethereum"),
+                Self::EthereumSepolia => f.write_str("ethereum-sepolia"),
+                Self::Avalanche => f.write_str("avalanche"),
+                Self::Polygon => f.write_str("polygon"),
+                Self::Optimism => f.write_str("optimism"),
+                Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SendEvmTransactionWithEndUserAccountBodyNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base" => Ok(Self::Base),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                "ethereum" => Ok(Self::Ethereum),
+                "ethereum-sepolia" => Ok(Self::EthereumSepolia),
+                "avalanche" => Ok(Self::Avalanche),
+                "polygon" => Ok(Self::Polygon),
+                "optimism" => Ok(Self::Optimism),
+                "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmTransactionWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmTransactionWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmTransactionWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmTransactionWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SendEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmTransactionWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SendEvmTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountBodyWalletSecretId>
+        for SendEvmTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendEvmTransactionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmTransactionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SendEvmTransactionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmTransactionWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SendEvmTransactionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountProjectId>
+        for SendEvmTransactionWithEndUserAccountProjectId
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmTransactionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmTransactionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmTransactionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendEvmTransactionWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transactionHash"
+    ///  ],
+    ///  "properties": {
+    ///    "transactionHash": {
+    ///      "description": "The hash of the transaction, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendEvmTransactionWithEndUserAccountResponse {
+        ///The hash of the transaction, as a 0x-prefixed hex string.
+        #[serde(rename = "transactionHash")]
+        pub transaction_hash: ::std::string::String,
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountResponse>
+        for SendEvmTransactionWithEndUserAccountResponse
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SendEvmTransactionWithEndUserAccountResponse {
+        pub fn builder() -> builder::SendEvmTransactionWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SendEvmTransactionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmTransactionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SendEvmTransactionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmTransactionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SendEvmTransactionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountUserId>
+        for SendEvmTransactionWithEndUserAccountUserId
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmTransactionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmTransactionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmTransactionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendEvmTransactionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmTransactionWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendEvmTransactionWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendEvmTransactionWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SendEvmTransactionWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendEvmTransactionWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SendEvmTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendEvmTransactionWithEndUserAccountXIdempotencyKey>
+        for SendEvmTransactionWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SendEvmTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendEvmTransactionWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendEvmTransactionWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendEvmTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendEvmTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendEvmTransactionWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`SendEvmTransactionXIdempotencyKey`
@@ -29295,6 +32103,665 @@ pub mod types {
             value.parse()
         }
     }
+    ///`SendSolanaAssetWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "amount",
+    ///    "network",
+    ///    "to"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "description": "The amount of USDC to send as a decimal string (e.g., \"1.5\" or \"25.50\").",
+    ///      "examples": [
+    ///        "1.50"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 32,
+    ///      "minLength": 1
+    ///    },
+    ///    "createRecipientAta": {
+    ///      "description": "Whether to automatically create an Associated Token Account (ATA) for the recipient if it doesn't exist. When true, the sender pays the rent-exempt minimum to create the recipient's USDC ATA. When false, the transaction will fail if the recipient doesn't have a USDC ATA.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "network": {
+    ///      "description": "The Solana network to send USDC on.",
+    ///      "examples": [
+    ///        "solana-devnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solana",
+    ///        "solana-devnet"
+    ///      ]
+    ///    },
+    ///    "to": {
+    ///      "$ref": "#/components/schemas/BlockchainAddress"
+    ///    },
+    ///    "useCdpSponsor": {
+    ///      "description": "Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendSolanaAssetWithEndUserAccountBody {
+        ///The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+        pub amount: SendSolanaAssetWithEndUserAccountBodyAmount,
+        ///Whether to automatically create an Associated Token Account (ATA) for the recipient if it doesn't exist. When true, the sender pays the rent-exempt minimum to create the recipient's USDC ATA. When false, the transaction will fail if the recipient doesn't have a USDC ATA.
+        #[serde(
+            rename = "createRecipientAta",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub create_recipient_ata: ::std::option::Option<bool>,
+        ///The Solana network to send USDC on.
+        pub network: SendSolanaAssetWithEndUserAccountBodyNetwork,
+        pub to: BlockchainAddress,
+        ///Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+        #[serde(
+            rename = "useCdpSponsor",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub use_cdp_sponsor: ::std::option::Option<bool>,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SendSolanaAssetWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountBody>
+        for SendSolanaAssetWithEndUserAccountBody
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SendSolanaAssetWithEndUserAccountBody {
+        pub fn builder() -> builder::SendSolanaAssetWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The amount of USDC to send as a decimal string (e.g., "1.5" or "25.50").
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The amount of USDC to send as a decimal string (e.g., \"1.5\" or \"25.50\").",
+    ///  "examples": [
+    ///    "1.50"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 32,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaAssetWithEndUserAccountBodyAmount(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaAssetWithEndUserAccountBodyAmount {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaAssetWithEndUserAccountBodyAmount> for ::std::string::String {
+        fn from(value: SendSolanaAssetWithEndUserAccountBodyAmount) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountBodyAmount>
+        for SendSolanaAssetWithEndUserAccountBodyAmount
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountBodyAmount) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaAssetWithEndUserAccountBodyAmount {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 32usize {
+                return Err("longer than 32 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaAssetWithEndUserAccountBodyAmount {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaAssetWithEndUserAccountBodyAmount
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaAssetWithEndUserAccountBodyAmount
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaAssetWithEndUserAccountBodyAmount {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The Solana network to send USDC on.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Solana network to send USDC on.",
+    ///  "examples": [
+    ///    "solana-devnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solana",
+    ///    "solana-devnet"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SendSolanaAssetWithEndUserAccountBodyNetwork {
+        #[serde(rename = "solana")]
+        Solana,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+    }
+    impl ::std::convert::From<&Self> for SendSolanaAssetWithEndUserAccountBodyNetwork {
+        fn from(value: &SendSolanaAssetWithEndUserAccountBodyNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SendSolanaAssetWithEndUserAccountBodyNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Solana => f.write_str("solana"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaAssetWithEndUserAccountBodyNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solana" => Ok(Self::Solana),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaAssetWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaAssetWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaAssetWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaAssetWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaAssetWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaAssetWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SendSolanaAssetWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountBodyWalletSecretId>
+        for SendSolanaAssetWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaAssetWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaAssetWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaAssetWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaAssetWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaAssetWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendSolanaAssetWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaAssetWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaAssetWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaAssetWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SendSolanaAssetWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountProjectId>
+        for SendSolanaAssetWithEndUserAccountProjectId
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaAssetWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaAssetWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaAssetWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendSolanaAssetWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaAssetWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendSolanaAssetWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transactionSignature"
+    ///  ],
+    ///  "properties": {
+    ///    "transactionSignature": {
+    ///      "description": "The base58 encoded transaction signature.",
+    ///      "examples": [
+    ///        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendSolanaAssetWithEndUserAccountResponse {
+        ///The base58 encoded transaction signature.
+        #[serde(rename = "transactionSignature")]
+        pub transaction_signature: ::std::string::String,
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountResponse>
+        for SendSolanaAssetWithEndUserAccountResponse
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SendSolanaAssetWithEndUserAccountResponse {
+        pub fn builder() -> builder::SendSolanaAssetWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SendSolanaAssetWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaAssetWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaAssetWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaAssetWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SendSolanaAssetWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountUserId>
+        for SendSolanaAssetWithEndUserAccountUserId
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaAssetWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaAssetWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SendSolanaAssetWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendSolanaAssetWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaAssetWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendSolanaAssetWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaAssetWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaAssetWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaAssetWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SendSolanaAssetWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaAssetWithEndUserAccountXIdempotencyKey>
+        for SendSolanaAssetWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SendSolanaAssetWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaAssetWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaAssetWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaAssetWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaAssetWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaAssetWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SendSolanaTransactionBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -29324,6 +32791,13 @@ pub mod types {
     ///        "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
     ///      ],
     ///      "type": "string"
+    ///    },
+    ///    "useCdpSponsor": {
+    ///      "description": "Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
     ///    }
     ///  }
     ///}
@@ -29335,6 +32809,13 @@ pub mod types {
         pub network: SendSolanaTransactionBodyNetwork,
         ///The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
         pub transaction: ::std::string::String,
+        ///Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.
+        #[serde(
+            rename = "useCdpSponsor",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub use_cdp_sponsor: ::std::option::Option<bool>,
     }
     impl ::std::convert::From<&SendSolanaTransactionBody> for SendSolanaTransactionBody {
         fn from(value: &SendSolanaTransactionBody) -> Self {
@@ -29463,6 +32944,668 @@ pub mod types {
     impl SendSolanaTransactionResponse {
         pub fn builder() -> builder::SendSolanaTransactionResponse {
             Default::default()
+        }
+    }
+    ///`SendSolanaTransactionWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "network",
+    ///    "transaction"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The base58 encoded address of the Solana account belonging to the end user.",
+    ///      "examples": [
+    ///        "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///    },
+    ///    "network": {
+    ///      "description": "The Solana network to send the transaction to.",
+    ///      "examples": [
+    ///        "solana-devnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solana",
+    ///        "solana-devnet"
+    ///      ]
+    ///    },
+    ///    "transaction": {
+    ///      "description": "The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.",
+    ///      "examples": [
+    ///        "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "useCdpSponsor": {
+    ///      "description": "Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendSolanaTransactionWithEndUserAccountBody {
+        ///The base58 encoded address of the Solana account belonging to the end user.
+        pub address: SendSolanaTransactionWithEndUserAccountBodyAddress,
+        ///The Solana network to send the transaction to.
+        pub network: SendSolanaTransactionWithEndUserAccountBodyNetwork,
+        ///The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
+        pub transaction: ::std::string::String,
+        ///Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+        #[serde(
+            rename = "useCdpSponsor",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub use_cdp_sponsor: ::std::option::Option<bool>,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SendSolanaTransactionWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountBody>
+        for SendSolanaTransactionWithEndUserAccountBody
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SendSolanaTransactionWithEndUserAccountBody {
+        pub fn builder() -> builder::SendSolanaTransactionWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The base58 encoded address of the Solana account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The base58 encoded address of the Solana account belonging to the end user.",
+    ///  "examples": [
+    ///    "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaTransactionWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaTransactionWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaTransactionWithEndUserAccountBodyAddress>
+        for ::std::string::String
+    {
+        fn from(value: SendSolanaTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountBodyAddress>
+        for SendSolanaTransactionWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaTransactionWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[1-9A-HJ-NP-Za-km-z]{32,44}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[1-9A-HJ-NP-Za-km-z]{32,44}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaTransactionWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaTransactionWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The Solana network to send the transaction to.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Solana network to send the transaction to.",
+    ///  "examples": [
+    ///    "solana-devnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solana",
+    ///    "solana-devnet"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SendSolanaTransactionWithEndUserAccountBodyNetwork {
+        #[serde(rename = "solana")]
+        Solana,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+    }
+    impl ::std::convert::From<&Self> for SendSolanaTransactionWithEndUserAccountBodyNetwork {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountBodyNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SendSolanaTransactionWithEndUserAccountBodyNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Solana => f.write_str("solana"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaTransactionWithEndUserAccountBodyNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solana" => Ok(Self::Solana),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaTransactionWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaTransactionWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaTransactionWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SendSolanaTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountBodyWalletSecretId>
+        for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendSolanaTransactionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaTransactionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaTransactionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaTransactionWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: SendSolanaTransactionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountProjectId>
+        for SendSolanaTransactionWithEndUserAccountProjectId
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaTransactionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaTransactionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaTransactionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendSolanaTransactionWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transactionSignature"
+    ///  ],
+    ///  "properties": {
+    ///    "transactionSignature": {
+    ///      "description": "The base58 encoded transaction signature.",
+    ///      "examples": [
+    ///        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendSolanaTransactionWithEndUserAccountResponse {
+        ///The base58 encoded transaction signature.
+        #[serde(rename = "transactionSignature")]
+        pub transaction_signature: ::std::string::String,
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountResponse>
+        for SendSolanaTransactionWithEndUserAccountResponse
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SendSolanaTransactionWithEndUserAccountResponse {
+        pub fn builder() -> builder::SendSolanaTransactionWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SendSolanaTransactionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaTransactionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaTransactionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaTransactionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SendSolanaTransactionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountUserId>
+        for SendSolanaTransactionWithEndUserAccountUserId
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaTransactionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaTransactionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaTransactionWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendSolanaTransactionWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendSolanaTransactionWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SendSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendSolanaTransactionWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SendSolanaTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendSolanaTransactionWithEndUserAccountXIdempotencyKey>
+        for SendSolanaTransactionWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SendSolanaTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendSolanaTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`SendSolanaTransactionXIdempotencyKey`
@@ -30080,6 +34223,626 @@ pub mod types {
                 })
         }
     }
+    ///`SendUserOperationWithEndUserAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendUserOperationWithEndUserAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for SendUserOperationWithEndUserAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendUserOperationWithEndUserAccountAddress> for ::std::string::String {
+        fn from(value: SendUserOperationWithEndUserAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountAddress>
+        for SendUserOperationWithEndUserAccountAddress
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendUserOperationWithEndUserAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendUserOperationWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendUserOperationWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendUserOperationWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendUserOperationWithEndUserAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendUserOperationWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "calls",
+    ///    "network",
+    ///    "useCdpPaymaster"
+    ///  ],
+    ///  "properties": {
+    ///    "calls": {
+    ///      "description": "The list of calls to make from the Smart Account.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EvmCall"
+    ///      }
+    ///    },
+    ///    "dataSuffix": {
+    ///      "description": "The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.",
+    ///      "examples": [
+    ///        "0xdddddddd62617365617070070080218021802180218021802180218021"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]+$"
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/EvmUserOperationNetwork"
+    ///    },
+    ///    "paymasterUrl": {
+    ///      "description": "The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option.",
+    ///      "examples": [
+    ///        "https://api.developer.coinbase.com/rpc/v1/base/<token>"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "useCdpPaymaster": {
+    ///      "description": "Whether to use the CDP Paymaster for the user operation.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SendUserOperationWithEndUserAccountBody {
+        ///The list of calls to make from the Smart Account.
+        pub calls: ::std::vec::Vec<EvmCall>,
+        ///The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+        #[serde(
+            rename = "dataSuffix",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub data_suffix: ::std::option::Option<SendUserOperationWithEndUserAccountBodyDataSuffix>,
+        pub network: EvmUserOperationNetwork,
+        ///The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option.
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<Url>,
+        ///Whether to use the CDP Paymaster for the user operation.
+        #[serde(rename = "useCdpPaymaster")]
+        pub use_cdp_paymaster: bool,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SendUserOperationWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountBody>
+        for SendUserOperationWithEndUserAccountBody
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SendUserOperationWithEndUserAccountBody {
+        pub fn builder() -> builder::SendUserOperationWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.",
+    ///  "examples": [
+    ///    "0xdddddddd62617365617070070080218021802180218021802180218021"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]+$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendUserOperationWithEndUserAccountBodyDataSuffix(::std::string::String);
+    impl ::std::ops::Deref for SendUserOperationWithEndUserAccountBodyDataSuffix {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendUserOperationWithEndUserAccountBodyDataSuffix>
+        for ::std::string::String
+    {
+        fn from(value: SendUserOperationWithEndUserAccountBodyDataSuffix) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountBodyDataSuffix>
+        for SendUserOperationWithEndUserAccountBodyDataSuffix
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountBodyDataSuffix) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendUserOperationWithEndUserAccountBodyDataSuffix {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^0x[0-9a-fA-F]+$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]+$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendUserOperationWithEndUserAccountBodyDataSuffix {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendUserOperationWithEndUserAccountBodyDataSuffix
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendUserOperationWithEndUserAccountBodyDataSuffix
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendUserOperationWithEndUserAccountBodyDataSuffix {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendUserOperationWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SendUserOperationWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendUserOperationWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SendUserOperationWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountBodyWalletSecretId>
+        for SendUserOperationWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendUserOperationWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendUserOperationWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendUserOperationWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendUserOperationWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendUserOperationWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendUserOperationWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendUserOperationWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SendUserOperationWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendUserOperationWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SendUserOperationWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountProjectId>
+        for SendUserOperationWithEndUserAccountProjectId
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendUserOperationWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendUserOperationWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendUserOperationWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendUserOperationWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendUserOperationWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendUserOperationWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendUserOperationWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SendUserOperationWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendUserOperationWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SendUserOperationWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountUserId>
+        for SendUserOperationWithEndUserAccountUserId
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendUserOperationWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendUserOperationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SendUserOperationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SendUserOperationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendUserOperationWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SendUserOperationWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SendUserOperationWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SendUserOperationWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SendUserOperationWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SendUserOperationWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SendUserOperationWithEndUserAccountXIdempotencyKey>
+        for SendUserOperationWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SendUserOperationWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SendUserOperationWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SendUserOperationWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SendUserOperationWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SendUserOperationWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SendUserOperationWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SettleX402PaymentBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -30139,6 +34902,13 @@ pub mod types {
     ///    "transaction"
     ///  ],
     ///  "properties": {
+    ///    "amount": {
+    ///      "description": "The amount that was settled, in atomic units.",
+    ///      "examples": [
+    ///        "1000000"
+    ///      ],
+    ///      "type": "string"
+    ///    },
     ///    "errorMessage": {
     ///      "description": "The message describing the error reason.",
     ///      "examples": [
@@ -30185,6 +34955,9 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct SettleX402PaymentResponse {
+        ///The amount that was settled, in atomic units.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub amount: ::std::option::Option<::std::string::String>,
         ///The message describing the error reason.
         #[serde(
             rename = "errorMessage",
@@ -30399,6 +35172,218 @@ pub mod types {
                 .map_err(|e: self::error::ConversionError| {
                     <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
+        }
+    }
+    ///`SignEndUserEvmHashRule`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "SignEndUserEvmHashRule",
+    ///  "required": [
+    ///    "action",
+    ///    "operation"
+    ///  ],
+    ///  "properties": {
+    ///    "action": {
+    ///      "description": "Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.",
+    ///      "examples": [
+    ///        "accept"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "reject",
+    ///        "accept"
+    ///      ]
+    ///    },
+    ///    "operation": {
+    ///      "description": "The operation to which the rule applies.",
+    ///      "examples": [
+    ///        "signEndUserEvmHash"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "signEndUserEvmHash"
+    ///      ]
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEndUserEvmHashRule {
+        ///Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
+        pub action: SignEndUserEvmHashRuleAction,
+        ///The operation to which the rule applies.
+        pub operation: SignEndUserEvmHashRuleOperation,
+    }
+    impl ::std::convert::From<&SignEndUserEvmHashRule> for SignEndUserEvmHashRule {
+        fn from(value: &SignEndUserEvmHashRule) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEndUserEvmHashRule {
+        pub fn builder() -> builder::SignEndUserEvmHashRule {
+            Default::default()
+        }
+    }
+    ///Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.",
+    ///  "examples": [
+    ///    "accept"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "reject",
+    ///    "accept"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignEndUserEvmHashRuleAction {
+        #[serde(rename = "reject")]
+        Reject,
+        #[serde(rename = "accept")]
+        Accept,
+    }
+    impl ::std::convert::From<&Self> for SignEndUserEvmHashRuleAction {
+        fn from(value: &SignEndUserEvmHashRuleAction) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignEndUserEvmHashRuleAction {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Reject => f.write_str("reject"),
+                Self::Accept => f.write_str("accept"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignEndUserEvmHashRuleAction {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "reject" => Ok(Self::Reject),
+                "accept" => Ok(Self::Accept),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEndUserEvmHashRuleAction {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignEndUserEvmHashRuleAction {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignEndUserEvmHashRuleAction {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The operation to which the rule applies.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The operation to which the rule applies.",
+    ///  "examples": [
+    ///    "signEndUserEvmHash"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "signEndUserEvmHash"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignEndUserEvmHashRuleOperation {
+        #[serde(rename = "signEndUserEvmHash")]
+        SignEndUserEvmHash,
+    }
+    impl ::std::convert::From<&Self> for SignEndUserEvmHashRuleOperation {
+        fn from(value: &SignEndUserEvmHashRuleOperation) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignEndUserEvmHashRuleOperation {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::SignEndUserEvmHash => f.write_str("signEndUserEvmHash"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignEndUserEvmHashRuleOperation {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "signEndUserEvmHash" => Ok(Self::SignEndUserEvmHash),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEndUserEvmHashRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignEndUserEvmHashRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignEndUserEvmHashRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///A schema for specifying criteria for the signEndUserEvmMessage operation.
@@ -32969,6 +37954,542 @@ pub mod types {
             value.parse()
         }
     }
+    ///`SignEvmMessageWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "message"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "message": {
+    ///      "description": "The message to sign.",
+    ///      "examples": [
+    ///        "Hello, world!"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEvmMessageWithEndUserAccountBody {
+        ///The 0x-prefixed address of the EVM account belonging to the end user.
+        pub address: SignEvmMessageWithEndUserAccountBodyAddress,
+        ///The message to sign.
+        pub message: ::std::string::String,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SignEvmMessageWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountBody>
+        for SignEvmMessageWithEndUserAccountBody
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEvmMessageWithEndUserAccountBody {
+        pub fn builder() -> builder::SignEvmMessageWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed address of the EVM account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmMessageWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SignEvmMessageWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmMessageWithEndUserAccountBodyAddress> for ::std::string::String {
+        fn from(value: SignEvmMessageWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountBodyAddress>
+        for SignEvmMessageWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmMessageWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmMessageWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmMessageWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmMessageWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmMessageWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmMessageWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmMessageWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmMessageWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmMessageWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountBodyWalletSecretId>
+        for SignEvmMessageWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmMessageWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmMessageWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmMessageWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmMessageWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmMessageWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmMessageWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmMessageWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmMessageWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmMessageWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SignEvmMessageWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountProjectId>
+        for SignEvmMessageWithEndUserAccountProjectId
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmMessageWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmMessageWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignEvmMessageWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignEvmMessageWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmMessageWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmMessageWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "signature"
+    ///  ],
+    ///  "properties": {
+    ///    "signature": {
+    ///      "description": "The signature of the message, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEvmMessageWithEndUserAccountResponse {
+        ///The signature of the message, as a 0x-prefixed hex string.
+        pub signature: ::std::string::String,
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountResponse>
+        for SignEvmMessageWithEndUserAccountResponse
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEvmMessageWithEndUserAccountResponse {
+        pub fn builder() -> builder::SignEvmMessageWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SignEvmMessageWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmMessageWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmMessageWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmMessageWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SignEvmMessageWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountUserId>
+        for SignEvmMessageWithEndUserAccountUserId
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmMessageWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmMessageWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignEvmMessageWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignEvmMessageWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmMessageWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmMessageWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmMessageWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SignEvmMessageWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmMessageWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmMessageWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmMessageWithEndUserAccountXIdempotencyKey>
+        for SignEvmMessageWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SignEvmMessageWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmMessageWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmMessageWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmMessageWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmMessageWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmMessageWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SignEvmMessageXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
@@ -33539,6 +39060,551 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///`SignEvmTransactionWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "transaction"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "transaction": {
+    ///      "description": "The RLP-encoded transaction to sign, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0xf86b098505d21dba00830334509431415daf58e2c6b7323b4c58712fd92952145da79018080"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEvmTransactionWithEndUserAccountBody {
+        ///The 0x-prefixed address of the EVM account belonging to the end user.
+        pub address: SignEvmTransactionWithEndUserAccountBodyAddress,
+        ///The RLP-encoded transaction to sign, as a 0x-prefixed hex string.
+        pub transaction: ::std::string::String,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SignEvmTransactionWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountBody>
+        for SignEvmTransactionWithEndUserAccountBody
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEvmTransactionWithEndUserAccountBody {
+        pub fn builder() -> builder::SignEvmTransactionWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed address of the EVM account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTransactionWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTransactionWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTransactionWithEndUserAccountBodyAddress>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountBodyAddress>
+        for SignEvmTransactionWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTransactionWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTransactionWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTransactionWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTransactionWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTransactionWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountBodyWalletSecretId>
+        for SignEvmTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTransactionWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmTransactionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTransactionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTransactionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTransactionWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SignEvmTransactionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountProjectId>
+        for SignEvmTransactionWithEndUserAccountProjectId
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTransactionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTransactionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTransactionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmTransactionWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "signedTransaction"
+    ///  ],
+    ///  "properties": {
+    ///    "signedTransaction": {
+    ///      "description": "The RLP-encoded signed transaction, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEvmTransactionWithEndUserAccountResponse {
+        ///The RLP-encoded signed transaction, as a 0x-prefixed hex string.
+        #[serde(rename = "signedTransaction")]
+        pub signed_transaction: ::std::string::String,
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountResponse>
+        for SignEvmTransactionWithEndUserAccountResponse
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEvmTransactionWithEndUserAccountResponse {
+        pub fn builder() -> builder::SignEvmTransactionWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SignEvmTransactionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTransactionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTransactionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTransactionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SignEvmTransactionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountUserId>
+        for SignEvmTransactionWithEndUserAccountUserId
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTransactionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTransactionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTransactionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignEvmTransactionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTransactionWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmTransactionWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTransactionWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTransactionWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTransactionWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTransactionWithEndUserAccountXIdempotencyKey>
+        for SignEvmTransactionWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SignEvmTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTransactionWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTransactionWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTransactionWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`SignEvmTransactionXIdempotencyKey`
@@ -34872,6 +40938,542 @@ pub mod types {
             value.parse()
         }
     }
+    ///`SignEvmTypedDataWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "typedData"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "typedData": {
+    ///      "$ref": "#/components/schemas/EIP712Message"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEvmTypedDataWithEndUserAccountBody {
+        ///The 0x-prefixed address of the EVM account belonging to the end user.
+        pub address: SignEvmTypedDataWithEndUserAccountBodyAddress,
+        #[serde(rename = "typedData")]
+        pub typed_data: Eip712Message,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SignEvmTypedDataWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountBody>
+        for SignEvmTypedDataWithEndUserAccountBody
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEvmTypedDataWithEndUserAccountBody {
+        pub fn builder() -> builder::SignEvmTypedDataWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed address of the EVM account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed address of the EVM account belonging to the end user.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTypedDataWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTypedDataWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTypedDataWithEndUserAccountBodyAddress> for ::std::string::String {
+        fn from(value: SignEvmTypedDataWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountBodyAddress>
+        for SignEvmTypedDataWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTypedDataWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTypedDataWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTypedDataWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTypedDataWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTypedDataWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmTypedDataWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountBodyWalletSecretId>
+        for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTypedDataWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmTypedDataWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTypedDataWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTypedDataWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTypedDataWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SignEvmTypedDataWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountProjectId>
+        for SignEvmTypedDataWithEndUserAccountProjectId
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTypedDataWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTypedDataWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTypedDataWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmTypedDataWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "signature"
+    ///  ],
+    ///  "properties": {
+    ///    "signature": {
+    ///      "description": "The signature of the typed data, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignEvmTypedDataWithEndUserAccountResponse {
+        ///The signature of the typed data, as a 0x-prefixed hex string.
+        pub signature: ::std::string::String,
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountResponse>
+        for SignEvmTypedDataWithEndUserAccountResponse
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SignEvmTypedDataWithEndUserAccountResponse {
+        pub fn builder() -> builder::SignEvmTypedDataWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SignEvmTypedDataWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTypedDataWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTypedDataWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTypedDataWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SignEvmTypedDataWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountUserId>
+        for SignEvmTypedDataWithEndUserAccountUserId
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTypedDataWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTypedDataWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignEvmTypedDataWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignEvmTypedDataWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTypedDataWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignEvmTypedDataWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignEvmTypedDataWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SignEvmTypedDataWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignEvmTypedDataWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SignEvmTypedDataWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignEvmTypedDataWithEndUserAccountXIdempotencyKey>
+        for SignEvmTypedDataWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SignEvmTypedDataWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignEvmTypedDataWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignEvmTypedDataWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignEvmTypedDataWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignEvmTypedDataWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SignEvmTypedDataXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
@@ -35743,6 +42345,548 @@ pub mod types {
             Default::default()
         }
     }
+    ///`SignSolanaMessageWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "message"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The base58 encoded address of the Solana account belonging to the end user.",
+    ///      "examples": [
+    ///        "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///    },
+    ///    "message": {
+    ///      "description": "The base64 encoded arbitrary message to sign.",
+    ///      "examples": [
+    ///        "SGVsbG8sIHdvcmxk"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignSolanaMessageWithEndUserAccountBody {
+        ///The base58 encoded address of the Solana account belonging to the end user.
+        pub address: SignSolanaMessageWithEndUserAccountBodyAddress,
+        ///The base64 encoded arbitrary message to sign.
+        pub message: ::std::string::String,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SignSolanaMessageWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountBody>
+        for SignSolanaMessageWithEndUserAccountBody
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SignSolanaMessageWithEndUserAccountBody {
+        pub fn builder() -> builder::SignSolanaMessageWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The base58 encoded address of the Solana account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The base58 encoded address of the Solana account belonging to the end user.",
+    ///  "examples": [
+    ///    "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaMessageWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaMessageWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaMessageWithEndUserAccountBodyAddress>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaMessageWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountBodyAddress>
+        for SignSolanaMessageWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaMessageWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[1-9A-HJ-NP-Za-km-z]{32,44}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[1-9A-HJ-NP-Za-km-z]{32,44}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaMessageWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaMessageWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaMessageWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaMessageWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaMessageWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaMessageWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaMessageWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaMessageWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountBodyWalletSecretId>
+        for SignSolanaMessageWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaMessageWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaMessageWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaMessageWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaMessageWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaMessageWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignSolanaMessageWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaMessageWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaMessageWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaMessageWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: SignSolanaMessageWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountProjectId>
+        for SignSolanaMessageWithEndUserAccountProjectId
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaMessageWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaMessageWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaMessageWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaMessageWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaMessageWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignSolanaMessageWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "signature"
+    ///  ],
+    ///  "properties": {
+    ///    "signature": {
+    ///      "description": "The signature of the message, as a base58 encoded string.",
+    ///      "examples": [
+    ///        "4YecmNqVT9QFqzuSvE9Zih3toZzNAijjXpj8xupgcC6E4VzwzFjuZBk5P99yz9JQaLRLm1K4L4FpMjxByFxQBe2h"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignSolanaMessageWithEndUserAccountResponse {
+        ///The signature of the message, as a base58 encoded string.
+        pub signature: ::std::string::String,
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountResponse>
+        for SignSolanaMessageWithEndUserAccountResponse
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SignSolanaMessageWithEndUserAccountResponse {
+        pub fn builder() -> builder::SignSolanaMessageWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SignSolanaMessageWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaMessageWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaMessageWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaMessageWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SignSolanaMessageWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountUserId>
+        for SignSolanaMessageWithEndUserAccountUserId
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaMessageWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaMessageWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignSolanaMessageWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignSolanaMessageWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaMessageWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignSolanaMessageWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaMessageWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaMessageWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaMessageWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaMessageWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaMessageWithEndUserAccountXIdempotencyKey>
+        for SignSolanaMessageWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SignSolanaMessageWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaMessageWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaMessageWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaMessageWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaMessageWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaMessageWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SignSolanaMessageXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
@@ -35972,6 +43116,555 @@ pub mod types {
             Default::default()
         }
     }
+    ///`SignSolanaTransactionWithEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "transaction"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The base58 encoded address of the Solana account belonging to the end user.",
+    ///      "examples": [
+    ///        "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///    },
+    ///    "transaction": {
+    ///      "description": "The base64 encoded transaction to sign.",
+    ///      "examples": [
+    ///        "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignSolanaTransactionWithEndUserAccountBody {
+        ///The base58 encoded address of the Solana account belonging to the end user.
+        pub address: SignSolanaTransactionWithEndUserAccountBodyAddress,
+        ///The base64 encoded transaction to sign.
+        pub transaction: ::std::string::String,
+        ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<SignSolanaTransactionWithEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountBody>
+        for SignSolanaTransactionWithEndUserAccountBody
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SignSolanaTransactionWithEndUserAccountBody {
+        pub fn builder() -> builder::SignSolanaTransactionWithEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The base58 encoded address of the Solana account belonging to the end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The base58 encoded address of the Solana account belonging to the end user.",
+    ///  "examples": [
+    ///    "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaTransactionWithEndUserAccountBodyAddress(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaTransactionWithEndUserAccountBodyAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaTransactionWithEndUserAccountBodyAddress>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountBodyAddress>
+        for SignSolanaTransactionWithEndUserAccountBodyAddress
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountBodyAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionWithEndUserAccountBodyAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[1-9A-HJ-NP-Za-km-z]{32,44}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[1-9A-HJ-NP-Za-km-z]{32,44}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionWithEndUserAccountBodyAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountBodyAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaTransactionWithEndUserAccountBodyAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaTransactionWithEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaTransactionWithEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountBodyWalletSecretId>
+        for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaTransactionWithEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignSolanaTransactionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaTransactionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaTransactionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaTransactionWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaTransactionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountProjectId>
+        for SignSolanaTransactionWithEndUserAccountProjectId
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaTransactionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignSolanaTransactionWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "signedTransaction"
+    ///  ],
+    ///  "properties": {
+    ///    "signedTransaction": {
+    ///      "description": "The base64 encoded signed transaction.",
+    ///      "examples": [
+    ///        "AQACAdSOvpk0UJXs/rQRXYKSI9hcR0bkGp24qGv6t0/M1XjcQpHf6AHwLcPjEtKQI7p/U0Zo98lnJ5/PZMfVq/0BAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignSolanaTransactionWithEndUserAccountResponse {
+        ///The base64 encoded signed transaction.
+        #[serde(rename = "signedTransaction")]
+        pub signed_transaction: ::std::string::String,
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountResponse>
+        for SignSolanaTransactionWithEndUserAccountResponse
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SignSolanaTransactionWithEndUserAccountResponse {
+        pub fn builder() -> builder::SignSolanaTransactionWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`SignSolanaTransactionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaTransactionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaTransactionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaTransactionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: SignSolanaTransactionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountUserId>
+        for SignSolanaTransactionWithEndUserAccountUserId
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaTransactionWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SignSolanaTransactionWithEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SignSolanaTransactionWithEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for SignSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolanaTransactionWithEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: SignSolanaTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolanaTransactionWithEndUserAccountXIdempotencyKey>
+        for SignSolanaTransactionWithEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SignSolanaTransactionWithEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SignSolanaTransactionXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
@@ -36130,6 +43823,139 @@ pub mod types {
                 .map_err(|e: self::error::ConversionError| {
                     <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
+        }
+    }
+    ///Information about an end user who authenticates using Sign In With Ethereum (EIP-4361).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "SiweAuthentication",
+    ///  "description": "Information about an end user who authenticates using Sign In With Ethereum (EIP-4361).",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The ERC-55 checksummed Ethereum address of the end user.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/BlockchainAddress"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "type": {
+    ///      "description": "The type of authentication information.",
+    ///      "examples": [
+    ///        "siwe"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "siwe"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SiweAuthentication {
+        ///The ERC-55 checksummed Ethereum address of the end user.
+        pub address: BlockchainAddress,
+        ///The type of authentication information.
+        #[serde(rename = "type")]
+        pub type_: SiweAuthenticationType,
+    }
+    impl ::std::convert::From<&SiweAuthentication> for SiweAuthentication {
+        fn from(value: &SiweAuthentication) -> Self {
+            value.clone()
+        }
+    }
+    impl SiweAuthentication {
+        pub fn builder() -> builder::SiweAuthentication {
+            Default::default()
+        }
+    }
+    ///The type of authentication information.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of authentication information.",
+    ///  "examples": [
+    ///    "siwe"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "siwe"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SiweAuthenticationType {
+        #[serde(rename = "siwe")]
+        Siwe,
+    }
+    impl ::std::convert::From<&Self> for SiweAuthenticationType {
+        fn from(value: &SiweAuthenticationType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SiweAuthenticationType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Siwe => f.write_str("siwe"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SiweAuthenticationType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "siwe" => Ok(Self::Siwe),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SiweAuthenticationType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SiweAuthenticationType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SiweAuthenticationType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
@@ -42907,6 +50733,379 @@ pub mod types {
                 })
         }
     }
+    ///Response containing a list of webhook event delivery attempts.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Response containing a list of webhook event delivery attempts.",
+    ///  "examples": [
+    ///    {
+    ///      "events": [
+    ///        {
+    ///          "createdAt": "2025-01-15T10:30:00Z",
+    ///          "eventId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    ///          "eventTypeName": "onchain.activity.detected",
+    ///          "response": {
+    ///            "body": "ok",
+    ///            "elapsedTimeMs": 142,
+    ///            "httpCode": 200
+    ///          },
+    ///          "retryCount": 0,
+    ///          "status": "succeeded",
+    ///          "succeededAt": "2025-01-15T10:30:02Z"
+    ///        }
+    ///      ]
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "events"
+    ///  ],
+    ///  "properties": {
+    ///    "events": {
+    ///      "description": "The list of webhook event delivery attempts.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/WebhookEventResponse"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WebhookEventListResponse {
+        ///The list of webhook event delivery attempts.
+        pub events: ::std::vec::Vec<WebhookEventResponse>,
+    }
+    impl ::std::convert::From<&WebhookEventListResponse> for WebhookEventListResponse {
+        fn from(value: &WebhookEventListResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl WebhookEventListResponse {
+        pub fn builder() -> builder::WebhookEventListResponse {
+            Default::default()
+        }
+    }
+    ///Details of a webhook event delivery attempt for a subscription.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Details of a webhook event delivery attempt for a subscription.",
+    ///  "examples": [
+    ///    {
+    ///      "createdAt": "2025-01-15T10:30:00Z",
+    ///      "eventId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    ///      "eventTypeName": "onchain.activity.detected",
+    ///      "response": {
+    ///        "body": "ok",
+    ///        "elapsedTimeMs": 142,
+    ///        "httpCode": 200
+    ///      },
+    ///      "retryCount": 0,
+    ///      "status": "succeeded",
+    ///      "succeededAt": "2025-01-15T10:30:02Z"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "createdAt",
+    ///    "eventId",
+    ///    "eventTypeName",
+    ///    "retryCount",
+    ///    "status"
+    ///  ],
+    ///  "properties": {
+    ///    "createdAt": {
+    ///      "description": "Timestamp when the event delivery attempt was created.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "eventId": {
+    ///      "description": "Unique identifier for the webhook event.",
+    ///      "examples": [
+    ///        "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "eventTypeName": {
+    ///      "description": "The type of event that was delivered (e.g., \"onchain.activity.detected\").",
+    ///      "examples": [
+    ///        "onchain.activity.detected"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "response": {
+    ///      "$ref": "#/components/schemas/WebhookEventResponseDetail"
+    ///    },
+    ///    "retryCount": {
+    ///      "description": "Number of delivery retry attempts so far.",
+    ///      "examples": [
+    ///        0
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "status": {
+    ///      "description": "Current delivery status of the event.",
+    ///      "examples": [
+    ///        "succeeded"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "pending",
+    ///        "processing",
+    ///        "succeeded",
+    ///        "failed",
+    ///        "retrying"
+    ///      ]
+    ///    },
+    ///    "succeededAt": {
+    ///      "description": "Timestamp when the event was successfully delivered. Only present if status is \"succeeded\".",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:02Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WebhookEventResponse {
+        ///Timestamp when the event delivery attempt was created.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///Unique identifier for the webhook event.
+        #[serde(rename = "eventId")]
+        pub event_id: ::std::string::String,
+        ///The type of event that was delivered (e.g., "onchain.activity.detected").
+        #[serde(rename = "eventTypeName")]
+        pub event_type_name: ::std::string::String,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub response: ::std::option::Option<WebhookEventResponseDetail>,
+        ///Number of delivery retry attempts so far.
+        #[serde(rename = "retryCount")]
+        pub retry_count: i64,
+        ///Current delivery status of the event.
+        pub status: WebhookEventResponseStatus,
+        ///Timestamp when the event was successfully delivered. Only present if status is "succeeded".
+        #[serde(
+            rename = "succeededAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub succeeded_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    }
+    impl ::std::convert::From<&WebhookEventResponse> for WebhookEventResponse {
+        fn from(value: &WebhookEventResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl WebhookEventResponse {
+        pub fn builder() -> builder::WebhookEventResponse {
+            Default::default()
+        }
+    }
+    ///Details of the HTTP response received from the webhook target.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Details of the HTTP response received from the webhook target.",
+    ///  "examples": [
+    ///    {
+    ///      "body": "ok",
+    ///      "elapsedTimeMs": 142,
+    ///      "httpCode": 200
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "body": {
+    ///      "description": "Response body returned by the webhook target.",
+    ///      "examples": [
+    ///        "ok"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "elapsedTimeMs": {
+    ///      "description": "Round-trip time of the webhook delivery in milliseconds.",
+    ///      "examples": [
+    ///        142
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "errorName": {
+    ///      "description": "Error name if the delivery failed (e.g., timeout, connection_refused).",
+    ///      "examples": [
+    ///        "timeout"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "httpCode": {
+    ///      "description": "HTTP status code returned by the webhook target.",
+    ///      "examples": [
+    ///        200
+    ///      ],
+    ///      "type": "integer"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WebhookEventResponseDetail {
+        ///Response body returned by the webhook target.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub body: ::std::option::Option<::std::string::String>,
+        ///Round-trip time of the webhook delivery in milliseconds.
+        #[serde(
+            rename = "elapsedTimeMs",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub elapsed_time_ms: ::std::option::Option<i64>,
+        ///Error name if the delivery failed (e.g., timeout, connection_refused).
+        #[serde(
+            rename = "errorName",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub error_name: ::std::option::Option<::std::string::String>,
+        ///HTTP status code returned by the webhook target.
+        #[serde(
+            rename = "httpCode",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub http_code: ::std::option::Option<i64>,
+    }
+    impl ::std::convert::From<&WebhookEventResponseDetail> for WebhookEventResponseDetail {
+        fn from(value: &WebhookEventResponseDetail) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for WebhookEventResponseDetail {
+        fn default() -> Self {
+            Self {
+                body: Default::default(),
+                elapsed_time_ms: Default::default(),
+                error_name: Default::default(),
+                http_code: Default::default(),
+            }
+        }
+    }
+    impl WebhookEventResponseDetail {
+        pub fn builder() -> builder::WebhookEventResponseDetail {
+            Default::default()
+        }
+    }
+    ///Current delivery status of the event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Current delivery status of the event.",
+    ///  "examples": [
+    ///    "succeeded"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "pending",
+    ///    "processing",
+    ///    "succeeded",
+    ///    "failed",
+    ///    "retrying"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WebhookEventResponseStatus {
+        #[serde(rename = "pending")]
+        Pending,
+        #[serde(rename = "processing")]
+        Processing,
+        #[serde(rename = "succeeded")]
+        Succeeded,
+        #[serde(rename = "failed")]
+        Failed,
+        #[serde(rename = "retrying")]
+        Retrying,
+    }
+    impl ::std::convert::From<&Self> for WebhookEventResponseStatus {
+        fn from(value: &WebhookEventResponseStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WebhookEventResponseStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Pending => f.write_str("pending"),
+                Self::Processing => f.write_str("processing"),
+                Self::Succeeded => f.write_str("succeeded"),
+                Self::Failed => f.write_str("failed"),
+                Self::Retrying => f.write_str("retrying"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WebhookEventResponseStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "pending" => Ok(Self::Pending),
+                "processing" => Ok(Self::Processing),
+                "succeeded" => Ok(Self::Succeeded),
+                "failed" => Ok(Self::Failed),
+                "retrying" => Ok(Self::Retrying),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WebhookEventResponseStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for WebhookEventResponseStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for WebhookEventResponseStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///`WebhookSubscriptionListResponse`
     ///
     /// <details><summary>JSON schema</summary>
@@ -42986,7 +51185,7 @@ pub mod types {
     ///      ]
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\",\n\"acceptance.payment_session.authorization_succeeded\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -43033,8 +51232,9 @@ pub mod types {
         ///Description of the webhook subscription.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub description: ::std::option::Option<Description>,
-        /**Types of events to subscribe to. Event types follow a three-part dot-separated format:
-        service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+        /**Types of events to subscribe to. Event types follow a dot-separated format:
+        service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
+        "acceptance.payment_session.authorization_succeeded").
         The subscription will only receive events matching these types AND the label filter(s).
         */
         #[serde(rename = "eventTypes")]
@@ -43097,7 +51297,8 @@ pub mod types {
     ///      "subscriptionId": "123e4567-e89b-12d3-a456-426614174000",
     ///      "target": {
     ///        "url": "https://api.example.com/webhooks"
-    ///      }
+    ///      },
+    ///      "updatedAt": "2025-11-13T11:30:00.000Z"
     ///    }
     ///  ],
     ///  "type": "object",
@@ -43130,7 +51331,7 @@ pub mod types {
     ///      ]
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\",\n\"acceptance.payment_session.authorization_succeeded\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -43207,6 +51408,14 @@ pub mod types {
     ///    },
     ///    "target": {
     ///      "$ref": "#/components/schemas/WebhookTarget"
+    ///    },
+    ///    "updatedAt": {
+    ///      "description": "When the subscription was last updated.",
+    ///      "examples": [
+    ///        "2025-01-16T14:00:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
     ///    }
     ///  }
     ///}
@@ -43220,8 +51429,9 @@ pub mod types {
         ///Description of the webhook subscription.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub description: ::std::option::Option<Description>,
-        /**Types of events to subscribe to. Event types follow a three-part dot-separated format:
-        service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+        /**Types of events to subscribe to. Event types follow a dot-separated format:
+        service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
+        "acceptance.payment_session.authorization_succeeded").
         */
         #[serde(rename = "eventTypes")]
         pub event_types: ::std::vec::Vec<::std::string::String>,
@@ -43244,6 +51454,13 @@ pub mod types {
         #[serde(rename = "subscriptionId")]
         pub subscription_id: ::uuid::Uuid,
         pub target: WebhookTarget,
+        ///When the subscription was last updated.
+        #[serde(
+            rename = "updatedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub updated_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
     }
     impl ::std::convert::From<&WebhookSubscriptionResponse> for WebhookSubscriptionResponse {
         fn from(value: &WebhookSubscriptionResponse) -> Self {
@@ -45249,10 +53466,10 @@ pub mod types {
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
-    ///      "$ref": "#/components/schemas/x402V1PaymentPayload"
+    ///      "$ref": "#/components/schemas/x402V2PaymentPayload"
     ///    },
     ///    {
-    ///      "$ref": "#/components/schemas/x402V2PaymentPayload"
+    ///      "$ref": "#/components/schemas/x402V1PaymentPayload"
     ///    }
     ///  ]
     ///}
@@ -45261,24 +53478,24 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     #[serde(untagged)]
     pub enum X402PaymentPayload {
-        #[serde(rename = "X402V1PaymentPayload")]
-        X402v1PaymentPayload(X402V1PaymentPayload),
         #[serde(rename = "X402V2PaymentPayload")]
         X402v2PaymentPayload(X402V2PaymentPayload),
+        #[serde(rename = "X402V1PaymentPayload")]
+        X402v1PaymentPayload(X402V1PaymentPayload),
     }
     impl ::std::convert::From<&Self> for X402PaymentPayload {
         fn from(value: &X402PaymentPayload) -> Self {
             value.clone()
         }
     }
-    impl ::std::convert::From<X402V1PaymentPayload> for X402PaymentPayload {
-        fn from(value: X402V1PaymentPayload) -> Self {
-            Self::X402v1PaymentPayload(value)
-        }
-    }
     impl ::std::convert::From<X402V2PaymentPayload> for X402PaymentPayload {
         fn from(value: X402V2PaymentPayload) -> Self {
             Self::X402v2PaymentPayload(value)
+        }
+    }
+    impl ::std::convert::From<X402V1PaymentPayload> for X402PaymentPayload {
+        fn from(value: X402V1PaymentPayload) -> Self {
+            Self::X402v1PaymentPayload(value)
         }
     }
     ///The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -45291,10 +53508,10 @@ pub mod types {
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
-    ///      "$ref": "#/components/schemas/x402V1PaymentRequirements"
+    ///      "$ref": "#/components/schemas/x402V2PaymentRequirements"
     ///    },
     ///    {
-    ///      "$ref": "#/components/schemas/x402V2PaymentRequirements"
+    ///      "$ref": "#/components/schemas/x402V1PaymentRequirements"
     ///    }
     ///  ]
     ///}
@@ -45303,24 +53520,24 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     #[serde(untagged)]
     pub enum X402PaymentRequirements {
-        #[serde(rename = "X402V1PaymentRequirements")]
-        X402v1PaymentRequirements(X402V1PaymentRequirements),
         #[serde(rename = "X402V2PaymentRequirements")]
         X402v2PaymentRequirements(X402V2PaymentRequirements),
+        #[serde(rename = "X402V1PaymentRequirements")]
+        X402v1PaymentRequirements(X402V1PaymentRequirements),
     }
     impl ::std::convert::From<&Self> for X402PaymentRequirements {
         fn from(value: &X402PaymentRequirements) -> Self {
             value.clone()
         }
     }
-    impl ::std::convert::From<X402V1PaymentRequirements> for X402PaymentRequirements {
-        fn from(value: X402V1PaymentRequirements) -> Self {
-            Self::X402v1PaymentRequirements(value)
-        }
-    }
     impl ::std::convert::From<X402V2PaymentRequirements> for X402PaymentRequirements {
         fn from(value: X402V2PaymentRequirements) -> Self {
             Self::X402v2PaymentRequirements(value)
+        }
+    }
+    impl ::std::convert::From<X402V1PaymentRequirements> for X402PaymentRequirements {
+        fn from(value: X402V1PaymentRequirements) -> Self {
+            Self::X402v1PaymentRequirements(value)
         }
     }
     ///Describes the resource being accessed in x402 protocol.
@@ -46268,7 +54485,8 @@ pub mod types {
     ///      ],
     ///      "type": "string",
     ///      "enum": [
-    ///        "exact"
+    ///        "exact",
+    ///        "upto"
     ///      ]
     ///    },
     ///    "x402Version": {
@@ -46441,7 +54659,8 @@ pub mod types {
     ///  ],
     ///  "type": "string",
     ///  "enum": [
-    ///    "exact"
+    ///    "exact",
+    ///    "upto"
     ///  ]
     ///}
     /// ```
@@ -46461,6 +54680,8 @@ pub mod types {
     pub enum X402SupportedPaymentKindScheme {
         #[serde(rename = "exact")]
         Exact,
+        #[serde(rename = "upto")]
+        Upto,
     }
     impl ::std::convert::From<&Self> for X402SupportedPaymentKindScheme {
         fn from(value: &X402SupportedPaymentKindScheme) -> Self {
@@ -46471,6 +54692,7 @@ pub mod types {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
                 Self::Exact => f.write_str("exact"),
+                Self::Upto => f.write_str("upto"),
             }
         }
     }
@@ -46479,6 +54701,7 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "exact" => Ok(Self::Exact),
+                "upto" => Ok(Self::Upto),
                 _ => Err("invalid value".into()),
             }
         }
@@ -46983,13 +55206,14 @@ pub mod types {
     ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    },
     ///    "scheme": {
-    ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///      "description": "The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.",
     ///      "examples": [
     ///        "exact"
     ///      ],
     ///      "type": "string",
     ///      "enum": [
-    ///        "exact"
+    ///        "exact",
+    ///        "upto"
     ///      ]
     ///    }
     ///  }
@@ -47021,7 +55245,7 @@ pub mod types {
         For Solana-based networks, payTo will be a base58-encoded Solana address.*/
         #[serde(rename = "payTo")]
         pub pay_to: X402v2PaymentRequirementsPayTo,
-        ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+        ///The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.
         pub scheme: X402v2PaymentRequirementsScheme,
     }
     impl ::std::convert::From<&X402V2PaymentRequirements> for X402V2PaymentRequirements {
@@ -47715,7 +55939,7 @@ pub mod types {
     ///{
     ///  "description": "The version of the x402 protocol.",
     ///  "examples": [
-    ///    1
+    ///    2
     ///  ],
     ///  "type": "integer",
     ///  "enum": [
@@ -48587,19 +56811,20 @@ pub mod types {
                 })
         }
     }
-    ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+    ///The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///  "description": "The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.",
     ///  "examples": [
     ///    "exact"
     ///  ],
     ///  "type": "string",
     ///  "enum": [
-    ///    "exact"
+    ///    "exact",
+    ///    "upto"
     ///  ]
     ///}
     /// ```
@@ -48619,6 +56844,8 @@ pub mod types {
     pub enum X402v2PaymentRequirementsScheme {
         #[serde(rename = "exact")]
         Exact,
+        #[serde(rename = "upto")]
+        Upto,
     }
     impl ::std::convert::From<&Self> for X402v2PaymentRequirementsScheme {
         fn from(value: &X402v2PaymentRequirementsScheme) -> Self {
@@ -48629,6 +56856,7 @@ pub mod types {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
                 Self::Exact => f.write_str("exact"),
+                Self::Upto => f.write_str("upto"),
             }
         }
     }
@@ -48637,6 +56865,7 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "exact" => Ok(Self::Exact),
+                "upto" => Ok(Self::Upto),
                 _ => Err("invalid value".into()),
             }
         }
@@ -50050,6 +58279,162 @@ pub mod types {
             for CreateEvmEip7702DelegationResponse
         {
             fn from(value: super::CreateEvmEip7702DelegationResponse) -> Self {
+                Self {
+                    delegation_operation_id: Ok(value.delegation_operation_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateEvmEip7702DelegationWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::CreateEvmEip7702DelegationWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            enable_spend_permissions: ::std::result::Result<bool, ::std::string::String>,
+            network:
+                ::std::result::Result<super::EvmEip7702DelegationNetwork, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<
+                    super::CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId,
+                >,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateEvmEip7702DelegationWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    enable_spend_permissions: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl CreateEvmEip7702DelegationWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::CreateEvmEip7702DelegationWithEndUserAccountBodyAddress,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn enable_spend_permissions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enable_spend_permissions = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for enable_spend_permissions: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EvmEip7702DelegationNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::CreateEvmEip7702DelegationWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateEvmEip7702DelegationWithEndUserAccountBody>
+            for super::CreateEvmEip7702DelegationWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateEvmEip7702DelegationWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    enable_spend_permissions: value.enable_spend_permissions?,
+                    network: value.network?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateEvmEip7702DelegationWithEndUserAccountBody>
+            for CreateEvmEip7702DelegationWithEndUserAccountBody
+        {
+            fn from(value: super::CreateEvmEip7702DelegationWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    enable_spend_permissions: Ok(value.enable_spend_permissions),
+                    network: Ok(value.network),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateEvmEip7702DelegationWithEndUserAccountResponse {
+            delegation_operation_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        }
+        impl ::std::default::Default for CreateEvmEip7702DelegationWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    delegation_operation_id: Err(
+                        "no value supplied for delegation_operation_id".to_string()
+                    ),
+                }
+            }
+        }
+        impl CreateEvmEip7702DelegationWithEndUserAccountResponse {
+            pub fn delegation_operation_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.delegation_operation_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for delegation_operation_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateEvmEip7702DelegationWithEndUserAccountResponse>
+            for super::CreateEvmEip7702DelegationWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateEvmEip7702DelegationWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    delegation_operation_id: value.delegation_operation_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateEvmEip7702DelegationWithEndUserAccountResponse>
+            for CreateEvmEip7702DelegationWithEndUserAccountResponse
+        {
+            fn from(value: super::CreateEvmEip7702DelegationWithEndUserAccountResponse) -> Self {
                 Self {
                     delegation_operation_id: Ok(value.delegation_operation_id),
                 }
@@ -56724,6 +65109,111 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct OnchainDataColumnSchema {
+            description: ::std::result::Result<
+                ::std::option::Option<super::Description>,
+                ::std::string::String,
+            >,
+            index_order: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            name: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            nullable: ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
+            type_: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for OnchainDataColumnSchema {
+            fn default() -> Self {
+                Self {
+                    description: Ok(Default::default()),
+                    index_order: Ok(Default::default()),
+                    name: Ok(Default::default()),
+                    nullable: Ok(Default::default()),
+                    type_: Ok(Default::default()),
+                }
+            }
+        }
+        impl OnchainDataColumnSchema {
+            pub fn description<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Description>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.description = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for description: {}", e));
+                self
+            }
+            pub fn index_order<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.index_order = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for index_order: {}", e));
+                self
+            }
+            pub fn name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for name: {}", e));
+                self
+            }
+            pub fn nullable<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.nullable = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for nullable: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnchainDataColumnSchema> for super::OnchainDataColumnSchema {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnchainDataColumnSchema,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    description: value.description?,
+                    index_order: value.index_order?,
+                    name: value.name?,
+                    nullable: value.nullable?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnchainDataColumnSchema> for OnchainDataColumnSchema {
+            fn from(value: super::OnchainDataColumnSchema) -> Self {
+                Self {
+                    description: Ok(value.description),
+                    index_order: Ok(value.index_order),
+                    name: Ok(value.name),
+                    nullable: Ok(value.nullable),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct OnchainDataQuery {
             cache: ::std::result::Result<
                 ::std::option::Option<super::QueryResultCacheConfiguration>,
@@ -57063,6 +65553,126 @@ pub mod types {
                 Self {
                     name: Ok(value.name),
                     type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnchainDataSchemaResponse {
+            tables: ::std::result::Result<
+                ::std::vec::Vec<super::OnchainDataTableSchema>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for OnchainDataSchemaResponse {
+            fn default() -> Self {
+                Self {
+                    tables: Ok(Default::default()),
+                }
+            }
+        }
+        impl OnchainDataSchemaResponse {
+            pub fn tables<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnchainDataTableSchema>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.tables = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for tables: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnchainDataSchemaResponse> for super::OnchainDataSchemaResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnchainDataSchemaResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    tables: value.tables?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnchainDataSchemaResponse> for OnchainDataSchemaResponse {
+            fn from(value: super::OnchainDataSchemaResponse) -> Self {
+                Self {
+                    tables: Ok(value.tables),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnchainDataTableSchema {
+            columns: ::std::result::Result<
+                ::std::vec::Vec<super::OnchainDataColumnSchema>,
+                ::std::string::String,
+            >,
+            database: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            table: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for OnchainDataTableSchema {
+            fn default() -> Self {
+                Self {
+                    columns: Ok(Default::default()),
+                    database: Ok(Default::default()),
+                    table: Ok(Default::default()),
+                }
+            }
+        }
+        impl OnchainDataTableSchema {
+            pub fn columns<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnchainDataColumnSchema>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.columns = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for columns: {}", e));
+                self
+            }
+            pub fn database<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.database = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for database: {}", e));
+                self
+            }
+            pub fn table<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.table = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for table: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnchainDataTableSchema> for super::OnchainDataTableSchema {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnchainDataTableSchema,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    columns: value.columns?,
+                    database: value.database?,
+                    table: value.table?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnchainDataTableSchema> for OnchainDataTableSchema {
+            fn from(value: super::OnchainDataTableSchema) -> Self {
+                Self {
+                    columns: Ok(value.columns),
+                    database: Ok(value.database),
+                    table: Ok(value.table),
                 }
             }
         }
@@ -58436,6 +67046,58 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct RevokeDelegationForEndUserBody {
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::RevokeDelegationForEndUserBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for RevokeDelegationForEndUserBody {
+            fn default() -> Self {
+                Self {
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl RevokeDelegationForEndUserBody {
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::RevokeDelegationForEndUserBodyWalletSecretId>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<RevokeDelegationForEndUserBody>
+            for super::RevokeDelegationForEndUserBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: RevokeDelegationForEndUserBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::RevokeDelegationForEndUserBody>
+            for RevokeDelegationForEndUserBody
+        {
+            fn from(value: super::RevokeDelegationForEndUserBody) -> Self {
+                Self {
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct RevokeSpendPermissionRequest {
             network: ::std::result::Result<super::SpendPermissionNetwork, ::std::string::String>,
             paymaster_url:
@@ -58663,6 +67325,206 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SendEvmAssetWithEndUserAccountBody {
+            amount: ::std::result::Result<
+                super::SendEvmAssetWithEndUserAccountBodyAmount,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<
+                super::SendEvmAssetWithEndUserAccountBodyNetwork,
+                ::std::string::String,
+            >,
+            paymaster_url:
+                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+            to: ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
+            use_cdp_paymaster:
+                ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::SendEvmAssetWithEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SendEvmAssetWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    paymaster_url: Ok(Default::default()),
+                    to: Err("no value supplied for to".to_string()),
+                    use_cdp_paymaster: Ok(Default::default()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SendEvmAssetWithEndUserAccountBody {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SendEvmAssetWithEndUserAccountBodyAmount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SendEvmAssetWithEndUserAccountBodyNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.to = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for to: {}", e));
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::SendEvmAssetWithEndUserAccountBodyWalletSecretId>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendEvmAssetWithEndUserAccountBody>
+            for super::SendEvmAssetWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendEvmAssetWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    network: value.network?,
+                    paymaster_url: value.paymaster_url?,
+                    to: value.to?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendEvmAssetWithEndUserAccountBody>
+            for SendEvmAssetWithEndUserAccountBody
+        {
+            fn from(value: super::SendEvmAssetWithEndUserAccountBody) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    network: Ok(value.network),
+                    paymaster_url: Ok(value.paymaster_url),
+                    to: Ok(value.to),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SendEvmAssetWithEndUserAccountResponse {
+            transaction_hash: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            user_op_hash: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SendEvmAssetWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_hash: Ok(Default::default()),
+                    user_op_hash: Ok(Default::default()),
+                }
+            }
+        }
+        impl SendEvmAssetWithEndUserAccountResponse {
+            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_hash = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_hash: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn user_op_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_op_hash = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for user_op_hash: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendEvmAssetWithEndUserAccountResponse>
+            for super::SendEvmAssetWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendEvmAssetWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_hash: value.transaction_hash?,
+                    user_op_hash: value.user_op_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendEvmAssetWithEndUserAccountResponse>
+            for SendEvmAssetWithEndUserAccountResponse
+        {
+            fn from(value: super::SendEvmAssetWithEndUserAccountResponse) -> Self {
+                Self {
+                    transaction_hash: Ok(value.transaction_hash),
+                    user_op_hash: Ok(value.user_op_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SendEvmTransactionBody {
             network:
                 ::std::result::Result<super::SendEvmTransactionBodyNetwork, ::std::string::String>,
@@ -58834,6 +67696,157 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SendEvmTransactionWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SendEvmTransactionWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<
+                super::SendEvmTransactionWithEndUserAccountBodyNetwork,
+                ::std::string::String,
+            >,
+            transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<
+                    super::SendEvmTransactionWithEndUserAccountBodyWalletSecretId,
+                >,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SendEvmTransactionWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    transaction: Err("no value supplied for transaction".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SendEvmTransactionWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SendEvmTransactionWithEndUserAccountBodyAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SendEvmTransactionWithEndUserAccountBodyNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SendEvmTransactionWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendEvmTransactionWithEndUserAccountBody>
+            for super::SendEvmTransactionWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendEvmTransactionWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    network: value.network?,
+                    transaction: value.transaction?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendEvmTransactionWithEndUserAccountBody>
+            for SendEvmTransactionWithEndUserAccountBody
+        {
+            fn from(value: super::SendEvmTransactionWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    network: Ok(value.network),
+                    transaction: Ok(value.transaction),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SendEvmTransactionWithEndUserAccountResponse {
+            transaction_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SendEvmTransactionWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_hash: Err("no value supplied for transaction_hash".to_string()),
+                }
+            }
+        }
+        impl SendEvmTransactionWithEndUserAccountResponse {
+            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_hash = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_hash: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendEvmTransactionWithEndUserAccountResponse>
+            for super::SendEvmTransactionWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendEvmTransactionWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_hash: value.transaction_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendEvmTransactionWithEndUserAccountResponse>
+            for SendEvmTransactionWithEndUserAccountResponse
+        {
+            fn from(value: super::SendEvmTransactionWithEndUserAccountResponse) -> Self {
+                Self {
+                    transaction_hash: Ok(value.transaction_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SendSolTransactionRule {
             action:
                 ::std::result::Result<super::SendSolTransactionRuleAction, ::std::string::String>,
@@ -58907,18 +67920,206 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SendSolanaAssetWithEndUserAccountBody {
+            amount: ::std::result::Result<
+                super::SendSolanaAssetWithEndUserAccountBodyAmount,
+                ::std::string::String,
+            >,
+            create_recipient_ata:
+                ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
+            network: ::std::result::Result<
+                super::SendSolanaAssetWithEndUserAccountBodyNetwork,
+                ::std::string::String,
+            >,
+            to: ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
+            use_cdp_sponsor:
+                ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::SendSolanaAssetWithEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SendSolanaAssetWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    create_recipient_ata: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                    to: Err("no value supplied for to".to_string()),
+                    use_cdp_sponsor: Ok(Default::default()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SendSolanaAssetWithEndUserAccountBody {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SendSolanaAssetWithEndUserAccountBodyAmount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn create_recipient_ata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.create_recipient_ata = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for create_recipient_ata: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SendSolanaAssetWithEndUserAccountBodyNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.to = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for to: {}", e));
+                self
+            }
+            pub fn use_cdp_sponsor<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_sponsor = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for use_cdp_sponsor: {}", e)
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SendSolanaAssetWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendSolanaAssetWithEndUserAccountBody>
+            for super::SendSolanaAssetWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendSolanaAssetWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    create_recipient_ata: value.create_recipient_ata?,
+                    network: value.network?,
+                    to: value.to?,
+                    use_cdp_sponsor: value.use_cdp_sponsor?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendSolanaAssetWithEndUserAccountBody>
+            for SendSolanaAssetWithEndUserAccountBody
+        {
+            fn from(value: super::SendSolanaAssetWithEndUserAccountBody) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    create_recipient_ata: Ok(value.create_recipient_ata),
+                    network: Ok(value.network),
+                    to: Ok(value.to),
+                    use_cdp_sponsor: Ok(value.use_cdp_sponsor),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SendSolanaAssetWithEndUserAccountResponse {
+            transaction_signature:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SendSolanaAssetWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_signature: Err(
+                        "no value supplied for transaction_signature".to_string()
+                    ),
+                }
+            }
+        }
+        impl SendSolanaAssetWithEndUserAccountResponse {
+            pub fn transaction_signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_signature = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_signature: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendSolanaAssetWithEndUserAccountResponse>
+            for super::SendSolanaAssetWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendSolanaAssetWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_signature: value.transaction_signature?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendSolanaAssetWithEndUserAccountResponse>
+            for SendSolanaAssetWithEndUserAccountResponse
+        {
+            fn from(value: super::SendSolanaAssetWithEndUserAccountResponse) -> Self {
+                Self {
+                    transaction_signature: Ok(value.transaction_signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SendSolanaTransactionBody {
             network: ::std::result::Result<
                 super::SendSolanaTransactionBodyNetwork,
                 ::std::string::String,
             >,
             transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+            use_cdp_sponsor:
+                ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
         }
         impl ::std::default::Default for SendSolanaTransactionBody {
             fn default() -> Self {
                 Self {
                     network: Err("no value supplied for network".to_string()),
                     transaction: Err("no value supplied for transaction".to_string()),
+                    use_cdp_sponsor: Ok(Default::default()),
                 }
             }
         }
@@ -58943,6 +68144,16 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for transaction: {}", e));
                 self
             }
+            pub fn use_cdp_sponsor<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_sponsor = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for use_cdp_sponsor: {}", e)
+                });
+                self
+            }
         }
         impl ::std::convert::TryFrom<SendSolanaTransactionBody> for super::SendSolanaTransactionBody {
             type Error = super::error::ConversionError;
@@ -58952,6 +68163,7 @@ pub mod types {
                 Ok(Self {
                     network: value.network?,
                     transaction: value.transaction?,
+                    use_cdp_sponsor: value.use_cdp_sponsor?,
                 })
             }
         }
@@ -58960,6 +68172,7 @@ pub mod types {
                 Self {
                     network: Ok(value.network),
                     transaction: Ok(value.transaction),
+                    use_cdp_sponsor: Ok(value.use_cdp_sponsor),
                 }
             }
         }
@@ -59006,6 +68219,179 @@ pub mod types {
         }
         impl ::std::convert::From<super::SendSolanaTransactionResponse> for SendSolanaTransactionResponse {
             fn from(value: super::SendSolanaTransactionResponse) -> Self {
+                Self {
+                    transaction_signature: Ok(value.transaction_signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SendSolanaTransactionWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SendSolanaTransactionWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<
+                super::SendSolanaTransactionWithEndUserAccountBodyNetwork,
+                ::std::string::String,
+            >,
+            transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+            use_cdp_sponsor:
+                ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<
+                    super::SendSolanaTransactionWithEndUserAccountBodyWalletSecretId,
+                >,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SendSolanaTransactionWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    transaction: Err("no value supplied for transaction".to_string()),
+                    use_cdp_sponsor: Ok(Default::default()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SendSolanaTransactionWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::SendSolanaTransactionWithEndUserAccountBodyAddress,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::SendSolanaTransactionWithEndUserAccountBodyNetwork,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+            pub fn use_cdp_sponsor<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<bool>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_sponsor = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for use_cdp_sponsor: {}", e)
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SendSolanaTransactionWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendSolanaTransactionWithEndUserAccountBody>
+            for super::SendSolanaTransactionWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendSolanaTransactionWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    network: value.network?,
+                    transaction: value.transaction?,
+                    use_cdp_sponsor: value.use_cdp_sponsor?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendSolanaTransactionWithEndUserAccountBody>
+            for SendSolanaTransactionWithEndUserAccountBody
+        {
+            fn from(value: super::SendSolanaTransactionWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    network: Ok(value.network),
+                    transaction: Ok(value.transaction),
+                    use_cdp_sponsor: Ok(value.use_cdp_sponsor),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SendSolanaTransactionWithEndUserAccountResponse {
+            transaction_signature:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SendSolanaTransactionWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_signature: Err(
+                        "no value supplied for transaction_signature".to_string()
+                    ),
+                }
+            }
+        }
+        impl SendSolanaTransactionWithEndUserAccountResponse {
+            pub fn transaction_signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_signature = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_signature: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendSolanaTransactionWithEndUserAccountResponse>
+            for super::SendSolanaTransactionWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendSolanaTransactionWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_signature: value.transaction_signature?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendSolanaTransactionWithEndUserAccountResponse>
+            for SendSolanaTransactionWithEndUserAccountResponse
+        {
+            fn from(value: super::SendSolanaTransactionWithEndUserAccountResponse) -> Self {
                 Self {
                     transaction_signature: Ok(value.transaction_signature),
                 }
@@ -59123,6 +68509,139 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SendUserOperationWithEndUserAccountBody {
+            calls: ::std::result::Result<::std::vec::Vec<super::EvmCall>, ::std::string::String>,
+            data_suffix: ::std::result::Result<
+                ::std::option::Option<super::SendUserOperationWithEndUserAccountBodyDataSuffix>,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<super::EvmUserOperationNetwork, ::std::string::String>,
+            paymaster_url:
+                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+            use_cdp_paymaster: ::std::result::Result<bool, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::SendUserOperationWithEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SendUserOperationWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    calls: Err("no value supplied for calls".to_string()),
+                    data_suffix: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                    paymaster_url: Ok(Default::default()),
+                    use_cdp_paymaster: Err("no value supplied for use_cdp_paymaster".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SendUserOperationWithEndUserAccountBody {
+            pub fn calls<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EvmCall>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.calls = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for calls: {}", e));
+                self
+            }
+            pub fn data_suffix<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::SendUserOperationWithEndUserAccountBodyDataSuffix>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data_suffix = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data_suffix: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EvmUserOperationNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SendUserOperationWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SendUserOperationWithEndUserAccountBody>
+            for super::SendUserOperationWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SendUserOperationWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    calls: value.calls?,
+                    data_suffix: value.data_suffix?,
+                    network: value.network?,
+                    paymaster_url: value.paymaster_url?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SendUserOperationWithEndUserAccountBody>
+            for SendUserOperationWithEndUserAccountBody
+        {
+            fn from(value: super::SendUserOperationWithEndUserAccountBody) -> Self {
+                Self {
+                    calls: Ok(value.calls),
+                    data_suffix: Ok(value.data_suffix),
+                    network: Ok(value.network),
+                    paymaster_url: Ok(value.paymaster_url),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SettleX402PaymentBody {
             payment_payload:
                 ::std::result::Result<super::X402PaymentPayload, ::std::string::String>,
@@ -59199,6 +68718,10 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct SettleX402PaymentResponse {
+            amount: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             error_message: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
                 ::std::string::String,
@@ -59219,6 +68742,7 @@ pub mod types {
         impl ::std::default::Default for SettleX402PaymentResponse {
             fn default() -> Self {
                 Self {
+                    amount: Ok(Default::default()),
                     error_message: Ok(Default::default()),
                     error_reason: Ok(Default::default()),
                     network: Err("no value supplied for network".to_string()),
@@ -59229,6 +68753,16 @@ pub mod types {
             }
         }
         impl SettleX402PaymentResponse {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
             pub fn error_message<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
@@ -59296,6 +68830,7 @@ pub mod types {
                 value: SettleX402PaymentResponse,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    amount: value.amount?,
                     error_message: value.error_message?,
                     error_reason: value.error_reason?,
                     network: value.network?,
@@ -59308,12 +68843,71 @@ pub mod types {
         impl ::std::convert::From<super::SettleX402PaymentResponse> for SettleX402PaymentResponse {
             fn from(value: super::SettleX402PaymentResponse) -> Self {
                 Self {
+                    amount: Ok(value.amount),
                     error_message: Ok(value.error_message),
                     error_reason: Ok(value.error_reason),
                     network: Ok(value.network),
                     payer: Ok(value.payer),
                     success: Ok(value.success),
                     transaction: Ok(value.transaction),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignEndUserEvmHashRule {
+            action:
+                ::std::result::Result<super::SignEndUserEvmHashRuleAction, ::std::string::String>,
+            operation: ::std::result::Result<
+                super::SignEndUserEvmHashRuleOperation,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SignEndUserEvmHashRule {
+            fn default() -> Self {
+                Self {
+                    action: Err("no value supplied for action".to_string()),
+                    operation: Err("no value supplied for operation".to_string()),
+                }
+            }
+        }
+        impl SignEndUserEvmHashRule {
+            pub fn action<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignEndUserEvmHashRuleAction>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.action = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for action: {}", e));
+                self
+            }
+            pub fn operation<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignEndUserEvmHashRuleOperation>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.operation = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for operation: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEndUserEvmHashRule> for super::SignEndUserEvmHashRule {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEndUserEvmHashRule,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    action: value.action?,
+                    operation: value.operation?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEndUserEvmHashRule> for SignEndUserEvmHashRule {
+            fn from(value: super::SignEndUserEvmHashRule) -> Self {
+                Self {
+                    action: Ok(value.action),
+                    operation: Ok(value.operation),
                 }
             }
         }
@@ -59985,6 +69579,135 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SignEvmMessageWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SignEvmMessageWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            message: ::std::result::Result<::std::string::String, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::SignEvmMessageWithEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SignEvmMessageWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    message: Err("no value supplied for message".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SignEvmMessageWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignEvmMessageWithEndUserAccountBodyAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.message = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for message: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SignEvmMessageWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEvmMessageWithEndUserAccountBody>
+            for super::SignEvmMessageWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEvmMessageWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    message: value.message?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEvmMessageWithEndUserAccountBody>
+            for SignEvmMessageWithEndUserAccountBody
+        {
+            fn from(value: super::SignEvmMessageWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    message: Ok(value.message),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignEvmMessageWithEndUserAccountResponse {
+            signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SignEvmMessageWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    signature: Err("no value supplied for signature".to_string()),
+                }
+            }
+        }
+        impl SignEvmMessageWithEndUserAccountResponse {
+            pub fn signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signature = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for signature: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEvmMessageWithEndUserAccountResponse>
+            for super::SignEvmMessageWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEvmMessageWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    signature: value.signature?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEvmMessageWithEndUserAccountResponse>
+            for SignEvmMessageWithEndUserAccountResponse
+        {
+            fn from(value: super::SignEvmMessageWithEndUserAccountResponse) -> Self {
+                Self {
+                    signature: Ok(value.signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SignEvmTransactionBody {
             transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
         }
@@ -60137,6 +69860,140 @@ pub mod types {
                     action: Ok(value.action),
                     criteria: Ok(value.criteria),
                     operation: Ok(value.operation),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignEvmTransactionWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SignEvmTransactionWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<
+                    super::SignEvmTransactionWithEndUserAccountBodyWalletSecretId,
+                >,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SignEvmTransactionWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    transaction: Err("no value supplied for transaction".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SignEvmTransactionWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignEvmTransactionWithEndUserAccountBodyAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SignEvmTransactionWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEvmTransactionWithEndUserAccountBody>
+            for super::SignEvmTransactionWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEvmTransactionWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    transaction: value.transaction?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEvmTransactionWithEndUserAccountBody>
+            for SignEvmTransactionWithEndUserAccountBody
+        {
+            fn from(value: super::SignEvmTransactionWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    transaction: Ok(value.transaction),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignEvmTransactionWithEndUserAccountResponse {
+            signed_transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SignEvmTransactionWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    signed_transaction: Err("no value supplied for signed_transaction".to_string()),
+                }
+            }
+        }
+        impl SignEvmTransactionWithEndUserAccountResponse {
+            pub fn signed_transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signed_transaction = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for signed_transaction: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEvmTransactionWithEndUserAccountResponse>
+            for super::SignEvmTransactionWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEvmTransactionWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    signed_transaction: value.signed_transaction?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEvmTransactionWithEndUserAccountResponse>
+            for SignEvmTransactionWithEndUserAccountResponse
+        {
+            fn from(value: super::SignEvmTransactionWithEndUserAccountResponse) -> Self {
+                Self {
+                    signed_transaction: Ok(value.signed_transaction),
                 }
             }
         }
@@ -60551,6 +70408,135 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SignEvmTypedDataWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SignEvmTypedDataWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            typed_data: ::std::result::Result<super::Eip712Message, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::SignEvmTypedDataWithEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SignEvmTypedDataWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    typed_data: Err("no value supplied for typed_data".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SignEvmTypedDataWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignEvmTypedDataWithEndUserAccountBodyAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn typed_data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Eip712Message>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.typed_data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for typed_data: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SignEvmTypedDataWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEvmTypedDataWithEndUserAccountBody>
+            for super::SignEvmTypedDataWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEvmTypedDataWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    typed_data: value.typed_data?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEvmTypedDataWithEndUserAccountBody>
+            for SignEvmTypedDataWithEndUserAccountBody
+        {
+            fn from(value: super::SignEvmTypedDataWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    typed_data: Ok(value.typed_data),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignEvmTypedDataWithEndUserAccountResponse {
+            signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SignEvmTypedDataWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    signature: Err("no value supplied for signature".to_string()),
+                }
+            }
+        }
+        impl SignEvmTypedDataWithEndUserAccountResponse {
+            pub fn signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signature = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for signature: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignEvmTypedDataWithEndUserAccountResponse>
+            for super::SignEvmTypedDataWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignEvmTypedDataWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    signature: value.signature?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignEvmTypedDataWithEndUserAccountResponse>
+            for SignEvmTypedDataWithEndUserAccountResponse
+        {
+            fn from(value: super::SignEvmTypedDataWithEndUserAccountResponse) -> Self {
+                Self {
+                    signature: Ok(value.signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SignSolMessageRule {
             action: ::std::result::Result<super::SignSolMessageRuleAction, ::std::string::String>,
             criteria: ::std::result::Result<super::SignSolMessageCriteria, ::std::string::String>,
@@ -60773,6 +70759,135 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SignSolanaMessageWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SignSolanaMessageWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            message: ::std::result::Result<::std::string::String, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::SignSolanaMessageWithEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SignSolanaMessageWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    message: Err("no value supplied for message".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SignSolanaMessageWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignSolanaMessageWithEndUserAccountBodyAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.message = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for message: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SignSolanaMessageWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignSolanaMessageWithEndUserAccountBody>
+            for super::SignSolanaMessageWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignSolanaMessageWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    message: value.message?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignSolanaMessageWithEndUserAccountBody>
+            for SignSolanaMessageWithEndUserAccountBody
+        {
+            fn from(value: super::SignSolanaMessageWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    message: Ok(value.message),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignSolanaMessageWithEndUserAccountResponse {
+            signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SignSolanaMessageWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    signature: Err("no value supplied for signature".to_string()),
+                }
+            }
+        }
+        impl SignSolanaMessageWithEndUserAccountResponse {
+            pub fn signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signature = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for signature: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignSolanaMessageWithEndUserAccountResponse>
+            for super::SignSolanaMessageWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignSolanaMessageWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    signature: value.signature?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignSolanaMessageWithEndUserAccountResponse>
+            for SignSolanaMessageWithEndUserAccountResponse
+        {
+            fn from(value: super::SignSolanaMessageWithEndUserAccountResponse) -> Self {
+                Self {
+                    signature: Ok(value.signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SignSolanaTransactionBody {
             transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
         }
@@ -60854,6 +70969,196 @@ pub mod types {
             fn from(value: super::SignSolanaTransactionResponse) -> Self {
                 Self {
                     signed_transaction: Ok(value.signed_transaction),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignSolanaTransactionWithEndUserAccountBody {
+            address: ::std::result::Result<
+                super::SignSolanaTransactionWithEndUserAccountBodyAddress,
+                ::std::string::String,
+            >,
+            transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<
+                    super::SignSolanaTransactionWithEndUserAccountBodyWalletSecretId,
+                >,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SignSolanaTransactionWithEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    transaction: Err("no value supplied for transaction".to_string()),
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl SignSolanaTransactionWithEndUserAccountBody {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::SignSolanaTransactionWithEndUserAccountBodyAddress,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SignSolanaTransactionWithEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignSolanaTransactionWithEndUserAccountBody>
+            for super::SignSolanaTransactionWithEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignSolanaTransactionWithEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    transaction: value.transaction?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignSolanaTransactionWithEndUserAccountBody>
+            for SignSolanaTransactionWithEndUserAccountBody
+        {
+            fn from(value: super::SignSolanaTransactionWithEndUserAccountBody) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    transaction: Ok(value.transaction),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignSolanaTransactionWithEndUserAccountResponse {
+            signed_transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SignSolanaTransactionWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    signed_transaction: Err("no value supplied for signed_transaction".to_string()),
+                }
+            }
+        }
+        impl SignSolanaTransactionWithEndUserAccountResponse {
+            pub fn signed_transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signed_transaction = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for signed_transaction: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignSolanaTransactionWithEndUserAccountResponse>
+            for super::SignSolanaTransactionWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignSolanaTransactionWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    signed_transaction: value.signed_transaction?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignSolanaTransactionWithEndUserAccountResponse>
+            for SignSolanaTransactionWithEndUserAccountResponse
+        {
+            fn from(value: super::SignSolanaTransactionWithEndUserAccountResponse) -> Self {
+                Self {
+                    signed_transaction: Ok(value.signed_transaction),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SiweAuthentication {
+            address: ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
+            type_: ::std::result::Result<super::SiweAuthenticationType, ::std::string::String>,
+        }
+        impl ::std::default::Default for SiweAuthentication {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl SiweAuthentication {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SiweAuthenticationType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SiweAuthentication> for super::SiweAuthentication {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SiweAuthentication,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SiweAuthentication> for SiweAuthentication {
+            fn from(value: super::SiweAuthentication) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    type_: Ok(value.type_),
                 }
             }
         }
@@ -63303,6 +73608,275 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct WebhookEventListResponse {
+            events: ::std::result::Result<
+                ::std::vec::Vec<super::WebhookEventResponse>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WebhookEventListResponse {
+            fn default() -> Self {
+                Self {
+                    events: Err("no value supplied for events".to_string()),
+                }
+            }
+        }
+        impl WebhookEventListResponse {
+            pub fn events<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::WebhookEventResponse>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.events = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for events: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WebhookEventListResponse> for super::WebhookEventListResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WebhookEventListResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    events: value.events?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WebhookEventListResponse> for WebhookEventListResponse {
+            fn from(value: super::WebhookEventListResponse) -> Self {
+                Self {
+                    events: Ok(value.events),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WebhookEventResponse {
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            event_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            event_type_name: ::std::result::Result<::std::string::String, ::std::string::String>,
+            response: ::std::result::Result<
+                ::std::option::Option<super::WebhookEventResponseDetail>,
+                ::std::string::String,
+            >,
+            retry_count: ::std::result::Result<i64, ::std::string::String>,
+            status: ::std::result::Result<super::WebhookEventResponseStatus, ::std::string::String>,
+            succeeded_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WebhookEventResponse {
+            fn default() -> Self {
+                Self {
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type_name: Err("no value supplied for event_type_name".to_string()),
+                    response: Ok(Default::default()),
+                    retry_count: Err("no value supplied for retry_count".to_string()),
+                    status: Err("no value supplied for status".to_string()),
+                    succeeded_at: Ok(Default::default()),
+                }
+            }
+        }
+        impl WebhookEventResponse {
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type_name = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for event_type_name: {}", e)
+                });
+                self
+            }
+            pub fn response<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::WebhookEventResponseDetail>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.response = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for response: {}", e));
+                self
+            }
+            pub fn retry_count<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.retry_count = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for retry_count: {}", e));
+                self
+            }
+            pub fn status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::WebhookEventResponseStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.status = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for status: {}", e));
+                self
+            }
+            pub fn succeeded_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.succeeded_at = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for succeeded_at: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WebhookEventResponse> for super::WebhookEventResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WebhookEventResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    created_at: value.created_at?,
+                    event_id: value.event_id?,
+                    event_type_name: value.event_type_name?,
+                    response: value.response?,
+                    retry_count: value.retry_count?,
+                    status: value.status?,
+                    succeeded_at: value.succeeded_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WebhookEventResponse> for WebhookEventResponse {
+            fn from(value: super::WebhookEventResponse) -> Self {
+                Self {
+                    created_at: Ok(value.created_at),
+                    event_id: Ok(value.event_id),
+                    event_type_name: Ok(value.event_type_name),
+                    response: Ok(value.response),
+                    retry_count: Ok(value.retry_count),
+                    status: Ok(value.status),
+                    succeeded_at: Ok(value.succeeded_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WebhookEventResponseDetail {
+            body: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            elapsed_time_ms:
+                ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            error_name: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            http_code: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+        }
+        impl ::std::default::Default for WebhookEventResponseDetail {
+            fn default() -> Self {
+                Self {
+                    body: Ok(Default::default()),
+                    elapsed_time_ms: Ok(Default::default()),
+                    error_name: Ok(Default::default()),
+                    http_code: Ok(Default::default()),
+                }
+            }
+        }
+        impl WebhookEventResponseDetail {
+            pub fn body<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.body = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for body: {}", e));
+                self
+            }
+            pub fn elapsed_time_ms<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.elapsed_time_ms = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for elapsed_time_ms: {}", e)
+                });
+                self
+            }
+            pub fn error_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error_name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for error_name: {}", e));
+                self
+            }
+            pub fn http_code<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.http_code = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for http_code: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WebhookEventResponseDetail> for super::WebhookEventResponseDetail {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WebhookEventResponseDetail,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    body: value.body?,
+                    elapsed_time_ms: value.elapsed_time_ms?,
+                    error_name: value.error_name?,
+                    http_code: value.http_code?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WebhookEventResponseDetail> for WebhookEventResponseDetail {
+            fn from(value: super::WebhookEventResponseDetail) -> Self {
+                Self {
+                    body: Ok(value.body),
+                    elapsed_time_ms: Ok(value.elapsed_time_ms),
+                    error_name: Ok(value.error_name),
+                    http_code: Ok(value.http_code),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct WebhookSubscriptionListResponse {
             next_page_token: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
@@ -63516,6 +74090,10 @@ pub mod types {
             secret: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
             subscription_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
             target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
+            updated_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
         }
         impl ::std::default::Default for WebhookSubscriptionResponse {
             fn default() -> Self {
@@ -63529,6 +74107,7 @@ pub mod types {
                     secret: Err("no value supplied for secret".to_string()),
                     subscription_id: Err("no value supplied for subscription_id".to_string()),
                     target: Err("no value supplied for target".to_string()),
+                    updated_at: Ok(Default::default()),
                 }
             }
         }
@@ -63627,6 +74206,18 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for target: {}", e));
                 self
             }
+            pub fn updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.updated_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for updated_at: {}", e));
+                self
+            }
         }
         impl ::std::convert::TryFrom<WebhookSubscriptionResponse> for super::WebhookSubscriptionResponse {
             type Error = super::error::ConversionError;
@@ -63643,6 +74234,7 @@ pub mod types {
                     secret: value.secret?,
                     subscription_id: value.subscription_id?,
                     target: value.target?,
+                    updated_at: value.updated_at?,
                 })
             }
         }
@@ -63658,6 +74250,7 @@ pub mod types {
                     secret: Ok(value.secret),
                     subscription_id: Ok(value.subscription_id),
                     target: Ok(value.target),
+                    updated_at: Ok(value.updated_at),
                 }
             }
         }
@@ -65559,9 +76152,11 @@ impl Client {
 
     Retrieve the SQL grammar for the SQL API.
 
-    The SQL queries that are supported by the SQL API are defined via an ANTLR4 grammar which is evaluated by server before executing the query. This ensures the safety and soundness of the SQL API.
+    The SQL queries that are supported by the SQL API are defined in ANTLR4 grammar which is evaluated by server before executing the query. This ensures the safety and soundness of the SQL query before execution.
 
-    This endpoint returns the ANTLR4 grammar that is used to evaluate the SQL queries so that developers can understand the SQL API and build SQL queries with high confidence and correctness. LLMs interact well with ANTLR4 grammar as well.
+    This endpoint returns the ANTLR4 grammar that is used to evaluate the SQL queries so that developers can understand the SQL API and build SQL queries with high confidence and correctness.
+
+    LLMs interact well with ANTLR4 grammar. You can feed the grammar directly into the LLMs to help generate SQL queries.
 
 
     Sends a `GET` request to `/v2/data/query/grammar`
@@ -65579,27 +76174,45 @@ impl Client {
     Run a read-only SQL query against indexed blockchain data including transactions, events, and decoded logs.
 
     This endpoint provides direct SQL access to comprehensive blockchain data across supported networks.
+
     Queries are executed against optimized data structures for high-performance analytics.
 
     ### Allowed Queries
 
-      - Standard SQL syntax (ClickHouse dialect)
+      - Standard SQL syntax (CoinbaSeQL dialect, based on ClickHouse dialect)
       - Read-only queries (SELECT statements)
       - No DDL or DML operations
-      - No cartesian products
+      - Query that follow limits (defined below)
 
     ### Supported Tables
 
-      - `base.events` - Base mainnet decoded event logs with parameters, event signature, topics, and more.
-      - `base.transactions` - Base mainnet transaction data including hash, block number, gas usage.
-      - `base.blocks` - Base mainnet block information.
-      - `base.encoded_logs` - Encoded log data of event logs that aren't able to be decoded by our event decoder (ex: log0 opcode).
-      - `base.transfers` - All event logs with event signature `Transfer(address,address,uint256)`. ERC-20, ERC-721, and ERC-1155 transfers are all included.
+      - `<network>.events` - Base mainnet decoded event logs with parameters, event signature, topics, and more.
+      - `<network>.transactions` - Base mainnet transaction data including hash, block number, gas usage.
+      - `<network>.blocks` - Base mainnet block information.
+      - `<network>.encoded_logs` - Encoded log data of event logs that aren't able to be decoded by our event decoder (ex: log0 opcode).
+      - `<network>.decoded_user_operations` - Decoded user operations data including hash, block number, gas usage, builder codes, entrypoint version, and more.
+      - `<network>.transaction_attributions` - Information about the attributions of a transaction to a builder and associated builder codes.
+
+    ### Supported Networks
+
+      - Base Mainnet: `base`
+      - Base Sepolia: `base_sepolia`
+
+      So for example, valid tables are: `base.events`, `base_sepolia.events`, `base.transactions`, etc.
 
     ### Query Limits
 
-      - Maximum result set: 100,000 rows
+      - Maximum result set: 50,000 rows
+      - Maximum query length: 10,000 characters
+      - Maximum on-disk data to read: 100GB
+      - Maximum memory usage: 15GB
       - Query timeout: 30 seconds
+      - Maximum JOINs: 12
+
+    ### Query Caching
+
+    By default, each query result is returned from cache so long as the result is from an identical query and less than 750ms old. This freshness tolerance can be modified upwards, to a maximum of 900000ms (i.e. 900s, 15m).
+    This can be helpful for users who wish to reduce expensive calls to the SQL API by reusing cached results.
 
 
     Sends a `POST` request to `/v2/data/query/run`
@@ -65612,6 +76225,28 @@ impl Client {
     ```*/
     pub fn run_sql_query(&self) -> builder::RunSqlQuery<'_> {
         builder::RunSqlQuery::new(self)
+    }
+    /**Get schemas details
+
+    Retrieve the schema information for the available tables in the SQL API's indexed data.
+
+    This includes table names, column definitions, data types, and indexed fields.
+
+
+    Sends a `GET` request to `/v2/data/query/schema`
+
+    Arguments:
+    - `database`: The name of the database to query. Defaults to "base" when not specified.
+    - `table`: Get the schema for a specific table.
+    ```ignore
+    let response = client.get_sql_schema()
+        .database(database)
+        .table(table)
+        .send()
+        .await;
+    ```*/
+    pub fn get_sql_schema(&self) -> builder::GetSqlSchema<'_> {
+        builder::GetSqlSchema::new(self)
     }
     /**List webhook subscriptions
 
@@ -65658,10 +76293,12 @@ impl Client {
     - **No labels required** - maximum simplicity for transaction monitoring
 
     **Payments Transfers Events** - Transfer lifecycle notifications:
-    - `payments.transfers.quoted`
-    - `payments.transfers.processing`
-    - `payments.transfers.completed`
-    - `payments.transfers.failed`
+    - `payments.transfers.quoted` - Transfer created and awaiting execution
+    - `payments.transfers.processing` - Transfer execution in progress
+    - `payments.transfers.completed` - Transfer completed successfully
+    - `payments.transfers.failed` - Transfer failed
+    - `payments.transfers.travel_rule_incomplete` - Travel rule information is missing
+    - `payments.transfers.travel_rule_completed` - Travel rule information has been provided and the transfer will proceed
     - **No labels required** - enable the transfers webhook to monitor status transitions
 
     **Wallet Events** - Wallet activity notifications:
@@ -65781,6 +76418,571 @@ impl Client {
     ```*/
     pub fn delete_webhook_subscription(&self) -> builder::DeleteWebhookSubscription<'_> {
         builder::DeleteWebhookSubscription::new(self)
+    }
+    /**List webhook subscription events
+
+    Retrieve webhook event delivery attempts for a specific subscription.
+    Returns event deliveries in descending order by creation time (newest first),
+    including delivery status, retry count, and response details.
+
+    ### Use Cases
+    - Debug webhook delivery failures and inspect response codes
+    - Monitor delivery status and retry counts
+    - Audit event delivery history for a subscription
+    - Verify that expected events were sent to webhook URLs
+
+    ### Filtering
+    Use optional query parameters to narrow results:
+    - `eventId` — find a specific event by ID
+    - `minCreatedAt` / `maxCreatedAt` — filter by time range
+    - `eventTypeNames` — filter by event type (comma-separated)
+
+    **Note:** Results are limited to the 50 most recent events (newest first). No pagination is supported.
+
+
+    Sends a `GET` request to `/v2/data/webhooks/subscriptions/{subscriptionId}/events`
+
+    Arguments:
+    - `subscription_id`: Unique identifier for the webhook subscription.
+    - `event_id`: Filter by a specific event ID.
+    - `event_type_names`: Filter by event type names (comma-separated).
+    - `max_created_at`: Filter events created at or before this timestamp (RFC 3339 format).
+    - `min_created_at`: Filter events created at or after this timestamp (RFC 3339 format).
+    ```ignore
+    let response = client.list_webhook_subscription_events()
+        .subscription_id(subscription_id)
+        .event_id(event_id)
+        .event_type_names(event_type_names)
+        .max_created_at(max_created_at)
+        .min_created_at(min_created_at)
+        .send()
+        .await;
+    ```*/
+    pub fn list_webhook_subscription_events(&self) -> builder::ListWebhookSubscriptionEvents<'_> {
+        builder::ListWebhookSubscriptionEvents::new(self)
+    }
+    /**Revoke delegation for end user
+
+    Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+
+    Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_delegation_for_end_user()
+        .user_id(user_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_delegation_for_end_user(&self) -> builder::RevokeDelegationForEndUser<'_> {
+        builder::RevokeDelegationForEndUser::new(self)
+    }
+    /**Create EIP-7702 delegation for end user EVM account
+
+    Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
+
+    This endpoint:
+    - Retrieves delegation artifacts from onchain
+    - Signs the EIP-7702 authorization for delegation
+    - Assembles and submits a Type 4 transaction
+    - Creates an associated smart account object
+
+    The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/eip7702/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.create_evm_eip7702_delegation_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn create_evm_eip7702_delegation_with_end_user_account(
+        &self,
+    ) -> builder::CreateEvmEip7702DelegationWithEndUserAccount<'_> {
+        builder::CreateEvmEip7702DelegationWithEndUserAccount::new(self)
+    }
+    /**Send a transaction with end user EVM account
+
+    Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+    The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).
+
+
+    **Transaction fields and API behavior**
+
+    - `to` *(Required)*: The address of the contract or account to send the transaction to.
+    - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.
+      The transaction will be sent to the network indicated by the `network` field in the request body.
+
+    - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign
+       a nonce to the transaction based on the current state of the account.
+
+    - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.
+       If not provided, the API will estimate a value based on current network conditions.
+
+    - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.
+       If not provided, the API will estimate a value based on current network conditions.
+
+    - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value
+      based on the `to` and `data` fields of the transaction.
+
+    - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
+    - `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
+    - `accessList` *(Optional)*: The access list to use for the transaction.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/send/transaction`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.send_evm_transaction_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn send_evm_transaction_with_end_user_account(
+        &self,
+    ) -> builder::SendEvmTransactionWithEndUserAccount<'_> {
+        builder::SendEvmTransactionWithEndUserAccount::new(self)
+    }
+    /**Sign an EIP-191 message with end user EVM account
+
+    Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.
+
+    Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/sign/message`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.sign_evm_message_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn sign_evm_message_with_end_user_account(
+        &self,
+    ) -> builder::SignEvmMessageWithEndUserAccount<'_> {
+        builder::SignEvmMessageWithEndUserAccount::new(self)
+    }
+    /**Sign a transaction with end user EVM account
+
+    Signs a transaction with the given end user EVM account.
+    The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+    The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/sign/transaction`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.sign_evm_transaction_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn sign_evm_transaction_with_end_user_account(
+        &self,
+    ) -> builder::SignEvmTransactionWithEndUserAccount<'_> {
+        builder::SignEvmTransactionWithEndUserAccount::new(self)
+    }
+    /**Sign EIP-712 typed data with end user EVM account
+
+    Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/sign/typed-data`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.sign_evm_typed_data_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn sign_evm_typed_data_with_end_user_account(
+        &self,
+    ) -> builder::SignEvmTypedDataWithEndUserAccount<'_> {
+        builder::SignEvmTypedDataWithEndUserAccount::new(self)
+    }
+    /**Send a user operation for end user Smart Account
+
+    Prepares, signs, and sends a user operation for an end user's Smart Account.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/send`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The address of the EVM Smart Account to execute the user operation from.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.send_user_operation_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn send_user_operation_with_end_user_account(
+        &self,
+    ) -> builder::SendUserOperationWithEndUserAccount<'_> {
+        builder::SendUserOperationWithEndUserAccount::new(self)
+    }
+    /**Send USDC on EVM
+
+    Sends USDC from an end user's EVM account (EOA or Smart Account) to a recipient address on a supported EVM network. This endpoint simplifies USDC transfers by automatically handling contract resolution, decimal conversion, gas estimation, and transaction encoding.
+    The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50").
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/{address}/send/{asset}`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed.
+    - `asset`: The asset to send. Currently only "usdc" is supported.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.send_evm_asset_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .asset(asset)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn send_evm_asset_with_end_user_account(
+        &self,
+    ) -> builder::SendEvmAssetWithEndUserAccount<'_> {
+        builder::SendEvmAssetWithEndUserAccount::new(self)
+    }
+    /**Send a transaction with end user Solana account
+
+    Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
+    The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+    The unsigned transaction should be serialized into a byte array and then encoded as base64.
+    **Transaction types**
+    The following transaction types are supported:
+    * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions)
+    * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)
+    **Instruction Batching**
+    To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+    **Network Support**
+    The following Solana networks are supported:
+    * `solana` - Solana Mainnet
+    * `solana-devnet` - Solana Devnet
+    The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/send/transaction`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.send_solana_transaction_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn send_solana_transaction_with_end_user_account(
+        &self,
+    ) -> builder::SendSolanaTransactionWithEndUserAccount<'_> {
+        builder::SendSolanaTransactionWithEndUserAccount::new(self)
+    }
+    /**Sign a Base64 encoded message
+
+    Signs an arbitrary Base64 encoded message with the given Solana account.
+    **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/sign/message`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.sign_solana_message_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn sign_solana_message_with_end_user_account(
+        &self,
+    ) -> builder::SignSolanaMessageWithEndUserAccount<'_> {
+        builder::SignSolanaMessageWithEndUserAccount::new(self)
+    }
+    /**Sign a transaction with end user Solana account
+
+    Signs a transaction with the given end user Solana account.
+    The unsigned transaction should be serialized into a byte array and then encoded as base64.
+    **Transaction types**
+    The following transaction types are supported:
+    * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html)
+    * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)
+    The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/sign/transaction`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.sign_solana_transaction_with_end_user_account()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn sign_solana_transaction_with_end_user_account(
+        &self,
+    ) -> builder::SignSolanaTransactionWithEndUserAccount<'_> {
+        builder::SignSolanaTransactionWithEndUserAccount::new(self)
+    }
+    /**Send USDC on Solana
+
+    Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
+    The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50").
+    Use the optional `createRecipientAta` parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/{address}/send/{asset}`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The base58 encoded address of the Solana account to send USDC from.
+    - `asset`: The asset to send. Currently only "usdc" is supported.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.send_solana_asset_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .asset(asset)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn send_solana_asset_with_end_user_account(
+        &self,
+    ) -> builder::SendSolanaAssetWithEndUserAccount<'_> {
+        builder::SendSolanaAssetWithEndUserAccount::new(self)
     }
     /**List end users
 
@@ -67273,16 +78475,17 @@ impl Client {
 
     Request funds from the CDP Faucet on Solana devnet.
 
-    Faucets are available for SOL.
+    Faucets are available for SOL, USDC, and CBTUSD.
 
     To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
     These limits are applied at both the CDP Project level and the blockchain address level.
     A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
-    | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
-    |:-----:|:-------------------------:|:--------------------------------:|
-    | SOL   | 0.00125 SOL               | 0.0125 SOL                       |
-    | USDC  | 1 USDC                    | 10 USDC                          |
+    | Token  | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
+    |:-----: |:-------------------------:|:--------------------------------:|
+    | SOL    | 0.00125 SOL               | 0.0125 SOL                       |
+    | USDC   | 1 USDC                    | 10 USDC                          |
+    | CBTUSD | 1 CBTUSD                  | 10 CBTUSD                        |
 
 
     Sends a `POST` request to `/v2/solana/faucet`
@@ -67730,6 +78933,9 @@ pub mod builder {
                 401u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
                 408u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -67743,6 +78949,93 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 504u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_sql_schema`]
+
+    [`Client::get_sql_schema`]: super::Client::get_sql_schema*/
+    #[derive(Debug, Clone)]
+    pub struct GetSqlSchema<'a> {
+        client: &'a super::Client,
+        database: Result<Option<types::GetSqlSchemaDatabase>, String>,
+        table: Result<Option<::std::string::String>, String>,
+    }
+    impl<'a> GetSqlSchema<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                database: Ok(None),
+                table: Ok(None),
+            }
+        }
+        pub fn database<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetSqlSchemaDatabase>,
+        {
+            self.database = value.try_into().map(Some).map_err(|_| {
+                "conversion to `GetSqlSchemaDatabase` for database failed".to_string()
+            });
+            self
+        }
+        pub fn table<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.table = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for table failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/data/query/schema`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::OnchainDataSchemaResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                database,
+                table,
+            } = self;
+            let database = database.map_err(Error::InvalidRequest)?;
+            let table = table.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/data/query/schema", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "database", &database,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "table", &table,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_sql_schema",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),
@@ -68198,6 +79491,2647 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_webhook_subscription_events`]
+
+    [`Client::list_webhook_subscription_events`]: super::Client::list_webhook_subscription_events*/
+    #[derive(Debug, Clone)]
+    pub struct ListWebhookSubscriptionEvents<'a> {
+        client: &'a super::Client,
+        subscription_id: Result<::uuid::Uuid, String>,
+        event_id: Result<Option<::uuid::Uuid>, String>,
+        event_type_names: Result<Option<::std::string::String>, String>,
+        max_created_at: Result<Option<::chrono::DateTime<::chrono::offset::Utc>>, String>,
+        min_created_at: Result<Option<::chrono::DateTime<::chrono::offset::Utc>>, String>,
+    }
+    impl<'a> ListWebhookSubscriptionEvents<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                subscription_id: Err("subscription_id was not initialized".to_string()),
+                event_id: Ok(None),
+                event_type_names: Ok(None),
+                max_created_at: Ok(None),
+                min_created_at: Ok(None),
+            }
+        }
+        pub fn subscription_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::uuid::Uuid>,
+        {
+            self.subscription_id = value.try_into().map_err(|_| {
+                "conversion to `:: uuid :: Uuid` for subscription_id failed".to_string()
+            });
+            self
+        }
+        pub fn event_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::uuid::Uuid>,
+        {
+            self.event_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `:: uuid :: Uuid` for event_id failed".to_string());
+            self
+        }
+        pub fn event_type_names<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.event_type_names = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for event_type_names failed".to_string()
+            });
+            self
+        }
+        pub fn max_created_at<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+        {
+            self.max_created_at = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `:: chrono :: DateTime < :: chrono :: offset :: Utc >` for max_created_at failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn min_created_at<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+        {
+            self.min_created_at = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `:: chrono :: DateTime < :: chrono :: offset :: Utc >` for min_created_at failed"
+                        .to_string()
+                });
+            self
+        }
+        ///Sends a `GET` request to `/v2/data/webhooks/subscriptions/{subscriptionId}/events`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::WebhookEventListResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                subscription_id,
+                event_id,
+                event_type_names,
+                max_created_at,
+                min_created_at,
+            } = self;
+            let subscription_id = subscription_id.map_err(Error::InvalidRequest)?;
+            let event_id = event_id.map_err(Error::InvalidRequest)?;
+            let event_type_names = event_type_names.map_err(Error::InvalidRequest)?;
+            let max_created_at = max_created_at.map_err(Error::InvalidRequest)?;
+            let min_created_at = min_created_at.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/data/webhooks/subscriptions/{}/events",
+                client.baseurl,
+                encode_path(&subscription_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "eventId", &event_id,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "eventTypeNames",
+                    &event_type_names,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "maxCreatedAt",
+                    &max_created_at,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "minCreatedAt",
+                    &min_created_at,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_webhook_subscription_events",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::revoke_delegation_for_end_user`]
+
+    [`Client::revoke_delegation_for_end_user`]: super::Client::revoke_delegation_for_end_user*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeDelegationForEndUser<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::RevokeDelegationForEndUserUserId, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key: Result<Option<types::RevokeDelegationForEndUserXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::RevokeDelegationForEndUserBody, String>,
+    }
+    impl<'a> RevokeDelegationForEndUser<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserBody>,
+            <V as std::convert::TryInto<types::RevokeDelegationForEndUserBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `RevokeDelegationForEndUserBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::RevokeDelegationForEndUserBody,
+            ) -> types::builder::RevokeDelegationForEndUserBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::RevokeDelegationForEndUserBody::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .delete(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_delegation_for_end_user",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                204u16 => Ok(ResponseValue::empty(response)),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::create_evm_eip7702_delegation_with_end_user_account`]
+
+    [`Client::create_evm_eip7702_delegation_with_end_user_account`]: super::Client::create_evm_eip7702_delegation_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct CreateEvmEip7702DelegationWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::CreateEvmEip7702DelegationWithEndUserAccountUserId, String>,
+        project_id:
+            Result<Option<types::CreateEvmEip7702DelegationWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key: Result<
+            Option<types::CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey>,
+            String,
+        >,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::CreateEvmEip7702DelegationWithEndUserAccountBody, String>,
+    }
+    impl<'a> CreateEvmEip7702DelegationWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateEvmEip7702DelegationWithEndUserAccountUserId>,
+        {
+            self.user_id = value
+                .try_into()
+                .map_err(|_| {
+                    "conversion to `CreateEvmEip7702DelegationWithEndUserAccountUserId` for user_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateEvmEip7702DelegationWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `CreateEvmEip7702DelegationWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<
+                types::CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey,
+            >,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `CreateEvmEip7702DelegationWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<
+                types::CreateEvmEip7702DelegationWithEndUserAccountBody,
+            >,
+            <V as std::convert::TryInto<
+                types::CreateEvmEip7702DelegationWithEndUserAccountBody,
+            >>::Error: std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| {
+                    format!(
+                        "conversion to `CreateEvmEip7702DelegationWithEndUserAccountBody` for body failed: {}",
+                        s
+                    )
+                });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CreateEvmEip7702DelegationWithEndUserAccountBody,
+            )
+                -> types::builder::CreateEvmEip7702DelegationWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/eip7702/delegation`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::CreateEvmEip7702DelegationWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::CreateEvmEip7702DelegationWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/eip7702/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "create_evm_eip7702_delegation_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::send_evm_transaction_with_end_user_account`]
+
+    [`Client::send_evm_transaction_with_end_user_account`]: super::Client::send_evm_transaction_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SendEvmTransactionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SendEvmTransactionWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SendEvmTransactionWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SendEvmTransactionWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SendEvmTransactionWithEndUserAccountBody, String>,
+    }
+    impl<'a> SendEvmTransactionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmTransactionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SendEvmTransactionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmTransactionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendEvmTransactionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmTransactionWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendEvmTransactionWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmTransactionWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SendEvmTransactionWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SendEvmTransactionWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SendEvmTransactionWithEndUserAccountBody,
+            )
+                -> types::builder::SendEvmTransactionWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/send/transaction`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SendEvmTransactionWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SendEvmTransactionWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/send/transaction",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "send_evm_transaction_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::sign_evm_message_with_end_user_account`]
+
+    [`Client::sign_evm_message_with_end_user_account`]: super::Client::sign_evm_message_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SignEvmMessageWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SignEvmMessageWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SignEvmMessageWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SignEvmMessageWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SignEvmMessageWithEndUserAccountBody, String>,
+    }
+    impl<'a> SignEvmMessageWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmMessageWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SignEvmMessageWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmMessageWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SignEvmMessageWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmMessageWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignEvmMessageWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmMessageWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SignEvmMessageWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SignEvmMessageWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SignEvmMessageWithEndUserAccountBody,
+            )
+                -> types::builder::SignEvmMessageWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/sign/message`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SignEvmMessageWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SignEvmMessageWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/sign/message",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "sign_evm_message_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::sign_evm_transaction_with_end_user_account`]
+
+    [`Client::sign_evm_transaction_with_end_user_account`]: super::Client::sign_evm_transaction_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SignEvmTransactionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SignEvmTransactionWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SignEvmTransactionWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SignEvmTransactionWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SignEvmTransactionWithEndUserAccountBody, String>,
+    }
+    impl<'a> SignEvmTransactionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTransactionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SignEvmTransactionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTransactionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignEvmTransactionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTransactionWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignEvmTransactionWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTransactionWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SignEvmTransactionWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SignEvmTransactionWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SignEvmTransactionWithEndUserAccountBody,
+            )
+                -> types::builder::SignEvmTransactionWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/sign/transaction`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SignEvmTransactionWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SignEvmTransactionWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/sign/transaction",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "sign_evm_transaction_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::sign_evm_typed_data_with_end_user_account`]
+
+    [`Client::sign_evm_typed_data_with_end_user_account`]: super::Client::sign_evm_typed_data_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SignEvmTypedDataWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SignEvmTypedDataWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SignEvmTypedDataWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SignEvmTypedDataWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SignEvmTypedDataWithEndUserAccountBody, String>,
+    }
+    impl<'a> SignEvmTypedDataWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTypedDataWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SignEvmTypedDataWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTypedDataWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SignEvmTypedDataWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTypedDataWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignEvmTypedDataWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignEvmTypedDataWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SignEvmTypedDataWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SignEvmTypedDataWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SignEvmTypedDataWithEndUserAccountBody,
+            )
+                -> types::builder::SignEvmTypedDataWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/sign/typed-data`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SignEvmTypedDataWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SignEvmTypedDataWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/sign/typed-data",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "sign_evm_typed_data_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::send_user_operation_with_end_user_account`]
+
+    [`Client::send_user_operation_with_end_user_account`]: super::Client::send_user_operation_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SendUserOperationWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SendUserOperationWithEndUserAccountUserId, String>,
+        address: Result<types::SendUserOperationWithEndUserAccountAddress, String>,
+        project_id: Result<Option<types::SendUserOperationWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SendUserOperationWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SendUserOperationWithEndUserAccountBody, String>,
+    }
+    impl<'a> SendUserOperationWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendUserOperationWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SendUserOperationWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendUserOperationWithEndUserAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `SendUserOperationWithEndUserAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendUserOperationWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SendUserOperationWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendUserOperationWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendUserOperationWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendUserOperationWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SendUserOperationWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SendUserOperationWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SendUserOperationWithEndUserAccountBody,
+            )
+                -> types::builder::SendUserOperationWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/send`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmUserOperation>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SendUserOperationWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/smart-accounts/{}/send",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "send_user_operation_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::send_evm_asset_with_end_user_account`]
+
+    [`Client::send_evm_asset_with_end_user_account`]: super::Client::send_evm_asset_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SendEvmAssetWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SendEvmAssetWithEndUserAccountUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        asset: Result<types::Asset, String>,
+        project_id: Result<Option<types::SendEvmAssetWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SendEvmAssetWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SendEvmAssetWithEndUserAccountBody, String>,
+    }
+    impl<'a> SendEvmAssetWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                asset: Err("asset was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmAssetWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SendEvmAssetWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn asset<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::Asset>,
+        {
+            self.asset = value
+                .try_into()
+                .map_err(|_| "conversion to `Asset` for asset failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmAssetWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SendEvmAssetWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmAssetWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendEvmAssetWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendEvmAssetWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SendEvmAssetWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SendEvmAssetWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SendEvmAssetWithEndUserAccountBody,
+            ) -> types::builder::SendEvmAssetWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/{address}/send/{asset}`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::SendEvmAssetWithEndUserAccountResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                user_id,
+                address,
+                asset,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let asset = asset.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SendEvmAssetWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/{}/send/{}",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+                encode_path(&asset.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "send_evm_asset_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::send_solana_transaction_with_end_user_account`]
+
+    [`Client::send_solana_transaction_with_end_user_account`]: super::Client::send_solana_transaction_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SendSolanaTransactionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SendSolanaTransactionWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SendSolanaTransactionWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SendSolanaTransactionWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SendSolanaTransactionWithEndUserAccountBody, String>,
+    }
+    impl<'a> SendSolanaTransactionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaTransactionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SendSolanaTransactionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaTransactionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendSolanaTransactionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaTransactionWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendSolanaTransactionWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaTransactionWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SendSolanaTransactionWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| {
+                    format!(
+                        "conversion to `SendSolanaTransactionWithEndUserAccountBody` for body failed: {}",
+                        s
+                    )
+                });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SendSolanaTransactionWithEndUserAccountBody,
+            )
+                -> types::builder::SendSolanaTransactionWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/send/transaction`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SendSolanaTransactionWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SendSolanaTransactionWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/solana/send/transaction",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "send_solana_transaction_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::sign_solana_message_with_end_user_account`]
+
+    [`Client::sign_solana_message_with_end_user_account`]: super::Client::sign_solana_message_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SignSolanaMessageWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SignSolanaMessageWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SignSolanaMessageWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SignSolanaMessageWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SignSolanaMessageWithEndUserAccountBody, String>,
+    }
+    impl<'a> SignSolanaMessageWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaMessageWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SignSolanaMessageWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaMessageWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SignSolanaMessageWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaMessageWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignSolanaMessageWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaMessageWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SignSolanaMessageWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SignSolanaMessageWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SignSolanaMessageWithEndUserAccountBody,
+            )
+                -> types::builder::SignSolanaMessageWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/sign/message`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SignSolanaMessageWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SignSolanaMessageWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/solana/sign/message",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "sign_solana_message_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::sign_solana_transaction_with_end_user_account`]
+
+    [`Client::sign_solana_transaction_with_end_user_account`]: super::Client::sign_solana_transaction_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SignSolanaTransactionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SignSolanaTransactionWithEndUserAccountUserId, String>,
+        project_id: Result<Option<types::SignSolanaTransactionWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SignSolanaTransactionWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SignSolanaTransactionWithEndUserAccountBody, String>,
+    }
+    impl<'a> SignSolanaTransactionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaTransactionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SignSolanaTransactionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaTransactionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignSolanaTransactionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaTransactionWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SignSolanaTransactionWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SignSolanaTransactionWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SignSolanaTransactionWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| {
+                    format!(
+                        "conversion to `SignSolanaTransactionWithEndUserAccountBody` for body failed: {}",
+                        s
+                    )
+                });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SignSolanaTransactionWithEndUserAccountBody,
+            )
+                -> types::builder::SignSolanaTransactionWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/sign/transaction`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SignSolanaTransactionWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SignSolanaTransactionWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/solana/sign/transaction",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "sign_solana_transaction_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::send_solana_asset_with_end_user_account`]
+
+    [`Client::send_solana_asset_with_end_user_account`]: super::Client::send_solana_asset_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct SendSolanaAssetWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::SendSolanaAssetWithEndUserAccountUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        asset: Result<types::Asset, String>,
+        project_id: Result<Option<types::SendSolanaAssetWithEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::SendSolanaAssetWithEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::SendSolanaAssetWithEndUserAccountBody, String>,
+    }
+    impl<'a> SendSolanaAssetWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                asset: Err("asset was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaAssetWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `SendSolanaAssetWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn asset<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::Asset>,
+        {
+            self.asset = value
+                .try_into()
+                .map_err(|_| "conversion to `Asset` for asset failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaAssetWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SendSolanaAssetWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaAssetWithEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `SendSolanaAssetWithEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SendSolanaAssetWithEndUserAccountBody>,
+            <V as std::convert::TryInto<types::SendSolanaAssetWithEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `SendSolanaAssetWithEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SendSolanaAssetWithEndUserAccountBody,
+            )
+                -> types::builder::SendSolanaAssetWithEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/solana/{address}/send/{asset}`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::SendSolanaAssetWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                address,
+                asset,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let asset = asset.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::SendSolanaAssetWithEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/solana/{}/send/{}",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+                encode_path(&asset.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "send_solana_asset_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),

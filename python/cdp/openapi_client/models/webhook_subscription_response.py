@@ -34,7 +34,7 @@ class WebhookSubscriptionResponse(BaseModel):
     created_at: datetime = Field(description="When the subscription was created.", alias="createdAt")
     updated_at: Optional[datetime] = Field(default=None, description="When the subscription was last updated.", alias="updatedAt")
     description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\", \"acceptance.payment_session\"). ", alias="eventTypes")
+    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\", \"acceptance.payment_session.authorization_succeeded\"). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     metadata: Optional[WebhookSubscriptionResponseMetadata] = None
     secret: StrictStr = Field(description="Secret for webhook signature validation.")

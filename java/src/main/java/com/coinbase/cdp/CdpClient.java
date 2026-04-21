@@ -8,6 +8,7 @@ import com.coinbase.cdp.auth.JwtOptions;
 import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.auth.WalletJwtGenerator;
 import com.coinbase.cdp.auth.WalletJwtOptions;
+import com.coinbase.cdp.client.enduser.EndUserClient;
 import com.coinbase.cdp.client.evm.EvmClient;
 import com.coinbase.cdp.client.policies.PoliciesClient;
 import com.coinbase.cdp.client.solana.SolanaClient;
@@ -36,6 +37,7 @@ import java.util.Map;
  *   <li>{@code cdp.evm()} - EVM account operations
  *   <li>{@code cdp.solana()} - Solana account operations
  *   <li>{@code cdp.policies()} - Policy management
+ *   <li>{@code cdp.endUser()} - End user operations
  * </ul>
  *
  * <p>Example usage:
@@ -110,6 +112,7 @@ public class CdpClient implements Closeable {
   private volatile boolean closed = false;
 
   // Lazily initialized namespace clients
+  private volatile EndUserClient endUserClient;
   private volatile EvmClient evmClient;
   private volatile SolanaClient solanaClient;
   private volatile PoliciesClient policiesClient;
@@ -318,6 +321,38 @@ public class CdpClient implements Closeable {
       }
     }
     return policiesClient;
+  }
+
+  /**
+   * Returns the End User namespace client.
+   *
+   * <p>Use this client for end user operations:
+   *
+   * <pre>{@code
+   * EndUser endUser = cdp.endUser().createEndUser(
+   *     new CreateEndUserRequest()
+   *         .userId(UUID.randomUUID().toString())
+   *         .authenticationMethods(List.of(...))
+   * );
+   * }</pre>
+   *
+   * @return the End User client
+   * @throws IllegalStateException if the client has been closed
+   */
+  public EndUserClient endUser() {
+    checkNotClosed();
+    if (endUserClient == null) {
+      synchronized (namespaceLock) {
+        if (endUserClient == null) {
+          if (tokenProvider != null) {
+            endUserClient = new EndUserClient(apiClient, tokenProvider);
+          } else {
+            endUserClient = new EndUserClient(this);
+          }
+        }
+      }
+    }
+    return endUserClient;
   }
 
   /**

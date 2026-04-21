@@ -21,8 +21,8 @@ from pydantic import Field, StrictInt, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
-from cdp.openapi_client.models.create_evm_eip7702_delegation201_response import CreateEvmEip7702Delegation201Response
 from cdp.openapi_client.models.create_evm_eip7702_delegation_request import CreateEvmEip7702DelegationRequest
+from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account201_response import CreateEvmEip7702DelegationWithEndUserAccount201Response
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_account import EvmAccount
 from cdp.openapi_client.models.evm_eip7702_delegation_operation import EvmEip7702DelegationOperation
@@ -30,15 +30,15 @@ from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAc
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
-from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account200_response import SendEvmTransactionWithEndUserAccount200Response
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
-from cdp.openapi_client.models.sign_evm_message200_response import SignEvmMessage200Response
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
-from cdp.openapi_client.models.sign_evm_transaction200_response import SignEvmTransaction200Response
+from cdp.openapi_client.models.sign_evm_message_with_end_user_account200_response import SignEvmMessageWithEndUserAccount200Response
 from cdp.openapi_client.models.sign_evm_transaction_request import SignEvmTransactionRequest
-from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
+from cdp.openapi_client.models.sign_evm_transaction_with_end_user_account200_response import SignEvmTransactionWithEndUserAccount200Response
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account200_response import SignEvmTypedDataWithEndUserAccount200Response
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -406,7 +406,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateEvmEip7702Delegation201Response:
+    ) -> CreateEvmEip7702DelegationWithEndUserAccount201Response:
         """Create EIP-7702 delegation
 
         Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
@@ -453,7 +453,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateEvmEip7702Delegation201Response",
+            '201': "CreateEvmEip7702DelegationWithEndUserAccount201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -494,7 +494,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateEvmEip7702Delegation201Response]:
+    ) -> ApiResponse[CreateEvmEip7702DelegationWithEndUserAccount201Response]:
         """Create EIP-7702 delegation
 
         Creates an EIP-7702 delegation for an EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
@@ -541,7 +541,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateEvmEip7702Delegation201Response",
+            '201': "CreateEvmEip7702DelegationWithEndUserAccount201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -629,7 +629,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateEvmEip7702Delegation201Response",
+            '201': "CreateEvmEip7702DelegationWithEndUserAccount201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2883,7 +2883,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SendEvmTransaction200Response:
+    ) -> SendEvmTransactionWithEndUserAccount200Response:
         """Send a transaction
 
         Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
@@ -2930,7 +2930,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SendEvmTransaction200Response",
+            '200': "SendEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2972,7 +2972,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SendEvmTransaction200Response]:
+    ) -> ApiResponse[SendEvmTransactionWithEndUserAccount200Response]:
         """Send a transaction
 
         Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
@@ -3019,7 +3019,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SendEvmTransaction200Response",
+            '200': "SendEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -3108,7 +3108,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SendEvmTransaction200Response",
+            '200': "SendEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -3575,7 +3575,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SignEvmMessage200Response:
+    ) -> SignEvmMessageWithEndUserAccount200Response:
         """Sign an EIP-191 message
 
         Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
@@ -3622,7 +3622,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmMessage200Response",
+            '200': "SignEvmMessageWithEndUserAccount200Response",
             '401': "Error",
             '402': "Error",
             '404': "Error",
@@ -3662,7 +3662,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SignEvmMessage200Response]:
+    ) -> ApiResponse[SignEvmMessageWithEndUserAccount200Response]:
         """Sign an EIP-191 message
 
         Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
@@ -3709,7 +3709,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmMessage200Response",
+            '200': "SignEvmMessageWithEndUserAccount200Response",
             '401': "Error",
             '402': "Error",
             '404': "Error",
@@ -3796,7 +3796,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmMessage200Response",
+            '200': "SignEvmMessageWithEndUserAccount200Response",
             '401': "Error",
             '402': "Error",
             '404': "Error",
@@ -3918,7 +3918,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SignEvmTransaction200Response:
+    ) -> SignEvmTransactionWithEndUserAccount200Response:
         """Sign a transaction
 
         Signs a transaction with the given EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
@@ -3965,7 +3965,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmTransaction200Response",
+            '200': "SignEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -4007,7 +4007,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SignEvmTransaction200Response]:
+    ) -> ApiResponse[SignEvmTransactionWithEndUserAccount200Response]:
         """Sign a transaction
 
         Signs a transaction with the given EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
@@ -4054,7 +4054,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmTransaction200Response",
+            '200': "SignEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -4143,7 +4143,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmTransaction200Response",
+            '200': "SignEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -4267,7 +4267,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SignEvmTypedData200Response:
+    ) -> SignEvmTypedDataWithEndUserAccount200Response:
         """Sign EIP-712 typed data
 
         Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
@@ -4314,7 +4314,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmTypedData200Response",
+            '200': "SignEvmTypedDataWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -4354,7 +4354,7 @@ class EVMAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SignEvmTypedData200Response]:
+    ) -> ApiResponse[SignEvmTypedDataWithEndUserAccount200Response]:
         """Sign EIP-712 typed data
 
         Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
@@ -4401,7 +4401,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmTypedData200Response",
+            '200': "SignEvmTypedDataWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -4488,7 +4488,7 @@ class EVMAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SignEvmTypedData200Response",
+            '200': "SignEvmTypedDataWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
