@@ -14,6 +14,7 @@ The official Java SDK for the [Coinbase Developer Platform (CDP)](https://docs.c
   - [Testnet Faucet](#testnet-faucet)
   - [Signing Messages](#signing-messages)
   - [Transferring Tokens](#transferring-tokens)
+- [End User Management](#end-user-management)
 - [HTTP Retry Configuration](#http-retry-configuration)
 - [TokenProvider Pattern](#tokenprovider-pattern)
 - [Low-Level API Access](#low-level-api-access)
@@ -58,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.coinbase:cdp-sdk:0.2.0")
+    implementation("com.coinbase:cdp-sdk:0.3.0")
 }
 ```
 
@@ -307,6 +308,168 @@ var result = cdp.solana().transfer(
 System.out.println("Signature: " + result.getSignature());
 ```
 
+## End User Management
+
+The SDK provides an `EndUserClient` for creating, managing, and performing delegated signing/sending operations on behalf of end users.
+
+### Create an end user
+
+```java
+import com.coinbase.cdp.openapi.model.CreateEndUserRequest;
+
+var endUser = cdp.endUser().createEndUser(
+    new CreateEndUserRequest()
+);
+System.out.println("User ID: " + endUser.getUserId());
+```
+
+### List end users
+
+```java
+import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
+
+var response = cdp.endUser().listEndUsers(
+    ListEndUsersOptions.builder()
+        .pageSize(10)
+        .build()
+);
+System.out.println("End users: " + response.getEndUsers().size());
+```
+
+### Get an end user
+
+```java
+var endUser = cdp.endUser().getEndUser("user-id");
+System.out.println("User: " + endUser.getUserId());
+```
+
+### Add accounts to an end user
+
+```java
+// Add an EVM EOA account
+var evmResult = cdp.endUser().addEndUserEvmAccount("user-id");
+System.out.println("EVM address: " + evmResult.getEvmAccount().getAddress());
+
+// Add an EVM smart account
+import com.coinbase.cdp.openapi.model.AddEndUserEvmSmartAccountRequest;
+
+var smartResult = cdp.endUser().addEndUserEvmSmartAccount(
+    "user-id",
+    new AddEndUserEvmSmartAccountRequest()
+);
+
+// Add a Solana account
+var solResult = cdp.endUser().addEndUserSolanaAccount("user-id");
+System.out.println("Solana address: " + solResult.getSolanaAccount().getAddress());
+```
+
+### Delegated EVM signing
+
+#### Sign an EVM transaction
+
+```java
+import com.coinbase.cdp.openapi.model.SignEvmTransactionWithEndUserAccountRequest;
+
+var result = cdp.endUser().signEvmTransaction(
+    "user-id",
+    new SignEvmTransactionWithEndUserAccountRequest()
+        .transaction("0x...")
+        .address("0x1234...")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+#### Sign an EVM message
+
+```java
+import com.coinbase.cdp.openapi.model.SignEvmMessageWithEndUserAccountRequest;
+
+var result = cdp.endUser().signEvmMessage(
+    "user-id",
+    new SignEvmMessageWithEndUserAccountRequest()
+        .message("Hello, CDP!")
+        .address("0x1234...")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+### Delegated EVM sending
+
+#### Send an EVM transaction
+
+```java
+import com.coinbase.cdp.openapi.model.SendEvmTransactionWithEndUserAccountRequest;
+
+var result = cdp.endUser().sendEvmTransaction(
+    "user-id",
+    new SendEvmTransactionWithEndUserAccountRequest()
+        .transaction("0x...")
+        .address("0x1234...")
+        .network("base-sepolia")
+);
+System.out.println("Transaction hash: " + result.getTransactionHash());
+```
+
+#### Send an EVM asset
+
+```java
+import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccountRequest;
+
+var result = cdp.endUser().sendEvmAsset(
+    "user-id",
+    "0x1234...",  // sender address
+    "usdc",       // asset
+    new SendEvmAssetWithEndUserAccountRequest()
+        .to("0x9F663335Cd6Ad02a37B633602E98866CF944124d")
+        .amount("10000")
+        .network("base-sepolia")
+);
+System.out.println("Transaction hash: " + result.getTransactionHash());
+```
+
+### Delegated Solana signing
+
+#### Sign a Solana message
+
+```java
+import com.coinbase.cdp.openapi.model.SignSolanaMessageWithEndUserAccountRequest;
+
+var result = cdp.endUser().signSolanaMessage(
+    "user-id",
+    new SignSolanaMessageWithEndUserAccountRequest()
+        .message("Hello, Solana!")
+        .address("7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV")
+);
+System.out.println("Signature: " + result.getSignature());
+```
+
+### Delegated Solana sending
+
+#### Send a Solana asset
+
+```java
+import com.coinbase.cdp.openapi.model.SendSolanaAssetWithEndUserAccountRequest;
+
+var result = cdp.endUser().sendSolanaAsset(
+    "user-id",
+    "7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV",  // sender address
+    "usdc",                                             // asset
+    new SendSolanaAssetWithEndUserAccountRequest()
+        .to("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
+        .amount("1000000")
+        .network("solana-devnet")
+);
+System.out.println("Signature: " + result.getTransactionSignature());
+```
+
+### Revoke delegation
+
+Revoke all active delegations for an end user:
+
+```java
+cdp.endUser().revokeDelegation("user-id");
+```
+
 ## HTTP Retry Configuration
 
 The SDK supports configurable HTTP retry behavior with exponential backoff and jitter for handling transient failures and rate limiting.
@@ -436,6 +599,8 @@ try (CdpClient cdp = CdpClient.create()) {
 | `PolicyEngineApi` | Policy management for operation controls |
 | `FaucetsApi` | Request testnet funds |
 | `OnchainDataApi` | Query on-chain data |
+| `EndUserAccountsApi` | End user CRUD operations |
+| `EmbeddedWalletsApi` | Delegated signing/sending for end users |
 
 See the `com.coinbase.cdp.openapi.api` package for all available APIs.
 
@@ -492,9 +657,10 @@ try {
 ## Features
 
 - **Multi-blockchain support**: EVM chains and Solana
-- **High-level API**: Namespace clients (`cdp.evm()`, `cdp.solana()`, `cdp.policies()`)
+- **High-level API**: Namespace clients (`cdp.evm()`, `cdp.solana()`, `cdp.policies()`, `cdp.endUser()`)
 - **Server-managed accounts**: Create and manage accounts on CDP
 - **Smart accounts**: ERC-4337 account abstraction support
+- **End user management**: Create, manage, and perform delegated operations on end users
 - **Policy engine**: Define operation controls
 - **Dual key support**: EC (ES256) and Ed25519 (EdDSA) authentication
 - **Automatic auth**: API key JWT headers added automatically

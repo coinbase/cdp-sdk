@@ -33,7 +33,71 @@ from cdp.openapi_client.models.create_end_user_request_evm_account import (
 from cdp.openapi_client.models.create_end_user_request_solana_account import (
     CreateEndUserRequestSolanaAccount,
 )
+from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account201_response import (
+    CreateEvmEip7702DelegationWithEndUserAccount201Response,
+)
+from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account_request import (
+    CreateEvmEip7702DelegationWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
+from cdp.openapi_client.models.revoke_delegation_for_end_user_request import (
+    RevokeDelegationForEndUserRequest,
+)
+from cdp.openapi_client.models.send_evm_asset_with_end_user_account200_response import (
+    SendEvmAssetWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.send_evm_asset_with_end_user_account_request import (
+    SendEvmAssetWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account200_response import (
+    SendEvmTransactionWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account_request import (
+    SendEvmTransactionWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.send_solana_asset_with_end_user_account_request import (
+    SendSolanaAssetWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account200_response import (
+    SendSolanaTransactionWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account_request import (
+    SendSolanaTransactionWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.send_user_operation_with_end_user_account_request import (
+    SendUserOperationWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.sign_evm_message_with_end_user_account200_response import (
+    SignEvmMessageWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.sign_evm_message_with_end_user_account_request import (
+    SignEvmMessageWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.sign_evm_transaction_with_end_user_account200_response import (
+    SignEvmTransactionWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.sign_evm_transaction_with_end_user_account_request import (
+    SignEvmTransactionWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account200_response import (
+    SignEvmTypedDataWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account_request import (
+    SignEvmTypedDataWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account200_response import (
+    SignSolanaMessageWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account_request import (
+    SignSolanaMessageWithEndUserAccountRequest,
+)
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account200_response import (
+    SignSolanaTransactionWithEndUserAccount200Response,
+)
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account_request import (
+    SignSolanaTransactionWithEndUserAccountRequest,
+)
 from cdp.openapi_client.models.validate_end_user_access_token_request import (
     ValidateEndUserAccessTokenRequest,
 )
@@ -309,4 +373,379 @@ class EndUserClient:
         return await self.api_clients.end_user.add_end_user_solana_account(
             user_id=user_id,
             body={},
+        )
+
+    # ─── Delegation Management ───
+
+    async def revoke_delegation(
+        self,
+        user_id: str,
+    ) -> None:
+        """Revoke all active delegations for an end user.
+
+        This operation can be performed by the end user themselves or by a developer
+        using their API key.
+
+        Args:
+            user_id: The unique identifier of the end user.
+
+        """
+        track_action(action="revoke_delegation_for_end_user")
+
+        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user(
+            user_id=user_id,
+            revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+        )
+
+    # ─── Delegated EVM Sign Methods ───
+
+    async def sign_evm_transaction(
+        self,
+        user_id: str,
+        address: str,
+        transaction: str,
+    ) -> SignEvmTransactionWithEndUserAccount200Response:
+        """Sign an EVM transaction on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The 0x-prefixed address of the EVM account.
+            transaction: The RLP-encoded unsigned transaction.
+
+        Returns:
+            SignEvmTransactionWithEndUserAccount200Response: The signed transaction result.
+
+        """
+        track_action(action="end_user_sign_evm_transaction")
+
+        return await self.api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account(
+            user_id=user_id,
+            sign_evm_transaction_with_end_user_account_request=SignEvmTransactionWithEndUserAccountRequest(
+                address=address,
+                transaction=transaction,
+            ),
+        )
+
+    async def sign_evm_message(
+        self,
+        user_id: str,
+        address: str,
+        message: str,
+    ) -> SignEvmMessageWithEndUserAccount200Response:
+        """Sign an EVM message (EIP-191) on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The 0x-prefixed address of the EVM account.
+            message: The message to sign.
+
+        Returns:
+            SignEvmMessageWithEndUserAccount200Response: The signature result.
+
+        """
+        track_action(action="end_user_sign_evm_message")
+
+        return await self.api_clients.embedded_wallets.sign_evm_message_with_end_user_account(
+            user_id=user_id,
+            sign_evm_message_with_end_user_account_request=SignEvmMessageWithEndUserAccountRequest(
+                address=address,
+                message=message,
+            ),
+        )
+
+    async def sign_evm_typed_data(
+        self,
+        user_id: str,
+        address: str,
+        typed_data: object,
+    ) -> SignEvmTypedDataWithEndUserAccount200Response:
+        """Sign EVM EIP-712 typed data on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The 0x-prefixed address of the EVM account.
+            typed_data: The EIP-712 typed data object.
+
+        Returns:
+            SignEvmTypedDataWithEndUserAccount200Response: The signature result.
+
+        """
+        track_action(action="end_user_sign_evm_typed_data")
+
+        return await self.api_clients.embedded_wallets.sign_evm_typed_data_with_end_user_account(
+            user_id=user_id,
+            sign_evm_typed_data_with_end_user_account_request=SignEvmTypedDataWithEndUserAccountRequest(
+                address=address,
+                typed_data=typed_data,
+            ),
+        )
+
+    # ─── Delegated EVM Send Methods ───
+
+    async def send_evm_transaction(
+        self,
+        user_id: str,
+        address: str,
+        transaction: str,
+        network: str,
+    ) -> SendEvmTransactionWithEndUserAccount200Response:
+        """Send an EVM transaction on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The 0x-prefixed address of the EVM account.
+            transaction: The RLP-encoded unsigned transaction.
+            network: The EVM network to send the transaction on.
+
+        Returns:
+            SendEvmTransactionWithEndUserAccount200Response: The transaction result.
+
+        """
+        track_action(action="end_user_send_evm_transaction")
+
+        return await self.api_clients.embedded_wallets.send_evm_transaction_with_end_user_account(
+            user_id=user_id,
+            send_evm_transaction_with_end_user_account_request=SendEvmTransactionWithEndUserAccountRequest(
+                address=address,
+                transaction=transaction,
+                network=network,
+            ),
+        )
+
+    async def send_evm_asset(
+        self,
+        user_id: str,
+        address: str,
+        to: str,
+        amount: str,
+        network: str,
+        asset: str = "usdc",
+        use_cdp_paymaster: bool | None = None,
+        paymaster_url: str | None = None,
+    ) -> SendEvmAssetWithEndUserAccount200Response:
+        """Send an EVM asset (e.g. USDC) on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The 0x-prefixed address of the EVM account to send from.
+            to: The 0x-prefixed address of the recipient.
+            amount: The amount to send as a decimal string (e.g., "1.5").
+            network: The EVM network to send the asset on.
+            asset: The asset to send. Defaults to "usdc".
+            use_cdp_paymaster: Whether to use CDP Paymaster for gas sponsorship.
+            paymaster_url: Optional custom Paymaster URL.
+
+        Returns:
+            SendEvmAssetWithEndUserAccount200Response: The transaction result.
+
+        """
+        track_action(action="end_user_send_evm_asset")
+
+        return await self.api_clients.embedded_wallets.send_evm_asset_with_end_user_account(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            send_evm_asset_with_end_user_account_request=SendEvmAssetWithEndUserAccountRequest(
+                to=to,
+                amount=amount,
+                network=network,
+                use_cdp_paymaster=use_cdp_paymaster,
+                paymaster_url=paymaster_url,
+            ),
+        )
+
+    async def send_user_operation(
+        self,
+        user_id: str,
+        address: str,
+        network: str,
+        calls: list,
+        use_cdp_paymaster: bool | None = None,
+        paymaster_url: str | None = None,
+        data_suffix: str | None = None,
+    ) -> EvmUserOperation:
+        """Send a user operation on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The address of the EVM Smart Account.
+            network: The EVM network.
+            calls: The list of calls to execute.
+            use_cdp_paymaster: Whether to use CDP Paymaster for gas sponsorship.
+            paymaster_url: Optional custom Paymaster URL.
+            data_suffix: Optional data suffix for the user operation.
+
+        Returns:
+            EvmUserOperation: The user operation result.
+
+        """
+        track_action(action="end_user_send_user_operation")
+
+        return await self.api_clients.embedded_wallets.send_user_operation_with_end_user_account(
+            user_id=user_id,
+            address=address,
+            send_user_operation_with_end_user_account_request=SendUserOperationWithEndUserAccountRequest(
+                network=network,
+                calls=calls,
+                use_cdp_paymaster=use_cdp_paymaster,
+                paymaster_url=paymaster_url,
+                data_suffix=data_suffix,
+            ),
+        )
+
+    async def create_evm_eip7702_delegation(
+        self,
+        user_id: str,
+        address: str,
+        network: str,
+        enable_spend_permissions: bool | None = None,
+    ) -> CreateEvmEip7702DelegationWithEndUserAccount201Response:
+        """Create an EVM EIP-7702 delegation on behalf of an end user.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The 0x-prefixed address of the EVM EOA account.
+            network: The EVM network.
+            enable_spend_permissions: If true, enables spend permissions for the delegated account.
+
+        Returns:
+            CreateEvmEip7702DelegationWithEndUserAccount201Response: The delegation result.
+
+        """
+        track_action(action="end_user_create_evm_eip7702_delegation")
+
+        return await self.api_clients.embedded_wallets.create_evm_eip7702_delegation_with_end_user_account(
+            user_id=user_id,
+            create_evm_eip7702_delegation_with_end_user_account_request=CreateEvmEip7702DelegationWithEndUserAccountRequest(
+                address=address,
+                network=network,
+                enable_spend_permissions=enable_spend_permissions,
+            ),
+        )
+
+    # ─── Delegated Solana Sign Methods ───
+
+    async def sign_solana_message(
+        self,
+        user_id: str,
+        address: str,
+        message: str,
+    ) -> SignSolanaMessageWithEndUserAccount200Response:
+        """Sign a Solana message on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The base58 encoded address of the Solana account.
+            message: The base64 encoded message to sign.
+
+        Returns:
+            SignSolanaMessageWithEndUserAccount200Response: The signature result.
+
+        """
+        track_action(action="end_user_sign_solana_message")
+
+        return await self.api_clients.embedded_wallets.sign_solana_message_with_end_user_account(
+            user_id=user_id,
+            sign_solana_message_with_end_user_account_request=SignSolanaMessageWithEndUserAccountRequest(
+                address=address,
+                message=message,
+            ),
+        )
+
+    async def sign_solana_transaction(
+        self,
+        user_id: str,
+        address: str,
+        transaction: str,
+    ) -> SignSolanaTransactionWithEndUserAccount200Response:
+        """Sign a Solana transaction on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The base58 encoded address of the Solana account.
+            transaction: The base64 encoded transaction to sign.
+
+        Returns:
+            SignSolanaTransactionWithEndUserAccount200Response: The signed transaction result.
+
+        """
+        track_action(action="end_user_sign_solana_transaction")
+
+        return await self.api_clients.embedded_wallets.sign_solana_transaction_with_end_user_account(
+            user_id=user_id,
+            sign_solana_transaction_with_end_user_account_request=SignSolanaTransactionWithEndUserAccountRequest(
+                address=address,
+                transaction=transaction,
+            ),
+        )
+
+    # ─── Delegated Solana Send Methods ───
+
+    async def send_solana_transaction(
+        self,
+        user_id: str,
+        address: str,
+        transaction: str,
+        network: str,
+    ) -> SendSolanaTransactionWithEndUserAccount200Response:
+        """Send a Solana transaction on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The base58 encoded address of the Solana account.
+            transaction: The base64 encoded transaction.
+            network: The Solana network.
+
+        Returns:
+            SendSolanaTransactionWithEndUserAccount200Response: The transaction result.
+
+        """
+        track_action(action="end_user_send_solana_transaction")
+
+        return await self.api_clients.embedded_wallets.send_solana_transaction_with_end_user_account(
+            user_id=user_id,
+            send_solana_transaction_with_end_user_account_request=SendSolanaTransactionWithEndUserAccountRequest(
+                address=address,
+                transaction=transaction,
+                network=network,
+            ),
+        )
+
+    async def send_solana_asset(
+        self,
+        user_id: str,
+        address: str,
+        to: str,
+        amount: str,
+        network: str,
+        asset: str = "usdc",
+        create_recipient_ata: bool | None = None,
+    ) -> SendSolanaTransactionWithEndUserAccount200Response:
+        """Send a Solana asset (e.g. USDC) on behalf of an end user using a delegation.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The base58 encoded address of the Solana account to send from.
+            to: The base58 encoded address of the recipient.
+            amount: The amount to send as a decimal string (e.g., "1.5").
+            network: The Solana network.
+            asset: The asset to send. Defaults to "usdc".
+            create_recipient_ata: Whether to create the recipient's Associated Token Account.
+
+        Returns:
+            SendSolanaTransactionWithEndUserAccount200Response: The transaction result.
+
+        """
+        track_action(action="end_user_send_solana_asset")
+
+        return await self.api_clients.embedded_wallets.send_solana_asset_with_end_user_account(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            send_solana_asset_with_end_user_account_request=SendSolanaAssetWithEndUserAccountRequest(
+                to=to,
+                amount=amount,
+                network=network,
+                create_recipient_ata=create_recipient_ata,
+            ),
         )

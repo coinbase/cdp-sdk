@@ -34,15 +34,15 @@ import com.coinbase.cdp.openapi.model.ListSpendPermissions200Response;
 import com.coinbase.cdp.openapi.model.RequestEvmFaucet200Response;
 import com.coinbase.cdp.openapi.model.RequestEvmFaucetRequest;
 import com.coinbase.cdp.openapi.model.RevokeSpendPermissionRequest;
-import com.coinbase.cdp.openapi.model.SendEvmTransaction200Response;
 import com.coinbase.cdp.openapi.model.SendEvmTransactionRequest;
+import com.coinbase.cdp.openapi.model.SendEvmTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignEvmHash200Response;
 import com.coinbase.cdp.openapi.model.SignEvmHashRequest;
-import com.coinbase.cdp.openapi.model.SignEvmMessage200Response;
 import com.coinbase.cdp.openapi.model.SignEvmMessageRequest;
-import com.coinbase.cdp.openapi.model.SignEvmTransaction200Response;
+import com.coinbase.cdp.openapi.model.SignEvmMessageWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignEvmTransactionRequest;
-import com.coinbase.cdp.openapi.model.SignEvmTypedData200Response;
+import com.coinbase.cdp.openapi.model.SignEvmTransactionWithEndUserAccount200Response;
+import com.coinbase.cdp.openapi.model.SignEvmTypedDataWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.UpdateEvmAccountRequest;
 import com.coinbase.cdp.utils.TokenAddressResolver;
 import com.coinbase.cdp.utils.TransactionBuilder;
@@ -297,8 +297,8 @@ public class EvmClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignEvmMessage200Response signMessage(String address, SignEvmMessageRequest request)
-      throws ApiException {
+  public SignEvmMessageWithEndUserAccount200Response signMessage(
+      String address, SignEvmMessageRequest request) throws ApiException {
     return signMessage(address, request, null);
   }
 
@@ -311,7 +311,7 @@ public class EvmClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignEvmMessage200Response signMessage(
+  public SignEvmMessageWithEndUserAccount200Response signMessage(
       String address, SignEvmMessageRequest request, String idempotencyKey) throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/evm/accounts/" + address + "/sign/message", request);
@@ -326,7 +326,7 @@ public class EvmClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignEvmTransaction200Response signTransaction(
+  public SignEvmTransactionWithEndUserAccount200Response signTransaction(
       String address, SignEvmTransactionRequest request) throws ApiException {
     return signTransaction(address, request, null);
   }
@@ -340,7 +340,7 @@ public class EvmClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignEvmTransaction200Response signTransaction(
+  public SignEvmTransactionWithEndUserAccount200Response signTransaction(
       String address, SignEvmTransactionRequest request, String idempotencyKey)
       throws ApiException {
     String walletJwt =
@@ -356,8 +356,8 @@ public class EvmClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignEvmTypedData200Response signTypedData(String address, EIP712Message typedData)
-      throws ApiException {
+  public SignEvmTypedDataWithEndUserAccount200Response signTypedData(
+      String address, EIP712Message typedData) throws ApiException {
     return signTypedData(address, typedData, null);
   }
 
@@ -370,7 +370,7 @@ public class EvmClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignEvmTypedData200Response signTypedData(
+  public SignEvmTypedDataWithEndUserAccount200Response signTypedData(
       String address, EIP712Message typedData, String idempotencyKey) throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/evm/accounts/" + address + "/sign/typed-data", typedData);
@@ -387,7 +387,7 @@ public class EvmClient {
    * @return the transaction response
    * @throws ApiException if the API call fails
    */
-  public SendEvmTransaction200Response sendTransaction(
+  public SendEvmTransactionWithEndUserAccount200Response sendTransaction(
       String address, SendEvmTransactionRequest request) throws ApiException {
     return sendTransaction(address, request, null);
   }
@@ -401,7 +401,7 @@ public class EvmClient {
    * @return the transaction response
    * @throws ApiException if the API call fails
    */
-  public SendEvmTransaction200Response sendTransaction(
+  public SendEvmTransactionWithEndUserAccount200Response sendTransaction(
       String address, SendEvmTransactionRequest request, String idempotencyKey)
       throws ApiException {
     String walletJwt =
@@ -448,8 +448,8 @@ public class EvmClient {
    * @throws ApiException if the API call fails
    * @throws IllegalArgumentException if options are invalid
    */
-  public SendEvmTransaction200Response transfer(String fromAddress, TransferOptions options)
-      throws ApiException {
+  public SendEvmTransactionWithEndUserAccount200Response transfer(
+      String fromAddress, TransferOptions options) throws ApiException {
     return transfer(fromAddress, options, null);
   }
 
@@ -463,7 +463,7 @@ public class EvmClient {
    * @throws ApiException if the API call fails
    * @throws IllegalArgumentException if options are invalid
    */
-  public SendEvmTransaction200Response transfer(
+  public SendEvmTransactionWithEndUserAccount200Response transfer(
       String fromAddress, TransferOptions options, String idempotencyKey) throws ApiException {
 
     if (fromAddress == null || fromAddress.isBlank()) {

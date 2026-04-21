@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.48.0
+
+### Minor Changes
+
+- [#634](https://github.com/coinbase/cdp-sdk/pull/634) [`ed47c82`](https://github.com/coinbase/cdp-sdk/commit/ed47c821eca763742137500e3380371dd1b78ec1) Thanks [@milan-cb](https://github.com/milan-cb)! - Added CreateSubscription for Webhooks Client
+
+- [#659](https://github.com/coinbase/cdp-sdk/pull/659) [`48ea200`](https://github.com/coinbase/cdp-sdk/commit/48ea20026283f10aa094af66dab4fc1d8feb051e) Thanks [@sammccord](https://github.com/sammccord)! - Consume refactored end user operations for delegated signing in end user client
+
 ## 1.47.0
 
 ### Minor Changes

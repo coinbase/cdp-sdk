@@ -17,12 +17,12 @@ import com.coinbase.cdp.openapi.model.ListSolanaAccounts200Response;
 import com.coinbase.cdp.openapi.model.ListSolanaTokenBalances200Response;
 import com.coinbase.cdp.openapi.model.RequestSolanaFaucet200Response;
 import com.coinbase.cdp.openapi.model.RequestSolanaFaucetRequest;
-import com.coinbase.cdp.openapi.model.SendSolanaTransaction200Response;
 import com.coinbase.cdp.openapi.model.SendSolanaTransactionRequest;
-import com.coinbase.cdp.openapi.model.SignSolanaMessage200Response;
+import com.coinbase.cdp.openapi.model.SendSolanaTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignSolanaMessageRequest;
-import com.coinbase.cdp.openapi.model.SignSolanaTransaction200Response;
+import com.coinbase.cdp.openapi.model.SignSolanaMessageWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignSolanaTransactionRequest;
+import com.coinbase.cdp.openapi.model.SignSolanaTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SolanaAccount;
 import com.coinbase.cdp.utils.SolanaMintAddressResolver;
 import com.coinbase.cdp.utils.SolanaTransactionBuilder;
@@ -225,8 +225,8 @@ public class SolanaClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignSolanaMessage200Response signMessage(String address, SignSolanaMessageRequest request)
-      throws ApiException {
+  public SignSolanaMessageWithEndUserAccount200Response signMessage(
+      String address, SignSolanaMessageRequest request) throws ApiException {
     return signMessage(address, request, null);
   }
 
@@ -239,7 +239,7 @@ public class SolanaClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignSolanaMessage200Response signMessage(
+  public SignSolanaMessageWithEndUserAccount200Response signMessage(
       String address, SignSolanaMessageRequest request, String idempotencyKey) throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/solana/accounts/" + address + "/sign/message", request);
@@ -254,7 +254,7 @@ public class SolanaClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignSolanaTransaction200Response signTransaction(
+  public SignSolanaTransactionWithEndUserAccount200Response signTransaction(
       String address, SignSolanaTransactionRequest request) throws ApiException {
     return signTransaction(address, request, null);
   }
@@ -268,7 +268,7 @@ public class SolanaClient {
    * @return the signature response
    * @throws ApiException if the API call fails
    */
-  public SignSolanaTransaction200Response signTransaction(
+  public SignSolanaTransactionWithEndUserAccount200Response signTransaction(
       String address, SignSolanaTransactionRequest request, String idempotencyKey)
       throws ApiException {
     String walletJwt =
@@ -286,7 +286,7 @@ public class SolanaClient {
    * @return the transaction response
    * @throws ApiException if the API call fails
    */
-  public SendSolanaTransaction200Response sendTransaction(
+  public SendSolanaTransactionWithEndUserAccount200Response sendTransaction(
       String address, SendSolanaTransactionRequest request) throws ApiException {
     return sendTransaction(address, request, null);
   }
@@ -300,7 +300,7 @@ public class SolanaClient {
    * @return the transaction response
    * @throws ApiException if the API call fails
    */
-  public SendSolanaTransaction200Response sendTransaction(
+  public SendSolanaTransactionWithEndUserAccount200Response sendTransaction(
       String address, SendSolanaTransactionRequest request, String idempotencyKey)
       throws ApiException {
     String walletJwt =
@@ -347,8 +347,8 @@ public class SolanaClient {
    * @return the transaction response with signature
    * @throws ApiException if the API call fails
    */
-  public SendSolanaTransaction200Response transfer(String fromAddress, TransferOptions options)
-      throws ApiException {
+  public SendSolanaTransactionWithEndUserAccount200Response transfer(
+      String fromAddress, TransferOptions options) throws ApiException {
     return transfer(fromAddress, options, null);
   }
 
@@ -361,7 +361,7 @@ public class SolanaClient {
    * @return the transaction response with signature
    * @throws ApiException if the API call fails
    */
-  public SendSolanaTransaction200Response transfer(
+  public SendSolanaTransactionWithEndUserAccount200Response transfer(
       String fromAddress, TransferOptions options, String idempotencyKey) throws ApiException {
 
     if (fromAddress == null || fromAddress.isBlank()) {

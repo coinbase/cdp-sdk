@@ -18,8 +18,8 @@ import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
 import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
-import com.coinbase.cdp.openapi.model.CreateEvmEip7702Delegation201Response;
 import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationRequest;
+import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccount201Response;
 import com.coinbase.cdp.openapi.model.EIP712Message;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.EvmAccount;
@@ -28,15 +28,15 @@ import com.coinbase.cdp.openapi.model.ExportEvmAccount200Response;
 import com.coinbase.cdp.openapi.model.ExportEvmAccountRequest;
 import com.coinbase.cdp.openapi.model.ImportEvmAccountRequest;
 import com.coinbase.cdp.openapi.model.ListEvmAccounts200Response;
-import com.coinbase.cdp.openapi.model.SendEvmTransaction200Response;
 import com.coinbase.cdp.openapi.model.SendEvmTransactionRequest;
+import com.coinbase.cdp.openapi.model.SendEvmTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignEvmHash200Response;
 import com.coinbase.cdp.openapi.model.SignEvmHashRequest;
-import com.coinbase.cdp.openapi.model.SignEvmMessage200Response;
 import com.coinbase.cdp.openapi.model.SignEvmMessageRequest;
-import com.coinbase.cdp.openapi.model.SignEvmTransaction200Response;
+import com.coinbase.cdp.openapi.model.SignEvmMessageWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignEvmTransactionRequest;
-import com.coinbase.cdp.openapi.model.SignEvmTypedData200Response;
+import com.coinbase.cdp.openapi.model.SignEvmTransactionWithEndUserAccount200Response;
+import com.coinbase.cdp.openapi.model.SignEvmTypedDataWithEndUserAccount200Response;
 import java.util.UUID;
 import com.coinbase.cdp.openapi.model.UpdateEvmAccountRequest;
 
@@ -204,11 +204,11 @@ public class EvmAccountsApi {
    * @param createEvmEip7702DelegationRequest  (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
-   * @return CreateEvmEip7702Delegation201Response
+   * @return CreateEvmEip7702DelegationWithEndUserAccount201Response
    * @throws ApiException if fails to make API call
    */
-  public CreateEvmEip7702Delegation201Response createEvmEip7702Delegation(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
-    ApiResponse<CreateEvmEip7702Delegation201Response> localVarResponse = createEvmEip7702DelegationWithHttpInfo(address, createEvmEip7702DelegationRequest, xWalletAuth, xIdempotencyKey);
+  public CreateEvmEip7702DelegationWithEndUserAccount201Response createEvmEip7702Delegation(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+    ApiResponse<CreateEvmEip7702DelegationWithEndUserAccount201Response> localVarResponse = createEvmEip7702DelegationWithHttpInfo(address, createEvmEip7702DelegationRequest, xWalletAuth, xIdempotencyKey);
     return localVarResponse.getData();
   }
 
@@ -219,10 +219,10 @@ public class EvmAccountsApi {
    * @param createEvmEip7702DelegationRequest  (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
-   * @return ApiResponse&lt;CreateEvmEip7702Delegation201Response&gt;
+   * @return ApiResponse&lt;CreateEvmEip7702DelegationWithEndUserAccount201Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<CreateEvmEip7702Delegation201Response> createEvmEip7702DelegationWithHttpInfo(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
+  public ApiResponse<CreateEvmEip7702DelegationWithEndUserAccount201Response> createEvmEip7702DelegationWithHttpInfo(String address, CreateEvmEip7702DelegationRequest createEvmEip7702DelegationRequest, String xWalletAuth, String xIdempotencyKey) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = createEvmEip7702DelegationRequestBuilder(address, createEvmEip7702DelegationRequest, xWalletAuth, xIdempotencyKey);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -236,7 +236,7 @@ public class EvmAccountsApi {
           throw getApiException("createEvmEip7702Delegation", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<CreateEvmEip7702Delegation201Response>(
+          return new ApiResponse<CreateEvmEip7702DelegationWithEndUserAccount201Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -246,10 +246,10 @@ public class EvmAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<CreateEvmEip7702Delegation201Response>(
+        return new ApiResponse<CreateEvmEip7702DelegationWithEndUserAccount201Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<CreateEvmEip7702Delegation201Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<CreateEvmEip7702DelegationWithEndUserAccount201Response>() {})
         );
       } finally {
       }
@@ -959,11 +959,11 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param sendEvmTransactionRequest  (optional)
-   * @return SendEvmTransaction200Response
+   * @return SendEvmTransactionWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SendEvmTransaction200Response sendEvmTransaction(String address, String xWalletAuth, String xIdempotencyKey, SendEvmTransactionRequest sendEvmTransactionRequest) throws ApiException {
-    ApiResponse<SendEvmTransaction200Response> localVarResponse = sendEvmTransactionWithHttpInfo(address, xWalletAuth, xIdempotencyKey, sendEvmTransactionRequest);
+  public SendEvmTransactionWithEndUserAccount200Response sendEvmTransaction(String address, String xWalletAuth, String xIdempotencyKey, SendEvmTransactionRequest sendEvmTransactionRequest) throws ApiException {
+    ApiResponse<SendEvmTransactionWithEndUserAccount200Response> localVarResponse = sendEvmTransactionWithHttpInfo(address, xWalletAuth, xIdempotencyKey, sendEvmTransactionRequest);
     return localVarResponse.getData();
   }
 
@@ -974,10 +974,10 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param sendEvmTransactionRequest  (optional)
-   * @return ApiResponse&lt;SendEvmTransaction200Response&gt;
+   * @return ApiResponse&lt;SendEvmTransactionWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SendEvmTransaction200Response> sendEvmTransactionWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SendEvmTransactionRequest sendEvmTransactionRequest) throws ApiException {
+  public ApiResponse<SendEvmTransactionWithEndUserAccount200Response> sendEvmTransactionWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SendEvmTransactionRequest sendEvmTransactionRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = sendEvmTransactionRequestBuilder(address, xWalletAuth, xIdempotencyKey, sendEvmTransactionRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -991,7 +991,7 @@ public class EvmAccountsApi {
           throw getApiException("sendEvmTransaction", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SendEvmTransaction200Response>(
+          return new ApiResponse<SendEvmTransactionWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -1001,10 +1001,10 @@ public class EvmAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SendEvmTransaction200Response>(
+        return new ApiResponse<SendEvmTransactionWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SendEvmTransaction200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SendEvmTransactionWithEndUserAccount200Response>() {})
         );
       } finally {
       }
@@ -1163,11 +1163,11 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmMessageRequest  (optional)
-   * @return SignEvmMessage200Response
+   * @return SignEvmMessageWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SignEvmMessage200Response signEvmMessage(String address, String xWalletAuth, String xIdempotencyKey, SignEvmMessageRequest signEvmMessageRequest) throws ApiException {
-    ApiResponse<SignEvmMessage200Response> localVarResponse = signEvmMessageWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signEvmMessageRequest);
+  public SignEvmMessageWithEndUserAccount200Response signEvmMessage(String address, String xWalletAuth, String xIdempotencyKey, SignEvmMessageRequest signEvmMessageRequest) throws ApiException {
+    ApiResponse<SignEvmMessageWithEndUserAccount200Response> localVarResponse = signEvmMessageWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signEvmMessageRequest);
     return localVarResponse.getData();
   }
 
@@ -1178,10 +1178,10 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmMessageRequest  (optional)
-   * @return ApiResponse&lt;SignEvmMessage200Response&gt;
+   * @return ApiResponse&lt;SignEvmMessageWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SignEvmMessage200Response> signEvmMessageWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignEvmMessageRequest signEvmMessageRequest) throws ApiException {
+  public ApiResponse<SignEvmMessageWithEndUserAccount200Response> signEvmMessageWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignEvmMessageRequest signEvmMessageRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = signEvmMessageRequestBuilder(address, xWalletAuth, xIdempotencyKey, signEvmMessageRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -1195,7 +1195,7 @@ public class EvmAccountsApi {
           throw getApiException("signEvmMessage", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SignEvmMessage200Response>(
+          return new ApiResponse<SignEvmMessageWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -1205,10 +1205,10 @@ public class EvmAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SignEvmMessage200Response>(
+        return new ApiResponse<SignEvmMessageWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignEvmMessage200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignEvmMessageWithEndUserAccount200Response>() {})
         );
       } finally {
       }
@@ -1265,11 +1265,11 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmTransactionRequest  (optional)
-   * @return SignEvmTransaction200Response
+   * @return SignEvmTransactionWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SignEvmTransaction200Response signEvmTransaction(String address, String xWalletAuth, String xIdempotencyKey, SignEvmTransactionRequest signEvmTransactionRequest) throws ApiException {
-    ApiResponse<SignEvmTransaction200Response> localVarResponse = signEvmTransactionWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signEvmTransactionRequest);
+  public SignEvmTransactionWithEndUserAccount200Response signEvmTransaction(String address, String xWalletAuth, String xIdempotencyKey, SignEvmTransactionRequest signEvmTransactionRequest) throws ApiException {
+    ApiResponse<SignEvmTransactionWithEndUserAccount200Response> localVarResponse = signEvmTransactionWithHttpInfo(address, xWalletAuth, xIdempotencyKey, signEvmTransactionRequest);
     return localVarResponse.getData();
   }
 
@@ -1280,10 +1280,10 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param signEvmTransactionRequest  (optional)
-   * @return ApiResponse&lt;SignEvmTransaction200Response&gt;
+   * @return ApiResponse&lt;SignEvmTransactionWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SignEvmTransaction200Response> signEvmTransactionWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignEvmTransactionRequest signEvmTransactionRequest) throws ApiException {
+  public ApiResponse<SignEvmTransactionWithEndUserAccount200Response> signEvmTransactionWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, SignEvmTransactionRequest signEvmTransactionRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = signEvmTransactionRequestBuilder(address, xWalletAuth, xIdempotencyKey, signEvmTransactionRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -1297,7 +1297,7 @@ public class EvmAccountsApi {
           throw getApiException("signEvmTransaction", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SignEvmTransaction200Response>(
+          return new ApiResponse<SignEvmTransactionWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -1307,10 +1307,10 @@ public class EvmAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SignEvmTransaction200Response>(
+        return new ApiResponse<SignEvmTransactionWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignEvmTransaction200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignEvmTransactionWithEndUserAccount200Response>() {})
         );
       } finally {
       }
@@ -1367,11 +1367,11 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param eiP712Message  (optional)
-   * @return SignEvmTypedData200Response
+   * @return SignEvmTypedDataWithEndUserAccount200Response
    * @throws ApiException if fails to make API call
    */
-  public SignEvmTypedData200Response signEvmTypedData(String address, String xWalletAuth, String xIdempotencyKey, EIP712Message eiP712Message) throws ApiException {
-    ApiResponse<SignEvmTypedData200Response> localVarResponse = signEvmTypedDataWithHttpInfo(address, xWalletAuth, xIdempotencyKey, eiP712Message);
+  public SignEvmTypedDataWithEndUserAccount200Response signEvmTypedData(String address, String xWalletAuth, String xIdempotencyKey, EIP712Message eiP712Message) throws ApiException {
+    ApiResponse<SignEvmTypedDataWithEndUserAccount200Response> localVarResponse = signEvmTypedDataWithHttpInfo(address, xWalletAuth, xIdempotencyKey, eiP712Message);
     return localVarResponse.getData();
   }
 
@@ -1382,10 +1382,10 @@ public class EvmAccountsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param eiP712Message  (optional)
-   * @return ApiResponse&lt;SignEvmTypedData200Response&gt;
+   * @return ApiResponse&lt;SignEvmTypedDataWithEndUserAccount200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<SignEvmTypedData200Response> signEvmTypedDataWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, EIP712Message eiP712Message) throws ApiException {
+  public ApiResponse<SignEvmTypedDataWithEndUserAccount200Response> signEvmTypedDataWithHttpInfo(String address, String xWalletAuth, String xIdempotencyKey, EIP712Message eiP712Message) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = signEvmTypedDataRequestBuilder(address, xWalletAuth, xIdempotencyKey, eiP712Message);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -1399,7 +1399,7 @@ public class EvmAccountsApi {
           throw getApiException("signEvmTypedData", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<SignEvmTypedData200Response>(
+          return new ApiResponse<SignEvmTypedDataWithEndUserAccount200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -1409,10 +1409,10 @@ public class EvmAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<SignEvmTypedData200Response>(
+        return new ApiResponse<SignEvmTypedDataWithEndUserAccount200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignEvmTypedData200Response>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignEvmTypedDataWithEndUserAccount200Response>() {})
         );
       } finally {
       }

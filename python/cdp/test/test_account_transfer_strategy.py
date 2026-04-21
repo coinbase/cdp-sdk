@@ -8,10 +8,10 @@ from cdp.actions.evm.transfer.account_transfer_strategy import (
 )
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
-from cdp.openapi_client.models.send_evm_transaction200_response import (
-    SendEvmTransaction200Response,
-)
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account200_response import (
+    SendEvmTransactionWithEndUserAccount200Response,
+)
 
 
 @pytest.mark.asyncio
@@ -24,7 +24,9 @@ async def test_execute_transfer_eth():
         mock_api_clients = MagicMock(spec=ApiClients)
         mock_api_clients.evm_accounts = AsyncMock()
         mock_api_clients.evm_accounts.send_evm_transaction = AsyncMock(
-            return_value=SendEvmTransaction200Response(transaction_hash="0xabc123")
+            return_value=SendEvmTransactionWithEndUserAccount200Response(
+                transaction_hash="0xabc123"
+            )
         )
 
         mock_from_account = MagicMock(spec=EvmServerAccount)
@@ -64,7 +66,7 @@ async def test_execute_transfer_erc20():
     mock_api_clients.evm_accounts = AsyncMock()
     mock_api_clients.evm_accounts.send_evm_transaction = AsyncMock(
         side_effect=[
-            SendEvmTransaction200Response(transaction_hash="0xtransfer456"),
+            SendEvmTransactionWithEndUserAccount200Response(transaction_hash="0xtransfer456"),
         ]
     )
 

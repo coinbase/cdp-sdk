@@ -33,14 +33,18 @@ from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAc
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
-from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account200_response import (
+    SendEvmTransactionWithEndUserAccount200Response,
+)
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account200_response import (
+    SignEvmTypedDataWithEndUserAccount200Response,
+)
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
@@ -638,7 +642,7 @@ async def test_send_transaction_serialized():
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
     mock_evm_accounts_api.send_evm_transaction = AsyncMock(
-        return_value=SendEvmTransaction200Response(transaction_hash="0x123")
+        return_value=SendEvmTransactionWithEndUserAccount200Response(transaction_hash="0x123")
     )
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -668,7 +672,7 @@ async def test_send_transaction_eip1559():
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
     mock_evm_accounts_api.send_evm_transaction = AsyncMock(
-        return_value=SendEvmTransaction200Response(transaction_hash="0x123")
+        return_value=SendEvmTransactionWithEndUserAccount200Response(transaction_hash="0x123")
     )
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -704,7 +708,7 @@ async def test_send_transaction_dynamic_fee():
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
     mock_evm_accounts_api.send_evm_transaction = AsyncMock(
-        return_value=SendEvmTransaction200Response(transaction_hash="0x123")
+        return_value=SendEvmTransactionWithEndUserAccount200Response(transaction_hash="0x123")
     )
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -856,7 +860,7 @@ async def test_sign_typed_data():
     test_idempotency_key = "test-idempotency-key"
 
     mock_evm_accounts_api.sign_evm_typed_data = AsyncMock(
-        return_value=SignEvmTypedData200Response(signature="0x123")
+        return_value=SignEvmTypedDataWithEndUserAccount200Response(signature="0x123")
     )
 
     client = EvmClient(api_clients=mock_api_clients)

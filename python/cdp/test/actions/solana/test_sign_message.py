@@ -4,10 +4,10 @@ import pytest
 
 from cdp.actions.solana.sign_message import sign_message
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
-from cdp.openapi_client.models.sign_solana_message200_response import (
-    SignSolanaMessage200Response as SignSolanaMessageResponse,
-)
 from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMessageRequest
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account200_response import (
+    SignSolanaMessageWithEndUserAccount200Response as SignSolanaMessageResponse,
+)
 
 
 @pytest.mark.asyncio
