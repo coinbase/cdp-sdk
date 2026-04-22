@@ -11,6 +11,8 @@ import type {
   CreateEvmEip7702DelegationWithEndUserAccountBody,
   CreateEvmEip7702DelegationWithEndUserAccountParams,
   EvmUserOperation,
+  GetDelegationForEndUser200,
+  GetDelegationForEndUserParams,
   RevokeDelegationForEndUserBody,
   SendEvmAssetWithEndUserAccount200,
   SendEvmAssetWithEndUserAccountBody,
@@ -182,6 +184,20 @@ export const signEvmTypedDataWithEndUserAccount = (
       data: signEvmTypedDataWithEndUserAccountBody,
       params,
     },
+    options,
+  );
+};
+/**
+ * Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
+ * @summary Get delegation for end user
+ */
+export const getDelegationForEndUser = (
+  userId: string,
+  params?: GetDelegationForEndUserParams,
+  options?: SecondParameter<typeof cdpApiClient<GetDelegationForEndUser200>>,
+) => {
+  return cdpApiClient<GetDelegationForEndUser200>(
+    { url: `/v2/embedded-wallet-api/end-users/${userId}/delegation`, method: "GET", params },
     options,
   );
 };
@@ -377,6 +393,9 @@ export type SignEvmMessageWithEndUserAccountResult = NonNullable<
 >;
 export type SignEvmTypedDataWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signEvmTypedDataWithEndUserAccount>>
+>;
+export type GetDelegationForEndUserResult = NonNullable<
+  Awaited<ReturnType<typeof getDelegationForEndUser>>
 >;
 export type RevokeDelegationForEndUserResult = NonNullable<
   Awaited<ReturnType<typeof revokeDelegationForEndUser>>

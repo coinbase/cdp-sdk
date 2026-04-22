@@ -6,6 +6,7 @@ import type {
   AddEndUserEvmSmartAccountResult,
   AddEndUserSolanaAccountResult,
   AddEvmSmartAccountOptions,
+  GetDelegationForEndUserResult,
   SignEvmTransactionResult,
   SignEvmMessageResult,
   SignEvmTypedDataResult,
@@ -141,6 +142,11 @@ export function toEndUserAccount(
     async addSolanaAccount(): Promise<AddEndUserSolanaAccountResult> {
       Analytics.trackAction({ action: "end_user_add_solana_account" });
       return apiClient.addEndUserSolanaAccount(endUser.userId, {});
+    },
+
+    async getDelegation(): Promise<GetDelegationForEndUserResult> {
+      Analytics.trackAction({ action: "end_user_get_delegation" });
+      return apiClient.getDelegationForEndUser(endUser.userId);
     },
 
     async revokeDelegation(): Promise<void> {
