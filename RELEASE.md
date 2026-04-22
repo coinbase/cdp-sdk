@@ -38,7 +38,6 @@ Follow these steps to publish a new version of the TypeScript CDP SDK.
 1. Tag the new version with `git tag -s @coinbase/cdp-sdk@v{NEW_VERSION} -m "Release @coinbase/cdp-sdk {NEW_VERSION}"`
 1. Push the tag with `git push origin @coinbase/cdp-sdk@v{NEW_VERSION}`
 1. Delete your release branch
-1. Trigger the [Deploy CDP SDK documentation to GitHub Pages](https://github.com/coinbase/cdp-sdk/actions/workflows/deploy-gh-pages.yml) action. Select `typescript` as the language to deploy
 
 ### Python
 
