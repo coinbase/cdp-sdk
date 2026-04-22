@@ -281,6 +281,20 @@ class EndUserClientTest {
   // ==================== Delegation Management ====================
 
   @Nested
+  class GetDelegationTest {
+    @Test
+    void getsDelegation() throws ApiException {
+      GetDelegationForEndUser200Response expected = new GetDelegationForEndUser200Response();
+      when(embeddedWalletsApi.getDelegationForEndUser(eq(USER_ID), isNull())).thenReturn(expected);
+
+      GetDelegationForEndUser200Response result = client.getDelegation(USER_ID);
+
+      assertThat(result).isEqualTo(expected);
+      verify(embeddedWalletsApi).getDelegationForEndUser(eq(USER_ID), isNull());
+    }
+  }
+
+  @Nested
   class RevokeDelegationTest {
     @Test
     void revokesDelegation() throws ApiException {

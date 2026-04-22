@@ -16,6 +16,7 @@ import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccou
 import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccountRequest;
 import com.coinbase.cdp.openapi.model.EndUser;
 import com.coinbase.cdp.openapi.model.EvmUserOperation;
+import com.coinbase.cdp.openapi.model.GetDelegationForEndUser200Response;
 import com.coinbase.cdp.openapi.model.ImportEndUserRequest;
 import com.coinbase.cdp.openapi.model.ListEndUsers200Response;
 import com.coinbase.cdp.openapi.model.RevokeDelegationForEndUserRequest;
@@ -308,6 +309,17 @@ public class EndUserClient {
   }
 
   // ==================== Delegation Management ====================
+
+  /**
+   * Gets the active delegation for an end user, if one exists.
+   *
+   * @param userId the end user ID
+   * @return the delegation details including its expiry
+   * @throws ApiException if the API call fails
+   */
+  public GetDelegationForEndUser200Response getDelegation(String userId) throws ApiException {
+    return embeddedWalletsApi.getDelegationForEndUser(userId, null);
+  }
 
   /**
    * Revokes all active delegations for an end user.

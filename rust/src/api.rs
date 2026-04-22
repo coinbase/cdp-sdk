@@ -11483,7 +11483,9 @@ pub mod types {
     ///  "type": "string",
     ///  "enum": [
     ///    "already_exists",
+    ///    "authorization_expired",
     ///    "bad_gateway",
+    ///    "capture_expired",
     ///    "client_closed_request",
     ///    "faucet_limit_exceeded",
     ///    "forbidden",
@@ -11514,6 +11516,7 @@ pub mod types {
     ///    "document_verification_failed",
     ///    "recipient_allowlist_violation",
     ///    "recipient_allowlist_pending",
+    ///    "refund_expired",
     ///    "travel_rules_recipient_violation",
     ///    "source_account_invalid",
     ///    "target_account_invalid",
@@ -11548,7 +11551,9 @@ pub mod types {
     ///    "account_not_ready": "This error occurs when an operation is attempted on an account that is still being provisioned.\n\n**Steps to resolve:**\n1. Wait a few moments and retry the request\n2. If the error persists, the account may still be completing setup — retry with exponential backoff",
     ///    "already_exists": "This error occurs when trying to create a resource that already exists.\n\n**Steps to resolve:**\n1. Check if the resource exists before creation\n2. Use GET endpoints to verify resource state\n3. Use unique identifiers/names for resources",
     ///    "asset_mismatch": "This error occurs when the assets specified in the transfer are incompatible or don't match expected values.\n\n**Steps to resolve:**\n1. Ensure the `asset` field matches either the source or target asset\n2. Verify that the source and target assets are compatible for conversion (if different)\n3. Check that the asset symbols are correctly specified\n\n**Common causes:**\n- Transfer asset doesn't match source or target\n- Attempting an unsupported asset conversion\n- Typo in asset symbols",
+    ///    "authorization_expired": "Returned when an authorization attempt is made after the payment session's authorization deadline has passed. Create a new payment session with a later authorization deadline.",
     ///    "bad_gateway": "This error occurs when the CDP API is unable to connect to the backend service.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - The timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
+    ///    "capture_expired": "Returned when a capture attempt is made after the payment session's capture deadline has passed. The payment session can no longer be captured.",
     ///    "client_closed_request": "This error occurs when the client closes the connection before the server can send a response.\n\n**Common causes:**\n- The client timed out waiting for the server response\n- The client application was terminated during a pending request\n- Network interruption caused the client connection to drop\n\n**Steps to resolve:**\n1. Increase client-side timeout settings if applicable\n2. Implement retry logic with exponential backoff for long-running queries\n3. Consider optimizing the request to reduce server processing time",
     ///    "document_verification_failed": "This error occurs when the user has not verified their identity for their coinbase.com account.\n**Steps to resolve:**\n1. Verify your coinbase account identity with valid documents at https://www.coinbase.com/settings/account-levels.",
     ///    "faucet_limit_exceeded": "This error occurs when you've exceeded the faucet request limits.\n\n**Steps to resolve:**\n1. Wait for the time window to reset\n2. Use funds more efficiently in your testing\n\nFor more information on faucet limits, please visit the [EVM Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-evm-test-networks) or the [Solana Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-solana-devnet).",
@@ -11586,6 +11591,7 @@ pub mod types {
     ///    "rate_limit_exceeded": "This error occurs when you've exceeded the API rate limits.\n\n**Steps to resolve:**\n1. Implement exponential backoff\n2. Cache responses where possible\n3. Wait for rate limit window to reset\n\n**Best practices:**\n```typescript lines wrap\nasync function withRetry(fn: () => Promise<any>) {\n  let delay = 1000;\n  while (true) {\n    try {\n      return await fn();\n    } catch (e) {\n      if (e.errorType === \"rate_limit_exceeded\") {\n        await sleep(delay);\n        delay *= 2;\n        continue;\n      }\n      throw e;\n    }\n  }\n}\n```",
     ///    "recipient_allowlist_pending": "This error occurs when the user is not allowed to receive funds at this address, because changes to their coinbase account allowlist are pending.\n**Steps to resolve:**\n1. Wait approximately 2 days for updates to take effect.",
     ///    "recipient_allowlist_violation": "This error occurs when the user is not allowed to receive funds at this address, according to their coinbase account allowlist.\n**Steps to resolve:**\n1. Either disable the allowlist or add the wallet address at https://www.coinbase.com/settings/allowlist\n2. Wait approximately 2 days for updates to take effect.",
+    ///    "refund_expired": "Returned when a refund attempt is made after the payment session's refund deadline has passed. The payment session can no longer be refunded.",
     ///    "request_canceled": "This error occurs when the client cancels an in-progress request before it completes.\n\n**Steps to resolve:**\n1. Check client-side timeout configurations\n2. Review request cancellation logic in your code\n3. Consider increasing timeout thresholds for long-running operations\n4. Implement request tracking to identify premature cancellations\n\n**Best practices:**\n```typescript lines wrap\nasync function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {\n  const timeout = new Promise((_, reject) => {\n    setTimeout(() => {\n      reject(new Error(\"Operation timed out\"));\n    }, timeoutMs);\n  });\n\n  try {\n    return await Promise.race([promise, timeout]);\n  } catch (error) {\n    // Handle timeout or cancellation\n    throw error;\n  }\n}\n```",
     ///    "service_unavailable": "This error occurs when the CDP API is temporarily unable to handle requests due to maintenance or high load.\n\n**Steps to resolve:**\n1. Retry your request after a short delay\n2. If persistent, contact CDP support with:\n   - The timestamp of the error\n   - Request details\n3. Consider implementing retry logic with an exponential backoff\n\n**Note:** These errors are automatically logged and monitored by CDP.",
     ///    "settlement_failed": "This error occurs when an x402 payment was verified but settlement on-chain failed.\n\n**Steps to resolve:**\n1. Retry the request with a new payment\n2. Ensure the payment asset has sufficient balance for settlement",
@@ -11623,8 +11629,12 @@ pub mod types {
     pub enum ErrorType {
         #[serde(rename = "already_exists")]
         AlreadyExists,
+        #[serde(rename = "authorization_expired")]
+        AuthorizationExpired,
         #[serde(rename = "bad_gateway")]
         BadGateway,
+        #[serde(rename = "capture_expired")]
+        CaptureExpired,
         #[serde(rename = "client_closed_request")]
         ClientClosedRequest,
         #[serde(rename = "faucet_limit_exceeded")]
@@ -11685,6 +11695,8 @@ pub mod types {
         RecipientAllowlistViolation,
         #[serde(rename = "recipient_allowlist_pending")]
         RecipientAllowlistPending,
+        #[serde(rename = "refund_expired")]
+        RefundExpired,
         #[serde(rename = "travel_rules_recipient_violation")]
         TravelRulesRecipientViolation,
         #[serde(rename = "source_account_invalid")]
@@ -11753,7 +11765,9 @@ pub mod types {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
                 Self::AlreadyExists => f.write_str("already_exists"),
+                Self::AuthorizationExpired => f.write_str("authorization_expired"),
                 Self::BadGateway => f.write_str("bad_gateway"),
+                Self::CaptureExpired => f.write_str("capture_expired"),
                 Self::ClientClosedRequest => f.write_str("client_closed_request"),
                 Self::FaucetLimitExceeded => f.write_str("faucet_limit_exceeded"),
                 Self::Forbidden => f.write_str("forbidden"),
@@ -11786,6 +11800,7 @@ pub mod types {
                 Self::DocumentVerificationFailed => f.write_str("document_verification_failed"),
                 Self::RecipientAllowlistViolation => f.write_str("recipient_allowlist_violation"),
                 Self::RecipientAllowlistPending => f.write_str("recipient_allowlist_pending"),
+                Self::RefundExpired => f.write_str("refund_expired"),
                 Self::TravelRulesRecipientViolation => {
                     f.write_str("travel_rules_recipient_violation")
                 }
@@ -11825,7 +11840,9 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "already_exists" => Ok(Self::AlreadyExists),
+                "authorization_expired" => Ok(Self::AuthorizationExpired),
                 "bad_gateway" => Ok(Self::BadGateway),
+                "capture_expired" => Ok(Self::CaptureExpired),
                 "client_closed_request" => Ok(Self::ClientClosedRequest),
                 "faucet_limit_exceeded" => Ok(Self::FaucetLimitExceeded),
                 "forbidden" => Ok(Self::Forbidden),
@@ -11856,6 +11873,7 @@ pub mod types {
                 "document_verification_failed" => Ok(Self::DocumentVerificationFailed),
                 "recipient_allowlist_violation" => Ok(Self::RecipientAllowlistViolation),
                 "recipient_allowlist_pending" => Ok(Self::RecipientAllowlistPending),
+                "refund_expired" => Ok(Self::RefundExpired),
                 "travel_rules_recipient_violation" => Ok(Self::TravelRulesRecipientViolation),
                 "source_account_invalid" => Ok(Self::SourceAccountInvalid),
                 "target_account_invalid" => Ok(Self::TargetAccountInvalid),
@@ -17336,6 +17354,211 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for GasPrice {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetDelegationForEndUserProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetDelegationForEndUserProjectId(::std::string::String);
+    impl ::std::ops::Deref for GetDelegationForEndUserProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetDelegationForEndUserProjectId> for ::std::string::String {
+        fn from(value: GetDelegationForEndUserProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetDelegationForEndUserProjectId> for GetDelegationForEndUserProjectId {
+        fn from(value: &GetDelegationForEndUserProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetDelegationForEndUserProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetDelegationForEndUserProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetDelegationForEndUserResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "expiresAt"
+    ///  ],
+    ///  "properties": {
+    ///    "expiresAt": {
+    ///      "description": "The date until which the delegation is valid.",
+    ///      "examples": [
+    ///        "2026-02-03T10:35:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct GetDelegationForEndUserResponse {
+        ///The date until which the delegation is valid.
+        #[serde(rename = "expiresAt")]
+        pub expires_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&GetDelegationForEndUserResponse> for GetDelegationForEndUserResponse {
+        fn from(value: &GetDelegationForEndUserResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl GetDelegationForEndUserResponse {
+        pub fn builder() -> builder::GetDelegationForEndUserResponse {
+            Default::default()
+        }
+    }
+    ///`GetDelegationForEndUserUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetDelegationForEndUserUserId(::std::string::String);
+    impl ::std::ops::Deref for GetDelegationForEndUserUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetDelegationForEndUserUserId> for ::std::string::String {
+        fn from(value: GetDelegationForEndUserUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetDelegationForEndUserUserId> for GetDelegationForEndUserUserId {
+        fn from(value: &GetDelegationForEndUserUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetDelegationForEndUserUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetDelegationForEndUserUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetDelegationForEndUserUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetDelegationForEndUserUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetDelegationForEndUserUserId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -62839,6 +63062,53 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct GetDelegationForEndUserResponse {
+            expires_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for GetDelegationForEndUserResponse {
+            fn default() -> Self {
+                Self {
+                    expires_at: Err("no value supplied for expires_at".to_string()),
+                }
+            }
+        }
+        impl GetDelegationForEndUserResponse {
+            pub fn expires_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.expires_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for expires_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<GetDelegationForEndUserResponse>
+            for super::GetDelegationForEndUserResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: GetDelegationForEndUserResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    expires_at: value.expires_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::GetDelegationForEndUserResponse>
+            for GetDelegationForEndUserResponse
+        {
+            fn from(value: super::GetDelegationForEndUserResponse) -> Self {
+                Self {
+                    expires_at: Ok(value.expires_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct GetOnrampOrderByIdResponse {
             order: ::std::result::Result<super::OnrampOrder, ::std::string::String>,
         }
@@ -76461,6 +76731,25 @@ impl Client {
     pub fn list_webhook_subscription_events(&self) -> builder::ListWebhookSubscriptionEvents<'_> {
         builder::ListWebhookSubscriptionEvents::new(self)
     }
+    /**Get delegation for end user
+
+    Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
+
+    Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    ```ignore
+    let response = client.get_delegation_for_end_user()
+        .user_id(user_id)
+        .project_id(project_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_delegation_for_end_user(&self) -> builder::GetDelegationForEndUser<'_> {
+        builder::GetDelegationForEndUser::new(self)
+    }
     /**Revoke delegation for end user
 
     Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
@@ -79648,6 +79937,105 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_delegation_for_end_user`]
+
+    [`Client::get_delegation_for_end_user`]: super::Client::get_delegation_for_end_user*/
+    #[derive(Debug, Clone)]
+    pub struct GetDelegationForEndUser<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::GetDelegationForEndUserUserId, String>,
+        project_id: Result<Option<types::GetDelegationForEndUserProjectId>, String>,
+    }
+    impl<'a> GetDelegationForEndUser<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetDelegationForEndUserUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `GetDelegationForEndUserUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetDelegationForEndUserProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `GetDelegationForEndUserProjectId` for project_id failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::GetDelegationForEndUserResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                user_id,
+                project_id,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_delegation_for_end_user",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),

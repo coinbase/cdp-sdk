@@ -28,7 +28,9 @@ class ErrorType(str, Enum):
     allowed enum values
     """
     ALREADY_EXISTS = 'already_exists'
+    AUTHORIZATION_EXPIRED = 'authorization_expired'
     BAD_GATEWAY = 'bad_gateway'
+    CAPTURE_EXPIRED = 'capture_expired'
     CLIENT_CLOSED_REQUEST = 'client_closed_request'
     FAUCET_LIMIT_EXCEEDED = 'faucet_limit_exceeded'
     FORBIDDEN = 'forbidden'
@@ -59,6 +61,7 @@ class ErrorType(str, Enum):
     DOCUMENT_VERIFICATION_FAILED = 'document_verification_failed'
     RECIPIENT_ALLOWLIST_VIOLATION = 'recipient_allowlist_violation'
     RECIPIENT_ALLOWLIST_PENDING = 'recipient_allowlist_pending'
+    REFUND_EXPIRED = 'refund_expired'
     TRAVEL_RULES_RECIPIENT_VIOLATION = 'travel_rules_recipient_violation'
     SOURCE_ACCOUNT_INVALID = 'source_account_invalid'
     TARGET_ACCOUNT_INVALID = 'target_account_invalid'

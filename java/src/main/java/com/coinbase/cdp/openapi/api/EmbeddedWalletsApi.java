@@ -21,6 +21,7 @@ import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccou
 import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccountRequest;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.EvmUserOperation;
+import com.coinbase.cdp.openapi.model.GetDelegationForEndUser200Response;
 import com.coinbase.cdp.openapi.model.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccountRequest;
@@ -222,6 +223,107 @@ public class EmbeddedWalletsApi {
     } catch (IOException e) {
       throw new ApiException(e);
     }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get delegation for end user
+   * Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
+   * @param userId The ID of the end user. (required)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return GetDelegationForEndUser200Response
+   * @throws ApiException if fails to make API call
+   */
+  public GetDelegationForEndUser200Response getDelegationForEndUser(String userId, String projectID) throws ApiException {
+    ApiResponse<GetDelegationForEndUser200Response> localVarResponse = getDelegationForEndUserWithHttpInfo(userId, projectID);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get delegation for end user
+   * Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
+   * @param userId The ID of the end user. (required)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return ApiResponse&lt;GetDelegationForEndUser200Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<GetDelegationForEndUser200Response> getDelegationForEndUserWithHttpInfo(String userId, String projectID) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getDelegationForEndUserRequestBuilder(userId, projectID);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getDelegationForEndUser", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<GetDelegationForEndUser200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<GetDelegationForEndUser200Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<GetDelegationForEndUser200Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getDelegationForEndUserRequestBuilder(String userId, String projectID) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling getDelegationForEndUser");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/embedded-wallet-api/end-users/{userId}/delegation"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "projectID";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("projectID", projectID));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

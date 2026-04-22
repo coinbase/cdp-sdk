@@ -7,6 +7,7 @@ import type {
   AddEndUserEvmSmartAccount201,
   AddEndUserSolanaAccount201,
   EndUser as OpenAPIEndUser,
+  GetDelegationForEndUser200,
   SignEvmTransactionWithEndUserAccount200,
   SignEvmMessageWithEndUserAccount200,
   SignEvmTypedDataWithEndUserAccount200,
@@ -138,6 +139,21 @@ export interface ImportEndUserOptions {
    */
   encryptionPublicKey?: string;
 }
+
+/**
+ * The options for getting the active delegation for an end user.
+ */
+export interface GetDelegationForEndUserOptions {
+  /**
+   * The unique identifier of the end user.
+   */
+  userId: string;
+}
+
+/**
+ * The result of getting the active delegation for an end user.
+ */
+export type GetDelegationForEndUserResult = GetDelegationForEndUser200;
 
 /**
  * The options for revoking all active delegations for an end user.
@@ -594,6 +610,21 @@ export type EndUserAccountActions = {
    * ```
    */
   addSolanaAccount: () => Promise<AddEndUserSolanaAccountResult>;
+
+  /**
+   * Gets the active delegation for this end user, if one exists.
+   *
+   * @returns A promise that resolves to the delegation details including its expiry.
+   *
+   * @example
+   * ```ts
+   * const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
+   *
+   * const delegation = await endUser.getDelegation();
+   * console.log(delegation.expiresAt);
+   * ```
+   */
+  getDelegation: () => Promise<GetDelegationForEndUserResult>;
 
   /**
    * Revokes all active delegations for this end user.

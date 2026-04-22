@@ -34,6 +34,13 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_get_delegation_for_end_user(self) -> None:
+        """Test case for get_delegation_for_end_user
+
+        Get delegation for end user
+        """
+        pass
+
     async def test_revoke_delegation_for_end_user(self) -> None:
         """Test case for revoke_delegation_for_end_user
 

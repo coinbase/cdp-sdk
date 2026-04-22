@@ -2200,6 +2200,64 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/embedded-wallet-api/end-users/{userId}/delegation:
+    get:
+      x-audience: public
+      summary: Get delegation for end user
+      description: Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
+      operationId: getDelegationForEndUser
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      responses:
+        '200':
+          description: Active delegation found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: The date until which the delegation is valid.
+                    example: '2026-02-03T10:35:00Z'
+                required:
+                  - expiresAt
+              example:
+                expiresAt: '2026-02-03T10:35:00Z'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: No active delegation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No active delegation found for the specified end user.
+                    errorParam: userId
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
     delete:
       x-audience: public
       summary: Revoke delegation for end user
@@ -8946,7 +9004,9 @@ components:
       example: invalid_request
       enum:
         - already_exists
+        - authorization_expired
         - bad_gateway
+        - capture_expired
         - client_closed_request
         - faucet_limit_exceeded
         - forbidden
@@ -8977,6 +9037,7 @@ components:
         - document_verification_failed
         - recipient_allowlist_violation
         - recipient_allowlist_pending
+        - refund_expired
         - travel_rules_recipient_violation
         - source_account_invalid
         - target_account_invalid
@@ -9014,6 +9075,7 @@ components:
           1. Check if the resource exists before creation
           2. Use GET endpoints to verify resource state
           3. Use unique identifiers/names for resources
+        authorization_expired: Returned when an authorization attempt is made after the payment session's authorization deadline has passed. Create a new payment session with a later authorization deadline.
         bad_gateway: |-
           This error occurs when the CDP API is unable to connect to the backend service.
 
@@ -9025,6 +9087,7 @@ components:
           3. Consider implementing retry logic with an exponential backoff
 
           **Note:** These errors are automatically logged and monitored by CDP.
+        capture_expired: Returned when a capture attempt is made after the payment session's capture deadline has passed. The payment session can no longer be captured.
         client_closed_request: |-
           This error occurs when the client closes the connection before the server can send a response.
 
@@ -9366,6 +9429,7 @@ components:
           This error occurs when the user is not allowed to receive funds at this address, because changes to their coinbase account allowlist are pending.
           **Steps to resolve:**
           1. Wait approximately 2 days for updates to take effect.
+        refund_expired: Returned when a refund attempt is made after the payment session's refund deadline has passed. The payment session can no longer be refunded.
         travel_rules_recipient_violation: |-
           This error occurs when the user is not allowed to receive funds at this address, because it violates travel rules.
           **Steps to resolve:**
