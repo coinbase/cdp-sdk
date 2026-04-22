@@ -1475,13 +1475,19 @@ async def test_solana_send_transaction(cdp_client, solana_account):
 @pytest.mark.asyncio
 async def test_solana_send_sponsored_transaction(cdp_client, solana_account):
     """Test sending a fee-sponsored transaction."""
-    response = await cdp_client.solana.send_transaction(
-        network="solana-devnet",
-        transaction=_get_transaction(
-            solana_account.address, "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo", 10
-        ),
-        use_cdp_sponsor=True,
-    )
+    try:
+        response = await cdp_client.solana.send_transaction(
+            network="solana-devnet",
+            transaction=_get_transaction(
+                solana_account.address, "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo", 10
+            ),
+            use_cdp_sponsor=True,
+        )
+    except ApiError as e:
+        if e.http_code == 429:
+            pytest.skip(f"Skipping due to rate limit: {e}")
+        raise
+
     assert response is not None
     assert response.transaction_signature is not None
 
