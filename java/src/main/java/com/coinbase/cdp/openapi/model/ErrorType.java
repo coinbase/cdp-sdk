@@ -32,7 +32,11 @@ public enum ErrorType {
   
   ALREADY_EXISTS("already_exists"),
   
+  AUTHORIZATION_EXPIRED("authorization_expired"),
+  
   BAD_GATEWAY("bad_gateway"),
+  
+  CAPTURE_EXPIRED("capture_expired"),
   
   CLIENT_CLOSED_REQUEST("client_closed_request"),
   
@@ -93,6 +97,8 @@ public enum ErrorType {
   RECIPIENT_ALLOWLIST_VIOLATION("recipient_allowlist_violation"),
   
   RECIPIENT_ALLOWLIST_PENDING("recipient_allowlist_pending"),
+  
+  REFUND_EXPIRED("refund_expired"),
   
   TRAVEL_RULES_RECIPIENT_VIOLATION("travel_rules_recipient_violation"),
   

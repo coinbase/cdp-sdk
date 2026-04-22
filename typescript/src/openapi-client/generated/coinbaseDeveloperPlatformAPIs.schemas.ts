@@ -284,7 +284,9 @@ export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ErrorType = {
   already_exists: "already_exists",
+  authorization_expired: "authorization_expired",
   bad_gateway: "bad_gateway",
+  capture_expired: "capture_expired",
   client_closed_request: "client_closed_request",
   faucet_limit_exceeded: "faucet_limit_exceeded",
   forbidden: "forbidden",
@@ -315,6 +317,7 @@ export const ErrorType = {
   document_verification_failed: "document_verification_failed",
   recipient_allowlist_violation: "recipient_allowlist_violation",
   recipient_allowlist_pending: "recipient_allowlist_pending",
+  refund_expired: "refund_expired",
   travel_rules_recipient_violation: "travel_rules_recipient_violation",
   source_account_invalid: "source_account_invalid",
   target_account_invalid: "target_account_invalid",
@@ -4600,6 +4603,19 @@ export type SignEvmTypedDataWithEndUserAccountBody = {
 export type SignEvmTypedDataWithEndUserAccount200 = {
   /** The signature of the typed data, as a 0x-prefixed hex string. */
   signature: string;
+};
+
+export type GetDelegationForEndUserParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type GetDelegationForEndUser200 = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
 };
 
 export type RevokeDelegationForEndUserBody = {

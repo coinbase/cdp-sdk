@@ -14,6 +14,8 @@ import {
   type AddEndUserEvmSmartAccountResult,
   type AddEndUserSolanaAccountOptions,
   type AddEndUserSolanaAccountResult,
+  type GetDelegationForEndUserOptions,
+  type GetDelegationForEndUserResult,
   type RevokeDelegationForEndUserOptions,
   type SignEvmTransactionOptions,
   type SignEvmTransactionResult,
@@ -256,6 +258,34 @@ export class EndUserClient {
     const { userId } = options;
 
     return CdpOpenApiClient.addEndUserSolanaAccount(userId, {});
+  }
+
+  /**
+   * Gets the active delegation for the specified end user, if one exists.
+   * This operation can be performed by the end user themselves or by a developer using their API key.
+   *
+   * @param options - The options for getting the delegation.
+   *
+   * @returns A promise that resolves to the delegation details including its expiry.
+   *
+   * @example **Get the active delegation for an end user**
+   *          ```ts
+   *          const delegation = await cdp.endUser.getDelegationForEndUser({
+   *            userId: "user-123"
+   *          });
+   *          console.log(delegation.expiresAt);
+   *          ```
+   */
+  async getDelegationForEndUser(
+    options: GetDelegationForEndUserOptions,
+  ): Promise<GetDelegationForEndUserResult> {
+    Analytics.trackAction({
+      action: "get_delegation_for_end_user",
+    });
+
+    const { userId } = options;
+
+    return CdpOpenApiClient.getDelegationForEndUser(userId);
   }
 
   /**

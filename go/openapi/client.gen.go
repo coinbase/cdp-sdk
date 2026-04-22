@@ -71,7 +71,9 @@ const (
 	ErrorTypeAccountNotReady                ErrorType = "account_not_ready"
 	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
 	ErrorTypeAssetMismatch                  ErrorType = "asset_mismatch"
+	ErrorTypeAuthorizationExpired           ErrorType = "authorization_expired"
 	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
+	ErrorTypeCaptureExpired                 ErrorType = "capture_expired"
 	ErrorTypeClientClosedRequest            ErrorType = "client_closed_request"
 	ErrorTypeDocumentVerificationFailed     ErrorType = "document_verification_failed"
 	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
@@ -110,6 +112,7 @@ const (
 	ErrorTypeRateLimitExceeded              ErrorType = "rate_limit_exceeded"
 	ErrorTypeRecipientAllowlistPending      ErrorType = "recipient_allowlist_pending"
 	ErrorTypeRecipientAllowlistViolation    ErrorType = "recipient_allowlist_violation"
+	ErrorTypeRefundExpired                  ErrorType = "refund_expired"
 	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
 	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
 	ErrorTypeSettlementFailed               ErrorType = "settlement_failed"
@@ -3916,6 +3919,12 @@ type RevokeDelegationForEndUserParams struct {
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// GetDelegationForEndUserParams defines parameters for GetDelegationForEndUser.
+type GetDelegationForEndUserParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 }
 
 // CreateEvmEip7702DelegationWithEndUserAccountJSONBody defines parameters for CreateEvmEip7702DelegationWithEndUserAccount.
@@ -8979,6 +8988,9 @@ type ClientInterface interface {
 
 	RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetDelegationForEndUser request
+	GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBody request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -9493,6 +9505,18 @@ func (c *CDPClient) RevokeDelegationForEndUserWithBody(ctx context.Context, user
 
 func (c *CDPClient) RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeDelegationForEndUserRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDelegationForEndUserRequest(c.Server, userId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -11694,6 +11718,62 @@ func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, 
 			req.Header.Set("X-Idempotency-Key", headerParam2)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewGetDelegationForEndUserRequest generates requests for GetDelegationForEndUser
+func NewGetDelegationForEndUserRequest(server string, userId string, params *GetDelegationForEndUserParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/delegation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -16767,6 +16847,9 @@ type ClientWithResponsesInterface interface {
 
 	RevokeDelegationForEndUserWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
 
+	// GetDelegationForEndUserWithResponse request
+	GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error)
+
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error)
 
@@ -17415,6 +17498,36 @@ func (r RevokeDelegationForEndUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RevokeDelegationForEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetDelegationForEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// ExpiresAt The date until which the delegation is valid.
+		ExpiresAt time.Time `json:"expiresAt"`
+	}
+	JSON401 *UnauthorizedError
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDelegationForEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDelegationForEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -19858,6 +19971,15 @@ func (c *ClientWithResponses) RevokeDelegationForEndUserWithResponse(ctx context
 	return ParseRevokeDelegationForEndUserResponse(rsp)
 }
 
+// GetDelegationForEndUserWithResponse request returning *GetDelegationForEndUserResponse
+func (c *ClientWithResponses) GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error) {
+	rsp, err := c.GetDelegationForEndUser(ctx, userId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDelegationForEndUserResponse(rsp)
+}
+
 // CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationWithEndUserAccountResponse
 func (c *ClientWithResponses) CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error) {
 	rsp, err := c.CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
@@ -21599,6 +21721,70 @@ func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegat
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDelegationForEndUserResponse parses an HTTP response from a GetDelegationForEndUserWithResponse call
+func ParseGetDelegationForEndUserResponse(rsp *http.Response) (*GetDelegationForEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDelegationForEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// ExpiresAt The date until which the delegation is valid.
+			ExpiresAt time.Time `json:"expiresAt"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest UnauthorizedError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

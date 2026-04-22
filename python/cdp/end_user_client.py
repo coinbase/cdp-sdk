@@ -40,6 +40,9 @@ from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_accou
     CreateEvmEip7702DelegationWithEndUserAccountRequest,
 )
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.get_delegation_for_end_user200_response import (
+    GetDelegationForEndUser200Response,
+)
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
 from cdp.openapi_client.models.revoke_delegation_for_end_user_request import (
     RevokeDelegationForEndUserRequest,
@@ -376,6 +379,28 @@ class EndUserClient:
         )
 
     # ─── Delegation Management ───
+
+    async def get_delegation(
+        self,
+        user_id: str,
+    ) -> GetDelegationForEndUser200Response:
+        """Get the active delegation for an end user, if one exists.
+
+        This operation can be performed by the end user themselves or by a developer
+        using their API key.
+
+        Args:
+            user_id: The unique identifier of the end user.
+
+        Returns:
+            GetDelegationForEndUser200Response: The delegation details including its expiry.
+
+        """
+        track_action(action="get_delegation_for_end_user")
+
+        return await self.api_clients.embedded_wallets.get_delegation_for_end_user(
+            user_id=user_id,
+        )
 
     async def revoke_delegation(
         self,
