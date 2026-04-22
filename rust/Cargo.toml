@@ -18,7 +18,7 @@ async-trait = "^0.1"
 bon = { version = "3.7.1" }
 chrono = { version = "0.4", features = ["serde"] }
 progenitor-middleware-client = { version = "^0.12.0" }
-reqwest = { version = "0.12.4", features = ["json", "stream"] }
+reqwest = { version = "0.12.4", default-features = false, features = ["json", "stream"] }
 base64 = "0.22"
 rand = "0.9"
 regress = "0.10"
@@ -33,6 +33,15 @@ urlencoding = "2.1"
 http = "1.0"
 hex = "0.4"
 reqwest-middleware = { version = "0.4.2", default-features = false, features = ["json"] }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+native-tls-alpn = ["reqwest/native-tls-alpn"]
+native-tls-vendored = ["reqwest/native-tls-vendored"]
+rustls-tls = ["reqwest/rustls-tls"]
+rustls-tls-native-roots = ["reqwest/rustls-tls-native-roots"]
+rustls-tls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
 
 [dev-dependencies]
 tokio = { version = "1.0", features = ["full"] }
