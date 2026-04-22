@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.48.2
+
+### Patch Changes
+
+- e937588: Add getDelegationForEndUser method to EndUserClient for retrieving active delegation details
+
 ## 1.48.1
 
 ### Patch Changes

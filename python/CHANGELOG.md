@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.44.0] - 2026-04-22
+
+### Features
+
+- Add get_delegation method to EndUserClient for retrieving active delegation details ([#get-delegation](https://github.com/coinbase/cdp-sdk/pull/get-delegation))
+
+### Bugfixes
+
+- Added new webhook events for signing and delegated signing ([#671](https://github.com/coinbase/cdp-sdk/pull/671))
+
+
 ## [1.43.0] - 2026-04-20
 
 ### Features
