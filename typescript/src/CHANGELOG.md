@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.48.1
+
+### Patch Changes
+
+- [#671](https://github.com/coinbase/cdp-sdk/pull/671) [`04dfba1`](https://github.com/coinbase/cdp-sdk/commit/04dfba190ee410d8f5f52cc340b4039a3e526290) Thanks [@milan-cb](https://github.com/milan-cb)! - Added new webhook events for signing and delegated signing
+
 ## 1.48.0
 
 ### Minor Changes
