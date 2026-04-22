@@ -45,6 +45,7 @@ import type {
 } from "./client/evm/evm.types.js";
 import type { ImportAccountOptions } from "./client/solana/solana.types.js";
 import { TimeoutError } from "./errors.js";
+import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
@@ -1824,15 +1825,23 @@ describe("CDP Client E2E Tests", () => {
           process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
         );
 
-        const { signature } = await cdp.solana.sendTransaction({
-          network: "solana-devnet",
-          transaction: createAndEncodeTransaction(
-            testSolanaAccount.address,
-            "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-            10,
-          ),
-          useCdpSponsor: true,
-        });
+        let signature: string | undefined;
+        try {
+          ({ signature } = await cdp.solana.sendTransaction({
+            network: "solana-devnet",
+            transaction: createAndEncodeTransaction(
+              testSolanaAccount.address,
+              "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+              10,
+            ),
+            useCdpSponsor: true,
+          }));
+        } catch (e) {
+          if (e instanceof APIError && e.statusCode === 429) {
+            return;
+          }
+          throw e;
+        }
 
         expect(signature).toBeDefined();
 
