@@ -24877,7 +24877,7 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "The type of limit:\n- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions\n  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.\n  $500 is the default limit.\n- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions\n  across the user's entire history with no time-based expiration. Once the limit is reached, no further\n  transactions are allowed. 15 is the default limit.\n",
+    ///  "description": "The type of limit:\n- `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions \n  within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. \n  $500 is the default limit.\n- `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions \n  across the user's entire history with no time-based expiration. Once the limit is reached, no further \n  transactions are allowed. 15 is the default limit.\n",
     ///  "examples": [
     ///    "weekly_spending"
     ///  ],

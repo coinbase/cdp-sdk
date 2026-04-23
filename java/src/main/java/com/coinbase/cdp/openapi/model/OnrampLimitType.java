@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The type of limit: - &#x60;weekly_spending&#x60;: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions   within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.   $500 is the default limit. - &#x60;lifetime_transactions&#x60;: All-time transaction count limit. Tracks the total number of completed transactions   across the user&#39;s entire history with no time-based expiration. Once the limit is reached, no further   transactions are allowed. 15 is the default limit. 
+ * The type of limit: - &#x60;weekly_spending&#x60;: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions    within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.    $500 is the default limit. - &#x60;lifetime_transactions&#x60;: All-time transaction count limit. Tracks the total number of completed transactions    across the user&#39;s entire history with no time-based expiration. Once the limit is reached, no further    transactions are allowed. 15 is the default limit. 
  */
 public enum OnrampLimitType {
   

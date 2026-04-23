@@ -21,7 +21,7 @@ from typing_extensions import Self
 
 class OnrampLimitType(str, Enum):
     """
-    The type of limit: - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions   within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.   $500 is the default limit. - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions   across the user's entire history with no time-based expiration. Once the limit is reached, no further   transactions are allowed. 15 is the default limit. 
+    The type of limit: - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions    within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.    $500 is the default limit. - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions    across the user's entire history with no time-based expiration. Once the limit is reached, no further    transactions are allowed. 15 is the default limit. 
     """
 
     """
