@@ -194,7 +194,7 @@ export class EndUserClient {
 
     const response = await CdpOpenApiClient.lookupEndUser({ email: options.email });
 
-    return response.endUsers.map((endUser) => toEndUserAccount(CdpOpenApiClient, { endUser }));
+    return response.endUsers.map(endUser => toEndUserAccount(CdpOpenApiClient, { endUser }));
   }
 
   /**
