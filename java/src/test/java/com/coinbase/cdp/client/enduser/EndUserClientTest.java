@@ -323,6 +323,7 @@ class EndUserClientTest {
               any(RevokeDelegationForEndUserRequest.class),
               eq(WALLET_JWT),
               isNull(),
+              isNull(),
               isNull());
     }
   }
