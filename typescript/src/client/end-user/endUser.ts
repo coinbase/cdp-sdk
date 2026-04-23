@@ -46,11 +46,7 @@ import { toEndUserAccount } from "./toEndUserAccount.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { UserInputValidationError } from "../../errors.js";
-import {
-  CdpOpenApiClient,
-  type ListEndUsers200,
-  type LookupEndUser200,
-} from "../../openapi-client/index.js";
+import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/index.js";
 
 /**
  * The CDP end user client.

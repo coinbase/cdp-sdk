@@ -11,7 +11,7 @@ if (!userId) {
   process.exit(1);
 }
 
-const cdp = new CdpClient({ basePath: 'https://cloud-api-dev.cbhq.net/platform'});
+const cdp = new CdpClient();
 
 try {
   const endUser = await cdp.endUser.getEndUser({ userId });
