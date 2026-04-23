@@ -2369,6 +2369,7 @@ paths:
             type: string
             pattern: ^[a-zA-Z0-9-]{1,100}$
             example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/ProjectIDOptional'
       requestBody:
         required: true
         content:
@@ -14305,6 +14306,11 @@ components:
             - eip155:137
             - solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
             - solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
+            - avalanche
+            - arbitrum
+            - arbitrum-sepolia
+            - world
+            - world-sepolia
         extra:
           type: object
           description: The optional additional scheme-specific payment info.

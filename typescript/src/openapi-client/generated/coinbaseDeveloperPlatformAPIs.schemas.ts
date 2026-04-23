@@ -3890,6 +3890,11 @@ export const X402SupportedPaymentKindNetwork = {
   "eip155:137": "eip155:137",
   "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+  avalanche: "avalanche",
+  arbitrum: "arbitrum",
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  world: "world",
+  "world-sepolia": "world-sepolia",
 } as const;
 
 /**
@@ -4628,6 +4633,14 @@ export type GetDelegationForEndUserParams = {
 export type GetDelegationForEndUser200 = {
   /** The date until which the delegation is valid. */
   expiresAt: string;
+};
+
+export type RevokeDelegationForEndUserParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
 };
 
 export type RevokeDelegationForEndUserBody = {

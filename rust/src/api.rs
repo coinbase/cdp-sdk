@@ -28382,6 +28382,94 @@ pub mod types {
                 })
         }
     }
+    ///`RevokeDelegationForEndUserProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserProjectId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserProjectId>
+        for RevokeDelegationForEndUserProjectId
+    {
+        fn from(value: &RevokeDelegationForEndUserProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`RevokeDelegationForEndUserUserId`
     ///
     /// <details><summary>JSON schema</summary>
@@ -54736,7 +54824,12 @@ pub mod types {
     ///        "eip155:84532",
     ///        "eip155:137",
     ///        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    ///        "avalanche",
+    ///        "arbitrum",
+    ///        "arbitrum-sepolia",
+    ///        "world",
+    ///        "world-sepolia"
     ///      ]
     ///    },
     ///    "scheme": {
@@ -54800,7 +54893,12 @@ pub mod types {
     ///    "eip155:84532",
     ///    "eip155:137",
     ///    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    ///    "avalanche",
+    ///    "arbitrum",
+    ///    "arbitrum-sepolia",
+    ///    "world",
+    ///    "world-sepolia"
     ///  ]
     ///}
     /// ```
@@ -54838,6 +54936,16 @@ pub mod types {
         Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp,
         #[serde(rename = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")]
         SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1,
+        #[serde(rename = "avalanche")]
+        Avalanche,
+        #[serde(rename = "arbitrum")]
+        Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
     }
     impl ::std::convert::From<&Self> for X402SupportedPaymentKindNetwork {
         fn from(value: &X402SupportedPaymentKindNetwork) -> Self {
@@ -54861,6 +54969,11 @@ pub mod types {
                 Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1 => {
                     f.write_str("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")
                 }
+                Self::Avalanche => f.write_str("avalanche"),
+                Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
             }
         }
     }
@@ -54882,6 +54995,11 @@ pub mod types {
                 "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" => {
                     Ok(Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1)
                 }
+                "avalanche" => Ok(Self::Avalanche),
+                "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
                 _ => Err("invalid value".into()),
             }
         }
@@ -76843,6 +76961,7 @@ impl Client {
 
     Arguments:
     - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
     - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
     [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
     section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -76859,6 +76978,7 @@ impl Client {
     ```ignore
     let response = client.revoke_delegation_for_end_user()
         .user_id(user_id)
+        .project_id(project_id)
         .x_developer_auth(x_developer_auth)
         .x_idempotency_key(x_idempotency_key)
         .x_wallet_auth(x_wallet_auth)
@@ -80153,6 +80273,7 @@ pub mod builder {
     pub struct RevokeDelegationForEndUser<'a> {
         client: &'a super::Client,
         user_id: Result<types::RevokeDelegationForEndUserUserId, String>,
+        project_id: Result<Option<types::RevokeDelegationForEndUserProjectId>, String>,
         x_developer_auth: Result<Option<::std::string::String>, String>,
         x_idempotency_key: Result<Option<types::RevokeDelegationForEndUserXIdempotencyKey>, String>,
         x_wallet_auth: Result<Option<::std::string::String>, String>,
@@ -80163,6 +80284,7 @@ pub mod builder {
             Self {
                 client: client,
                 user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
                 x_developer_auth: Ok(None),
                 x_idempotency_key: Ok(None),
                 x_wallet_auth: Ok(None),
@@ -80175,6 +80297,16 @@ pub mod builder {
         {
             self.user_id = value.try_into().map_err(|_| {
                 "conversion to `RevokeDelegationForEndUserUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserProjectId` for project_id failed"
+                    .to_string()
             });
             self
         }
@@ -80237,12 +80369,14 @@ pub mod builder {
             let Self {
                 client,
                 user_id,
+                project_id,
                 x_developer_auth,
                 x_idempotency_key,
                 x_wallet_auth,
                 body,
             } = self;
             let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
             let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
             let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
@@ -80279,6 +80413,10 @@ pub mod builder {
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
                 .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
