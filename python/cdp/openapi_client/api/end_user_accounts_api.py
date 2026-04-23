@@ -28,6 +28,7 @@ from cdp.openapi_client.models.create_end_user_request import CreateEndUserReque
 from cdp.openapi_client.models.end_user import EndUser
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
 from cdp.openapi_client.models.list_end_users200_response import ListEndUsers200Response
+from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
 from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -2320,10 +2321,10 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EndUser:
-        """Look up an end user
+    ) -> LookupEndUser200Response:
+        """Look up end users by email
 
-        Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param email: The email address to search for across all authentication methods. (required)
         :type email: str
@@ -2358,9 +2359,8 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
+            '200': "LookupEndUser200Response",
             '401': "Error",
-            '404': "Error",
             '500': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2390,10 +2390,10 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EndUser]:
-        """Look up an end user
+    ) -> ApiResponse[LookupEndUser200Response]:
+        """Look up end users by email
 
-        Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param email: The email address to search for across all authentication methods. (required)
         :type email: str
@@ -2428,9 +2428,8 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
+            '200': "LookupEndUser200Response",
             '401': "Error",
-            '404': "Error",
             '500': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2461,9 +2460,9 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Look up an end user
+        """Look up end users by email
 
-        Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param email: The email address to search for across all authentication methods. (required)
         :type email: str
@@ -2498,9 +2497,8 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
+            '200': "LookupEndUser200Response",
             '401': "Error",
-            '404': "Error",
             '500': "Error",
         }
         response_data = await self.api_client.call_api(

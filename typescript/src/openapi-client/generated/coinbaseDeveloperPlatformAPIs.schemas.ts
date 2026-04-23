@@ -4365,6 +4365,11 @@ export type LookupEndUserParams = {
   email: string;
 };
 
+export type LookupEndUser200 = {
+  /** The list of end users matching the email lookup. */
+  endUsers: EndUser[];
+};
+
 export type AddEndUserEvmAccountBody = { [key: string]: unknown };
 
 export type AddEndUserEvmAccount201 = {

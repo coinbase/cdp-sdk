@@ -1082,9 +1082,9 @@ paths:
   /v2/end-users/lookup:
     get:
       x-audience: public
-      summary: Look up an end user
+      summary: Look up end users by email
       description: |-
-        Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.
 
         This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
       operationId: lookupEndUser
@@ -1103,24 +1103,68 @@ paths:
           example: user@example.com
       responses:
         '200':
-          description: Successfully got end user.
+          description: Successfully looked up end users.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EndUser'
+                type: object
+                required:
+                  - endUsers
+                properties:
+                  endUsers:
+                    type: array
+                    description: The list of end users matching the email lookup.
+                    items:
+                      $ref: '#/components/schemas/EndUser'
+              examples:
+                single_match:
+                  summary: Single end user found
+                  value:
+                    endUsers:
+                      - userId: user-001
+                        authenticationMethods:
+                          - type: email
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T10:00:00Z'
+                multiple_matches:
+                  summary: Multiple end users with same email across auth methods
+                  value:
+                    endUsers:
+                      - userId: user-001
+                        authenticationMethods:
+                          - type: email
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T10:00:00Z'
+                      - userId: user-002
+                        authenticationMethods:
+                          - type: google
+                            sub: google-sub-123
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T11:00:00Z'
+                no_matches:
+                  summary: No end users found
+                  value:
+                    endUsers: []
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                not_found:
-                  value:
-                    errorType: not_found
-                    errorMessage: End user not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
   /v2/end-users/{userId}/evm:
@@ -13870,7 +13914,11 @@ components:
           additionalProperties: true
           example:
             bazaar:
-              discoveryEnabled: true
+              info:
+                input:
+                  type: http
+                  method: GET
+              schema: {}
       example:
         x402Version: 2
         accepted:

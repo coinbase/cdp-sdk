@@ -22780,6 +22780,44 @@ pub mod types {
             value.parse()
         }
     }
+    ///`LookupEndUserResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "endUsers"
+    ///  ],
+    ///  "properties": {
+    ///    "endUsers": {
+    ///      "description": "The list of end users matching the email lookup.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EndUser"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct LookupEndUserResponse {
+        ///The list of end users matching the email lookup.
+        #[serde(rename = "endUsers")]
+        pub end_users: ::std::vec::Vec<EndUser>,
+    }
+    impl ::std::convert::From<&LookupEndUserResponse> for LookupEndUserResponse {
+        fn from(value: &LookupEndUserResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl LookupEndUserResponse {
+        pub fn builder() -> builder::LookupEndUserResponse {
+            Default::default()
+        }
+    }
     ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
     ///
     /// <details><summary>JSON schema</summary>
@@ -55295,7 +55333,13 @@ pub mod types {
     ///      "examples": [
     ///        {
     ///          "bazaar": {
-    ///            "discoveryEnabled": true
+    ///            "info": {
+    ///              "input": {
+    ///                "method": "GET",
+    ///                "type": "http"
+    ///              }
+    ///            },
+    ///            "schema": {}
     ///          }
     ///        }
     ///      ],
@@ -64959,6 +65003,47 @@ pub mod types {
                 Self {
                     next_page_token: Ok(value.next_page_token),
                     spend_permissions: Ok(value.spend_permissions),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct LookupEndUserResponse {
+            end_users:
+                ::std::result::Result<::std::vec::Vec<super::EndUser>, ::std::string::String>,
+        }
+        impl ::std::default::Default for LookupEndUserResponse {
+            fn default() -> Self {
+                Self {
+                    end_users: Err("no value supplied for end_users".to_string()),
+                }
+            }
+        }
+        impl LookupEndUserResponse {
+            pub fn end_users<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EndUser>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.end_users = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for end_users: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<LookupEndUserResponse> for super::LookupEndUserResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: LookupEndUserResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    end_users: value.end_users?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::LookupEndUserResponse> for LookupEndUserResponse {
+            fn from(value: super::LookupEndUserResponse) -> Self {
+                Self {
+                    end_users: Ok(value.end_users),
                 }
             }
         }
@@ -77369,9 +77454,9 @@ impl Client {
     pub fn import_end_user(&self) -> builder::ImportEndUser<'_> {
         builder::ImportEndUser::new(self)
     }
-    /**Look up an end user
+    /**Look up end users by email
 
-    Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).
+    Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.
 
     This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -83021,7 +83106,9 @@ pub mod builder {
             self
         }
         ///Sends a `GET` request to `/v2/end-users/lookup`
-        pub async fn send(self) -> Result<ResponseValue<types::EndUser>, Error<types::Error>> {
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::LookupEndUserResponse>, Error<types::Error>> {
             let Self { client, email } = self;
             let email = email.map_err(Error::InvalidRequest)?;
             let url = format!("{}/v2/end-users/lookup", client.baseurl,);
@@ -83053,9 +83140,6 @@ pub mod builder {
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response::<types::Error>(response).await,
                 401u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(

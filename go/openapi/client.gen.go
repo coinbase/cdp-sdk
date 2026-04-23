@@ -18096,10 +18096,12 @@ func (r ImportEndUserResponse) StatusCode() int {
 type LookupEndUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *EndUser
-	JSON401      *UnauthorizedError
-	JSON404      *Error
-	JSON500      *InternalServerError
+	JSON200      *struct {
+		// EndUsers The list of end users matching the email lookup.
+		EndUsers []EndUser `json:"endUsers"`
+	}
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
 }
 
 // Status returns HTTPResponse.Status
@@ -23219,7 +23221,10 @@ func ParseLookupEndUserResponse(rsp *http.Response) (*LookupEndUserResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest EndUser
+		var dest struct {
+			// EndUsers The list of end users matching the email lookup.
+			EndUsers []EndUser `json:"endUsers"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -23231,13 +23236,6 @@ func ParseLookupEndUserResponse(rsp *http.Response) (*LookupEndUserResponse, err
 			return nil, err
 		}
 		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

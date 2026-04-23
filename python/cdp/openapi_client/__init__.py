@@ -147,6 +147,7 @@ from cdp.openapi_client.models.list_solana_accounts200_response import ListSolan
 from cdp.openapi_client.models.list_solana_token_balances200_response import ListSolanaTokenBalances200Response
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
+from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
 from cdp.openapi_client.models.mfa_methods import MFAMethods
 from cdp.openapi_client.models.mfa_methods_sms import MFAMethodsSms
 from cdp.openapi_client.models.mfa_methods_totp import MFAMethodsTotp

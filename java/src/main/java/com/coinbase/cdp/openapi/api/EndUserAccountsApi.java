@@ -26,6 +26,7 @@ import com.coinbase.cdp.openapi.model.EndUser;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.ImportEndUserRequest;
 import com.coinbase.cdp.openapi.model.ListEndUsers200Response;
+import com.coinbase.cdp.openapi.model.LookupEndUser200Response;
 import com.coinbase.cdp.openapi.model.ValidateEndUserAccessTokenRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -773,25 +774,25 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Look up an end user
-   * Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * Look up end users by email
+   * Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param email The email address to search for across all authentication methods. (required)
-   * @return EndUser
+   * @return LookupEndUser200Response
    * @throws ApiException if fails to make API call
    */
-  public EndUser lookupEndUser(String email) throws ApiException {
-    ApiResponse<EndUser> localVarResponse = lookupEndUserWithHttpInfo(email);
+  public LookupEndUser200Response lookupEndUser(String email) throws ApiException {
+    ApiResponse<LookupEndUser200Response> localVarResponse = lookupEndUserWithHttpInfo(email);
     return localVarResponse.getData();
   }
 
   /**
-   * Look up an end user
-   * Looks up an end user by authentication method field. Currently supports lookup by email address, which searches across all email-based authentication methods (email, Google, Apple, GitHub).  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * Look up end users by email
+   * Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param email The email address to search for across all authentication methods. (required)
-   * @return ApiResponse&lt;EndUser&gt;
+   * @return ApiResponse&lt;LookupEndUser200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<EndUser> lookupEndUserWithHttpInfo(String email) throws ApiException {
+  public ApiResponse<LookupEndUser200Response> lookupEndUserWithHttpInfo(String email) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = lookupEndUserRequestBuilder(email);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -805,7 +806,7 @@ public class EndUserAccountsApi {
           throw getApiException("lookupEndUser", localVarResponse);
         }
         if (localVarResponse.body() == null) {
-          return new ApiResponse<EndUser>(
+          return new ApiResponse<LookupEndUser200Response>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -815,10 +816,10 @@ public class EndUserAccountsApi {
         String responseBody = new String(localVarResponse.body().readAllBytes());
         localVarResponse.body().close();
 
-        return new ApiResponse<EndUser>(
+        return new ApiResponse<LookupEndUser200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<EndUser>() {})
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<LookupEndUser200Response>() {})
         );
       } finally {
       }
