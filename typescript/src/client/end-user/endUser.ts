@@ -46,7 +46,11 @@ import { toEndUserAccount } from "./toEndUserAccount.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { UserInputValidationError } from "../../errors.js";
-import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClient,
+  type ListEndUsers200,
+  type LookupEndUser200,
+} from "../../openapi-client/index.js";
 
 /**
  * The CDP end user client.
@@ -169,28 +173,28 @@ export class EndUserClient {
   }
 
   /**
-   * Looks up an end user by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+   * Looks up end users by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
    *
-   * @param options - The options for looking up an end user.
+   * @param options - The options for looking up end users.
    *
-   * @returns A promise that resolves to the end user.
+   * @returns A promise that resolves to an array of matching end users.
    *
-   * @example **Look up an end user by email**
+   * @example **Look up end users by email**
    *          ```ts
-   *          const endUser = await cdp.endUser.lookupEndUser({
+   *          const endUsers = await cdp.endUser.lookupEndUser({
    *            email: "user@example.com"
    *          });
-   *          console.log(endUser.userId);
+   *          endUsers.forEach(endUser => console.log(endUser.userId));
    *          ```
    */
-  async lookupEndUser(options: LookupEndUserOptions): Promise<EndUserAccount> {
+  async lookupEndUser(options: LookupEndUserOptions): Promise<EndUserAccount[]> {
     Analytics.trackAction({
       action: "lookup_end_user",
     });
 
-    const endUser = await CdpOpenApiClient.lookupEndUser({ email: options.email });
+    const response = await CdpOpenApiClient.lookupEndUser({ email: options.email });
 
-    return toEndUserAccount(CdpOpenApiClient, { endUser });
+    return response.endUsers.map((endUser) => toEndUserAccount(CdpOpenApiClient, { endUser }));
   }
 
   /**

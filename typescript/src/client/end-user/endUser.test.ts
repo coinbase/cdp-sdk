@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 
-import { CdpOpenApiClient, type ListEndUsers200, type EndUser } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClient,
+  type ListEndUsers200,
+  type LookupEndUser200,
+  type EndUser,
+} from "../../openapi-client/index.js";
 
 import { EndUserClient } from "./endUser.js";
 
@@ -8,6 +13,7 @@ vi.mock("../../openapi-client/index.js", () => {
   return {
     CdpOpenApiClient: {
       listEndUsers: vi.fn(),
+      lookupEndUser: vi.fn(),
     },
   };
 });
@@ -133,6 +139,61 @@ describe("EndUserClient", () => {
       expect(result.endUsers).toEqual([]);
       expect(result.nextPageToken).toBeUndefined();
       expect(listEndUsersMock).toHaveBeenCalledWith({});
+    });
+  });
+
+  describe("lookupEndUser", () => {
+    it("should return an array of matching end users", async () => {
+      const lookupEndUserMock = CdpOpenApiClient.lookupEndUser as MockedFunction<
+        typeof CdpOpenApiClient.lookupEndUser
+      >;
+
+      const mockResponse: LookupEndUser200 = {
+        endUsers: [mockEndUser, mockEndUser2],
+      };
+
+      lookupEndUserMock.mockResolvedValue(mockResponse);
+
+      const result = await client.lookupEndUser({ email: "user@example.com" });
+
+      expect(result).toHaveLength(2);
+      expect(result[0].userId).toBe("user-123");
+      expect(result[1].userId).toBe("user-456");
+      expect(lookupEndUserMock).toHaveBeenCalledWith({ email: "user@example.com" });
+    });
+
+    it("should return a single-element array when one user matches", async () => {
+      const lookupEndUserMock = CdpOpenApiClient.lookupEndUser as MockedFunction<
+        typeof CdpOpenApiClient.lookupEndUser
+      >;
+
+      const mockResponse: LookupEndUser200 = {
+        endUsers: [mockEndUser],
+      };
+
+      lookupEndUserMock.mockResolvedValue(mockResponse);
+
+      const result = await client.lookupEndUser({ email: "user@example.com" });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].userId).toBe("user-123");
+    });
+
+    it("should return an empty array when no users match", async () => {
+      const lookupEndUserMock = CdpOpenApiClient.lookupEndUser as MockedFunction<
+        typeof CdpOpenApiClient.lookupEndUser
+      >;
+
+      const mockResponse: LookupEndUser200 = {
+        endUsers: [],
+      };
+
+      lookupEndUserMock.mockResolvedValue(mockResponse);
+
+      const result = await client.lookupEndUser({ email: "nobody@example.com" });
+
+      expect(result).toEqual([]);
+      expect(lookupEndUserMock).toHaveBeenCalledWith({ email: "nobody@example.com" });
     });
   });
 });

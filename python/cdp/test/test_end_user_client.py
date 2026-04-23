@@ -140,6 +140,69 @@ async def test_list_end_users_with_sort(end_user_model_factory, list_end_users_r
 
 
 @pytest.mark.asyncio
+async def test_lookup_end_user_returns_list(
+    end_user_model_factory, lookup_end_user_response_factory
+):
+    """Test that lookup_end_user returns a list of EndUserAccount objects."""
+    from cdp.end_user_account import EndUserAccount
+
+    mock_end_user_1 = end_user_model_factory(user_id="user1")
+    mock_end_user_2 = end_user_model_factory(user_id="user2")
+    mock_response = lookup_end_user_response_factory(
+        end_users=[mock_end_user_1, mock_end_user_2],
+    )
+
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.lookup_end_user = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.lookup_end_user(email="user@example.com")
+
+    assert len(result) == 2
+    assert isinstance(result[0], EndUserAccount)
+    assert isinstance(result[1], EndUserAccount)
+    assert result[0].user_id == "user1"
+    assert result[1].user_id == "user2"
+    mock_api_clients.end_user.lookup_end_user.assert_called_once_with(email="user@example.com")
+
+
+@pytest.mark.asyncio
+async def test_lookup_end_user_single_match(
+    end_user_model_factory, lookup_end_user_response_factory
+):
+    """Test lookup_end_user with a single matching end user."""
+    mock_end_user = end_user_model_factory(user_id="user1")
+    mock_response = lookup_end_user_response_factory(end_users=[mock_end_user])
+
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.lookup_end_user = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.lookup_end_user(email="user@example.com")
+
+    assert len(result) == 1
+    assert result[0].user_id == "user1"
+
+
+@pytest.mark.asyncio
+async def test_lookup_end_user_no_matches(lookup_end_user_response_factory):
+    """Test lookup_end_user with no matching end users."""
+    mock_response = lookup_end_user_response_factory(end_users=[])
+
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.lookup_end_user = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.lookup_end_user(email="nobody@example.com")
+
+    assert result == []
+    mock_api_clients.end_user.lookup_end_user.assert_called_once_with(email="nobody@example.com")
+
+
+@pytest.mark.asyncio
 async def test_create_end_user_with_provided_user_id(end_user_model_factory):
     """Test creating an end user with a provided user_id."""
     mock_user_id = "custom-user-id"

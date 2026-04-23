@@ -139,6 +139,23 @@ class EndUserClientTest {
   }
 
   @Nested
+  class LookupEndUserTest {
+    @Test
+    void looksUpEndUserByEmail() throws ApiException {
+      LookupEndUser200Response expected = new LookupEndUser200Response();
+      expected.addEndUsersItem(new EndUser().userId(USER_ID));
+      when(endUserAccountsApi.lookupEndUser("user@example.com")).thenReturn(expected);
+
+      LookupEndUser200Response result = client.lookupEndUser("user@example.com");
+
+      assertThat(result).isEqualTo(expected);
+      assertThat(result.getEndUsers()).hasSize(1);
+      assertThat(result.getEndUsers().get(0).getUserId()).isEqualTo(USER_ID);
+      verify(endUserAccountsApi).lookupEndUser("user@example.com");
+    }
+  }
+
+  @Nested
   class ValidateAccessTokenTest {
     @Test
     void validatesAccessToken() throws ApiException {

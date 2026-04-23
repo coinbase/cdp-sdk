@@ -19,6 +19,7 @@ import com.coinbase.cdp.openapi.model.EvmUserOperation;
 import com.coinbase.cdp.openapi.model.GetDelegationForEndUser200Response;
 import com.coinbase.cdp.openapi.model.ImportEndUserRequest;
 import com.coinbase.cdp.openapi.model.ListEndUsers200Response;
+import com.coinbase.cdp.openapi.model.LookupEndUser200Response;
 import com.coinbase.cdp.openapi.model.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccountRequest;
@@ -182,15 +183,15 @@ public class EndUserClient {
   }
 
   /**
-   * Looks up an end user by email address.
+   * Looks up end users by email address.
    *
    * <p>Searches across all email-based authentication methods (email, Google, Apple, GitHub).
    *
    * @param email the email address to search for
-   * @return the end user
+   * @return the lookup response containing matching end users
    * @throws ApiException if the API call fails
    */
-  public EndUser lookupEndUser(String email) throws ApiException {
+  public LookupEndUser200Response lookupEndUser(String email) throws ApiException {
     return endUserAccountsApi.lookupEndUser(email);
   }
 

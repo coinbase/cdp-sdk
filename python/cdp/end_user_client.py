@@ -202,8 +202,8 @@ class EndUserClient:
     async def lookup_end_user(
         self,
         email: str,
-    ) -> EndUserAccount:
-        """Look up an end user by email address.
+    ) -> list[EndUserAccount]:
+        """Look up end users by email address.
 
         Searches across all email-based authentication methods (email, Google, Apple, GitHub).
 
@@ -211,14 +211,14 @@ class EndUserClient:
             email: The email address to search for across all authentication methods.
 
         Returns:
-            EndUserAccount: The end user with action methods.
+            list[EndUserAccount]: The matching end users with action methods.
 
         """
         track_action(action="lookup_end_user")
 
-        end_user = await self.api_clients.end_user.lookup_end_user(email=email)
+        response = await self.api_clients.end_user.lookup_end_user(email=email)
 
-        return EndUserAccount(end_user, self.api_clients)
+        return [EndUserAccount(end_user, self.api_clients) for end_user in response.end_users]
 
     async def validate_access_token(
         self,
