@@ -3,6 +3,7 @@ package com.coinbase.cdp.client.enduser;
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
+import com.coinbase.cdp.client.enduser.EndUserClientOptions.LookupEndUserOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
@@ -183,16 +184,16 @@ public class EndUserClient {
   }
 
   /**
-   * Looks up end users by email address.
+   * Looks up end users by a single identity parameter.
    *
    * <p>Searches across all email-based authentication methods (email, Google, Apple, GitHub).
    *
-   * @param email the email address to search for
+   * @param options the lookup options specifying the identity parameter to search by
    * @return the lookup response containing matching end users
    * @throws ApiException if the API call fails
    */
-  public LookupEndUser200Response lookupEndUser(String email) throws ApiException {
-    return endUserAccountsApi.lookupEndUser(email);
+  public LookupEndUser200Response lookupEndUser(LookupEndUserOptions options) throws ApiException {
+    return endUserAccountsApi.lookupEndUser(options.email());
   }
 
   /**

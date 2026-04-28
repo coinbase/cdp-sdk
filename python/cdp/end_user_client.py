@@ -201,7 +201,8 @@ class EndUserClient:
 
     async def lookup_end_user(
         self,
-        email: str,
+        *,
+        email: str | None = None,
     ) -> list[EndUserAccount]:
         """Look up end users by email address.
 

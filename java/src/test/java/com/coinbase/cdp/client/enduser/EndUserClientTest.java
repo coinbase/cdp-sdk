@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
+import com.coinbase.cdp.client.enduser.EndUserClientOptions.LookupEndUserOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
@@ -146,7 +147,8 @@ class EndUserClientTest {
       expected.addEndUsersItem(new EndUser().userId(USER_ID));
       when(endUserAccountsApi.lookupEndUser("user@example.com")).thenReturn(expected);
 
-      LookupEndUser200Response result = client.lookupEndUser("user@example.com");
+      LookupEndUserOptions options = LookupEndUserOptions.builder().email("user@example.com").build();
+      LookupEndUser200Response result = client.lookupEndUser(options);
 
       assertThat(result).isEqualTo(expected);
       assertThat(result.getEndUsers()).hasSize(1);
