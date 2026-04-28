@@ -147,7 +147,8 @@ class EndUserClientTest {
       expected.addEndUsersItem(new EndUser().userId(USER_ID));
       when(endUserAccountsApi.lookupEndUser("user@example.com")).thenReturn(expected);
 
-      LookupEndUserOptions options = LookupEndUserOptions.builder().email("user@example.com").build();
+      LookupEndUserOptions options =
+          LookupEndUserOptions.builder().email("user@example.com").build();
       LookupEndUser200Response result = client.lookupEndUser(options);
 
       assertThat(result).isEqualTo(expected);
