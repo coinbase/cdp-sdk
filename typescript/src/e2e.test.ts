@@ -238,6 +238,21 @@ describe("CDP Client E2E Tests", () => {
     expect(account.name).toBe(randomName);
   });
 
+  it("should look up an end user by email", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    const created = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+    });
+
+    const results = await cdp.endUser.lookupEndUser({ email: randomEmail });
+
+    expect(results).toHaveLength(1);
+    expect(results[0].userId).toBe(created.userId);
+
+    logger.log("Looked up end user:", safeStringify(results));
+  });
+
   it("should create an end user with EVM smart account and Solana account", async () => {
     const randomEmail = `test-${Date.now()}@example.com`;
 
