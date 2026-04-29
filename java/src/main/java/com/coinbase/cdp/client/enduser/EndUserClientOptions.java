@@ -14,13 +14,19 @@ public final class EndUserClientOptions {
   /** Options for looking up end users by a single identity parameter. */
   public static final class LookupEndUserOptions {
     private final String email;
+    private final String phoneNumber;
 
     private LookupEndUserOptions(Builder builder) {
       this.email = builder.email;
+      this.phoneNumber = builder.phoneNumber;
     }
 
     public String email() {
       return email;
+    }
+
+    public String phoneNumber() {
+      return phoneNumber;
     }
 
     public static Builder builder() {
@@ -29,11 +35,17 @@ public final class EndUserClientOptions {
 
     public static final class Builder {
       private String email;
+      private String phoneNumber;
 
       private Builder() {}
 
       public Builder email(String email) {
         this.email = email;
+        return this;
+      }
+
+      public Builder phoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
         return this;
       }
 

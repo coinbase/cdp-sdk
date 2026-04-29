@@ -184,16 +184,15 @@ public class EndUserClient {
   }
 
   /**
-   * Looks up end users by a single identity parameter.
-   *
-   * <p>Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+   * Looks up end users by a single identity parameter. Exactly one of email or phoneNumber must be
+   * set in the options.
    *
    * @param options the lookup options specifying the identity parameter to search by
    * @return the lookup response containing matching end users
    * @throws ApiException if the API call fails
    */
   public LookupEndUser200Response lookupEndUser(LookupEndUserOptions options) throws ApiException {
-    return endUserAccountsApi.lookupEndUser(options.email());
+    return endUserAccountsApi.lookupEndUser(options.email(), null, null, options.phoneNumber());
   }
 
   /**

@@ -145,7 +145,8 @@ class EndUserClientTest {
     void looksUpEndUserByEmail() throws ApiException {
       LookupEndUser200Response expected = new LookupEndUser200Response();
       expected.addEndUsersItem(new EndUser().userId(USER_ID));
-      when(endUserAccountsApi.lookupEndUser("user@example.com")).thenReturn(expected);
+      when(endUserAccountsApi.lookupEndUser("user@example.com", null, null, null))
+          .thenReturn(expected);
 
       LookupEndUserOptions options =
           LookupEndUserOptions.builder().email("user@example.com").build();
@@ -154,7 +155,23 @@ class EndUserClientTest {
       assertThat(result).isEqualTo(expected);
       assertThat(result.getEndUsers()).hasSize(1);
       assertThat(result.getEndUsers().get(0).getUserId()).isEqualTo(USER_ID);
-      verify(endUserAccountsApi).lookupEndUser("user@example.com");
+      verify(endUserAccountsApi).lookupEndUser("user@example.com", null, null, null);
+    }
+
+    @Test
+    void looksUpEndUserByPhoneNumber() throws ApiException {
+      LookupEndUser200Response expected = new LookupEndUser200Response();
+      expected.addEndUsersItem(new EndUser().userId(USER_ID));
+      when(endUserAccountsApi.lookupEndUser(null, null, null, "+14155552671")).thenReturn(expected);
+
+      LookupEndUserOptions options =
+          LookupEndUserOptions.builder().phoneNumber("+14155552671").build();
+      LookupEndUser200Response result = client.lookupEndUser(options);
+
+      assertThat(result).isEqualTo(expected);
+      assertThat(result.getEndUsers()).hasSize(1);
+      assertThat(result.getEndUsers().get(0).getUserId()).isEqualTo(USER_ID);
+      verify(endUserAccountsApi).lookupEndUser(null, null, null, "+14155552671");
     }
   }
 
