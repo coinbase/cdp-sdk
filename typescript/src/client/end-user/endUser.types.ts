@@ -55,9 +55,15 @@ export interface GetEndUserOptions {
  */
 export interface LookupEndUserOptions {
   /**
-   * The email address to search for across all authentication methods (email, Google, Apple, GitHub).
+   * The email address to search for across all email-based authentication methods (email, Google, Apple, GitHub).
+   * Email lookup returns an array because the same address can appear across multiple auth methods — a user who
+   * signed up via email auth and another who signed up via Google OAuth with the same address are distinct end users.
    */
-  email: string;
+  email?: string;
+  /**
+   * The E.164-formatted phone number to search for (e.g. +14155552671).
+   */
+  phoneNumber?: string;
 }
 
 /**

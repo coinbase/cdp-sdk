@@ -169,7 +169,7 @@ export class EndUserClient {
   }
 
   /**
-   * Looks up end users by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+   * Looks up end users by a single identity parameter. Exactly one of `email` or `phoneNumber` must be provided.
    *
    * @param options - The options for looking up end users.
    *
@@ -182,13 +182,24 @@ export class EndUserClient {
    *          });
    *          endUsers.forEach(endUser => console.log(endUser.userId));
    *          ```
+   *
+   * @example **Look up an end user by phone number**
+   *          ```ts
+   *          const endUsers = await cdp.endUser.lookupEndUser({
+   *            phoneNumber: "+14155552671"
+   *          });
+   *          endUsers.forEach(endUser => console.log(endUser.userId));
+   *          ```
    */
   async lookupEndUser(options: LookupEndUserOptions): Promise<EndUserAccount[]> {
     Analytics.trackAction({
       action: "lookup_end_user",
     });
 
-    const response = await CdpOpenApiClient.lookupEndUser({ email: options.email });
+    const response = await CdpOpenApiClient.lookupEndUser({
+      email: options.email,
+      phoneNumber: options.phoneNumber,
+    });
 
     return response.endUsers.map(endUser => toEndUserAccount(CdpOpenApiClient, { endUser }));
   }

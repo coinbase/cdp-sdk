@@ -195,5 +195,26 @@ describe("EndUserClient", () => {
       expect(result).toEqual([]);
       expect(lookupEndUserMock).toHaveBeenCalledWith({ email: "nobody@example.com" });
     });
+
+    it("should look up an end user by phone number", async () => {
+      const lookupEndUserMock = CdpOpenApiClient.lookupEndUser as MockedFunction<
+        typeof CdpOpenApiClient.lookupEndUser
+      >;
+
+      const mockResponse: LookupEndUser200 = {
+        endUsers: [mockEndUser],
+      };
+
+      lookupEndUserMock.mockResolvedValue(mockResponse);
+
+      const result = await client.lookupEndUser({ phoneNumber: "+14155552671" });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].userId).toBe("user-123");
+      expect(lookupEndUserMock).toHaveBeenCalledWith({
+        email: undefined,
+        phoneNumber: "+14155552671",
+      });
+    });
   });
 });
