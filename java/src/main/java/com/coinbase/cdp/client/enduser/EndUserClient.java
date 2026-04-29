@@ -21,6 +21,7 @@ import com.coinbase.cdp.openapi.model.GetDelegationForEndUser200Response;
 import com.coinbase.cdp.openapi.model.ImportEndUserRequest;
 import com.coinbase.cdp.openapi.model.ListEndUsers200Response;
 import com.coinbase.cdp.openapi.model.LookupEndUser200Response;
+import com.coinbase.cdp.openapi.model.OAuth2ProviderType;
 import com.coinbase.cdp.openapi.model.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccountRequest;
@@ -184,22 +185,29 @@ public class EndUserClient {
   }
 
   /**
-   * Looks up end users by a single identity parameter. Exactly one of email or phoneNumber must be
-   * set in the options.
+   * Looks up end users by a single identity parameter. Exactly one of email, phoneNumber, or
+   * oauthProvider+oauthSubject must be set in the options.
    *
    * @param options the lookup options specifying the identity parameter to search by
    * @return the lookup response containing matching end users
    * @throws ApiException if the API call fails
    */
   public LookupEndUser200Response lookupEndUser(LookupEndUserOptions options) throws ApiException {
+    boolean hasOAuth = options.oauthProvider() != null && options.oauthSubject() != null;
     long lookupCount =
         java.util.stream.Stream.of(options.email(), options.phoneNumber())
             .filter(v -> v != null)
             .count();
-    if (lookupCount != 1) {
-      throw new IllegalArgumentException("Exactly one of email or phoneNumber must be provided.");
+    if (lookupCount + (hasOAuth ? 1 : 0) != 1) {
+      throw new IllegalArgumentException(
+          "Exactly one of email, phoneNumber, or oauthProvider+oauthSubject must be provided.");
     }
-    return endUserAccountsApi.lookupEndUser(options.email(), null, null, options.phoneNumber());
+    OAuth2ProviderType provider =
+        options.oauthProvider() != null
+            ? OAuth2ProviderType.fromValue(options.oauthProvider())
+            : null;
+    return endUserAccountsApi.lookupEndUser(
+        options.email(), provider, options.oauthSubject(), options.phoneNumber());
   }
 
   /**

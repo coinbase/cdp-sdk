@@ -13,6 +13,7 @@ import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
 import com.coinbase.cdp.openapi.api.EndUserAccountsApi;
 import com.coinbase.cdp.openapi.model.*;
+import com.coinbase.cdp.openapi.model.OAuth2ProviderType;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -175,11 +176,28 @@ class EndUserClientTest {
     }
 
     @Test
+    void looksUpEndUserByOAuthSubject() throws ApiException {
+      LookupEndUser200Response expected = new LookupEndUser200Response();
+      expected.addEndUsersItem(new EndUser().userId(USER_ID));
+      when(endUserAccountsApi.lookupEndUser(null, OAuth2ProviderType.GOOGLE, "1234567890", null))
+          .thenReturn(expected);
+
+      LookupEndUserOptions options =
+          LookupEndUserOptions.builder().oauthProvider("google").oauthSubject("1234567890").build();
+      LookupEndUser200Response result = client.lookupEndUser(options);
+
+      assertThat(result).isEqualTo(expected);
+      assertThat(result.getEndUsers()).hasSize(1);
+      assertThat(result.getEndUsers().get(0).getUserId()).isEqualTo(USER_ID);
+      verify(endUserAccountsApi).lookupEndUser(null, OAuth2ProviderType.GOOGLE, "1234567890", null);
+    }
+
+    @Test
     void throwsWhenNoParamProvided() {
       LookupEndUserOptions options = LookupEndUserOptions.builder().build();
       assertThatThrownBy(() -> client.lookupEndUser(options))
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("Exactly one of email or phoneNumber must be provided.");
+          .hasMessageContaining("Exactly one of email, phoneNumber, or oauthProvider+oauthSubject must be provided.");
     }
 
     @Test

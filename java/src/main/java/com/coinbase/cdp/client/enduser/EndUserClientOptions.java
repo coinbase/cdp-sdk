@@ -15,10 +15,14 @@ public final class EndUserClientOptions {
   public static final class LookupEndUserOptions {
     private final String email;
     private final String phoneNumber;
+    private final String oauthProvider;
+    private final String oauthSubject;
 
     private LookupEndUserOptions(Builder builder) {
       this.email = builder.email;
       this.phoneNumber = builder.phoneNumber;
+      this.oauthProvider = builder.oauthProvider;
+      this.oauthSubject = builder.oauthSubject;
     }
 
     public String email() {
@@ -29,6 +33,14 @@ public final class EndUserClientOptions {
       return phoneNumber;
     }
 
+    public String oauthProvider() {
+      return oauthProvider;
+    }
+
+    public String oauthSubject() {
+      return oauthSubject;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -36,6 +48,8 @@ public final class EndUserClientOptions {
     public static final class Builder {
       private String email;
       private String phoneNumber;
+      private String oauthProvider;
+      private String oauthSubject;
 
       private Builder() {}
 
@@ -46,6 +60,16 @@ public final class EndUserClientOptions {
 
       public Builder phoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+        return this;
+      }
+
+      public Builder oauthProvider(String oauthProvider) {
+        this.oauthProvider = oauthProvider;
+        return this;
+      }
+
+      public Builder oauthSubject(String oauthSubject) {
+        this.oauthSubject = oauthSubject;
         return this;
       }
 
