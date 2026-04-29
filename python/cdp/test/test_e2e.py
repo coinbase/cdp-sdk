@@ -31,6 +31,7 @@ from cdp.openapi_client.models.create_end_user_request_solana_account import (
 )
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.email_authentication import EmailAuthentication
+from cdp.openapi_client.models.sms_authentication import SmsAuthentication
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -172,6 +173,26 @@ async def test_lookup_end_user_by_email(cdp_client):
     assert results[0].user_id == created.user_id
 
     print(f"Looked up end user: {results[0].user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_lookup_end_user_by_phone_number(cdp_client):
+    """Test looking up an end user by phone number."""
+    phone_number = f"+1415555{int(time.time()) % 10000:04d}"
+
+    created = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(SmsAuthentication(type="sms", phone_number=phone_number))
+        ],
+    )
+
+    results = await cdp_client.end_user.lookup_end_user(phone_number=phone_number)
+
+    assert len(results) == 1
+    assert results[0].user_id == created.user_id
+
+    print(f"Looked up end user by phone: {results[0].user_id}")
 
 
 @pytest.mark.e2e

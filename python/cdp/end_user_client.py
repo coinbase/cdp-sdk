@@ -203,13 +203,17 @@ class EndUserClient:
         self,
         *,
         email: str | None = None,
+        phone_number: str | None = None,
     ) -> list[EndUserAccount]:
-        """Look up end users by email address.
+        """Look up end users by a single identity parameter.
 
-        Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+        Exactly one of email or phone_number must be provided.
 
         Args:
-            email: The email address to search for across all authentication methods.
+            email: The email address to search for across all email-based authentication methods
+                (email, Google, Apple, GitHub). Email lookup returns an array because the same
+                address can appear across multiple auth methods.
+            phone_number: The E.164-formatted phone number to search for (e.g. +14155552671).
 
         Returns:
             list[EndUserAccount]: The matching end users with action methods.
@@ -217,7 +221,10 @@ class EndUserClient:
         """
         track_action(action="lookup_end_user")
 
-        response = await self.api_clients.end_user.lookup_end_user(email=email)
+        response = await self.api_clients.end_user.lookup_end_user(
+            email=email,
+            phone_number=phone_number,
+        )
 
         return [EndUserAccount(end_user, self.api_clients) for end_user in response.end_users]
 
