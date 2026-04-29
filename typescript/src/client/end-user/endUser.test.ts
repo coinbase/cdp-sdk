@@ -160,7 +160,12 @@ describe("EndUserClient", () => {
       expect(result).toHaveLength(2);
       expect(result[0].userId).toBe("user-123");
       expect(result[1].userId).toBe("user-456");
-      expect(lookupEndUserMock).toHaveBeenCalledWith({ email: "user@example.com" });
+      expect(lookupEndUserMock).toHaveBeenCalledWith({
+        email: "user@example.com",
+        phoneNumber: undefined,
+        oauthProvider: undefined,
+        oauthSubject: undefined,
+      });
     });
 
     it("should return a single-element array when one user matches", async () => {
@@ -194,7 +199,12 @@ describe("EndUserClient", () => {
       const result = await client.lookupEndUser({ email: "nobody@example.com" });
 
       expect(result).toEqual([]);
-      expect(lookupEndUserMock).toHaveBeenCalledWith({ email: "nobody@example.com" });
+      expect(lookupEndUserMock).toHaveBeenCalledWith({
+        email: "nobody@example.com",
+        phoneNumber: undefined,
+        oauthProvider: undefined,
+        oauthSubject: undefined,
+      });
     });
 
     it("should look up an end user by phone number", async () => {
@@ -215,6 +225,34 @@ describe("EndUserClient", () => {
       expect(lookupEndUserMock).toHaveBeenCalledWith({
         email: undefined,
         phoneNumber: "+14155552671",
+        oauthProvider: undefined,
+        oauthSubject: undefined,
+      });
+    });
+
+    it("should look up an end user by oauth subject", async () => {
+      const lookupEndUserMock = CdpOpenApiClient.lookupEndUser as MockedFunction<
+        typeof CdpOpenApiClient.lookupEndUser
+      >;
+
+      const mockResponse: LookupEndUser200 = {
+        endUsers: [mockEndUser],
+      };
+
+      lookupEndUserMock.mockResolvedValue(mockResponse);
+
+      const result = await client.lookupEndUser({
+        oauthProvider: "google",
+        oauthSubject: "1234567890",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].userId).toBe("user-123");
+      expect(lookupEndUserMock).toHaveBeenCalledWith({
+        email: undefined,
+        phoneNumber: undefined,
+        oauthProvider: "google",
+        oauthSubject: "1234567890",
       });
     });
 

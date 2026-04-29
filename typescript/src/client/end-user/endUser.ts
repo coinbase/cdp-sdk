@@ -169,7 +169,8 @@ export class EndUserClient {
   }
 
   /**
-   * Looks up end users by a single identity parameter. Exactly one of `email` or `phoneNumber` must be provided.
+   * Looks up end users by a single identity parameter. Exactly one of `email`, `phoneNumber`,
+   * or `oauthProvider`+`oauthSubject` must be provided.
    *
    * @param options - The options for looking up end users.
    *
@@ -190,6 +191,15 @@ export class EndUserClient {
    *          });
    *          endUsers.forEach(endUser => console.log(endUser.userId));
    *          ```
+   *
+   * @example **Look up an end user by OAuth subject**
+   *          ```ts
+   *          const endUsers = await cdp.endUser.lookupEndUser({
+   *            oauthProvider: "google",
+   *            oauthSubject: "1234567890"
+   *          });
+   *          endUsers.forEach(endUser => console.log(endUser.userId));
+   *          ```
    */
   async lookupEndUser(options: LookupEndUserOptions): Promise<EndUserAccount[]> {
     const lookupCount = [options.email, options.phoneNumber].filter(Boolean).length;
@@ -206,6 +216,8 @@ export class EndUserClient {
     const response = await CdpOpenApiClient.lookupEndUser({
       email: options.email,
       phoneNumber: options.phoneNumber,
+      oauthProvider: options.oauthProvider,
+      oauthSubject: options.oauthSubject,
     });
 
     return response.endUsers.map(endUser => toEndUserAccount(CdpOpenApiClient, { endUser }));

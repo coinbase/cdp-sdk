@@ -27,6 +27,7 @@ import type {
   SendSolanaAssetWithEndUserAccount200,
   SendSolanaAssetWithEndUserAccountBodyNetwork,
   EIP712Message,
+  OAuth2ProviderType,
 } from "../../openapi-client/index.js";
 import type { Prettify } from "../../types/utils.js";
 
@@ -64,6 +65,15 @@ export interface LookupEndUserOptions {
    * The E.164-formatted phone number to search for (e.g. +14155552671).
    */
   phoneNumber?: string;
+  /**
+   * The OAuth provider to search by. Must be provided together with oauthSubject.
+   */
+  oauthProvider?: OAuth2ProviderType;
+  /**
+   * The OAuth subject (the `sub` claim from the provider's ID token).
+   * Must be provided together with oauthProvider.
+   */
+  oauthSubject?: string;
 }
 
 /**
