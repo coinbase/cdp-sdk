@@ -204,16 +204,22 @@ class EndUserClient:
         *,
         email: str | None = None,
         phone_number: str | None = None,
+        oauth_provider: str | None = None,
+        oauth_subject: str | None = None,
     ) -> list[EndUserAccount]:
         """Look up end users by a single identity parameter.
 
-        Exactly one of email or phone_number must be provided.
+        Exactly one of email, phone_number, or oauth_provider+oauth_subject must be provided.
 
         Args:
             email: The email address to search for across all email-based authentication methods
                 (email, Google, Apple, GitHub). Email lookup returns an array because the same
                 address can appear across multiple auth methods.
             phone_number: The E.164-formatted phone number to search for (e.g. +14155552671).
+            oauth_provider: The OAuth provider to search by (e.g. "google", "apple").
+                Must be provided together with oauth_subject.
+            oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token).
+                Must be provided together with oauth_provider.
 
         Returns:
             list[EndUserAccount]: The matching end users with action methods.
@@ -230,6 +236,8 @@ class EndUserClient:
         response = await self.api_clients.end_user.lookup_end_user(
             email=email,
             phone_number=phone_number,
+            oauth_provider=oauth_provider,
+            oauth_subject=oauth_subject,
         )
 
         return [EndUserAccount(end_user, self.api_clients) for end_user in response.end_users]

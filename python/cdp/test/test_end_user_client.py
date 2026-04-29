@@ -165,7 +165,7 @@ async def test_lookup_end_user_returns_list(
     assert result[0].user_id == "user1"
     assert result[1].user_id == "user2"
     mock_api_clients.end_user.lookup_end_user.assert_called_once_with(
-        email="user@example.com", phone_number=None
+        email="user@example.com", phone_number=None, oauth_provider=None, oauth_subject=None
     )
 
 
@@ -202,7 +202,7 @@ async def test_lookup_end_user_no_matches(lookup_end_user_response_factory):
 
     assert result == []
     mock_api_clients.end_user.lookup_end_user.assert_called_once_with(
-        email="nobody@example.com", phone_number=None
+        email="nobody@example.com", phone_number=None, oauth_provider=None, oauth_subject=None
     )
 
 
@@ -224,7 +224,27 @@ async def test_lookup_end_user_by_phone_number(
     assert len(result) == 1
     assert result[0].user_id == "user1"
     mock_api_clients.end_user.lookup_end_user.assert_called_once_with(
-        email=None, phone_number="+14155552671"
+        email=None, phone_number="+14155552671", oauth_provider=None, oauth_subject=None
+    )
+
+
+@pytest.mark.asyncio
+async def test_lookup_end_user_by_oauth(end_user_model_factory, lookup_end_user_response_factory):
+    """Test lookup_end_user with an OAuth provider and subject."""
+    mock_end_user = end_user_model_factory(user_id="user1")
+    mock_response = lookup_end_user_response_factory(end_users=[mock_end_user])
+
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.lookup_end_user = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.lookup_end_user(oauth_provider="google", oauth_subject="1234567890")
+
+    assert len(result) == 1
+    assert result[0].user_id == "user1"
+    mock_api_clients.end_user.lookup_end_user.assert_called_once_with(
+        email=None, phone_number=None, oauth_provider="google", oauth_subject="1234567890"
     )
 
 
