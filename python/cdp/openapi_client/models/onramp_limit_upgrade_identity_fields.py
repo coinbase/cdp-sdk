@@ -18,18 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.end_user import EndUser
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.date_of_birth import DateOfBirth
 from typing import Optional, Set
 from typing_extensions import Self
 
-class LookupEndUser200Response(BaseModel):
+class OnrampLimitUpgradeIdentityFields(BaseModel):
     """
-    LookupEndUser200Response
+    Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
     """ # noqa: E501
-    end_users: List[EndUser] = Field(description="The list of end users matching the lookup.", alias="endUsers")
-    __properties: ClassVar[List[str]] = ["endUsers"]
+    ssn_last4: Optional[StrictStr] = Field(default=None, description="Last 4 digits of the Social Security Number (no dashes or spaces).", alias="ssnLast4")
+    date_of_birth: Optional[DateOfBirth] = Field(default=None, description="Date of birth.", alias="dateOfBirth")
+    __properties: ClassVar[List[str]] = ["ssnLast4", "dateOfBirth"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +50,7 @@ class LookupEndUser200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of LookupEndUser200Response from a JSON string"""
+        """Create an instance of OnrampLimitUpgradeIdentityFields from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,18 +71,14 @@ class LookupEndUser200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in end_users (list)
-        _items = []
-        if self.end_users:
-            for _item_end_users in self.end_users:
-                if _item_end_users:
-                    _items.append(_item_end_users.to_dict())
-            _dict['endUsers'] = _items
+        # override the default output from pydantic by calling `to_dict()` of date_of_birth
+        if self.date_of_birth:
+            _dict['dateOfBirth'] = self.date_of_birth.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of LookupEndUser200Response from a dict"""
+        """Create an instance of OnrampLimitUpgradeIdentityFields from a dict"""
         if obj is None:
             return None
 
@@ -89,7 +86,8 @@ class LookupEndUser200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "endUsers": [EndUser.from_dict(_item) for _item in obj["endUsers"]] if obj.get("endUsers") is not None else None
+            "ssnLast4": obj.get("ssnLast4"),
+            "dateOfBirth": DateOfBirth.from_dict(obj["dateOfBirth"]) if obj.get("dateOfBirth") is not None else None
         })
         return _obj
 

@@ -29,6 +29,7 @@ from cdp.openapi_client.models.end_user import EndUser
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
 from cdp.openapi_client.models.list_end_users200_response import ListEndUsers200Response
 from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
+from cdp.openapi_client.models.o_auth2_provider_type import OAuth2ProviderType
 from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -2308,7 +2309,10 @@ class EndUserAccountsApi:
     @validate_call
     async def lookup_end_user(
         self,
-        email: Annotated[StrictStr, Field(description="The email address to search for across all authentication methods.")],
+        email: Annotated[Optional[StrictStr], Field(description="The email address to search for across all email-based authentication methods.")] = None,
+        oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
+        oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
+        phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2322,12 +2326,18 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> LookupEndUser200Response:
-        """Look up end users by email
+        """Look up end users by identity
 
-        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
-        :param email: The email address to search for across all authentication methods. (required)
+        :param email: The email address to search for across all email-based authentication methods.
         :type email: str
+        :param oauth_provider: The OAuth provider to search by. Must be provided together with oauthSubject.
+        :type oauth_provider: OAuth2ProviderType
+        :param oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+        :type oauth_subject: str
+        :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+        :type phone_number: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2352,6 +2362,9 @@ class EndUserAccountsApi:
 
         _param = self._lookup_end_user_serialize(
             email=email,
+            oauth_provider=oauth_provider,
+            oauth_subject=oauth_subject,
+            phone_number=phone_number,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2360,6 +2373,7 @@ class EndUserAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "LookupEndUser200Response",
+            '400': "Error",
             '401': "Error",
             '500': "Error",
         }
@@ -2377,7 +2391,10 @@ class EndUserAccountsApi:
     @validate_call
     async def lookup_end_user_with_http_info(
         self,
-        email: Annotated[StrictStr, Field(description="The email address to search for across all authentication methods.")],
+        email: Annotated[Optional[StrictStr], Field(description="The email address to search for across all email-based authentication methods.")] = None,
+        oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
+        oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
+        phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2391,12 +2408,18 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[LookupEndUser200Response]:
-        """Look up end users by email
+        """Look up end users by identity
 
-        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
-        :param email: The email address to search for across all authentication methods. (required)
+        :param email: The email address to search for across all email-based authentication methods.
         :type email: str
+        :param oauth_provider: The OAuth provider to search by. Must be provided together with oauthSubject.
+        :type oauth_provider: OAuth2ProviderType
+        :param oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+        :type oauth_subject: str
+        :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+        :type phone_number: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2421,6 +2444,9 @@ class EndUserAccountsApi:
 
         _param = self._lookup_end_user_serialize(
             email=email,
+            oauth_provider=oauth_provider,
+            oauth_subject=oauth_subject,
+            phone_number=phone_number,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2429,6 +2455,7 @@ class EndUserAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "LookupEndUser200Response",
+            '400': "Error",
             '401': "Error",
             '500': "Error",
         }
@@ -2446,7 +2473,10 @@ class EndUserAccountsApi:
     @validate_call
     async def lookup_end_user_without_preload_content(
         self,
-        email: Annotated[StrictStr, Field(description="The email address to search for across all authentication methods.")],
+        email: Annotated[Optional[StrictStr], Field(description="The email address to search for across all email-based authentication methods.")] = None,
+        oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
+        oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
+        phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2460,12 +2490,18 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Look up end users by email
+        """Look up end users by identity
 
-        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
-        :param email: The email address to search for across all authentication methods. (required)
+        :param email: The email address to search for across all email-based authentication methods.
         :type email: str
+        :param oauth_provider: The OAuth provider to search by. Must be provided together with oauthSubject.
+        :type oauth_provider: OAuth2ProviderType
+        :param oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+        :type oauth_subject: str
+        :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+        :type phone_number: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2490,6 +2526,9 @@ class EndUserAccountsApi:
 
         _param = self._lookup_end_user_serialize(
             email=email,
+            oauth_provider=oauth_provider,
+            oauth_subject=oauth_subject,
+            phone_number=phone_number,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2498,6 +2537,7 @@ class EndUserAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "LookupEndUser200Response",
+            '400': "Error",
             '401': "Error",
             '500': "Error",
         }
@@ -2511,6 +2551,9 @@ class EndUserAccountsApi:
     def _lookup_end_user_serialize(
         self,
         email,
+        oauth_provider,
+        oauth_subject,
+        phone_number,
         _request_auth,
         _content_type,
         _headers,
@@ -2536,6 +2579,18 @@ class EndUserAccountsApi:
         if email is not None:
             
             _query_params.append(('email', email))
+            
+        if oauth_provider is not None:
+            
+            _query_params.append(('oauthProvider', oauth_provider.value))
+            
+        if oauth_subject is not None:
+            
+            _query_params.append(('oauthSubject', oauth_subject))
+            
+        if phone_number is not None:
+            
+            _query_params.append(('phoneNumber', phone_number))
             
         # process the header parameters
         # process the form parameters

@@ -89,13 +89,25 @@ export const getEndUser = (
   return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
 };
 /**
- * Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.
+ * Looks up end users. Exactly one lookup type must be provided per request:
+
+- **email**: searches across all email-based authentication methods
+  (email, Google, Apple, GitHub). May return multiple end users if the
+  same email address appears across different auth methods.
+
+- **oauthProvider + oauthSubject**: looks up a user by their OAuth
+  provider and subject (the `sub` claim from the provider's ID token).
+  Both params must be provided together.
+
+- **phoneNumber**: looks up a user by their SMS-verified phone number.
+
+Returns all matching end users. If no end users match, an empty array is returned.
 
 This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Look up end users by email
+ * @summary Look up end users by identity
  */
 export const lookupEndUser = (
-  params: LookupEndUserParams,
+  params?: LookupEndUserParams,
   options?: SecondParameter<typeof cdpApiClient<LookupEndUser200>>,
 ) => {
   return cdpApiClient<LookupEndUser200>(

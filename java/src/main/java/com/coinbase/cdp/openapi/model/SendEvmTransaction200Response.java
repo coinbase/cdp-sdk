@@ -30,46 +30,46 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * SignEvmHashWithEndUserAccount200Response
+ * SendEvmTransaction200Response
  */
 @JsonPropertyOrder({
-  SignEvmHashWithEndUserAccount200Response.JSON_PROPERTY_SIGNATURE
+  SendEvmTransaction200Response.JSON_PROPERTY_TRANSACTION_HASH
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SignEvmHashWithEndUserAccount200Response {
-  public static final String JSON_PROPERTY_SIGNATURE = "signature";
+public class SendEvmTransaction200Response {
+  public static final String JSON_PROPERTY_TRANSACTION_HASH = "transactionHash";
   @jakarta.annotation.Nonnull
-  private String signature;
+  private String transactionHash;
 
-  public SignEvmHashWithEndUserAccount200Response() { 
+  public SendEvmTransaction200Response() { 
   }
 
-  public SignEvmHashWithEndUserAccount200Response signature(@jakarta.annotation.Nonnull String signature) {
-    this.signature = signature;
+  public SendEvmTransaction200Response transactionHash(@jakarta.annotation.Nonnull String transactionHash) {
+    this.transactionHash = transactionHash;
     return this;
   }
 
   /**
-   * The signature of the hash, as a 0x-prefixed hex string.
-   * @return signature
+   * The hash of the transaction, as a 0x-prefixed hex string.
+   * @return transactionHash
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_SIGNATURE)
+  @JsonProperty(JSON_PROPERTY_TRANSACTION_HASH)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getSignature() {
-    return signature;
+  public String getTransactionHash() {
+    return transactionHash;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_SIGNATURE)
+  @JsonProperty(JSON_PROPERTY_TRANSACTION_HASH)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setSignature(@jakarta.annotation.Nonnull String signature) {
-    this.signature = signature;
+  public void setTransactionHash(@jakarta.annotation.Nonnull String transactionHash) {
+    this.transactionHash = transactionHash;
   }
 
 
   /**
-   * Return true if this signEvmHashWithEndUserAccount_200_response object is equal to o.
+   * Return true if this sendEvmTransaction_200_response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -79,20 +79,20 @@ public class SignEvmHashWithEndUserAccount200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SignEvmHashWithEndUserAccount200Response signEvmHashWithEndUserAccount200Response = (SignEvmHashWithEndUserAccount200Response) o;
-    return Objects.equals(this.signature, signEvmHashWithEndUserAccount200Response.signature);
+    SendEvmTransaction200Response sendEvmTransaction200Response = (SendEvmTransaction200Response) o;
+    return Objects.equals(this.transactionHash, sendEvmTransaction200Response.transactionHash);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(signature);
+    return Objects.hash(transactionHash);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SignEvmHashWithEndUserAccount200Response {\n");
-    sb.append("    signature: ").append(toIndentedString(signature)).append("\n");
+    sb.append("class SendEvmTransaction200Response {\n");
+    sb.append("    transactionHash: ").append(toIndentedString(transactionHash)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -140,9 +140,9 @@ public class SignEvmHashWithEndUserAccount200Response {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `signature` to the URL query string
-    if (getSignature() != null) {
-      joiner.add(String.format("%ssignature%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSignature()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `transactionHash` to the URL query string
+    if (getTransactionHash() != null) {
+      joiner.add(String.format("%stransactionHash%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getTransactionHash()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -150,28 +150,28 @@ public class SignEvmHashWithEndUserAccount200Response {
 
     public static class Builder {
 
-    private SignEvmHashWithEndUserAccount200Response instance;
+    private SendEvmTransaction200Response instance;
 
     public Builder() {
-      this(new SignEvmHashWithEndUserAccount200Response());
+      this(new SendEvmTransaction200Response());
     }
 
-    protected Builder(SignEvmHashWithEndUserAccount200Response instance) {
+    protected Builder(SendEvmTransaction200Response instance) {
       this.instance = instance;
     }
 
-    public SignEvmHashWithEndUserAccount200Response.Builder signature(String signature) {
-      this.instance.signature = signature;
+    public SendEvmTransaction200Response.Builder transactionHash(String transactionHash) {
+      this.instance.transactionHash = transactionHash;
       return this;
     }
 
 
     /**
-    * returns a built SignEvmHashWithEndUserAccount200Response instance.
+    * returns a built SendEvmTransaction200Response instance.
     *
     * The builder is not reusable.
     */
-    public SignEvmHashWithEndUserAccount200Response build() {
+    public SendEvmTransaction200Response build() {
       try {
         return this.instance;
       } finally {
@@ -189,16 +189,16 @@ public class SignEvmHashWithEndUserAccount200Response {
   /**
   * Create a builder with no initialized field.
   */
-  public static SignEvmHashWithEndUserAccount200Response.Builder builder() {
-    return new SignEvmHashWithEndUserAccount200Response.Builder();
+  public static SendEvmTransaction200Response.Builder builder() {
+    return new SendEvmTransaction200Response.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public SignEvmHashWithEndUserAccount200Response.Builder toBuilder() {
-    return new SignEvmHashWithEndUserAccount200Response.Builder()
-      .signature(getSignature());
+  public SendEvmTransaction200Response.Builder toBuilder() {
+    return new SendEvmTransaction200Response.Builder()
+      .transactionHash(getTransactionHash());
   }
 
 }

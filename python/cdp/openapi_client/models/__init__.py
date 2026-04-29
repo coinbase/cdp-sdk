@@ -51,6 +51,7 @@ from cdp.openapi_client.models.create_swap_quote_response import CreateSwapQuote
 from cdp.openapi_client.models.create_swap_quote_response_all_of_permit2 import CreateSwapQuoteResponseAllOfPermit2
 from cdp.openapi_client.models.create_swap_quote_response_all_of_transaction import CreateSwapQuoteResponseAllOfTransaction
 from cdp.openapi_client.models.create_swap_quote_response_wrapper import CreateSwapQuoteResponseWrapper
+from cdp.openapi_client.models.date_of_birth import DateOfBirth
 from cdp.openapi_client.models.developer_jwt_authentication import DeveloperJWTAuthentication
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
@@ -132,6 +133,8 @@ from cdp.openapi_client.models.onchain_data_result_schema_columns_inner import O
 from cdp.openapi_client.models.onchain_data_schema_response import OnchainDataSchemaResponse
 from cdp.openapi_client.models.onchain_data_table_schema import OnchainDataTableSchema
 from cdp.openapi_client.models.onramp_limit_type import OnrampLimitType
+from cdp.openapi_client.models.onramp_limit_upgrade_identity_fields import OnrampLimitUpgradeIdentityFields
+from cdp.openapi_client.models.onramp_limit_upgrade_request import OnrampLimitUpgradeRequest
 from cdp.openapi_client.models.onramp_order import OnrampOrder
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
 from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId

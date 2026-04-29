@@ -30,46 +30,46 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * SignSolanaHashWithEndUserAccount200Response
+ * SendSolanaTransaction200Response
  */
 @JsonPropertyOrder({
-  SignSolanaHashWithEndUserAccount200Response.JSON_PROPERTY_SIGNATURE
+  SendSolanaTransaction200Response.JSON_PROPERTY_TRANSACTION_SIGNATURE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SignSolanaHashWithEndUserAccount200Response {
-  public static final String JSON_PROPERTY_SIGNATURE = "signature";
+public class SendSolanaTransaction200Response {
+  public static final String JSON_PROPERTY_TRANSACTION_SIGNATURE = "transactionSignature";
   @jakarta.annotation.Nonnull
-  private String signature;
+  private String transactionSignature;
 
-  public SignSolanaHashWithEndUserAccount200Response() { 
+  public SendSolanaTransaction200Response() { 
   }
 
-  public SignSolanaHashWithEndUserAccount200Response signature(@jakarta.annotation.Nonnull String signature) {
-    this.signature = signature;
+  public SendSolanaTransaction200Response transactionSignature(@jakarta.annotation.Nonnull String transactionSignature) {
+    this.transactionSignature = transactionSignature;
     return this;
   }
 
   /**
-   * The signature of the hash, as a base58 encoded string.
-   * @return signature
+   * The base58 encoded transaction signature.
+   * @return transactionSignature
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_SIGNATURE)
+  @JsonProperty(JSON_PROPERTY_TRANSACTION_SIGNATURE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getSignature() {
-    return signature;
+  public String getTransactionSignature() {
+    return transactionSignature;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_SIGNATURE)
+  @JsonProperty(JSON_PROPERTY_TRANSACTION_SIGNATURE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setSignature(@jakarta.annotation.Nonnull String signature) {
-    this.signature = signature;
+  public void setTransactionSignature(@jakarta.annotation.Nonnull String transactionSignature) {
+    this.transactionSignature = transactionSignature;
   }
 
 
   /**
-   * Return true if this signSolanaHashWithEndUserAccount_200_response object is equal to o.
+   * Return true if this sendSolanaTransaction_200_response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -79,20 +79,20 @@ public class SignSolanaHashWithEndUserAccount200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SignSolanaHashWithEndUserAccount200Response signSolanaHashWithEndUserAccount200Response = (SignSolanaHashWithEndUserAccount200Response) o;
-    return Objects.equals(this.signature, signSolanaHashWithEndUserAccount200Response.signature);
+    SendSolanaTransaction200Response sendSolanaTransaction200Response = (SendSolanaTransaction200Response) o;
+    return Objects.equals(this.transactionSignature, sendSolanaTransaction200Response.transactionSignature);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(signature);
+    return Objects.hash(transactionSignature);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SignSolanaHashWithEndUserAccount200Response {\n");
-    sb.append("    signature: ").append(toIndentedString(signature)).append("\n");
+    sb.append("class SendSolanaTransaction200Response {\n");
+    sb.append("    transactionSignature: ").append(toIndentedString(transactionSignature)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -140,9 +140,9 @@ public class SignSolanaHashWithEndUserAccount200Response {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `signature` to the URL query string
-    if (getSignature() != null) {
-      joiner.add(String.format("%ssignature%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSignature()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `transactionSignature` to the URL query string
+    if (getTransactionSignature() != null) {
+      joiner.add(String.format("%stransactionSignature%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getTransactionSignature()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -150,28 +150,28 @@ public class SignSolanaHashWithEndUserAccount200Response {
 
     public static class Builder {
 
-    private SignSolanaHashWithEndUserAccount200Response instance;
+    private SendSolanaTransaction200Response instance;
 
     public Builder() {
-      this(new SignSolanaHashWithEndUserAccount200Response());
+      this(new SendSolanaTransaction200Response());
     }
 
-    protected Builder(SignSolanaHashWithEndUserAccount200Response instance) {
+    protected Builder(SendSolanaTransaction200Response instance) {
       this.instance = instance;
     }
 
-    public SignSolanaHashWithEndUserAccount200Response.Builder signature(String signature) {
-      this.instance.signature = signature;
+    public SendSolanaTransaction200Response.Builder transactionSignature(String transactionSignature) {
+      this.instance.transactionSignature = transactionSignature;
       return this;
     }
 
 
     /**
-    * returns a built SignSolanaHashWithEndUserAccount200Response instance.
+    * returns a built SendSolanaTransaction200Response instance.
     *
     * The builder is not reusable.
     */
-    public SignSolanaHashWithEndUserAccount200Response build() {
+    public SendSolanaTransaction200Response build() {
       try {
         return this.instance;
       } finally {
@@ -189,16 +189,16 @@ public class SignSolanaHashWithEndUserAccount200Response {
   /**
   * Create a builder with no initialized field.
   */
-  public static SignSolanaHashWithEndUserAccount200Response.Builder builder() {
-    return new SignSolanaHashWithEndUserAccount200Response.Builder();
+  public static SendSolanaTransaction200Response.Builder builder() {
+    return new SendSolanaTransaction200Response.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public SignSolanaHashWithEndUserAccount200Response.Builder toBuilder() {
-    return new SignSolanaHashWithEndUserAccount200Response.Builder()
-      .signature(getSignature());
+  public SendSolanaTransaction200Response.Builder toBuilder() {
+    return new SendSolanaTransaction200Response.Builder()
+      .transactionSignature(getTransactionSignature());
   }
 
 }

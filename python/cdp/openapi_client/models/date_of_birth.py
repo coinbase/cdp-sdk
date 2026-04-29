@@ -18,18 +18,50 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.end_user import EndUser
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class LookupEndUser200Response(BaseModel):
+class DateOfBirth(BaseModel):
     """
-    LookupEndUser200Response
+    Date of birth.
     """ # noqa: E501
-    end_users: List[EndUser] = Field(description="The list of end users matching the lookup.", alias="endUsers")
-    __properties: ClassVar[List[str]] = ["endUsers"]
+    day: Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]] = Field(default=None, description="Day of birth (01-31).")
+    month: Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]] = Field(default=None, description="Month of birth (01-12).")
+    year: Optional[Annotated[str, Field(min_length=4, strict=True, max_length=4)]] = Field(default=None, description="Year of birth (four digits).")
+    __properties: ClassVar[List[str]] = ["day", "month", "year"]
+
+    @field_validator('day')
+    def day_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[0-9]{2}$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9]{2}$/")
+        return value
+
+    @field_validator('month')
+    def month_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[0-9]{2}$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9]{2}$/")
+        return value
+
+    @field_validator('year')
+    def year_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[0-9]{4}$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9]{4}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +81,7 @@ class LookupEndUser200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of LookupEndUser200Response from a JSON string"""
+        """Create an instance of DateOfBirth from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,18 +102,11 @@ class LookupEndUser200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in end_users (list)
-        _items = []
-        if self.end_users:
-            for _item_end_users in self.end_users:
-                if _item_end_users:
-                    _items.append(_item_end_users.to_dict())
-            _dict['endUsers'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of LookupEndUser200Response from a dict"""
+        """Create an instance of DateOfBirth from a dict"""
         if obj is None:
             return None
 
@@ -89,7 +114,9 @@ class LookupEndUser200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "endUsers": [EndUser.from_dict(_item) for _item in obj["endUsers"]] if obj.get("endUsers") is not None else None
+            "day": obj.get("day"),
+            "month": obj.get("month"),
+            "year": obj.get("year")
         })
         return _obj
 

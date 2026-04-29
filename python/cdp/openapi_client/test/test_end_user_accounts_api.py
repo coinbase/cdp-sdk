@@ -79,7 +79,7 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_lookup_end_user(self) -> None:
         """Test case for lookup_end_user
 
-        Look up end users by email
+        Look up end users by identity
         """
         pass
 

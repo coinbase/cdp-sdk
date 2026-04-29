@@ -19,68 +19,57 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.EndUser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * LookupEndUser200Response
+ * SignSolanaMessage200Response
  */
 @JsonPropertyOrder({
-  LookupEndUser200Response.JSON_PROPERTY_END_USERS
+  SignSolanaMessage200Response.JSON_PROPERTY_SIGNATURE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class LookupEndUser200Response {
-  public static final String JSON_PROPERTY_END_USERS = "endUsers";
+public class SignSolanaMessage200Response {
+  public static final String JSON_PROPERTY_SIGNATURE = "signature";
   @jakarta.annotation.Nonnull
-  private List<EndUser> endUsers = new ArrayList<>();
+  private String signature;
 
-  public LookupEndUser200Response() { 
+  public SignSolanaMessage200Response() { 
   }
 
-  public LookupEndUser200Response endUsers(@jakarta.annotation.Nonnull List<EndUser> endUsers) {
-    this.endUsers = endUsers;
-    return this;
-  }
-
-  public LookupEndUser200Response addEndUsersItem(EndUser endUsersItem) {
-    if (this.endUsers == null) {
-      this.endUsers = new ArrayList<>();
-    }
-    this.endUsers.add(endUsersItem);
+  public SignSolanaMessage200Response signature(@jakarta.annotation.Nonnull String signature) {
+    this.signature = signature;
     return this;
   }
 
   /**
-   * The list of end users matching the lookup.
-   * @return endUsers
+   * The signature of the message, as a base58 encoded string.
+   * @return signature
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_END_USERS)
+  @JsonProperty(JSON_PROPERTY_SIGNATURE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public List<EndUser> getEndUsers() {
-    return endUsers;
+  public String getSignature() {
+    return signature;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_END_USERS)
+  @JsonProperty(JSON_PROPERTY_SIGNATURE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEndUsers(@jakarta.annotation.Nonnull List<EndUser> endUsers) {
-    this.endUsers = endUsers;
+  public void setSignature(@jakarta.annotation.Nonnull String signature) {
+    this.signature = signature;
   }
 
 
   /**
-   * Return true if this lookupEndUser_200_response object is equal to o.
+   * Return true if this signSolanaMessage_200_response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -90,20 +79,20 @@ public class LookupEndUser200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LookupEndUser200Response lookupEndUser200Response = (LookupEndUser200Response) o;
-    return Objects.equals(this.endUsers, lookupEndUser200Response.endUsers);
+    SignSolanaMessage200Response signSolanaMessage200Response = (SignSolanaMessage200Response) o;
+    return Objects.equals(this.signature, signSolanaMessage200Response.signature);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(endUsers);
+    return Objects.hash(signature);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class LookupEndUser200Response {\n");
-    sb.append("    endUsers: ").append(toIndentedString(endUsers)).append("\n");
+    sb.append("class SignSolanaMessage200Response {\n");
+    sb.append("    signature: ").append(toIndentedString(signature)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -151,14 +140,9 @@ public class LookupEndUser200Response {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `endUsers` to the URL query string
-    if (getEndUsers() != null) {
-      for (int i = 0; i < getEndUsers().size(); i++) {
-        if (getEndUsers().get(i) != null) {
-          joiner.add(getEndUsers().get(i).toUrlQueryString(String.format("%sendUsers%s%s", prefix, suffix,
-          "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix))));
-        }
-      }
+    // add `signature` to the URL query string
+    if (getSignature() != null) {
+      joiner.add(String.format("%ssignature%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSignature()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -166,28 +150,28 @@ public class LookupEndUser200Response {
 
     public static class Builder {
 
-    private LookupEndUser200Response instance;
+    private SignSolanaMessage200Response instance;
 
     public Builder() {
-      this(new LookupEndUser200Response());
+      this(new SignSolanaMessage200Response());
     }
 
-    protected Builder(LookupEndUser200Response instance) {
+    protected Builder(SignSolanaMessage200Response instance) {
       this.instance = instance;
     }
 
-    public LookupEndUser200Response.Builder endUsers(List<EndUser> endUsers) {
-      this.instance.endUsers = endUsers;
+    public SignSolanaMessage200Response.Builder signature(String signature) {
+      this.instance.signature = signature;
       return this;
     }
 
 
     /**
-    * returns a built LookupEndUser200Response instance.
+    * returns a built SignSolanaMessage200Response instance.
     *
     * The builder is not reusable.
     */
-    public LookupEndUser200Response build() {
+    public SignSolanaMessage200Response build() {
       try {
         return this.instance;
       } finally {
@@ -205,16 +189,16 @@ public class LookupEndUser200Response {
   /**
   * Create a builder with no initialized field.
   */
-  public static LookupEndUser200Response.Builder builder() {
-    return new LookupEndUser200Response.Builder();
+  public static SignSolanaMessage200Response.Builder builder() {
+    return new SignSolanaMessage200Response.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public LookupEndUser200Response.Builder toBuilder() {
-    return new LookupEndUser200Response.Builder()
-      .endUsers(getEndUsers());
+  public SignSolanaMessage200Response.Builder toBuilder() {
+    return new SignSolanaMessage200Response.Builder()
+      .signature(getSignature());
   }
 
 }

@@ -19,68 +19,57 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.EndUser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * LookupEndUser200Response
+ * SignSolanaTransaction200Response
  */
 @JsonPropertyOrder({
-  LookupEndUser200Response.JSON_PROPERTY_END_USERS
+  SignSolanaTransaction200Response.JSON_PROPERTY_SIGNED_TRANSACTION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class LookupEndUser200Response {
-  public static final String JSON_PROPERTY_END_USERS = "endUsers";
+public class SignSolanaTransaction200Response {
+  public static final String JSON_PROPERTY_SIGNED_TRANSACTION = "signedTransaction";
   @jakarta.annotation.Nonnull
-  private List<EndUser> endUsers = new ArrayList<>();
+  private String signedTransaction;
 
-  public LookupEndUser200Response() { 
+  public SignSolanaTransaction200Response() { 
   }
 
-  public LookupEndUser200Response endUsers(@jakarta.annotation.Nonnull List<EndUser> endUsers) {
-    this.endUsers = endUsers;
-    return this;
-  }
-
-  public LookupEndUser200Response addEndUsersItem(EndUser endUsersItem) {
-    if (this.endUsers == null) {
-      this.endUsers = new ArrayList<>();
-    }
-    this.endUsers.add(endUsersItem);
+  public SignSolanaTransaction200Response signedTransaction(@jakarta.annotation.Nonnull String signedTransaction) {
+    this.signedTransaction = signedTransaction;
     return this;
   }
 
   /**
-   * The list of end users matching the lookup.
-   * @return endUsers
+   * The base64 encoded signed transaction.
+   * @return signedTransaction
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_END_USERS)
+  @JsonProperty(JSON_PROPERTY_SIGNED_TRANSACTION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public List<EndUser> getEndUsers() {
-    return endUsers;
+  public String getSignedTransaction() {
+    return signedTransaction;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_END_USERS)
+  @JsonProperty(JSON_PROPERTY_SIGNED_TRANSACTION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEndUsers(@jakarta.annotation.Nonnull List<EndUser> endUsers) {
-    this.endUsers = endUsers;
+  public void setSignedTransaction(@jakarta.annotation.Nonnull String signedTransaction) {
+    this.signedTransaction = signedTransaction;
   }
 
 
   /**
-   * Return true if this lookupEndUser_200_response object is equal to o.
+   * Return true if this signSolanaTransaction_200_response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -90,20 +79,20 @@ public class LookupEndUser200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LookupEndUser200Response lookupEndUser200Response = (LookupEndUser200Response) o;
-    return Objects.equals(this.endUsers, lookupEndUser200Response.endUsers);
+    SignSolanaTransaction200Response signSolanaTransaction200Response = (SignSolanaTransaction200Response) o;
+    return Objects.equals(this.signedTransaction, signSolanaTransaction200Response.signedTransaction);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(endUsers);
+    return Objects.hash(signedTransaction);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class LookupEndUser200Response {\n");
-    sb.append("    endUsers: ").append(toIndentedString(endUsers)).append("\n");
+    sb.append("class SignSolanaTransaction200Response {\n");
+    sb.append("    signedTransaction: ").append(toIndentedString(signedTransaction)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -151,14 +140,9 @@ public class LookupEndUser200Response {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `endUsers` to the URL query string
-    if (getEndUsers() != null) {
-      for (int i = 0; i < getEndUsers().size(); i++) {
-        if (getEndUsers().get(i) != null) {
-          joiner.add(getEndUsers().get(i).toUrlQueryString(String.format("%sendUsers%s%s", prefix, suffix,
-          "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix))));
-        }
-      }
+    // add `signedTransaction` to the URL query string
+    if (getSignedTransaction() != null) {
+      joiner.add(String.format("%ssignedTransaction%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSignedTransaction()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -166,28 +150,28 @@ public class LookupEndUser200Response {
 
     public static class Builder {
 
-    private LookupEndUser200Response instance;
+    private SignSolanaTransaction200Response instance;
 
     public Builder() {
-      this(new LookupEndUser200Response());
+      this(new SignSolanaTransaction200Response());
     }
 
-    protected Builder(LookupEndUser200Response instance) {
+    protected Builder(SignSolanaTransaction200Response instance) {
       this.instance = instance;
     }
 
-    public LookupEndUser200Response.Builder endUsers(List<EndUser> endUsers) {
-      this.instance.endUsers = endUsers;
+    public SignSolanaTransaction200Response.Builder signedTransaction(String signedTransaction) {
+      this.instance.signedTransaction = signedTransaction;
       return this;
     }
 
 
     /**
-    * returns a built LookupEndUser200Response instance.
+    * returns a built SignSolanaTransaction200Response instance.
     *
     * The builder is not reusable.
     */
-    public LookupEndUser200Response build() {
+    public SignSolanaTransaction200Response build() {
       try {
         return this.instance;
       } finally {
@@ -205,16 +189,16 @@ public class LookupEndUser200Response {
   /**
   * Create a builder with no initialized field.
   */
-  public static LookupEndUser200Response.Builder builder() {
-    return new LookupEndUser200Response.Builder();
+  public static SignSolanaTransaction200Response.Builder builder() {
+    return new SignSolanaTransaction200Response.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public LookupEndUser200Response.Builder toBuilder() {
-    return new LookupEndUser200Response.Builder()
-      .endUsers(getEndUsers());
+  public SignSolanaTransaction200Response.Builder toBuilder() {
+    return new SignSolanaTransaction200Response.Builder()
+      .signedTransaction(getSignedTransaction());
   }
 
 }

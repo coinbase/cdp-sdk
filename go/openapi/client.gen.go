@@ -1345,6 +1345,18 @@ type CreateSwapQuoteResponseWrapper struct {
 	union json.RawMessage
 }
 
+// DateOfBirth Date of birth.
+type DateOfBirth struct {
+	// Day Day of birth (01-31).
+	Day *string `json:"day,omitempty"`
+
+	// Month Month of birth (01-12).
+	Month *string `json:"month,omitempty"`
+
+	// Year Year of birth (four digits).
+	Year *string `json:"year,omitempty"`
+}
+
 // Description A human-readable description.
 type Description = string
 
@@ -2104,6 +2116,28 @@ type OnchainDataTableSchema struct {
 //     across the user's entire history with no time-based expiration. Once the limit is reached, no further
 //     transactions are allowed. 15 is the default limit.
 type OnrampLimitType string
+
+// OnrampLimitUpgradeIdentityFields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+type OnrampLimitUpgradeIdentityFields struct {
+	// DateOfBirth Date of birth.
+	DateOfBirth *DateOfBirth `json:"dateOfBirth,omitempty"`
+
+	// SsnLast4 Last 4 digits of the Social Security Number (no dashes or spaces).
+	SsnLast4 *string `json:"ssnLast4,omitempty"`
+}
+
+// OnrampLimitUpgradeRequest Request to request a limits upgrade for a user.
+type OnrampLimitUpgradeRequest struct {
+	// Fields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+	Fields OnrampLimitUpgradeIdentityFields `json:"fields"`
+
+	// UserId The user identifier value. For `phone_number` type, this must be in E.164 format.
+	UserId string `json:"userId"`
+
+	// UserIdType The type of user identifier:
+	// - `phone_number`: A phone number in E.164 format associated with an onramp user.
+	UserIdType OnrampUserIdType `json:"userIdType"`
+}
 
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
@@ -4442,8 +4476,17 @@ type ImportEndUserJSONBodyKeyType string
 
 // LookupEndUserParams defines parameters for LookupEndUser.
 type LookupEndUserParams struct {
-	// Email The email address to search for across all authentication methods.
-	Email openapi_types.Email `form:"email" json:"email"`
+	// Email The email address to search for across all email-based authentication methods.
+	Email *openapi_types.Email `form:"email,omitempty" json:"email,omitempty"`
+
+	// OauthProvider The OAuth provider to search by. Must be provided together with oauthSubject.
+	OauthProvider *OAuth2ProviderType `form:"oauthProvider,omitempty" json:"oauthProvider,omitempty"`
+
+	// OauthSubject The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+	OauthSubject *string `form:"oauthSubject,omitempty" json:"oauthSubject,omitempty"`
+
+	// PhoneNumber The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+	PhoneNumber *string `form:"phoneNumber,omitempty" json:"phoneNumber,omitempty"`
 }
 
 // AddEndUserEvmAccountJSONBody defines parameters for AddEndUserEvmAccount.
@@ -5455,6 +5498,9 @@ type CreateEvmSwapQuoteJSONRequestBody CreateEvmSwapQuoteJSONBody
 
 // GetOnrampUserLimitsJSONRequestBody defines body for GetOnrampUserLimits for application/json ContentType.
 type GetOnrampUserLimitsJSONRequestBody GetOnrampUserLimitsJSONBody
+
+// RequestLimitsUpgradeJSONRequestBody defines body for RequestLimitsUpgrade for application/json ContentType.
+type RequestLimitsUpgradeJSONRequestBody = OnrampLimitUpgradeRequest
 
 // CreateOnrampOrderJSONRequestBody defines body for CreateOnrampOrder for application/json ContentType.
 type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
@@ -9237,6 +9283,11 @@ type ClientInterface interface {
 
 	GetOnrampUserLimits(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RequestLimitsUpgradeWithBody request with any body
+	RequestLimitsUpgradeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RequestLimitsUpgrade(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateOnrampOrderWithBody request with any body
 	CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -10614,6 +10665,30 @@ func (c *CDPClient) GetOnrampUserLimitsWithBody(ctx context.Context, contentType
 
 func (c *CDPClient) GetOnrampUserLimits(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOnrampUserLimitsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RequestLimitsUpgradeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRequestLimitsUpgradeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RequestLimitsUpgrade(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRequestLimitsUpgradeRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -13306,16 +13381,68 @@ func NewLookupEndUserRequest(server string, params *LookupEndUserParams) (*http.
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "email", runtime.ParamLocationQuery, params.Email); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
+		if params.Email != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "email", runtime.ParamLocationQuery, *params.Email); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
 				}
 			}
+
+		}
+
+		if params.OauthProvider != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "oauthProvider", runtime.ParamLocationQuery, *params.OauthProvider); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.OauthSubject != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "oauthSubject", runtime.ParamLocationQuery, *params.OauthSubject); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PhoneNumber != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "phoneNumber", runtime.ParamLocationQuery, *params.PhoneNumber); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
 		}
 
 		queryURL.RawQuery = queryValues.Encode()
@@ -15550,6 +15677,46 @@ func NewGetOnrampUserLimitsRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
+// NewRequestLimitsUpgradeRequest calls the generic RequestLimitsUpgrade builder with application/json body
+func NewRequestLimitsUpgradeRequest(server string, body RequestLimitsUpgradeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRequestLimitsUpgradeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRequestLimitsUpgradeRequestWithBody generates requests for RequestLimitsUpgrade with any type of body
+func NewRequestLimitsUpgradeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/limits/upgrade")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewCreateOnrampOrderRequest calls the generic CreateOnrampOrder builder with application/json body
 func NewCreateOnrampOrderRequest(server string, body CreateOnrampOrderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -17178,6 +17345,11 @@ type ClientWithResponsesInterface interface {
 
 	GetOnrampUserLimitsWithResponse(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error)
 
+	// RequestLimitsUpgradeWithBodyWithResponse request with any body
+	RequestLimitsUpgradeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error)
+
+	RequestLimitsUpgradeWithResponse(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error)
+
 	// CreateOnrampOrderWithBodyWithResponse request with any body
 	CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
 
@@ -18127,9 +18299,10 @@ type LookupEndUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		// EndUsers The list of end users matching the email lookup.
+		// EndUsers The list of end users matching the lookup.
 		EndUsers []EndUser `json:"endUsers"`
 	}
+	JSON400 *Error
 	JSON401 *UnauthorizedError
 	JSON500 *InternalServerError
 }
@@ -19230,6 +19403,31 @@ func (r GetOnrampUserLimitsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetOnrampUserLimitsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RequestLimitsUpgradeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r RequestLimitsUpgradeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RequestLimitsUpgradeResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -20876,6 +21074,23 @@ func (c *ClientWithResponses) GetOnrampUserLimitsWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseGetOnrampUserLimitsResponse(rsp)
+}
+
+// RequestLimitsUpgradeWithBodyWithResponse request with arbitrary body returning *RequestLimitsUpgradeResponse
+func (c *ClientWithResponses) RequestLimitsUpgradeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error) {
+	rsp, err := c.RequestLimitsUpgradeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRequestLimitsUpgradeResponse(rsp)
+}
+
+func (c *ClientWithResponses) RequestLimitsUpgradeWithResponse(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error) {
+	rsp, err := c.RequestLimitsUpgrade(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRequestLimitsUpgradeResponse(rsp)
 }
 
 // CreateOnrampOrderWithBodyWithResponse request with arbitrary body returning *CreateOnrampOrderResponse
@@ -23252,13 +23467,20 @@ func ParseLookupEndUserResponse(rsp *http.Response) (*LookupEndUserResponse, err
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			// EndUsers The list of end users matching the email lookup.
+			// EndUsers The list of end users matching the lookup.
 			EndUsers []EndUser `json:"endUsers"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest UnauthorizedError
@@ -25856,6 +26078,53 @@ func ParseGetOnrampUserLimitsResponse(rsp *http.Response) (*GetOnrampUserLimitsR
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRequestLimitsUpgradeResponse parses an HTTP response from a RequestLimitsUpgradeWithResponse call
+func ParseRequestLimitsUpgradeResponse(rsp *http.Response) (*RequestLimitsUpgradeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RequestLimitsUpgradeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

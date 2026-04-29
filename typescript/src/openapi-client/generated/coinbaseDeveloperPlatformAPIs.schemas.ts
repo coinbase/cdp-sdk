@@ -4120,6 +4120,54 @@ export interface OnrampUserLimit {
 }
 
 /**
+ * Date of birth.
+ */
+export interface DateOfBirth {
+  /**
+   * Day of birth (01-31).
+   * @minLength 2
+   * @maxLength 2
+   * @pattern ^[0-9]{2}$
+   */
+  day?: string;
+  /**
+   * Month of birth (01-12).
+   * @minLength 2
+   * @maxLength 2
+   * @pattern ^[0-9]{2}$
+   */
+  month?: string;
+  /**
+   * Year of birth (four digits).
+   * @minLength 4
+   * @maxLength 4
+   * @pattern ^[0-9]{4}$
+   */
+  year?: string;
+}
+
+/**
+ * Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+ */
+export interface OnrampLimitUpgradeIdentityFields {
+  /** Last 4 digits of the Social Security Number (no dashes or spaces). */
+  ssnLast4?: string;
+  /** Date of birth. */
+  dateOfBirth?: DateOfBirth;
+}
+
+/**
+ * Request to request a limits upgrade for a user.
+ */
+export interface OnrampLimitUpgradeRequest {
+  /** The user identifier value. For `phone_number` type, this must be in E.164 format. */
+  userId: string;
+  userIdType: OnrampUserIdType;
+  /** Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. */
+  fields: OnrampLimitUpgradeIdentityFields;
+}
+
+/**
  * Unauthorized.
  */
 export type UnauthorizedErrorResponse = Error;
@@ -4365,13 +4413,26 @@ export type ValidateEndUserAccessTokenBody = {
 
 export type LookupEndUserParams = {
   /**
-   * The email address to search for across all authentication methods.
+   * The email address to search for across all email-based authentication methods.
    */
-  email: string;
+  email?: string;
+  /**
+   * The OAuth provider to search by. Must be provided together with oauthSubject.
+   */
+  oauthProvider?: OAuth2ProviderType;
+  /**
+   * The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+   */
+  oauthSubject?: string;
+  /**
+   * The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+   * @pattern ^\+[1-9]\d{1,14}$
+   */
+  phoneNumber?: string;
 };
 
 export type LookupEndUser200 = {
-  /** The list of end users matching the email lookup. */
+  /** The list of end users matching the lookup. */
   endUsers: EndUser[];
 };
 
