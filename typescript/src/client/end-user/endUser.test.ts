@@ -8,6 +8,7 @@ import {
 } from "../../openapi-client/index.js";
 
 import { EndUserClient } from "./endUser.js";
+import { UserInputValidationError } from "../../errors.js";
 
 vi.mock("../../openapi-client/index.js", () => {
   return {
@@ -215,6 +216,19 @@ describe("EndUserClient", () => {
         email: undefined,
         phoneNumber: "+14155552671",
       });
+    });
+
+    it("should throw when no lookup param is provided", async () => {
+      await expect(client.lookupEndUser({})).rejects.toThrow(UserInputValidationError);
+      await expect(client.lookupEndUser({})).rejects.toThrow(
+        "Exactly one of email or phoneNumber must be provided.",
+      );
+    });
+
+    it("should throw when both email and phoneNumber are provided", async () => {
+      await expect(
+        client.lookupEndUser({ email: "user@example.com", phoneNumber: "+14155552671" }),
+      ).rejects.toThrow(UserInputValidationError);
     });
   });
 });

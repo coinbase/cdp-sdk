@@ -219,6 +219,12 @@ class EndUserClient:
             list[EndUserAccount]: The matching end users with action methods.
 
         """
+        lookup_count = sum(1 for v in [email, phone_number] if v is not None)
+        if lookup_count != 1:
+            raise UserInputValidationError(
+                "Exactly one of email or phone_number must be provided."
+            )
+
         track_action(action="lookup_end_user")
 
         response = await self.api_clients.end_user.lookup_end_user(

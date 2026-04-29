@@ -192,6 +192,13 @@ public class EndUserClient {
    * @throws ApiException if the API call fails
    */
   public LookupEndUser200Response lookupEndUser(LookupEndUserOptions options) throws ApiException {
+    long lookupCount =
+        java.util.stream.Stream.of(options.email(), options.phoneNumber())
+            .filter(v -> v != null)
+            .count();
+    if (lookupCount != 1) {
+      throw new IllegalArgumentException("Exactly one of email or phoneNumber must be provided.");
+    }
     return endUserAccountsApi.lookupEndUser(options.email(), null, null, options.phoneNumber());
   }
 

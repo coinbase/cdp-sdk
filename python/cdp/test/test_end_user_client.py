@@ -229,6 +229,30 @@ async def test_lookup_end_user_by_phone_number(
 
 
 @pytest.mark.asyncio
+async def test_lookup_end_user_no_params_raises():
+    """Test that lookup_end_user raises when no params are provided."""
+    from cdp.errors import UserInputValidationError
+
+    mock_api_clients = AsyncMock()
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    with pytest.raises(UserInputValidationError, match="Exactly one of email or phone_number"):
+        await client.lookup_end_user()
+
+
+@pytest.mark.asyncio
+async def test_lookup_end_user_multiple_params_raises():
+    """Test that lookup_end_user raises when multiple params are provided."""
+    from cdp.errors import UserInputValidationError
+
+    mock_api_clients = AsyncMock()
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    with pytest.raises(UserInputValidationError, match="Exactly one of email or phone_number"):
+        await client.lookup_end_user(email="user@example.com", phone_number="+14155552671")
+
+
+@pytest.mark.asyncio
 async def test_create_end_user_with_provided_user_id(end_user_model_factory):
     """Test creating an end user with a provided user_id."""
     mock_user_id = "custom-user-id"

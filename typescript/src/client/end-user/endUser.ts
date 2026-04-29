@@ -192,6 +192,13 @@ export class EndUserClient {
    *          ```
    */
   async lookupEndUser(options: LookupEndUserOptions): Promise<EndUserAccount[]> {
+    const lookupCount = [options.email, options.phoneNumber].filter(Boolean).length;
+    if (lookupCount !== 1) {
+      throw new UserInputValidationError(
+        "Exactly one of email or phoneNumber must be provided.",
+      );
+    }
+
     Analytics.trackAction({
       action: "lookup_end_user",
     });

@@ -173,6 +173,25 @@ class EndUserClientTest {
       assertThat(result.getEndUsers().get(0).getUserId()).isEqualTo(USER_ID);
       verify(endUserAccountsApi).lookupEndUser(null, null, null, "+14155552671");
     }
+
+    @Test
+    void throwsWhenNoParamProvided() {
+      LookupEndUserOptions options = LookupEndUserOptions.builder().build();
+      assertThatThrownBy(() -> client.lookupEndUser(options))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("Exactly one of email or phoneNumber must be provided.");
+    }
+
+    @Test
+    void throwsWhenBothEmailAndPhoneProvided() {
+      LookupEndUserOptions options =
+          LookupEndUserOptions.builder()
+              .email("user@example.com")
+              .phoneNumber("+14155552671")
+              .build();
+      assertThatThrownBy(() -> client.lookupEndUser(options))
+          .isInstanceOf(IllegalArgumentException.class);
+    }
   }
 
   @Nested
