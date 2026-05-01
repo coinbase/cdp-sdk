@@ -35,20 +35,20 @@ install:
 		uv venv || (echo "Error: Failed to create virtual environment" && exit 1); \
 		echo "Virtual environment created successfully at .venv"; \
 	fi
-	uv pip install -e ".[dev]" || (echo "Error: Failed to install dependencies" && exit 1)
+	uv sync --extra dev || (echo "Error: Failed to install dependencies" && exit 1)
 
 # Python 3.10 has some mocking bugs in pytests, so we skip those tests
 .PHONY: test-3.10
 test-3.10:
-	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py and not test_wait_for_fund_operation_receipt.py" || (echo "Error: Tests failed" && exit 1)
+	uv sync --extra dev && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py and not test_wait_for_fund_operation_receipt.py" || (echo "Error: Tests failed" && exit 1)
 
 .PHONY: test
 test:
-	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
+	uv sync --extra dev && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
 
 .PHONY: e2e
 e2e:
-	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
+	uv sync --extra dev && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
 
 .PHONY: setup
 setup:
