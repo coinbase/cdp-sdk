@@ -361,7 +361,7 @@ requires-dist = [
     { name = "sphinxcontrib-napoleon", marker = "extra == 'dev'", specifier = ">=0.7" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = ">=24.8.0,<25" },
     { name = "urllib3", specifier = ">=2.2.3" },
-    { name = "web3", specifier = ">=7.6.0" },
+    { name = "web3", url = "https://pypi-stable.cbhq.net/Web3/web3-7.12.0-py3-none-any.whl" },
 ]
 provides-extras = ["dev"]
 
@@ -2286,8 +2286,8 @@ wheels = [
 
 [[package]]
 name = "web3"
-version = "7.6.0"
-source = { registry = "https://pypi.org/simple" }
+version = "7.12.0"
+source = { url = "https://pypi-stable.cbhq.net/Web3/web3-7.12.0-py3-none-any.whl" }
 dependencies = [
     { name = "aiohttp" },
     { name = "eth-abi" },
@@ -2305,10 +2305,67 @@ dependencies = [
     { name = "typing-extensions", version = "4.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/4a/7679004558ff677248e90952cf05789ddba19b52389fccf5387d2b602de4/web3-7.6.0.tar.gz", hash = "sha256:25df8acdcb78eb872c3299408b79e8b4fd091602de5e3d29cbd8459e8f75ff23", size = 2172471, upload-time = "2024-11-22T17:54:10.9Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/81/580fe1e55face22795025bc303c38a035d81865413d81ca2836dc6c4ce83/web3-7.6.0-py3-none-any.whl", hash = "sha256:670dac222b2ec5ce72f4572d8e5d91afe79fcac03af9dabfc69da4fe9f6621df", size = 1351846, upload-time = "2024-11-22T17:54:08.941Z" },
+    { url = "https://pypi-stable.cbhq.net/Web3/web3-7.12.0-py3-none-any.whl", hash = "sha256:c7e2b9c1db5a379ef53b45fe8a19bdc2d47ad262039fbf6675794bc40f74bf06" },
 ]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiohttp", specifier = ">=3.7.4.post0" },
+    { name = "build", marker = "extra == 'dev'", specifier = ">=0.9.0" },
+    { name = "bump-my-version", marker = "extra == 'dev'", specifier = ">=0.19.0" },
+    { name = "eth-abi", specifier = ">=5.0.1" },
+    { name = "eth-account", specifier = ">=0.13.6" },
+    { name = "eth-hash", extras = ["pycryptodome"], specifier = ">=0.5.1" },
+    { name = "eth-tester", extras = ["py-evm"], marker = "extra == 'dev'", specifier = ">=0.13.0b1,<0.14.0b1" },
+    { name = "eth-tester", extras = ["py-evm"], marker = "extra == 'test'", specifier = ">=0.13.0b1,<0.14.0b1" },
+    { name = "eth-tester", extras = ["py-evm"], marker = "extra == 'tester'", specifier = ">=0.13.0b1,<0.14.0b1" },
+    { name = "eth-typing", specifier = ">=5.0.0" },
+    { name = "eth-utils", specifier = ">=5.0.0" },
+    { name = "flaky", marker = "extra == 'dev'", specifier = ">=3.7.0" },
+    { name = "flaky", marker = "extra == 'test'", specifier = ">=3.7.0" },
+    { name = "hexbytes", specifier = ">=1.2.0" },
+    { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=3.31.2" },
+    { name = "hypothesis", marker = "extra == 'test'", specifier = ">=3.31.2" },
+    { name = "ipython", marker = "extra == 'dev'" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = "==1.10.0" },
+    { name = "mypy", marker = "extra == 'test'", specifier = "==1.10.0" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.4.0" },
+    { name = "pre-commit", marker = "extra == 'test'", specifier = ">=3.4.0" },
+    { name = "py-geth", marker = "extra == 'dev'", specifier = ">=5.1.0" },
+    { name = "py-geth", marker = "extra == 'test'", specifier = ">=5.1.0" },
+    { name = "py-geth", marker = "extra == 'tester'", specifier = ">=5.1.0" },
+    { name = "pydantic", specifier = ">=2.4.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.18.1,<0.23" },
+    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.18.1,<0.23" },
+    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=1.10" },
+    { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=1.10" },
+    { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=2.4.0" },
+    { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=2.4.0" },
+    { name = "pyunormalize", specifier = ">=15.0.0" },
+    { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=223" },
+    { name = "requests", specifier = ">=2.23.0" },
+    { name = "setuptools", marker = "extra == 'dev'", specifier = ">=38.6.0" },
+    { name = "sphinx", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "sphinx", marker = "extra == 'docs'", specifier = ">=6.0.0" },
+    { name = "sphinx-autobuild", marker = "extra == 'dev'", specifier = ">=2021.3.14" },
+    { name = "sphinx-autobuild", marker = "extra == 'docs'", specifier = ">=2021.3.14" },
+    { name = "sphinx-rtd-theme", marker = "extra == 'dev'", specifier = ">=1.0.0" },
+    { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=1.0.0" },
+    { name = "towncrier", marker = "extra == 'dev'", specifier = ">=24,<25" },
+    { name = "towncrier", marker = "extra == 'docs'", specifier = ">=24,<25" },
+    { name = "tox", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "tox", marker = "extra == 'test'", specifier = ">=4.0.0" },
+    { name = "tqdm", marker = "extra == 'dev'", specifier = ">4.32" },
+    { name = "twine", marker = "extra == 'dev'", specifier = ">=1.13" },
+    { name = "types-requests", specifier = ">=2.0.0" },
+    { name = "typing-extensions", specifier = ">=4.0.1" },
+    { name = "websockets", specifier = ">=10.0.0,<16.0.0" },
+    { name = "wheel", marker = "extra == 'dev'" },
+]
+provides-extras = ["tester", "dev", "docs", "test"]
 
 [[package]]
 name = "websockets"
