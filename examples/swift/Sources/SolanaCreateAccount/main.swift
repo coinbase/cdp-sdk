@@ -1,0 +1,9 @@
+// Usage: swift run SolanaCreateAccount
+// Requires: CDP_API_KEY_ID, CDP_API_KEY_SECRET env vars
+
+import CDPSDK
+
+let cdp = try CdpClient()
+
+let account = try await cdp.solana.createAccount()
+print("Successfully created Solana account: \(account.address)")

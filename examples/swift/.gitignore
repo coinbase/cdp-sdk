@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+
+# Swift Package Manager
+/.build
+/Packages
+.swiftpm/
+Package.resolved
+
+# CocoaPods / Carthage (consumer use)
+Pods/
+Carthage/Build/
+Carthage/Checkouts/
+
+# Test artifacts
+*.xcresult
+.testresult/
+coverage/
+*.profraw
+*.profdata
+
+# Documentation build
+.docc-build/
+docs/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+
+# Environment
+.env
+.env.*
