@@ -7,12 +7,19 @@
  */
 import type {
   BlockchainAddress,
+  CreateDelegationForEndUserAccount201,
+  CreateDelegationForEndUserAccountBody,
+  CreateDelegationForEndUserAccountParams,
   CreateEvmEip7702DelegationWithEndUserAccount201,
   CreateEvmEip7702DelegationWithEndUserAccountBody,
   CreateEvmEip7702DelegationWithEndUserAccountParams,
   EvmUserOperation,
   GetDelegationForEndUser200,
+  GetDelegationForEndUserAccount200,
+  GetDelegationForEndUserAccountParams,
   GetDelegationForEndUserParams,
+  RevokeDelegationForEndUserAccountBody,
+  RevokeDelegationForEndUserAccountParams,
   RevokeDelegationForEndUserBody,
   SendEvmAssetWithEndUserAccount200,
   SendEvmAssetWithEndUserAccountBody,
@@ -221,6 +228,73 @@ export const revokeDelegationForEndUser = (
   );
 };
 /**
+ * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation.
+Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user.
+When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
+ * @summary Create account-scoped delegation for an end user account
+ */
+export const createDelegationForEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  createDelegationForEndUserAccountBody: CreateDelegationForEndUserAccountBody,
+  params?: CreateDelegationForEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<CreateDelegationForEndUserAccount201>>,
+) => {
+  return cdpApiClient<CreateDelegationForEndUserAccount201>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createDelegationForEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+ * @summary Get account-scoped delegation for an end user account
+ */
+export const getDelegationForEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  params?: GetDelegationForEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<GetDelegationForEndUserAccount200>>,
+) => {
+  return cdpApiClient<GetDelegationForEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
+      method: "GET",
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+ * @summary Revoke account-scoped delegation for an end user account
+ */
+export const revokeDelegationForEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  revokeDelegationForEndUserAccountBody: RevokeDelegationForEndUserAccountBody,
+  params?: RevokeDelegationForEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<void>>,
+) => {
+  return cdpApiClient<void>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      data: revokeDelegationForEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
  * Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
 
 This endpoint:
@@ -399,6 +473,15 @@ export type GetDelegationForEndUserResult = NonNullable<
 >;
 export type RevokeDelegationForEndUserResult = NonNullable<
   Awaited<ReturnType<typeof revokeDelegationForEndUser>>
+>;
+export type CreateDelegationForEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof createDelegationForEndUserAccount>>
+>;
+export type GetDelegationForEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof getDelegationForEndUserAccount>>
+>;
+export type RevokeDelegationForEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUserAccount>>
 >;
 export type CreateEvmEip7702DelegationWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof createEvmEip7702DelegationWithEndUserAccount>>

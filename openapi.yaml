@@ -2319,6 +2319,312 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation:
+    post:
+      x-audience: development
+      summary: Create account-scoped delegation for an end user account
+      description: |-
+        Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation.
+        Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user.
+        When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
+      operationId: createDelegationForEndUserAccount
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+      x-target-service:
+        x-audience: internal
+        service: cdp-service
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: embeddedWalletOperations
+      x-slo-tier:
+        x-audience: internal
+        tier: beta
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          in: path
+          required: true
+          description: The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive.
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: The date until which the delegation is valid.
+                  example: '2026-02-03T10:35:00Z'
+                walletSecretId:
+                  description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - expiresAt
+                - walletSecretId
+            example:
+              expiresAt: '2026-02-03T10:35:00Z'
+              walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '201':
+          description: Delegation created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: The date until which the delegation is valid.
+                    example: '2026-02-03T10:35:00Z'
+                required:
+                  - expiresAt
+              example:
+                expiresAt: '2026-02-03T10:35:00Z'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_expiresAt:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'expiresAt' is required.
+                    errorParam: expiresAt
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                invalid_expiresAt:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'expiresAt' must be a valid ISO 8601 string.
+                    errorParam: expiresAt
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unknown_address:
+                  value:
+                    errorType: not_found
+                    errorMessage: No account with the given address exists for this end user.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '409':
+          description: Conflict with an existing delegation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                user_scoped_delegation_active:
+                  value:
+                    errorType: already_exists
+                    errorMessage: A user-scoped delegation is already active for this user. Revoke it before creating an account-scoped delegation.
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
+                account_scoped_delegation_active:
+                  value:
+                    errorType: already_exists
+                    errorMessage: An account-scoped delegation is already active for this address.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#rate-limit-exceeded
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    get:
+      x-audience: development
+      summary: Get account-scoped delegation for an end user account
+      description: |-
+        Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+        When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+      operationId: getDelegationForEndUserAccount
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      x-target-service:
+        x-audience: internal
+        service: cdp-service
+      x-slo-tier:
+        x-audience: internal
+        tier: beta
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          in: path
+          required: true
+          description: The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive.
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      responses:
+        '200':
+          description: Active delegation found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: The date until which the delegation is valid.
+                    example: '2026-02-03T10:35:00Z'
+                required:
+                  - expiresAt
+              example:
+                expiresAt: '2026-02-03T10:35:00Z'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: No active delegation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No active account-scoped delegation found for the specified address.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    delete:
+      x-audience: development
+      summary: Revoke account-scoped delegation for an end user account
+      description: |-
+        Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+        When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+      operationId: revokeDelegationForEndUserAccount
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      x-target-service:
+        x-audience: internal
+        service: cdp-service
+      x-slo-tier:
+        x-audience: internal
+        tier: beta
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuthOptional'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+          required: false
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          in: path
+          required: true
+          description: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletSecretId:
+                  description: When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+            example:
+              walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '204':
+          description: Delegation revoked successfully.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Delegation not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No active account-scoped delegation found for the specified address.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/embedded-wallet-api/end-users/{userId}/evm/eip7702/delegation:
     post:
       x-audience: public

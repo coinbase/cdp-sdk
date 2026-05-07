@@ -4626,6 +4626,58 @@ export type RevokeDelegationForEndUserBody = {
   walletSecretId?: string;
 };
 
+export type CreateDelegationForEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type CreateDelegationForEndUserAccountBody = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
+  /**
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId: string;
+};
+
+export type CreateDelegationForEndUserAccount201 = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
+};
+
+export type GetDelegationForEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type GetDelegationForEndUserAccount200 = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
+};
+
+export type RevokeDelegationForEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type RevokeDelegationForEndUserAccountBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
 export type CreateEvmEip7702DelegationWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
