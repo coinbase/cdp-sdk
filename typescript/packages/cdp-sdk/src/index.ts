@@ -48,7 +48,10 @@ export type {
 export {
   SPEND_PERMISSION_MANAGER_ABI as spendPermissionManagerAbi,
   SPEND_PERMISSION_MANAGER_ADDRESS as spendPermissionManagerAddress,
+  SPEND_ROUTER_ABI as spendRouterAbi,
+  SPEND_ROUTER_ADDRESS as spendRouterAddress,
 } from "./spend-permissions/constants.js";
+export { isSpendRouterPermission, buildSpendCalldata } from "./spend-permissions/utils.js";
 
 export type {
   CreateWebhookSubscriptionOptions,
