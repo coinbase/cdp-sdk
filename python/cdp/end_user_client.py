@@ -422,6 +422,52 @@ class EndUserClient:
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
         )
 
+    # ─── Account-Scoped Delegation Methods ───
+
+    async def get_delegation_for_end_user_account(
+        self,
+        user_id: str,
+        address: str,
+    ) -> GetDelegationForEndUser200Response:
+        """Get the active account-scoped delegation for a specific end user account address.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The blockchain address to get the delegation for.
+
+        Returns:
+            GetDelegationForEndUser200Response: The delegation details including its expiry.
+
+        """
+        track_action(action="get_delegation_for_end_user_account")
+
+        return await self.api_clients.embedded_wallets.get_delegation_for_end_user_account(
+            user_id=user_id,
+            address=address,
+        )
+
+    async def revoke_delegation_for_end_user_account(
+        self,
+        user_id: str,
+        address: str,
+    ) -> None:
+        """Revoke the active account-scoped delegation for a specific end user account address.
+
+        Other account-scoped delegations for the same user are unaffected.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            address: The blockchain address whose delegation should be revoked.
+
+        """
+        track_action(action="revoke_delegation_for_end_user_account")
+
+        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_account(
+            user_id=user_id,
+            address=address,
+            revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+        )
+
     # ─── Delegated EVM Sign Methods ───
 
     async def sign_evm_transaction(

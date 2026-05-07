@@ -28,6 +28,9 @@ from cdp.openapi_client.models.end_user_evm_account import EndUserEvmAccount
 from cdp.openapi_client.models.end_user_evm_smart_account import EndUserEvmSmartAccount
 from cdp.openapi_client.models.end_user_solana_account import EndUserSolanaAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.get_delegation_for_end_user200_response import (
+    GetDelegationForEndUser200Response,
+)
 from cdp.openapi_client.models.mfa_methods import MFAMethods
 from cdp.openapi_client.models.revoke_delegation_for_end_user_request import (
     RevokeDelegationForEndUserRequest,
@@ -409,6 +412,58 @@ class EndUserAccount(BaseModel):
 
         await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user(
             user_id=self.__user_id,
+            revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+        )
+
+    # ─── Account-Scoped Delegation Methods ───
+
+    async def get_delegation_for_address(
+        self,
+        address: str | None = None,
+    ) -> GetDelegationForEndUser200Response:
+        """Get the active account-scoped delegation for a specific address owned by this end user.
+
+        Args:
+            address: The blockchain address to get the delegation for.
+                Defaults to the first EVM EOA address.
+
+        Returns:
+            GetDelegationForEndUser200Response: The delegation details including its expiry.
+
+        Example:
+            >>> delegation = await end_user.get_delegation_for_address(address="0x1234...")
+
+        """
+        track_action(action="end_user_get_delegation_for_address")
+
+        resolved_address = self._resolve_evm_address(address)
+        return await self.__api_clients.embedded_wallets.get_delegation_for_end_user_account(
+            user_id=self.__user_id,
+            address=resolved_address,
+        )
+
+    async def revoke_delegation_for_address(
+        self,
+        address: str | None = None,
+    ) -> None:
+        """Revoke the active account-scoped delegation for a specific address owned by this end user.
+
+        Other account-scoped delegations for the same user are unaffected.
+
+        Args:
+            address: The blockchain address whose delegation should be revoked.
+                Defaults to the first EVM EOA address.
+
+        Example:
+            >>> await end_user.revoke_delegation_for_address(address="0x1234...")
+
+        """
+        track_action(action="end_user_revoke_delegation_for_address")
+
+        resolved_address = self._resolve_evm_address(address)
+        await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user_account(
+            user_id=self.__user_id,
+            address=resolved_address,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
         )
 

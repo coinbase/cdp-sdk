@@ -3374,6 +3374,446 @@ pub mod types {
                 })
         }
     }
+    ///`CreateDelegationForEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "expiresAt",
+    ///    "walletSecretId"
+    ///  ],
+    ///  "properties": {
+    ///    "expiresAt": {
+    ///      "description": "The date until which the delegation is valid.",
+    ///      "examples": [
+    ///        "2026-02-03T10:35:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateDelegationForEndUserAccountBody {
+        ///The date until which the delegation is valid.
+        #[serde(rename = "expiresAt")]
+        pub expires_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(rename = "walletSecretId")]
+        pub wallet_secret_id: CreateDelegationForEndUserAccountBodyWalletSecretId,
+    }
+    impl ::std::convert::From<&CreateDelegationForEndUserAccountBody>
+        for CreateDelegationForEndUserAccountBody
+    {
+        fn from(value: &CreateDelegationForEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateDelegationForEndUserAccountBody {
+        pub fn builder() -> builder::CreateDelegationForEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateDelegationForEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for CreateDelegationForEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateDelegationForEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: CreateDelegationForEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateDelegationForEndUserAccountBodyWalletSecretId>
+        for CreateDelegationForEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &CreateDelegationForEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateDelegationForEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateDelegationForEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateDelegationForEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateDelegationForEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateDelegationForEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateDelegationForEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateDelegationForEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for CreateDelegationForEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateDelegationForEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: CreateDelegationForEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateDelegationForEndUserAccountProjectId>
+        for CreateDelegationForEndUserAccountProjectId
+    {
+        fn from(value: &CreateDelegationForEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateDelegationForEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateDelegationForEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CreateDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateDelegationForEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateDelegationForEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "expiresAt"
+    ///  ],
+    ///  "properties": {
+    ///    "expiresAt": {
+    ///      "description": "The date until which the delegation is valid.",
+    ///      "examples": [
+    ///        "2026-02-03T10:35:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateDelegationForEndUserAccountResponse {
+        ///The date until which the delegation is valid.
+        #[serde(rename = "expiresAt")]
+        pub expires_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&CreateDelegationForEndUserAccountResponse>
+        for CreateDelegationForEndUserAccountResponse
+    {
+        fn from(value: &CreateDelegationForEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateDelegationForEndUserAccountResponse {
+        pub fn builder() -> builder::CreateDelegationForEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`CreateDelegationForEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateDelegationForEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for CreateDelegationForEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateDelegationForEndUserAccountUserId> for ::std::string::String {
+        fn from(value: CreateDelegationForEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateDelegationForEndUserAccountUserId>
+        for CreateDelegationForEndUserAccountUserId
+    {
+        fn from(value: &CreateDelegationForEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateDelegationForEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CreateDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CreateDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateDelegationForEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateDelegationForEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateDelegationForEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for CreateDelegationForEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateDelegationForEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: CreateDelegationForEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateDelegationForEndUserAccountXIdempotencyKey>
+        for CreateDelegationForEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &CreateDelegationForEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateDelegationForEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateDelegationForEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateDelegationForEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateDelegationForEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateDelegationForEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`CreateEndUserBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -9365,6 +9805,348 @@ pub mod types {
     impl ::std::convert::From<SwapUnavailableResponse> for CreateSwapQuoteResponseWrapper {
         fn from(value: SwapUnavailableResponse) -> Self {
             Self::SwapUnavailableResponse(value)
+        }
+    }
+    ///Date of birth.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Date of birth.",
+    ///  "examples": [
+    ///    {
+    ///      "day": "15",
+    ///      "month": "08",
+    ///      "year": "1990"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "day": {
+    ///      "description": "Day of birth (01-31).",
+    ///      "examples": [
+    ///        "15"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 2,
+    ///      "minLength": 2,
+    ///      "pattern": "^[0-9]{2}$"
+    ///    },
+    ///    "month": {
+    ///      "description": "Month of birth (01-12).",
+    ///      "examples": [
+    ///        "08"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 2,
+    ///      "minLength": 2,
+    ///      "pattern": "^[0-9]{2}$"
+    ///    },
+    ///    "year": {
+    ///      "description": "Year of birth (four digits).",
+    ///      "examples": [
+    ///        "1990"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 4,
+    ///      "minLength": 4,
+    ///      "pattern": "^[0-9]{4}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct DateOfBirth {
+        ///Day of birth (01-31).
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub day: ::std::option::Option<DateOfBirthDay>,
+        ///Month of birth (01-12).
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub month: ::std::option::Option<DateOfBirthMonth>,
+        ///Year of birth (four digits).
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub year: ::std::option::Option<DateOfBirthYear>,
+    }
+    impl ::std::convert::From<&DateOfBirth> for DateOfBirth {
+        fn from(value: &DateOfBirth) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for DateOfBirth {
+        fn default() -> Self {
+            Self {
+                day: Default::default(),
+                month: Default::default(),
+                year: Default::default(),
+            }
+        }
+    }
+    impl DateOfBirth {
+        pub fn builder() -> builder::DateOfBirth {
+            Default::default()
+        }
+    }
+    ///Day of birth (01-31).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Day of birth (01-31).",
+    ///  "examples": [
+    ///    "15"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 2,
+    ///  "minLength": 2,
+    ///  "pattern": "^[0-9]{2}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DateOfBirthDay(::std::string::String);
+    impl ::std::ops::Deref for DateOfBirthDay {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DateOfBirthDay> for ::std::string::String {
+        fn from(value: DateOfBirthDay) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DateOfBirthDay> for DateOfBirthDay {
+        fn from(value: &DateOfBirthDay) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DateOfBirthDay {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 2usize {
+                return Err("longer than 2 characters".into());
+            }
+            if value.chars().count() < 2usize {
+                return Err("shorter than 2 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{2}$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[0-9]{2}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DateOfBirthDay {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for DateOfBirthDay {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for DateOfBirthDay {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DateOfBirthDay {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Month of birth (01-12).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Month of birth (01-12).",
+    ///  "examples": [
+    ///    "08"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 2,
+    ///  "minLength": 2,
+    ///  "pattern": "^[0-9]{2}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DateOfBirthMonth(::std::string::String);
+    impl ::std::ops::Deref for DateOfBirthMonth {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DateOfBirthMonth> for ::std::string::String {
+        fn from(value: DateOfBirthMonth) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DateOfBirthMonth> for DateOfBirthMonth {
+        fn from(value: &DateOfBirthMonth) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DateOfBirthMonth {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 2usize {
+                return Err("longer than 2 characters".into());
+            }
+            if value.chars().count() < 2usize {
+                return Err("shorter than 2 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{2}$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[0-9]{2}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DateOfBirthMonth {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for DateOfBirthMonth {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for DateOfBirthMonth {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DateOfBirthMonth {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Year of birth (four digits).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Year of birth (four digits).",
+    ///  "examples": [
+    ///    "1990"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 4,
+    ///  "minLength": 4,
+    ///  "pattern": "^[0-9]{4}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DateOfBirthYear(::std::string::String);
+    impl ::std::ops::Deref for DateOfBirthYear {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DateOfBirthYear> for ::std::string::String {
+        fn from(value: DateOfBirthYear) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DateOfBirthYear> for DateOfBirthYear {
+        fn from(value: &DateOfBirthYear) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DateOfBirthYear {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 4usize {
+                return Err("longer than 4 characters".into());
+            }
+            if value.chars().count() < 4usize {
+                return Err("shorter than 4 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{4}$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[0-9]{4}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DateOfBirthYear {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for DateOfBirthYear {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for DateOfBirthYear {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DateOfBirthYear {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///`DeletePolicyPolicyId`
@@ -17365,6 +18147,217 @@ pub mod types {
                 })
         }
     }
+    ///`GetDelegationForEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetDelegationForEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for GetDelegationForEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetDelegationForEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: GetDelegationForEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetDelegationForEndUserAccountProjectId>
+        for GetDelegationForEndUserAccountProjectId
+    {
+        fn from(value: &GetDelegationForEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetDelegationForEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetDelegationForEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetDelegationForEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "expiresAt"
+    ///  ],
+    ///  "properties": {
+    ///    "expiresAt": {
+    ///      "description": "The date until which the delegation is valid.",
+    ///      "examples": [
+    ///        "2026-02-03T10:35:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct GetDelegationForEndUserAccountResponse {
+        ///The date until which the delegation is valid.
+        #[serde(rename = "expiresAt")]
+        pub expires_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&GetDelegationForEndUserAccountResponse>
+        for GetDelegationForEndUserAccountResponse
+    {
+        fn from(value: &GetDelegationForEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl GetDelegationForEndUserAccountResponse {
+        pub fn builder() -> builder::GetDelegationForEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`GetDelegationForEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetDelegationForEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for GetDelegationForEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetDelegationForEndUserAccountUserId> for ::std::string::String {
+        fn from(value: GetDelegationForEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetDelegationForEndUserAccountUserId>
+        for GetDelegationForEndUserAccountUserId
+    {
+        fn from(value: &GetDelegationForEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetDelegationForEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetDelegationForEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`GetDelegationForEndUserProjectId`
     ///
     /// <details><summary>JSON schema</summary>
@@ -22780,6 +23773,121 @@ pub mod types {
             value.parse()
         }
     }
+    ///`LookupEndUserPhoneNumber`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^\\+[1-9]\\d{1,14}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct LookupEndUserPhoneNumber(::std::string::String);
+    impl ::std::ops::Deref for LookupEndUserPhoneNumber {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<LookupEndUserPhoneNumber> for ::std::string::String {
+        fn from(value: LookupEndUserPhoneNumber) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&LookupEndUserPhoneNumber> for LookupEndUserPhoneNumber {
+        fn from(value: &LookupEndUserPhoneNumber) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for LookupEndUserPhoneNumber {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^\\+[1-9]\\d{1,14}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^\\+[1-9]\\d{1,14}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for LookupEndUserPhoneNumber {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for LookupEndUserPhoneNumber {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for LookupEndUserPhoneNumber {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for LookupEndUserPhoneNumber {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`LookupEndUserResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "endUsers"
+    ///  ],
+    ///  "properties": {
+    ///    "endUsers": {
+    ///      "description": "The list of end users matching the lookup.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EndUser"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct LookupEndUserResponse {
+        ///The list of end users matching the lookup.
+        #[serde(rename = "endUsers")]
+        pub end_users: ::std::vec::Vec<EndUser>,
+    }
+    impl ::std::convert::From<&LookupEndUserResponse> for LookupEndUserResponse {
+        fn from(value: &LookupEndUserResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl LookupEndUserResponse {
+        pub fn builder() -> builder::LookupEndUserResponse {
+            Default::default()
+        }
+    }
     ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
     ///
     /// <details><summary>JSON schema</summary>
@@ -24912,6 +26020,143 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.",
+    ///  "examples": [
+    ///    {
+    ///      "dateOfBirth": {
+    ///        "day": "15",
+    ///        "month": "08",
+    ///        "year": "1990"
+    ///      },
+    ///      "ssnLast4": "5678"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "dateOfBirth": {
+    ///      "description": "Date of birth.",
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/DateOfBirth"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "ssnLast4": {
+    ///      "description": "Last 4 digits of the Social Security Number (no dashes or spaces).",
+    ///      "examples": [
+    ///        "5678"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnrampLimitUpgradeIdentityFields {
+        ///Date of birth.
+        #[serde(
+            rename = "dateOfBirth",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub date_of_birth: ::std::option::Option<DateOfBirth>,
+        ///Last 4 digits of the Social Security Number (no dashes or spaces).
+        #[serde(
+            rename = "ssnLast4",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub ssn_last4: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&OnrampLimitUpgradeIdentityFields> for OnrampLimitUpgradeIdentityFields {
+        fn from(value: &OnrampLimitUpgradeIdentityFields) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for OnrampLimitUpgradeIdentityFields {
+        fn default() -> Self {
+            Self {
+                date_of_birth: Default::default(),
+                ssn_last4: Default::default(),
+            }
+        }
+    }
+    impl OnrampLimitUpgradeIdentityFields {
+        pub fn builder() -> builder::OnrampLimitUpgradeIdentityFields {
+            Default::default()
+        }
+    }
+    ///Request to request a limits upgrade for a user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Request to request a limits upgrade for a user.",
+    ///  "examples": [
+    ///    {
+    ///      "fields": {
+    ///        "dateOfBirth": {
+    ///          "day": "15",
+    ///          "month": "08",
+    ///          "year": "1990"
+    ///        },
+    ///        "ssnLast4": "5678"
+    ///      },
+    ///      "userId": "+12055555555",
+    ///      "userIdType": "phone_number"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "fields",
+    ///    "userId",
+    ///    "userIdType"
+    ///  ],
+    ///  "properties": {
+    ///    "fields": {
+    ///      "$ref": "#/components/schemas/OnrampLimitUpgradeIdentityFields"
+    ///    },
+    ///    "userId": {
+    ///      "description": "The user identifier value. For `phone_number` type, this must be in E.164 format.",
+    ///      "examples": [
+    ///        "+12055555555"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "userIdType": {
+    ///      "$ref": "#/components/schemas/OnrampUserIdType"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnrampLimitUpgradeRequest {
+        pub fields: OnrampLimitUpgradeIdentityFields,
+        ///The user identifier value. For `phone_number` type, this must be in E.164 format.
+        #[serde(rename = "userId")]
+        pub user_id: ::std::string::String,
+        #[serde(rename = "userIdType")]
+        pub user_id_type: OnrampUserIdType,
+    }
+    impl ::std::convert::From<&OnrampLimitUpgradeRequest> for OnrampLimitUpgradeRequest {
+        fn from(value: &OnrampLimitUpgradeRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl OnrampLimitUpgradeRequest {
+        pub fn builder() -> builder::OnrampLimitUpgradeRequest {
+            Default::default()
         }
     }
     ///An Onramp order.
@@ -28210,6 +29455,402 @@ pub mod types {
             Default::default()
         }
     }
+    ///`RevokeDelegationForEndUserAccountBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "walletSecretId": {
+    ///      "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct RevokeDelegationForEndUserAccountBody {
+        ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id:
+            ::std::option::Option<RevokeDelegationForEndUserAccountBodyWalletSecretId>,
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountBody>
+        for RevokeDelegationForEndUserAccountBody
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountBody) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for RevokeDelegationForEndUserAccountBody {
+        fn default() -> Self {
+            Self {
+                wallet_secret_id: Default::default(),
+            }
+        }
+    }
+    impl RevokeDelegationForEndUserAccountBody {
+        pub fn builder() -> builder::RevokeDelegationForEndUserAccountBody {
+            Default::default()
+        }
+    }
+    ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserAccountBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountBodyWalletSecretId>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserAccountBodyWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountBodyWalletSecretId>
+        for RevokeDelegationForEndUserAccountBodyWalletSecretId
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountBodyWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserAccountBodyWalletSecretId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountProjectId>
+        for RevokeDelegationForEndUserAccountProjectId
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountUserId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountUserId>
+        for RevokeDelegationForEndUserAccountUserId
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountXIdempotencyKey>
+        for RevokeDelegationForEndUserAccountXIdempotencyKey
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`RevokeDelegationForEndUserBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -28333,6 +29974,94 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserProjectId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserProjectId>
+        for RevokeDelegationForEndUserProjectId
+    {
+        fn from(value: &RevokeDelegationForEndUserProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserProjectId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -54698,7 +56427,12 @@ pub mod types {
     ///        "eip155:84532",
     ///        "eip155:137",
     ///        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    ///        "avalanche",
+    ///        "arbitrum",
+    ///        "arbitrum-sepolia",
+    ///        "world",
+    ///        "world-sepolia"
     ///      ]
     ///    },
     ///    "scheme": {
@@ -54762,7 +56496,12 @@ pub mod types {
     ///    "eip155:84532",
     ///    "eip155:137",
     ///    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    ///    "avalanche",
+    ///    "arbitrum",
+    ///    "arbitrum-sepolia",
+    ///    "world",
+    ///    "world-sepolia"
     ///  ]
     ///}
     /// ```
@@ -54800,6 +56539,16 @@ pub mod types {
         Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp,
         #[serde(rename = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")]
         SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1,
+        #[serde(rename = "avalanche")]
+        Avalanche,
+        #[serde(rename = "arbitrum")]
+        Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
     }
     impl ::std::convert::From<&Self> for X402SupportedPaymentKindNetwork {
         fn from(value: &X402SupportedPaymentKindNetwork) -> Self {
@@ -54823,6 +56572,11 @@ pub mod types {
                 Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1 => {
                     f.write_str("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")
                 }
+                Self::Avalanche => f.write_str("avalanche"),
+                Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
             }
         }
     }
@@ -54844,6 +56598,11 @@ pub mod types {
                 "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" => {
                     Ok(Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1)
                 }
+                "avalanche" => Ok(Self::Avalanche),
+                "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
                 _ => Err("invalid value".into()),
             }
         }
@@ -55295,7 +57054,13 @@ pub mod types {
     ///      "examples": [
     ///        {
     ///          "bazaar": {
-    ///            "discoveryEnabled": true
+    ///            "info": {
+    ///              "input": {
+    ///                "method": "GET",
+    ///                "type": "http"
+    ///              }
+    ///            },
+    ///            "schema": {}
     ///          }
     ///        }
     ///      ],
@@ -58126,6 +59891,122 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct CreateDelegationForEndUserAccountBody {
+            expires_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            wallet_secret_id: ::std::result::Result<
+                super::CreateDelegationForEndUserAccountBodyWalletSecretId,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateDelegationForEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    expires_at: Err("no value supplied for expires_at".to_string()),
+                    wallet_secret_id: Err("no value supplied for wallet_secret_id".to_string()),
+                }
+            }
+        }
+        impl CreateDelegationForEndUserAccountBody {
+            pub fn expires_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.expires_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for expires_at: {}", e));
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::CreateDelegationForEndUserAccountBodyWalletSecretId,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateDelegationForEndUserAccountBody>
+            for super::CreateDelegationForEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateDelegationForEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    expires_at: value.expires_at?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateDelegationForEndUserAccountBody>
+            for CreateDelegationForEndUserAccountBody
+        {
+            fn from(value: super::CreateDelegationForEndUserAccountBody) -> Self {
+                Self {
+                    expires_at: Ok(value.expires_at),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateDelegationForEndUserAccountResponse {
+            expires_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateDelegationForEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    expires_at: Err("no value supplied for expires_at".to_string()),
+                }
+            }
+        }
+        impl CreateDelegationForEndUserAccountResponse {
+            pub fn expires_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.expires_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for expires_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateDelegationForEndUserAccountResponse>
+            for super::CreateDelegationForEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateDelegationForEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    expires_at: value.expires_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateDelegationForEndUserAccountResponse>
+            for CreateDelegationForEndUserAccountResponse
+        {
+            fn from(value: super::CreateDelegationForEndUserAccountResponse) -> Self {
+                Self {
+                    expires_at: Ok(value.expires_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct CreateEndUserBody {
             authentication_methods:
                 ::std::result::Result<super::AuthenticationMethods, ::std::string::String>,
@@ -60542,6 +62423,83 @@ pub mod types {
                     gas_price: Ok(value.gas_price),
                     to: Ok(value.to),
                     value: Ok(value.value),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct DateOfBirth {
+            day: ::std::result::Result<
+                ::std::option::Option<super::DateOfBirthDay>,
+                ::std::string::String,
+            >,
+            month: ::std::result::Result<
+                ::std::option::Option<super::DateOfBirthMonth>,
+                ::std::string::String,
+            >,
+            year: ::std::result::Result<
+                ::std::option::Option<super::DateOfBirthYear>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for DateOfBirth {
+            fn default() -> Self {
+                Self {
+                    day: Ok(Default::default()),
+                    month: Ok(Default::default()),
+                    year: Ok(Default::default()),
+                }
+            }
+        }
+        impl DateOfBirth {
+            pub fn day<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::DateOfBirthDay>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.day = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for day: {}", e));
+                self
+            }
+            pub fn month<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::DateOfBirthMonth>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.month = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for month: {}", e));
+                self
+            }
+            pub fn year<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::DateOfBirthYear>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.year = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for year: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<DateOfBirth> for super::DateOfBirth {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: DateOfBirth,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    day: value.day?,
+                    month: value.month?,
+                    year: value.year?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::DateOfBirth> for DateOfBirth {
+            fn from(value: super::DateOfBirth) -> Self {
+                Self {
+                    day: Ok(value.day),
+                    month: Ok(value.month),
+                    year: Ok(value.year),
                 }
             }
         }
@@ -63062,6 +65020,53 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct GetDelegationForEndUserAccountResponse {
+            expires_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for GetDelegationForEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    expires_at: Err("no value supplied for expires_at".to_string()),
+                }
+            }
+        }
+        impl GetDelegationForEndUserAccountResponse {
+            pub fn expires_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.expires_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for expires_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<GetDelegationForEndUserAccountResponse>
+            for super::GetDelegationForEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: GetDelegationForEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    expires_at: value.expires_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::GetDelegationForEndUserAccountResponse>
+            for GetDelegationForEndUserAccountResponse
+        {
+            fn from(value: super::GetDelegationForEndUserAccountResponse) -> Self {
+                Self {
+                    expires_at: Ok(value.expires_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct GetDelegationForEndUserResponse {
             expires_at: ::std::result::Result<
                 ::chrono::DateTime<::chrono::offset::Utc>,
@@ -64963,6 +66968,47 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct LookupEndUserResponse {
+            end_users:
+                ::std::result::Result<::std::vec::Vec<super::EndUser>, ::std::string::String>,
+        }
+        impl ::std::default::Default for LookupEndUserResponse {
+            fn default() -> Self {
+                Self {
+                    end_users: Err("no value supplied for end_users".to_string()),
+                }
+            }
+        }
+        impl LookupEndUserResponse {
+            pub fn end_users<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EndUser>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.end_users = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for end_users: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<LookupEndUserResponse> for super::LookupEndUserResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: LookupEndUserResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    end_users: value.end_users?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::LookupEndUserResponse> for LookupEndUserResponse {
+            fn from(value: super::LookupEndUserResponse) -> Self {
+                Self {
+                    end_users: Ok(value.end_users),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct MfaMethods {
             enrollment_prompted_at: ::std::result::Result<
                 ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
@@ -65943,6 +67989,141 @@ pub mod types {
                     columns: Ok(value.columns),
                     database: Ok(value.database),
                     table: Ok(value.table),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnrampLimitUpgradeIdentityFields {
+            date_of_birth: ::std::result::Result<
+                ::std::option::Option<super::DateOfBirth>,
+                ::std::string::String,
+            >,
+            ssn_last4: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for OnrampLimitUpgradeIdentityFields {
+            fn default() -> Self {
+                Self {
+                    date_of_birth: Ok(Default::default()),
+                    ssn_last4: Ok(Default::default()),
+                }
+            }
+        }
+        impl OnrampLimitUpgradeIdentityFields {
+            pub fn date_of_birth<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::DateOfBirth>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.date_of_birth = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for date_of_birth: {}", e)
+                });
+                self
+            }
+            pub fn ssn_last4<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.ssn_last4 = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for ssn_last4: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnrampLimitUpgradeIdentityFields>
+            for super::OnrampLimitUpgradeIdentityFields
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnrampLimitUpgradeIdentityFields,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    date_of_birth: value.date_of_birth?,
+                    ssn_last4: value.ssn_last4?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnrampLimitUpgradeIdentityFields>
+            for OnrampLimitUpgradeIdentityFields
+        {
+            fn from(value: super::OnrampLimitUpgradeIdentityFields) -> Self {
+                Self {
+                    date_of_birth: Ok(value.date_of_birth),
+                    ssn_last4: Ok(value.ssn_last4),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnrampLimitUpgradeRequest {
+            fields: ::std::result::Result<
+                super::OnrampLimitUpgradeIdentityFields,
+                ::std::string::String,
+            >,
+            user_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            user_id_type: ::std::result::Result<super::OnrampUserIdType, ::std::string::String>,
+        }
+        impl ::std::default::Default for OnrampLimitUpgradeRequest {
+            fn default() -> Self {
+                Self {
+                    fields: Err("no value supplied for fields".to_string()),
+                    user_id: Err("no value supplied for user_id".to_string()),
+                    user_id_type: Err("no value supplied for user_id_type".to_string()),
+                }
+            }
+        }
+        impl OnrampLimitUpgradeRequest {
+            pub fn fields<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnrampLimitUpgradeIdentityFields>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.fields = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for fields: {}", e));
+                self
+            }
+            pub fn user_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for user_id: {}", e));
+                self
+            }
+            pub fn user_id_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnrampUserIdType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_id_type = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for user_id_type: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnrampLimitUpgradeRequest> for super::OnrampLimitUpgradeRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnrampLimitUpgradeRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    fields: value.fields?,
+                    user_id: value.user_id?,
+                    user_id_type: value.user_id_type?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnrampLimitUpgradeRequest> for OnrampLimitUpgradeRequest {
+            fn from(value: super::OnrampLimitUpgradeRequest) -> Self {
+                Self {
+                    fields: Ok(value.fields),
+                    user_id: Ok(value.user_id),
+                    user_id_type: Ok(value.user_id_type),
                 }
             }
         }
@@ -67312,6 +69493,60 @@ pub mod types {
             fn from(value: super::RequestSolanaFaucetResponse) -> Self {
                 Self {
                     transaction_signature: Ok(value.transaction_signature),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct RevokeDelegationForEndUserAccountBody {
+            wallet_secret_id: ::std::result::Result<
+                ::std::option::Option<super::RevokeDelegationForEndUserAccountBodyWalletSecretId>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for RevokeDelegationForEndUserAccountBody {
+            fn default() -> Self {
+                Self {
+                    wallet_secret_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl RevokeDelegationForEndUserAccountBody {
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::RevokeDelegationForEndUserAccountBodyWalletSecretId,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<RevokeDelegationForEndUserAccountBody>
+            for super::RevokeDelegationForEndUserAccountBody
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: RevokeDelegationForEndUserAccountBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::RevokeDelegationForEndUserAccountBody>
+            for RevokeDelegationForEndUserAccountBody
+        {
+            fn from(value: super::RevokeDelegationForEndUserAccountBody) -> Self {
+                Self {
+                    wallet_secret_id: Ok(value.wallet_secret_id),
                 }
             }
         }
@@ -76731,6 +78966,108 @@ impl Client {
     pub fn list_webhook_subscription_events(&self) -> builder::ListWebhookSubscriptionEvents<'_> {
         builder::ListWebhookSubscriptionEvents::new(self)
     }
+    /**Get account-scoped delegation for an end user account
+
+    Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+    When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+
+    Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    ```ignore
+    let response = client.get_delegation_for_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_delegation_for_end_user_account(
+        &self,
+    ) -> builder::GetDelegationForEndUserAccount<'_> {
+        builder::GetDelegationForEndUserAccount::new(self)
+    }
+    /**Create account-scoped delegation for an end user account
+
+    Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation.
+    Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user.
+    When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.create_delegation_for_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn create_delegation_for_end_user_account(
+        &self,
+    ) -> builder::CreateDelegationForEndUserAccount<'_> {
+        builder::CreateDelegationForEndUserAccount::new(self)
+    }
+    /**Revoke account-scoped delegation for an end user account
+
+    Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+    When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+
+    Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_delegation_for_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_delegation_for_end_user_account(
+        &self,
+    ) -> builder::RevokeDelegationForEndUserAccount<'_> {
+        builder::RevokeDelegationForEndUserAccount::new(self)
+    }
     /**Get delegation for end user
 
     Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
@@ -76758,6 +79095,7 @@ impl Client {
 
     Arguments:
     - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
     - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
     [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
     section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -76774,6 +79112,7 @@ impl Client {
     ```ignore
     let response = client.revoke_delegation_for_end_user()
         .user_id(user_id)
+        .project_id(project_id)
         .x_developer_auth(x_developer_auth)
         .x_idempotency_key(x_idempotency_key)
         .x_wallet_auth(x_wallet_auth)
@@ -77369,6 +79708,43 @@ impl Client {
     pub fn import_end_user(&self) -> builder::ImportEndUser<'_> {
         builder::ImportEndUser::new(self)
     }
+    /**Look up end users by identity
+
+    Looks up end users. Exactly one lookup type must be provided per request:
+
+    - **email**: searches across all email-based authentication methods
+      (email, Google, Apple, GitHub). May return multiple end users if the
+      same email address appears across different auth methods.
+
+    - **oauthProvider + oauthSubject**: looks up a user by their OAuth
+      provider and subject (the `sub` claim from the provider's ID token).
+      Both params must be provided together.
+
+    - **phoneNumber**: looks up a user by their SMS-verified phone number.
+
+    Returns all matching end users. If no end users match, an empty array is returned.
+
+    This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+    Sends a `GET` request to `/v2/end-users/lookup`
+
+    Arguments:
+    - `email`: The email address to search for across all email-based authentication methods.
+    - `oauth_provider`: The OAuth provider to search by. Must be provided together with oauthSubject.
+    - `oauth_subject`: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+    - `phone_number`: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+    ```ignore
+    let response = client.lookup_end_user()
+        .email(email)
+        .oauth_provider(oauth_provider)
+        .oauth_subject(oauth_subject)
+        .phone_number(phone_number)
+        .send()
+        .await;
+    ```*/
+    pub fn lookup_end_user(&self) -> builder::LookupEndUser<'_> {
+        builder::LookupEndUser::new(self)
+    }
     /**Get an end user
 
     Gets an end user by ID.
@@ -77450,7 +79826,7 @@ impl Client {
     }
     /**Add a Solana account to an end user
 
-    Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+    Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
     This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
     Sends a `POST` request to `/v2/end-users/{userId}/solana`
@@ -78276,6 +80652,30 @@ impl Client {
     ```*/
     pub fn get_onramp_user_limits(&self) -> builder::GetOnrampUserLimits<'_> {
         builder::GetOnrampUserLimits::new(self)
+    }
+    /**Request limit upgrade
+
+    Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.
+
+    The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the `limitUpgradeOptions` array.
+
+    **Prerequisites:**
+    - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.
+
+    **Supported fields:**
+    - `ssnLast4`: Last 4 digits of the Social Security Number (no dashes or spaces).
+    - `dateOfBirth`: Date of birth (day, month, year as zero-padded strings).
+
+    Sends a `POST` request to `/v2/onramp/limits/upgrade`
+
+    ```ignore
+    let response = client.request_limits_upgrade()
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn request_limits_upgrade(&self) -> builder::RequestLimitsUpgrade<'_> {
+        builder::RequestLimitsUpgrade::new(self)
     }
     /**Create an onramp order
 
@@ -79943,6 +82343,521 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::get_delegation_for_end_user_account`]
+
+    [`Client::get_delegation_for_end_user_account`]: super::Client::get_delegation_for_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct GetDelegationForEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::GetDelegationForEndUserAccountUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        project_id: Result<Option<types::GetDelegationForEndUserAccountProjectId>, String>,
+    }
+    impl<'a> GetDelegationForEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetDelegationForEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `GetDelegationForEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetDelegationForEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `GetDelegationForEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::GetDelegationForEndUserAccountResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_delegation_for_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::create_delegation_for_end_user_account`]
+
+    [`Client::create_delegation_for_end_user_account`]: super::Client::create_delegation_for_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct CreateDelegationForEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::CreateDelegationForEndUserAccountUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        project_id: Result<Option<types::CreateDelegationForEndUserAccountProjectId>, String>,
+        x_idempotency_key:
+            Result<Option<types::CreateDelegationForEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::CreateDelegationForEndUserAccountBody, String>,
+    }
+    impl<'a> CreateDelegationForEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateDelegationForEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `CreateDelegationForEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateDelegationForEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `CreateDelegationForEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateDelegationForEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `CreateDelegationForEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateDelegationForEndUserAccountBody>,
+            <V as std::convert::TryInto<types::CreateDelegationForEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CreateDelegationForEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CreateDelegationForEndUserAccountBody,
+            )
+                -> types::builder::CreateDelegationForEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::CreateDelegationForEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::CreateDelegationForEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "create_delegation_for_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::revoke_delegation_for_end_user_account`]
+
+    [`Client::revoke_delegation_for_end_user_account`]: super::Client::revoke_delegation_for_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeDelegationForEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::RevokeDelegationForEndUserAccountUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        project_id: Result<Option<types::RevokeDelegationForEndUserAccountProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::RevokeDelegationForEndUserAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::RevokeDelegationForEndUserAccountBody, String>,
+    }
+    impl<'a> RevokeDelegationForEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountBody>,
+            <V as std::convert::TryInto<types::RevokeDelegationForEndUserAccountBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `RevokeDelegationForEndUserAccountBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::RevokeDelegationForEndUserAccountBody,
+            )
+                -> types::builder::RevokeDelegationForEndUserAccountBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::RevokeDelegationForEndUserAccountBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .delete(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_delegation_for_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                204u16 => Ok(ResponseValue::empty(response)),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::get_delegation_for_end_user`]
 
     [`Client::get_delegation_for_end_user`]: super::Client::get_delegation_for_end_user*/
@@ -80049,6 +82964,7 @@ pub mod builder {
     pub struct RevokeDelegationForEndUser<'a> {
         client: &'a super::Client,
         user_id: Result<types::RevokeDelegationForEndUserUserId, String>,
+        project_id: Result<Option<types::RevokeDelegationForEndUserProjectId>, String>,
         x_developer_auth: Result<Option<::std::string::String>, String>,
         x_idempotency_key: Result<Option<types::RevokeDelegationForEndUserXIdempotencyKey>, String>,
         x_wallet_auth: Result<Option<::std::string::String>, String>,
@@ -80059,6 +82975,7 @@ pub mod builder {
             Self {
                 client: client,
                 user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
                 x_developer_auth: Ok(None),
                 x_idempotency_key: Ok(None),
                 x_wallet_auth: Ok(None),
@@ -80071,6 +82988,16 @@ pub mod builder {
         {
             self.user_id = value.try_into().map_err(|_| {
                 "conversion to `RevokeDelegationForEndUserUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserProjectId` for project_id failed"
+                    .to_string()
             });
             self
         }
@@ -80133,12 +83060,14 @@ pub mod builder {
             let Self {
                 client,
                 user_id,
+                project_id,
                 x_developer_auth,
                 x_idempotency_key,
                 x_wallet_auth,
                 body,
             } = self;
             let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
             let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
             let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
@@ -80175,6 +83104,10 @@ pub mod builder {
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
                 .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -82971,6 +85904,131 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::lookup_end_user`]
+
+    [`Client::lookup_end_user`]: super::Client::lookup_end_user*/
+    #[derive(Debug, Clone)]
+    pub struct LookupEndUser<'a> {
+        client: &'a super::Client,
+        email: Result<Option<::std::string::String>, String>,
+        oauth_provider: Result<Option<types::OAuth2ProviderType>, String>,
+        oauth_subject: Result<Option<::std::string::String>, String>,
+        phone_number: Result<Option<types::LookupEndUserPhoneNumber>, String>,
+    }
+    impl<'a> LookupEndUser<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                email: Ok(None),
+                oauth_provider: Ok(None),
+                oauth_subject: Ok(None),
+                phone_number: Ok(None),
+            }
+        }
+        pub fn email<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.email = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for email failed".to_string()
+            });
+            self
+        }
+        pub fn oauth_provider<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::OAuth2ProviderType>,
+        {
+            self.oauth_provider = value.try_into().map(Some).map_err(|_| {
+                "conversion to `OAuth2ProviderType` for oauth_provider failed".to_string()
+            });
+            self
+        }
+        pub fn oauth_subject<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.oauth_subject = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for oauth_subject failed".to_string()
+            });
+            self
+        }
+        pub fn phone_number<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::LookupEndUserPhoneNumber>,
+        {
+            self.phone_number = value.try_into().map(Some).map_err(|_| {
+                "conversion to `LookupEndUserPhoneNumber` for phone_number failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/end-users/lookup`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::LookupEndUserResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                email,
+                oauth_provider,
+                oauth_subject,
+                phone_number,
+            } = self;
+            let email = email.map_err(Error::InvalidRequest)?;
+            let oauth_provider = oauth_provider.map_err(Error::InvalidRequest)?;
+            let oauth_subject = oauth_subject.map_err(Error::InvalidRequest)?;
+            let phone_number = phone_number.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/end-users/lookup", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "email", &email,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "oauthProvider",
+                    &oauth_provider,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "oauthSubject",
+                    &oauth_subject,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "phoneNumber",
+                    &phone_number,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "lookup_end_user",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),
@@ -87418,6 +90476,94 @@ pub mod builder {
             let response = result?;
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::request_limits_upgrade`]
+
+    [`Client::request_limits_upgrade`]: super::Client::request_limits_upgrade*/
+    #[derive(Debug, Clone)]
+    pub struct RequestLimitsUpgrade<'a> {
+        client: &'a super::Client,
+        body: Result<types::builder::OnrampLimitUpgradeRequest, String>,
+    }
+    impl<'a> RequestLimitsUpgrade<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::OnrampLimitUpgradeRequest>,
+            <V as std::convert::TryInto<types::OnrampLimitUpgradeRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `OnrampLimitUpgradeRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::OnrampLimitUpgradeRequest,
+            ) -> types::builder::OnrampLimitUpgradeRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/onramp/limits/upgrade`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self { client, body } = self;
+            let body = body
+                .and_then(|v| {
+                    types::OnrampLimitUpgradeRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/onramp/limits/upgrade", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "request_limits_upgrade",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                202u16 => Ok(ResponseValue::empty(response)),
                 400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),

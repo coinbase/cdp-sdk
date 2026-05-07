@@ -108,7 +108,17 @@ public class X402SupportedPaymentKind {
     
     SOLANA_5EYKT4_US_FV8_P8_NJD_TREP_Y1VZQ_KQ_Z_KVDP(String.valueOf("solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")),
     
-    SOLANA_ET_WTRABZA_YQ6I_MFE_Y_KOU_RU166_VU2XQA1(String.valueOf("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"));
+    SOLANA_ET_WTRABZA_YQ6I_MFE_Y_KOU_RU166_VU2XQA1(String.valueOf("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")),
+    
+    AVALANCHE(String.valueOf("avalanche")),
+    
+    ARBITRUM(String.valueOf("arbitrum")),
+    
+    ARBITRUM_SEPOLIA(String.valueOf("arbitrum-sepolia")),
+    
+    WORLD(String.valueOf("world")),
+    
+    WORLD_SEPOLIA(String.valueOf("world-sepolia"));
 
     private String value;
 

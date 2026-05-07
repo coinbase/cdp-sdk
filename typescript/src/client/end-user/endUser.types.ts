@@ -8,6 +8,7 @@ import type {
   AddEndUserSolanaAccount201,
   EndUser as OpenAPIEndUser,
   GetDelegationForEndUser200,
+  GetDelegationForEndUserAccount200,
   SignEvmTransactionWithEndUserAccount200,
   SignEvmMessageWithEndUserAccount200,
   SignEvmTypedDataWithEndUserAccount200,
@@ -163,6 +164,53 @@ export interface RevokeDelegationForEndUserOptions {
    * The unique identifier of the end user.
    */
   userId: string;
+}
+
+// ─── Account-Scoped Delegation Options/Results ───
+
+/**
+ * The options for getting the account-scoped delegation for a specific end user account address.
+ */
+export interface GetDelegationForEndUserAccountOptions {
+  /** The unique identifier of the end user. */
+  userId: string;
+  /** The blockchain address to get the delegation for. Must belong to the end user. */
+  address: string;
+}
+
+/** The result of getting the account-scoped delegation for a specific end user account. */
+export type GetDelegationForEndUserAccountResult = GetDelegationForEndUserAccount200;
+
+/**
+ * The options for revoking the account-scoped delegation for a specific end user account address.
+ */
+export interface RevokeDelegationForEndUserAccountOptions {
+  /** The unique identifier of the end user. */
+  userId: string;
+  /** The blockchain address whose delegation should be revoked. Must belong to the end user. */
+  address: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
+}
+
+// ─── Account-Scoped Delegation Options for EndUserAccount object ───
+
+/**
+ * The options for getting the account-scoped delegation on an EndUserAccount object.
+ */
+export interface AccountGetDelegationForAddressOptions {
+  /** The blockchain address to get the delegation for. Defaults to the first EVM EOA address. */
+  address?: string;
+}
+
+/**
+ * The options for revoking the account-scoped delegation on an EndUserAccount object.
+ */
+export interface AccountRevokeDelegationForAddressOptions {
+  /** The blockchain address whose delegation should be revoked. Defaults to the first EVM EOA address. */
+  address?: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 // ─── EVM Sign Options/Results ───
@@ -640,6 +688,41 @@ export type EndUserAccountActions = {
    * ```
    */
   revokeDelegation: () => Promise<void>;
+
+  // ─── Account-Scoped Delegation Methods ───
+
+  /**
+   * Gets the active account-scoped delegation for a specific blockchain address owned by this end user.
+   *
+   * @param options - The options for getting the delegation.
+   * @returns A promise that resolves to the delegation details including its expiry.
+   *
+   * @example
+   * ```ts
+   * const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
+   *
+   * const delegation = await endUser.getDelegationForAddress({ address: "0x1234..." });
+   * console.log(delegation.expiresAt);
+   * ```
+   */
+  getDelegationForAddress: (
+    options: AccountGetDelegationForAddressOptions,
+  ) => Promise<GetDelegationForEndUserAccountResult>;
+
+  /**
+   * Revokes the account-scoped delegation for a specific blockchain address owned by this end user.
+   *
+   * @param options - The options for revoking the delegation.
+   * @returns A promise that resolves when the delegation has been revoked.
+   *
+   * @example
+   * ```ts
+   * const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
+   *
+   * await endUser.revokeDelegationForAddress({ address: "0x1234..." });
+   * ```
+   */
+  revokeDelegationForAddress: (options: AccountRevokeDelegationForAddressOptions) => Promise<void>;
 
   // ─── Delegated EVM Sign Methods ───
 

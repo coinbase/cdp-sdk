@@ -55,6 +55,13 @@ class TestOnrampApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_request_limits_upgrade(self) -> None:
+        """Test case for request_limits_upgrade
+
+        Request limit upgrade
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
