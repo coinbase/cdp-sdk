@@ -1,5 +1,52 @@
 export const SPEND_PERMISSION_MANAGER_ADDRESS = "0xf85210B21cC50302F477BA56686d2019dC9b67Ad";
 
+/**
+ * SpendRouter is a singleton contract deployed at the same address on every supported chain
+ * (Base, Base Sepolia, Ethereum, Ethereum Sepolia, Optimism, OP Sepolia, Arbitrum, Avalanche,
+ * Polygon, BNB) via CREATE2. CDP-created spend permissions have this contract as their onchain
+ * spender; the executor and recipient are encoded in `permission.extraData`.
+ *
+ * To execute a SpendRouter permission, callers invoke `spendAndRoute` on this contract instead
+ * of `spend` on SpendPermissionManager. The SDK dispatches based on `permission.spender`.
+ *
+ * Source: https://github.com/coinbase/spend-permissions/blob/main/src/SpendRouter.sol
+ */
+export const SPEND_ROUTER_ADDRESS = "0x1a672dE48c82278b2F1BB68d7b9141634dD6BE29";
+
+/**
+ * Minimal SpendRouter ABI containing just `spendAndRoute`, the only entry point the SDK
+ * calls today. Approve-and-spend (`spendAndRouteWithSignature`), MagicSpend variants, and
+ * `revokeAsSpender` are intentionally omitted: the SDK does not currently expose paths that
+ * use them. Add them here when the corresponding SDK actions ship.
+ */
+export const SPEND_ROUTER_ABI = [
+  {
+    inputs: [
+      {
+        components: [
+          { internalType: "address", name: "account", type: "address" },
+          { internalType: "address", name: "spender", type: "address" },
+          { internalType: "address", name: "token", type: "address" },
+          { internalType: "uint160", name: "allowance", type: "uint160" },
+          { internalType: "uint48", name: "period", type: "uint48" },
+          { internalType: "uint48", name: "start", type: "uint48" },
+          { internalType: "uint48", name: "end", type: "uint48" },
+          { internalType: "uint256", name: "salt", type: "uint256" },
+          { internalType: "bytes", name: "extraData", type: "bytes" },
+        ],
+        internalType: "struct SpendPermissionManager.SpendPermission",
+        name: "permission",
+        type: "tuple",
+      },
+      { internalType: "uint160", name: "value", type: "uint160" },
+    ],
+    name: "spendAndRoute",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+] as const;
+
 export const SPEND_PERMISSION_MANAGER_ABI = [
   {
     inputs: [
