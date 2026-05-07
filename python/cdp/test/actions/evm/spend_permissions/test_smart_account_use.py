@@ -6,48 +6,24 @@ import pytest
 
 from cdp.actions.evm.spend_permissions.smart_account_use import smart_account_use_spend_permission
 from cdp.evm_smart_account import EvmSmartAccount
-from cdp.spend_permissions import SpendPermission
+from cdp.spend_permissions import (
+    SPEND_PERMISSION_MANAGER_ADDRESS,
+    SPEND_ROUTER_ADDRESS,
+    SpendPermission,
+)
+
+# Sentinel calldata distinct enough to round-trip through the handler unambiguously and
+# verify it ends up on the outgoing user-op call.
+_LEGACY_CALLDATA = "0x33211c30deadbeef"
+_ROUTED_CALLDATA = "0x12345678cafebabe"
 
 
-@pytest.mark.asyncio
-@patch("cdp.actions.evm.spend_permissions.smart_account_use.send_user_operation")
-@patch("cdp.actions.evm.spend_permissions.smart_account_use.Web3")
-async def test_smart_account_use_spend_permission(mock_web3, mock_send_user_operation):
-    """Test using a spend permission with a smart account."""
-    # Mock Web3 contract encoding
-    mock_contract = MagicMock()
-    mock_contract.encode_abi.return_value = "0xabcdef123456"  # Mock encoded data
-    mock_web3.return_value.eth.contract.return_value = mock_contract
-
-    # Mock Web3.to_checksum_address to return proper checksum addresses
-    def checksum_side_effect(address):
-        # Return a proper checksum version of the address
-        return address.upper() if isinstance(address, str) else str(address).upper()
-
-    mock_web3.return_value.to_checksum_address.side_effect = checksum_side_effect
-
-    # Create mock API clients
-    mock_api_clients = AsyncMock()
-
-    # Create a mock smart account
-    mock_owner = MagicMock()
-    smart_account = EvmSmartAccount(
-        address="0x3333333333333333333333333333333333333333",
-        owner=mock_owner,
-        name="test-account",
-    )
-    # No need to mock owner_account separately, it's the same as owner
-
-    # Mock the user operation response
-    mock_user_operation = MagicMock()
-    mock_send_user_operation.return_value = mock_user_operation
-
-    # Create a spend permission
-    spend_permission = SpendPermission(
+def _make_permission(spender: str) -> SpendPermission:
+    return SpendPermission(
         account="0x3333333333333333333333333333333333333333",
-        spender="0x5555555555555555555555555555555555555555",
+        spender=spender,
         token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        allowance=1000000000000000000,  # 1 ETH
+        allowance=1000000000000000000,
         period=86400,
         start=1700000000,
         end=1700086400,
@@ -55,54 +31,73 @@ async def test_smart_account_use_spend_permission(mock_web3, mock_send_user_oper
         extra_data="0x",
     )
 
-    # Call the function
+
+def _make_smart_account() -> EvmSmartAccount:
+    return EvmSmartAccount(
+        address="0x3333333333333333333333333333333333333333",
+        owner=MagicMock(),
+        name="test-account",
+    )
+
+
+@pytest.mark.asyncio
+@patch("cdp.actions.evm.spend_permissions.smart_account_use.send_user_operation")
+@patch("cdp.actions.evm.spend_permissions.smart_account_use.build_spend_call")
+async def test_smart_account_use_spend_permission_legacy(
+    mock_build_spend_call, mock_send_user_operation
+):
+    """Legacy permission spender targets SpendPermissionManager in the user-op call."""
+    mock_build_spend_call.return_value = (SPEND_PERMISSION_MANAGER_ADDRESS, _LEGACY_CALLDATA)
+    mock_user_operation = MagicMock()
+    mock_send_user_operation.return_value = mock_user_operation
+
+    permission = _make_permission(spender="0x5555555555555555555555555555555555555555")
+    smart_account = _make_smart_account()
+
     result = await smart_account_use_spend_permission(
-        api_clients=mock_api_clients,
+        api_clients=AsyncMock(),
         smart_account=smart_account,
-        spend_permission=spend_permission,
-        value=500000000000000000,  # 0.5 ETH
+        spend_permission=permission,
+        value=500000000000000000,
         network="base-sepolia",
         paymaster_url="https://paymaster.example.com",
     )
 
-    # Verify the result
-    assert result == mock_user_operation
-
-    # Verify send_user_operation was called correctly
-    mock_send_user_operation.assert_called_once()
+    assert result is mock_user_operation
+    mock_build_spend_call.assert_called_once_with(permission, 500000000000000000)
     call_args = mock_send_user_operation.call_args
-
-    assert call_args.kwargs["api_clients"] == mock_api_clients
-    assert call_args.kwargs["address"] == "0x3333333333333333333333333333333333333333"
-    assert call_args.kwargs["owner"] == smart_account.owners[0]
     assert len(call_args.kwargs["calls"]) == 1
-    assert call_args.kwargs["calls"][0].to == "0XF85210B21CC50302F477BA56686D2019DC9B67AD"
-    assert call_args.kwargs["calls"][0].data == "0xabcdef123456"
+    assert call_args.kwargs["calls"][0].to == SPEND_PERMISSION_MANAGER_ADDRESS
+    assert call_args.kwargs["calls"][0].data == _LEGACY_CALLDATA
     assert call_args.kwargs["calls"][0].value == 0
     assert call_args.kwargs["network"] == "base-sepolia"
     assert call_args.kwargs["paymaster_url"] == "https://paymaster.example.com"
 
-    # Verify Web3.to_checksum_address was called with addresses
-    # It should be called for: account, spender, token, and manager address
-    assert (
-        mock_web3.return_value.to_checksum_address.call_count >= 3
-    )  # At least for the 3 permission addresses
 
-    # Verify Web3 contract encoding was called correctly
-    mock_contract.encode_abi.assert_called_once_with(
-        "spend",
-        args=[
-            (
-                "0X3333333333333333333333333333333333333333",
-                "0X5555555555555555555555555555555555555555",
-                "0XEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
-                1000000000000000000,
-                86400,
-                1700000000,
-                1700086400,
-                12345,
-                b"",
-            ),
-            500000000000000000,
-        ],
+@pytest.mark.asyncio
+@patch("cdp.actions.evm.spend_permissions.smart_account_use.send_user_operation")
+@patch("cdp.actions.evm.spend_permissions.smart_account_use.build_spend_call")
+async def test_smart_account_use_spend_permission_routed(
+    mock_build_spend_call, mock_send_user_operation
+):
+    """SpendRouter spender targets the SpendRouter contract in the user-op call."""
+    mock_build_spend_call.return_value = (SPEND_ROUTER_ADDRESS, _ROUTED_CALLDATA)
+    mock_user_operation = MagicMock()
+    mock_send_user_operation.return_value = mock_user_operation
+
+    permission = _make_permission(spender=SPEND_ROUTER_ADDRESS)
+    smart_account = _make_smart_account()
+
+    result = await smart_account_use_spend_permission(
+        api_clients=AsyncMock(),
+        smart_account=smart_account,
+        spend_permission=permission,
+        value=500000000000000000,
+        network="base-sepolia",
     )
+
+    assert result is mock_user_operation
+    mock_build_spend_call.assert_called_once_with(permission, 500000000000000000)
+    call_args = mock_send_user_operation.call_args
+    assert call_args.kwargs["calls"][0].to == SPEND_ROUTER_ADDRESS
+    assert call_args.kwargs["calls"][0].data == _ROUTED_CALLDATA
