@@ -2776,6 +2776,130 @@ export interface SignEndUserSolMessageRule {
   criteria: SignEndUserSolMessageCriteria;
 }
 
+export type SendEndUserEvmAssetCriteriaItem =
+  | EvmNetworkCriterion
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
+
+/**
+ * A schema for specifying criteria for the sendEndUserEvmAsset operation.
+ */
+export type SendEndUserEvmAssetCriteria = SendEndUserEvmAssetCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendEndUserEvmAssetRuleAction =
+  (typeof SendEndUserEvmAssetRuleAction)[keyof typeof SendEndUserEvmAssetRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEndUserEvmAssetRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendEndUserEvmAssetRuleOperation =
+  (typeof SendEndUserEvmAssetRuleOperation)[keyof typeof SendEndUserEvmAssetRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEndUserEvmAssetRuleOperation = {
+  sendEndUserEvmAsset: "sendEndUserEvmAsset",
+} as const;
+
+export interface SendEndUserEvmAssetRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendEndUserEvmAssetRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendEndUserEvmAssetRuleOperation;
+  criteria: SendEndUserEvmAssetCriteria;
+}
+
+export type SendEndUserSolAssetCriteriaItem =
+  | SplAddressCriterion
+  | SplValueCriterion
+  | SolDataCriterion
+  | SolNetworkCriterion;
+
+/**
+ * A schema for specifying criteria for the sendEndUserSolAsset operation.
+ */
+export type SendEndUserSolAssetCriteria = SendEndUserSolAssetCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendEndUserSolAssetRuleAction =
+  (typeof SendEndUserSolAssetRuleAction)[keyof typeof SendEndUserSolAssetRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEndUserSolAssetRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendEndUserSolAssetRuleOperation =
+  (typeof SendEndUserSolAssetRuleOperation)[keyof typeof SendEndUserSolAssetRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEndUserSolAssetRuleOperation = {
+  sendEndUserSolAsset: "sendEndUserSolAsset",
+} as const;
+
+export interface SendEndUserSolAssetRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendEndUserSolAssetRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendEndUserSolAssetRuleOperation;
+  criteria: SendEndUserSolAssetCriteria;
+}
+
+export type CreateEndUserEvmSwapCriteriaItem =
+  | EvmNetworkCriterion
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
+
+/**
+ * A schema for specifying criteria for the createEndUserEvmSwap operation.
+ */
+export type CreateEndUserEvmSwapCriteria = CreateEndUserEvmSwapCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type CreateEndUserEvmSwapRuleAction =
+  (typeof CreateEndUserEvmSwapRuleAction)[keyof typeof CreateEndUserEvmSwapRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreateEndUserEvmSwapRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type CreateEndUserEvmSwapRuleOperation =
+  (typeof CreateEndUserEvmSwapRuleOperation)[keyof typeof CreateEndUserEvmSwapRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreateEndUserEvmSwapRuleOperation = {
+  createEndUserEvmSwap: "createEndUserEvmSwap",
+} as const;
+
+export interface CreateEndUserEvmSwapRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: CreateEndUserEvmSwapRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: CreateEndUserEvmSwapRuleOperation;
+  criteria: CreateEndUserEvmSwapCriteria;
+}
+
 /**
  * A rule that limits the behavior of an account.
  */
@@ -2797,7 +2921,10 @@ export type Rule =
   | SignEndUserEvmHashRule
   | SignEndUserSolTransactionRule
   | SendEndUserSolTransactionRule
-  | SignEndUserSolMessageRule;
+  | SignEndUserSolMessageRule
+  | SendEndUserEvmAssetRule
+  | SendEndUserSolAssetRule
+  | CreateEndUserEvmSwapRule;
 
 /**
  * The scope of the policy. Only one project-level policy can exist at any time.

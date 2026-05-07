@@ -915,6 +915,57 @@ class SignEndUserSolMessageRule(BaseModel):
     )
 
 
+class SendEndUserEvmAssetRule(BaseModel):
+    """Type representing a 'sendEndUserEvmAsset' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the operation, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserEvmAsset"] = Field(
+        "sendEndUserEvmAsset",
+        description="The operation to which this rule applies. Must be 'sendEndUserEvmAsset'.",
+    )
+    criteria: list[EvmNetworkCriterion | EvmDataCriterion | NetUSDChangeCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SendEndUserSolAssetRule(BaseModel):
+    """Type representing a 'sendEndUserSolAsset' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the operation, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserSolAsset"] = Field(
+        "sendEndUserSolAsset",
+        description="The operation to which this rule applies. Must be 'sendEndUserSolAsset'.",
+    )
+    criteria: list[SplAddressCriterion | SplValueCriterion | SolDataCriterion | SolNetworkCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class CreateEndUserEvmSwapRule(BaseModel):
+    """Type representing a 'createEndUserEvmSwap' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the operation, 'reject' will block it.",
+    )
+    operation: Literal["createEndUserEvmSwap"] = Field(
+        "createEndUserEvmSwap",
+        description="The operation to which this rule applies. Must be 'createEndUserEvmSwap'.",
+    )
+    criteria: list[EvmNetworkCriterion | EvmDataCriterion | NetUSDChangeCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 class PrepareUserOperationRule(BaseModel):
     """Type representing a 'prepareUserOperation' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -981,6 +1032,9 @@ Rule = (
     | SignEndUserSolTransactionRule
     | SendEndUserSolTransactionRule
     | SignEndUserSolMessageRule
+    | SendEndUserEvmAssetRule
+    | SendEndUserSolAssetRule
+    | CreateEndUserEvmSwapRule
 )
 
 
