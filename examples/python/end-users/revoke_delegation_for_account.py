@@ -1,6 +1,6 @@
 """Example: Revoke the active account-scoped delegation for an end user address.
 
-Usage: python revoke_delegation_for_address.py <USER_UUID> <ADDRESS>
+Usage: python revoke_delegation_for_account.py <USER_UUID> <ADDRESS>
 """
 
 import asyncio
@@ -21,13 +21,13 @@ async def main(user_id: str, address: str) -> None:
 
         # Via the EndUserAccount shorthand
         end_user = await cdp.end_user.get_end_user(user_id=user_id)
-        await end_user.revoke_delegation_for_address(address=address)
+        await end_user.revoke_delegation_for_account(address=address)
         print("Revoked delegation via account method")
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python revoke_delegation_for_address.py <USER_UUID> <ADDRESS>")
+        print("Usage: python revoke_delegation_for_account.py <USER_UUID> <ADDRESS>")
         sys.exit(1)
 
     asyncio.run(main(sys.argv[1], sys.argv[2]))

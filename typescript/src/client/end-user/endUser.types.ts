@@ -198,7 +198,7 @@ export interface RevokeDelegationForEndUserAccountOptions {
 /**
  * The options for getting the account-scoped delegation on an EndUserAccount object.
  */
-export interface AccountGetDelegationForAddressOptions {
+export interface AccountGetDelegationForAccountOptions {
   /** The blockchain address to get the delegation for. Defaults to the first EVM EOA address. */
   address?: string;
 }
@@ -206,7 +206,7 @@ export interface AccountGetDelegationForAddressOptions {
 /**
  * The options for revoking the account-scoped delegation on an EndUserAccount object.
  */
-export interface AccountRevokeDelegationForAddressOptions {
+export interface AccountRevokeDelegationForAccountOptions {
   /** The blockchain address whose delegation should be revoked. Defaults to the first EVM EOA address. */
   address?: string;
   /** Optional idempotency key for safe retries. */
@@ -701,12 +701,12 @@ export type EndUserAccountActions = {
    * ```ts
    * const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
    *
-   * const delegation = await endUser.getDelegationForAddress({ address: "0x1234..." });
+   * const delegation = await endUser.getDelegationForAccount({ address: "0x1234..." });
    * console.log(delegation.expiresAt);
    * ```
    */
-  getDelegationForAddress: (
-    options: AccountGetDelegationForAddressOptions,
+  getDelegationForAccount: (
+    options: AccountGetDelegationForAccountOptions,
   ) => Promise<GetDelegationForEndUserAccountResult>;
 
   /**
@@ -719,10 +719,10 @@ export type EndUserAccountActions = {
    * ```ts
    * const endUser = await cdp.endUser.getEndUser({ userId: "user-123" });
    *
-   * await endUser.revokeDelegationForAddress({ address: "0x1234..." });
+   * await endUser.revokeDelegationForAccount({ address: "0x1234..." });
    * ```
    */
-  revokeDelegationForAddress: (options: AccountRevokeDelegationForAddressOptions) => Promise<void>;
+  revokeDelegationForAccount: (options: AccountRevokeDelegationForAccountOptions) => Promise<void>;
 
   // ─── Delegated EVM Sign Methods ───
 

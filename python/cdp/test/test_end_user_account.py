@@ -519,7 +519,7 @@ async def test_send_solana_asset():
 
 
 @pytest.mark.asyncio
-async def test_get_delegation_for_address():
+async def test_get_delegation_for_account():
     """Test getting the account-scoped delegation on EndUserAccount."""
     mock_response = MagicMock()
     mock_response.expires_at = "2026-12-31T23:59:59Z"
@@ -530,7 +530,7 @@ async def test_get_delegation_for_address():
 
     model = create_mock_end_user_model(evm_account_objects=[_make_evm_account()])
     account = EndUserAccount(model, mock_api_clients)
-    result = await account.get_delegation_for_address()
+    result = await account.get_delegation_for_account()
 
     assert result == mock_response
     mock_api_clients.embedded_wallets.get_delegation_for_end_user_account.assert_called_once()
@@ -540,7 +540,7 @@ async def test_get_delegation_for_address():
 
 
 @pytest.mark.asyncio
-async def test_revoke_delegation_for_address():
+async def test_revoke_delegation_for_account():
     """Test revoking the account-scoped delegation on EndUserAccount."""
     mock_api_clients = AsyncMock()
     mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account = AsyncMock(
@@ -549,7 +549,7 @@ async def test_revoke_delegation_for_address():
 
     model = create_mock_end_user_model(evm_account_objects=[_make_evm_account()])
     account = EndUserAccount(model, mock_api_clients)
-    await account.revoke_delegation_for_address()
+    await account.revoke_delegation_for_account()
 
     mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.assert_called_once()
     call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.call_args

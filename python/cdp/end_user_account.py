@@ -417,7 +417,7 @@ class EndUserAccount(BaseModel):
 
     # ─── Account-Scoped Delegation Methods ───
 
-    async def get_delegation_for_address(
+    async def get_delegation_for_account(
         self,
         address: str | None = None,
     ) -> GetDelegationForEndUser200Response:
@@ -431,10 +431,10 @@ class EndUserAccount(BaseModel):
             GetDelegationForEndUser200Response: The delegation details including its expiry.
 
         Example:
-            >>> delegation = await end_user.get_delegation_for_address(address="0x1234...")
+            >>> delegation = await end_user.get_delegation_for_account(address="0x1234...")
 
         """
-        track_action(action="end_user_get_delegation_for_address")
+        track_action(action="end_user_get_delegation_for_account")
 
         resolved_address = self._resolve_evm_address(address)
         return await self.__api_clients.embedded_wallets.get_delegation_for_end_user_account(
@@ -442,7 +442,7 @@ class EndUserAccount(BaseModel):
             address=resolved_address,
         )
 
-    async def revoke_delegation_for_address(
+    async def revoke_delegation_for_account(
         self,
         address: str | None = None,
     ) -> None:
@@ -455,10 +455,10 @@ class EndUserAccount(BaseModel):
                 Defaults to the first EVM EOA address.
 
         Example:
-            >>> await end_user.revoke_delegation_for_address(address="0x1234...")
+            >>> await end_user.revoke_delegation_for_account(address="0x1234...")
 
         """
-        track_action(action="end_user_revoke_delegation_for_address")
+        track_action(action="end_user_revoke_delegation_for_account")
 
         resolved_address = self._resolve_evm_address(address)
         await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user_account(

@@ -8,8 +8,8 @@ import type {
   AddEvmSmartAccountOptions,
   GetDelegationForEndUserResult,
   GetDelegationForEndUserAccountResult,
-  AccountGetDelegationForAddressOptions,
-  AccountRevokeDelegationForAddressOptions,
+  AccountGetDelegationForAccountOptions,
+  AccountRevokeDelegationForAccountOptions,
   SignEvmTransactionResult,
   SignEvmMessageResult,
   SignEvmTypedDataResult,
@@ -159,18 +159,18 @@ export function toEndUserAccount(
 
     // ─── Account-Scoped Delegation Methods ───
 
-    async getDelegationForAddress(
-      opts: AccountGetDelegationForAddressOptions,
+    async getDelegationForAccount(
+      opts: AccountGetDelegationForAccountOptions,
     ): Promise<GetDelegationForEndUserAccountResult> {
-      Analytics.trackAction({ action: "end_user_get_delegation_for_address" });
+      Analytics.trackAction({ action: "end_user_get_delegation_for_account" });
       const address = resolveEvmAddress(endUser, opts.address);
       return apiClient.getDelegationForEndUserAccount(endUser.userId, address);
     },
 
-    async revokeDelegationForAddress(
-      opts: AccountRevokeDelegationForAddressOptions,
+    async revokeDelegationForAccount(
+      opts: AccountRevokeDelegationForAccountOptions,
     ): Promise<void> {
-      Analytics.trackAction({ action: "end_user_revoke_delegation_for_address" });
+      Analytics.trackAction({ action: "end_user_revoke_delegation_for_account" });
       const address = resolveEvmAddress(endUser, opts.address);
       await apiClient.revokeDelegationForEndUserAccount(
         endUser.userId,

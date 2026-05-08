@@ -1,4 +1,4 @@
-// Usage: pnpm tsx end-users/revokeDelegationForAddress.ts <USER_UUID> <ADDRESS>
+// Usage: pnpm tsx end-users/revokeDelegationForAccount.ts <USER_UUID> <ADDRESS>
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
@@ -8,7 +8,7 @@ const address = process.argv[3];
 
 if (!userId || !address) {
   console.error(
-    "Usage: pnpm tsx end-users/revokeDelegationForAddress.ts <USER_UUID> <ADDRESS>",
+    "Usage: pnpm tsx end-users/revokeDelegationForAccount.ts <USER_UUID> <ADDRESS>",
   );
   process.exit(1);
 }
@@ -27,7 +27,7 @@ try {
   // Alternatively, use the EndUserAccount object shorthand
   const endUser = await cdp.endUser.getEndUser({ userId });
 
-  await endUser.revokeDelegationForAddress({ address });
+  await endUser.revokeDelegationForAccount({ address });
 
   console.log("Revoked account-scoped delegation via account method");
 } catch (error) {
