@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.45.0] - 2026-05-08
+
+### Features
+
+- Added account-scoped delegation methods to EndUserAccount: get_delegation_for_account and revoke_delegation_for_account ([#689](https://github.com/coinbase/cdp-sdk/pull/689))
+
+
 ## [1.44.0] - 2026-04-22
 
 ### Features
