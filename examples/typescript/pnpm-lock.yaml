@@ -59,6 +59,9 @@ importers:
       axios-retry:
         specifier: ^4.5.0
         version: 4.5.0(axios@1.13.6)
+      bs58:
+        specifier: ^6.0.0
+        version: 6.0.0
       jose:
         specifier: ^6.2.0
         version: 6.2.0
