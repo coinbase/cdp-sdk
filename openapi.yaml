@@ -1079,6 +1079,181 @@ paths:
                     errorMessage: End user with the given ID not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/end-users/lookup:
+    get:
+      x-audience: public
+      summary: Look up end users by identity
+      description: |-
+        Looks up end users. Exactly one lookup type must be provided per request:
+
+        - **email**: searches across all email-based authentication methods
+          (email, Google, Apple, GitHub). May return multiple end users if the
+          same email address appears across different auth methods.
+
+        - **oauthProvider + oauthSubject**: looks up a user by their OAuth
+          provider and subject (the `sub` claim from the provider's ID token).
+          Both params must be provided together.
+
+        - **phoneNumber**: looks up a user by their SMS-verified phone number.
+
+        Returns all matching end users. If no end users match, an empty array is returned.
+
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: lookupEndUser
+      tags:
+        - End User Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: email
+          in: query
+          required: false
+          description: The email address to search for across all email-based authentication methods.
+          schema:
+            type: string
+            format: email
+          example: user@example.com
+        - name: oauthProvider
+          in: query
+          required: false
+          description: The OAuth provider to search by. Must be provided together with oauthSubject.
+          schema:
+            $ref: '#/components/schemas/OAuth2ProviderType'
+          example: google
+        - name: oauthSubject
+          in: query
+          required: false
+          description: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+          schema:
+            type: string
+          example: '1234567890'
+        - name: phoneNumber
+          in: query
+          required: false
+          description: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+          schema:
+            type: string
+            pattern: ^\+[1-9]\d{1,14}$
+          example: '+14155552671'
+      responses:
+        '200':
+          description: Successfully looked up end users.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - endUsers
+                properties:
+                  endUsers:
+                    type: array
+                    description: The list of end users matching the lookup.
+                    items:
+                      $ref: '#/components/schemas/EndUser'
+              examples:
+                email_match:
+                  summary: End user found by email
+                  value:
+                    endUsers:
+                      - userId: user-001
+                        authenticationMethods:
+                          - type: email
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T10:00:00Z'
+                multiple_email_matches:
+                  summary: Multiple end users with same email across auth methods
+                  value:
+                    endUsers:
+                      - userId: user-001
+                        authenticationMethods:
+                          - type: email
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T10:00:00Z'
+                      - userId: user-002
+                        authenticationMethods:
+                          - type: google
+                            sub: google-sub-123
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T11:00:00Z'
+                oauth_match:
+                  summary: End user found by OAuth subject
+                  value:
+                    endUsers:
+                      - userId: user-003
+                        authenticationMethods:
+                          - type: google
+                            sub: '1234567890'
+                            email: user@example.com
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T12:00:00Z'
+                phone_match:
+                  summary: End user found by phone number
+                  value:
+                    endUsers:
+                      - userId: user-004
+                        authenticationMethods:
+                          - type: sms
+                            phoneNumber: '+14155552671'
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T13:00:00Z'
+                no_matches:
+                  summary: No end users found
+                  value:
+                    endUsers: []
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                no_lookup_param:
+                  summary: No lookup parameter provided
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'Exactly one lookup type must be provided: email, phoneNumber, or oauthProvider+oauthSubject'
+                multiple_lookup_params:
+                  summary: Multiple lookup parameters provided
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'Exactly one lookup type must be provided: email, phoneNumber, or oauthProvider+oauthSubject'
+                oauth_missing_subject:
+                  summary: oauthProvider provided without oauthSubject
+                  value:
+                    errorType: invalid_request
+                    errorMessage: oauthProvider and oauthSubject must be provided together
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/end-users/{userId}/evm:
     post:
       summary: Add an EVM account to an end user
@@ -1285,7 +1460,7 @@ paths:
     post:
       summary: Add a Solana account to an end user
       description: |-
-        Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
         This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
       operationId: addEndUserSolanaAccount
       tags:
@@ -2281,6 +2456,7 @@ paths:
             type: string
             pattern: ^[a-zA-Z0-9-]{1,100}$
             example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/ProjectIDOptional'
       requestBody:
         required: true
         content:
@@ -2312,6 +2488,290 @@ paths:
                     errorType: not_found
                     errorMessage: No active delegation found for the specified end user.
                     errorParam: userId
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation:
+    post:
+      x-audience: public
+      summary: Create account-scoped delegation for an end user account
+      description: |-
+        Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation.
+        Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user.
+        When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
+      operationId: createDelegationForEndUserAccount
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          in: path
+          required: true
+          description: The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive.
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: The date until which the delegation is valid.
+                  example: '2026-02-03T10:35:00Z'
+                walletSecretId:
+                  description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - expiresAt
+                - walletSecretId
+            example:
+              expiresAt: '2026-02-03T10:35:00Z'
+              walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '201':
+          description: Delegation created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: The date until which the delegation is valid.
+                    example: '2026-02-03T10:35:00Z'
+                required:
+                  - expiresAt
+              example:
+                expiresAt: '2026-02-03T10:35:00Z'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_expiresAt:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'expiresAt' is required.
+                    errorParam: expiresAt
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+                invalid_expiresAt:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field 'expiresAt' must be a valid ISO 8601 string.
+                    errorParam: expiresAt
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unknown_address:
+                  value:
+                    errorType: not_found
+                    errorMessage: No account with the given address exists for this end user.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '409':
+          description: Conflict with an existing delegation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                user_scoped_delegation_active:
+                  value:
+                    errorType: already_exists
+                    errorMessage: A user-scoped delegation is already active for this user. Revoke it before creating an account-scoped delegation.
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
+                account_scoped_delegation_active:
+                  value:
+                    errorType: already_exists
+                    errorMessage: An account-scoped delegation is already active for this address.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#rate-limit-exceeded
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    get:
+      x-audience: public
+      summary: Get account-scoped delegation for an end user account
+      description: |-
+        Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+        When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+      operationId: getDelegationForEndUserAccount
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          in: path
+          required: true
+          description: The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive.
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      responses:
+        '200':
+          description: Active delegation found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: The date until which the delegation is valid.
+                    example: '2026-02-03T10:35:00Z'
+                required:
+                  - expiresAt
+              example:
+                expiresAt: '2026-02-03T10:35:00Z'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: No active delegation found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No active account-scoped delegation found for the specified address.
+                    errorParam: address
+                    errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    delete:
+      x-audience: public
+      summary: Revoke account-scoped delegation for an end user account
+      description: |-
+        Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+        When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+      operationId: revokeDelegationForEndUserAccount
+      tags:
+        - Embedded Wallets
+      security:
+        - endUserAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuthOptional'
+        - $ref: '#/components/parameters/XDeveloperAuth'
+          required: false
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          in: path
+          required: true
+          description: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletSecretId:
+                  description: When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+            example:
+              walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '204':
+          description: Delegation revoked successfully.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Delegation not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No active account-scoped delegation found for the specified address.
+                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -8592,6 +9052,60 @@ paths:
           $ref: '#/components/responses/RateLimitExceeded'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/onramp/limits/upgrade:
+    post:
+      summary: Request limit upgrade
+      x-audience: public
+      description: |-
+        Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId. 
+
+        The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the `limitUpgradeOptions` array.
+
+        **Prerequisites:**
+        - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.
+
+        **Supported fields:**
+        - `ssnLast4`: Last 4 digits of the Social Security Number (no dashes or spaces).
+        - `dateOfBirth`: Date of birth (day, month, year as zero-padded strings).
+      operationId: requestLimitsUpgrade
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnrampLimitUpgradeRequest'
+            example:
+              userId: '+12055555555'
+              userIdType: phone_number
+              fields:
+                ssnLast4: '5678'
+                dateOfBirth:
+                  day: '15'
+                  month: '08'
+                  year: '1990'
+      responses:
+        '202':
+          description: Limit upgrade request accepted.
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid user identifier or fields.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 webhooks: {}
 components:
   securitySchemes:
@@ -13826,7 +14340,11 @@ components:
           additionalProperties: true
           example:
             bazaar:
-              discoveryEnabled: true
+              info:
+                input:
+                  type: http
+                  method: GET
+              schema: {}
       example:
         x402Version: 2
         accepted:
@@ -14213,6 +14731,11 @@ components:
             - eip155:137
             - solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
             - solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
+            - avalanche
+            - arbitrum
+            - arbitrum-sepolia
+            - world
+            - world-sepolia
         extra:
           type: object
           description: The optional additional scheme-specific payment info.
@@ -14518,6 +15041,79 @@ components:
         - limitType
         - limit
         - remaining
+    DateOfBirth:
+      type: object
+      description: Date of birth.
+      properties:
+        day:
+          type: string
+          description: Day of birth (01-31).
+          minLength: 2
+          maxLength: 2
+          pattern: ^[0-9]{2}$
+          example: '15'
+        month:
+          type: string
+          description: Month of birth (01-12).
+          minLength: 2
+          maxLength: 2
+          pattern: ^[0-9]{2}$
+          example: '08'
+        year:
+          type: string
+          description: Year of birth (four digits).
+          minLength: 4
+          maxLength: 4
+          pattern: ^[0-9]{4}$
+          example: '1990'
+      example:
+        day: '15'
+        month: '08'
+        year: '1990'
+    OnrampLimitUpgradeIdentityFields:
+      type: object
+      description: Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+      properties:
+        ssnLast4:
+          type: string
+          description: Last 4 digits of the Social Security Number (no dashes or spaces).
+          example: '5678'
+        dateOfBirth:
+          allOf:
+            - $ref: '#/components/schemas/DateOfBirth'
+          description: Date of birth.
+      example:
+        ssnLast4: '5678'
+        dateOfBirth:
+          day: '15'
+          month: '08'
+          year: '1990'
+    OnrampLimitUpgradeRequest:
+      type: object
+      description: Request to request a limits upgrade for a user.
+      properties:
+        userId:
+          type: string
+          description: The user identifier value. For `phone_number` type, this must be in E.164 format.
+          example: '+12055555555'
+        userIdType:
+          $ref: '#/components/schemas/OnrampUserIdType'
+        fields:
+          $ref: '#/components/schemas/OnrampLimitUpgradeIdentityFields'
+          description: Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+      required:
+        - userId
+        - userIdType
+        - fields
+      example:
+        userId: '+12055555555'
+        userIdType: phone_number
+        fields:
+          ssnLast4: '5678'
+          dateOfBirth:
+            day: '15'
+            month: '08'
+            year: '1990'
   responses:
     UnauthorizedError:
       description: Unauthorized.

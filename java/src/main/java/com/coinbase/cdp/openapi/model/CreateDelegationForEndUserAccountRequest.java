@@ -24,110 +24,82 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * SignEvmHashWithEndUserAccountRequest
+ * CreateDelegationForEndUserAccountRequest
  */
 @JsonPropertyOrder({
-  SignEvmHashWithEndUserAccountRequest.JSON_PROPERTY_HASH,
-  SignEvmHashWithEndUserAccountRequest.JSON_PROPERTY_ADDRESS,
-  SignEvmHashWithEndUserAccountRequest.JSON_PROPERTY_WALLET_SECRET_ID
+  CreateDelegationForEndUserAccountRequest.JSON_PROPERTY_EXPIRES_AT,
+  CreateDelegationForEndUserAccountRequest.JSON_PROPERTY_WALLET_SECRET_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SignEvmHashWithEndUserAccountRequest {
-  public static final String JSON_PROPERTY_HASH = "hash";
+public class CreateDelegationForEndUserAccountRequest {
+  public static final String JSON_PROPERTY_EXPIRES_AT = "expiresAt";
   @jakarta.annotation.Nonnull
-  private String hash;
-
-  public static final String JSON_PROPERTY_ADDRESS = "address";
-  @jakarta.annotation.Nonnull
-  private String address;
+  private OffsetDateTime expiresAt;
 
   public static final String JSON_PROPERTY_WALLET_SECRET_ID = "walletSecretId";
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   private String walletSecretId;
 
-  public SignEvmHashWithEndUserAccountRequest() { 
+  public CreateDelegationForEndUserAccountRequest() { 
   }
 
-  public SignEvmHashWithEndUserAccountRequest hash(@jakarta.annotation.Nonnull String hash) {
-    this.hash = hash;
+  public CreateDelegationForEndUserAccountRequest expiresAt(@jakarta.annotation.Nonnull OffsetDateTime expiresAt) {
+    this.expiresAt = expiresAt;
     return this;
   }
 
   /**
-   * The arbitrary 32 byte hash to sign.
-   * @return hash
+   * The date until which the delegation is valid.
+   * @return expiresAt
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_HASH)
+  @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getHash() {
-    return hash;
+  public OffsetDateTime getExpiresAt() {
+    return expiresAt;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_HASH)
+  @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setHash(@jakarta.annotation.Nonnull String hash) {
-    this.hash = hash;
+  public void setExpiresAt(@jakarta.annotation.Nonnull OffsetDateTime expiresAt) {
+    this.expiresAt = expiresAt;
   }
 
 
-  public SignEvmHashWithEndUserAccountRequest address(@jakarta.annotation.Nonnull String address) {
-    this.address = address;
-    return this;
-  }
-
-  /**
-   * The 0x-prefixed address of the EVM account belonging to the end user.
-   * @return address
-   */
-  @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_ADDRESS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getAddress() {
-    return address;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ADDRESS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAddress(@jakarta.annotation.Nonnull String address) {
-    this.address = address;
-  }
-
-
-  public SignEvmHashWithEndUserAccountRequest walletSecretId(@jakarta.annotation.Nullable String walletSecretId) {
+  public CreateDelegationForEndUserAccountRequest walletSecretId(@jakarta.annotation.Nonnull String walletSecretId) {
     this.walletSecretId = walletSecretId;
     return this;
   }
 
   /**
-   * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @return walletSecretId
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_WALLET_SECRET_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getWalletSecretId() {
     return walletSecretId;
   }
 
 
   @JsonProperty(JSON_PROPERTY_WALLET_SECRET_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setWalletSecretId(@jakarta.annotation.Nullable String walletSecretId) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setWalletSecretId(@jakarta.annotation.Nonnull String walletSecretId) {
     this.walletSecretId = walletSecretId;
   }
 
 
   /**
-   * Return true if this signEvmHashWithEndUserAccount_request object is equal to o.
+   * Return true if this createDelegationForEndUserAccount_request object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -137,23 +109,21 @@ public class SignEvmHashWithEndUserAccountRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SignEvmHashWithEndUserAccountRequest signEvmHashWithEndUserAccountRequest = (SignEvmHashWithEndUserAccountRequest) o;
-    return Objects.equals(this.hash, signEvmHashWithEndUserAccountRequest.hash) &&
-        Objects.equals(this.address, signEvmHashWithEndUserAccountRequest.address) &&
-        Objects.equals(this.walletSecretId, signEvmHashWithEndUserAccountRequest.walletSecretId);
+    CreateDelegationForEndUserAccountRequest createDelegationForEndUserAccountRequest = (CreateDelegationForEndUserAccountRequest) o;
+    return Objects.equals(this.expiresAt, createDelegationForEndUserAccountRequest.expiresAt) &&
+        Objects.equals(this.walletSecretId, createDelegationForEndUserAccountRequest.walletSecretId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(hash, address, walletSecretId);
+    return Objects.hash(expiresAt, walletSecretId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SignEvmHashWithEndUserAccountRequest {\n");
-    sb.append("    hash: ").append(toIndentedString(hash)).append("\n");
-    sb.append("    address: ").append(toIndentedString(address)).append("\n");
+    sb.append("class CreateDelegationForEndUserAccountRequest {\n");
+    sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");
     sb.append("    walletSecretId: ").append(toIndentedString(walletSecretId)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -202,14 +172,9 @@ public class SignEvmHashWithEndUserAccountRequest {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `hash` to the URL query string
-    if (getHash() != null) {
-      joiner.add(String.format("%shash%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getHash()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-    }
-
-    // add `address` to the URL query string
-    if (getAddress() != null) {
-      joiner.add(String.format("%saddress%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAddress()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `expiresAt` to the URL query string
+    if (getExpiresAt() != null) {
+      joiner.add(String.format("%sexpiresAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExpiresAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `walletSecretId` to the URL query string
@@ -222,36 +187,32 @@ public class SignEvmHashWithEndUserAccountRequest {
 
     public static class Builder {
 
-    private SignEvmHashWithEndUserAccountRequest instance;
+    private CreateDelegationForEndUserAccountRequest instance;
 
     public Builder() {
-      this(new SignEvmHashWithEndUserAccountRequest());
+      this(new CreateDelegationForEndUserAccountRequest());
     }
 
-    protected Builder(SignEvmHashWithEndUserAccountRequest instance) {
+    protected Builder(CreateDelegationForEndUserAccountRequest instance) {
       this.instance = instance;
     }
 
-    public SignEvmHashWithEndUserAccountRequest.Builder hash(String hash) {
-      this.instance.hash = hash;
+    public CreateDelegationForEndUserAccountRequest.Builder expiresAt(OffsetDateTime expiresAt) {
+      this.instance.expiresAt = expiresAt;
       return this;
     }
-    public SignEvmHashWithEndUserAccountRequest.Builder address(String address) {
-      this.instance.address = address;
-      return this;
-    }
-    public SignEvmHashWithEndUserAccountRequest.Builder walletSecretId(String walletSecretId) {
+    public CreateDelegationForEndUserAccountRequest.Builder walletSecretId(String walletSecretId) {
       this.instance.walletSecretId = walletSecretId;
       return this;
     }
 
 
     /**
-    * returns a built SignEvmHashWithEndUserAccountRequest instance.
+    * returns a built CreateDelegationForEndUserAccountRequest instance.
     *
     * The builder is not reusable.
     */
-    public SignEvmHashWithEndUserAccountRequest build() {
+    public CreateDelegationForEndUserAccountRequest build() {
       try {
         return this.instance;
       } finally {
@@ -269,17 +230,16 @@ public class SignEvmHashWithEndUserAccountRequest {
   /**
   * Create a builder with no initialized field.
   */
-  public static SignEvmHashWithEndUserAccountRequest.Builder builder() {
-    return new SignEvmHashWithEndUserAccountRequest.Builder();
+  public static CreateDelegationForEndUserAccountRequest.Builder builder() {
+    return new CreateDelegationForEndUserAccountRequest.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public SignEvmHashWithEndUserAccountRequest.Builder toBuilder() {
-    return new SignEvmHashWithEndUserAccountRequest.Builder()
-      .hash(getHash())
-      .address(getAddress())
+  public CreateDelegationForEndUserAccountRequest.Builder toBuilder() {
+    return new CreateDelegationForEndUserAccountRequest.Builder()
+      .expiresAt(getExpiresAt())
       .walletSecretId(getWalletSecretId());
   }
 

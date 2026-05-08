@@ -331,7 +331,7 @@ public class EndUserClient {
     RevokeDelegationForEndUserRequest request = new RevokeDelegationForEndUserRequest();
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/revoke-delegation", request);
-    embeddedWalletsApi.revokeDelegationForEndUser(userId, request, walletJwt, null, null);
+    embeddedWalletsApi.revokeDelegationForEndUser(userId, request, walletJwt, null, null, null);
   }
 
   // ==================== Delegated EVM Sign Methods ====================

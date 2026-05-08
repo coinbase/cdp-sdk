@@ -19,57 +19,68 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.EndUser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * SignEvmHashWithEndUserAccount200Response
+ * LookupEndUser200Response
  */
 @JsonPropertyOrder({
-  SignEvmHashWithEndUserAccount200Response.JSON_PROPERTY_SIGNATURE
+  LookupEndUser200Response.JSON_PROPERTY_END_USERS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SignEvmHashWithEndUserAccount200Response {
-  public static final String JSON_PROPERTY_SIGNATURE = "signature";
+public class LookupEndUser200Response {
+  public static final String JSON_PROPERTY_END_USERS = "endUsers";
   @jakarta.annotation.Nonnull
-  private String signature;
+  private List<EndUser> endUsers = new ArrayList<>();
 
-  public SignEvmHashWithEndUserAccount200Response() { 
+  public LookupEndUser200Response() { 
   }
 
-  public SignEvmHashWithEndUserAccount200Response signature(@jakarta.annotation.Nonnull String signature) {
-    this.signature = signature;
+  public LookupEndUser200Response endUsers(@jakarta.annotation.Nonnull List<EndUser> endUsers) {
+    this.endUsers = endUsers;
+    return this;
+  }
+
+  public LookupEndUser200Response addEndUsersItem(EndUser endUsersItem) {
+    if (this.endUsers == null) {
+      this.endUsers = new ArrayList<>();
+    }
+    this.endUsers.add(endUsersItem);
     return this;
   }
 
   /**
-   * The signature of the hash, as a 0x-prefixed hex string.
-   * @return signature
+   * The list of end users matching the lookup.
+   * @return endUsers
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_SIGNATURE)
+  @JsonProperty(JSON_PROPERTY_END_USERS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getSignature() {
-    return signature;
+  public List<EndUser> getEndUsers() {
+    return endUsers;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_SIGNATURE)
+  @JsonProperty(JSON_PROPERTY_END_USERS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setSignature(@jakarta.annotation.Nonnull String signature) {
-    this.signature = signature;
+  public void setEndUsers(@jakarta.annotation.Nonnull List<EndUser> endUsers) {
+    this.endUsers = endUsers;
   }
 
 
   /**
-   * Return true if this signEvmHashWithEndUserAccount_200_response object is equal to o.
+   * Return true if this lookupEndUser_200_response object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -79,20 +90,20 @@ public class SignEvmHashWithEndUserAccount200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SignEvmHashWithEndUserAccount200Response signEvmHashWithEndUserAccount200Response = (SignEvmHashWithEndUserAccount200Response) o;
-    return Objects.equals(this.signature, signEvmHashWithEndUserAccount200Response.signature);
+    LookupEndUser200Response lookupEndUser200Response = (LookupEndUser200Response) o;
+    return Objects.equals(this.endUsers, lookupEndUser200Response.endUsers);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(signature);
+    return Objects.hash(endUsers);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SignEvmHashWithEndUserAccount200Response {\n");
-    sb.append("    signature: ").append(toIndentedString(signature)).append("\n");
+    sb.append("class LookupEndUser200Response {\n");
+    sb.append("    endUsers: ").append(toIndentedString(endUsers)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -140,9 +151,14 @@ public class SignEvmHashWithEndUserAccount200Response {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `signature` to the URL query string
-    if (getSignature() != null) {
-      joiner.add(String.format("%ssignature%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSignature()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `endUsers` to the URL query string
+    if (getEndUsers() != null) {
+      for (int i = 0; i < getEndUsers().size(); i++) {
+        if (getEndUsers().get(i) != null) {
+          joiner.add(getEndUsers().get(i).toUrlQueryString(String.format("%sendUsers%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
     }
 
     return joiner.toString();
@@ -150,28 +166,28 @@ public class SignEvmHashWithEndUserAccount200Response {
 
     public static class Builder {
 
-    private SignEvmHashWithEndUserAccount200Response instance;
+    private LookupEndUser200Response instance;
 
     public Builder() {
-      this(new SignEvmHashWithEndUserAccount200Response());
+      this(new LookupEndUser200Response());
     }
 
-    protected Builder(SignEvmHashWithEndUserAccount200Response instance) {
+    protected Builder(LookupEndUser200Response instance) {
       this.instance = instance;
     }
 
-    public SignEvmHashWithEndUserAccount200Response.Builder signature(String signature) {
-      this.instance.signature = signature;
+    public LookupEndUser200Response.Builder endUsers(List<EndUser> endUsers) {
+      this.instance.endUsers = endUsers;
       return this;
     }
 
 
     /**
-    * returns a built SignEvmHashWithEndUserAccount200Response instance.
+    * returns a built LookupEndUser200Response instance.
     *
     * The builder is not reusable.
     */
-    public SignEvmHashWithEndUserAccount200Response build() {
+    public LookupEndUser200Response build() {
       try {
         return this.instance;
       } finally {
@@ -189,16 +205,16 @@ public class SignEvmHashWithEndUserAccount200Response {
   /**
   * Create a builder with no initialized field.
   */
-  public static SignEvmHashWithEndUserAccount200Response.Builder builder() {
-    return new SignEvmHashWithEndUserAccount200Response.Builder();
+  public static LookupEndUser200Response.Builder builder() {
+    return new LookupEndUser200Response.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public SignEvmHashWithEndUserAccount200Response.Builder toBuilder() {
-    return new SignEvmHashWithEndUserAccount200Response.Builder()
-      .signature(getSignature());
+  public LookupEndUser200Response.Builder toBuilder() {
+    return new LookupEndUser200Response.Builder()
+      .endUsers(getEndUsers());
   }
 
 }
