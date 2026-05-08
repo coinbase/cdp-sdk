@@ -364,12 +364,8 @@ response_criterion_mapping["sendEndUserSolTransaction"] = response_criterion_map
     "sendSolTransaction"
 ]
 response_criterion_mapping["signEndUserSolMessage"] = response_criterion_mapping["signSolMessage"]
-response_criterion_mapping["sendEndUserEvmAsset"] = response_criterion_mapping[
-    "sendEvmTransaction"
-]
-response_criterion_mapping["sendEndUserSolAsset"] = response_criterion_mapping[
-    "sendSolTransaction"
-]
+response_criterion_mapping["sendEndUserEvmAsset"] = response_criterion_mapping["sendEvmTransaction"]
+response_criterion_mapping["sendEndUserSolAsset"] = response_criterion_mapping["sendSolTransaction"]
 response_criterion_mapping["createEndUserEvmSwap"] = response_criterion_mapping[
     "sendEvmTransaction"
 ]

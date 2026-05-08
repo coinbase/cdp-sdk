@@ -118,7 +118,7 @@ public class SendEndUserEvmAssetRule {
 
   public static final String JSON_PROPERTY_CRITERIA = "criteria";
   @jakarta.annotation.Nonnull
-  private SendEndUserEvmAssetCriteria criteria = new ArrayList<>();
+  private SendEndUserEvmAssetCriteria criteria = new SendEndUserEvmAssetCriteria();
 
   public SendEndUserEvmAssetRule() { 
   }

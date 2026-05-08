@@ -30,6 +30,9 @@ TYPES=(
     "SignEndUserEvmTypedDataCriteria"
     "SignEndUserSolMessageCriteria"
     "SignEndUserSolTransactionCriteria"
+    "CreateEndUserEvmSwapCriteria"
+    "SendEndUserEvmAssetCriteria"
+    "SendEndUserSolAssetCriteria"
 )
 
 for TYPE in "${TYPES[@]}"; do

@@ -943,7 +943,9 @@ class SendEndUserSolAssetRule(BaseModel):
         "sendEndUserSolAsset",
         description="The operation to which this rule applies. Must be 'sendEndUserSolAsset'.",
     )
-    criteria: list[SplAddressCriterion | SplValueCriterion | SolDataCriterion | SolNetworkCriterion] = Field(
+    criteria: list[
+        SplAddressCriterion | SplValueCriterion | SolDataCriterion | SolNetworkCriterion
+    ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )

@@ -118,7 +118,7 @@ public class CreateEndUserEvmSwapRule {
 
   public static final String JSON_PROPERTY_CRITERIA = "criteria";
   @jakarta.annotation.Nonnull
-  private CreateEndUserEvmSwapCriteria criteria = new ArrayList<>();
+  private CreateEndUserEvmSwapCriteria criteria = new CreateEndUserEvmSwapCriteria();
 
   public CreateEndUserEvmSwapRule() { 
   }

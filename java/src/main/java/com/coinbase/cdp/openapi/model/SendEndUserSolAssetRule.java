@@ -118,7 +118,7 @@ public class SendEndUserSolAssetRule {
 
   public static final String JSON_PROPERTY_CRITERIA = "criteria";
   @jakarta.annotation.Nonnull
-  private SendEndUserSolAssetCriteria criteria = new ArrayList<>();
+  private SendEndUserSolAssetCriteria criteria = new SendEndUserSolAssetCriteria();
 
   public SendEndUserSolAssetRule() { 
   }
