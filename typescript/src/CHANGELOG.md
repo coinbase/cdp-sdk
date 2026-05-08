@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.49.0
+
+### Minor Changes
+
+- [#689](https://github.com/coinbase/cdp-sdk/pull/689) [`cc3fca1`](https://github.com/coinbase/cdp-sdk/commit/cc3fca178aad31de7c148afe31173b5ac0fbf478) Thanks [@0xRAG](https://github.com/0xRAG)! - Added account-scoped delegation methods to EndUserAccount: getDelegationForAccount and revokeDelegationForAccount
+
 ## 1.48.3
 
 ### Patch Changes
