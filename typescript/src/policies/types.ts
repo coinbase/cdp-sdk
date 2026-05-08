@@ -12,6 +12,7 @@ import {
   SendEndUserEvmTransactionRuleSchema,
   SignEndUserEvmMessageRuleSchema,
   SignEndUserEvmTypedDataRuleSchema,
+  SignEndUserEvmHashRuleSchema,
 } from "./evmSchema.js";
 import {
   SendSolTransactionRuleSchema,
@@ -68,6 +69,7 @@ export const RuleSchema = z.discriminatedUnion("operation", [
   SendEndUserEvmTransactionRuleSchema,
   SignEndUserEvmMessageRuleSchema,
   SignEndUserEvmTypedDataRuleSchema,
+  SignEndUserEvmHashRuleSchema,
   SignEndUserSolTransactionRuleSchema,
   SendEndUserSolTransactionRuleSchema,
   SignEndUserSolMessageRuleSchema,
