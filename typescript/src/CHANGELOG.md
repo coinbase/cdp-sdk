@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.48.3
+
+### Patch Changes
+
+- [#691](https://github.com/coinbase/cdp-sdk/pull/691) [`dfba138`](https://github.com/coinbase/cdp-sdk/commit/dfba138cd67a157317ada8831930245a172ff719) Thanks [@sddioulde](https://github.com/sddioulde)! - Added bs58 to dependencies in typescript/src/package.json
+
 ## 1.48.2
 
 ### Patch Changes
