@@ -28,6 +28,7 @@ from cdp.openapi_client.models.create_end_user_request import CreateEndUserReque
 from cdp.openapi_client.models.end_user import EndUser
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
 from cdp.openapi_client.models.list_end_users200_response import ListEndUsers200Response
+from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
 from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -756,7 +757,7 @@ class EndUserAccountsApi:
     ) -> AddEndUserSolanaAccount201Response:
         """Add a Solana account to an end user
 
-        Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param user_id: The ID of the end user to add the account to. (required)
         :type user_id: str
@@ -843,7 +844,7 @@ class EndUserAccountsApi:
     ) -> ApiResponse[AddEndUserSolanaAccount201Response]:
         """Add a Solana account to an end user
 
-        Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param user_id: The ID of the end user to add the account to. (required)
         :type user_id: str
@@ -930,7 +931,7 @@ class EndUserAccountsApi:
     ) -> RESTResponseType:
         """Add a Solana account to an end user
 
-        Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param user_id: The ID of the end user to add the account to. (required)
         :type user_id: str
@@ -2289,6 +2290,275 @@ class EndUserAccountsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/end-users',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def lookup_end_user(
+        self,
+        email: Annotated[StrictStr, Field(description="The email address to search for across all authentication methods.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> LookupEndUser200Response:
+        """Look up end users by email
+
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+        :param email: The email address to search for across all authentication methods. (required)
+        :type email: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._lookup_end_user_serialize(
+            email=email,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "LookupEndUser200Response",
+            '401': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def lookup_end_user_with_http_info(
+        self,
+        email: Annotated[StrictStr, Field(description="The email address to search for across all authentication methods.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[LookupEndUser200Response]:
+        """Look up end users by email
+
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+        :param email: The email address to search for across all authentication methods. (required)
+        :type email: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._lookup_end_user_serialize(
+            email=email,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "LookupEndUser200Response",
+            '401': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def lookup_end_user_without_preload_content(
+        self,
+        email: Annotated[StrictStr, Field(description="The email address to search for across all authentication methods.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Look up end users by email
+
+        Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+        :param email: The email address to search for across all authentication methods. (required)
+        :type email: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._lookup_end_user_serialize(
+            email=email,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "LookupEndUser200Response",
+            '401': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _lookup_end_user_serialize(
+        self,
+        email,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if email is not None:
+            
+            _query_params.append(('email', email))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/end-users/lookup',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

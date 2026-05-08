@@ -17,6 +17,8 @@ import type {
   ImportEndUserBody,
   ListEndUsers200,
   ListEndUsersParams,
+  LookupEndUser200,
+  LookupEndUserParams,
   ValidateEndUserAccessTokenBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -87,6 +89,21 @@ export const getEndUser = (
   return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
 };
 /**
+ * Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.
+
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Look up end users by email
+ */
+export const lookupEndUser = (
+  params: LookupEndUserParams,
+  options?: SecondParameter<typeof cdpApiClient<LookupEndUser200>>,
+) => {
+  return cdpApiClient<LookupEndUser200>(
+    { url: `/v2/end-users/lookup`, method: "GET", params },
+    options,
+  );
+};
+/**
  * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts.
 This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
  * @summary Add an EVM account to an end user
@@ -127,7 +144,7 @@ export const addEndUserEvmSmartAccount = (
   );
 };
 /**
- * Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+ * Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
 This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
  * @summary Add a Solana account to an end user
  */
@@ -172,6 +189,7 @@ export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;
 export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;
+export type LookupEndUserResult = NonNullable<Awaited<ReturnType<typeof lookupEndUser>>>;
 export type AddEndUserEvmAccountResult = NonNullable<
   Awaited<ReturnType<typeof addEndUserEvmAccount>>
 >;

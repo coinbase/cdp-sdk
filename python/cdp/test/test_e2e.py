@@ -156,6 +156,26 @@ async def test_create_get_and_list_accounts(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_lookup_end_user_by_email(cdp_client):
+    """Test looking up an end user by email address."""
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    created = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+    )
+
+    results = await cdp_client.end_user.lookup_end_user(email=random_email)
+
+    assert len(results) == 1
+    assert results[0].user_id == created.user_id
+
+    print(f"Looked up end user: {results[0].user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_create_end_user_with_accounts(cdp_client):
     """Test creating an end user with EVM smart account and Solana account."""
     random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"

@@ -3,6 +3,7 @@ package com.coinbase.cdp.client.enduser;
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
+import com.coinbase.cdp.client.enduser.EndUserClientOptions.LookupEndUserOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
@@ -19,6 +20,7 @@ import com.coinbase.cdp.openapi.model.EvmUserOperation;
 import com.coinbase.cdp.openapi.model.GetDelegationForEndUser200Response;
 import com.coinbase.cdp.openapi.model.ImportEndUserRequest;
 import com.coinbase.cdp.openapi.model.ListEndUsers200Response;
+import com.coinbase.cdp.openapi.model.LookupEndUser200Response;
 import com.coinbase.cdp.openapi.model.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SendEvmAssetWithEndUserAccountRequest;
@@ -182,6 +184,19 @@ public class EndUserClient {
   }
 
   /**
+   * Looks up end users by a single identity parameter.
+   *
+   * <p>Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+   *
+   * @param options the lookup options specifying the identity parameter to search by
+   * @return the lookup response containing matching end users
+   * @throws ApiException if the API call fails
+   */
+  public LookupEndUser200Response lookupEndUser(LookupEndUserOptions options) throws ApiException {
+    return endUserAccountsApi.lookupEndUser(options.email());
+  }
+
+  /**
    * Validates an end user's access token.
    *
    * @param request the validation request
@@ -331,7 +346,7 @@ public class EndUserClient {
     RevokeDelegationForEndUserRequest request = new RevokeDelegationForEndUserRequest();
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/revoke-delegation", request);
-    embeddedWalletsApi.revokeDelegationForEndUser(userId, request, walletJwt, null, null);
+    embeddedWalletsApi.revokeDelegationForEndUser(userId, request, walletJwt, null, null, null);
   }
 
   // ==================== Delegated EVM Sign Methods ====================

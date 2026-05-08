@@ -50,7 +50,7 @@ class TestX402PaymentPayload(unittest.TestCase):
                     url = 'https://api.example.com/premium/resource/123', 
                     description = Premium API access for data analysis, 
                     mime_type = 'application/json', ),
-                extensions = {bazaar={discoveryEnabled=true}},
+                extensions = {bazaar={info={input={type=http, method=GET}}, schema={}}},
                 scheme = 'exact',
                 network = 'base'
             )

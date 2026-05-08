@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
+import com.coinbase.cdp.client.enduser.EndUserClientOptions.LookupEndUserOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
@@ -135,6 +136,25 @@ class EndUserClientTest {
       EndUser result = client.getEndUser(USER_ID);
 
       assertThat(result).isEqualTo(expected);
+    }
+  }
+
+  @Nested
+  class LookupEndUserTest {
+    @Test
+    void looksUpEndUserByEmail() throws ApiException {
+      LookupEndUser200Response expected = new LookupEndUser200Response();
+      expected.addEndUsersItem(new EndUser().userId(USER_ID));
+      when(endUserAccountsApi.lookupEndUser("user@example.com")).thenReturn(expected);
+
+      LookupEndUserOptions options =
+          LookupEndUserOptions.builder().email("user@example.com").build();
+      LookupEndUser200Response result = client.lookupEndUser(options);
+
+      assertThat(result).isEqualTo(expected);
+      assertThat(result.getEndUsers()).hasSize(1);
+      assertThat(result.getEndUsers().get(0).getUserId()).isEqualTo(USER_ID);
+      verify(endUserAccountsApi).lookupEndUser("user@example.com");
     }
   }
 
@@ -305,6 +325,7 @@ class EndUserClientTest {
               eq(USER_ID),
               any(RevokeDelegationForEndUserRequest.class),
               eq(WALLET_JWT),
+              isNull(),
               isNull(),
               isNull());
     }

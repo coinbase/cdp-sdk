@@ -835,6 +835,9 @@ const (
 
 // Defines values for X402SupportedPaymentKindNetwork.
 const (
+	X402SupportedPaymentKindNetworkArbitrum                               X402SupportedPaymentKindNetwork = "arbitrum"
+	X402SupportedPaymentKindNetworkArbitrumSepolia                        X402SupportedPaymentKindNetwork = "arbitrum-sepolia"
+	X402SupportedPaymentKindNetworkAvalanche                              X402SupportedPaymentKindNetwork = "avalanche"
 	X402SupportedPaymentKindNetworkBase                                   X402SupportedPaymentKindNetwork = "base"
 	X402SupportedPaymentKindNetworkBaseSepolia                            X402SupportedPaymentKindNetwork = "base-sepolia"
 	X402SupportedPaymentKindNetworkEip155137                              X402SupportedPaymentKindNetwork = "eip155:137"
@@ -845,6 +848,8 @@ const (
 	X402SupportedPaymentKindNetworkSolana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402SupportedPaymentKindNetwork = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
 	X402SupportedPaymentKindNetworkSolanaDevnet                           X402SupportedPaymentKindNetwork = "solana-devnet"
 	X402SupportedPaymentKindNetworkSolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402SupportedPaymentKindNetwork = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+	X402SupportedPaymentKindNetworkWorld                                  X402SupportedPaymentKindNetwork = "world"
+	X402SupportedPaymentKindNetworkWorldSepolia                           X402SupportedPaymentKindNetwork = "world-sepolia"
 )
 
 // Defines values for X402SupportedPaymentKindScheme.
@@ -3905,6 +3910,9 @@ type RevokeDelegationForEndUserJSONBody struct {
 
 // RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
 type RevokeDelegationForEndUserParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
 	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
 	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -4431,6 +4439,12 @@ type ImportEndUserParams struct {
 
 // ImportEndUserJSONBodyKeyType defines parameters for ImportEndUser.
 type ImportEndUserJSONBodyKeyType string
+
+// LookupEndUserParams defines parameters for LookupEndUser.
+type LookupEndUserParams struct {
+	// Email The email address to search for across all authentication methods.
+	Email openapi_types.Email `form:"email" json:"email"`
+}
 
 // AddEndUserEvmAccountJSONBody defines parameters for AddEndUserEvmAccount.
 type AddEndUserEvmAccountJSONBody = map[string]interface{}
@@ -9064,6 +9078,9 @@ type ClientInterface interface {
 
 	ImportEndUser(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// LookupEndUser request
+	LookupEndUser(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetEndUser request
 	GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -9865,6 +9882,18 @@ func (c *CDPClient) ImportEndUserWithBody(ctx context.Context, params *ImportEnd
 
 func (c *CDPClient) ImportEndUser(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewImportEndUserRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) LookupEndUser(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLookupEndUserRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -11676,6 +11705,28 @@ func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, 
 		return nil, err
 	}
 
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
 	req, err := http.NewRequest("DELETE", queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -13228,6 +13279,51 @@ func NewImportEndUserRequestWithBody(server string, params *ImportEndUserParams,
 			req.Header.Set("X-Idempotency-Key", headerParam1)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewLookupEndUserRequest generates requests for LookupEndUser
+func NewLookupEndUserRequest(server string, params *LookupEndUserParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users/lookup")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "email", runtime.ParamLocationQuery, params.Email); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -16923,6 +17019,9 @@ type ClientWithResponsesInterface interface {
 
 	ImportEndUserWithResponse(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportEndUserResponse, error)
 
+	// LookupEndUserWithResponse request
+	LookupEndUserWithResponse(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*LookupEndUserResponse, error)
+
 	// GetEndUserWithResponse request
 	GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error)
 
@@ -18018,6 +18117,33 @@ func (r ImportEndUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ImportEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LookupEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// EndUsers The list of end users matching the email lookup.
+		EndUsers []EndUser `json:"endUsers"`
+	}
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r LookupEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LookupEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -20225,6 +20351,15 @@ func (c *ClientWithResponses) ImportEndUserWithResponse(ctx context.Context, par
 		return nil, err
 	}
 	return ParseImportEndUserResponse(rsp)
+}
+
+// LookupEndUserWithResponse request returning *LookupEndUserResponse
+func (c *ClientWithResponses) LookupEndUserWithResponse(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*LookupEndUserResponse, error) {
+	rsp, err := c.LookupEndUser(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLookupEndUserResponse(rsp)
 }
 
 // GetEndUserWithResponse request returning *GetEndUserResponse
@@ -23095,6 +23230,49 @@ func ParseImportEndUserResponse(rsp *http.Response) (*ImportEndUserResponse, err
 			return nil, err
 		}
 		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseLookupEndUserResponse parses an HTTP response from a LookupEndUserWithResponse call
+func ParseLookupEndUserResponse(rsp *http.Response) (*LookupEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LookupEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// EndUsers The list of end users matching the email lookup.
+			EndUsers []EndUser `json:"endUsers"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 

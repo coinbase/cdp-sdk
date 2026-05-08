@@ -7,6 +7,7 @@ import {
   type ListEndUsersOptions,
   type CreateEndUserOptions,
   type GetEndUserOptions,
+  type LookupEndUserOptions,
   type ImportEndUserOptions,
   type AddEndUserEvmAccountOptions,
   type AddEndUserEvmAccountResult,
@@ -165,6 +166,31 @@ export class EndUserClient {
     const endUser = await CdpOpenApiClient.getEndUser(userId);
 
     return toEndUserAccount(CdpOpenApiClient, { endUser });
+  }
+
+  /**
+   * Looks up end users by email address. Searches across all email-based authentication methods (email, Google, Apple, GitHub).
+   *
+   * @param options - The options for looking up end users.
+   *
+   * @returns A promise that resolves to an array of matching end users.
+   *
+   * @example **Look up end users by email**
+   *          ```ts
+   *          const endUsers = await cdp.endUser.lookupEndUser({
+   *            email: "user@example.com"
+   *          });
+   *          endUsers.forEach(endUser => console.log(endUser.userId));
+   *          ```
+   */
+  async lookupEndUser(options: LookupEndUserOptions): Promise<EndUserAccount[]> {
+    Analytics.trackAction({
+      action: "lookup_end_user",
+    });
+
+    const response = await CdpOpenApiClient.lookupEndUser({ email: options.email });
+
+    return response.endUsers.map(endUser => toEndUserAccount(CdpOpenApiClient, { endUser }));
   }
 
   /**

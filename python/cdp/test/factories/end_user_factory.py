@@ -16,6 +16,7 @@ from cdp.openapi_client.models.end_user_evm_account import EndUserEvmAccount
 from cdp.openapi_client.models.end_user_evm_smart_account import EndUserEvmSmartAccount
 from cdp.openapi_client.models.end_user_solana_account import EndUserSolanaAccount
 from cdp.openapi_client.models.list_end_users200_response import ListEndUsers200Response
+from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
 
 
 @pytest.fixture
@@ -57,6 +58,23 @@ def list_end_users_response_factory():
         )
 
     return _create_list_end_users_response
+
+
+@pytest.fixture
+def lookup_end_user_response_factory():
+    """Create and return a factory for Lookup End User response fixtures."""
+
+    def _create_lookup_end_user_response(
+        end_users=None,
+    ):
+        if end_users is None:
+            end_users = []
+
+        return LookupEndUser200Response(
+            end_users=end_users,
+        )
+
+    return _create_lookup_end_user_response
 
 
 @pytest.fixture

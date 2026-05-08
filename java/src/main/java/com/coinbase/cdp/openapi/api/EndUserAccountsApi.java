@@ -26,6 +26,7 @@ import com.coinbase.cdp.openapi.model.EndUser;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.ImportEndUserRequest;
 import com.coinbase.cdp.openapi.model.ListEndUsers200Response;
+import com.coinbase.cdp.openapi.model.LookupEndUser200Response;
 import com.coinbase.cdp.openapi.model.ValidateEndUserAccessTokenRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -296,7 +297,7 @@ public class EndUserAccountsApi {
 
   /**
    * Add a Solana account to an end user
-   * Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -311,7 +312,7 @@ public class EndUserAccountsApi {
 
   /**
    * Add a Solana account to an end user
-   * Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -748,6 +749,104 @@ public class EndUserAccountsApi {
     localVarQueryParams.addAll(ApiClient.parameterToPairs("pageToken", pageToken));
     localVarQueryParameterBaseName = "sort";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("csv", "sort", sort));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Look up end users by email
+   * Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param email The email address to search for across all authentication methods. (required)
+   * @return LookupEndUser200Response
+   * @throws ApiException if fails to make API call
+   */
+  public LookupEndUser200Response lookupEndUser(String email) throws ApiException {
+    ApiResponse<LookupEndUser200Response> localVarResponse = lookupEndUserWithHttpInfo(email);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Look up end users by email
+   * Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param email The email address to search for across all authentication methods. (required)
+   * @return ApiResponse&lt;LookupEndUser200Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<LookupEndUser200Response> lookupEndUserWithHttpInfo(String email) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = lookupEndUserRequestBuilder(email);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("lookupEndUser", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<LookupEndUser200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<LookupEndUser200Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<LookupEndUser200Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder lookupEndUserRequestBuilder(String email) throws ApiException {
+    // verify the required parameter 'email' is set
+    if (email == null) {
+      throw new ApiException(400, "Missing the required parameter 'email' when calling lookupEndUser");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/end-users/lookup";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "email";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("email", email));
 
     if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
       StringJoiner queryJoiner = new StringJoiner("&");

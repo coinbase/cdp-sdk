@@ -22780,6 +22780,44 @@ pub mod types {
             value.parse()
         }
     }
+    ///`LookupEndUserResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "endUsers"
+    ///  ],
+    ///  "properties": {
+    ///    "endUsers": {
+    ///      "description": "The list of end users matching the email lookup.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EndUser"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct LookupEndUserResponse {
+        ///The list of end users matching the email lookup.
+        #[serde(rename = "endUsers")]
+        pub end_users: ::std::vec::Vec<EndUser>,
+    }
+    impl ::std::convert::From<&LookupEndUserResponse> for LookupEndUserResponse {
+        fn from(value: &LookupEndUserResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl LookupEndUserResponse {
+        pub fn builder() -> builder::LookupEndUserResponse {
+            Default::default()
+        }
+    }
     ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
     ///
     /// <details><summary>JSON schema</summary>
@@ -28333,6 +28371,94 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserBodyWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserProjectId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserProjectId>
+        for RevokeDelegationForEndUserProjectId
+    {
+        fn from(value: &RevokeDelegationForEndUserProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserProjectId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -54698,7 +54824,12 @@ pub mod types {
     ///        "eip155:84532",
     ///        "eip155:137",
     ///        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    ///        "avalanche",
+    ///        "arbitrum",
+    ///        "arbitrum-sepolia",
+    ///        "world",
+    ///        "world-sepolia"
     ///      ]
     ///    },
     ///    "scheme": {
@@ -54762,7 +54893,12 @@ pub mod types {
     ///    "eip155:84532",
     ///    "eip155:137",
     ///    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    ///    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    ///    "avalanche",
+    ///    "arbitrum",
+    ///    "arbitrum-sepolia",
+    ///    "world",
+    ///    "world-sepolia"
     ///  ]
     ///}
     /// ```
@@ -54800,6 +54936,16 @@ pub mod types {
         Solana5eykt4UsFv8P8nJdTrEpY1vzqKqZKvdp,
         #[serde(rename = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")]
         SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1,
+        #[serde(rename = "avalanche")]
+        Avalanche,
+        #[serde(rename = "arbitrum")]
+        Arbitrum,
+        #[serde(rename = "arbitrum-sepolia")]
+        ArbitrumSepolia,
+        #[serde(rename = "world")]
+        World,
+        #[serde(rename = "world-sepolia")]
+        WorldSepolia,
     }
     impl ::std::convert::From<&Self> for X402SupportedPaymentKindNetwork {
         fn from(value: &X402SupportedPaymentKindNetwork) -> Self {
@@ -54823,6 +54969,11 @@ pub mod types {
                 Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1 => {
                     f.write_str("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")
                 }
+                Self::Avalanche => f.write_str("avalanche"),
+                Self::Arbitrum => f.write_str("arbitrum"),
+                Self::ArbitrumSepolia => f.write_str("arbitrum-sepolia"),
+                Self::World => f.write_str("world"),
+                Self::WorldSepolia => f.write_str("world-sepolia"),
             }
         }
     }
@@ -54844,6 +54995,11 @@ pub mod types {
                 "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" => {
                     Ok(Self::SolanaEtWtrabZaYq6iMfeYKouRu166Vu2xqa1)
                 }
+                "avalanche" => Ok(Self::Avalanche),
+                "arbitrum" => Ok(Self::Arbitrum),
+                "arbitrum-sepolia" => Ok(Self::ArbitrumSepolia),
+                "world" => Ok(Self::World),
+                "world-sepolia" => Ok(Self::WorldSepolia),
                 _ => Err("invalid value".into()),
             }
         }
@@ -55295,7 +55451,13 @@ pub mod types {
     ///      "examples": [
     ///        {
     ///          "bazaar": {
-    ///            "discoveryEnabled": true
+    ///            "info": {
+    ///              "input": {
+    ///                "method": "GET",
+    ///                "type": "http"
+    ///              }
+    ///            },
+    ///            "schema": {}
     ///          }
     ///        }
     ///      ],
@@ -64959,6 +65121,47 @@ pub mod types {
                 Self {
                     next_page_token: Ok(value.next_page_token),
                     spend_permissions: Ok(value.spend_permissions),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct LookupEndUserResponse {
+            end_users:
+                ::std::result::Result<::std::vec::Vec<super::EndUser>, ::std::string::String>,
+        }
+        impl ::std::default::Default for LookupEndUserResponse {
+            fn default() -> Self {
+                Self {
+                    end_users: Err("no value supplied for end_users".to_string()),
+                }
+            }
+        }
+        impl LookupEndUserResponse {
+            pub fn end_users<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EndUser>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.end_users = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for end_users: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<LookupEndUserResponse> for super::LookupEndUserResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: LookupEndUserResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    end_users: value.end_users?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::LookupEndUserResponse> for LookupEndUserResponse {
+            fn from(value: super::LookupEndUserResponse) -> Self {
+                Self {
+                    end_users: Ok(value.end_users),
                 }
             }
         }
@@ -76758,6 +76961,7 @@ impl Client {
 
     Arguments:
     - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
     - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
     [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
     section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -76774,6 +76978,7 @@ impl Client {
     ```ignore
     let response = client.revoke_delegation_for_end_user()
         .user_id(user_id)
+        .project_id(project_id)
         .x_developer_auth(x_developer_auth)
         .x_idempotency_key(x_idempotency_key)
         .x_wallet_auth(x_wallet_auth)
@@ -77369,6 +77574,25 @@ impl Client {
     pub fn import_end_user(&self) -> builder::ImportEndUser<'_> {
         builder::ImportEndUser::new(self)
     }
+    /**Look up end users by email
+
+    Looks up end users by email address, searching across all email-based authentication methods (email, Google, Apple, GitHub). Returns all matching end users. If no end users match, an empty array is returned.
+
+    This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+
+    Sends a `GET` request to `/v2/end-users/lookup`
+
+    Arguments:
+    - `email`: The email address to search for across all authentication methods.
+    ```ignore
+    let response = client.lookup_end_user()
+        .email(email)
+        .send()
+        .await;
+    ```*/
+    pub fn lookup_end_user(&self) -> builder::LookupEndUser<'_> {
+        builder::LookupEndUser::new(self)
+    }
     /**Get an end user
 
     Gets an end user by ID.
@@ -77450,7 +77674,7 @@ impl Client {
     }
     /**Add a Solana account to an end user
 
-    Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+    Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
     This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
     Sends a `POST` request to `/v2/end-users/{userId}/solana`
@@ -80049,6 +80273,7 @@ pub mod builder {
     pub struct RevokeDelegationForEndUser<'a> {
         client: &'a super::Client,
         user_id: Result<types::RevokeDelegationForEndUserUserId, String>,
+        project_id: Result<Option<types::RevokeDelegationForEndUserProjectId>, String>,
         x_developer_auth: Result<Option<::std::string::String>, String>,
         x_idempotency_key: Result<Option<types::RevokeDelegationForEndUserXIdempotencyKey>, String>,
         x_wallet_auth: Result<Option<::std::string::String>, String>,
@@ -80059,6 +80284,7 @@ pub mod builder {
             Self {
                 client: client,
                 user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
                 x_developer_auth: Ok(None),
                 x_idempotency_key: Ok(None),
                 x_wallet_auth: Ok(None),
@@ -80071,6 +80297,16 @@ pub mod builder {
         {
             self.user_id = value.try_into().map_err(|_| {
                 "conversion to `RevokeDelegationForEndUserUserId` for user_id failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserProjectId` for project_id failed"
+                    .to_string()
             });
             self
         }
@@ -80133,12 +80369,14 @@ pub mod builder {
             let Self {
                 client,
                 user_id,
+                project_id,
                 x_developer_auth,
                 x_idempotency_key,
                 x_wallet_auth,
                 body,
             } = self;
             let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
             let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
             let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
@@ -80175,6 +80413,10 @@ pub mod builder {
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
                 .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -82971,6 +83213,74 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::lookup_end_user`]
+
+    [`Client::lookup_end_user`]: super::Client::lookup_end_user*/
+    #[derive(Debug, Clone)]
+    pub struct LookupEndUser<'a> {
+        client: &'a super::Client,
+        email: Result<::std::string::String, String>,
+    }
+    impl<'a> LookupEndUser<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                email: Err("email was not initialized".to_string()),
+            }
+        }
+        pub fn email<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.email = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for email failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/end-users/lookup`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::LookupEndUserResponse>, Error<types::Error>> {
+            let Self { client, email } = self;
+            let email = email.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/end-users/lookup", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "email", &email,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "lookup_end_user",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),

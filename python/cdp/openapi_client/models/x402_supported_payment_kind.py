@@ -44,8 +44,8 @@ class X402SupportedPaymentKind(BaseModel):
     @field_validator('network')
     def network_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')")
+        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', 'avalanche', 'arbitrum', 'arbitrum-sepolia', 'world', 'world-sepolia']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', 'avalanche', 'arbitrum', 'arbitrum-sepolia', 'world', 'world-sepolia')")
         return value
 
     model_config = ConfigDict(

@@ -14,6 +14,7 @@ import type {
   GetDelegationForEndUser200,
   GetDelegationForEndUserParams,
   RevokeDelegationForEndUserBody,
+  RevokeDelegationForEndUserParams,
   SendEvmAssetWithEndUserAccount200,
   SendEvmAssetWithEndUserAccountBody,
   SendEvmAssetWithEndUserAccountParams,
@@ -208,6 +209,7 @@ export const getDelegationForEndUser = (
 export const revokeDelegationForEndUser = (
   userId: string,
   revokeDelegationForEndUserBody: RevokeDelegationForEndUserBody,
+  params?: RevokeDelegationForEndUserParams,
   options?: SecondParameter<typeof cdpApiClient<void>>,
 ) => {
   return cdpApiClient<void>(
@@ -216,6 +218,7 @@ export const revokeDelegationForEndUser = (
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       data: revokeDelegationForEndUserBody,
+      params,
     },
     options,
   );
