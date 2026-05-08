@@ -7,6 +7,9 @@ import type {
   AddEndUserSolanaAccountResult,
   AddEvmSmartAccountOptions,
   GetDelegationForEndUserResult,
+  GetDelegationForEndUserAccountResult,
+  AccountGetDelegationForAccountOptions,
+  AccountRevokeDelegationForAccountOptions,
   SignEvmTransactionResult,
   SignEvmMessageResult,
   SignEvmTypedDataResult,
@@ -152,6 +155,30 @@ export function toEndUserAccount(
     async revokeDelegation(): Promise<void> {
       Analytics.trackAction({ action: "end_user_revoke_delegation" });
       await apiClient.revokeDelegationForEndUser(endUser.userId, {});
+    },
+
+    // ─── Account-Scoped Delegation Methods ───
+
+    async getDelegationForAccount(
+      opts: AccountGetDelegationForAccountOptions,
+    ): Promise<GetDelegationForEndUserAccountResult> {
+      Analytics.trackAction({ action: "end_user_get_delegation_for_account" });
+      const address = resolveEvmAddress(endUser, opts.address);
+      return apiClient.getDelegationForEndUserAccount(endUser.userId, address);
+    },
+
+    async revokeDelegationForAccount(
+      opts: AccountRevokeDelegationForAccountOptions,
+    ): Promise<void> {
+      Analytics.trackAction({ action: "end_user_revoke_delegation_for_account" });
+      const address = resolveEvmAddress(endUser, opts.address);
+      await apiClient.revokeDelegationForEndUserAccount(
+        endUser.userId,
+        address,
+        {},
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     // ─── Delegated EVM Sign Methods ───

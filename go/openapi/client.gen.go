@@ -835,6 +835,9 @@ const (
 
 // Defines values for X402SupportedPaymentKindNetwork.
 const (
+	X402SupportedPaymentKindNetworkArbitrum                               X402SupportedPaymentKindNetwork = "arbitrum"
+	X402SupportedPaymentKindNetworkArbitrumSepolia                        X402SupportedPaymentKindNetwork = "arbitrum-sepolia"
+	X402SupportedPaymentKindNetworkAvalanche                              X402SupportedPaymentKindNetwork = "avalanche"
 	X402SupportedPaymentKindNetworkBase                                   X402SupportedPaymentKindNetwork = "base"
 	X402SupportedPaymentKindNetworkBaseSepolia                            X402SupportedPaymentKindNetwork = "base-sepolia"
 	X402SupportedPaymentKindNetworkEip155137                              X402SupportedPaymentKindNetwork = "eip155:137"
@@ -845,6 +848,8 @@ const (
 	X402SupportedPaymentKindNetworkSolana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402SupportedPaymentKindNetwork = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
 	X402SupportedPaymentKindNetworkSolanaDevnet                           X402SupportedPaymentKindNetwork = "solana-devnet"
 	X402SupportedPaymentKindNetworkSolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402SupportedPaymentKindNetwork = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+	X402SupportedPaymentKindNetworkWorld                                  X402SupportedPaymentKindNetwork = "world"
+	X402SupportedPaymentKindNetworkWorldSepolia                           X402SupportedPaymentKindNetwork = "world-sepolia"
 )
 
 // Defines values for X402SupportedPaymentKindScheme.
@@ -1338,6 +1343,18 @@ type CreateSwapQuoteResponseLiquidityAvailable bool
 // CreateSwapQuoteResponseWrapper A wrapper for the response of a swap quote operation.
 type CreateSwapQuoteResponseWrapper struct {
 	union json.RawMessage
+}
+
+// DateOfBirth Date of birth.
+type DateOfBirth struct {
+	// Day Day of birth (01-31).
+	Day *string `json:"day,omitempty"`
+
+	// Month Month of birth (01-12).
+	Month *string `json:"month,omitempty"`
+
+	// Year Year of birth (four digits).
+	Year *string `json:"year,omitempty"`
 }
 
 // Description A human-readable description.
@@ -2099,6 +2116,28 @@ type OnchainDataTableSchema struct {
 //     across the user's entire history with no time-based expiration. Once the limit is reached, no further
 //     transactions are allowed. 15 is the default limit.
 type OnrampLimitType string
+
+// OnrampLimitUpgradeIdentityFields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+type OnrampLimitUpgradeIdentityFields struct {
+	// DateOfBirth Date of birth.
+	DateOfBirth *DateOfBirth `json:"dateOfBirth,omitempty"`
+
+	// SsnLast4 Last 4 digits of the Social Security Number (no dashes or spaces).
+	SsnLast4 *string `json:"ssnLast4,omitempty"`
+}
+
+// OnrampLimitUpgradeRequest Request to request a limits upgrade for a user.
+type OnrampLimitUpgradeRequest struct {
+	// Fields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+	Fields OnrampLimitUpgradeIdentityFields `json:"fields"`
+
+	// UserId The user identifier value. For `phone_number` type, this must be in E.164 format.
+	UserId string `json:"userId"`
+
+	// UserIdType The type of user identifier:
+	// - `phone_number`: A phone number in E.164 format associated with an onramp user.
+	UserIdType OnrampUserIdType `json:"userIdType"`
+}
 
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
@@ -3897,6 +3936,64 @@ type ListWebhookSubscriptionEventsParams struct {
 	EventTypeNames *string `form:"eventTypeNames,omitempty" json:"eventTypeNames,omitempty"`
 }
 
+// RevokeDelegationForEndUserAccountJSONBody defines parameters for RevokeDelegationForEndUserAccount.
+type RevokeDelegationForEndUserAccountJSONBody struct {
+	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// RevokeDelegationForEndUserAccountParams defines parameters for RevokeDelegationForEndUserAccount.
+type RevokeDelegationForEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// GetDelegationForEndUserAccountParams defines parameters for GetDelegationForEndUserAccount.
+type GetDelegationForEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+}
+
+// CreateDelegationForEndUserAccountJSONBody defines parameters for CreateDelegationForEndUserAccount.
+type CreateDelegationForEndUserAccountJSONBody struct {
+	// ExpiresAt The date until which the delegation is valid.
+	ExpiresAt time.Time `json:"expiresAt"`
+
+	// WalletSecretId The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId string `json:"walletSecretId"`
+}
+
+// CreateDelegationForEndUserAccountParams defines parameters for CreateDelegationForEndUserAccount.
+type CreateDelegationForEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // RevokeDelegationForEndUserJSONBody defines parameters for RevokeDelegationForEndUser.
 type RevokeDelegationForEndUserJSONBody struct {
 	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
@@ -3905,6 +4002,9 @@ type RevokeDelegationForEndUserJSONBody struct {
 
 // RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
 type RevokeDelegationForEndUserParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
 	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
 	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -4431,6 +4531,21 @@ type ImportEndUserParams struct {
 
 // ImportEndUserJSONBodyKeyType defines parameters for ImportEndUser.
 type ImportEndUserJSONBodyKeyType string
+
+// LookupEndUserParams defines parameters for LookupEndUser.
+type LookupEndUserParams struct {
+	// Email The email address to search for across all email-based authentication methods.
+	Email *openapi_types.Email `form:"email,omitempty" json:"email,omitempty"`
+
+	// OauthProvider The OAuth provider to search by. Must be provided together with oauthSubject.
+	OauthProvider *OAuth2ProviderType `form:"oauthProvider,omitempty" json:"oauthProvider,omitempty"`
+
+	// OauthSubject The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+	OauthSubject *string `form:"oauthSubject,omitempty" json:"oauthSubject,omitempty"`
+
+	// PhoneNumber The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+	PhoneNumber *string `form:"phoneNumber,omitempty" json:"phoneNumber,omitempty"`
+}
 
 // AddEndUserEvmAccountJSONBody defines parameters for AddEndUserEvmAccount.
 type AddEndUserEvmAccountJSONBody = map[string]interface{}
@@ -5325,6 +5440,12 @@ type CreateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionRequest
 // UpdateWebhookSubscriptionJSONRequestBody defines body for UpdateWebhookSubscription for application/json ContentType.
 type UpdateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionUpdateRequest
 
+// RevokeDelegationForEndUserAccountJSONRequestBody defines body for RevokeDelegationForEndUserAccount for application/json ContentType.
+type RevokeDelegationForEndUserAccountJSONRequestBody RevokeDelegationForEndUserAccountJSONBody
+
+// CreateDelegationForEndUserAccountJSONRequestBody defines body for CreateDelegationForEndUserAccount for application/json ContentType.
+type CreateDelegationForEndUserAccountJSONRequestBody CreateDelegationForEndUserAccountJSONBody
+
 // RevokeDelegationForEndUserJSONRequestBody defines body for RevokeDelegationForEndUser for application/json ContentType.
 type RevokeDelegationForEndUserJSONRequestBody RevokeDelegationForEndUserJSONBody
 
@@ -5441,6 +5562,9 @@ type CreateEvmSwapQuoteJSONRequestBody CreateEvmSwapQuoteJSONBody
 
 // GetOnrampUserLimitsJSONRequestBody defines body for GetOnrampUserLimits for application/json ContentType.
 type GetOnrampUserLimitsJSONRequestBody GetOnrampUserLimitsJSONBody
+
+// RequestLimitsUpgradeJSONRequestBody defines body for RequestLimitsUpgrade for application/json ContentType.
+type RequestLimitsUpgradeJSONRequestBody = OnrampLimitUpgradeRequest
 
 // CreateOnrampOrderJSONRequestBody defines body for CreateOnrampOrder for application/json ContentType.
 type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
@@ -8983,6 +9107,19 @@ type ClientInterface interface {
 	// ListWebhookSubscriptionEvents request
 	ListWebhookSubscriptionEvents(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RevokeDelegationForEndUserAccountWithBody request with any body
+	RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDelegationForEndUserAccount request
+	GetDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDelegationForEndUserAccountWithBody request with any body
+	CreateDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RevokeDelegationForEndUserWithBody request with any body
 	RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -9063,6 +9200,9 @@ type ClientInterface interface {
 	ImportEndUserWithBody(ctx context.Context, params *ImportEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ImportEndUser(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// LookupEndUser request
+	LookupEndUser(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetEndUser request
 	GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -9219,6 +9359,11 @@ type ClientInterface interface {
 	GetOnrampUserLimitsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	GetOnrampUserLimits(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RequestLimitsUpgradeWithBody request with any body
+	RequestLimitsUpgradeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RequestLimitsUpgrade(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateOnrampOrderWithBody request with any body
 	CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -9481,6 +9626,66 @@ func (c *CDPClient) UpdateWebhookSubscription(ctx context.Context, subscriptionI
 
 func (c *CDPClient) ListWebhookSubscriptionEvents(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListWebhookSubscriptionEventsRequest(c.Server, subscriptionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDelegationForEndUserAccountRequest(c.Server, userId, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDelegationForEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDelegationForEndUserAccountRequest(c.Server, userId, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9865,6 +10070,18 @@ func (c *CDPClient) ImportEndUserWithBody(ctx context.Context, params *ImportEnd
 
 func (c *CDPClient) ImportEndUser(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewImportEndUserRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) LookupEndUser(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLookupEndUserRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -10585,6 +10802,30 @@ func (c *CDPClient) GetOnrampUserLimitsWithBody(ctx context.Context, contentType
 
 func (c *CDPClient) GetOnrampUserLimits(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOnrampUserLimitsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RequestLimitsUpgradeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRequestLimitsUpgradeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RequestLimitsUpgrade(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRequestLimitsUpgradeRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11639,6 +11880,284 @@ func NewListWebhookSubscriptionEventsRequest(server string, subscriptionId opena
 	return req, nil
 }
 
+// NewRevokeDelegationForEndUserAccountRequest calls the generic RevokeDelegationForEndUserAccount builder with application/json body
+func NewRevokeDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeDelegationForEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewRevokeDelegationForEndUserAccountRequestWithBody generates requests for RevokeDelegationForEndUserAccount with any type of body
+func NewRevokeDelegationForEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/address/%s/delegation", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam1)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetDelegationForEndUserAccountRequest generates requests for GetDelegationForEndUserAccount
+func NewGetDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/address/%s/delegation", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateDelegationForEndUserAccountRequest calls the generic CreateDelegationForEndUserAccount builder with application/json body
+func NewCreateDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateDelegationForEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewCreateDelegationForEndUserAccountRequestWithBody generates requests for CreateDelegationForEndUserAccount with any type of body
+func NewCreateDelegationForEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/address/%s/delegation", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
 func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -11674,6 +12193,28 @@ func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, 
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), body)
@@ -13228,6 +13769,103 @@ func NewImportEndUserRequestWithBody(server string, params *ImportEndUserParams,
 			req.Header.Set("X-Idempotency-Key", headerParam1)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewLookupEndUserRequest generates requests for LookupEndUser
+func NewLookupEndUserRequest(server string, params *LookupEndUserParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users/lookup")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Email != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "email", runtime.ParamLocationQuery, *params.Email); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.OauthProvider != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "oauthProvider", runtime.ParamLocationQuery, *params.OauthProvider); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.OauthSubject != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "oauthSubject", runtime.ParamLocationQuery, *params.OauthSubject); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PhoneNumber != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "phoneNumber", runtime.ParamLocationQuery, *params.PhoneNumber); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -15454,6 +16092,46 @@ func NewGetOnrampUserLimitsRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
+// NewRequestLimitsUpgradeRequest calls the generic RequestLimitsUpgrade builder with application/json body
+func NewRequestLimitsUpgradeRequest(server string, body RequestLimitsUpgradeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRequestLimitsUpgradeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRequestLimitsUpgradeRequestWithBody generates requests for RequestLimitsUpgrade with any type of body
+func NewRequestLimitsUpgradeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/limits/upgrade")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewCreateOnrampOrderRequest calls the generic CreateOnrampOrder builder with application/json body
 func NewCreateOnrampOrderRequest(server string, body CreateOnrampOrderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -16842,6 +17520,19 @@ type ClientWithResponsesInterface interface {
 	// ListWebhookSubscriptionEventsWithResponse request
 	ListWebhookSubscriptionEventsWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, params *ListWebhookSubscriptionEventsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionEventsResponse, error)
 
+	// RevokeDelegationForEndUserAccountWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+
+	RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+
+	// GetDelegationForEndUserAccountWithResponse request
+	GetDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserAccountResponse, error)
+
+	// CreateDelegationForEndUserAccountWithBodyWithResponse request with any body
+	CreateDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error)
+
+	CreateDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error)
+
 	// RevokeDelegationForEndUserWithBodyWithResponse request with any body
 	RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
 
@@ -16922,6 +17613,9 @@ type ClientWithResponsesInterface interface {
 	ImportEndUserWithBodyWithResponse(ctx context.Context, params *ImportEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ImportEndUserResponse, error)
 
 	ImportEndUserWithResponse(ctx context.Context, params *ImportEndUserParams, body ImportEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportEndUserResponse, error)
+
+	// LookupEndUserWithResponse request
+	LookupEndUserWithResponse(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*LookupEndUserResponse, error)
 
 	// GetEndUserWithResponse request
 	GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error)
@@ -17078,6 +17772,11 @@ type ClientWithResponsesInterface interface {
 	GetOnrampUserLimitsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error)
 
 	GetOnrampUserLimitsWithResponse(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error)
+
+	// RequestLimitsUpgradeWithBodyWithResponse request with any body
+	RequestLimitsUpgradeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error)
+
+	RequestLimitsUpgradeWithResponse(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error)
 
 	// CreateOnrampOrderWithBodyWithResponse request with any body
 	CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
@@ -17472,6 +18171,97 @@ func (r ListWebhookSubscriptionEventsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListWebhookSubscriptionEventsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeDelegationForEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeDelegationForEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeDelegationForEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetDelegationForEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// ExpiresAt The date until which the delegation is valid.
+		ExpiresAt time.Time `json:"expiresAt"`
+	}
+	JSON401 *UnauthorizedError
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDelegationForEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDelegationForEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateDelegationForEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// ExpiresAt The date until which the delegation is valid.
+		ExpiresAt time.Time `json:"expiresAt"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON404 *Error
+	JSON409 *Error
+	JSON422 *IdempotencyError
+	JSON429 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDelegationForEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDelegationForEndUserAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -18018,6 +18808,34 @@ func (r ImportEndUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ImportEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LookupEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// EndUsers The list of end users matching the lookup.
+		EndUsers []EndUser `json:"endUsers"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r LookupEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LookupEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -19110,6 +19928,31 @@ func (r GetOnrampUserLimitsResponse) StatusCode() int {
 	return 0
 }
 
+type RequestLimitsUpgradeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r RequestLimitsUpgradeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RequestLimitsUpgradeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateOnrampOrderResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -19954,6 +20797,49 @@ func (c *ClientWithResponses) ListWebhookSubscriptionEventsWithResponse(ctx cont
 	return ParseListWebhookSubscriptionEventsResponse(rsp)
 }
 
+// RevokeDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+}
+
+// GetDelegationForEndUserAccountWithResponse request returning *GetDelegationForEndUserAccountResponse
+func (c *ClientWithResponses) GetDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.GetDelegationForEndUserAccount(ctx, userId, address, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDelegationForEndUserAccountResponse(rsp)
+}
+
+// CreateDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateDelegationForEndUserAccountResponse
+func (c *ClientWithResponses) CreateDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.CreateDelegationForEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDelegationForEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.CreateDelegationForEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDelegationForEndUserAccountResponse(rsp)
+}
+
 // RevokeDelegationForEndUserWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserResponse
 func (c *ClientWithResponses) RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error) {
 	rsp, err := c.RevokeDelegationForEndUserWithBody(ctx, userId, params, contentType, body, reqEditors...)
@@ -20225,6 +21111,15 @@ func (c *ClientWithResponses) ImportEndUserWithResponse(ctx context.Context, par
 		return nil, err
 	}
 	return ParseImportEndUserResponse(rsp)
+}
+
+// LookupEndUserWithResponse request returning *LookupEndUserResponse
+func (c *ClientWithResponses) LookupEndUserWithResponse(ctx context.Context, params *LookupEndUserParams, reqEditors ...RequestEditorFn) (*LookupEndUserResponse, error) {
+	rsp, err := c.LookupEndUser(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLookupEndUserResponse(rsp)
 }
 
 // GetEndUserWithResponse request returning *GetEndUserResponse
@@ -20741,6 +21636,23 @@ func (c *ClientWithResponses) GetOnrampUserLimitsWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseGetOnrampUserLimitsResponse(rsp)
+}
+
+// RequestLimitsUpgradeWithBodyWithResponse request with arbitrary body returning *RequestLimitsUpgradeResponse
+func (c *ClientWithResponses) RequestLimitsUpgradeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error) {
+	rsp, err := c.RequestLimitsUpgradeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRequestLimitsUpgradeResponse(rsp)
+}
+
+func (c *ClientWithResponses) RequestLimitsUpgradeWithResponse(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error) {
+	rsp, err := c.RequestLimitsUpgrade(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRequestLimitsUpgradeResponse(rsp)
 }
 
 // CreateOnrampOrderWithBodyWithResponse request with arbitrary body returning *CreateOnrampOrderResponse
@@ -21701,6 +22613,223 @@ func ParseListWebhookSubscriptionEventsResponse(rsp *http.Response) (*ListWebhoo
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeDelegationForEndUserAccountResponse parses an HTTP response from a RevokeDelegationForEndUserAccountWithResponse call
+func ParseRevokeDelegationForEndUserAccountResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeDelegationForEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDelegationForEndUserAccountResponse parses an HTTP response from a GetDelegationForEndUserAccountWithResponse call
+func ParseGetDelegationForEndUserAccountResponse(rsp *http.Response) (*GetDelegationForEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDelegationForEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// ExpiresAt The date until which the delegation is valid.
+			ExpiresAt time.Time `json:"expiresAt"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDelegationForEndUserAccountResponse parses an HTTP response from a CreateDelegationForEndUserAccountWithResponse call
+func ParseCreateDelegationForEndUserAccountResponse(rsp *http.Response) (*CreateDelegationForEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDelegationForEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// ExpiresAt The date until which the delegation is valid.
+			ExpiresAt time.Time `json:"expiresAt"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -23095,6 +24224,56 @@ func ParseImportEndUserResponse(rsp *http.Response) (*ImportEndUserResponse, err
 			return nil, err
 		}
 		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseLookupEndUserResponse parses an HTTP response from a LookupEndUserWithResponse call
+func ParseLookupEndUserResponse(rsp *http.Response) (*LookupEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LookupEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// EndUsers The list of end users matching the lookup.
+			EndUsers []EndUser `json:"endUsers"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 
@@ -25678,6 +26857,53 @@ func ParseGetOnrampUserLimitsResponse(rsp *http.Response) (*GetOnrampUserLimitsR
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRequestLimitsUpgradeResponse parses an HTTP response from a RequestLimitsUpgradeWithResponse call
+func ParseRequestLimitsUpgradeResponse(rsp *http.Response) (*RequestLimitsUpgradeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RequestLimitsUpgradeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

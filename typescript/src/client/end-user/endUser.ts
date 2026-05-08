@@ -17,6 +17,9 @@ import {
   type GetDelegationForEndUserOptions,
   type GetDelegationForEndUserResult,
   type RevokeDelegationForEndUserOptions,
+  type GetDelegationForEndUserAccountOptions,
+  type GetDelegationForEndUserAccountResult,
+  type RevokeDelegationForEndUserAccountOptions,
   type SignEvmTransactionOptions,
   type SignEvmTransactionResult,
   type SignEvmMessageOptions,
@@ -311,6 +314,70 @@ export class EndUserClient {
     const { userId } = options;
 
     await CdpOpenApiClient.revokeDelegationForEndUser(userId, {});
+  }
+
+  // ─── Account-Scoped Delegation Methods ───
+
+  /**
+   * Gets the active account-scoped delegation for the specified end user account address, if one exists.
+   *
+   * @param options - The options for getting the account-scoped delegation.
+   *
+   * @returns A promise that resolves to the delegation details including its expiry.
+   *
+   * @example **Get the account-scoped delegation for an address**
+   *          ```ts
+   *          const delegation = await cdp.endUser.getDelegationForEndUserAccount({
+   *            userId: "user-123",
+   *            address: "0x1234...",
+   *          });
+   *          console.log(delegation.expiresAt);
+   *          ```
+   */
+  async getDelegationForEndUserAccount(
+    options: GetDelegationForEndUserAccountOptions,
+  ): Promise<GetDelegationForEndUserAccountResult> {
+    Analytics.trackAction({
+      action: "get_delegation_for_end_user_account",
+    });
+
+    const { userId, address } = options;
+
+    return CdpOpenApiClient.getDelegationForEndUserAccount(userId, address);
+  }
+
+  /**
+   * Revokes the active account-scoped delegation for the specified end user account address.
+   * Other account-scoped delegations for the same user are unaffected.
+   *
+   * @param options - The options for revoking the account-scoped delegation.
+   *
+   * @returns A promise that resolves when the delegation has been revoked.
+   *
+   * @example **Revoke the account-scoped delegation for an address**
+   *          ```ts
+   *          await cdp.endUser.revokeDelegationForEndUserAccount({
+   *            userId: "user-123",
+   *            address: "0x1234...",
+   *          });
+   *          ```
+   */
+  async revokeDelegationForEndUserAccount(
+    options: RevokeDelegationForEndUserAccountOptions,
+  ): Promise<void> {
+    Analytics.trackAction({
+      action: "revoke_delegation_for_end_user_account",
+    });
+
+    const { userId, address, idempotencyKey } = options;
+
+    await CdpOpenApiClient.revokeDelegationForEndUserAccount(
+      userId,
+      address,
+      {},
+      undefined,
+      idempotencyKey,
+    );
   }
 
   // ─── Delegated EVM Sign Methods ───

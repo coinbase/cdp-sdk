@@ -1318,3 +1318,46 @@ async def test_send_solana_asset_with_ata():
         ]
     )
     assert request.create_recipient_ata is True
+
+
+@pytest.mark.asyncio
+async def test_get_delegation_for_end_user_account():
+    """Test getting the account-scoped delegation for an end user."""
+    mock_response = MagicMock()
+    mock_response.expires_at = "2026-12-31T23:59:59Z"
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.get_delegation_for_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    client = EndUserClient(api_clients=mock_api_clients)
+    result = await client.get_delegation_for_end_user_account(
+        user_id="user-123",
+        address="0x1234567890abcdef1234567890abcdef12345678",
+    )
+
+    assert result == mock_response
+    mock_api_clients.embedded_wallets.get_delegation_for_end_user_account.assert_called_once()
+    call_args = mock_api_clients.embedded_wallets.get_delegation_for_end_user_account.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+    assert call_args.kwargs["address"] == "0x1234567890abcdef1234567890abcdef12345678"
+
+
+@pytest.mark.asyncio
+async def test_revoke_delegation_for_end_user_account():
+    """Test revoking the account-scoped delegation for an end user."""
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account = AsyncMock(
+        return_value=None
+    )
+
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.revoke_delegation_for_end_user_account(
+        user_id="user-123",
+        address="0x1234567890abcdef1234567890abcdef12345678",
+    )
+
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.assert_called_once()
+    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.call_args
+    assert call_args.kwargs["user_id"] == "user-123"
+    assert call_args.kwargs["address"] == "0x1234567890abcdef1234567890abcdef12345678"

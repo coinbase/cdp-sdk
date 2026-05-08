@@ -3890,6 +3890,11 @@ export const X402SupportedPaymentKindNetwork = {
   "eip155:137": "eip155:137",
   "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+  avalanche: "avalanche",
+  arbitrum: "arbitrum",
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  world: "world",
+  "world-sepolia": "world-sepolia",
 } as const;
 
 /**
@@ -4112,6 +4117,54 @@ export interface OnrampUserLimit {
   limit: string;
   /** The remaining amount or count available. */
   remaining: string;
+}
+
+/**
+ * Date of birth.
+ */
+export interface DateOfBirth {
+  /**
+   * Day of birth (01-31).
+   * @minLength 2
+   * @maxLength 2
+   * @pattern ^[0-9]{2}$
+   */
+  day?: string;
+  /**
+   * Month of birth (01-12).
+   * @minLength 2
+   * @maxLength 2
+   * @pattern ^[0-9]{2}$
+   */
+  month?: string;
+  /**
+   * Year of birth (four digits).
+   * @minLength 4
+   * @maxLength 4
+   * @pattern ^[0-9]{4}$
+   */
+  year?: string;
+}
+
+/**
+ * Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
+ */
+export interface OnrampLimitUpgradeIdentityFields {
+  /** Last 4 digits of the Social Security Number (no dashes or spaces). */
+  ssnLast4?: string;
+  /** Date of birth. */
+  dateOfBirth?: DateOfBirth;
+}
+
+/**
+ * Request to request a limits upgrade for a user.
+ */
+export interface OnrampLimitUpgradeRequest {
+  /** The user identifier value. For `phone_number` type, this must be in E.164 format. */
+  userId: string;
+  userIdType: OnrampUserIdType;
+  /** Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. */
+  fields: OnrampLimitUpgradeIdentityFields;
 }
 
 /**
@@ -4356,6 +4409,31 @@ export type ListEndUsers200 = ListEndUsers200AllOf & ListResponse;
 export type ValidateEndUserAccessTokenBody = {
   /** The access token in JWT format to verify. */
   accessToken: string;
+};
+
+export type LookupEndUserParams = {
+  /**
+   * The email address to search for across all email-based authentication methods.
+   */
+  email?: string;
+  /**
+   * The OAuth provider to search by. Must be provided together with oauthSubject.
+   */
+  oauthProvider?: OAuth2ProviderType;
+  /**
+   * The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
+   */
+  oauthSubject?: string;
+  /**
+   * The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
+   * @pattern ^\+[1-9]\d{1,14}$
+   */
+  phoneNumber?: string;
+};
+
+export type LookupEndUser200 = {
+  /** The list of end users matching the lookup. */
+  endUsers: EndUser[];
 };
 
 export type AddEndUserEvmAccountBody = { [key: string]: unknown };
@@ -4618,7 +4696,67 @@ export type GetDelegationForEndUser200 = {
   expiresAt: string;
 };
 
+export type RevokeDelegationForEndUserParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
 export type RevokeDelegationForEndUserBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
+export type CreateDelegationForEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type CreateDelegationForEndUserAccountBody = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
+  /**
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId: string;
+};
+
+export type CreateDelegationForEndUserAccount201 = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
+};
+
+export type GetDelegationForEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type GetDelegationForEndUserAccount200 = {
+  /** The date until which the delegation is valid. */
+  expiresAt: string;
+};
+
+export type RevokeDelegationForEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type RevokeDelegationForEndUserAccountBody = {
   /**
    * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$

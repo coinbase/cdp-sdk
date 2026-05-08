@@ -17,6 +17,7 @@ import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
+import com.coinbase.cdp.openapi.model.CreateDelegationForEndUserAccountRequest;
 import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccount201Response;
 import com.coinbase.cdp.openapi.model.CreateEvmEip7702DelegationWithEndUserAccountRequest;
 import com.coinbase.cdp.openapi.model.Error;
@@ -102,6 +103,136 @@ public class EmbeddedWalletsApi {
       body = "[no body]";
     }
     return operationId + " call failed with: " + statusCode + " - " + body;
+  }
+
+  /**
+   * Create account-scoped delegation for an end user account
+   * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account&#39;s owner EOA rather than the Smart Account address itself. This means &#x60;/address/{smartAccountAddress}/delegation&#x60; and &#x60;/address/{ownerEoaAddress}/delegation&#x60; resolve to the same delegation, and the 409 &#x60;account_scoped_delegation_active&#x60; error may be returned when creating via either address if one already exists for the canonical owner.
+   * @param userId The ID of the end user. (required)
+   * @param address The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
+   * @param createDelegationForEndUserAccountRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return GetDelegationForEndUser200Response
+   * @throws ApiException if fails to make API call
+   */
+  public GetDelegationForEndUser200Response createDelegationForEndUserAccount(String userId, String address, CreateDelegationForEndUserAccountRequest createDelegationForEndUserAccountRequest, String xWalletAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    ApiResponse<GetDelegationForEndUser200Response> localVarResponse = createDelegationForEndUserAccountWithHttpInfo(userId, address, createDelegationForEndUserAccountRequest, xWalletAuth, xIdempotencyKey, projectID);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Create account-scoped delegation for an end user account
+   * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account&#39;s owner EOA rather than the Smart Account address itself. This means &#x60;/address/{smartAccountAddress}/delegation&#x60; and &#x60;/address/{ownerEoaAddress}/delegation&#x60; resolve to the same delegation, and the 409 &#x60;account_scoped_delegation_active&#x60; error may be returned when creating via either address if one already exists for the canonical owner.
+   * @param userId The ID of the end user. (required)
+   * @param address The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
+   * @param createDelegationForEndUserAccountRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return ApiResponse&lt;GetDelegationForEndUser200Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<GetDelegationForEndUser200Response> createDelegationForEndUserAccountWithHttpInfo(String userId, String address, CreateDelegationForEndUserAccountRequest createDelegationForEndUserAccountRequest, String xWalletAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createDelegationForEndUserAccountRequestBuilder(userId, address, createDelegationForEndUserAccountRequest, xWalletAuth, xIdempotencyKey, projectID);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("createDelegationForEndUserAccount", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<GetDelegationForEndUser200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<GetDelegationForEndUser200Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<GetDelegationForEndUser200Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder createDelegationForEndUserAccountRequestBuilder(String userId, String address, CreateDelegationForEndUserAccountRequest createDelegationForEndUserAccountRequest, String xWalletAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling createDelegationForEndUserAccount");
+    }
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling createDelegationForEndUserAccount");
+    }
+    // verify the required parameter 'createDelegationForEndUserAccountRequest' is set
+    if (createDelegationForEndUserAccountRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'createDelegationForEndUserAccountRequest' when calling createDelegationForEndUserAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()))
+        .replace("{address}", ApiClient.urlEncode(address.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "projectID";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("projectID", projectID));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(createDelegationForEndUserAccountRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**
@@ -334,17 +465,111 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Revoke delegation for end user
-   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+   * Get account-scoped delegation for an end user account
+   * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account&#39;s owner EOA.
    * @param userId The ID of the end user. (required)
-   * @param revokeDelegationForEndUserRequest  (required)
-   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
-   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param address The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return GetDelegationForEndUser200Response
    * @throws ApiException if fails to make API call
    */
-  public void revokeDelegationForEndUser(String userId, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey) throws ApiException {
-    revokeDelegationForEndUserWithHttpInfo(userId, revokeDelegationForEndUserRequest, xWalletAuth, xDeveloperAuth, xIdempotencyKey);
+  public GetDelegationForEndUser200Response getDelegationForEndUserAccount(String userId, String address, String projectID) throws ApiException {
+    ApiResponse<GetDelegationForEndUser200Response> localVarResponse = getDelegationForEndUserAccountWithHttpInfo(userId, address, projectID);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get account-scoped delegation for an end user account
+   * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account&#39;s owner EOA.
+   * @param userId The ID of the end user. (required)
+   * @param address The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return ApiResponse&lt;GetDelegationForEndUser200Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<GetDelegationForEndUser200Response> getDelegationForEndUserAccountWithHttpInfo(String userId, String address, String projectID) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getDelegationForEndUserAccountRequestBuilder(userId, address, projectID);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getDelegationForEndUserAccount", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<GetDelegationForEndUser200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<GetDelegationForEndUser200Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<GetDelegationForEndUser200Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getDelegationForEndUserAccountRequestBuilder(String userId, String address, String projectID) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling getDelegationForEndUserAccount");
+    }
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling getDelegationForEndUserAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()))
+        .replace("{address}", ApiClient.urlEncode(address.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "projectID";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("projectID", projectID));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**
@@ -355,11 +580,27 @@ public class EmbeddedWalletsApi {
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @throws ApiException if fails to make API call
+   */
+  public void revokeDelegationForEndUser(String userId, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    revokeDelegationForEndUserWithHttpInfo(userId, revokeDelegationForEndUserRequest, xWalletAuth, xDeveloperAuth, xIdempotencyKey, projectID);
+  }
+
+  /**
+   * Revoke delegation for end user
+   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+   * @param userId The ID of the end user. (required)
+   * @param revokeDelegationForEndUserRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> revokeDelegationForEndUserWithHttpInfo(String userId, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = revokeDelegationForEndUserRequestBuilder(userId, revokeDelegationForEndUserRequest, xWalletAuth, xDeveloperAuth, xIdempotencyKey);
+  public ApiResponse<Void> revokeDelegationForEndUserWithHttpInfo(String userId, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = revokeDelegationForEndUserRequestBuilder(userId, revokeDelegationForEndUserRequest, xWalletAuth, xDeveloperAuth, xIdempotencyKey, projectID);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -392,7 +633,7 @@ public class EmbeddedWalletsApi {
     }
   }
 
-  private HttpRequest.Builder revokeDelegationForEndUserRequestBuilder(String userId, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey) throws ApiException {
+  private HttpRequest.Builder revokeDelegationForEndUserRequestBuilder(String userId, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey, String projectID) throws ApiException {
     // verify the required parameter 'userId' is set
     if (userId == null) {
       throw new ApiException(400, "Missing the required parameter 'userId' when calling revokeDelegationForEndUser");
@@ -407,7 +648,149 @@ public class EmbeddedWalletsApi {
     String localVarPath = "/v2/embedded-wallet-api/end-users/{userId}/delegation"
         .replace("{userId}", ApiClient.urlEncode(userId.toString()));
 
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "projectID";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("projectID", projectID));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xDeveloperAuth != null) {
+      localVarRequestBuilder.header("X-Developer-Auth", xDeveloperAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(revokeDelegationForEndUserRequest);
+      localVarRequestBuilder.method("DELETE", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Revoke account-scoped delegation for an end user account
+   * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account&#39;s owner EOA.
+   * @param userId The ID of the end user. (required)
+   * @param address The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
+   * @param revokeDelegationForEndUserRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @throws ApiException if fails to make API call
+   */
+  public void revokeDelegationForEndUserAccount(String userId, String address, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    revokeDelegationForEndUserAccountWithHttpInfo(userId, address, revokeDelegationForEndUserRequest, xWalletAuth, xDeveloperAuth, xIdempotencyKey, projectID);
+  }
+
+  /**
+   * Revoke account-scoped delegation for an end user account
+   * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account&#39;s owner EOA.
+   * @param userId The ID of the end user. (required)
+   * @param address The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
+   * @param revokeDelegationForEndUserRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> revokeDelegationForEndUserAccountWithHttpInfo(String userId, String address, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = revokeDelegationForEndUserAccountRequestBuilder(userId, address, revokeDelegationForEndUserRequest, xWalletAuth, xDeveloperAuth, xIdempotencyKey, projectID);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("revokeDelegationForEndUserAccount", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder revokeDelegationForEndUserAccountRequestBuilder(String userId, String address, RevokeDelegationForEndUserRequest revokeDelegationForEndUserRequest, String xWalletAuth, String xDeveloperAuth, String xIdempotencyKey, String projectID) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling revokeDelegationForEndUserAccount");
+    }
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling revokeDelegationForEndUserAccount");
+    }
+    // verify the required parameter 'revokeDelegationForEndUserRequest' is set
+    if (revokeDelegationForEndUserRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'revokeDelegationForEndUserRequest' when calling revokeDelegationForEndUserAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()))
+        .replace("{address}", ApiClient.urlEncode(address.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "projectID";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("projectID", projectID));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     if (xWalletAuth != null) {
       localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());

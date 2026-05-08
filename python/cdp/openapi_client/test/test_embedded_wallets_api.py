@@ -27,6 +27,13 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_create_delegation_for_end_user_account(self) -> None:
+        """Test case for create_delegation_for_end_user_account
+
+        Create account-scoped delegation for an end user account
+        """
+        pass
+
     async def test_create_evm_eip7702_delegation_with_end_user_account(self) -> None:
         """Test case for create_evm_eip7702_delegation_with_end_user_account
 
@@ -41,10 +48,24 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_get_delegation_for_end_user_account(self) -> None:
+        """Test case for get_delegation_for_end_user_account
+
+        Get account-scoped delegation for an end user account
+        """
+        pass
+
     async def test_revoke_delegation_for_end_user(self) -> None:
         """Test case for revoke_delegation_for_end_user
 
         Revoke delegation for end user
+        """
+        pass
+
+    async def test_revoke_delegation_for_end_user_account(self) -> None:
+        """Test case for revoke_delegation_for_end_user_account
+
+        Revoke account-scoped delegation for an end user account
         """
         pass
 
