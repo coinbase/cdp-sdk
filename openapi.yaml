@@ -13253,6 +13253,166 @@ components:
         - action
         - operation
         - criteria
+    SendEndUserEvmAssetCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the sendEndUserEvmAsset operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+        - type: evmNetwork
+          networks:
+            - base
+            - ethereum
+          operator: in
+        - type: evmData
+          abi: erc20
+          conditions:
+            - function: transfer
+              params:
+                - name: value
+                  operator: <=
+                  value: '10000'
+        - type: netUSDChange
+          changeCents: 10000
+          operator: <=
+    SendEndUserEvmAssetRule:
+      x-audience: public
+      title: SendEndUserEvmAssetRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendEndUserEvmAsset
+          enum:
+            - sendEndUserEvmAsset
+        criteria:
+          $ref: '#/components/schemas/SendEndUserEvmAssetCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendEndUserSolAssetCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the sendEndUserSolAsset operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/SolDataCriterion'
+          - $ref: '#/components/schemas/SolNetworkCriterion'
+      example:
+        - type: splAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: splValue
+          splValue: '1000000000000000000'
+          operator: <=
+        - type: solData
+          idls:
+            - SystemProgram
+          conditions:
+            - instruction: transfer_checked
+              params:
+                - name: lamports
+                  operator: <=
+                  value: '1000000'
+        - type: solNetwork
+          networks:
+            - solana-devnet
+            - solana
+          operator: in
+    SendEndUserSolAssetRule:
+      x-audience: public
+      title: SendEndUserSolAssetRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendEndUserSolAsset
+          enum:
+            - sendEndUserSolAsset
+        criteria:
+          $ref: '#/components/schemas/SendEndUserSolAssetCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    CreateEndUserEvmSwapCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the createEndUserEvmSwap operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
+      example:
+        - type: evmNetwork
+          networks:
+            - base
+            - ethereum
+          operator: in
+        - type: evmData
+          abi: erc20
+          conditions:
+            - function: transfer
+              params:
+                - name: value
+                  operator: <=
+                  value: '10000'
+        - type: netUSDChange
+          changeCents: 10000
+          operator: <=
+    CreateEndUserEvmSwapRule:
+      x-audience: public
+      title: CreateEndUserEvmSwapRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: createEndUserEvmSwap
+          enum:
+            - createEndUserEvmSwap
+        criteria:
+          $ref: '#/components/schemas/CreateEndUserEvmSwapCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     Rule:
       type: object
       description: A rule that limits the behavior of an account.
@@ -13275,6 +13435,9 @@ components:
         - $ref: '#/components/schemas/SignEndUserSolTransactionRule'
         - $ref: '#/components/schemas/SendEndUserSolTransactionRule'
         - $ref: '#/components/schemas/SignEndUserSolMessageRule'
+        - $ref: '#/components/schemas/SendEndUserEvmAssetRule'
+        - $ref: '#/components/schemas/SendEndUserSolAssetRule'
+        - $ref: '#/components/schemas/CreateEndUserEvmSwapRule'
       example:
         action: accept
         operation: signEvmTransaction

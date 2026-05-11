@@ -1,3 +1,4 @@
+from cdp.openapi_client.models.create_end_user_evm_swap_rule import CreateEndUserEvmSwapRule
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_data_condition import EvmDataCondition as OpenAPIEvmDataCondition
@@ -21,9 +22,11 @@ from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCrite
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
 from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.send_end_user_evm_asset_rule import SendEndUserEvmAssetRule
 from cdp.openapi_client.models.send_end_user_evm_transaction_rule import (
     SendEndUserEvmTransactionRule,
 )
+from cdp.openapi_client.models.send_end_user_sol_asset_rule import SendEndUserSolAssetRule
 from cdp.openapi_client.models.send_end_user_sol_transaction_rule import (
     SendEndUserSolTransactionRule,
 )
@@ -595,6 +598,9 @@ openapi_criterion_mapping["sendEndUserSolTransaction"] = openapi_criterion_mappi
     "sendSolTransaction"
 ]
 openapi_criterion_mapping["signEndUserSolMessage"] = openapi_criterion_mapping["signSolMessage"]
+openapi_criterion_mapping["sendEndUserEvmAsset"] = openapi_criterion_mapping["sendEvmTransaction"]
+openapi_criterion_mapping["sendEndUserSolAsset"] = openapi_criterion_mapping["sendSolTransaction"]
+openapi_criterion_mapping["createEndUserEvmSwap"] = openapi_criterion_mapping["sendEvmTransaction"]
 
 # OpenAPI rule constructor mapping
 openapi_rule_mapping = {
@@ -615,6 +621,9 @@ openapi_rule_mapping = {
     "signEndUserSolTransaction": SignEndUserSolTransactionRule,
     "sendEndUserSolTransaction": SendEndUserSolTransactionRule,
     "signEndUserSolMessage": SignEndUserSolMessageRule,
+    "sendEndUserEvmAsset": SendEndUserEvmAssetRule,
+    "sendEndUserSolAsset": SendEndUserSolAssetRule,
+    "createEndUserEvmSwap": CreateEndUserEvmSwapRule,
 }
 
 

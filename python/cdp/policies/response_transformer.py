@@ -1,5 +1,6 @@
 from cdp.openapi_client.models.rule import Rule
 from cdp.policies.types import (
+    CreateEndUserEvmSwapRule as CreateEndUserEvmSwapRuleModel,
     EthValueCriterion as EthValueCriterionModel,
     EvmAddressCriterion as EvmAddressCriterionModel,
     EvmDataCondition as EvmDataConditionModel,
@@ -16,7 +17,9 @@ from cdp.policies.types import (
     PrepareUserOperationRule as PrepareUserOperationRuleModel,
     ProgramIdCriterion as ProgramIdCriterionModel,
     Rule as RuleType,
+    SendEndUserEvmAssetRule as SendEndUserEvmAssetRuleModel,
     SendEndUserEvmTransactionRule as SendEndUserEvmTransactionRuleModel,
+    SendEndUserSolAssetRule as SendEndUserSolAssetRuleModel,
     SendEndUserSolTransactionRule as SendEndUserSolTransactionRuleModel,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
@@ -361,6 +364,11 @@ response_criterion_mapping["sendEndUserSolTransaction"] = response_criterion_map
     "sendSolTransaction"
 ]
 response_criterion_mapping["signEndUserSolMessage"] = response_criterion_mapping["signSolMessage"]
+response_criterion_mapping["sendEndUserEvmAsset"] = response_criterion_mapping["sendEvmTransaction"]
+response_criterion_mapping["sendEndUserSolAsset"] = response_criterion_mapping["sendSolTransaction"]
+response_criterion_mapping["createEndUserEvmSwap"] = response_criterion_mapping[
+    "sendEvmTransaction"
+]
 
 # Response rule class mapping
 response_rule_mapping = {
@@ -381,6 +389,9 @@ response_rule_mapping = {
     "signEndUserSolTransaction": SignEndUserSolTransactionRuleModel,
     "sendEndUserSolTransaction": SendEndUserSolTransactionRuleModel,
     "signEndUserSolMessage": SignEndUserSolMessageRuleModel,
+    "sendEndUserEvmAsset": SendEndUserEvmAssetRuleModel,
+    "sendEndUserSolAsset": SendEndUserSolAssetRuleModel,
+    "createEndUserEvmSwap": CreateEndUserEvmSwapRuleModel,
 }
 
 

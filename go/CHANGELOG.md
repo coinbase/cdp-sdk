@@ -1,5 +1,11 @@
 # Go SDK Changelog
 
+## [Unreleased]
+
+### Features
+
+- Add support for SendEndUserEvmAsset, SendEndUserSolAsset, and CreateEndUserEvmSwap policy rules and criteria
+
 ## [1.1.0] - 2025-07-21
 
 ### Changes
