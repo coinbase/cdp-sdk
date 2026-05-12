@@ -600,3 +600,45 @@ export const SignEndUserSolMessageRuleSchema = z.object({
   criteria: SignEndUserSolMessageCriteriaSchema,
 });
 export type SignEndUserSolMessageRule = z.infer<typeof SignEndUserSolMessageRuleSchema>;
+
+/**
+ * Schema for criteria used in SendEndUserSolAsset operations
+ */
+export const SendEndUserSolAssetCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      SplAddressCriterionSchema,
+      SplValueCriterionSchema,
+      SolDataCriterionSchema,
+      SolNetworkCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendEndUserSolAsset operation.
+ */
+export type SendEndUserSolAssetCriteria = z.infer<typeof SendEndUserSolAssetCriteriaSchema>;
+
+/**
+ * Type representing a 'sendEndUserSolAsset' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEndUserSolAssetRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the operation, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEndUserSolAsset".
+   */
+  operation: z.literal("sendEndUserSolAsset"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEndUserSolAssetCriteriaSchema,
+});
+export type SendEndUserSolAssetRule = z.infer<typeof SendEndUserSolAssetRuleSchema>;
