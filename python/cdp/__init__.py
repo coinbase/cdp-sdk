@@ -9,6 +9,13 @@ from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client import SpendPermissionNetwork
 from cdp.openapi_client.errors import HttpErrorType, NetworkError
+from cdp.openapi_client.models import (
+    X402DiscoveryMerchantResponse,
+    X402DiscoveryResource,
+    X402DiscoveryResourcesResponse,
+    X402ResourceQuality,
+    X402SearchResourcesResponse,
+)
 from cdp.spend_permissions import (
     SPEND_PERMISSION_MANAGER_ABI,
     SPEND_PERMISSION_MANAGER_ADDRESS,
@@ -44,6 +51,11 @@ __all__ = [
     "TransactionRequestEIP1559",
     "to_evm_delegated_account",
     "UpdateAccountOptions",
+    "X402DiscoveryMerchantResponse",
+    "X402DiscoveryResource",
+    "X402DiscoveryResourcesResponse",
+    "X402ResourceQuality",
+    "X402SearchResourcesResponse",
     "CreateWebhookSubscriptionOptions",
     "CreateWebhookSubscriptionResult",
     "WebhookEventType",

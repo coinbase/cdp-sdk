@@ -4043,6 +4043,217 @@ export interface X402SupportedPaymentKind {
 }
 
 /**
+ * Quality metrics for a discovered x402 resource.
+ */
+export interface X402ResourceQuality {
+  /** Total number of paid calls to a resource in the last 30 days. */
+  l30DaysTotalCalls?: number;
+  /** Number of unique payers to a resource in the last 30 days. */
+  l30DaysUniquePayers?: number;
+  /** Timestamp of the most recent paid call to a resource. */
+  lastCalledAt?: string;
+}
+
+/**
+ * Communication protocol (e.g., "http", "mcp").
+ */
+export type X402DiscoveryResourceType =
+  (typeof X402DiscoveryResourceType)[keyof typeof X402DiscoveryResourceType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402DiscoveryResourceType = {
+  http: "http",
+  mcp: "mcp",
+} as const;
+
+/**
+ * Map of x402 protocol extensions supported by the resource, keyed by extension name.
+ */
+export type X402DiscoveryResourceExtensions = { [key: string]: unknown };
+
+/**
+ * A single discovered x402 resource.
+ */
+export interface X402DiscoveryResource {
+  /** The URL of the resource. */
+  resource: string;
+  /** A human-readable description of the resource. */
+  description?: string;
+  /** Communication protocol (e.g., "http", "mcp"). */
+  type: X402DiscoveryResourceType;
+  x402Version: X402Version;
+  /** Timestamp of the last update. */
+  lastUpdated?: string;
+  /** Payment requirements accepted by the resource. */
+  accepts?: X402PaymentRequirements[];
+  /** Map of x402 protocol extensions supported by the resource, keyed by extension name. */
+  extensions?: X402DiscoveryResourceExtensions;
+  quality?: X402ResourceQuality;
+}
+
+/**
+ * Pagination information for the response.
+ */
+export type X402DiscoveryResourcesResponsePagination = {
+  /** The number of discovered x402 resources to return per page. */
+  limit?: number;
+  /** The offset of the first discovered x402 resource to return. */
+  offset?: number;
+  /** The total number of discovered x402 resources. */
+  total?: number;
+};
+
+/**
+ * Response containing discovered x402 resources.
+ */
+export interface X402DiscoveryResourcesResponse {
+  x402Version: X402Version;
+  /** List of discovered x402 resources. */
+  items: X402DiscoveryResource[];
+  /** Pagination information for the response. */
+  pagination: X402DiscoveryResourcesResponsePagination;
+}
+
+/**
+ * Pagination information for the response.
+ */
+export type X402DiscoveryMerchantResponsePagination = {
+  /** The number of resources returned per page. */
+  limit?: number;
+  /** The offset of the first resource returned. */
+  offset?: number;
+  /** The total number of resources associated with the merchant's payTo address. */
+  total?: number;
+};
+
+/**
+ * Response containing x402 resources associated with a merchant payment address.
+ */
+export interface X402DiscoveryMerchantResponse {
+  x402Version: X402Version;
+  payTo: BlockchainAddress;
+  /** List of discovered x402 resources associated with the merchant's payTo address. */
+  resources: X402DiscoveryResource[];
+  /** Pagination information for the response. */
+  pagination: X402DiscoveryMerchantResponsePagination;
+}
+
+/**
+ * The search method used to retrieve the results (e.g., "text" or "vector").
+ */
+export type X402SearchResourcesResponseSearchMethod =
+  (typeof X402SearchResourcesResponseSearchMethod)[keyof typeof X402SearchResourcesResponseSearchMethod];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SearchResourcesResponseSearchMethod = {
+  text: "text",
+  vector: "vector",
+} as const;
+
+/**
+ * Response from a search for x402 resources.
+ */
+export interface X402SearchResourcesResponse {
+  /** List of x402 resources matching the search query and filters. */
+  resources: X402DiscoveryResource[];
+  /** Indicates whether the result set was truncated because there were more results than the requested limit. */
+  partialResults: boolean;
+  /** The search method used to retrieve the results (e.g., "text" or "vector"). */
+  searchMethod?: X402SearchResourcesResponseSearchMethod;
+  x402Version: X402Version;
+}
+
+/**
+ * JSON-RPC version, must be "2.0".
+ */
+export type X402McpRequestJsonrpc =
+  (typeof X402McpRequestJsonrpc)[keyof typeof X402McpRequestJsonrpc];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402McpRequestJsonrpc = {
+  "20": "2.0",
+} as const;
+
+/**
+ * Request identifier.
+ */
+export type X402McpRequestId = string | number;
+
+/**
+ * Optional parameters for the method.
+ */
+export type X402McpRequestParams = { [key: string]: unknown };
+
+/**
+ * A JSON-RPC 2.0 request for the Model Context Protocol.
+ */
+export interface X402McpRequest {
+  /** JSON-RPC version, must be "2.0". */
+  jsonrpc: X402McpRequestJsonrpc;
+  /** Request identifier. */
+  id?: X402McpRequestId;
+  /** The MCP method to invoke. */
+  method: string;
+  /** Optional parameters for the method. */
+  params?: X402McpRequestParams;
+}
+
+/**
+ * Additional error data.
+ */
+export type X402McpErrorData = { [key: string]: unknown };
+
+/**
+ * JSON-RPC 2.0 error object.
+ */
+export interface X402McpError {
+  /** Error code. */
+  code: number;
+  /** Error message. */
+  message: string;
+  /** Additional error data. */
+  data?: X402McpErrorData;
+}
+
+/**
+ * JSON-RPC version.
+ */
+export type X402McpResponseJsonrpc =
+  (typeof X402McpResponseJsonrpc)[keyof typeof X402McpResponseJsonrpc];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402McpResponseJsonrpc = {
+  "20": "2.0",
+} as const;
+
+/**
+ * Request identifier (matches the request ID, null for notifications).
+ * @nullable
+ */
+export type X402McpResponseId = string | number | null;
+
+/**
+ * The result of the method call (present on success).
+ */
+export type X402McpResponseResult = { [key: string]: unknown };
+
+/**
+ * A JSON-RPC 2.0 response for the Model Context Protocol.
+ */
+export interface X402McpResponse {
+  /** JSON-RPC version. */
+  jsonrpc: X402McpResponseJsonrpc;
+  /**
+   * Request identifier (matches the request ID, null for notifications).
+   * @nullable
+   */
+  id?: X402McpResponseId;
+  /** The result of the method call (present on success). */
+  result?: X402McpResponseResult;
+  error?: X402McpError;
+}
+
+/**
  * The type of payment method to be used to complete an onramp order.
  */
 export type OnrampOrderPaymentMethodTypeId =
@@ -5776,6 +5987,89 @@ export type SettleX402PaymentBody = {
   x402Version: X402Version;
   paymentPayload: X402PaymentPayload;
   paymentRequirements: X402PaymentRequirements;
+};
+
+export type ListX402DiscoveryResourcesParams = {
+  /**
+ * Filter by protocol type (e.g., "http", "mcp").
+Currently, the only supported protocol type is "http".
+ */
+  type?: string;
+  /**
+   * The number of discovered x402 resources to return per page.
+   */
+  limit?: number;
+  /**
+   * The offset of the first discovered x402 resource to return.
+   */
+  offset?: number;
+};
+
+export type ListX402DiscoveryMerchantParams = {
+  /**
+ * The merchant's payment address to look up.
+This is the onchain address that payment requirements route funds to.
+ */
+  payTo: BlockchainAddress;
+  /**
+   * The number of resources to return per page.
+   */
+  limit?: number;
+  /**
+   * The offset of the first resource to return.
+   */
+  offset?: number;
+};
+
+export type SearchX402ResourcesParams = {
+  /**
+   * Full-text or semantic search query to find matching resources.
+   * @maxLength 400
+   */
+  query?: string;
+  /**
+ * Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`).
+Legacy names are normalized to their CAIP-2 equivalents before filtering.
+ */
+  network?: string;
+  /**
+ * Filter results by asset address.
+For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+Matching is case-insensitive.
+ */
+  asset?: string;
+  /**
+   * Filter results by payment scheme (e.g., `exact`).
+   */
+  scheme?: string;
+  /**
+ * Filter results by the merchant's payment address.
+For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+ */
+  payTo?: BlockchainAddress;
+  /**
+ * Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL).
+Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset.
+Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+ * @minLength 3
+ * @maxLength 2048
+ */
+  urlSubstring?: string;
+  /**
+   * Filter results to resources with a USD price at or below this value.
+   */
+  maxUsdPrice?: string;
+  /**
+   * Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+   */
+  extensions?: string[];
+  /**
+ * Maximum number of resources to return. Must be a positive integer no greater than 20.
+Defaults to 20.
+ * @minimum 1
+ * @maximum 20
+ */
+  limit?: number;
 };
 
 export type CreateOnrampOrderBody = {
