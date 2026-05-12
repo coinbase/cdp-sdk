@@ -31031,6 +31031,162 @@ pub mod types {
             Self::CreateEndUserEvmSwapRule(value)
         }
     }
+    ///`SearchX402ResourcesQuery`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "weather forecast"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 400
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SearchX402ResourcesQuery(::std::string::String);
+    impl ::std::ops::Deref for SearchX402ResourcesQuery {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SearchX402ResourcesQuery> for ::std::string::String {
+        fn from(value: SearchX402ResourcesQuery) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SearchX402ResourcesQuery> for SearchX402ResourcesQuery {
+        fn from(value: &SearchX402ResourcesQuery) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SearchX402ResourcesQuery {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 400usize {
+                return Err("longer than 400 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SearchX402ResourcesQuery {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SearchX402ResourcesQuery {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SearchX402ResourcesQuery {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SearchX402ResourcesQuery {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`SearchX402ResourcesUrlSubstring`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "api.example.com"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 2048,
+    ///  "minLength": 3
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SearchX402ResourcesUrlSubstring(::std::string::String);
+    impl ::std::ops::Deref for SearchX402ResourcesUrlSubstring {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SearchX402ResourcesUrlSubstring> for ::std::string::String {
+        fn from(value: SearchX402ResourcesUrlSubstring) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SearchX402ResourcesUrlSubstring> for SearchX402ResourcesUrlSubstring {
+        fn from(value: &SearchX402ResourcesUrlSubstring) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SearchX402ResourcesUrlSubstring {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 2048usize {
+                return Err("longer than 2048 characters".into());
+            }
+            if value.chars().count() < 3usize {
+                return Err("shorter than 3 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SearchX402ResourcesUrlSubstring {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SearchX402ResourcesUrlSubstring {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SearchX402ResourcesUrlSubstring {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SearchX402ResourcesUrlSubstring {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///A schema for specifying criteria for the sendEndUserEvmAsset operation.
     ///
     /// <details><summary>JSON schema</summary>
@@ -54849,6 +55005,573 @@ pub mod types {
             Default::default()
         }
     }
+    ///Response containing x402 resources associated with a merchant payment address.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Response containing x402 resources associated with a merchant payment address.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "pagination",
+    ///    "payTo",
+    ///    "resources",
+    ///    "x402Version"
+    ///  ],
+    ///  "properties": {
+    ///    "pagination": {
+    ///      "description": "Pagination information for the response.",
+    ///      "examples": [
+    ///        {
+    ///          "limit": 20,
+    ///          "offset": 0,
+    ///          "total": 10
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "properties": {
+    ///        "limit": {
+    ///          "description": "The number of resources returned per page.",
+    ///          "examples": [
+    ///            20
+    ///          ],
+    ///          "type": "integer"
+    ///        },
+    ///        "offset": {
+    ///          "description": "The offset of the first resource returned.",
+    ///          "examples": [
+    ///            0
+    ///          ],
+    ///          "type": "integer"
+    ///        },
+    ///        "total": {
+    ///          "description": "The total number of resources associated with the merchant's payTo address.",
+    ///          "examples": [
+    ///            10
+    ///          ],
+    ///          "type": "integer"
+    ///        }
+    ///      }
+    ///    },
+    ///    "payTo": {
+    ///      "$ref": "#/components/schemas/BlockchainAddress"
+    ///    },
+    ///    "resources": {
+    ///      "description": "List of discovered x402 resources associated with the merchant's payTo address.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "accepts": [
+    ///              {
+    ///                "amount": "1000000",
+    ///                "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    ///                "maxTimeoutSeconds": 60,
+    ///                "network": "eip155:8453",
+    ///                "payTo": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///                "scheme": "exact"
+    ///              }
+    ///            ],
+    ///            "description": "Premium API access for data analysis.",
+    ///            "extensions": {
+    ///              "bazaar": {
+    ///                "info": {
+    ///                  "input": {
+    ///                    "method": "POST",
+    ///                    "type": "http"
+    ///                  }
+    ///                },
+    ///                "schema": {}
+    ///              }
+    ///            },
+    ///            "lastUpdated": "2024-01-15T10:30:00Z",
+    ///            "quality": {
+    ///              "l30DaysTotalCalls": 42,
+    ///              "l30DaysUniquePayers": 15,
+    ///              "lastCalledAt": "2024-01-15T10:30:00Z"
+    ///            },
+    ///            "resource": "https://api.example.com/premium/data",
+    ///            "type": "http",
+    ///            "x402Version": 2
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/x402DiscoveryResource"
+    ///      }
+    ///    },
+    ///    "x402Version": {
+    ///      "$ref": "#/components/schemas/X402Version"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402DiscoveryMerchantResponse {
+        pub pagination: X402DiscoveryMerchantResponsePagination,
+        #[serde(rename = "payTo")]
+        pub pay_to: BlockchainAddress,
+        ///List of discovered x402 resources associated with the merchant's payTo address.
+        pub resources: ::std::vec::Vec<X402DiscoveryResource>,
+        #[serde(rename = "x402Version")]
+        pub x402_version: X402Version,
+    }
+    impl ::std::convert::From<&X402DiscoveryMerchantResponse> for X402DiscoveryMerchantResponse {
+        fn from(value: &X402DiscoveryMerchantResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl X402DiscoveryMerchantResponse {
+        pub fn builder() -> builder::X402DiscoveryMerchantResponse {
+            Default::default()
+        }
+    }
+    ///Pagination information for the response.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Pagination information for the response.",
+    ///  "examples": [
+    ///    {
+    ///      "limit": 20,
+    ///      "offset": 0,
+    ///      "total": 10
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "limit": {
+    ///      "description": "The number of resources returned per page.",
+    ///      "examples": [
+    ///        20
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "offset": {
+    ///      "description": "The offset of the first resource returned.",
+    ///      "examples": [
+    ///        0
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "total": {
+    ///      "description": "The total number of resources associated with the merchant's payTo address.",
+    ///      "examples": [
+    ///        10
+    ///      ],
+    ///      "type": "integer"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402DiscoveryMerchantResponsePagination {
+        ///The number of resources returned per page.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub limit: ::std::option::Option<i64>,
+        ///The offset of the first resource returned.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub offset: ::std::option::Option<i64>,
+        ///The total number of resources associated with the merchant's payTo address.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub total: ::std::option::Option<i64>,
+    }
+    impl ::std::convert::From<&X402DiscoveryMerchantResponsePagination>
+        for X402DiscoveryMerchantResponsePagination
+    {
+        fn from(value: &X402DiscoveryMerchantResponsePagination) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for X402DiscoveryMerchantResponsePagination {
+        fn default() -> Self {
+            Self {
+                limit: Default::default(),
+                offset: Default::default(),
+                total: Default::default(),
+            }
+        }
+    }
+    impl X402DiscoveryMerchantResponsePagination {
+        pub fn builder() -> builder::X402DiscoveryMerchantResponsePagination {
+            Default::default()
+        }
+    }
+    ///A single discovered x402 resource.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A single discovered x402 resource.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "resource",
+    ///    "type",
+    ///    "x402Version"
+    ///  ],
+    ///  "properties": {
+    ///    "accepts": {
+    ///      "description": "Payment requirements accepted by the resource.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "amount": "1000000",
+    ///            "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    ///            "maxTimeoutSeconds": 60,
+    ///            "network": "eip155:8453",
+    ///            "payTo": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "scheme": "exact"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/x402PaymentRequirements"
+    ///      }
+    ///    },
+    ///    "description": {
+    ///      "description": "A human-readable description of the resource.",
+    ///      "examples": [
+    ///        "Real-time weather forecast data"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "extensions": {
+    ///      "description": "Map of x402 protocol extensions supported by the resource, keyed by extension name.",
+    ///      "examples": [
+    ///        {
+    ///          "bazaar": {
+    ///            "info": {
+    ///              "input": {
+    ///                "method": "GET",
+    ///                "type": "http"
+    ///              }
+    ///            },
+    ///            "schema": {}
+    ///          }
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
+    ///    "lastUpdated": {
+    ///      "description": "Timestamp of the last update.",
+    ///      "examples": [
+    ///        "2024-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "quality": {
+    ///      "$ref": "#/components/schemas/x402ResourceQuality"
+    ///    },
+    ///    "resource": {
+    ///      "description": "The URL of the resource.",
+    ///      "examples": [
+    ///        "https://api.example.com/weather/forecast"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "type": {
+    ///      "description": "Communication protocol (e.g., \"http\", \"mcp\").",
+    ///      "examples": [
+    ///        "http"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "http",
+    ///        "mcp"
+    ///      ]
+    ///    },
+    ///    "x402Version": {
+    ///      "$ref": "#/components/schemas/X402Version"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402DiscoveryResource {
+        ///Payment requirements accepted by the resource.
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub accepts: ::std::vec::Vec<X402PaymentRequirements>,
+        ///A human-readable description of the resource.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub description: ::std::option::Option<::std::string::String>,
+        ///Map of x402 protocol extensions supported by the resource, keyed by extension name.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub extensions: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        ///Timestamp of the last update.
+        #[serde(
+            rename = "lastUpdated",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub last_updated: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub quality: ::std::option::Option<X402ResourceQuality>,
+        ///The URL of the resource.
+        pub resource: ::std::string::String,
+        ///Communication protocol (e.g., "http", "mcp").
+        #[serde(rename = "type")]
+        pub type_: X402DiscoveryResourceType,
+        #[serde(rename = "x402Version")]
+        pub x402_version: X402Version,
+    }
+    impl ::std::convert::From<&X402DiscoveryResource> for X402DiscoveryResource {
+        fn from(value: &X402DiscoveryResource) -> Self {
+            value.clone()
+        }
+    }
+    impl X402DiscoveryResource {
+        pub fn builder() -> builder::X402DiscoveryResource {
+            Default::default()
+        }
+    }
+    ///Communication protocol (e.g., "http", "mcp").
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Communication protocol (e.g., \"http\", \"mcp\").",
+    ///  "examples": [
+    ///    "http"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "http",
+    ///    "mcp"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402DiscoveryResourceType {
+        #[serde(rename = "http")]
+        Http,
+        #[serde(rename = "mcp")]
+        Mcp,
+    }
+    impl ::std::convert::From<&Self> for X402DiscoveryResourceType {
+        fn from(value: &X402DiscoveryResourceType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402DiscoveryResourceType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Http => f.write_str("http"),
+                Self::Mcp => f.write_str("mcp"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402DiscoveryResourceType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "http" => Ok(Self::Http),
+                "mcp" => Ok(Self::Mcp),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402DiscoveryResourceType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402DiscoveryResourceType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402DiscoveryResourceType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Response containing discovered x402 resources.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Response containing discovered x402 resources.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "items",
+    ///    "pagination",
+    ///    "x402Version"
+    ///  ],
+    ///  "properties": {
+    ///    "items": {
+    ///      "description": "List of discovered x402 resources.",
+    ///      "examples": [
+    ///        []
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/x402DiscoveryResource"
+    ///      }
+    ///    },
+    ///    "pagination": {
+    ///      "description": "Pagination information for the response.",
+    ///      "examples": [
+    ///        {
+    ///          "limit": 100,
+    ///          "offset": 0,
+    ///          "total": 1000
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "properties": {
+    ///        "limit": {
+    ///          "description": "The number of discovered x402 resources to return per page.",
+    ///          "examples": [
+    ///            100
+    ///          ],
+    ///          "type": "integer"
+    ///        },
+    ///        "offset": {
+    ///          "description": "The offset of the first discovered x402 resource to return.",
+    ///          "examples": [
+    ///            0
+    ///          ],
+    ///          "type": "integer"
+    ///        },
+    ///        "total": {
+    ///          "description": "The total number of discovered x402 resources.",
+    ///          "examples": [
+    ///            1000
+    ///          ],
+    ///          "type": "integer"
+    ///        }
+    ///      }
+    ///    },
+    ///    "x402Version": {
+    ///      "$ref": "#/components/schemas/X402Version"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402DiscoveryResourcesResponse {
+        ///List of discovered x402 resources.
+        pub items: ::std::vec::Vec<X402DiscoveryResource>,
+        pub pagination: X402DiscoveryResourcesResponsePagination,
+        #[serde(rename = "x402Version")]
+        pub x402_version: X402Version,
+    }
+    impl ::std::convert::From<&X402DiscoveryResourcesResponse> for X402DiscoveryResourcesResponse {
+        fn from(value: &X402DiscoveryResourcesResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl X402DiscoveryResourcesResponse {
+        pub fn builder() -> builder::X402DiscoveryResourcesResponse {
+            Default::default()
+        }
+    }
+    ///Pagination information for the response.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Pagination information for the response.",
+    ///  "examples": [
+    ///    {
+    ///      "limit": 100,
+    ///      "offset": 0,
+    ///      "total": 1000
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "limit": {
+    ///      "description": "The number of discovered x402 resources to return per page.",
+    ///      "examples": [
+    ///        100
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "offset": {
+    ///      "description": "The offset of the first discovered x402 resource to return.",
+    ///      "examples": [
+    ///        0
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "total": {
+    ///      "description": "The total number of discovered x402 resources.",
+    ///      "examples": [
+    ///        1000
+    ///      ],
+    ///      "type": "integer"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402DiscoveryResourcesResponsePagination {
+        ///The number of discovered x402 resources to return per page.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub limit: ::std::option::Option<i64>,
+        ///The offset of the first discovered x402 resource to return.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub offset: ::std::option::Option<i64>,
+        ///The total number of discovered x402 resources.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub total: ::std::option::Option<i64>,
+    }
+    impl ::std::convert::From<&X402DiscoveryResourcesResponsePagination>
+        for X402DiscoveryResourcesResponsePagination
+    {
+        fn from(value: &X402DiscoveryResourcesResponsePagination) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for X402DiscoveryResourcesResponsePagination {
+        fn default() -> Self {
+            Self {
+                limit: Default::default(),
+                offset: Default::default(),
+                total: Default::default(),
+            }
+        }
+    }
+    impl X402DiscoveryResourcesResponsePagination {
+        pub fn builder() -> builder::X402DiscoveryResourcesResponsePagination {
+            Default::default()
+        }
+    }
     ///The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
     ///
     /// <details><summary>JSON schema</summary>
@@ -56517,6 +57240,472 @@ pub mod types {
             Default::default()
         }
     }
+    ///JSON-RPC 2.0 error object.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "JSON-RPC 2.0 error object.",
+    ///  "examples": [
+    ///    {
+    ///      "code": -32600,
+    ///      "data": {},
+    ///      "message": "Invalid Request"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "code",
+    ///    "message"
+    ///  ],
+    ///  "properties": {
+    ///    "code": {
+    ///      "description": "Error code.",
+    ///      "examples": [
+    ///        -32600
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "data": {
+    ///      "description": "Additional error data.",
+    ///      "examples": [
+    ///        {}
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
+    ///    "message": {
+    ///      "description": "Error message.",
+    ///      "examples": [
+    ///        "Invalid Request"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402McpError {
+        ///Error code.
+        pub code: i64,
+        ///Additional error data.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub data: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        ///Error message.
+        pub message: ::std::string::String,
+    }
+    impl ::std::convert::From<&X402McpError> for X402McpError {
+        fn from(value: &X402McpError) -> Self {
+            value.clone()
+        }
+    }
+    impl X402McpError {
+        pub fn builder() -> builder::X402McpError {
+            Default::default()
+        }
+    }
+    ///A JSON-RPC 2.0 request for the Model Context Protocol.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A JSON-RPC 2.0 request for the Model Context Protocol.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "jsonrpc",
+    ///    "method"
+    ///  ],
+    ///  "properties": {
+    ///    "id": {
+    ///      "description": "Request identifier.",
+    ///      "examples": [
+    ///        1
+    ///      ],
+    ///      "oneOf": [
+    ///        {
+    ///          "type": "string"
+    ///        },
+    ///        {
+    ///          "type": "integer"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "jsonrpc": {
+    ///      "description": "JSON-RPC version, must be \"2.0\".",
+    ///      "examples": [
+    ///        "2.0"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "2.0"
+    ///      ]
+    ///    },
+    ///    "method": {
+    ///      "description": "The MCP method to invoke.",
+    ///      "examples": [
+    ///        "tools/list"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "params": {
+    ///      "description": "Optional parameters for the method.",
+    ///      "examples": [
+    ///        {}
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402McpRequest {
+        ///Request identifier.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub id: ::std::option::Option<X402McpRequestId>,
+        ///JSON-RPC version, must be "2.0".
+        pub jsonrpc: X402McpRequestJsonrpc,
+        ///The MCP method to invoke.
+        pub method: ::std::string::String,
+        ///Optional parameters for the method.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub params: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    }
+    impl ::std::convert::From<&X402McpRequest> for X402McpRequest {
+        fn from(value: &X402McpRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl X402McpRequest {
+        pub fn builder() -> builder::X402McpRequest {
+            Default::default()
+        }
+    }
+    ///Request identifier.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Request identifier.",
+    ///  "examples": [
+    ///    1
+    ///  ],
+    ///  "oneOf": [
+    ///    {
+    ///      "type": "string"
+    ///    },
+    ///    {
+    ///      "type": "integer"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum X402McpRequestId {
+        Variant0(::std::string::String),
+        Variant1(i64),
+    }
+    impl ::std::convert::From<&Self> for X402McpRequestId {
+        fn from(value: &X402McpRequestId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402McpRequestId {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match self {
+                Self::Variant0(x) => x.fmt(f),
+                Self::Variant1(x) => x.fmt(f),
+            }
+        }
+    }
+    impl ::std::convert::From<i64> for X402McpRequestId {
+        fn from(value: i64) -> Self {
+            Self::Variant1(value)
+        }
+    }
+    ///JSON-RPC version, must be "2.0".
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "JSON-RPC version, must be \"2.0\".",
+    ///  "examples": [
+    ///    "2.0"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "2.0"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402McpRequestJsonrpc {
+        #[serde(rename = "2.0")]
+        X20,
+    }
+    impl ::std::convert::From<&Self> for X402McpRequestJsonrpc {
+        fn from(value: &X402McpRequestJsonrpc) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402McpRequestJsonrpc {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::X20 => f.write_str("2.0"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402McpRequestJsonrpc {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "2.0" => Ok(Self::X20),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402McpRequestJsonrpc {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402McpRequestJsonrpc {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402McpRequestJsonrpc {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///A JSON-RPC 2.0 response for the Model Context Protocol.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A JSON-RPC 2.0 response for the Model Context Protocol.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "jsonrpc"
+    ///  ],
+    ///  "properties": {
+    ///    "error": {
+    ///      "$ref": "#/components/schemas/x402McpError"
+    ///    },
+    ///    "id": {
+    ///      "description": "Request identifier (matches the request ID, null for notifications).",
+    ///      "examples": [
+    ///        1
+    ///      ],
+    ///      "oneOf": [
+    ///        {
+    ///          "type": "null"
+    ///        },
+    ///        {
+    ///          "oneOf": [
+    ///            {
+    ///              "type": "string"
+    ///            },
+    ///            {
+    ///              "type": "integer"
+    ///            }
+    ///          ]
+    ///        }
+    ///      ]
+    ///    },
+    ///    "jsonrpc": {
+    ///      "description": "JSON-RPC version.",
+    ///      "examples": [
+    ///        "2.0"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "2.0"
+    ///      ]
+    ///    },
+    ///    "result": {
+    ///      "description": "The result of the method call (present on success).",
+    ///      "examples": [
+    ///        {
+    ///          "tools": []
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402McpResponse {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub error: ::std::option::Option<X402McpError>,
+        ///Request identifier (matches the request ID, null for notifications).
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub id: ::std::option::Option<X402McpResponseId>,
+        ///JSON-RPC version.
+        pub jsonrpc: X402McpResponseJsonrpc,
+        ///The result of the method call (present on success).
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub result: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    }
+    impl ::std::convert::From<&X402McpResponse> for X402McpResponse {
+        fn from(value: &X402McpResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl X402McpResponse {
+        pub fn builder() -> builder::X402McpResponse {
+            Default::default()
+        }
+    }
+    ///`X402McpResponseId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "oneOf": [
+    ///    {
+    ///      "type": "string"
+    ///    },
+    ///    {
+    ///      "type": "integer"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum X402McpResponseId {
+        Variant0(::std::string::String),
+        Variant1(i64),
+    }
+    impl ::std::convert::From<&Self> for X402McpResponseId {
+        fn from(value: &X402McpResponseId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402McpResponseId {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match self {
+                Self::Variant0(x) => x.fmt(f),
+                Self::Variant1(x) => x.fmt(f),
+            }
+        }
+    }
+    impl ::std::convert::From<i64> for X402McpResponseId {
+        fn from(value: i64) -> Self {
+            Self::Variant1(value)
+        }
+    }
+    ///JSON-RPC version.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "JSON-RPC version.",
+    ///  "examples": [
+    ///    "2.0"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "2.0"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402McpResponseJsonrpc {
+        #[serde(rename = "2.0")]
+        X20,
+    }
+    impl ::std::convert::From<&Self> for X402McpResponseJsonrpc {
+        fn from(value: &X402McpResponseJsonrpc) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402McpResponseJsonrpc {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::X20 => f.write_str("2.0"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402McpResponseJsonrpc {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "2.0" => Ok(Self::X20),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402McpResponseJsonrpc {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402McpResponseJsonrpc {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402McpResponseJsonrpc {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     /**The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
     For EVM networks, smart account signatures can be longer than 65 bytes.*/
     ///
@@ -56673,6 +57862,248 @@ pub mod types {
     impl X402ResourceInfo {
         pub fn builder() -> builder::X402ResourceInfo {
             Default::default()
+        }
+    }
+    ///Quality metrics for a discovered x402 resource.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Quality metrics for a discovered x402 resource.",
+    ///  "examples": [
+    ///    {
+    ///      "l30DaysTotalCalls": 42,
+    ///      "l30DaysUniquePayers": 15,
+    ///      "lastCalledAt": "2024-01-15T10:30:00Z"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "l30DaysTotalCalls": {
+    ///      "description": "Total number of paid calls to a resource in the last 30 days.",
+    ///      "examples": [
+    ///        42
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "l30DaysUniquePayers": {
+    ///      "description": "Number of unique payers to a resource in the last 30 days.",
+    ///      "examples": [
+    ///        15
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "lastCalledAt": {
+    ///      "description": "Timestamp of the most recent paid call to a resource.",
+    ///      "examples": [
+    ///        "2024-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402ResourceQuality {
+        ///Total number of paid calls to a resource in the last 30 days.
+        #[serde(
+            rename = "l30DaysTotalCalls",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub l30_days_total_calls: ::std::option::Option<i64>,
+        ///Number of unique payers to a resource in the last 30 days.
+        #[serde(
+            rename = "l30DaysUniquePayers",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub l30_days_unique_payers: ::std::option::Option<i64>,
+        ///Timestamp of the most recent paid call to a resource.
+        #[serde(
+            rename = "lastCalledAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub last_called_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    }
+    impl ::std::convert::From<&X402ResourceQuality> for X402ResourceQuality {
+        fn from(value: &X402ResourceQuality) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for X402ResourceQuality {
+        fn default() -> Self {
+            Self {
+                l30_days_total_calls: Default::default(),
+                l30_days_unique_payers: Default::default(),
+                last_called_at: Default::default(),
+            }
+        }
+    }
+    impl X402ResourceQuality {
+        pub fn builder() -> builder::X402ResourceQuality {
+            Default::default()
+        }
+    }
+    ///Response from a search for x402 resources.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Response from a search for x402 resources.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "partialResults",
+    ///    "resources",
+    ///    "x402Version"
+    ///  ],
+    ///  "properties": {
+    ///    "partialResults": {
+    ///      "description": "Indicates whether the result set was truncated because there were more results than the requested limit.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "resources": {
+    ///      "description": "List of x402 resources matching the search query and filters.",
+    ///      "examples": [
+    ///        []
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/x402DiscoveryResource"
+    ///      }
+    ///    },
+    ///    "searchMethod": {
+    ///      "description": "The search method used to retrieve the results (e.g., \"text\" or \"vector\").",
+    ///      "examples": [
+    ///        "text"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "text",
+    ///        "vector"
+    ///      ]
+    ///    },
+    ///    "x402Version": {
+    ///      "$ref": "#/components/schemas/X402Version"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402SearchResourcesResponse {
+        ///Indicates whether the result set was truncated because there were more results than the requested limit.
+        #[serde(rename = "partialResults")]
+        pub partial_results: bool,
+        ///List of x402 resources matching the search query and filters.
+        pub resources: ::std::vec::Vec<X402DiscoveryResource>,
+        ///The search method used to retrieve the results (e.g., "text" or "vector").
+        #[serde(
+            rename = "searchMethod",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub search_method: ::std::option::Option<X402SearchResourcesResponseSearchMethod>,
+        #[serde(rename = "x402Version")]
+        pub x402_version: X402Version,
+    }
+    impl ::std::convert::From<&X402SearchResourcesResponse> for X402SearchResourcesResponse {
+        fn from(value: &X402SearchResourcesResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl X402SearchResourcesResponse {
+        pub fn builder() -> builder::X402SearchResourcesResponse {
+            Default::default()
+        }
+    }
+    ///The search method used to retrieve the results (e.g., "text" or "vector").
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The search method used to retrieve the results (e.g., \"text\" or \"vector\").",
+    ///  "examples": [
+    ///    "text"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "text",
+    ///    "vector"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402SearchResourcesResponseSearchMethod {
+        #[serde(rename = "text")]
+        Text,
+        #[serde(rename = "vector")]
+        Vector,
+    }
+    impl ::std::convert::From<&Self> for X402SearchResourcesResponseSearchMethod {
+        fn from(value: &X402SearchResourcesResponseSearchMethod) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402SearchResourcesResponseSearchMethod {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Text => f.write_str("text"),
+                Self::Vector => f.write_str("vector"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402SearchResourcesResponseSearchMethod {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "text" => Ok(Self::Text),
+                "vector" => Ok(Self::Vector),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402SearchResourcesResponseSearchMethod {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402SearchResourcesResponseSearchMethod {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402SearchResourcesResponseSearchMethod {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///The reason the payment settlement errored on the x402 protocol.
@@ -78346,6 +79777,475 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct X402DiscoveryMerchantResponse {
+            pagination: ::std::result::Result<
+                super::X402DiscoveryMerchantResponsePagination,
+                ::std::string::String,
+            >,
+            pay_to: ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
+            resources: ::std::result::Result<
+                ::std::vec::Vec<super::X402DiscoveryResource>,
+                ::std::string::String,
+            >,
+            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402DiscoveryMerchantResponse {
+            fn default() -> Self {
+                Self {
+                    pagination: Err("no value supplied for pagination".to_string()),
+                    pay_to: Err("no value supplied for pay_to".to_string()),
+                    resources: Err("no value supplied for resources".to_string()),
+                    x402_version: Err("no value supplied for x402_version".to_string()),
+                }
+            }
+        }
+        impl X402DiscoveryMerchantResponse {
+            pub fn pagination<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402DiscoveryMerchantResponsePagination>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.pagination = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for pagination: {}", e));
+                self
+            }
+            pub fn pay_to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.pay_to = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for pay_to: {}", e));
+                self
+            }
+            pub fn resources<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::X402DiscoveryResource>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.resources = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for resources: {}", e));
+                self
+            }
+            pub fn x402_version<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402Version>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.x402_version = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for x402_version: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402DiscoveryMerchantResponse>
+            for super::X402DiscoveryMerchantResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402DiscoveryMerchantResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    pagination: value.pagination?,
+                    pay_to: value.pay_to?,
+                    resources: value.resources?,
+                    x402_version: value.x402_version?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402DiscoveryMerchantResponse> for X402DiscoveryMerchantResponse {
+            fn from(value: super::X402DiscoveryMerchantResponse) -> Self {
+                Self {
+                    pagination: Ok(value.pagination),
+                    pay_to: Ok(value.pay_to),
+                    resources: Ok(value.resources),
+                    x402_version: Ok(value.x402_version),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402DiscoveryMerchantResponsePagination {
+            limit: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            offset: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            total: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402DiscoveryMerchantResponsePagination {
+            fn default() -> Self {
+                Self {
+                    limit: Ok(Default::default()),
+                    offset: Ok(Default::default()),
+                    total: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402DiscoveryMerchantResponsePagination {
+            pub fn limit<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.limit = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for limit: {}", e));
+                self
+            }
+            pub fn offset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.offset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for offset: {}", e));
+                self
+            }
+            pub fn total<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.total = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for total: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402DiscoveryMerchantResponsePagination>
+            for super::X402DiscoveryMerchantResponsePagination
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402DiscoveryMerchantResponsePagination,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    limit: value.limit?,
+                    offset: value.offset?,
+                    total: value.total?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402DiscoveryMerchantResponsePagination>
+            for X402DiscoveryMerchantResponsePagination
+        {
+            fn from(value: super::X402DiscoveryMerchantResponsePagination) -> Self {
+                Self {
+                    limit: Ok(value.limit),
+                    offset: Ok(value.offset),
+                    total: Ok(value.total),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402DiscoveryResource {
+            accepts: ::std::result::Result<
+                ::std::vec::Vec<super::X402PaymentRequirements>,
+                ::std::string::String,
+            >,
+            description: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            extensions: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+            last_updated: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            quality: ::std::result::Result<
+                ::std::option::Option<super::X402ResourceQuality>,
+                ::std::string::String,
+            >,
+            resource: ::std::result::Result<::std::string::String, ::std::string::String>,
+            type_: ::std::result::Result<super::X402DiscoveryResourceType, ::std::string::String>,
+            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402DiscoveryResource {
+            fn default() -> Self {
+                Self {
+                    accepts: Ok(Default::default()),
+                    description: Ok(Default::default()),
+                    extensions: Ok(Default::default()),
+                    last_updated: Ok(Default::default()),
+                    quality: Ok(Default::default()),
+                    resource: Err("no value supplied for resource".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                    x402_version: Err("no value supplied for x402_version".to_string()),
+                }
+            }
+        }
+        impl X402DiscoveryResource {
+            pub fn accepts<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::X402PaymentRequirements>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.accepts = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for accepts: {}", e));
+                self
+            }
+            pub fn description<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.description = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for description: {}", e));
+                self
+            }
+            pub fn extensions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extensions = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extensions: {}", e));
+                self
+            }
+            pub fn last_updated<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.last_updated = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for last_updated: {}", e)
+                });
+                self
+            }
+            pub fn quality<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::X402ResourceQuality>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.quality = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for quality: {}", e));
+                self
+            }
+            pub fn resource<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.resource = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for resource: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402DiscoveryResourceType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+            pub fn x402_version<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402Version>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.x402_version = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for x402_version: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402DiscoveryResource> for super::X402DiscoveryResource {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402DiscoveryResource,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    accepts: value.accepts?,
+                    description: value.description?,
+                    extensions: value.extensions?,
+                    last_updated: value.last_updated?,
+                    quality: value.quality?,
+                    resource: value.resource?,
+                    type_: value.type_?,
+                    x402_version: value.x402_version?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402DiscoveryResource> for X402DiscoveryResource {
+            fn from(value: super::X402DiscoveryResource) -> Self {
+                Self {
+                    accepts: Ok(value.accepts),
+                    description: Ok(value.description),
+                    extensions: Ok(value.extensions),
+                    last_updated: Ok(value.last_updated),
+                    quality: Ok(value.quality),
+                    resource: Ok(value.resource),
+                    type_: Ok(value.type_),
+                    x402_version: Ok(value.x402_version),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402DiscoveryResourcesResponse {
+            items: ::std::result::Result<
+                ::std::vec::Vec<super::X402DiscoveryResource>,
+                ::std::string::String,
+            >,
+            pagination: ::std::result::Result<
+                super::X402DiscoveryResourcesResponsePagination,
+                ::std::string::String,
+            >,
+            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402DiscoveryResourcesResponse {
+            fn default() -> Self {
+                Self {
+                    items: Err("no value supplied for items".to_string()),
+                    pagination: Err("no value supplied for pagination".to_string()),
+                    x402_version: Err("no value supplied for x402_version".to_string()),
+                }
+            }
+        }
+        impl X402DiscoveryResourcesResponse {
+            pub fn items<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::X402DiscoveryResource>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.items = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for items: {}", e));
+                self
+            }
+            pub fn pagination<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402DiscoveryResourcesResponsePagination>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.pagination = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for pagination: {}", e));
+                self
+            }
+            pub fn x402_version<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402Version>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.x402_version = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for x402_version: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402DiscoveryResourcesResponse>
+            for super::X402DiscoveryResourcesResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402DiscoveryResourcesResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    items: value.items?,
+                    pagination: value.pagination?,
+                    x402_version: value.x402_version?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402DiscoveryResourcesResponse>
+            for X402DiscoveryResourcesResponse
+        {
+            fn from(value: super::X402DiscoveryResourcesResponse) -> Self {
+                Self {
+                    items: Ok(value.items),
+                    pagination: Ok(value.pagination),
+                    x402_version: Ok(value.x402_version),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402DiscoveryResourcesResponsePagination {
+            limit: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            offset: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            total: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402DiscoveryResourcesResponsePagination {
+            fn default() -> Self {
+                Self {
+                    limit: Ok(Default::default()),
+                    offset: Ok(Default::default()),
+                    total: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402DiscoveryResourcesResponsePagination {
+            pub fn limit<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.limit = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for limit: {}", e));
+                self
+            }
+            pub fn offset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.offset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for offset: {}", e));
+                self
+            }
+            pub fn total<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.total = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for total: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402DiscoveryResourcesResponsePagination>
+            for super::X402DiscoveryResourcesResponsePagination
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402DiscoveryResourcesResponsePagination,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    limit: value.limit?,
+                    offset: value.offset?,
+                    total: value.total?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402DiscoveryResourcesResponsePagination>
+            for X402DiscoveryResourcesResponsePagination
+        {
+            fn from(value: super::X402DiscoveryResourcesResponsePagination) -> Self {
+                Self {
+                    limit: Ok(value.limit),
+                    offset: Ok(value.offset),
+                    total: Ok(value.total),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct X402ExactEvmPayload {
             authorization: ::std::result::Result<
                 super::X402ExactEvmPayloadAuthorization,
@@ -78920,6 +80820,262 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct X402McpError {
+            code: ::std::result::Result<i64, ::std::string::String>,
+            data: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+            message: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402McpError {
+            fn default() -> Self {
+                Self {
+                    code: Err("no value supplied for code".to_string()),
+                    data: Ok(Default::default()),
+                    message: Err("no value supplied for message".to_string()),
+                }
+            }
+        }
+        impl X402McpError {
+            pub fn code<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.code = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for code: {}", e));
+                self
+            }
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.message = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for message: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402McpError> for super::X402McpError {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402McpError,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    code: value.code?,
+                    data: value.data?,
+                    message: value.message?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402McpError> for X402McpError {
+            fn from(value: super::X402McpError) -> Self {
+                Self {
+                    code: Ok(value.code),
+                    data: Ok(value.data),
+                    message: Ok(value.message),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402McpRequest {
+            id: ::std::result::Result<
+                ::std::option::Option<super::X402McpRequestId>,
+                ::std::string::String,
+            >,
+            jsonrpc: ::std::result::Result<super::X402McpRequestJsonrpc, ::std::string::String>,
+            method: ::std::result::Result<::std::string::String, ::std::string::String>,
+            params: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402McpRequest {
+            fn default() -> Self {
+                Self {
+                    id: Ok(Default::default()),
+                    jsonrpc: Err("no value supplied for jsonrpc".to_string()),
+                    method: Err("no value supplied for method".to_string()),
+                    params: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402McpRequest {
+            pub fn id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::X402McpRequestId>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for id: {}", e));
+                self
+            }
+            pub fn jsonrpc<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402McpRequestJsonrpc>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.jsonrpc = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for jsonrpc: {}", e));
+                self
+            }
+            pub fn method<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.method = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for method: {}", e));
+                self
+            }
+            pub fn params<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.params = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for params: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402McpRequest> for super::X402McpRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402McpRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    id: value.id?,
+                    jsonrpc: value.jsonrpc?,
+                    method: value.method?,
+                    params: value.params?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402McpRequest> for X402McpRequest {
+            fn from(value: super::X402McpRequest) -> Self {
+                Self {
+                    id: Ok(value.id),
+                    jsonrpc: Ok(value.jsonrpc),
+                    method: Ok(value.method),
+                    params: Ok(value.params),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402McpResponse {
+            error: ::std::result::Result<
+                ::std::option::Option<super::X402McpError>,
+                ::std::string::String,
+            >,
+            id: ::std::result::Result<
+                ::std::option::Option<super::X402McpResponseId>,
+                ::std::string::String,
+            >,
+            jsonrpc: ::std::result::Result<super::X402McpResponseJsonrpc, ::std::string::String>,
+            result: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402McpResponse {
+            fn default() -> Self {
+                Self {
+                    error: Ok(Default::default()),
+                    id: Ok(Default::default()),
+                    jsonrpc: Err("no value supplied for jsonrpc".to_string()),
+                    result: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402McpResponse {
+            pub fn error<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::X402McpError>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for error: {}", e));
+                self
+            }
+            pub fn id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::X402McpResponseId>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for id: {}", e));
+                self
+            }
+            pub fn jsonrpc<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402McpResponseJsonrpc>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.jsonrpc = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for jsonrpc: {}", e));
+                self
+            }
+            pub fn result<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.result = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for result: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402McpResponse> for super::X402McpResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402McpResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    error: value.error?,
+                    id: value.id?,
+                    jsonrpc: value.jsonrpc?,
+                    result: value.result?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402McpResponse> for X402McpResponse {
+            fn from(value: super::X402McpResponse) -> Self {
+                Self {
+                    error: Ok(value.error),
+                    id: Ok(value.id),
+                    jsonrpc: Ok(value.jsonrpc),
+                    result: Ok(value.result),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct X402ResourceInfo {
             description: ::std::result::Result<
                 ::std::option::Option<super::Description>,
@@ -78993,6 +81149,177 @@ pub mod types {
                     description: Ok(value.description),
                     mime_type: Ok(value.mime_type),
                     url: Ok(value.url),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402ResourceQuality {
+            l30_days_total_calls:
+                ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            l30_days_unique_payers:
+                ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            last_called_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402ResourceQuality {
+            fn default() -> Self {
+                Self {
+                    l30_days_total_calls: Ok(Default::default()),
+                    l30_days_unique_payers: Ok(Default::default()),
+                    last_called_at: Ok(Default::default()),
+                }
+            }
+        }
+        impl X402ResourceQuality {
+            pub fn l30_days_total_calls<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.l30_days_total_calls = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for l30_days_total_calls: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn l30_days_unique_payers<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.l30_days_unique_payers = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for l30_days_unique_payers: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn last_called_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.last_called_at = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for last_called_at: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402ResourceQuality> for super::X402ResourceQuality {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402ResourceQuality,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    l30_days_total_calls: value.l30_days_total_calls?,
+                    l30_days_unique_payers: value.l30_days_unique_payers?,
+                    last_called_at: value.last_called_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402ResourceQuality> for X402ResourceQuality {
+            fn from(value: super::X402ResourceQuality) -> Self {
+                Self {
+                    l30_days_total_calls: Ok(value.l30_days_total_calls),
+                    l30_days_unique_payers: Ok(value.l30_days_unique_payers),
+                    last_called_at: Ok(value.last_called_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402SearchResourcesResponse {
+            partial_results: ::std::result::Result<bool, ::std::string::String>,
+            resources: ::std::result::Result<
+                ::std::vec::Vec<super::X402DiscoveryResource>,
+                ::std::string::String,
+            >,
+            search_method: ::std::result::Result<
+                ::std::option::Option<super::X402SearchResourcesResponseSearchMethod>,
+                ::std::string::String,
+            >,
+            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402SearchResourcesResponse {
+            fn default() -> Self {
+                Self {
+                    partial_results: Err("no value supplied for partial_results".to_string()),
+                    resources: Err("no value supplied for resources".to_string()),
+                    search_method: Ok(Default::default()),
+                    x402_version: Err("no value supplied for x402_version".to_string()),
+                }
+            }
+        }
+        impl X402SearchResourcesResponse {
+            pub fn partial_results<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.partial_results = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for partial_results: {}", e)
+                });
+                self
+            }
+            pub fn resources<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::X402DiscoveryResource>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.resources = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for resources: {}", e));
+                self
+            }
+            pub fn search_method<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::X402SearchResourcesResponseSearchMethod>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.search_method = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for search_method: {}", e)
+                });
+                self
+            }
+            pub fn x402_version<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402Version>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.x402_version = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for x402_version: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402SearchResourcesResponse> for super::X402SearchResourcesResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402SearchResourcesResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    partial_results: value.partial_results?,
+                    resources: value.resources?,
+                    search_method: value.search_method?,
+                    x402_version: value.x402_version?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402SearchResourcesResponse> for X402SearchResourcesResponse {
+            fn from(value: super::X402SearchResourcesResponse) -> Self {
+                Self {
+                    partial_results: Ok(value.partial_results),
+                    resources: Ok(value.resources),
+                    search_method: Ok(value.search_method),
+                    x402_version: Ok(value.x402_version),
                 }
             }
         }
@@ -82541,6 +84868,112 @@ impl Client {
     ```*/
     pub fn list_solana_token_balances(&self) -> builder::ListSolanaTokenBalances<'_> {
         builder::ListSolanaTokenBalances::new(self)
+    }
+    /**Handle MCP JSON-RPC request
+
+    Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+
+    Sends a `POST` request to `/v2/x402/discovery/mcp`
+
+    ```ignore
+    let response = client.post_x402_discovery_mcp()
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn post_x402_discovery_mcp(&self) -> builder::PostX402DiscoveryMcp<'_> {
+        builder::PostX402DiscoveryMcp::new(self)
+    }
+    /**List merchant discovery info
+
+    Gets x402 merchant discovery information for a given merchant payment address.
+    This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements.
+    The response is paginated, and by default, returns 20 items per page.
+
+    Sends a `GET` request to `/v2/x402/discovery/merchant`
+
+    Arguments:
+    - `limit`: The number of resources to return per page.
+    - `offset`: The offset of the first resource to return.
+    - `pay_to`: The merchant's payment address to look up.
+    This is the onchain address that payment requirements route funds to.
+    ```ignore
+    let response = client.list_x402_discovery_merchant()
+        .limit(limit)
+        .offset(offset)
+        .pay_to(pay_to)
+        .send()
+        .await;
+    ```*/
+    pub fn list_x402_discovery_merchant(&self) -> builder::ListX402DiscoveryMerchant<'_> {
+        builder::ListX402DiscoveryMerchant::new(self)
+    }
+    /**List discovered x402 resources
+
+    Lists all active discovered x402 resources.
+    This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata.
+    The response is paginated, and by default, returns 100 items per page.
+
+    Sends a `GET` request to `/v2/x402/discovery/resources`
+
+    Arguments:
+    - `limit`: The number of discovered x402 resources to return per page.
+    - `offset`: The offset of the first discovered x402 resource to return.
+    - `type_`: Filter by protocol type (e.g., "http", "mcp").
+    Currently, the only supported protocol type is "http".
+    ```ignore
+    let response = client.list_x402_discovery_resources()
+        .limit(limit)
+        .offset(offset)
+        .type_(type_)
+        .send()
+        .await;
+    ```*/
+    pub fn list_x402_discovery_resources(&self) -> builder::ListX402DiscoveryResources<'_> {
+        builder::ListX402DiscoveryResources::new(self)
+    }
+    /**Search x402 resources
+
+    Searches for active x402 resources using a text query and optional filters.
+    Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score.
+    Legacy network names (e.g., `base`, `base-sepolia`, `solana`) are automatically normalized to their CAIP-2 equivalents.
+    The response is limited to 20 items per request. If more results exist, `partialResults` will be `true`.
+
+    Sends a `GET` request to `/v2/x402/discovery/search`
+
+    Arguments:
+    - `asset`: Filter results by asset address.
+    For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+    Matching is case-insensitive.
+    - `extensions`: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+    - `limit`: Maximum number of resources to return. Must be a positive integer no greater than 20.
+    Defaults to 20.
+    - `max_usd_price`: Filter results to resources with a USD price at or below this value.
+    - `network`: Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`).
+    Legacy names are normalized to their CAIP-2 equivalents before filtering.
+    - `pay_to`: Filter results by the merchant's payment address.
+    For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+    - `query`: Full-text or semantic search query to find matching resources.
+    - `scheme`: Filter results by payment scheme (e.g., `exact`).
+    - `url_substring`: Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL).
+    Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset.
+    Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+    ```ignore
+    let response = client.search_x402_resources()
+        .asset(asset)
+        .extensions(extensions)
+        .limit(limit)
+        .max_usd_price(max_usd_price)
+        .network(network)
+        .pay_to(pay_to)
+        .query(query)
+        .scheme(scheme)
+        .url_substring(url_substring)
+        .send()
+        .await;
+    ```*/
+    pub fn search_x402_resources(&self) -> builder::SearchX402Resources<'_> {
+        builder::SearchX402Resources::new(self)
     }
     /**Settle a payment
 
@@ -94307,6 +96740,525 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::post_x402_discovery_mcp`]
+
+    [`Client::post_x402_discovery_mcp`]: super::Client::post_x402_discovery_mcp*/
+    #[derive(Debug, Clone)]
+    pub struct PostX402DiscoveryMcp<'a> {
+        client: &'a super::Client,
+        body: Result<types::builder::X402McpRequest, String>,
+    }
+    impl<'a> PostX402DiscoveryMcp<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::X402McpRequest>,
+            <V as std::convert::TryInto<types::X402McpRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| format!("conversion to `X402McpRequest` for body failed: {}", s));
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(types::builder::X402McpRequest) -> types::builder::X402McpRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/x402/discovery/mcp`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::X402McpResponse>, Error<types::Error>> {
+            let Self { client, body } = self;
+            let body = body
+                .and_then(|v| types::X402McpRequest::try_from(v).map_err(|e| e.to_string()))
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/x402/discovery/mcp", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "post_x402_discovery_mcp",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_x402_discovery_merchant`]
+
+    [`Client::list_x402_discovery_merchant`]: super::Client::list_x402_discovery_merchant*/
+    #[derive(Debug, Clone)]
+    pub struct ListX402DiscoveryMerchant<'a> {
+        client: &'a super::Client,
+        limit: Result<Option<i64>, String>,
+        offset: Result<Option<i64>, String>,
+        pay_to: Result<types::BlockchainAddress, String>,
+    }
+    impl<'a> ListX402DiscoveryMerchant<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                limit: Ok(None),
+                offset: Ok(None),
+                pay_to: Err("pay_to was not initialized".to_string()),
+            }
+        }
+        pub fn limit<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.limit = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for limit failed".to_string());
+            self
+        }
+        pub fn offset<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.offset = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for offset failed".to_string());
+            self
+        }
+        pub fn pay_to<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.pay_to = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for pay_to failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/x402/discovery/merchant`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::X402DiscoveryMerchantResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                limit,
+                offset,
+                pay_to,
+            } = self;
+            let limit = limit.map_err(Error::InvalidRequest)?;
+            let offset = offset.map_err(Error::InvalidRequest)?;
+            let pay_to = pay_to.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/x402/discovery/merchant", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "limit", &limit,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "offset", &offset,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "payTo", &pay_to,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_x402_discovery_merchant",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_x402_discovery_resources`]
+
+    [`Client::list_x402_discovery_resources`]: super::Client::list_x402_discovery_resources*/
+    #[derive(Debug, Clone)]
+    pub struct ListX402DiscoveryResources<'a> {
+        client: &'a super::Client,
+        limit: Result<Option<i64>, String>,
+        offset: Result<Option<i64>, String>,
+        type_: Result<Option<::std::string::String>, String>,
+    }
+    impl<'a> ListX402DiscoveryResources<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                limit: Ok(None),
+                offset: Ok(None),
+                type_: Ok(None),
+            }
+        }
+        pub fn limit<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.limit = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for limit failed".to_string());
+            self
+        }
+        pub fn offset<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.offset = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for offset failed".to_string());
+            self
+        }
+        pub fn type_<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.type_ = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for type_ failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/x402/discovery/resources`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::X402DiscoveryResourcesResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                limit,
+                offset,
+                type_,
+            } = self;
+            let limit = limit.map_err(Error::InvalidRequest)?;
+            let offset = offset.map_err(Error::InvalidRequest)?;
+            let type_ = type_.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/x402/discovery/resources", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "limit", &limit,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "offset", &offset,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "type", &type_,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_x402_discovery_resources",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::search_x402_resources`]
+
+    [`Client::search_x402_resources`]: super::Client::search_x402_resources*/
+    #[derive(Debug, Clone)]
+    pub struct SearchX402Resources<'a> {
+        client: &'a super::Client,
+        asset: Result<Option<::std::string::String>, String>,
+        extensions: Result<Option<::std::vec::Vec<::std::string::String>>, String>,
+        limit: Result<Option<::std::num::NonZeroU64>, String>,
+        max_usd_price: Result<Option<::std::string::String>, String>,
+        network: Result<Option<::std::string::String>, String>,
+        pay_to: Result<Option<types::BlockchainAddress>, String>,
+        query: Result<Option<types::SearchX402ResourcesQuery>, String>,
+        scheme: Result<Option<::std::string::String>, String>,
+        url_substring: Result<Option<types::SearchX402ResourcesUrlSubstring>, String>,
+    }
+    impl<'a> SearchX402Resources<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                asset: Ok(None),
+                extensions: Ok(None),
+                limit: Ok(None),
+                max_usd_price: Ok(None),
+                network: Ok(None),
+                pay_to: Ok(None),
+                query: Ok(None),
+                scheme: Ok(None),
+                url_substring: Ok(None),
+            }
+        }
+        pub fn asset<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.asset = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for asset failed".to_string()
+            });
+            self
+        }
+        pub fn extensions<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+        {
+            self.extensions = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `:: std :: vec :: Vec < :: std :: string :: String >` for extensions failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn limit<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::num::NonZeroU64>,
+        {
+            self.limit = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: num :: NonZeroU64` for limit failed".to_string()
+            });
+            self
+        }
+        pub fn max_usd_price<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.max_usd_price = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for max_usd_price failed".to_string()
+            });
+            self
+        }
+        pub fn network<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.network = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for network failed".to_string()
+            });
+            self
+        }
+        pub fn pay_to<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.pay_to = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `BlockchainAddress` for pay_to failed".to_string());
+            self
+        }
+        pub fn query<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SearchX402ResourcesQuery>,
+        {
+            self.query = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SearchX402ResourcesQuery` for query failed".to_string()
+            });
+            self
+        }
+        pub fn scheme<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.scheme = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for scheme failed".to_string()
+            });
+            self
+        }
+        pub fn url_substring<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::SearchX402ResourcesUrlSubstring>,
+        {
+            self.url_substring = value.try_into().map(Some).map_err(|_| {
+                "conversion to `SearchX402ResourcesUrlSubstring` for url_substring failed"
+                    .to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/x402/discovery/search`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::X402SearchResourcesResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                asset,
+                extensions,
+                limit,
+                max_usd_price,
+                network,
+                pay_to,
+                query,
+                scheme,
+                url_substring,
+            } = self;
+            let asset = asset.map_err(Error::InvalidRequest)?;
+            let extensions = extensions.map_err(Error::InvalidRequest)?;
+            let limit = limit.map_err(Error::InvalidRequest)?;
+            let max_usd_price = max_usd_price.map_err(Error::InvalidRequest)?;
+            let network = network.map_err(Error::InvalidRequest)?;
+            let pay_to = pay_to.map_err(Error::InvalidRequest)?;
+            let query = query.map_err(Error::InvalidRequest)?;
+            let scheme = scheme.map_err(Error::InvalidRequest)?;
+            let url_substring = url_substring.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/x402/discovery/search", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "asset", &asset,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "extensions",
+                    &extensions,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "limit", &limit,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "maxUsdPrice",
+                    &max_usd_price,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "payTo", &pay_to,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "query", &query,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "scheme", &scheme,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "urlSubstring",
+                    &url_substring,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "search_x402_resources",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(

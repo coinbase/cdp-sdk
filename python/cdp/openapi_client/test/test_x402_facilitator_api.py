@@ -27,6 +27,34 @@ class TestX402FacilitatorApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_list_x402_discovery_merchant(self) -> None:
+        """Test case for list_x402_discovery_merchant
+
+        List merchant discovery info
+        """
+        pass
+
+    async def test_list_x402_discovery_resources(self) -> None:
+        """Test case for list_x402_discovery_resources
+
+        List discovered x402 resources
+        """
+        pass
+
+    async def test_post_x402_discovery_mcp(self) -> None:
+        """Test case for post_x402_discovery_mcp
+
+        Handle MCP JSON-RPC request
+        """
+        pass
+
+    async def test_search_x402_resources(self) -> None:
+        """Test case for search_x402_resources
+
+        Search x402 resources
+        """
+        pass
+
     async def test_settle_x402_payment(self) -> None:
         """Test case for settle_x402_payment
 
