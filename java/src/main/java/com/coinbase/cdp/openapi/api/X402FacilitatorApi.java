@@ -22,6 +22,11 @@ import com.coinbase.cdp.openapi.model.InlineObject;
 import com.coinbase.cdp.openapi.model.InlineObject1;
 import com.coinbase.cdp.openapi.model.InlineObject2;
 import com.coinbase.cdp.openapi.model.VerifyX402PaymentRequest;
+import com.coinbase.cdp.openapi.model.X402DiscoveryMerchantResponse;
+import com.coinbase.cdp.openapi.model.X402DiscoveryResourcesResponse;
+import com.coinbase.cdp.openapi.model.X402McpRequest;
+import com.coinbase.cdp.openapi.model.X402McpResponse;
+import com.coinbase.cdp.openapi.model.X402SearchResourcesResponse;
 import com.coinbase.cdp.openapi.model.X402SettlePaymentRejection;
 import com.coinbase.cdp.openapi.model.X402VerifyPaymentRejection;
 
@@ -85,6 +90,429 @@ public class X402FacilitatorApi {
       body = "[no body]";
     }
     return operationId + " call failed with: " + statusCode + " - " + body;
+  }
+
+  /**
+   * List merchant discovery info
+   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+   * @param payTo The merchant&#39;s payment address to look up. This is the onchain address that payment requirements route funds to. (required)
+   * @param limit The number of resources to return per page. (optional, default to 20)
+   * @param offset The offset of the first resource to return. (optional, default to 0)
+   * @return X402DiscoveryMerchantResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402DiscoveryMerchantResponse listX402DiscoveryMerchant(String payTo, Integer limit, Integer offset) throws ApiException {
+    ApiResponse<X402DiscoveryMerchantResponse> localVarResponse = listX402DiscoveryMerchantWithHttpInfo(payTo, limit, offset);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List merchant discovery info
+   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+   * @param payTo The merchant&#39;s payment address to look up. This is the onchain address that payment requirements route funds to. (required)
+   * @param limit The number of resources to return per page. (optional, default to 20)
+   * @param offset The offset of the first resource to return. (optional, default to 0)
+   * @return ApiResponse&lt;X402DiscoveryMerchantResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402DiscoveryMerchantResponse> listX402DiscoveryMerchantWithHttpInfo(String payTo, Integer limit, Integer offset) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listX402DiscoveryMerchantRequestBuilder(payTo, limit, offset);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listX402DiscoveryMerchant", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402DiscoveryMerchantResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402DiscoveryMerchantResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402DiscoveryMerchantResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listX402DiscoveryMerchantRequestBuilder(String payTo, Integer limit, Integer offset) throws ApiException {
+    // verify the required parameter 'payTo' is set
+    if (payTo == null) {
+      throw new ApiException(400, "Missing the required parameter 'payTo' when calling listX402DiscoveryMerchant");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/discovery/merchant";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "payTo";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("payTo", payTo));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+    localVarQueryParameterBaseName = "offset";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("offset", offset));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * List discovered x402 resources
+   * Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
+   * @param type Filter by protocol type (e.g., \&quot;http\&quot;, \&quot;mcp\&quot;). Currently, the only supported protocol type is \&quot;http\&quot;. (optional)
+   * @param limit The number of discovered x402 resources to return per page. (optional, default to 100)
+   * @param offset The offset of the first discovered x402 resource to return. (optional, default to 0)
+   * @return X402DiscoveryResourcesResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402DiscoveryResourcesResponse listX402DiscoveryResources(String type, Integer limit, Integer offset) throws ApiException {
+    ApiResponse<X402DiscoveryResourcesResponse> localVarResponse = listX402DiscoveryResourcesWithHttpInfo(type, limit, offset);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List discovered x402 resources
+   * Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
+   * @param type Filter by protocol type (e.g., \&quot;http\&quot;, \&quot;mcp\&quot;). Currently, the only supported protocol type is \&quot;http\&quot;. (optional)
+   * @param limit The number of discovered x402 resources to return per page. (optional, default to 100)
+   * @param offset The offset of the first discovered x402 resource to return. (optional, default to 0)
+   * @return ApiResponse&lt;X402DiscoveryResourcesResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402DiscoveryResourcesResponse> listX402DiscoveryResourcesWithHttpInfo(String type, Integer limit, Integer offset) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listX402DiscoveryResourcesRequestBuilder(type, limit, offset);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listX402DiscoveryResources", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402DiscoveryResourcesResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402DiscoveryResourcesResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402DiscoveryResourcesResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listX402DiscoveryResourcesRequestBuilder(String type, Integer limit, Integer offset) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/discovery/resources";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "type";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("type", type));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+    localVarQueryParameterBaseName = "offset";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("offset", offset));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Handle MCP JSON-RPC request
+   * Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+   * @param x402McpRequest  (required)
+   * @return X402McpResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402McpResponse postX402DiscoveryMcp(X402McpRequest x402McpRequest) throws ApiException {
+    ApiResponse<X402McpResponse> localVarResponse = postX402DiscoveryMcpWithHttpInfo(x402McpRequest);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Handle MCP JSON-RPC request
+   * Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+   * @param x402McpRequest  (required)
+   * @return ApiResponse&lt;X402McpResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402McpResponse> postX402DiscoveryMcpWithHttpInfo(X402McpRequest x402McpRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = postX402DiscoveryMcpRequestBuilder(x402McpRequest);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("postX402DiscoveryMcp", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402McpResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402McpResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402McpResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder postX402DiscoveryMcpRequestBuilder(X402McpRequest x402McpRequest) throws ApiException {
+    // verify the required parameter 'x402McpRequest' is set
+    if (x402McpRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'x402McpRequest' when calling postX402DiscoveryMcp");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/discovery/mcp";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(x402McpRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Search x402 resources
+   * Searches for active x402 resources using a text query and optional filters. Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score. Legacy network names (e.g., &#x60;base&#x60;, &#x60;base-sepolia&#x60;, &#x60;solana&#x60;) are automatically normalized to their CAIP-2 equivalents. The response is limited to 20 items per request. If more results exist, &#x60;partialResults&#x60; will be &#x60;true&#x60;.
+   * @param query Full-text or semantic search query to find matching resources. (optional)
+   * @param network Filter results by network in CAIP-2 format (e.g., &#x60;eip155:8453&#x60;) or legacy name (e.g., &#x60;base&#x60;, &#x60;base-sepolia&#x60;, &#x60;solana&#x60;). Legacy names are normalized to their CAIP-2 equivalents before filtering. (optional)
+   * @param asset Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive. (optional)
+   * @param scheme Filter results by payment scheme (e.g., &#x60;exact&#x60;). (optional)
+   * @param payTo Filter results by the merchant&#39;s payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. (optional)
+   * @param urlSubstring Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with &#x60;query&#x60; to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. &#x60;api.example.com&#x60; rather than &#x60;example&#x60;) — a short substring may also match resources whose path contains the same string. (optional)
+   * @param maxUsdPrice Filter results to resources with a USD price at or below this value. (optional)
+   * @param extensions Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions. (optional)
+   * @param limit Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20. (optional, default to 20)
+   * @return X402SearchResourcesResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402SearchResourcesResponse searchX402Resources(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, Integer limit) throws ApiException {
+    ApiResponse<X402SearchResourcesResponse> localVarResponse = searchX402ResourcesWithHttpInfo(query, network, asset, scheme, payTo, urlSubstring, maxUsdPrice, extensions, limit);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Search x402 resources
+   * Searches for active x402 resources using a text query and optional filters. Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score. Legacy network names (e.g., &#x60;base&#x60;, &#x60;base-sepolia&#x60;, &#x60;solana&#x60;) are automatically normalized to their CAIP-2 equivalents. The response is limited to 20 items per request. If more results exist, &#x60;partialResults&#x60; will be &#x60;true&#x60;.
+   * @param query Full-text or semantic search query to find matching resources. (optional)
+   * @param network Filter results by network in CAIP-2 format (e.g., &#x60;eip155:8453&#x60;) or legacy name (e.g., &#x60;base&#x60;, &#x60;base-sepolia&#x60;, &#x60;solana&#x60;). Legacy names are normalized to their CAIP-2 equivalents before filtering. (optional)
+   * @param asset Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive. (optional)
+   * @param scheme Filter results by payment scheme (e.g., &#x60;exact&#x60;). (optional)
+   * @param payTo Filter results by the merchant&#39;s payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. (optional)
+   * @param urlSubstring Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with &#x60;query&#x60; to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. &#x60;api.example.com&#x60; rather than &#x60;example&#x60;) — a short substring may also match resources whose path contains the same string. (optional)
+   * @param maxUsdPrice Filter results to resources with a USD price at or below this value. (optional)
+   * @param extensions Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions. (optional)
+   * @param limit Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20. (optional, default to 20)
+   * @return ApiResponse&lt;X402SearchResourcesResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402SearchResourcesResponse> searchX402ResourcesWithHttpInfo(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, Integer limit) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = searchX402ResourcesRequestBuilder(query, network, asset, scheme, payTo, urlSubstring, maxUsdPrice, extensions, limit);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("searchX402Resources", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402SearchResourcesResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402SearchResourcesResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402SearchResourcesResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder searchX402ResourcesRequestBuilder(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, Integer limit) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/discovery/search";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "query";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("query", query));
+    localVarQueryParameterBaseName = "network";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("network", network));
+    localVarQueryParameterBaseName = "asset";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("asset", asset));
+    localVarQueryParameterBaseName = "scheme";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("scheme", scheme));
+    localVarQueryParameterBaseName = "payTo";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("payTo", payTo));
+    localVarQueryParameterBaseName = "urlSubstring";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("urlSubstring", urlSubstring));
+    localVarQueryParameterBaseName = "maxUsdPrice";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("maxUsdPrice", maxUsdPrice));
+    localVarQueryParameterBaseName = "extensions";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "extensions", extensions));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**

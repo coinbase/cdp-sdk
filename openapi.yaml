@@ -637,7 +637,7 @@ tags:
   - name: x402 Facilitator
     x-audience: public
     x-slo-tier:
-      tier: ga
+      tier: beta
     description: |-
       The x402 payment protocol is an HTTP-based payment protocol that enables developers running resource servers to accept payments from users using a variety of payment methods.
       For more details on the x402 payment protocol, please see the [x402 specification](https://www.x402.org/).
@@ -8642,6 +8642,334 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/discovery/resources:
+    get:
+      x-audience: public
+      summary: List discovered x402 resources
+      description: |-
+        Lists all active discovered x402 resources.
+        This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata.
+        The response is paginated, and by default, returns 100 items per page.
+      operationId: listX402DiscoveryResources
+      tags:
+        - x402 Facilitator
+      security:
+        - unauthenticated: []
+      parameters:
+        - name: type
+          in: query
+          description: |-
+            Filter by protocol type (e.g., "http", "mcp").
+            Currently, the only supported protocol type is "http".
+          required: false
+          schema:
+            type: string
+            example: http
+        - name: limit
+          in: query
+          description: The number of discovered x402 resources to return per page.
+          required: false
+          schema:
+            type: integer
+            default: 100
+          example: 50
+        - name: offset
+          in: query
+          description: The offset of the first discovered x402 resource to return.
+          required: false
+          schema:
+            type: integer
+            default: 0
+          example: 0
+      responses:
+        '200':
+          description: Successfully retrieved discovery list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/x402DiscoveryResourcesResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request parameters.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/discovery/merchant:
+    get:
+      x-audience: public
+      summary: List merchant discovery info
+      description: |-
+        Gets x402 merchant discovery information for a given merchant payment address.
+        This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements.
+        The response is paginated, and by default, returns 20 items per page.
+      operationId: listX402DiscoveryMerchant
+      tags:
+        - x402 Facilitator
+      security:
+        - unauthenticated: []
+      parameters:
+        - name: payTo
+          in: query
+          description: |-
+            The merchant's payment address to look up.
+            This is the onchain address that payment requirements route funds to.
+          required: true
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: limit
+          in: query
+          description: The number of resources to return per page.
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 20
+        - name: offset
+          in: query
+          description: The offset of the first resource to return.
+          required: false
+          schema:
+            type: integer
+            default: 0
+          example: 0
+      responses:
+        '200':
+          description: Successfully retrieved merchant discovery info.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/x402DiscoveryMerchantResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request parameters.
+        '404':
+          description: Merchant not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No resources found for the specified payTo address.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/discovery/search:
+    get:
+      x-audience: public
+      summary: Search x402 resources
+      description: |-
+        Searches for active x402 resources using a text query and optional filters.
+        Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score.
+        Legacy network names (e.g., `base`, `base-sepolia`, `solana`) are automatically normalized to their CAIP-2 equivalents.
+        The response is limited to 20 items per request. If more results exist, `partialResults` will be `true`.
+      operationId: searchX402Resources
+      tags:
+        - x402 Facilitator
+      security:
+        - unauthenticated: []
+      parameters:
+        - name: query
+          in: query
+          description: Full-text or semantic search query to find matching resources.
+          required: false
+          schema:
+            type: string
+            maxLength: 400
+            example: weather forecast
+        - name: network
+          in: query
+          description: |-
+            Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`).
+            Legacy names are normalized to their CAIP-2 equivalents before filtering.
+          required: false
+          schema:
+            type: string
+            example: eip155:8453
+        - name: asset
+          in: query
+          description: |-
+            Filter results by asset address.
+            For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+            Matching is case-insensitive.
+          required: false
+          schema:
+            type: string
+            example: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+        - name: scheme
+          in: query
+          description: Filter results by payment scheme (e.g., `exact`).
+          required: false
+          schema:
+            type: string
+            example: exact
+        - name: payTo
+          in: query
+          description: |-
+            Filter results by the merchant's payment address.
+            For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+          required: false
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+            example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: urlSubstring
+          in: query
+          description: |-
+            Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL).
+            Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset.
+            Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+          required: false
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 2048
+            example: api.example.com
+        - name: maxUsdPrice
+          in: query
+          description: Filter results to resources with a USD price at or below this value.
+          required: false
+          schema:
+            type: string
+            example: '1.00'
+        - name: extensions
+          in: query
+          description: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            example:
+              - bazaar
+          style: form
+          explode: true
+        - name: limit
+          in: query
+          description: |-
+            Maximum number of resources to return. Must be a positive integer no greater than 20.
+            Defaults to 20.
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 20
+            minimum: 1
+          example: 20
+      responses:
+        '200':
+          description: Successfully retrieved matching x402 resources.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/x402SearchResourcesResponse'
+              examples:
+                search_results:
+                  value:
+                    x402Version: 2
+                    resources:
+                      - resource: https://api.example.com/weather/forecast
+                        description: Real-time weather forecast data.
+                        type: http
+                        x402Version: 2
+                        lastUpdated: '2024-01-15T10:30:00Z'
+                        extensions:
+                          bazaar:
+                            info:
+                              input:
+                                type: http
+                                method: GET
+                            schema: {}
+                        accepts:
+                          - scheme: exact
+                            network: eip155:8453
+                            amount: '1000000'
+                            payTo: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                            asset: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+                            maxTimeoutSeconds: 60
+                        quality:
+                          l30DaysTotalCalls: 42
+                          l30DaysUniquePayers: 15
+                          lastCalledAt: '2024-01-15T10:30:00Z'
+                    partialResults: false
+                    searchMethod: text
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: limit must be a positive integer
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/discovery/mcp:
+    post:
+      x-audience: public
+      summary: Handle MCP JSON-RPC request
+      description: Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+      operationId: postX402DiscoveryMcp
+      tags:
+        - x402 Facilitator
+      security:
+        - unauthenticated: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/x402McpRequest'
+      responses:
+        '200':
+          description: MCP response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/x402McpResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid JSON-RPC request. Please check the request format.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/onramp/orders:
     post:
       x-audience: public
@@ -9120,6 +9448,11 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: A JWT signed using the developer's own JWT private key (in the case of JWT authentication), or an end user JWT signed by CDP, encoded in base64. This is used for End User Account APIs.
+    unauthenticated:
+      x-audience: public
+      type: http
+      scheme: none
+      description: This security scheme is used for APIs that do not require authentication, such as End User Auth flows used to initiate authentication or public, read-only endpoints.
   schemas:
     EmailAuthentication:
       type: object
@@ -14909,6 +15242,286 @@ components:
         - x402Version
         - scheme
         - network
+    x402ResourceQuality:
+      type: object
+      description: Quality metrics for a discovered x402 resource.
+      properties:
+        l30DaysTotalCalls:
+          type: integer
+          description: Total number of paid calls to a resource in the last 30 days.
+          example: 42
+        l30DaysUniquePayers:
+          type: integer
+          description: Number of unique payers to a resource in the last 30 days.
+          example: 15
+        lastCalledAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent paid call to a resource.
+          example: '2024-01-15T10:30:00Z'
+      example:
+        l30DaysTotalCalls: 42
+        l30DaysUniquePayers: 15
+        lastCalledAt: '2024-01-15T10:30:00Z'
+    x402DiscoveryResource:
+      type: object
+      description: A single discovered x402 resource.
+      properties:
+        resource:
+          type: string
+          description: The URL of the resource.
+          example: https://api.example.com/weather/forecast
+        description:
+          type: string
+          description: A human-readable description of the resource.
+          example: Real-time weather forecast data
+        type:
+          type: string
+          description: Communication protocol (e.g., "http", "mcp").
+          enum:
+            - http
+            - mcp
+          example: http
+        x402Version:
+          $ref: '#/components/schemas/X402Version'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp of the last update.
+          example: '2024-01-15T10:30:00Z'
+        accepts:
+          type: array
+          description: Payment requirements accepted by the resource.
+          items:
+            $ref: '#/components/schemas/x402PaymentRequirements'
+          example:
+            - scheme: exact
+              network: eip155:8453
+              amount: '1000000'
+              payTo: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              asset: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+              maxTimeoutSeconds: 60
+        extensions:
+          type: object
+          description: Map of x402 protocol extensions supported by the resource, keyed by extension name.
+          additionalProperties: true
+          example:
+            bazaar:
+              info:
+                input:
+                  type: http
+                  method: GET
+              schema: {}
+        quality:
+          $ref: '#/components/schemas/x402ResourceQuality'
+      required:
+        - resource
+        - type
+        - x402Version
+    x402DiscoveryResourcesResponse:
+      type: object
+      description: Response containing discovered x402 resources.
+      properties:
+        x402Version:
+          $ref: '#/components/schemas/X402Version'
+        items:
+          type: array
+          description: List of discovered x402 resources.
+          items:
+            $ref: '#/components/schemas/x402DiscoveryResource'
+          example: []
+        pagination:
+          type: object
+          description: Pagination information for the response.
+          properties:
+            limit:
+              type: integer
+              description: The number of discovered x402 resources to return per page.
+              example: 100
+            offset:
+              type: integer
+              description: The offset of the first discovered x402 resource to return.
+              example: 0
+            total:
+              type: integer
+              description: The total number of discovered x402 resources.
+              example: 1000
+          example:
+            limit: 100
+            offset: 0
+            total: 1000
+      required:
+        - items
+        - x402Version
+        - pagination
+    x402DiscoveryMerchantResponse:
+      type: object
+      description: Response containing x402 resources associated with a merchant payment address.
+      properties:
+        x402Version:
+          $ref: '#/components/schemas/X402Version'
+        payTo:
+          $ref: '#/components/schemas/BlockchainAddress'
+        resources:
+          type: array
+          description: List of discovered x402 resources associated with the merchant's payTo address.
+          items:
+            $ref: '#/components/schemas/x402DiscoveryResource'
+          example:
+            - resource: https://api.example.com/premium/data
+              description: Premium API access for data analysis.
+              type: http
+              x402Version: 2
+              lastUpdated: '2024-01-15T10:30:00Z'
+              accepts:
+                - scheme: exact
+                  network: eip155:8453
+                  amount: '1000000'
+                  payTo: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  asset: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+                  maxTimeoutSeconds: 60
+              extensions:
+                bazaar:
+                  info:
+                    input:
+                      type: http
+                      method: POST
+                  schema: {}
+              quality:
+                l30DaysTotalCalls: 42
+                l30DaysUniquePayers: 15
+                lastCalledAt: '2024-01-15T10:30:00Z'
+        pagination:
+          type: object
+          description: Pagination information for the response.
+          properties:
+            limit:
+              type: integer
+              description: The number of resources returned per page.
+              example: 20
+            offset:
+              type: integer
+              description: The offset of the first resource returned.
+              example: 0
+            total:
+              type: integer
+              description: The total number of resources associated with the merchant's payTo address.
+              example: 10
+          example:
+            limit: 20
+            offset: 0
+            total: 10
+      required:
+        - x402Version
+        - payTo
+        - resources
+        - pagination
+    x402SearchResourcesResponse:
+      type: object
+      description: Response from a search for x402 resources.
+      properties:
+        resources:
+          type: array
+          description: List of x402 resources matching the search query and filters.
+          items:
+            $ref: '#/components/schemas/x402DiscoveryResource'
+          example: []
+        partialResults:
+          type: boolean
+          description: Indicates whether the result set was truncated because there were more results than the requested limit.
+          example: false
+        searchMethod:
+          type: string
+          description: The search method used to retrieve the results (e.g., "text" or "vector").
+          enum:
+            - text
+            - vector
+          example: text
+        x402Version:
+          $ref: '#/components/schemas/X402Version'
+      required:
+        - resources
+        - partialResults
+        - x402Version
+    x402McpRequest:
+      type: object
+      description: A JSON-RPC 2.0 request for the Model Context Protocol.
+      properties:
+        jsonrpc:
+          type: string
+          enum:
+            - '2.0'
+          description: JSON-RPC version, must be "2.0".
+          example: '2.0'
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+          description: Request identifier.
+          example: 1
+        method:
+          type: string
+          description: The MCP method to invoke.
+          example: tools/list
+        params:
+          type: object
+          description: Optional parameters for the method.
+          additionalProperties: true
+          example: {}
+      required:
+        - jsonrpc
+        - method
+    x402McpError:
+      type: object
+      description: JSON-RPC 2.0 error object.
+      properties:
+        code:
+          type: integer
+          description: Error code.
+          example: -32600
+        message:
+          type: string
+          description: Error message.
+          example: Invalid Request
+        data:
+          type: object
+          description: Additional error data.
+          additionalProperties: true
+          example: {}
+      required:
+        - code
+        - message
+      example:
+        code: -32600
+        message: Invalid Request
+        data: {}
+    x402McpResponse:
+      type: object
+      description: A JSON-RPC 2.0 response for the Model Context Protocol.
+      properties:
+        jsonrpc:
+          type: string
+          enum:
+            - '2.0'
+          description: JSON-RPC version.
+          example: '2.0'
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+          nullable: true
+          description: Request identifier (matches the request ID, null for notifications).
+          example: 1
+        result:
+          type: object
+          description: The result of the method call (present on success).
+          additionalProperties: true
+          example:
+            tools: []
+        error:
+          $ref: '#/components/schemas/x402McpError'
+      required:
+        - jsonrpc
     OnrampOrderPaymentMethodTypeId:
       type: string
       description: The type of payment method to be used to complete an onramp order.

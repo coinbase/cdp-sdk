@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	ApiKeyAuthScopes  = "apiKeyAuth.Scopes"
-	EndUserAuthScopes = "endUserAuth.Scopes"
+	ApiKeyAuthScopes      = "apiKeyAuth.Scopes"
+	EndUserAuthScopes     = "endUserAuth.Scopes"
+	UnauthenticatedScopes = "unauthenticated.Scopes"
 )
 
 // Defines values for AbiFunctionType.
@@ -812,6 +813,28 @@ const (
 const (
 	X402VersionN1 X402Version = 1
 	X402VersionN2 X402Version = 2
+)
+
+// Defines values for X402DiscoveryResourceType.
+const (
+	Http X402DiscoveryResourceType = "http"
+	Mcp  X402DiscoveryResourceType = "mcp"
+)
+
+// Defines values for X402McpRequestJsonrpc.
+const (
+	X402McpRequestJsonrpcN20 X402McpRequestJsonrpc = "2.0"
+)
+
+// Defines values for X402McpResponseJsonrpc.
+const (
+	X402McpResponseJsonrpcN20 X402McpResponseJsonrpc = "2.0"
+)
+
+// Defines values for X402SearchResourcesResponseSearchMethod.
+const (
+	Text   X402SearchResourcesResponseSearchMethod = "text"
+	Vector X402SearchResourcesResponseSearchMethod = "vector"
 )
 
 // Defines values for X402SettleErrorReason.
@@ -3573,6 +3596,81 @@ type Taker = string
 // ToToken The 0x-prefixed contract address of the token to receive.
 type ToToken = string
 
+// X402DiscoveryMerchantResponse Response containing x402 resources associated with a merchant payment address.
+type X402DiscoveryMerchantResponse struct {
+	// Pagination Pagination information for the response.
+	Pagination struct {
+		// Limit The number of resources returned per page.
+		Limit *int `json:"limit,omitempty"`
+
+		// Offset The offset of the first resource returned.
+		Offset *int `json:"offset,omitempty"`
+
+		// Total The total number of resources associated with the merchant's payTo address.
+		Total *int `json:"total,omitempty"`
+	} `json:"pagination"`
+
+	// PayTo A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+	PayTo BlockchainAddress `json:"payTo"`
+
+	// Resources List of discovered x402 resources associated with the merchant's payTo address.
+	Resources []X402DiscoveryResource `json:"resources"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402DiscoveryResource A single discovered x402 resource.
+type X402DiscoveryResource struct {
+	// Accepts Payment requirements accepted by the resource.
+	Accepts *[]X402PaymentRequirements `json:"accepts,omitempty"`
+
+	// Description A human-readable description of the resource.
+	Description *string `json:"description,omitempty"`
+
+	// Extensions Map of x402 protocol extensions supported by the resource, keyed by extension name.
+	Extensions *map[string]interface{} `json:"extensions,omitempty"`
+
+	// LastUpdated Timestamp of the last update.
+	LastUpdated *time.Time `json:"lastUpdated,omitempty"`
+
+	// Quality Quality metrics for a discovered x402 resource.
+	Quality *X402ResourceQuality `json:"quality,omitempty"`
+
+	// Resource The URL of the resource.
+	Resource string `json:"resource"`
+
+	// Type Communication protocol (e.g., "http", "mcp").
+	Type X402DiscoveryResourceType `json:"type"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402DiscoveryResourceType Communication protocol (e.g., "http", "mcp").
+type X402DiscoveryResourceType string
+
+// X402DiscoveryResourcesResponse Response containing discovered x402 resources.
+type X402DiscoveryResourcesResponse struct {
+	// Items List of discovered x402 resources.
+	Items []X402DiscoveryResource `json:"items"`
+
+	// Pagination Pagination information for the response.
+	Pagination struct {
+		// Limit The number of discovered x402 resources to return per page.
+		Limit *int `json:"limit,omitempty"`
+
+		// Offset The offset of the first discovered x402 resource to return.
+		Offset *int `json:"offset,omitempty"`
+
+		// Total The total number of discovered x402 resources.
+		Total *int `json:"total,omitempty"`
+	} `json:"pagination"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
 // X402ExactEvmPayload The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
 type X402ExactEvmPayload struct {
 	// Authorization The authorization data for the ERC-3009 authorization message.
@@ -3648,6 +3746,76 @@ type X402ExactSolanaPayload struct {
 	Transaction string `json:"transaction"`
 }
 
+// X402McpError JSON-RPC 2.0 error object.
+type X402McpError struct {
+	// Code Error code.
+	Code int `json:"code"`
+
+	// Data Additional error data.
+	Data *map[string]interface{} `json:"data,omitempty"`
+
+	// Message Error message.
+	Message string `json:"message"`
+}
+
+// X402McpRequest A JSON-RPC 2.0 request for the Model Context Protocol.
+type X402McpRequest struct {
+	// Id Request identifier.
+	Id *X402McpRequest_Id `json:"id,omitempty"`
+
+	// Jsonrpc JSON-RPC version, must be "2.0".
+	Jsonrpc X402McpRequestJsonrpc `json:"jsonrpc"`
+
+	// Method The MCP method to invoke.
+	Method string `json:"method"`
+
+	// Params Optional parameters for the method.
+	Params *map[string]interface{} `json:"params,omitempty"`
+}
+
+// X402McpRequestId0 defines model for .
+type X402McpRequestId0 = string
+
+// X402McpRequestId1 defines model for .
+type X402McpRequestId1 = int
+
+// X402McpRequest_Id Request identifier.
+type X402McpRequest_Id struct {
+	union json.RawMessage
+}
+
+// X402McpRequestJsonrpc JSON-RPC version, must be "2.0".
+type X402McpRequestJsonrpc string
+
+// X402McpResponse A JSON-RPC 2.0 response for the Model Context Protocol.
+type X402McpResponse struct {
+	// Error JSON-RPC 2.0 error object.
+	Error *X402McpError `json:"error,omitempty"`
+
+	// Id Request identifier (matches the request ID, null for notifications).
+	Id *X402McpResponse_Id `json:"id"`
+
+	// Jsonrpc JSON-RPC version.
+	Jsonrpc X402McpResponseJsonrpc `json:"jsonrpc"`
+
+	// Result The result of the method call (present on success).
+	Result *map[string]interface{} `json:"result,omitempty"`
+}
+
+// X402McpResponseId0 defines model for .
+type X402McpResponseId0 = string
+
+// X402McpResponseId1 defines model for .
+type X402McpResponseId1 = int
+
+// X402McpResponse_Id Request identifier (matches the request ID, null for notifications).
+type X402McpResponse_Id struct {
+	union json.RawMessage
+}
+
+// X402McpResponseJsonrpc JSON-RPC version.
+type X402McpResponseJsonrpc string
+
 // X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
 // For EVM networks, smart account signatures can be longer than 65 bytes.
 type X402PaymentPayload struct {
@@ -3670,6 +3838,36 @@ type X402ResourceInfo struct {
 	// Url The URL of the resource.
 	Url *string `json:"url,omitempty"`
 }
+
+// X402ResourceQuality Quality metrics for a discovered x402 resource.
+type X402ResourceQuality struct {
+	// L30DaysTotalCalls Total number of paid calls to a resource in the last 30 days.
+	L30DaysTotalCalls *int `json:"l30DaysTotalCalls,omitempty"`
+
+	// L30DaysUniquePayers Number of unique payers to a resource in the last 30 days.
+	L30DaysUniquePayers *int `json:"l30DaysUniquePayers,omitempty"`
+
+	// LastCalledAt Timestamp of the most recent paid call to a resource.
+	LastCalledAt *time.Time `json:"lastCalledAt,omitempty"`
+}
+
+// X402SearchResourcesResponse Response from a search for x402 resources.
+type X402SearchResourcesResponse struct {
+	// PartialResults Indicates whether the result set was truncated because there were more results than the requested limit.
+	PartialResults bool `json:"partialResults"`
+
+	// Resources List of x402 resources matching the search query and filters.
+	Resources []X402DiscoveryResource `json:"resources"`
+
+	// SearchMethod The search method used to retrieve the results (e.g., "text" or "vector").
+	SearchMethod *X402SearchResourcesResponseSearchMethod `json:"searchMethod,omitempty"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402SearchResourcesResponseSearchMethod The search method used to retrieve the results (e.g., "text" or "vector").
+type X402SearchResourcesResponseSearchMethod string
 
 // X402SettleErrorReason The reason the payment settlement errored on the x402 protocol.
 type X402SettleErrorReason string
@@ -5516,6 +5714,69 @@ type ListSolanaTokenBalancesParams struct {
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
+// ListX402DiscoveryMerchantParams defines parameters for ListX402DiscoveryMerchant.
+type ListX402DiscoveryMerchantParams struct {
+	// PayTo The merchant's payment address to look up.
+	// This is the onchain address that payment requirements route funds to.
+	PayTo BlockchainAddress `form:"payTo" json:"payTo"`
+
+	// Limit The number of resources to return per page.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset The offset of the first resource to return.
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// ListX402DiscoveryResourcesParams defines parameters for ListX402DiscoveryResources.
+type ListX402DiscoveryResourcesParams struct {
+	// Type Filter by protocol type (e.g., "http", "mcp").
+	// Currently, the only supported protocol type is "http".
+	Type *string `form:"type,omitempty" json:"type,omitempty"`
+
+	// Limit The number of discovered x402 resources to return per page.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset The offset of the first discovered x402 resource to return.
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// SearchX402ResourcesParams defines parameters for SearchX402Resources.
+type SearchX402ResourcesParams struct {
+	// Query Full-text or semantic search query to find matching resources.
+	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// Network Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`).
+	// Legacy names are normalized to their CAIP-2 equivalents before filtering.
+	Network *string `form:"network,omitempty" json:"network,omitempty"`
+
+	// Asset Filter results by asset address.
+	// For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+	// Matching is case-insensitive.
+	Asset *string `form:"asset,omitempty" json:"asset,omitempty"`
+
+	// Scheme Filter results by payment scheme (e.g., `exact`).
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+
+	// PayTo Filter results by the merchant's payment address.
+	// For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+	PayTo *BlockchainAddress `form:"payTo,omitempty" json:"payTo,omitempty"`
+
+	// UrlSubstring Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL).
+	// Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset.
+	// Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+	UrlSubstring *string `form:"urlSubstring,omitempty" json:"urlSubstring,omitempty"`
+
+	// MaxUsdPrice Filter results to resources with a USD price at or below this value.
+	MaxUsdPrice *string `form:"maxUsdPrice,omitempty" json:"maxUsdPrice,omitempty"`
+
+	// Extensions Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+	Extensions *[]string `form:"extensions,omitempty" json:"extensions,omitempty"`
+
+	// Limit Maximum number of resources to return. Must be a positive integer no greater than 20.
+	// Defaults to 20.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // SettleX402PaymentJSONBody defines parameters for SettleX402Payment.
 type SettleX402PaymentJSONBody struct {
 	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
@@ -5715,6 +5976,9 @@ type SignSolanaTransactionJSONRequestBody SignSolanaTransactionJSONBody
 
 // RequestSolanaFaucetJSONRequestBody defines body for RequestSolanaFaucet for application/json ContentType.
 type RequestSolanaFaucetJSONRequestBody RequestSolanaFaucetJSONBody
+
+// PostX402DiscoveryMcpJSONRequestBody defines body for PostX402DiscoveryMcp for application/json ContentType.
+type PostX402DiscoveryMcpJSONRequestBody = X402McpRequest
 
 // SettleX402PaymentJSONRequestBody defines body for SettleX402Payment for application/json ContentType.
 type SettleX402PaymentJSONRequestBody SettleX402PaymentJSONBody
@@ -9174,6 +9438,130 @@ func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsX402McpRequestId0 returns the union data inside the X402McpRequest_Id as a X402McpRequestId0
+func (t X402McpRequest_Id) AsX402McpRequestId0() (X402McpRequestId0, error) {
+	var body X402McpRequestId0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402McpRequestId0 overwrites any union data inside the X402McpRequest_Id as the provided X402McpRequestId0
+func (t *X402McpRequest_Id) FromX402McpRequestId0(v X402McpRequestId0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402McpRequestId0 performs a merge with any union data inside the X402McpRequest_Id, using the provided X402McpRequestId0
+func (t *X402McpRequest_Id) MergeX402McpRequestId0(v X402McpRequestId0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402McpRequestId1 returns the union data inside the X402McpRequest_Id as a X402McpRequestId1
+func (t X402McpRequest_Id) AsX402McpRequestId1() (X402McpRequestId1, error) {
+	var body X402McpRequestId1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402McpRequestId1 overwrites any union data inside the X402McpRequest_Id as the provided X402McpRequestId1
+func (t *X402McpRequest_Id) FromX402McpRequestId1(v X402McpRequestId1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402McpRequestId1 performs a merge with any union data inside the X402McpRequest_Id, using the provided X402McpRequestId1
+func (t *X402McpRequest_Id) MergeX402McpRequestId1(v X402McpRequestId1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t X402McpRequest_Id) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402McpRequest_Id) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsX402McpResponseId0 returns the union data inside the X402McpResponse_Id as a X402McpResponseId0
+func (t X402McpResponse_Id) AsX402McpResponseId0() (X402McpResponseId0, error) {
+	var body X402McpResponseId0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402McpResponseId0 overwrites any union data inside the X402McpResponse_Id as the provided X402McpResponseId0
+func (t *X402McpResponse_Id) FromX402McpResponseId0(v X402McpResponseId0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402McpResponseId0 performs a merge with any union data inside the X402McpResponse_Id, using the provided X402McpResponseId0
+func (t *X402McpResponse_Id) MergeX402McpResponseId0(v X402McpResponseId0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402McpResponseId1 returns the union data inside the X402McpResponse_Id as a X402McpResponseId1
+func (t X402McpResponse_Id) AsX402McpResponseId1() (X402McpResponseId1, error) {
+	var body X402McpResponseId1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402McpResponseId1 overwrites any union data inside the X402McpResponse_Id as the provided X402McpResponseId1
+func (t *X402McpResponse_Id) FromX402McpResponseId1(v X402McpResponseId1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402McpResponseId1 performs a merge with any union data inside the X402McpResponse_Id, using the provided X402McpResponseId1
+func (t *X402McpResponse_Id) MergeX402McpResponseId1(v X402McpResponseId1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t X402McpResponse_Id) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402McpResponse_Id) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsX402V2PaymentPayload returns the union data inside the X402PaymentPayload as a X402V2PaymentPayload
 func (t X402PaymentPayload) AsX402V2PaymentPayload() (X402V2PaymentPayload, error) {
 	var body X402V2PaymentPayload
@@ -9932,6 +10320,20 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostX402DiscoveryMcpWithBody request with any body
+	PostX402DiscoveryMcpWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostX402DiscoveryMcp(ctx context.Context, body PostX402DiscoveryMcpJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListX402DiscoveryMerchant request
+	ListX402DiscoveryMerchant(ctx context.Context, params *ListX402DiscoveryMerchantParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListX402DiscoveryResources request
+	ListX402DiscoveryResources(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SearchX402Resources request
+	SearchX402Resources(ctx context.Context, params *SearchX402ResourcesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SettleX402PaymentWithBody request with any body
 	SettleX402PaymentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -11713,6 +12115,66 @@ func (c *CDPClient) RequestSolanaFaucet(ctx context.Context, body RequestSolanaF
 
 func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSolanaTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) PostX402DiscoveryMcpWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostX402DiscoveryMcpRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) PostX402DiscoveryMcp(ctx context.Context, body PostX402DiscoveryMcpJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostX402DiscoveryMcpRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListX402DiscoveryMerchant(ctx context.Context, params *ListX402DiscoveryMerchantParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListX402DiscoveryMerchantRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListX402DiscoveryResources(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListX402DiscoveryResourcesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SearchX402Resources(ctx context.Context, params *SearchX402ResourcesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchX402ResourcesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -17810,6 +18272,381 @@ func NewListSolanaTokenBalancesRequest(server string, network ListSolanaTokenBal
 	return req, nil
 }
 
+// NewPostX402DiscoveryMcpRequest calls the generic PostX402DiscoveryMcp builder with application/json body
+func NewPostX402DiscoveryMcpRequest(server string, body PostX402DiscoveryMcpJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostX402DiscoveryMcpRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostX402DiscoveryMcpRequestWithBody generates requests for PostX402DiscoveryMcp with any type of body
+func NewPostX402DiscoveryMcpRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/discovery/mcp")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListX402DiscoveryMerchantRequest generates requests for ListX402DiscoveryMerchant
+func NewListX402DiscoveryMerchantRequest(server string, params *ListX402DiscoveryMerchantParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/discovery/merchant")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "payTo", runtime.ParamLocationQuery, params.PayTo); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, *params.Offset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListX402DiscoveryResourcesRequest generates requests for ListX402DiscoveryResources
+func NewListX402DiscoveryResourcesRequest(server string, params *ListX402DiscoveryResourcesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/discovery/resources")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Type != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, *params.Offset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSearchX402ResourcesRequest generates requests for SearchX402Resources
+func NewSearchX402ResourcesRequest(server string, params *SearchX402ResourcesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/discovery/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Query != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "query", runtime.ParamLocationQuery, *params.Query); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Network != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, *params.Network); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Asset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "asset", runtime.ParamLocationQuery, *params.Asset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "scheme", runtime.ParamLocationQuery, *params.Scheme); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PayTo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "payTo", runtime.ParamLocationQuery, *params.PayTo); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UrlSubstring != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "urlSubstring", runtime.ParamLocationQuery, *params.UrlSubstring); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.MaxUsdPrice != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "maxUsdPrice", runtime.ParamLocationQuery, *params.MaxUsdPrice); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Extensions != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "extensions", runtime.ParamLocationQuery, *params.Extensions); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewSettleX402PaymentRequest calls the generic SettleX402Payment builder with application/json body
 func NewSettleX402PaymentRequest(server string, body SettleX402PaymentJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -18345,6 +19182,20 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
+
+	// PostX402DiscoveryMcpWithBodyWithResponse request with any body
+	PostX402DiscoveryMcpWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostX402DiscoveryMcpResponse, error)
+
+	PostX402DiscoveryMcpWithResponse(ctx context.Context, body PostX402DiscoveryMcpJSONRequestBody, reqEditors ...RequestEditorFn) (*PostX402DiscoveryMcpResponse, error)
+
+	// ListX402DiscoveryMerchantWithResponse request
+	ListX402DiscoveryMerchantWithResponse(ctx context.Context, params *ListX402DiscoveryMerchantParams, reqEditors ...RequestEditorFn) (*ListX402DiscoveryMerchantResponse, error)
+
+	// ListX402DiscoveryResourcesWithResponse request
+	ListX402DiscoveryResourcesWithResponse(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*ListX402DiscoveryResourcesResponse, error)
+
+	// SearchX402ResourcesWithResponse request
+	SearchX402ResourcesWithResponse(ctx context.Context, params *SearchX402ResourcesParams, reqEditors ...RequestEditorFn) (*SearchX402ResourcesResponse, error)
 
 	// SettleX402PaymentWithBodyWithResponse request with any body
 	SettleX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SettleX402PaymentResponse, error)
@@ -21075,6 +21926,109 @@ func (r ListSolanaTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+type PostX402DiscoveryMcpResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402McpResponse
+	JSON400      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r PostX402DiscoveryMcpResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostX402DiscoveryMcpResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListX402DiscoveryMerchantResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402DiscoveryMerchantResponse
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListX402DiscoveryMerchantResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListX402DiscoveryMerchantResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListX402DiscoveryResourcesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402DiscoveryResourcesResponse
+	JSON400      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListX402DiscoveryResourcesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListX402DiscoveryResourcesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SearchX402ResourcesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402SearchResourcesResponse
+	JSON400      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchX402ResourcesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchX402ResourcesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SettleX402PaymentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -22425,6 +23379,50 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseListSolanaTokenBalancesResponse(rsp)
+}
+
+// PostX402DiscoveryMcpWithBodyWithResponse request with arbitrary body returning *PostX402DiscoveryMcpResponse
+func (c *ClientWithResponses) PostX402DiscoveryMcpWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostX402DiscoveryMcpResponse, error) {
+	rsp, err := c.PostX402DiscoveryMcpWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostX402DiscoveryMcpResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostX402DiscoveryMcpWithResponse(ctx context.Context, body PostX402DiscoveryMcpJSONRequestBody, reqEditors ...RequestEditorFn) (*PostX402DiscoveryMcpResponse, error) {
+	rsp, err := c.PostX402DiscoveryMcp(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostX402DiscoveryMcpResponse(rsp)
+}
+
+// ListX402DiscoveryMerchantWithResponse request returning *ListX402DiscoveryMerchantResponse
+func (c *ClientWithResponses) ListX402DiscoveryMerchantWithResponse(ctx context.Context, params *ListX402DiscoveryMerchantParams, reqEditors ...RequestEditorFn) (*ListX402DiscoveryMerchantResponse, error) {
+	rsp, err := c.ListX402DiscoveryMerchant(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListX402DiscoveryMerchantResponse(rsp)
+}
+
+// ListX402DiscoveryResourcesWithResponse request returning *ListX402DiscoveryResourcesResponse
+func (c *ClientWithResponses) ListX402DiscoveryResourcesWithResponse(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*ListX402DiscoveryResourcesResponse, error) {
+	rsp, err := c.ListX402DiscoveryResources(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListX402DiscoveryResourcesResponse(rsp)
+}
+
+// SearchX402ResourcesWithResponse request returning *SearchX402ResourcesResponse
+func (c *ClientWithResponses) SearchX402ResourcesWithResponse(ctx context.Context, params *SearchX402ResourcesParams, reqEditors ...RequestEditorFn) (*SearchX402ResourcesResponse, error) {
+	rsp, err := c.SearchX402Resources(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchX402ResourcesResponse(rsp)
 }
 
 // SettleX402PaymentWithBodyWithResponse request with arbitrary body returning *SettleX402PaymentResponse
@@ -28884,6 +29882,215 @@ func ParseListSolanaTokenBalancesResponse(rsp *http.Response) (*ListSolanaTokenB
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostX402DiscoveryMcpResponse parses an HTTP response from a PostX402DiscoveryMcpWithResponse call
+func ParsePostX402DiscoveryMcpResponse(rsp *http.Response) (*PostX402DiscoveryMcpResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostX402DiscoveryMcpResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402McpResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListX402DiscoveryMerchantResponse parses an HTTP response from a ListX402DiscoveryMerchantWithResponse call
+func ParseListX402DiscoveryMerchantResponse(rsp *http.Response) (*ListX402DiscoveryMerchantResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListX402DiscoveryMerchantResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402DiscoveryMerchantResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListX402DiscoveryResourcesResponse parses an HTTP response from a ListX402DiscoveryResourcesWithResponse call
+func ParseListX402DiscoveryResourcesResponse(rsp *http.Response) (*ListX402DiscoveryResourcesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListX402DiscoveryResourcesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402DiscoveryResourcesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSearchX402ResourcesResponse parses an HTTP response from a SearchX402ResourcesWithResponse call
+func ParseSearchX402ResourcesResponse(rsp *http.Response) (*SearchX402ResourcesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchX402ResourcesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402SearchResourcesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

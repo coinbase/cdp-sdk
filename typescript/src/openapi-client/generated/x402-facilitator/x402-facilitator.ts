@@ -6,8 +6,16 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
+  ListX402DiscoveryMerchantParams,
+  ListX402DiscoveryResourcesParams,
+  SearchX402ResourcesParams,
   SettleX402PaymentBody,
   VerifyX402PaymentBody,
+  X402DiscoveryMerchantResponse,
+  X402DiscoveryResourcesResponse,
+  X402McpRequest,
+  X402McpResponse,
+  X402SearchResourcesResponse,
   X402SettleResponseResponse,
   X402SupportedPaymentKindsResponseResponse,
   X402VerifyResponseResponse,
@@ -65,8 +73,84 @@ export const supportedX402PaymentKinds = (
     options,
   );
 };
+/**
+ * Lists all active discovered x402 resources.
+This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata.
+The response is paginated, and by default, returns 100 items per page.
+ * @summary List discovered x402 resources
+ */
+export const listX402DiscoveryResources = (
+  params?: ListX402DiscoveryResourcesParams,
+  options?: SecondParameter<typeof cdpApiClient<X402DiscoveryResourcesResponse>>,
+) => {
+  return cdpApiClient<X402DiscoveryResourcesResponse>(
+    { url: `/v2/x402/discovery/resources`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Gets x402 merchant discovery information for a given merchant payment address.
+This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements.
+The response is paginated, and by default, returns 20 items per page.
+ * @summary List merchant discovery info
+ */
+export const listX402DiscoveryMerchant = (
+  params: ListX402DiscoveryMerchantParams,
+  options?: SecondParameter<typeof cdpApiClient<X402DiscoveryMerchantResponse>>,
+) => {
+  return cdpApiClient<X402DiscoveryMerchantResponse>(
+    { url: `/v2/x402/discovery/merchant`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Searches for active x402 resources using a text query and optional filters.
+Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score.
+Legacy network names (e.g., `base`, `base-sepolia`, `solana`) are automatically normalized to their CAIP-2 equivalents.
+The response is limited to 20 items per request. If more results exist, `partialResults` will be `true`.
+ * @summary Search x402 resources
+ */
+export const searchX402Resources = (
+  params?: SearchX402ResourcesParams,
+  options?: SecondParameter<typeof cdpApiClient<X402SearchResourcesResponse>>,
+) => {
+  return cdpApiClient<X402SearchResourcesResponse>(
+    { url: `/v2/x402/discovery/search`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+ * @summary Handle MCP JSON-RPC request
+ */
+export const postX402DiscoveryMcp = (
+  x402McpRequest: X402McpRequest,
+  options?: SecondParameter<typeof cdpApiClient<X402McpResponse>>,
+) => {
+  return cdpApiClient<X402McpResponse>(
+    {
+      url: `/v2/x402/discovery/mcp`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: x402McpRequest,
+    },
+    options,
+  );
+};
 export type VerifyX402PaymentResult = NonNullable<Awaited<ReturnType<typeof verifyX402Payment>>>;
 export type SettleX402PaymentResult = NonNullable<Awaited<ReturnType<typeof settleX402Payment>>>;
 export type SupportedX402PaymentKindsResult = NonNullable<
   Awaited<ReturnType<typeof supportedX402PaymentKinds>>
+>;
+export type ListX402DiscoveryResourcesResult = NonNullable<
+  Awaited<ReturnType<typeof listX402DiscoveryResources>>
+>;
+export type ListX402DiscoveryMerchantResult = NonNullable<
+  Awaited<ReturnType<typeof listX402DiscoveryMerchant>>
+>;
+export type SearchX402ResourcesResult = NonNullable<
+  Awaited<ReturnType<typeof searchX402Resources>>
+>;
+export type PostX402DiscoveryMcpResult = NonNullable<
+  Awaited<ReturnType<typeof postX402DiscoveryMcp>>
 >;

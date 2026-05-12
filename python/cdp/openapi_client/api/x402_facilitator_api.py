@@ -17,10 +17,18 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
+from pydantic import Field, StrictInt, StrictStr
+from typing import List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.inline_object import InlineObject
 from cdp.openapi_client.models.inline_object1 import InlineObject1
 from cdp.openapi_client.models.inline_object2 import InlineObject2
 from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
+from cdp.openapi_client.models.x402_discovery_merchant_response import X402DiscoveryMerchantResponse
+from cdp.openapi_client.models.x402_discovery_resources_response import X402DiscoveryResourcesResponse
+from cdp.openapi_client.models.x402_mcp_request import X402McpRequest
+from cdp.openapi_client.models.x402_mcp_response import X402McpResponse
+from cdp.openapi_client.models.x402_search_resources_response import X402SearchResourcesResponse
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -38,6 +46,1319 @@ class X402FacilitatorApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    async def list_x402_discovery_merchant(
+        self,
+        pay_to: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The merchant's payment address to look up. This is the onchain address that payment requirements route funds to.")],
+        limit: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        offset: Annotated[Optional[StrictInt], Field(description="The offset of the first resource to return.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402DiscoveryMerchantResponse:
+        """List merchant discovery info
+
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+
+        :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
+        :type pay_to: str
+        :param limit: The number of resources to return per page.
+        :type limit: int
+        :param offset: The offset of the first resource to return.
+        :type offset: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_discovery_merchant_serialize(
+            pay_to=pay_to,
+            limit=limit,
+            offset=offset,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402DiscoveryMerchantResponse",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_x402_discovery_merchant_with_http_info(
+        self,
+        pay_to: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The merchant's payment address to look up. This is the onchain address that payment requirements route funds to.")],
+        limit: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        offset: Annotated[Optional[StrictInt], Field(description="The offset of the first resource to return.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402DiscoveryMerchantResponse]:
+        """List merchant discovery info
+
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+
+        :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
+        :type pay_to: str
+        :param limit: The number of resources to return per page.
+        :type limit: int
+        :param offset: The offset of the first resource to return.
+        :type offset: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_discovery_merchant_serialize(
+            pay_to=pay_to,
+            limit=limit,
+            offset=offset,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402DiscoveryMerchantResponse",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_x402_discovery_merchant_without_preload_content(
+        self,
+        pay_to: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The merchant's payment address to look up. This is the onchain address that payment requirements route funds to.")],
+        limit: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        offset: Annotated[Optional[StrictInt], Field(description="The offset of the first resource to return.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List merchant discovery info
+
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+
+        :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
+        :type pay_to: str
+        :param limit: The number of resources to return per page.
+        :type limit: int
+        :param offset: The offset of the first resource to return.
+        :type offset: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_discovery_merchant_serialize(
+            pay_to=pay_to,
+            limit=limit,
+            offset=offset,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402DiscoveryMerchantResponse",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_x402_discovery_merchant_serialize(
+        self,
+        pay_to,
+        limit,
+        offset,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if pay_to is not None:
+            
+            _query_params.append(('payTo', pay_to))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if offset is not None:
+            
+            _query_params.append(('offset', offset))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/x402/discovery/merchant',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_x402_discovery_resources(
+        self,
+        type: Annotated[Optional[StrictStr], Field(description="Filter by protocol type (e.g., \"http\", \"mcp\"). Currently, the only supported protocol type is \"http\".")] = None,
+        limit: Annotated[Optional[StrictInt], Field(description="The number of discovered x402 resources to return per page.")] = None,
+        offset: Annotated[Optional[StrictInt], Field(description="The offset of the first discovered x402 resource to return.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402DiscoveryResourcesResponse:
+        """List discovered x402 resources
+
+        Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
+
+        :param type: Filter by protocol type (e.g., \"http\", \"mcp\"). Currently, the only supported protocol type is \"http\".
+        :type type: str
+        :param limit: The number of discovered x402 resources to return per page.
+        :type limit: int
+        :param offset: The offset of the first discovered x402 resource to return.
+        :type offset: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_discovery_resources_serialize(
+            type=type,
+            limit=limit,
+            offset=offset,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402DiscoveryResourcesResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_x402_discovery_resources_with_http_info(
+        self,
+        type: Annotated[Optional[StrictStr], Field(description="Filter by protocol type (e.g., \"http\", \"mcp\"). Currently, the only supported protocol type is \"http\".")] = None,
+        limit: Annotated[Optional[StrictInt], Field(description="The number of discovered x402 resources to return per page.")] = None,
+        offset: Annotated[Optional[StrictInt], Field(description="The offset of the first discovered x402 resource to return.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402DiscoveryResourcesResponse]:
+        """List discovered x402 resources
+
+        Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
+
+        :param type: Filter by protocol type (e.g., \"http\", \"mcp\"). Currently, the only supported protocol type is \"http\".
+        :type type: str
+        :param limit: The number of discovered x402 resources to return per page.
+        :type limit: int
+        :param offset: The offset of the first discovered x402 resource to return.
+        :type offset: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_discovery_resources_serialize(
+            type=type,
+            limit=limit,
+            offset=offset,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402DiscoveryResourcesResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_x402_discovery_resources_without_preload_content(
+        self,
+        type: Annotated[Optional[StrictStr], Field(description="Filter by protocol type (e.g., \"http\", \"mcp\"). Currently, the only supported protocol type is \"http\".")] = None,
+        limit: Annotated[Optional[StrictInt], Field(description="The number of discovered x402 resources to return per page.")] = None,
+        offset: Annotated[Optional[StrictInt], Field(description="The offset of the first discovered x402 resource to return.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List discovered x402 resources
+
+        Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
+
+        :param type: Filter by protocol type (e.g., \"http\", \"mcp\"). Currently, the only supported protocol type is \"http\".
+        :type type: str
+        :param limit: The number of discovered x402 resources to return per page.
+        :type limit: int
+        :param offset: The offset of the first discovered x402 resource to return.
+        :type offset: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_discovery_resources_serialize(
+            type=type,
+            limit=limit,
+            offset=offset,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402DiscoveryResourcesResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_x402_discovery_resources_serialize(
+        self,
+        type,
+        limit,
+        offset,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if type is not None:
+            
+            _query_params.append(('type', type))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if offset is not None:
+            
+            _query_params.append(('offset', offset))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/x402/discovery/resources',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def post_x402_discovery_mcp(
+        self,
+        x402_mcp_request: X402McpRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402McpResponse:
+        """Handle MCP JSON-RPC request
+
+        Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+
+        :param x402_mcp_request: (required)
+        :type x402_mcp_request: X402McpRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._post_x402_discovery_mcp_serialize(
+            x402_mcp_request=x402_mcp_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402McpResponse",
+            '400': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def post_x402_discovery_mcp_with_http_info(
+        self,
+        x402_mcp_request: X402McpRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402McpResponse]:
+        """Handle MCP JSON-RPC request
+
+        Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+
+        :param x402_mcp_request: (required)
+        :type x402_mcp_request: X402McpRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._post_x402_discovery_mcp_serialize(
+            x402_mcp_request=x402_mcp_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402McpResponse",
+            '400': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def post_x402_discovery_mcp_without_preload_content(
+        self,
+        x402_mcp_request: X402McpRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Handle MCP JSON-RPC request
+
+        Handles JSON-RPC requests for the Model Context Protocol (MCP). Supports MCP methods for discovering x402 payment resources and tools.
+
+        :param x402_mcp_request: (required)
+        :type x402_mcp_request: X402McpRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._post_x402_discovery_mcp_serialize(
+            x402_mcp_request=x402_mcp_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402McpResponse",
+            '400': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _post_x402_discovery_mcp_serialize(
+        self,
+        x402_mcp_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if x402_mcp_request is not None:
+            _body_params = x402_mcp_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/x402/discovery/mcp',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def search_x402_resources(
+        self,
+        query: Annotated[Optional[Annotated[str, Field(strict=True, max_length=400)]], Field(description="Full-text or semantic search query to find matching resources.")] = None,
+        network: Annotated[Optional[StrictStr], Field(description="Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`). Legacy names are normalized to their CAIP-2 equivalents before filtering.")] = None,
+        asset: Annotated[Optional[StrictStr], Field(description="Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive.")] = None,
+        scheme: Annotated[Optional[StrictStr], Field(description="Filter results by payment scheme (e.g., `exact`).")] = None,
+        pay_to: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter results by the merchant's payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.")] = None,
+        url_substring: Annotated[Optional[Annotated[str, Field(min_length=3, strict=True, max_length=2048)]], Field(description="Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.")] = None,
+        max_usd_price: Annotated[Optional[StrictStr], Field(description="Filter results to resources with a USD price at or below this value.")] = None,
+        extensions: Annotated[Optional[List[StrictStr]], Field(description="Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402SearchResourcesResponse:
+        """Search x402 resources
+
+        Searches for active x402 resources using a text query and optional filters. Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score. Legacy network names (e.g., `base`, `base-sepolia`, `solana`) are automatically normalized to their CAIP-2 equivalents. The response is limited to 20 items per request. If more results exist, `partialResults` will be `true`.
+
+        :param query: Full-text or semantic search query to find matching resources.
+        :type query: str
+        :param network: Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`). Legacy names are normalized to their CAIP-2 equivalents before filtering.
+        :type network: str
+        :param asset: Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive.
+        :type asset: str
+        :param scheme: Filter results by payment scheme (e.g., `exact`).
+        :type scheme: str
+        :param pay_to: Filter results by the merchant's payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+        :type pay_to: str
+        :param url_substring: Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+        :type url_substring: str
+        :param max_usd_price: Filter results to resources with a USD price at or below this value.
+        :type max_usd_price: str
+        :param extensions: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+        :type extensions: List[str]
+        :param limit: Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._search_x402_resources_serialize(
+            query=query,
+            network=network,
+            asset=asset,
+            scheme=scheme,
+            pay_to=pay_to,
+            url_substring=url_substring,
+            max_usd_price=max_usd_price,
+            extensions=extensions,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402SearchResourcesResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def search_x402_resources_with_http_info(
+        self,
+        query: Annotated[Optional[Annotated[str, Field(strict=True, max_length=400)]], Field(description="Full-text or semantic search query to find matching resources.")] = None,
+        network: Annotated[Optional[StrictStr], Field(description="Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`). Legacy names are normalized to their CAIP-2 equivalents before filtering.")] = None,
+        asset: Annotated[Optional[StrictStr], Field(description="Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive.")] = None,
+        scheme: Annotated[Optional[StrictStr], Field(description="Filter results by payment scheme (e.g., `exact`).")] = None,
+        pay_to: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter results by the merchant's payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.")] = None,
+        url_substring: Annotated[Optional[Annotated[str, Field(min_length=3, strict=True, max_length=2048)]], Field(description="Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.")] = None,
+        max_usd_price: Annotated[Optional[StrictStr], Field(description="Filter results to resources with a USD price at or below this value.")] = None,
+        extensions: Annotated[Optional[List[StrictStr]], Field(description="Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402SearchResourcesResponse]:
+        """Search x402 resources
+
+        Searches for active x402 resources using a text query and optional filters. Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score. Legacy network names (e.g., `base`, `base-sepolia`, `solana`) are automatically normalized to their CAIP-2 equivalents. The response is limited to 20 items per request. If more results exist, `partialResults` will be `true`.
+
+        :param query: Full-text or semantic search query to find matching resources.
+        :type query: str
+        :param network: Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`). Legacy names are normalized to their CAIP-2 equivalents before filtering.
+        :type network: str
+        :param asset: Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive.
+        :type asset: str
+        :param scheme: Filter results by payment scheme (e.g., `exact`).
+        :type scheme: str
+        :param pay_to: Filter results by the merchant's payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+        :type pay_to: str
+        :param url_substring: Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+        :type url_substring: str
+        :param max_usd_price: Filter results to resources with a USD price at or below this value.
+        :type max_usd_price: str
+        :param extensions: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+        :type extensions: List[str]
+        :param limit: Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._search_x402_resources_serialize(
+            query=query,
+            network=network,
+            asset=asset,
+            scheme=scheme,
+            pay_to=pay_to,
+            url_substring=url_substring,
+            max_usd_price=max_usd_price,
+            extensions=extensions,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402SearchResourcesResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def search_x402_resources_without_preload_content(
+        self,
+        query: Annotated[Optional[Annotated[str, Field(strict=True, max_length=400)]], Field(description="Full-text or semantic search query to find matching resources.")] = None,
+        network: Annotated[Optional[StrictStr], Field(description="Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`). Legacy names are normalized to their CAIP-2 equivalents before filtering.")] = None,
+        asset: Annotated[Optional[StrictStr], Field(description="Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive.")] = None,
+        scheme: Annotated[Optional[StrictStr], Field(description="Filter results by payment scheme (e.g., `exact`).")] = None,
+        pay_to: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter results by the merchant's payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.")] = None,
+        url_substring: Annotated[Optional[Annotated[str, Field(min_length=3, strict=True, max_length=2048)]], Field(description="Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.")] = None,
+        max_usd_price: Annotated[Optional[StrictStr], Field(description="Filter results to resources with a USD price at or below this value.")] = None,
+        extensions: Annotated[Optional[List[StrictStr]], Field(description="Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Search x402 resources
+
+        Searches for active x402 resources using a text query and optional filters. Supports both text-based and vector-based search depending on availability. Results are sorted by relevance and quality score. Legacy network names (e.g., `base`, `base-sepolia`, `solana`) are automatically normalized to their CAIP-2 equivalents. The response is limited to 20 items per request. If more results exist, `partialResults` will be `true`.
+
+        :param query: Full-text or semantic search query to find matching resources.
+        :type query: str
+        :param network: Filter results by network in CAIP-2 format (e.g., `eip155:8453`) or legacy name (e.g., `base`, `base-sepolia`, `solana`). Legacy names are normalized to their CAIP-2 equivalents before filtering.
+        :type network: str
+        :param asset: Filter results by asset address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address. Matching is case-insensitive.
+        :type asset: str
+        :param scheme: Filter results by payment scheme (e.g., `exact`).
+        :type scheme: str
+        :param pay_to: Filter results by the merchant's payment address. For EVM networks, provide a 0x-prefixed EVM address. For Solana networks, provide a base58-encoded address.
+        :type pay_to: str
+        :param url_substring: Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.
+        :type url_substring: str
+        :param max_usd_price: Filter results to resources with a USD price at or below this value.
+        :type max_usd_price: str
+        :param extensions: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
+        :type extensions: List[str]
+        :param limit: Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._search_x402_resources_serialize(
+            query=query,
+            network=network,
+            asset=asset,
+            scheme=scheme,
+            pay_to=pay_to,
+            url_substring=url_substring,
+            max_usd_price=max_usd_price,
+            extensions=extensions,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402SearchResourcesResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _search_x402_resources_serialize(
+        self,
+        query,
+        network,
+        asset,
+        scheme,
+        pay_to,
+        url_substring,
+        max_usd_price,
+        extensions,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+            'extensions': 'multi',
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if query is not None:
+            
+            _query_params.append(('query', query))
+            
+        if network is not None:
+            
+            _query_params.append(('network', network))
+            
+        if asset is not None:
+            
+            _query_params.append(('asset', asset))
+            
+        if scheme is not None:
+            
+            _query_params.append(('scheme', scheme))
+            
+        if pay_to is not None:
+            
+            _query_params.append(('payTo', pay_to))
+            
+        if url_substring is not None:
+            
+            _query_params.append(('urlSubstring', url_substring))
+            
+        if max_usd_price is not None:
+            
+            _query_params.append(('maxUsdPrice', max_usd_price))
+            
+        if extensions is not None:
+            
+            _query_params.append(('extensions', extensions))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/x402/discovery/search',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
