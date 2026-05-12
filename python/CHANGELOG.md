@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.45.1] - 2026-05-12
+
+### Bugfixes
+
+- Bumped API spec and re-generated clients ([#700](https://github.com/coinbase/cdp-sdk/pull/700))
+
+
 ## [1.45.0] - 2026-05-11
 
 ### Features
