@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.49.2
+
+### Patch Changes
+
+- [#701](https://github.com/coinbase/cdp-sdk/pull/701) [`7439b21`](https://github.com/coinbase/cdp-sdk/commit/7439b21efc6f52c5870144317fefa9498afbc231) Thanks [@sddioulde](https://github.com/sddioulde)! - Updated axios dep to 1.16.0
+
 ## 1.49.1
 
 ### Patch Changes
