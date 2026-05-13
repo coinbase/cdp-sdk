@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.49.1
+
+### Patch Changes
+
+- Bumped API spec and re-generated clients
+
 ## 1.49.0
 
 ### Minor Changes
