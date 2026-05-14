@@ -14,85 +14,85 @@ importers:
   .:
     devDependencies:
       '@changesets/changelog-github':
-        specifier: ^0.5.2
+        specifier: 0.5.2
         version: 0.5.2(encoding@0.1.13)
       '@changesets/cli':
-        specifier: ^2.30.0
+        specifier: 2.30.0
         version: 2.30.0(@types/node@20.19.37)
       '@faker-js/faker':
-        specifier: ^9.9.0
+        specifier: 9.9.0
         version: 9.9.0
       '@types/md5':
-        specifier: ^2.3.6
+        specifier: 2.3.6
         version: 2.3.6
       '@types/node':
-        specifier: ^20.19.37
+        specifier: 20.19.37
         version: 20.19.37
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.56.1
+        specifier: 8.56.1
         version: 8.56.1(@typescript-eslint/parser@8.56.1(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
       '@typescript-eslint/parser':
-        specifier: ^8.56.1
+        specifier: 8.56.1
         version: 8.56.1(eslint@8.57.1)(typescript@5.9.3)
       '@vitest/coverage-v8':
-        specifier: ^1.6.1
+        specifier: 1.6.1
         version: 1.6.1(vitest@1.6.1(@types/node@20.19.37))
       bs58:
-        specifier: ^6.0.0
+        specifier: 6.0.0
         version: 6.0.0
       dotenv:
-        specifier: ^16.6.1
+        specifier: 16.6.1
         version: 16.6.1
       eslint:
-        specifier: ^8.57.1
+        specifier: 8.57.1
         version: 8.57.1
       eslint-config-prettier:
-        specifier: ^9.1.2
+        specifier: 9.1.2
         version: 9.1.2(eslint@8.57.1)
       eslint-import-resolver-typescript:
-        specifier: ^4.4.4
+        specifier: 4.4.4
         version: 4.4.4(eslint-plugin-import@2.32.0)(eslint@8.57.1)
       eslint-plugin-import:
-        specifier: ^2.32.0
+        specifier: 2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.56.1(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.4)(eslint@8.57.1)
       eslint-plugin-jsdoc:
-        specifier: ^48.11.0
+        specifier: 48.11.0
         version: 48.11.0(eslint@8.57.1)
       eslint-plugin-prettier:
-        specifier: ^5.5.5
+        specifier: 5.5.5
         version: 5.5.5(eslint-config-prettier@9.1.2(eslint@8.57.1))(eslint@8.57.1)(prettier@3.8.1)
       eslint-plugin-unused-imports:
-        specifier: ^4.4.1
+        specifier: 4.4.1
         version: 4.4.1(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)
       msw:
-        specifier: ^2.12.10
+        specifier: 2.12.10
         version: 2.12.10(@types/node@20.19.37)(typescript@5.9.3)
       orval:
-        specifier: ^7.21.0
+        specifier: 7.21.0
         version: 7.21.0(encoding@0.1.13)(openapi-types@12.1.3)(typescript@5.9.3)
       prettier:
-        specifier: ^3.8.1
+        specifier: 3.8.1
         version: 3.8.1
       tsx:
-        specifier: ^4.21.0
+        specifier: 4.21.0
         version: 4.21.0
       typedoc:
-        specifier: ^0.28.17
+        specifier: 0.28.17
         version: 0.28.17(typescript@5.9.3)
       typedoc-plugin-frontmatter:
-        specifier: ^1.3.1
+        specifier: 1.3.1
         version: 1.3.1(typedoc-plugin-markdown@4.10.0(typedoc@0.28.17(typescript@5.9.3)))
       typedoc-plugin-markdown:
-        specifier: ^4.10.0
+        specifier: 4.10.0
         version: 4.10.0(typedoc@0.28.17(typescript@5.9.3))
       typescript:
-        specifier: ^5.9.3
+        specifier: 5.9.3
         version: 5.9.3
       uuid:
-        specifier: ^11.1.0
+        specifier: 11.1.0
         version: 11.1.0
       vitest:
-        specifier: ^1.6.1
+        specifier: 1.6.1
         version: 1.6.1(@types/node@20.19.37)
 
   src:
@@ -1621,6 +1621,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -5262,7 +5263,7 @@ snapshots:
     dependencies:
       '@stoplight/json': 3.21.7
       '@stoplight/path': 1.3.2
-      '@stoplight/types': 13.6.0
+      '@stoplight/types': 13.20.0
       '@types/urijs': 1.19.26
       dependency-graph: 0.11.0
       fast-memoize: 2.5.2
@@ -5275,7 +5276,7 @@ snapshots:
     dependencies:
       '@stoplight/ordered-object-literal': 1.0.5
       '@stoplight/path': 1.3.2
-      '@stoplight/types': 13.6.0
+      '@stoplight/types': 13.20.0
       jsonc-parser: 2.2.1
       lodash: 4.17.23
       safe-stable-stringify: 1.1.1
@@ -5376,7 +5377,7 @@ snapshots:
     dependencies:
       '@stoplight/json': 3.21.7
       '@stoplight/path': 1.3.2
-      '@stoplight/types': 13.6.0
+      '@stoplight/types': 13.20.0
       abort-controller: 3.0.0
       lodash: 4.17.23
       node-fetch: 2.7.0(encoding@0.1.13)
