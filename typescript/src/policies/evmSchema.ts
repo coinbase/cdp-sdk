@@ -496,6 +496,7 @@ export const SendUserOperationCriteriaSchema = z
     z.discriminatedUnion("type", [
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
+      PrepareUserOperationEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
     ]),
@@ -855,6 +856,49 @@ export const SignEndUserEvmTypedDataRuleSchema = z.object({
   criteria: SignEndUserEvmTypedDataCriteriaSchema,
 });
 export type SignEndUserEvmTypedDataRule = z.infer<typeof SignEndUserEvmTypedDataRuleSchema>;
+
+/**
+ * Schema for criteria used in SendEndUserOperation operations
+ */
+export const SendEndUserOperationCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      PrepareUserOperationEvmNetworkCriterionSchema,
+      EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendEndUserOperation operation.
+ */
+export type SendEndUserOperationCriteria = z.infer<typeof SendEndUserOperationCriteriaSchema>;
+
+/**
+ * Type representing a 'sendEndUserOperation' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEndUserOperationRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the operation, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEndUserOperation".
+   */
+  operation: z.literal("sendEndUserOperation"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEndUserOperationCriteriaSchema,
+});
+export type SendEndUserOperationRule = z.infer<typeof SendEndUserOperationRuleSchema>;
 
 /**
  * Schema for criteria used in SendEndUserEvmAsset operations
