@@ -12,31 +12,31 @@ importers:
         specifier: workspace:*
         version: link:../../typescript/src
       '@solana-program/system':
-        specifier: 0.10.0
+        specifier: ^0.10.0
         version: 0.10.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))
       '@solana-program/token':
-        specifier: 0.9.0
+        specifier: ^0.9.0
         version: 0.9.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))
       '@solana/kit':
-        specifier: 5.5.1
+        specifier: ^5.5.1
         version: 5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@types/node':
-        specifier: 22.19.15
+        specifier: ^22.19.15
         version: 22.19.15
       bs58:
-        specifier: 6.0.0
+        specifier: ^6.0.0
         version: 6.0.0
       dotenv:
-        specifier: 16.6.1
+        specifier: ^16.6.1
         version: 16.6.1
       permissionless:
         specifier: ^0.2.57
         version: 0.2.57(viem@2.47.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)(zod@3.25.76))
       tsx:
-        specifier: 4.21.0
+        specifier: ^4.21.0
         version: 4.21.0
       viem:
-        specifier: 2.47.0
+        specifier: ^2.47.0
         version: 2.47.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)(zod@3.25.76)
 
   ../../typescript/src:
