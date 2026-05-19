@@ -75,3 +75,17 @@ export {
   listX402DiscoveryMerchant,
   searchX402Resources,
 } from "./openapi-client/index.js";
+
+export {
+  listFoundationAccounts,
+  getFoundationAccountById,
+  listBalances,
+  getBalanceByAsset,
+  createTransfer,
+  listTransfers,
+  getTransferById,
+  listDepositDestinations,
+  createDepositDestination,
+  listPaymentMethods,
+  getPaymentMethod,
+} from "./openapi-client/index.js";

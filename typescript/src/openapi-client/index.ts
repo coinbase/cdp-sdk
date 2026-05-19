@@ -12,8 +12,15 @@ export * from "./generated/onchain-data/onchain-data.js";
 export * from "./generated/end-user-accounts/end-user-accounts.js";
 export * from "./generated/embedded-wallets/embedded-wallets.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
+export * from "./generated/sql-api/sql-api.js";
+export * from "./generated/accounts/accounts.js";
+export * from "./generated/deposit-destinations/deposit-destinations.js";
+export * from "./generated/transfers/transfers.js";
+export * from "./generated/payment-methods/payment-methods.js";
 
 import { configure } from "./cdpApiClient.js";
+import * as accounts from "./generated/accounts/accounts.js";
+import * as depositDestinations from "./generated/deposit-destinations/deposit-destinations.js";
 import * as embeddedWallets from "./generated/embedded-wallets/embedded-wallets.js";
 import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
@@ -22,9 +29,11 @@ import * as evmSwaps from "./generated/evm-swaps/evm-swaps.js";
 import * as evmTokenBalances from "./generated/evm-token-balances/evm-token-balances.js";
 import * as faucets from "./generated/faucets/faucets.js";
 import * as onchainData from "./generated/onchain-data/onchain-data.js";
+import * as paymentMethods from "./generated/payment-methods/payment-methods.js";
 import * as policies from "./generated/policy-engine/policy-engine.js";
 import * as solana from "./generated/solana-accounts/solana-accounts.js";
 import * as solanaTokenBalances from "./generated/solana-token-balances/solana-token-balances.js";
+import * as transfers from "./generated/transfers/transfers.js";
 import * as webhooks from "./generated/webhooks/webhooks.js";
 
 export const CdpOpenApiClient = {
@@ -40,6 +49,10 @@ export const CdpOpenApiClient = {
   ...policies,
   ...endUserAccounts,
   ...embeddedWallets,
+  ...accounts,
+  ...depositDestinations,
+  ...transfers,
+  ...paymentMethods,
   configure,
 };
 
@@ -61,8 +74,3 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
-export * from "./generated/sql-api/sql-api.js";
-export * from "./generated/accounts/accounts";
-export * from "./generated/deposit-destinations/deposit-destinations";
-export * from "./generated/transfers/transfers";
-export * from "./generated/payment-methods/payment-methods";
