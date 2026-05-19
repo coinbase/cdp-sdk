@@ -95,7 +95,7 @@ func getRequestHost(options ClientOptions, req *http.Request) string {
 //
 // TODO: Make this configurable by route rather than substring/regex matching.
 func requiresWalletAuth(method, path string) bool {
-	if method != "POST" && method != "DELETE" && method != "PUT" {
+	if method != http.MethodPost && method != http.MethodDelete && method != http.MethodPut {
 		return false
 	}
 
