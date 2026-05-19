@@ -37,7 +37,7 @@ class TestX402FacilitatorApi(unittest.IsolatedAsyncioTestCase):
     async def test_list_x402_discovery_resources(self) -> None:
         """Test case for list_x402_discovery_resources
 
-        List discovered x402 resources
+        List x402 resources
         """
         pass
 
@@ -58,7 +58,7 @@ class TestX402FacilitatorApi(unittest.IsolatedAsyncioTestCase):
     async def test_settle_x402_payment(self) -> None:
         """Test case for settle_x402_payment
 
-        Settle a payment
+        Settle payment
         """
         pass
 
@@ -72,7 +72,7 @@ class TestX402FacilitatorApi(unittest.IsolatedAsyncioTestCase):
     async def test_verify_x402_payment(self) -> None:
         """Test case for verify_x402_payment
 
-        Verify a payment
+        Verify payment
         """
         pass
 

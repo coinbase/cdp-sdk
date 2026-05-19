@@ -85,7 +85,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> GetDelegationForEndUser200Response:
-        """Create account-scoped delegation for an end user account
+        """Create account-scoped delegation for end user
 
         Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
 
@@ -182,7 +182,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[GetDelegationForEndUser200Response]:
-        """Create account-scoped delegation for an end user account
+        """Create account-scoped delegation for end user
 
         Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
 
@@ -279,7 +279,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create account-scoped delegation for an end user account
+        """Create account-scoped delegation for end user
 
         Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
 
@@ -522,6 +522,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -619,6 +620,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -716,6 +718,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -1139,7 +1142,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> GetDelegationForEndUser200Response:
-        """Get account-scoped delegation for an end user account
+        """Get account-scoped delegation for end user
 
         Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
 
@@ -1219,7 +1222,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[GetDelegationForEndUser200Response]:
-        """Get account-scoped delegation for an end user account
+        """Get account-scoped delegation for end user
 
         Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
 
@@ -1299,7 +1302,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get account-scoped delegation for an end user account
+        """Get account-scoped delegation for end user
 
         Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
 
@@ -1819,7 +1822,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> None:
-        """Revoke account-scoped delegation for an end user account
+        """Revoke account-scoped delegation for end user
 
         Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
 
@@ -1915,7 +1918,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[None]:
-        """Revoke account-scoped delegation for an end user account
+        """Revoke account-scoped delegation for end user
 
         Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
 
@@ -2011,7 +2014,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Revoke account-scoped delegation for an end user account
+        """Revoke account-scoped delegation for end user
 
         Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
 
@@ -2264,6 +2267,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -2367,6 +2371,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -2470,6 +2475,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -2606,7 +2612,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SendEvmTransactionWithEndUserAccount200Response:
-        """Send a transaction with end user EVM account
+        """Send transaction via end user EVM account
 
         Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
 
@@ -2703,7 +2709,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SendEvmTransactionWithEndUserAccount200Response]:
-        """Send a transaction with end user EVM account
+        """Send transaction via end user EVM account
 
         Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
 
@@ -2800,7 +2806,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send a transaction with end user EVM account
+        """Send transaction via end user EVM account
 
         Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
 
@@ -3052,6 +3058,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -3155,6 +3162,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -3258,6 +3266,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -3394,7 +3403,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SendSolanaTransactionWithEndUserAccount200Response:
-        """Send a transaction with end user Solana account
+        """Send transaction via end user Solana account
 
         Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -3490,7 +3499,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SendSolanaTransactionWithEndUserAccount200Response]:
-        """Send a transaction with end user Solana account
+        """Send transaction via end user Solana account
 
         Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -3586,7 +3595,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send a transaction with end user Solana account
+        """Send transaction via end user Solana account
 
         Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -3774,7 +3783,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Send a user operation for end user Smart Account
+        """Send user operation for end user Smart Account
 
         Prepares, signs, and sends a user operation for an end user's Smart Account.
 
@@ -3874,7 +3883,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Send a user operation for end user Smart Account
+        """Send user operation for end user Smart Account
 
         Prepares, signs, and sends a user operation for an end user's Smart Account.
 
@@ -3974,7 +3983,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send a user operation for end user Smart Account
+        """Send user operation for end user Smart Account
 
         Prepares, signs, and sends a user operation for an end user's Smart Account.
 
@@ -4167,7 +4176,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignEvmMessageWithEndUserAccount200Response:
-        """Sign an EIP-191 message with end user EVM account
+        """Sign EIP-191 message via end user EVM account
 
         Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
 
@@ -4222,6 +4231,7 @@ class EmbeddedWalletsApi:
             '200': "SignEvmMessageWithEndUserAccount200Response",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -4262,7 +4272,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignEvmMessageWithEndUserAccount200Response]:
-        """Sign an EIP-191 message with end user EVM account
+        """Sign EIP-191 message via end user EVM account
 
         Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
 
@@ -4317,6 +4327,7 @@ class EmbeddedWalletsApi:
             '200': "SignEvmMessageWithEndUserAccount200Response",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -4357,7 +4368,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign an EIP-191 message with end user EVM account
+        """Sign EIP-191 message via end user EVM account
 
         Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
 
@@ -4412,6 +4423,7 @@ class EmbeddedWalletsApi:
             '200': "SignEvmMessageWithEndUserAccount200Response",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -4543,7 +4555,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignEvmTransactionWithEndUserAccount200Response:
-        """Sign a transaction with end user EVM account
+        """Sign transaction via end user EVM account
 
         Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -4640,7 +4652,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignEvmTransactionWithEndUserAccount200Response]:
-        """Sign a transaction with end user EVM account
+        """Sign transaction via end user EVM account
 
         Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -4737,7 +4749,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign a transaction with end user EVM account
+        """Sign transaction via end user EVM account
 
         Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -4925,7 +4937,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignEvmTypedDataWithEndUserAccount200Response:
-        """Sign EIP-712 typed data with end user EVM account
+        """Sign EIP-712 typed data via end user EVM account
 
         Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
 
@@ -4981,6 +4993,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -5020,7 +5033,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignEvmTypedDataWithEndUserAccount200Response]:
-        """Sign EIP-712 typed data with end user EVM account
+        """Sign EIP-712 typed data via end user EVM account
 
         Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
 
@@ -5076,6 +5089,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -5115,7 +5129,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign EIP-712 typed data with end user EVM account
+        """Sign EIP-712 typed data via end user EVM account
 
         Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
 
@@ -5171,6 +5185,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -5301,7 +5316,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignSolanaMessageWithEndUserAccount200Response:
-        """Sign a Base64 encoded message
+        """Sign Base64-encoded message
 
         Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
 
@@ -5357,6 +5372,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -5397,7 +5413,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignSolanaMessageWithEndUserAccount200Response]:
-        """Sign a Base64 encoded message
+        """Sign Base64-encoded message
 
         Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
 
@@ -5453,6 +5469,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -5493,7 +5510,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign a Base64 encoded message
+        """Sign Base64-encoded message
 
         Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
 
@@ -5549,6 +5566,7 @@ class EmbeddedWalletsApi:
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -5680,7 +5698,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignSolanaTransactionWithEndUserAccount200Response:
-        """Sign a transaction with end user Solana account
+        """Sign transaction via end user Solana account
 
         Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -5777,7 +5795,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignSolanaTransactionWithEndUserAccount200Response]:
-        """Sign a transaction with end user Solana account
+        """Sign transaction via end user Solana account
 
         Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -5874,7 +5892,7 @@ class EmbeddedWalletsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign a transaction with end user Solana account
+        """Sign transaction via end user Solana account
 
         Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 

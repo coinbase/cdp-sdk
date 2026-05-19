@@ -379,7 +379,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> X402DiscoveryResourcesResponse:
-        """List discovered x402 resources
+        """List x402 resources
 
         Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
 
@@ -458,7 +458,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[X402DiscoveryResourcesResponse]:
-        """List discovered x402 resources
+        """List x402 resources
 
         Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
 
@@ -537,7 +537,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List discovered x402 resources
+        """List x402 resources
 
         Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
 
@@ -1378,7 +1378,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> InlineObject1:
-        """Settle a payment
+        """Settle payment
 
         Settle an x402 protocol payment with a specific scheme and network.
 
@@ -1450,7 +1450,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[InlineObject1]:
-        """Settle a payment
+        """Settle payment
 
         Settle an x402 protocol payment with a specific scheme and network.
 
@@ -1522,7 +1522,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Settle a payment
+        """Settle payment
 
         Settle an x402 protocol payment with a specific scheme and network.
 
@@ -1922,7 +1922,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> InlineObject:
-        """Verify a payment
+        """Verify payment
 
         Verify an x402 protocol payment with a specific scheme and network.
 
@@ -1993,7 +1993,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[InlineObject]:
-        """Verify a payment
+        """Verify payment
 
         Verify an x402 protocol payment with a specific scheme and network.
 
@@ -2064,7 +2064,7 @@ class X402FacilitatorApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Verify a payment
+        """Verify payment
 
         Verify an x402 protocol payment with a specific scheme and network.
 

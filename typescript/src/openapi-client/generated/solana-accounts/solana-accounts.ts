@@ -33,7 +33,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 The response is paginated, and by default, returns 20 accounts per page.
 
 If a name is provided, the response will contain only the account with that name.
- * @summary List Solana accounts or get account by name
+ * @summary List Solana accounts
  */
 export const listSolanaAccounts = (
   params?: ListSolanaAccountsParams,
@@ -46,7 +46,7 @@ export const listSolanaAccounts = (
 };
 /**
  * Creates a new Solana account.
- * @summary Create a Solana account
+ * @summary Create Solana account
  */
 export const createSolanaAccount = (
   createSolanaAccountBody?: CreateSolanaAccountBody,
@@ -64,7 +64,7 @@ export const createSolanaAccount = (
 };
 /**
  * Gets a Solana account by its address.
- * @summary Get a Solana account by address
+ * @summary Get Solana account by address
  */
 export const getSolanaAccount = (
   address: string,
@@ -77,7 +77,7 @@ export const getSolanaAccount = (
 };
 /**
  * Updates an existing Solana account. Use this to update the account's name or account-level policy.
- * @summary Update a Solana account
+ * @summary Update Solana account
  */
 export const updateSolanaAccount = (
   address: string,
@@ -96,7 +96,7 @@ export const updateSolanaAccount = (
 };
 /**
  * Gets a Solana account by its name.
- * @summary Get a Solana account by name
+ * @summary Get Solana account by name
  */
 export const getSolanaAccountByName = (
   name: string,
@@ -109,7 +109,7 @@ export const getSolanaAccountByName = (
 };
 /**
  * Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
- * @summary Import a Solana account
+ * @summary Import Solana account
  */
 export const importSolanaAccount = (
   importSolanaAccountBody: ImportSolanaAccountBody,
@@ -127,7 +127,7 @@ export const importSolanaAccount = (
 };
 /**
  * Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
- * @summary Export an Solana account
+ * @summary Export Solana account
  */
 export const exportSolanaAccount = (
   address: string,
@@ -146,7 +146,7 @@ export const exportSolanaAccount = (
 };
 /**
  * Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
- * @summary Export a Solana account by name
+ * @summary Export Solana account by name
  */
 export const exportSolanaAccountByName = (
   name: string,
@@ -174,7 +174,7 @@ The following transaction types are supported:
 * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)
 
 The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
- * @summary Sign a transaction
+ * @summary Sign transaction
  */
 export const signSolanaTransaction = (
   address: string,
@@ -195,7 +195,7 @@ export const signSolanaTransaction = (
  * Signs an arbitrary message with the given Solana account.
 
 **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
- * @summary Sign a message
+ * @summary Sign message
  */
 export const signSolanaMessage = (
   address: string,
@@ -234,7 +234,7 @@ The following Solana networks are supported:
 * `solana-devnet` - Solana Devnet
 
 The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
- * @summary Send a Solana transaction
+ * @summary Send Solana transaction
  */
 export const sendSolanaTransaction = (
   sendSolanaTransactionBody: SendSolanaTransactionBody,

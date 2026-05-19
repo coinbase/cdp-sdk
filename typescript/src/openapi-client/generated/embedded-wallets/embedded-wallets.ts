@@ -62,7 +62,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
 
 The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
- * @summary Sign a transaction with end user EVM account
+ * @summary Sign transaction via end user EVM account
  */
 export const signEvmTransactionWithEndUserAccount = (
   userId: string,
@@ -108,7 +108,7 @@ The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com
 - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
 - `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
 - `accessList` *(Optional)*: The access list to use for the transaction.
- * @summary Send a transaction with end user EVM account
+ * @summary Send transaction via end user EVM account
  */
 export const sendEvmTransactionWithEndUserAccount = (
   userId: string,
@@ -155,7 +155,7 @@ export const sendEvmAssetWithEndUserAccount = (
  * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.
 
 Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
- * @summary Sign an EIP-191 message with end user EVM account
+ * @summary Sign EIP-191 message via end user EVM account
  */
 export const signEvmMessageWithEndUserAccount = (
   userId: string,
@@ -176,7 +176,7 @@ export const signEvmMessageWithEndUserAccount = (
 };
 /**
  * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
- * @summary Sign EIP-712 typed data with end user EVM account
+ * @summary Sign EIP-712 typed data via end user EVM account
  */
 export const signEvmTypedDataWithEndUserAccount = (
   userId: string,
@@ -234,7 +234,7 @@ export const revokeDelegationForEndUser = (
  * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation.
 Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user.
 When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
- * @summary Create account-scoped delegation for an end user account
+ * @summary Create account-scoped delegation for end user
  */
 export const createDelegationForEndUserAccount = (
   userId: string,
@@ -257,7 +257,7 @@ export const createDelegationForEndUserAccount = (
 /**
  * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
 When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
- * @summary Get account-scoped delegation for an end user account
+ * @summary Get account-scoped delegation for end user
  */
 export const getDelegationForEndUserAccount = (
   userId: string,
@@ -277,7 +277,7 @@ export const getDelegationForEndUserAccount = (
 /**
  * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
 When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
- * @summary Revoke account-scoped delegation for an end user account
+ * @summary Revoke account-scoped delegation for end user
  */
 export const revokeDelegationForEndUserAccount = (
   userId: string,
@@ -328,7 +328,7 @@ export const createEvmEip7702DelegationWithEndUserAccount = (
 };
 /**
  * Prepares, signs, and sends a user operation for an end user's Smart Account.
- * @summary Send a user operation for end user Smart Account
+ * @summary Send user operation for end user Smart Account
  */
 export const sendUserOperationWithEndUserAccount = (
   userId: string,
@@ -351,7 +351,7 @@ export const sendUserOperationWithEndUserAccount = (
 /**
  * Signs an arbitrary Base64 encoded message with the given Solana account.
  **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
- * @summary Sign a Base64 encoded message
+ * @summary Sign Base64-encoded message
  */
 export const signSolanaMessageWithEndUserAccount = (
   userId: string,
@@ -378,7 +378,7 @@ The following transaction types are supported:
 * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html)
 * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)
 The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
- * @summary Sign a transaction with end user Solana account
+ * @summary Sign transaction via end user Solana account
  */
 export const signSolanaTransactionWithEndUserAccount = (
   userId: string,
@@ -412,7 +412,7 @@ The following Solana networks are supported:
 * `solana` - Solana Mainnet
 * `solana-devnet` - Solana Devnet
 The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
- * @summary Send a transaction with end user Solana account
+ * @summary Send transaction via end user Solana account
  */
 export const sendSolanaTransactionWithEndUserAccount = (
   userId: string,

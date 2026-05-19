@@ -106,7 +106,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Create account-scoped delegation for an end user account
+   * Create account-scoped delegation for end user
    * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account&#39;s owner EOA rather than the Smart Account address itself. This means &#x60;/address/{smartAccountAddress}/delegation&#x60; and &#x60;/address/{ownerEoaAddress}/delegation&#x60; resolve to the same delegation, and the 409 &#x60;account_scoped_delegation_active&#x60; error may be returned when creating via either address if one already exists for the canonical owner.
    * @param userId The ID of the end user. (required)
    * @param address The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
@@ -123,7 +123,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Create account-scoped delegation for an end user account
+   * Create account-scoped delegation for end user
    * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account&#39;s owner EOA rather than the Smart Account address itself. This means &#x60;/address/{smartAccountAddress}/delegation&#x60; and &#x60;/address/{ownerEoaAddress}/delegation&#x60; resolve to the same delegation, and the 409 &#x60;account_scoped_delegation_active&#x60; error may be returned when creating via either address if one already exists for the canonical owner.
    * @param userId The ID of the end user. (required)
    * @param address The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
@@ -465,7 +465,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Get account-scoped delegation for an end user account
+   * Get account-scoped delegation for end user
    * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account&#39;s owner EOA.
    * @param userId The ID of the end user. (required)
    * @param address The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
@@ -479,7 +479,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Get account-scoped delegation for an end user account
+   * Get account-scoped delegation for end user
    * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account&#39;s owner EOA.
    * @param userId The ID of the end user. (required)
    * @param address The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
@@ -693,7 +693,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Revoke account-scoped delegation for an end user account
+   * Revoke account-scoped delegation for end user
    * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account&#39;s owner EOA.
    * @param userId The ID of the end user. (required)
    * @param address The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
@@ -709,7 +709,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Revoke account-scoped delegation for an end user account
+   * Revoke account-scoped delegation for end user
    * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account&#39;s owner EOA.
    * @param userId The ID of the end user. (required)
    * @param address The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
@@ -958,7 +958,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Send a transaction with end user EVM account
+   * Send transaction via end user EVM account
    * Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - &#x60;to&#x60; *(Required)*: The address of the contract or account to send the transaction to. - &#x60;chainId&#x60; *(Ignored)*: The value of the &#x60;chainId&#x60; field in the transaction is ignored.   The transaction will be sent to the network indicated by the &#x60;network&#x60; field in the request body.  - &#x60;nonce&#x60; *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - &#x60;maxPriorityFeePerGas&#x60; *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;maxFeePerGas&#x60; *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;gasLimit&#x60; *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the &#x60;to&#x60; and &#x60;data&#x60; fields of the transaction.  - &#x60;value&#x60; *(Optional)*: The amount of ETH, in wei, to send with the transaction. - &#x60;data&#x60; *(Optional)*: The data to send with the transaction; only used for contract calls. - &#x60;accessList&#x60; *(Optional)*: The access list to use for the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -975,7 +975,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Send a transaction with end user EVM account
+   * Send transaction via end user EVM account
    * Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - &#x60;to&#x60; *(Required)*: The address of the contract or account to send the transaction to. - &#x60;chainId&#x60; *(Ignored)*: The value of the &#x60;chainId&#x60; field in the transaction is ignored.   The transaction will be sent to the network indicated by the &#x60;network&#x60; field in the request body.  - &#x60;nonce&#x60; *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - &#x60;maxPriorityFeePerGas&#x60; *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;maxFeePerGas&#x60; *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - &#x60;gasLimit&#x60; *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the &#x60;to&#x60; and &#x60;data&#x60; fields of the transaction.  - &#x60;value&#x60; *(Optional)*: The amount of ETH, in wei, to send with the transaction. - &#x60;data&#x60; *(Optional)*: The data to send with the transaction; only used for contract calls. - &#x60;accessList&#x60; *(Optional)*: The access list to use for the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1220,7 +1220,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Send a transaction with end user Solana account
+   * Send transaction via end user Solana account
    * Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * &#x60;solana&#x60; - Solana Mainnet * &#x60;solana-devnet&#x60; - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1237,7 +1237,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Send a transaction with end user Solana account
+   * Send transaction via end user Solana account
    * Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * &#x60;solana&#x60; - Solana Mainnet * &#x60;solana-devnet&#x60; - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1344,7 +1344,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Send a user operation for end user Smart Account
+   * Send user operation for end user Smart Account
    * Prepares, signs, and sends a user operation for an end user&#39;s Smart Account.
    * @param userId The ID of the end user. (required)
    * @param address The address of the EVM Smart Account to execute the user operation from. (required)
@@ -1362,7 +1362,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Send a user operation for end user Smart Account
+   * Send user operation for end user Smart Account
    * Prepares, signs, and sends a user operation for an end user&#39;s Smart Account.
    * @param userId The ID of the end user. (required)
    * @param address The address of the EVM Smart Account to execute the user operation from. (required)
@@ -1475,7 +1475,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign an EIP-191 message with end user EVM account
+   * Sign EIP-191 message via end user EVM account
    * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with &#x60;0x19 &lt;0x45 (E)&gt; &lt;thereum Signed Message:\\n\&quot; + len(message)&gt;&#x60; before being signed.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1492,7 +1492,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign an EIP-191 message with end user EVM account
+   * Sign EIP-191 message via end user EVM account
    * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with &#x60;0x19 &lt;0x45 (E)&gt; &lt;thereum Signed Message:\\n\&quot; + len(message)&gt;&#x60; before being signed.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1599,7 +1599,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign a transaction with end user EVM account
+   * Sign transaction via end user EVM account
    * Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1616,7 +1616,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign a transaction with end user EVM account
+   * Sign transaction via end user EVM account
    * Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1723,7 +1723,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign EIP-712 typed data with end user EVM account
+   * Sign EIP-712 typed data via end user EVM account
    * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1740,7 +1740,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign EIP-712 typed data with end user EVM account
+   * Sign EIP-712 typed data via end user EVM account
    * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1847,7 +1847,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign a Base64 encoded message
+   * Sign Base64-encoded message
    * Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn&#39;t generate as it may put your funds at risk.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1864,7 +1864,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign a Base64 encoded message
+   * Sign Base64-encoded message
    * Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn&#39;t generate as it may put your funds at risk.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1971,7 +1971,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign a transaction with end user Solana account
+   * Sign transaction via end user Solana account
    * Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -1988,7 +1988,7 @@ public class EmbeddedWalletsApi {
   }
 
   /**
-   * Sign a transaction with end user Solana account
+   * Sign transaction via end user Solana account
    * Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
    * @param userId The ID of the end user. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)

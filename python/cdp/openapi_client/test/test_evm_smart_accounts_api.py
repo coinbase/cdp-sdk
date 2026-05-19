@@ -30,35 +30,35 @@ class TestEVMSmartAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_create_evm_smart_account(self) -> None:
         """Test case for create_evm_smart_account
 
-        Create a Smart Account
+        Create Smart Account
         """
         pass
 
     async def test_create_spend_permission(self) -> None:
         """Test case for create_spend_permission
 
-        Create a spend permission
+        Create spend permission
         """
         pass
 
     async def test_get_evm_smart_account(self) -> None:
         """Test case for get_evm_smart_account
 
-        Get a Smart Account by address
+        Get Smart Account by address
         """
         pass
 
     async def test_get_evm_smart_account_by_name(self) -> None:
         """Test case for get_evm_smart_account_by_name
 
-        Get a Smart Account by name
+        Get Smart Account by name
         """
         pass
 
     async def test_get_user_operation(self) -> None:
         """Test case for get_user_operation
 
-        Get a user operation
+        Get user operation
         """
         pass
 
@@ -79,35 +79,35 @@ class TestEVMSmartAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_prepare_and_send_user_operation(self) -> None:
         """Test case for prepare_and_send_user_operation
 
-        Prepare and send a user operation for EVM Smart Account
+        Prepare and send user operation
         """
         pass
 
     async def test_prepare_user_operation(self) -> None:
         """Test case for prepare_user_operation
 
-        Prepare a user operation
+        Prepare user operation
         """
         pass
 
     async def test_revoke_spend_permission(self) -> None:
         """Test case for revoke_spend_permission
 
-        Revoke a spend permission
+        Revoke spend permission
         """
         pass
 
     async def test_send_user_operation(self) -> None:
         """Test case for send_user_operation
 
-        Send a user operation
+        Send user operation
         """
         pass
 
     async def test_update_evm_smart_account(self) -> None:
         """Test case for update_evm_smart_account
 
-        Update an EVM Smart Account
+        Update EVM Smart Account
         """
         pass
 

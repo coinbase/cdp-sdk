@@ -62,3 +62,7 @@ export const OpenApiPoliciesMethods = {
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
 export * from "./generated/sql-api/sql-api.js";
+export * from "./generated/accounts/accounts";
+export * from "./generated/deposit-destinations/deposit-destinations";
+export * from "./generated/transfers/transfers";
+export * from "./generated/payment-methods/payment-methods";

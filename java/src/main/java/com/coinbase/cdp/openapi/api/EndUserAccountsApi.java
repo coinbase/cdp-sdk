@@ -93,7 +93,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Add an EVM account to an end user
+   * Add EVM account to end user
    * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -108,7 +108,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Add an EVM account to an end user
+   * Add EVM account to end user
    * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -195,7 +195,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Add an EVM smart account to an end user
+   * Add EVM smart account to end user
    * Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the smart account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -210,7 +210,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Add an EVM smart account to an end user
+   * Add EVM smart account to end user
    * Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the smart account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -297,7 +297,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Add a Solana account to an end user
+   * Add Solana account to end user
    * Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -312,7 +312,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Add a Solana account to an end user
+   * Add Solana account to end user
    * Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to add the account to. (required)
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
@@ -399,7 +399,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Create an end user
+   * Create end user
    * Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional &#x60;evmAccount&#x60; and/or &#x60;solanaAccount&#x60; fields are provided. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -413,7 +413,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Create an end user
+   * Create end user
    * Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional &#x60;evmAccount&#x60; and/or &#x60;solanaAccount&#x60; fields are provided. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -494,7 +494,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Get an end user
+   * Get end user
    * Gets an end user by ID.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to get. (required)
    * @return EndUser
@@ -506,7 +506,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Get an end user
+   * Get end user
    * Gets an end user by ID.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param userId The ID of the end user to get. (required)
    * @return ApiResponse&lt;EndUser&gt;
@@ -578,7 +578,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Import a private key for an end user
+   * Import end user private key
    * Imports an existing private key for an end user into the developer&#39;s CDP Project. The private key must be encrypted using the CDP SDK&#39;s encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -592,7 +592,7 @@ public class EndUserAccountsApi {
   }
 
   /**
-   * Import a private key for an end user
+   * Import end user private key
    * Imports an existing private key for an end user into the developer&#39;s CDP Project. The private key must be encrypted using the CDP SDK&#39;s encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
    * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)

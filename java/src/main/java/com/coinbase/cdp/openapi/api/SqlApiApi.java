@@ -162,7 +162,7 @@ public class SqlApiApi {
   }
 
   /**
-   * Get schemas details
+   * Get schema details
    * Retrieve the schema information for the available tables in the SQL API&#39;s indexed data.  This includes table names, column definitions, data types, and indexed fields. 
    * @param database The name of the database to query. Defaults to \&quot;base\&quot; when not specified. (optional, default to base)
    * @param table Get the schema for a specific table. (optional)
@@ -175,7 +175,7 @@ public class SqlApiApi {
   }
 
   /**
-   * Get schemas details
+   * Get schema details
    * Retrieve the schema information for the available tables in the SQL API&#39;s indexed data.  This includes table names, column definitions, data types, and indexed fields. 
    * @param database The name of the database to query. Defaults to \&quot;base\&quot; when not specified. (optional, default to base)
    * @param table Get the schema for a specific table. (optional)

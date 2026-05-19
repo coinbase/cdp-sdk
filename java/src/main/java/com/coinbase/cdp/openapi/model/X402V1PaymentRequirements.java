@@ -25,8 +25,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -149,7 +147,7 @@ public class X402V1PaymentRequirements {
 
   public static final String JSON_PROPERTY_OUTPUT_SCHEMA = "outputSchema";
   @jakarta.annotation.Nullable
-  private Map<String, Object> outputSchema = new HashMap<>();
+  private Object outputSchema;
 
   public static final String JSON_PROPERTY_PAY_TO = "payTo";
   @jakarta.annotation.Nonnull
@@ -165,7 +163,7 @@ public class X402V1PaymentRequirements {
 
   public static final String JSON_PROPERTY_EXTRA = "extra";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extra = new HashMap<>();
+  private Object extra;
 
   public X402V1PaymentRequirements() { 
   }
@@ -314,16 +312,8 @@ public class X402V1PaymentRequirements {
   }
 
 
-  public X402V1PaymentRequirements outputSchema(@jakarta.annotation.Nullable Map<String, Object> outputSchema) {
+  public X402V1PaymentRequirements outputSchema(@jakarta.annotation.Nullable Object outputSchema) {
     this.outputSchema = outputSchema;
-    return this;
-  }
-
-  public X402V1PaymentRequirements putOutputSchemaItem(String key, Object outputSchemaItem) {
-    if (this.outputSchema == null) {
-      this.outputSchema = new HashMap<>();
-    }
-    this.outputSchema.put(key, outputSchemaItem);
     return this;
   }
 
@@ -333,15 +323,15 @@ public class X402V1PaymentRequirements {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_OUTPUT_SCHEMA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getOutputSchema() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getOutputSchema() {
     return outputSchema;
   }
 
 
   @JsonProperty(JSON_PROPERTY_OUTPUT_SCHEMA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setOutputSchema(@jakarta.annotation.Nullable Map<String, Object> outputSchema) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOutputSchema(@jakarta.annotation.Nullable Object outputSchema) {
     this.outputSchema = outputSchema;
   }
 
@@ -418,16 +408,8 @@ public class X402V1PaymentRequirements {
   }
 
 
-  public X402V1PaymentRequirements extra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  public X402V1PaymentRequirements extra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
-    return this;
-  }
-
-  public X402V1PaymentRequirements putExtraItem(String key, Object extraItem) {
-    if (this.extra == null) {
-      this.extra = new HashMap<>();
-    }
-    this.extra.put(key, extraItem);
     return this;
   }
 
@@ -437,15 +419,15 @@ public class X402V1PaymentRequirements {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtra() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
     return extra;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
   }
 
@@ -574,11 +556,7 @@ public class X402V1PaymentRequirements {
 
     // add `outputSchema` to the URL query string
     if (getOutputSchema() != null) {
-      for (String _key : getOutputSchema().keySet()) {
-        joiner.add(String.format("%soutputSchema%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getOutputSchema().get(_key), URLEncoder.encode(ApiClient.valueToString(getOutputSchema().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%soutputSchema%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getOutputSchema()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `payTo` to the URL query string
@@ -598,11 +576,7 @@ public class X402V1PaymentRequirements {
 
     // add `extra` to the URL query string
     if (getExtra() != null) {
-      for (String _key : getExtra().keySet()) {
-        joiner.add(String.format("%sextra%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtra().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtra().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -644,7 +618,7 @@ public class X402V1PaymentRequirements {
       this.instance.mimeType = mimeType;
       return this;
     }
-    public X402V1PaymentRequirements.Builder outputSchema(Map<String, Object> outputSchema) {
+    public X402V1PaymentRequirements.Builder outputSchema(Object outputSchema) {
       this.instance.outputSchema = outputSchema;
       return this;
     }
@@ -660,7 +634,7 @@ public class X402V1PaymentRequirements {
       this.instance.asset = asset;
       return this;
     }
-    public X402V1PaymentRequirements.Builder extra(Map<String, Object> extra) {
+    public X402V1PaymentRequirements.Builder extra(Object extra) {
       this.instance.extra = extra;
       return this;
     }

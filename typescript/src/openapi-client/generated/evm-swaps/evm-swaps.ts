@@ -18,7 +18,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
  * Get a price estimate for a swap between two tokens on an EVM network.
- * @summary Get a price estimate for a swap
+ * @summary Get swap price estimate
  */
 export const getEvmSwapPrice = (
   params: GetEvmSwapPriceParams,
@@ -31,7 +31,7 @@ export const getEvmSwapPrice = (
 };
 /**
  * Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
- * @summary Create a swap quote
+ * @summary Create swap quote
  */
 export const createEvmSwapQuote = (
   createEvmSwapQuoteBody: CreateEvmSwapQuoteBody,

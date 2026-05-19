@@ -27,12 +27,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -48,7 +47,10 @@ import com.coinbase.cdp.openapi.ApiClient;
   X402DiscoveryResource.JSON_PROPERTY_LAST_UPDATED,
   X402DiscoveryResource.JSON_PROPERTY_ACCEPTS,
   X402DiscoveryResource.JSON_PROPERTY_EXTENSIONS,
-  X402DiscoveryResource.JSON_PROPERTY_QUALITY
+  X402DiscoveryResource.JSON_PROPERTY_QUALITY,
+  X402DiscoveryResource.JSON_PROPERTY_SERVICE_NAME,
+  X402DiscoveryResource.JSON_PROPERTY_TAGS,
+  X402DiscoveryResource.JSON_PROPERTY_ICON_URL
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class X402DiscoveryResource {
@@ -113,11 +115,23 @@ public class X402DiscoveryResource {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extensions = new HashMap<>();
+  private Object extensions;
 
   public static final String JSON_PROPERTY_QUALITY = "quality";
   @jakarta.annotation.Nullable
   private X402ResourceQuality quality;
+
+  public static final String JSON_PROPERTY_SERVICE_NAME = "serviceName";
+  @jakarta.annotation.Nullable
+  private String serviceName;
+
+  public static final String JSON_PROPERTY_TAGS = "tags";
+  @jakarta.annotation.Nullable
+  private List<String> tags = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_ICON_URL = "iconUrl";
+  @jakarta.annotation.Nullable
+  private URI iconUrl;
 
   public X402DiscoveryResource() { 
   }
@@ -274,16 +288,8 @@ public class X402DiscoveryResource {
   }
 
 
-  public X402DiscoveryResource extensions(@jakarta.annotation.Nullable Map<String, Object> extensions) {
+  public X402DiscoveryResource extensions(@jakarta.annotation.Nullable Object extensions) {
     this.extensions = extensions;
-    return this;
-  }
-
-  public X402DiscoveryResource putExtensionsItem(String key, Object extensionsItem) {
-    if (this.extensions == null) {
-      this.extensions = new HashMap<>();
-    }
-    this.extensions.put(key, extensionsItem);
     return this;
   }
 
@@ -293,15 +299,15 @@ public class X402DiscoveryResource {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtensions() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtensions(@jakarta.annotation.Nullable Map<String, Object> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Object extensions) {
     this.extensions = extensions;
   }
 
@@ -330,6 +336,86 @@ public class X402DiscoveryResource {
   }
 
 
+  public X402DiscoveryResource serviceName(@jakarta.annotation.Nullable String serviceName) {
+    this.serviceName = serviceName;
+    return this;
+  }
+
+  /**
+   * Provider-supplied display name of the service this resource belongs to. This is a free-form label for grouping and presentation only — it is not a stable identifier, and two resources sharing the same &#x60;serviceName&#x60; are not guaranteed to belong to the same logical service. 
+   * @return serviceName
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SERVICE_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getServiceName() {
+    return serviceName;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SERVICE_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setServiceName(@jakarta.annotation.Nullable String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+
+  public X402DiscoveryResource tags(@jakarta.annotation.Nullable List<String> tags) {
+    this.tags = tags;
+    return this;
+  }
+
+  public X402DiscoveryResource addTagsItem(String tagsItem) {
+    if (this.tags == null) {
+      this.tags = new ArrayList<>();
+    }
+    this.tags.add(tagsItem);
+    return this;
+  }
+
+  /**
+   * Provider-supplied, low-cardinality string labels associated with the resource for client-side filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive. Order is not significant and duplicates are not expected. 
+   * @return tags
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TAGS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<String> getTags() {
+    return tags;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TAGS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTags(@jakarta.annotation.Nullable List<String> tags) {
+    this.tags = tags;
+  }
+
+
+  public X402DiscoveryResource iconUrl(@jakarta.annotation.Nullable URI iconUrl) {
+    this.iconUrl = iconUrl;
+    return this;
+  }
+
+  /**
+   * URL of a square icon representing the service this resource belongs to. Distinct from a brand logo: this is intended for compact, list-view rendering (favicon-style) and is normalized to a square aspect ratio at ingestion. The image is moderated and re-hosted by Coinbase, so the URL is stable and safe to render directly in clients. Omitted when the provider did not supply an icon, when the supplied icon failed moderation, or when image processing was unavailable at ingestion time. 
+   * @return iconUrl
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ICON_URL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public URI getIconUrl() {
+    return iconUrl;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ICON_URL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setIconUrl(@jakarta.annotation.Nullable URI iconUrl) {
+    this.iconUrl = iconUrl;
+  }
+
+
   /**
    * Return true if this x402DiscoveryResource object is equal to o.
    */
@@ -349,12 +435,15 @@ public class X402DiscoveryResource {
         Objects.equals(this.lastUpdated, x402DiscoveryResource.lastUpdated) &&
         Objects.equals(this.accepts, x402DiscoveryResource.accepts) &&
         Objects.equals(this.extensions, x402DiscoveryResource.extensions) &&
-        Objects.equals(this.quality, x402DiscoveryResource.quality);
+        Objects.equals(this.quality, x402DiscoveryResource.quality) &&
+        Objects.equals(this.serviceName, x402DiscoveryResource.serviceName) &&
+        Objects.equals(this.tags, x402DiscoveryResource.tags) &&
+        Objects.equals(this.iconUrl, x402DiscoveryResource.iconUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(resource, description, type, x402Version, lastUpdated, accepts, extensions, quality);
+    return Objects.hash(resource, description, type, x402Version, lastUpdated, accepts, extensions, quality, serviceName, tags, iconUrl);
   }
 
   @Override
@@ -369,6 +458,9 @@ public class X402DiscoveryResource {
     sb.append("    accepts: ").append(toIndentedString(accepts)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
     sb.append("    quality: ").append(toIndentedString(quality)).append("\n");
+    sb.append("    serviceName: ").append(toIndentedString(serviceName)).append("\n");
+    sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
+    sb.append("    iconUrl: ").append(toIndentedString(iconUrl)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -453,16 +545,31 @@ public class X402DiscoveryResource {
 
     // add `extensions` to the URL query string
     if (getExtensions() != null) {
-      for (String _key : getExtensions().keySet()) {
-        joiner.add(String.format("%sextensions%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtensions().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtensions().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextensions%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtensions()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `quality` to the URL query string
     if (getQuality() != null) {
       joiner.add(getQuality().toUrlQueryString(prefix + "quality" + suffix));
+    }
+
+    // add `serviceName` to the URL query string
+    if (getServiceName() != null) {
+      joiner.add(String.format("%sserviceName%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getServiceName()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `tags` to the URL query string
+    if (getTags() != null) {
+      for (int i = 0; i < getTags().size(); i++) {
+        joiner.add(String.format("%stags%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
+            URLEncoder.encode(ApiClient.valueToString(getTags().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+      }
+    }
+
+    // add `iconUrl` to the URL query string
+    if (getIconUrl() != null) {
+      joiner.add(String.format("%siconUrl%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIconUrl()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -504,12 +611,24 @@ public class X402DiscoveryResource {
       this.instance.accepts = accepts;
       return this;
     }
-    public X402DiscoveryResource.Builder extensions(Map<String, Object> extensions) {
+    public X402DiscoveryResource.Builder extensions(Object extensions) {
       this.instance.extensions = extensions;
       return this;
     }
     public X402DiscoveryResource.Builder quality(X402ResourceQuality quality) {
       this.instance.quality = quality;
+      return this;
+    }
+    public X402DiscoveryResource.Builder serviceName(String serviceName) {
+      this.instance.serviceName = serviceName;
+      return this;
+    }
+    public X402DiscoveryResource.Builder tags(List<String> tags) {
+      this.instance.tags = tags;
+      return this;
+    }
+    public X402DiscoveryResource.Builder iconUrl(URI iconUrl) {
+      this.instance.iconUrl = iconUrl;
       return this;
     }
 
@@ -553,7 +672,10 @@ public class X402DiscoveryResource {
       .lastUpdated(getLastUpdated())
       .accepts(getAccepts())
       .extensions(getExtensions())
-      .quality(getQuality());
+      .quality(getQuality())
+      .serviceName(getServiceName())
+      .tags(getTags())
+      .iconUrl(getIconUrl());
   }
 
 }

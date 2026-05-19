@@ -25,8 +25,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -51,7 +49,7 @@ public class X402McpError {
 
   public static final String JSON_PROPERTY_DATA = "data";
   @jakarta.annotation.Nullable
-  private Map<String, Object> data = new HashMap<>();
+  private Object data;
 
   public X402McpError() { 
   }
@@ -104,16 +102,8 @@ public class X402McpError {
   }
 
 
-  public X402McpError data(@jakarta.annotation.Nullable Map<String, Object> data) {
+  public X402McpError data(@jakarta.annotation.Nullable Object data) {
     this.data = data;
-    return this;
-  }
-
-  public X402McpError putDataItem(String key, Object dataItem) {
-    if (this.data == null) {
-      this.data = new HashMap<>();
-    }
-    this.data.put(key, dataItem);
     return this;
   }
 
@@ -123,15 +113,15 @@ public class X402McpError {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_DATA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getData() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getData() {
     return data;
   }
 
 
   @JsonProperty(JSON_PROPERTY_DATA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setData(@jakarta.annotation.Nullable Map<String, Object> data) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setData(@jakarta.annotation.Nullable Object data) {
     this.data = data;
   }
 
@@ -224,11 +214,7 @@ public class X402McpError {
 
     // add `data` to the URL query string
     if (getData() != null) {
-      for (String _key : getData().keySet()) {
-        joiner.add(String.format("%sdata%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getData().get(_key), URLEncoder.encode(ApiClient.valueToString(getData().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sdata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getData()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -254,7 +240,7 @@ public class X402McpError {
       this.instance.message = message;
       return this;
     }
-    public X402McpError.Builder data(Map<String, Object> data) {
+    public X402McpError.Builder data(Object data) {
       this.instance.data = data;
       return this;
     }
