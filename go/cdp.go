@@ -85,7 +85,7 @@ func getRequestHost(options ClientOptions, req *http.Request) string {
 // requiresWalletAuth returns true if the request method and path require wallet
 // authentication via the X-Wallet-Auth header.
 //
-// The /accounts and /spend-permissions checks use strings.Contains intentionally —
+// The /accounts and /spend-permissions checks use strings.Contains intentionally.
 // The looser matching is acceptable because all current routes that contain
 // these segments require wallet auth, and tightening would diverge from the
 // canonical without benefit.
