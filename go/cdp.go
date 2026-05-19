@@ -7,10 +7,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/coinbase/cdp-sdk/go/auth"
 	"github.com/coinbase/cdp-sdk/go/openapi"
+)
+
+var (
+	endUserEvmRe             = regexp.MustCompile(`/end-users/[^/]+/evm$`)
+	endUserEvmSmartAccountRe = regexp.MustCompile(`/end-users/[^/]+/evm-smart-account$`)
+	endUserSolanaRe          = regexp.MustCompile(`/end-users/[^/]+/solana$`)
 )
 
 // ClientOptions contains configuration options for the CDP client.
@@ -75,6 +82,31 @@ func getRequestHost(options ClientOptions, req *http.Request) string {
 	return req.Host
 }
 
+// requiresWalletAuth returns true if the request method and path require wallet
+// authentication via the X-Wallet-Auth header.
+//
+// The /accounts and /spend-permissions checks use strings.Contains intentionally.
+// The looser matching is acceptable because all current routes that contain
+// these segments require wallet auth, and tightening would diverge from the
+// canonical without benefit.
+//
+// TODO: Make this configurable by route rather than substring/regex matching.
+func requiresWalletAuth(method, path string) bool {
+	if method != http.MethodPost && method != http.MethodDelete && method != http.MethodPut {
+		return false
+	}
+
+	return strings.Contains(path, "/accounts") ||
+		strings.Contains(path, "/spend-permissions") ||
+		strings.Contains(path, "/user-operations/prepare-and-send") ||
+		strings.Contains(path, "/embedded-wallet-api/") ||
+		strings.HasSuffix(path, "/end-users") ||
+		strings.HasSuffix(path, "/end-users/import") ||
+		endUserEvmRe.MatchString(path) ||
+		endUserEvmSmartAccountRe.MatchString(path) ||
+		endUserSolanaRe.MatchString(path)
+}
+
 // apiKeyHeaderFn generates a JWT for the API key and adds it to the request headers.
 func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 	return func(_ context.Context, req *http.Request) error {
@@ -107,13 +139,11 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 // walletHeaderFn generates a JWT for the wallet and adds it to the request headers.
 func walletHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 	return func(_ context.Context, req *http.Request) error {
-		if req.Method != "POST" && req.Method != "DELETE" {
+		if options.WalletSecret == "" {
 			return nil
 		}
 
-		if !strings.Contains(req.URL.Path, "/accounts") &&
-			!strings.Contains(req.URL.Path, "/spend-permissions") &&
-			!strings.Contains(req.URL.Path, "/user-operations/prepare-and-send") {
+		if !requiresWalletAuth(req.Method, req.URL.Path) {
 			return nil
 		}
 

@@ -1,0 +1,154 @@
+package cdp
+
+import (
+	"testing"
+)
+
+func TestRequiresWalletAuth(t *testing.T) {
+	tests := map[string]struct {
+		method string
+		path   string
+		want   bool
+	}{
+		// Method filtering
+		"GET skipped": {
+			method: "GET",
+			path:   "/platform/v2/accounts",
+			want:   false,
+		},
+		"PATCH skipped": {
+			method: "PATCH",
+			path:   "/platform/v2/accounts",
+			want:   false,
+		},
+
+		// /accounts
+		"POST /accounts": {
+			method: "POST",
+			path:   "/platform/v2/accounts",
+			want:   true,
+		},
+		"DELETE /accounts/{id}": {
+			method: "DELETE",
+			path:   "/platform/v2/accounts/abc-123",
+			want:   true,
+		},
+		"PUT /accounts/{id}": {
+			method: "PUT",
+			path:   "/platform/v2/accounts/abc-123",
+			want:   true,
+		},
+
+		// /spend-permissions
+		"POST /spend-permissions": {
+			method: "POST",
+			path:   "/platform/v2/spend-permissions",
+			want:   true,
+		},
+		"DELETE /spend-permissions/{id}": {
+			method: "DELETE",
+			path:   "/platform/v2/spend-permissions/abc-123",
+			want:   true,
+		},
+
+		// /user-operations/prepare-and-send
+		"POST /user-operations/prepare-and-send": {
+			method: "POST",
+			path:   "/platform/v2/evm/accounts/0xabc/user-operations/prepare-and-send",
+			want:   true,
+		},
+
+		// bare /prepare-and-send should NOT match
+		"POST /prepare-and-send (bare) does not match": {
+			method: "POST",
+			path:   "/platform/v2/prepare-and-send",
+			want:   false,
+		},
+
+		// /embedded-wallet-api/
+		"POST /embedded-wallet-api/ route": {
+			method: "POST",
+			path:   "/platform/v2/embedded-wallet-api/end-users/uid-123/evm",
+			want:   true,
+		},
+		"PUT /embedded-wallet-api/ route": {
+			method: "PUT",
+			path:   "/platform/v2/embedded-wallet-api/end-users/uid-123/wallet-secrets",
+			want:   true,
+		},
+		"DELETE /embedded-wallet-api/ route": {
+			method: "DELETE",
+			path:   "/platform/v2/embedded-wallet-api/end-users/uid-123/address/0xabc/delegation",
+			want:   true,
+		},
+		"GET /embedded-wallet-api/ skipped": {
+			method: "GET",
+			path:   "/platform/v2/embedded-wallet-api/end-users/uid-123",
+			want:   false,
+		},
+
+		// /end-users (endsWith)
+		"POST /v2/end-users": {
+			method: "POST",
+			path:   "/platform/v2/end-users",
+			want:   true,
+		},
+		"GET /v2/end-users skipped": {
+			method: "GET",
+			path:   "/platform/v2/end-users",
+			want:   false,
+		},
+		"POST /v2/end-users/{id} does not match endsWith": {
+			method: "POST",
+			path:   "/platform/v2/end-users/uid-123",
+			want:   false,
+		},
+
+		// /end-users/import (endsWith)
+		"POST /v2/end-users/import": {
+			method: "POST",
+			path:   "/platform/v2/end-users/import",
+			want:   true,
+		},
+
+		// /end-users/{id}/evm (regex)
+		"POST /v2/end-users/{id}/evm": {
+			method: "POST",
+			path:   "/platform/v2/end-users/uid-123/evm",
+			want:   true,
+		},
+		"POST /v2/end-users/{id}/evm/sign does not match regex": {
+			method: "POST",
+			path:   "/platform/v2/end-users/uid-123/evm/sign",
+			want:   false,
+		},
+
+		// /end-users/{id}/evm-smart-account (regex)
+		"POST /v2/end-users/{id}/evm-smart-account": {
+			method: "POST",
+			path:   "/platform/v2/end-users/uid-123/evm-smart-account",
+			want:   true,
+		},
+
+		// /end-users/{id}/solana (regex)
+		"POST /v2/end-users/{id}/solana": {
+			method: "POST",
+			path:   "/platform/v2/end-users/uid-123/solana",
+			want:   true,
+		},
+		"POST /v2/end-users/{id}/solana/sign does not match regex": {
+			method: "POST",
+			path:   "/platform/v2/end-users/uid-123/solana/sign",
+			want:   false,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := requiresWalletAuth(tc.method, tc.path)
+			if got != tc.want {
+				t.Errorf("requiresWalletAuth(%q, %q) = %v, want %v", tc.method, tc.path, got, tc.want)
+			}
+		})
+	}
+}
