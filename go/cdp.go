@@ -86,9 +86,9 @@ func getRequestHost(options ClientOptions, req *http.Request) string {
 // authentication via the X-Wallet-Auth header.
 //
 // The /accounts and /spend-permissions checks use strings.Contains intentionally —
-// this matches the TypeScript canonical's includes() behaviour. The looser matching
-// is acceptable because all current routes that contain these segments require wallet
-// auth, and tightening would diverge from the canonical without benefit.
+// The looser matching is acceptable because all current routes that contain
+// these segments require wallet auth, and tightening would diverge from the
+// canonical without benefit.
 //
 // TODO: Make this configurable by route rather than substring/regex matching.
 func requiresWalletAuth(method, path string) bool {
