@@ -82,7 +82,18 @@ func getRequestHost(options ClientOptions, req *http.Request) string {
 	return req.Host
 }
 
-// requiresWalletAuth returns true if the request method and path require wallet authentication.
+// requiresWalletAuth returns true if the request method and path require wallet
+// authentication via the X-Wallet-Auth header.
+//
+// This logic mirrors the TypeScript SDK's requiresWalletAuth function:
+// cdp-sdk/typescript/src/auth/utils/http.ts
+//
+// The /accounts and /spend-permissions checks use strings.Contains intentionally —
+// this matches the TypeScript canonical's includes() behaviour. The looser matching
+// is acceptable because all current routes that contain these segments require wallet
+// auth, and tightening would diverge from the canonical without benefit.
+//
+// TODO: Make this configurable by route rather than substring/regex matching.
 func requiresWalletAuth(method, path string) bool {
 	if method != "POST" && method != "DELETE" && method != "PUT" {
 		return false
