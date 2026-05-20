@@ -78,6 +78,13 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
         ("POST", "/v2/end-users", True),
         ("POST", "/v2/end-users/import", True),
         ("GET", "/v2/end-users", False),
+        ("POST", "/embedded-wallet-api/some-route", True),
+        ("PUT", "/embedded-wallet-api/other-route", True),
+        ("GET", "/embedded-wallet-api/some-route", False),
+        ("POST", "/user-operations/prepare-and-send", True),
+        ("POST", "/v2/end-users/user123/evm", True),
+        ("POST", "/v2/end-users/user123/evm-smart-account", True),
+        ("POST", "/v2/end-users/user123/solana", True),
     ],
 )
 def test_requires_wallet_auth(request_method, request_path, expected):
