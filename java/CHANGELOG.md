@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-20
+
+### 🚀 Features
+
+- Add getDelegationForEndUser to TypeScript, Python, and Java SDKs ([#668](https://github.com/coinbase/cdp-sdk/pull/668))
+- Add account-scoped delegation methods ([#689](https://github.com/coinbase/cdp-sdk/pull/689))
+- Add support for end-user asset/swap policy rules ([#687](https://github.com/coinbase/cdp-sdk/pull/687))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump all SDKs - TS 1.48.2, Python 1.44.0, Rust 0.5.0, Java 0.4.0 ([#676](https://github.com/coinbase/cdp-sdk/pull/676))
+- Bump openapi spec and regenerate all clients ([#697](https://github.com/coinbase/cdp-sdk/pull/697)) ([#699](https://github.com/coinbase/cdp-sdk/pull/699))
+
 ## [0.4.0] - 2026-04-22
 
 ### 🚀 Features

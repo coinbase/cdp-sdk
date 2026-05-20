@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-20
+
+### 🚀 Features
+
+- (**rust**) Expose public JWT generation for standalone use ([#667](https://github.com/coinbase/cdp-sdk/pull/667))
+- (**rust**) Add Cargo features to switch TLS backend ([#669](https://github.com/coinbase/cdp-sdk/pull/669))
+- Add getDelegationForEndUser to TypeScript, Python, and Java SDKs ([#668](https://github.com/coinbase/cdp-sdk/pull/668))
+- Add account-scoped delegation methods ([#689](https://github.com/coinbase/cdp-sdk/pull/689))
+- Add support for end-user asset/swap policy rules ([#687](https://github.com/coinbase/cdp-sdk/pull/687))
+
+### 🐛 Bug Fixes
+
+- (**python,rust**) Add missing path checks to requires_wallet_auth ([#711](https://github.com/coinbase/cdp-sdk/pull/711))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump all SDKs - TS 1.48.2, Python 1.44.0, Rust 0.5.0, Java 0.4.0 ([#676](https://github.com/coinbase/cdp-sdk/pull/676))
+- Bump openapi spec and regenerate all clients ([#697](https://github.com/coinbase/cdp-sdk/pull/697)) ([#699](https://github.com/coinbase/cdp-sdk/pull/699))
+
 ## [0.5.0] - 2026-04-22
 
 ### 🚀 Features

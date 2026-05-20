@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.45.2] - 2026-05-20
+
+### Bugfixes
+
+- Add missing `/embedded-wallet-api/` path check to wallet auth header generation, ensuring X-Wallet-Auth is sent for all embedded wallet API operations ([#fix-wallet-auth-embedded-wallet-api](https://github.com/coinbase/cdp-sdk/pull/fix-wallet-auth-embedded-wallet-api))
+
+
 ## [1.45.1] - 2026-05-12
 
 ### Bugfixes
