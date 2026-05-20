@@ -454,8 +454,37 @@ impl WalletAuth {
     }
 
     fn requires_wallet_auth(&self, method: &str, path: &str) -> bool {
-        (path.contains("/accounts") || path.contains("/spend-permissions"))
-            && (method == "POST" || method == "DELETE" || method == "PUT")
+        if method != "POST" && method != "DELETE" && method != "PUT" {
+            return false;
+        }
+
+        path.contains("/accounts")
+            || path.contains("/spend-permissions")
+            || path.contains("/user-operations/prepare-and-send")
+            || path.contains("/embedded-wallet-api/")
+            || path.ends_with("/end-users")
+            || path.ends_with("/end-users/import")
+            || Self::matches_end_user_pattern(path, "/evm")
+            || Self::matches_end_user_pattern(path, "/evm-smart-account")
+            || Self::matches_end_user_pattern(path, "/solana")
+    }
+
+    /// Checks if path matches `/end-users/{id}/{suffix}` pattern.
+    /// Equivalent to regex `/end-users/[^/]+/{suffix}$`.
+    fn matches_end_user_pattern(path: &str, suffix: &str) -> bool {
+        if let Some(pos) = path.find("/end-users/") {
+            let after = &path[pos + "/end-users/".len()..];
+            // after should be "{id}/{suffix}" with no extra segments
+            if let Some(slash_pos) = after.find('/') {
+                let id_part = &after[..slash_pos];
+                let rest = &after[slash_pos..];
+                !id_part.is_empty() && rest == suffix
+            } else {
+                false
+            }
+        } else {
+            false
+        }
     }
 
     fn get_correlation_data(&self) -> String {
@@ -716,10 +745,26 @@ mod tests {
         // Should require wallet auth for spend-permissions
         assert!(auth.requires_wallet_auth("POST", "/v2/spend-permissions"));
 
+        // Should require wallet auth for user-operations/prepare-and-send
+        assert!(auth.requires_wallet_auth("POST", "/v2/user-operations/prepare-and-send"));
+
+        // Should require wallet auth for embedded-wallet-api routes
+        assert!(auth.requires_wallet_auth("POST", "/embedded-wallet-api/some-route"));
+        assert!(auth.requires_wallet_auth("PUT", "/embedded-wallet-api/other-route"));
+        assert!(!auth.requires_wallet_auth("GET", "/embedded-wallet-api/some-route"));
+
+        // Should require wallet auth for end-users endpoints
+        assert!(auth.requires_wallet_auth("POST", "/v2/end-users"));
+        assert!(auth.requires_wallet_auth("POST", "/v2/end-users/import"));
+        assert!(auth.requires_wallet_auth("POST", "/v2/end-users/user123/evm"));
+        assert!(auth.requires_wallet_auth("POST", "/v2/end-users/user123/evm-smart-account"));
+        assert!(auth.requires_wallet_auth("POST", "/v2/end-users/user123/solana"));
+
         // Should NOT require wallet auth for GET requests
         assert!(!auth.requires_wallet_auth("GET", "/v2/evm/accounts"));
+        assert!(!auth.requires_wallet_auth("GET", "/v2/end-users"));
 
-        // Should NOT require wallet auth for non-account endpoints
+        // Should NOT require wallet auth for non-matching endpoints
         assert!(!auth.requires_wallet_auth("POST", "/v2/other/endpoint"));
     }
 

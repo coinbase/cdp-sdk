@@ -113,6 +113,7 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
         "/accounts" in path
         or "/spend-permissions" in path
         or "/user-operations/prepare-and-send" in path
+        or "/embedded-wallet-api/" in path
         or path.endswith("/end-users")
         or path.endswith("/end-users/import")
         or bool(re.search(r"/end-users/[^/]+/evm$", path))
