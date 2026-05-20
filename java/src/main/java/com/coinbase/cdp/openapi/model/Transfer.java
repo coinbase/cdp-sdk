@@ -102,7 +102,7 @@ public class Transfer {
 
   public static final String JSON_PROPERTY_FEES = "fees";
   @jakarta.annotation.Nullable
-  private TransferFees fees = new ArrayList<>();
+  private TransferFees fees = new TransferFees();
 
   public static final String JSON_PROPERTY_ESTIMATE = "estimate";
   @jakarta.annotation.Nullable

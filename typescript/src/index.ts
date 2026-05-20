@@ -77,6 +77,8 @@ export {
 } from "./openapi-client/index.js";
 
 export {
+  CdpOpenApiClient,
+  configure,
   listFoundationAccounts,
   getFoundationAccountById,
   listBalances,
@@ -89,3 +91,4 @@ export {
   listPaymentMethods,
   getPaymentMethod,
 } from "./openapi-client/index.js";
+export type { CdpOptions } from "./openapi-client/cdpApiClient.js";

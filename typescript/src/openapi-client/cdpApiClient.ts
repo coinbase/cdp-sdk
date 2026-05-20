@@ -314,7 +314,7 @@ export const cdpApiClient = async <T>(
  * @throws {Error} If the call is not valid.
  */
 const validateCall = (config: AxiosRequestConfig) => {
-  if (!axiosInstance.getUri() || axiosInstance.getUri() === "") {
+  if (!axiosInstance || !axiosInstance.getUri() || axiosInstance.getUri() === "") {
     throw new Error("CDP client URI not configured. Call configure() first.");
   }
 

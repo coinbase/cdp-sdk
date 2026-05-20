@@ -19,7 +19,7 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        api_client = cdp._api_client
+        api_client = cdp.cdp_api_client
         accounts_api = AccountsApi(api_client)
         transfers_api = TransfersApi(api_client)
 
