@@ -1393,7 +1393,9 @@ async def test_create_end_user_with_idempotency_key(end_user_model_factory):
 
 
 @pytest.mark.asyncio
-async def test_add_end_user_evm_account_with_idempotency_key(add_end_user_evm_account_response_factory):
+async def test_add_end_user_evm_account_with_idempotency_key(
+    add_end_user_evm_account_response_factory,
+):
     """Test that idempotency_key is forwarded when adding an EVM account."""
     mock_response = add_end_user_evm_account_response_factory()
     mock_api_clients = AsyncMock()
@@ -1422,7 +1424,9 @@ async def test_sign_evm_transaction_with_idempotency_key():
         user_id="user-123", address=evm_addr, transaction="0x02...", idempotency_key="idem-sign"
     )
 
-    call_args = mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account.call_args
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account.call_args
+    )
     assert call_args.kwargs["x_idempotency_key"] == "idem-sign"
 
 
@@ -1466,7 +1470,9 @@ async def test_sign_solana_message_with_idempotency_key():
         user_id="user-123", address=sol_addr, message="base64msg", idempotency_key="idem-sol"
     )
 
-    call_args = mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account.call_args
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account.call_args
+    )
     assert call_args.kwargs["x_idempotency_key"] == "idem-sol"
 
 

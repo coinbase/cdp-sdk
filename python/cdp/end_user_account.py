@@ -250,7 +250,9 @@ class EndUserAccount(BaseModel):
         """
         return self.__created_at
 
-    async def add_evm_account(self, idempotency_key: str | None = None) -> AddEndUserEvmAccount201Response:
+    async def add_evm_account(
+        self, idempotency_key: str | None = None
+    ) -> AddEndUserEvmAccount201Response:
         """Add an EVM EOA (Externally Owned Account) to this end user.
 
         End users can have up to 10 EVM accounts.
@@ -309,7 +311,9 @@ class EndUserAccount(BaseModel):
             x_idempotency_key=idempotency_key,
         )
 
-    async def add_solana_account(self, idempotency_key: str | None = None) -> AddEndUserSolanaAccount201Response:
+    async def add_solana_account(
+        self, idempotency_key: str | None = None
+    ) -> AddEndUserSolanaAccount201Response:
         """Add a Solana account to this end user.
 
         End users can have up to 10 Solana accounts.

@@ -608,7 +608,9 @@ async def test_sign_evm_transaction_with_idempotency_key():
     account = EndUserAccount(model, mock_api_clients)
     await account.sign_evm_transaction(transaction="0x02...", idempotency_key="idem-sign")
 
-    call_args = mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account.call_args
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account.call_args
+    )
     assert call_args.kwargs["x_idempotency_key"] == "idem-sign"
 
 
@@ -645,7 +647,9 @@ async def test_sign_solana_message_with_idempotency_key():
     account = EndUserAccount(model, mock_api_clients)
     await account.sign_solana_message(message="base64msg", idempotency_key="idem-sol")
 
-    call_args = mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account.call_args
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account.call_args
+    )
     assert call_args.kwargs["x_idempotency_key"] == "idem-sol"
 
 
