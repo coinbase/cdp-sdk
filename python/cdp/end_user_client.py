@@ -132,6 +132,7 @@ class EndUserClient:
         user_id: str | None = None,
         evm_account: CreateEndUserRequestEvmAccount | None = None,
         solana_account: CreateEndUserRequestSolanaAccount | None = None,
+        idempotency_key: str | None = None,
     ) -> EndUserAccount:
         """Create an end user.
 
@@ -143,6 +144,7 @@ class EndUserClient:
             user_id: Optional unique identifier for the end user. If not provided, a UUID is generated.
             evm_account: Optional configuration for creating an EVM account for the end user.
             solana_account: Optional configuration for creating a Solana account for the end user.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             EndUserAccount: The created end user with action methods.
@@ -161,6 +163,7 @@ class EndUserClient:
                 evm_account=evm_account,
                 solana_account=solana_account,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
         return EndUserAccount(end_user, self.api_clients)
@@ -224,6 +227,7 @@ class EndUserClient:
         key_type: Literal["evm", "solana"],
         user_id: str | None = None,
         encryption_public_key: str | None = None,
+        idempotency_key: str | None = None,
     ) -> EndUserAccount:
         """Import an existing private key for an end user.
 
@@ -236,6 +240,7 @@ class EndUserClient:
             user_id: Optional unique identifier for the end user. If not provided, a UUID is generated.
             encryption_public_key: Optional RSA public key to encrypt the private key.
                 Defaults to the known CDP public key.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             EndUserAccount: The imported end user with action methods.
@@ -304,6 +309,7 @@ class EndUserClient:
                 encrypted_private_key=encrypted_private_key_b64,
                 key_type=key_type,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
         return EndUserAccount(end_user, self.api_clients)
@@ -311,6 +317,7 @@ class EndUserClient:
     async def add_end_user_evm_account(
         self,
         user_id: str,
+        idempotency_key: str | None = None,
     ) -> AddEndUserEvmAccount201Response:
         """Add an EVM EOA (Externally Owned Account) to an existing end user.
 
@@ -318,6 +325,7 @@ class EndUserClient:
 
         Args:
             user_id: The unique identifier of the end user.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             AddEndUserEvmAccount201Response: The result containing the newly created EVM EOA account.
@@ -328,12 +336,14 @@ class EndUserClient:
         return await self.api_clients.end_user.add_end_user_evm_account(
             user_id=user_id,
             body={},
+            x_idempotency_key=idempotency_key,
         )
 
     async def add_end_user_evm_smart_account(
         self,
         user_id: str,
         enable_spend_permissions: bool,
+        idempotency_key: str | None = None,
     ) -> AddEndUserEvmSmartAccount201Response:
         """Add an EVM smart account to an existing end user.
 
@@ -342,6 +352,7 @@ class EndUserClient:
         Args:
             user_id: The unique identifier of the end user.
             enable_spend_permissions: If true, enables spend permissions for the EVM smart account.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             AddEndUserEvmSmartAccount201Response: The result containing the newly created EVM smart account.
@@ -354,11 +365,13 @@ class EndUserClient:
             add_end_user_evm_smart_account_request=AddEndUserEvmSmartAccountRequest(
                 enable_spend_permissions=enable_spend_permissions,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def add_end_user_solana_account(
         self,
         user_id: str,
+        idempotency_key: str | None = None,
     ) -> AddEndUserSolanaAccount201Response:
         """Add a Solana account to an existing end user.
 
@@ -366,6 +379,7 @@ class EndUserClient:
 
         Args:
             user_id: The unique identifier of the end user.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             AddEndUserSolanaAccount201Response: The result containing the newly created Solana account.
@@ -376,6 +390,7 @@ class EndUserClient:
         return await self.api_clients.end_user.add_end_user_solana_account(
             user_id=user_id,
             body={},
+            x_idempotency_key=idempotency_key,
         )
 
     # ─── Delegation Management ───
@@ -405,6 +420,7 @@ class EndUserClient:
     async def revoke_delegation(
         self,
         user_id: str,
+        idempotency_key: str | None = None,
     ) -> None:
         """Revoke all active delegations for an end user.
 
@@ -413,6 +429,7 @@ class EndUserClient:
 
         Args:
             user_id: The unique identifier of the end user.
+            idempotency_key: Optional idempotency key for safe retries.
 
         """
         track_action(action="revoke_delegation_for_end_user")
@@ -420,6 +437,7 @@ class EndUserClient:
         await self.api_clients.embedded_wallets.revoke_delegation_for_end_user(
             user_id=user_id,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+            x_idempotency_key=idempotency_key,
         )
 
     # ─── Account-Scoped Delegation Methods ───
@@ -450,6 +468,7 @@ class EndUserClient:
         self,
         user_id: str,
         address: str,
+        idempotency_key: str | None = None,
     ) -> None:
         """Revoke the active account-scoped delegation for a specific end user account address.
 
@@ -458,6 +477,7 @@ class EndUserClient:
         Args:
             user_id: The unique identifier of the end user.
             address: The blockchain address whose delegation should be revoked.
+            idempotency_key: Optional idempotency key for safe retries.
 
         """
         track_action(action="revoke_delegation_for_end_user_account")
@@ -466,6 +486,7 @@ class EndUserClient:
             user_id=user_id,
             address=address,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+            x_idempotency_key=idempotency_key,
         )
 
     # ─── Delegated EVM Sign Methods ───
@@ -475,6 +496,7 @@ class EndUserClient:
         user_id: str,
         address: str,
         transaction: str,
+        idempotency_key: str | None = None,
     ) -> SignEvmTransactionWithEndUserAccount200Response:
         """Sign an EVM transaction on behalf of an end user using a delegation.
 
@@ -482,6 +504,7 @@ class EndUserClient:
             user_id: The unique identifier of the end user.
             address: The 0x-prefixed address of the EVM account.
             transaction: The RLP-encoded unsigned transaction.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SignEvmTransactionWithEndUserAccount200Response: The signed transaction result.
@@ -495,6 +518,7 @@ class EndUserClient:
                 address=address,
                 transaction=transaction,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def sign_evm_message(
@@ -502,6 +526,7 @@ class EndUserClient:
         user_id: str,
         address: str,
         message: str,
+        idempotency_key: str | None = None,
     ) -> SignEvmMessageWithEndUserAccount200Response:
         """Sign an EVM message (EIP-191) on behalf of an end user using a delegation.
 
@@ -509,6 +534,7 @@ class EndUserClient:
             user_id: The unique identifier of the end user.
             address: The 0x-prefixed address of the EVM account.
             message: The message to sign.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SignEvmMessageWithEndUserAccount200Response: The signature result.
@@ -522,6 +548,7 @@ class EndUserClient:
                 address=address,
                 message=message,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def sign_evm_typed_data(
@@ -529,6 +556,7 @@ class EndUserClient:
         user_id: str,
         address: str,
         typed_data: object,
+        idempotency_key: str | None = None,
     ) -> SignEvmTypedDataWithEndUserAccount200Response:
         """Sign EVM EIP-712 typed data on behalf of an end user using a delegation.
 
@@ -536,6 +564,7 @@ class EndUserClient:
             user_id: The unique identifier of the end user.
             address: The 0x-prefixed address of the EVM account.
             typed_data: The EIP-712 typed data object.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SignEvmTypedDataWithEndUserAccount200Response: The signature result.
@@ -549,6 +578,7 @@ class EndUserClient:
                 address=address,
                 typed_data=typed_data,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     # ─── Delegated EVM Send Methods ───
@@ -559,6 +589,7 @@ class EndUserClient:
         address: str,
         transaction: str,
         network: str,
+        idempotency_key: str | None = None,
     ) -> SendEvmTransactionWithEndUserAccount200Response:
         """Send an EVM transaction on behalf of an end user using a delegation.
 
@@ -567,6 +598,7 @@ class EndUserClient:
             address: The 0x-prefixed address of the EVM account.
             transaction: The RLP-encoded unsigned transaction.
             network: The EVM network to send the transaction on.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SendEvmTransactionWithEndUserAccount200Response: The transaction result.
@@ -581,6 +613,7 @@ class EndUserClient:
                 transaction=transaction,
                 network=network,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def send_evm_asset(
@@ -593,6 +626,7 @@ class EndUserClient:
         asset: str = "usdc",
         use_cdp_paymaster: bool | None = None,
         paymaster_url: str | None = None,
+        idempotency_key: str | None = None,
     ) -> SendEvmAssetWithEndUserAccount200Response:
         """Send an EVM asset (e.g. USDC) on behalf of an end user using a delegation.
 
@@ -605,6 +639,7 @@ class EndUserClient:
             asset: The asset to send. Defaults to "usdc".
             use_cdp_paymaster: Whether to use CDP Paymaster for gas sponsorship.
             paymaster_url: Optional custom Paymaster URL.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SendEvmAssetWithEndUserAccount200Response: The transaction result.
@@ -623,6 +658,7 @@ class EndUserClient:
                 use_cdp_paymaster=use_cdp_paymaster,
                 paymaster_url=paymaster_url,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def send_user_operation(
@@ -634,6 +670,7 @@ class EndUserClient:
         use_cdp_paymaster: bool | None = None,
         paymaster_url: str | None = None,
         data_suffix: str | None = None,
+        idempotency_key: str | None = None,
     ) -> EvmUserOperation:
         """Send a user operation on behalf of an end user using a delegation.
 
@@ -645,6 +682,7 @@ class EndUserClient:
             use_cdp_paymaster: Whether to use CDP Paymaster for gas sponsorship.
             paymaster_url: Optional custom Paymaster URL.
             data_suffix: Optional data suffix for the user operation.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             EvmUserOperation: The user operation result.
@@ -662,6 +700,7 @@ class EndUserClient:
                 paymaster_url=paymaster_url,
                 data_suffix=data_suffix,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def create_evm_eip7702_delegation(
@@ -670,6 +709,7 @@ class EndUserClient:
         address: str,
         network: str,
         enable_spend_permissions: bool | None = None,
+        idempotency_key: str | None = None,
     ) -> CreateEvmEip7702DelegationWithEndUserAccount201Response:
         """Create an EVM EIP-7702 delegation on behalf of an end user.
 
@@ -678,6 +718,7 @@ class EndUserClient:
             address: The 0x-prefixed address of the EVM EOA account.
             network: The EVM network.
             enable_spend_permissions: If true, enables spend permissions for the delegated account.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             CreateEvmEip7702DelegationWithEndUserAccount201Response: The delegation result.
@@ -692,6 +733,7 @@ class EndUserClient:
                 network=network,
                 enable_spend_permissions=enable_spend_permissions,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     # ─── Delegated Solana Sign Methods ───
@@ -701,6 +743,7 @@ class EndUserClient:
         user_id: str,
         address: str,
         message: str,
+        idempotency_key: str | None = None,
     ) -> SignSolanaMessageWithEndUserAccount200Response:
         """Sign a Solana message on behalf of an end user using a delegation.
 
@@ -708,6 +751,7 @@ class EndUserClient:
             user_id: The unique identifier of the end user.
             address: The base58 encoded address of the Solana account.
             message: The base64 encoded message to sign.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SignSolanaMessageWithEndUserAccount200Response: The signature result.
@@ -721,6 +765,7 @@ class EndUserClient:
                 address=address,
                 message=message,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def sign_solana_transaction(
@@ -728,6 +773,7 @@ class EndUserClient:
         user_id: str,
         address: str,
         transaction: str,
+        idempotency_key: str | None = None,
     ) -> SignSolanaTransactionWithEndUserAccount200Response:
         """Sign a Solana transaction on behalf of an end user using a delegation.
 
@@ -735,6 +781,7 @@ class EndUserClient:
             user_id: The unique identifier of the end user.
             address: The base58 encoded address of the Solana account.
             transaction: The base64 encoded transaction to sign.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SignSolanaTransactionWithEndUserAccount200Response: The signed transaction result.
@@ -748,6 +795,7 @@ class EndUserClient:
                 address=address,
                 transaction=transaction,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     # ─── Delegated Solana Send Methods ───
@@ -758,6 +806,7 @@ class EndUserClient:
         address: str,
         transaction: str,
         network: str,
+        idempotency_key: str | None = None,
     ) -> SendSolanaTransactionWithEndUserAccount200Response:
         """Send a Solana transaction on behalf of an end user using a delegation.
 
@@ -766,6 +815,7 @@ class EndUserClient:
             address: The base58 encoded address of the Solana account.
             transaction: The base64 encoded transaction.
             network: The Solana network.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SendSolanaTransactionWithEndUserAccount200Response: The transaction result.
@@ -780,6 +830,7 @@ class EndUserClient:
                 transaction=transaction,
                 network=network,
             ),
+            x_idempotency_key=idempotency_key,
         )
 
     async def send_solana_asset(
@@ -791,6 +842,7 @@ class EndUserClient:
         network: str,
         asset: str = "usdc",
         create_recipient_ata: bool | None = None,
+        idempotency_key: str | None = None,
     ) -> SendSolanaTransactionWithEndUserAccount200Response:
         """Send a Solana asset (e.g. USDC) on behalf of an end user using a delegation.
 
@@ -802,6 +854,7 @@ class EndUserClient:
             network: The Solana network.
             asset: The asset to send. Defaults to "usdc".
             create_recipient_ata: Whether to create the recipient's Associated Token Account.
+            idempotency_key: Optional idempotency key for safe retries.
 
         Returns:
             SendSolanaTransactionWithEndUserAccount200Response: The transaction result.
@@ -819,4 +872,5 @@ class EndUserClient:
                 network=network,
                 create_recipient_ata=create_recipient_ata,
             ),
+            x_idempotency_key=idempotency_key,
         )

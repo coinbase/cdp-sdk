@@ -128,23 +128,25 @@ export function toEndUserAccount(
 
     // ─── Account Management Methods ───
 
-    async addEvmAccount(): Promise<AddEndUserEvmAccountResult> {
+    async addEvmAccount(idempotencyKey?: string): Promise<AddEndUserEvmAccountResult> {
       Analytics.trackAction({ action: "end_user_add_evm_account" });
-      return apiClient.addEndUserEvmAccount(endUser.userId, {});
+      return apiClient.addEndUserEvmAccount(endUser.userId, {}, idempotencyKey);
     },
 
     async addEvmSmartAccount(
       smartAccountOptions: AddEvmSmartAccountOptions,
     ): Promise<AddEndUserEvmSmartAccountResult> {
       Analytics.trackAction({ action: "end_user_add_evm_smart_account" });
-      return apiClient.addEndUserEvmSmartAccount(endUser.userId, {
-        enableSpendPermissions: smartAccountOptions.enableSpendPermissions,
-      });
+      return apiClient.addEndUserEvmSmartAccount(
+        endUser.userId,
+        { enableSpendPermissions: smartAccountOptions.enableSpendPermissions },
+        smartAccountOptions.idempotencyKey,
+      );
     },
 
-    async addSolanaAccount(): Promise<AddEndUserSolanaAccountResult> {
+    async addSolanaAccount(idempotencyKey?: string): Promise<AddEndUserSolanaAccountResult> {
       Analytics.trackAction({ action: "end_user_add_solana_account" });
-      return apiClient.addEndUserSolanaAccount(endUser.userId, {});
+      return apiClient.addEndUserSolanaAccount(endUser.userId, {}, idempotencyKey);
     },
 
     async getDelegation(): Promise<GetDelegationForEndUserResult> {
@@ -152,9 +154,9 @@ export function toEndUserAccount(
       return apiClient.getDelegationForEndUser(endUser.userId);
     },
 
-    async revokeDelegation(): Promise<void> {
+    async revokeDelegation(idempotencyKey?: string): Promise<void> {
       Analytics.trackAction({ action: "end_user_revoke_delegation" });
-      await apiClient.revokeDelegationForEndUser(endUser.userId, {});
+      await apiClient.revokeDelegationForEndUser(endUser.userId, {}, undefined, idempotencyKey);
     },
 
     // ─── Account-Scoped Delegation Methods ───
@@ -188,28 +190,34 @@ export function toEndUserAccount(
     ): Promise<SignEvmTransactionResult> {
       Analytics.trackAction({ action: "end_user_sign_evm_transaction" });
       const address = resolveEvmAddress(endUser, opts.address);
-      return apiClient.signEvmTransactionWithEndUserAccount(endUser.userId, {
-        address,
-        transaction: opts.transaction,
-      });
+      return apiClient.signEvmTransactionWithEndUserAccount(
+        endUser.userId,
+        { address, transaction: opts.transaction },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     async signEvmMessage(opts: AccountSignEvmMessageOptions): Promise<SignEvmMessageResult> {
       Analytics.trackAction({ action: "end_user_sign_evm_message" });
       const address = resolveEvmAddress(endUser, opts.address);
-      return apiClient.signEvmMessageWithEndUserAccount(endUser.userId, {
-        address,
-        message: opts.message,
-      });
+      return apiClient.signEvmMessageWithEndUserAccount(
+        endUser.userId,
+        { address, message: opts.message },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     async signEvmTypedData(opts: AccountSignEvmTypedDataOptions): Promise<SignEvmTypedDataResult> {
       Analytics.trackAction({ action: "end_user_sign_evm_typed_data" });
       const address = resolveEvmAddress(endUser, opts.address);
-      return apiClient.signEvmTypedDataWithEndUserAccount(endUser.userId, {
-        address,
-        typedData: opts.typedData,
-      });
+      return apiClient.signEvmTypedDataWithEndUserAccount(
+        endUser.userId,
+        { address, typedData: opts.typedData },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     // ─── Delegated EVM Send Methods ───
@@ -219,24 +227,32 @@ export function toEndUserAccount(
     ): Promise<SendEvmTransactionResult> {
       Analytics.trackAction({ action: "end_user_send_evm_transaction" });
       const address = resolveEvmAddress(endUser, opts.address);
-      return apiClient.sendEvmTransactionWithEndUserAccount(endUser.userId, {
-        address,
-        transaction: opts.transaction,
-        network: opts.network,
-      });
+      return apiClient.sendEvmTransactionWithEndUserAccount(
+        endUser.userId,
+        { address, transaction: opts.transaction, network: opts.network },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     async sendEvmAsset(opts: AccountSendEvmAssetOptions): Promise<SendEvmAssetResult> {
       Analytics.trackAction({ action: "end_user_send_evm_asset" });
       const address = resolveEvmAddress(endUser, opts.address);
       const asset = opts.asset ?? "usdc";
-      return apiClient.sendEvmAssetWithEndUserAccount(endUser.userId, address, asset, {
-        to: opts.to,
-        amount: opts.amount,
-        network: opts.network,
-        useCdpPaymaster: opts.useCdpPaymaster,
-        paymasterUrl: opts.paymasterUrl,
-      });
+      return apiClient.sendEvmAssetWithEndUserAccount(
+        endUser.userId,
+        address,
+        asset,
+        {
+          to: opts.to,
+          amount: opts.amount,
+          network: opts.network,
+          useCdpPaymaster: opts.useCdpPaymaster,
+          paymasterUrl: opts.paymasterUrl,
+        },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     async sendUserOperation(
@@ -244,13 +260,19 @@ export function toEndUserAccount(
     ): Promise<SendUserOperationResult> {
       Analytics.trackAction({ action: "end_user_send_user_operation" });
       const address = resolveEvmSmartAccountAddress(endUser, opts.address);
-      return apiClient.sendUserOperationWithEndUserAccount(endUser.userId, address, {
-        network: opts.network,
-        calls: opts.calls,
-        useCdpPaymaster: opts.useCdpPaymaster,
-        paymasterUrl: opts.paymasterUrl,
-        dataSuffix: opts.dataSuffix,
-      });
+      return apiClient.sendUserOperationWithEndUserAccount(
+        endUser.userId,
+        address,
+        {
+          network: opts.network,
+          calls: opts.calls,
+          useCdpPaymaster: opts.useCdpPaymaster,
+          paymasterUrl: opts.paymasterUrl,
+          dataSuffix: opts.dataSuffix,
+        },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     // ─── Delegated EVM EIP-7702 Delegation Method ───
@@ -260,11 +282,16 @@ export function toEndUserAccount(
     ): Promise<CreateEvmEip7702DelegationForEndUserResult> {
       Analytics.trackAction({ action: "end_user_create_evm_eip7702_delegation" });
       const address = resolveEvmAddress(endUser, opts.address);
-      return apiClient.createEvmEip7702DelegationWithEndUserAccount(endUser.userId, {
-        address,
-        network: opts.network,
-        enableSpendPermissions: opts.enableSpendPermissions,
-      });
+      return apiClient.createEvmEip7702DelegationWithEndUserAccount(
+        endUser.userId,
+        {
+          address,
+          network: opts.network,
+          enableSpendPermissions: opts.enableSpendPermissions,
+        },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     // ─── Delegated Solana Sign Methods ───
@@ -274,10 +301,12 @@ export function toEndUserAccount(
     ): Promise<SignSolanaMessageResult> {
       Analytics.trackAction({ action: "end_user_sign_solana_message" });
       const address = resolveSolanaAddress(endUser, opts.address);
-      return apiClient.signSolanaMessageWithEndUserAccount(endUser.userId, {
-        address,
-        message: opts.message,
-      });
+      return apiClient.signSolanaMessageWithEndUserAccount(
+        endUser.userId,
+        { address, message: opts.message },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     async signSolanaTransaction(
@@ -285,10 +314,12 @@ export function toEndUserAccount(
     ): Promise<SignSolanaTransactionResult> {
       Analytics.trackAction({ action: "end_user_sign_solana_transaction" });
       const address = resolveSolanaAddress(endUser, opts.address);
-      return apiClient.signSolanaTransactionWithEndUserAccount(endUser.userId, {
-        address,
-        transaction: opts.transaction,
-      });
+      return apiClient.signSolanaTransactionWithEndUserAccount(
+        endUser.userId,
+        { address, transaction: opts.transaction },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     // ─── Delegated Solana Send Methods ───
@@ -298,23 +329,31 @@ export function toEndUserAccount(
     ): Promise<SendSolanaTransactionResult> {
       Analytics.trackAction({ action: "end_user_send_solana_transaction" });
       const address = resolveSolanaAddress(endUser, opts.address);
-      return apiClient.sendSolanaTransactionWithEndUserAccount(endUser.userId, {
-        address,
-        transaction: opts.transaction,
-        network: opts.network,
-      });
+      return apiClient.sendSolanaTransactionWithEndUserAccount(
+        endUser.userId,
+        { address, transaction: opts.transaction, network: opts.network },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
 
     async sendSolanaAsset(opts: AccountSendSolanaAssetOptions): Promise<SendSolanaAssetResult> {
       Analytics.trackAction({ action: "end_user_send_solana_asset" });
       const address = resolveSolanaAddress(endUser, opts.address);
       const asset = opts.asset ?? "usdc";
-      return apiClient.sendSolanaAssetWithEndUserAccount(endUser.userId, address, asset, {
-        to: opts.to,
-        amount: opts.amount,
-        network: opts.network,
-        createRecipientAta: opts.createRecipientAta,
-      });
+      return apiClient.sendSolanaAssetWithEndUserAccount(
+        endUser.userId,
+        address,
+        asset,
+        {
+          to: opts.to,
+          amount: opts.amount,
+          network: opts.network,
+          createRecipientAta: opts.createRecipientAta,
+        },
+        undefined,
+        opts.idempotencyKey,
+      );
     },
   };
 
