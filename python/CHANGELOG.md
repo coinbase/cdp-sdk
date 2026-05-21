@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.46.0] - 2026-05-21
+
+### Features
+
+- Added idempotency_key parameter to all end user client and account operation methods for safe request retries. ([#713](https://github.com/coinbase/cdp-sdk/pull/713))
+
+
 ## [1.45.2] - 2026-05-20
 
 ### Bugfixes
