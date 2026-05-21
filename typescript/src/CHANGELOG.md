@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.50.0
+
+### Minor Changes
+
+- [#713](https://github.com/coinbase/cdp-sdk/pull/713) [`db0adb8`](https://github.com/coinbase/cdp-sdk/commit/db0adb801ff8a185aba7c441bb9a3fbd5b4a3ddd) Thanks [@sammccord](https://github.com/sammccord)! - Added idempotencyKey option to all end user operation methods for safe request retries.
+
 ## 1.49.2
 
 ### Patch Changes
