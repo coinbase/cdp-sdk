@@ -47,3 +47,7 @@ path = "examples/solana_signing.rs"
 [[example]]
 name = "token_balances"
 path = "examples/token_balances.rs"
+
+[[example]]
+name = "custody_transfer"
+path = "examples/custody_transfer.rs"

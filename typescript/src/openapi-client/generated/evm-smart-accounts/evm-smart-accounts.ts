@@ -41,7 +41,7 @@ export const listEvmSmartAccounts = (
 };
 /**
  * Creates a new Smart Account.
- * @summary Create a Smart Account
+ * @summary Create Smart Account
  */
 export const createEvmSmartAccount = (
   createEvmSmartAccountBody: CreateEvmSmartAccountBody,
@@ -59,7 +59,7 @@ export const createEvmSmartAccount = (
 };
 /**
  * Gets a Smart Account by its name.
- * @summary Get a Smart Account by name
+ * @summary Get Smart Account by name
  */
 export const getEvmSmartAccountByName = (
   name: string,
@@ -72,7 +72,7 @@ export const getEvmSmartAccountByName = (
 };
 /**
  * Gets a Smart Account by its address.
- * @summary Get a Smart Account by address
+ * @summary Get Smart Account by address
  */
 export const getEvmSmartAccount = (
   address: string,
@@ -85,7 +85,7 @@ export const getEvmSmartAccount = (
 };
 /**
  * Updates an existing EVM smart account. Use this to update the smart account's name.
- * @summary Update an EVM Smart Account
+ * @summary Update EVM Smart Account
  */
 export const updateEvmSmartAccount = (
   address: string,
@@ -104,7 +104,7 @@ export const updateEvmSmartAccount = (
 };
 /**
  * Prepares a new user operation on a Smart Account for a specific network.
- * @summary Prepare a user operation
+ * @summary Prepare user operation
  */
 export const prepareUserOperation = (
   address: string,
@@ -123,7 +123,7 @@ export const prepareUserOperation = (
 };
 /**
  * Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
- * @summary Prepare and send a user operation for EVM Smart Account
+ * @summary Prepare and send user operation
  */
 export const prepareAndSendUserOperation = (
   address: string,
@@ -142,7 +142,7 @@ export const prepareAndSendUserOperation = (
 };
 /**
  * Gets a user operation by its hash.
- * @summary Get a user operation
+ * @summary Get user operation
  */
 export const getUserOperation = (
   address: string,
@@ -159,7 +159,7 @@ export const getUserOperation = (
 The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing).
 The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28)
 If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
- * @summary Send a user operation
+ * @summary Send user operation
  */
 export const sendUserOperation = (
   address: string,
@@ -179,7 +179,7 @@ export const sendUserOperation = (
 };
 /**
  * Creates a spend permission for the given smart account address.
- * @summary Create a spend permission
+ * @summary Create spend permission
  */
 export const createSpendPermission = (
   address: string,
@@ -212,7 +212,7 @@ export const listSpendPermissions = (
 };
 /**
  * Revokes an existing spend permission.
- * @summary Revoke a spend permission
+ * @summary Revoke spend permission
  */
 export const revokeSpendPermission = (
   address: string,

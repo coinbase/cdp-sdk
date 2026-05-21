@@ -75,3 +75,20 @@ export {
   listX402DiscoveryMerchant,
   searchX402Resources,
 } from "./openapi-client/index.js";
+
+export {
+  CdpOpenApiClient,
+  configure,
+  listFoundationAccounts,
+  getFoundationAccountById,
+  listBalances,
+  getBalanceByAsset,
+  createTransfer,
+  listTransfers,
+  getTransferById,
+  listDepositDestinations,
+  createDepositDestination,
+  listPaymentMethods,
+  getPaymentMethod,
+} from "./openapi-client/index.js";
+export type { CdpOptions } from "./openapi-client/cdpApiClient.js";

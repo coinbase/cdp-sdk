@@ -70,7 +70,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> AddEndUserEvmAccount201Response:
-        """Add an EVM account to an end user
+        """Add EVM account to end user
 
         Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -157,7 +157,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[AddEndUserEvmAccount201Response]:
-        """Add an EVM account to an end user
+        """Add EVM account to end user
 
         Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -244,7 +244,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Add an EVM account to an end user
+        """Add EVM account to end user
 
         Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -413,7 +413,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> AddEndUserEvmSmartAccount201Response:
-        """Add an EVM smart account to an end user
+        """Add EVM smart account to end user
 
         Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -500,7 +500,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[AddEndUserEvmSmartAccount201Response]:
-        """Add an EVM smart account to an end user
+        """Add EVM smart account to end user
 
         Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -587,7 +587,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Add an EVM smart account to an end user
+        """Add EVM smart account to end user
 
         Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -756,7 +756,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> AddEndUserSolanaAccount201Response:
-        """Add a Solana account to an end user
+        """Add Solana account to end user
 
         Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -843,7 +843,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[AddEndUserSolanaAccount201Response]:
-        """Add a Solana account to an end user
+        """Add Solana account to end user
 
         Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -930,7 +930,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Add a Solana account to an end user
+        """Add Solana account to end user
 
         Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1098,7 +1098,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EndUser:
-        """Create an end user
+        """Create end user
 
         Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1178,7 +1178,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EndUser]:
-        """Create an end user
+        """Create end user
 
         Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1258,7 +1258,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create an end user
+        """Create end user
 
         Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1415,7 +1415,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EndUser:
-        """Get an end user
+        """Get end user
 
         Gets an end user by ID.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1484,7 +1484,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EndUser]:
-        """Get an end user
+        """Get end user
 
         Gets an end user by ID.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1553,7 +1553,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get an end user
+        """Get end user
 
         Gets an end user by ID.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
@@ -1684,7 +1684,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EndUser:
-        """Import a private key for an end user
+        """Import end user private key
 
         Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
 
@@ -1767,7 +1767,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EndUser]:
-        """Import a private key for an end user
+        """Import end user private key
 
         Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
 
@@ -1850,7 +1850,7 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Import a private key for an end user
+        """Import end user private key
 
         Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
 

@@ -25,8 +25,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -106,7 +104,7 @@ public class X402V2PaymentRequirements {
 
   public static final String JSON_PROPERTY_EXTRA = "extra";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extra = new HashMap<>();
+  private Object extra;
 
   public X402V2PaymentRequirements() { 
   }
@@ -255,16 +253,8 @@ public class X402V2PaymentRequirements {
   }
 
 
-  public X402V2PaymentRequirements extra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  public X402V2PaymentRequirements extra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
-    return this;
-  }
-
-  public X402V2PaymentRequirements putExtraItem(String key, Object extraItem) {
-    if (this.extra == null) {
-      this.extra = new HashMap<>();
-    }
-    this.extra.put(key, extraItem);
     return this;
   }
 
@@ -274,15 +264,15 @@ public class X402V2PaymentRequirements {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtra() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
     return extra;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
   }
 
@@ -403,11 +393,7 @@ public class X402V2PaymentRequirements {
 
     // add `extra` to the URL query string
     if (getExtra() != null) {
-      for (String _key : getExtra().keySet()) {
-        joiner.add(String.format("%sextra%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtra().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtra().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -449,7 +435,7 @@ public class X402V2PaymentRequirements {
       this.instance.maxTimeoutSeconds = maxTimeoutSeconds;
       return this;
     }
-    public X402V2PaymentRequirements.Builder extra(Map<String, Object> extra) {
+    public X402V2PaymentRequirements.Builder extra(Object extra) {
       this.instance.extra = extra;
       return this;
     }

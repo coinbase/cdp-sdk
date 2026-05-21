@@ -30,42 +30,42 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_add_end_user_evm_account(self) -> None:
         """Test case for add_end_user_evm_account
 
-        Add an EVM account to an end user
+        Add EVM account to end user
         """
         pass
 
     async def test_add_end_user_evm_smart_account(self) -> None:
         """Test case for add_end_user_evm_smart_account
 
-        Add an EVM smart account to an end user
+        Add EVM smart account to end user
         """
         pass
 
     async def test_add_end_user_solana_account(self) -> None:
         """Test case for add_end_user_solana_account
 
-        Add a Solana account to an end user
+        Add Solana account to end user
         """
         pass
 
     async def test_create_end_user(self) -> None:
         """Test case for create_end_user
 
-        Create an end user
+        Create end user
         """
         pass
 
     async def test_get_end_user(self) -> None:
         """Test case for get_end_user
 
-        Get an end user
+        Get end user
         """
         pass
 
     async def test_import_end_user(self) -> None:
         """Test case for import_end_user
 
-        Import a private key for an end user
+        Import end user private key
         """
         pass
 

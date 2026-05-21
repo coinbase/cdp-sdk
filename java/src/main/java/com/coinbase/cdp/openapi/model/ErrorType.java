@@ -40,6 +40,8 @@ public enum ErrorType {
   
   CLIENT_CLOSED_REQUEST("client_closed_request"),
   
+  ENDPOINT_UNAVAILABLE("endpoint_unavailable"),
+  
   FAUCET_LIMIT_EXCEEDED("faucet_limit_exceeded"),
   
   FORBIDDEN("forbidden"),
@@ -73,6 +75,8 @@ public enum ErrorType {
   TIMED_OUT("timed_out"),
   
   UNAUTHORIZED("unauthorized"),
+  
+  UNSUPPORTED_TOS_LANGUAGE("unsupported_tos_language"),
   
   POLICY_VIOLATION("policy_violation"),
   
@@ -122,6 +126,8 @@ public enum ErrorType {
   
   TRANSFER_ASSET_NOT_SUPPORTED("transfer_asset_not_supported"),
   
+  TRANSFER_QUOTE_EXPIRED("transfer_quote_expired"),
+  
   INSUFFICIENT_BALANCE("insufficient_balance"),
   
   METADATA_TOO_MANY_ENTRIES("metadata_too_many_entries"),
@@ -156,7 +162,17 @@ public enum ErrorType {
   
   INSUFFICIENT_ALLOWANCE("insufficient_allowance"),
   
-  TRANSACTION_SIMULATION_FAILED("transaction_simulation_failed");
+  TRANSACTION_SIMULATION_FAILED("transaction_simulation_failed"),
+  
+  DELEGATION_NOT_FOUND("delegation_not_found"),
+  
+  DELEGATION_EXPIRED("delegation_expired"),
+  
+  DELEGATION_REVOKED("delegation_revoked"),
+  
+  DELEGATION_NOT_AUTHORIZED("delegation_not_authorized"),
+  
+  DELEGATION_NOT_ENABLED("delegation_not_enabled");
 
   private String value;
 

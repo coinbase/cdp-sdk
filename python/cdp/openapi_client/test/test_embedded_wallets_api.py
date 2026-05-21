@@ -30,7 +30,7 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
     async def test_create_delegation_for_end_user_account(self) -> None:
         """Test case for create_delegation_for_end_user_account
 
-        Create account-scoped delegation for an end user account
+        Create account-scoped delegation for end user
         """
         pass
 
@@ -51,7 +51,7 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
     async def test_get_delegation_for_end_user_account(self) -> None:
         """Test case for get_delegation_for_end_user_account
 
-        Get account-scoped delegation for an end user account
+        Get account-scoped delegation for end user
         """
         pass
 
@@ -65,7 +65,7 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
     async def test_revoke_delegation_for_end_user_account(self) -> None:
         """Test case for revoke_delegation_for_end_user_account
 
-        Revoke account-scoped delegation for an end user account
+        Revoke account-scoped delegation for end user
         """
         pass
 
@@ -79,7 +79,7 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
     async def test_send_evm_transaction_with_end_user_account(self) -> None:
         """Test case for send_evm_transaction_with_end_user_account
 
-        Send a transaction with end user EVM account
+        Send transaction via end user EVM account
         """
         pass
 
@@ -93,49 +93,49 @@ class TestEmbeddedWalletsApi(unittest.IsolatedAsyncioTestCase):
     async def test_send_solana_transaction_with_end_user_account(self) -> None:
         """Test case for send_solana_transaction_with_end_user_account
 
-        Send a transaction with end user Solana account
+        Send transaction via end user Solana account
         """
         pass
 
     async def test_send_user_operation_with_end_user_account(self) -> None:
         """Test case for send_user_operation_with_end_user_account
 
-        Send a user operation for end user Smart Account
+        Send user operation for end user Smart Account
         """
         pass
 
     async def test_sign_evm_message_with_end_user_account(self) -> None:
         """Test case for sign_evm_message_with_end_user_account
 
-        Sign an EIP-191 message with end user EVM account
+        Sign EIP-191 message via end user EVM account
         """
         pass
 
     async def test_sign_evm_transaction_with_end_user_account(self) -> None:
         """Test case for sign_evm_transaction_with_end_user_account
 
-        Sign a transaction with end user EVM account
+        Sign transaction via end user EVM account
         """
         pass
 
     async def test_sign_evm_typed_data_with_end_user_account(self) -> None:
         """Test case for sign_evm_typed_data_with_end_user_account
 
-        Sign EIP-712 typed data with end user EVM account
+        Sign EIP-712 typed data via end user EVM account
         """
         pass
 
     async def test_sign_solana_message_with_end_user_account(self) -> None:
         """Test case for sign_solana_message_with_end_user_account
 
-        Sign a Base64 encoded message
+        Sign Base64-encoded message
         """
         pass
 
     async def test_sign_solana_transaction_with_end_user_account(self) -> None:
         """Test case for sign_solana_transaction_with_end_user_account
 
-        Sign a transaction with end user Solana account
+        Sign transaction via end user Solana account
         """
         pass
 

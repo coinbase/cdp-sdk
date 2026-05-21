@@ -61,7 +61,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> Policy:
-        """Create a policy
+        """Create policy
 
         Create a policy that can be used to govern the behavior of accounts.
 
@@ -138,7 +138,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[Policy]:
-        """Create a policy
+        """Create policy
 
         Create a policy that can be used to govern the behavior of accounts.
 
@@ -215,7 +215,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create a policy
+        """Create policy
 
         Create a policy that can be used to govern the behavior of accounts.
 
@@ -368,7 +368,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> None:
-        """Delete a policy
+        """Delete policy
 
         Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
 
@@ -446,7 +446,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[None]:
-        """Delete a policy
+        """Delete policy
 
         Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
 
@@ -524,7 +524,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Delete a policy
+        """Delete policy
 
         Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
 
@@ -664,7 +664,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> Policy:
-        """Get a policy by ID
+        """Get policy by ID
 
         Get a policy by its ID.
 
@@ -735,7 +735,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[Policy]:
-        """Get a policy by ID
+        """Get policy by ID
 
         Get a policy by its ID.
 
@@ -806,7 +806,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a policy by ID
+        """Get policy by ID
 
         Get a policy by its ID.
 
@@ -1245,7 +1245,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> Policy:
-        """Update a policy
+        """Update policy
 
         Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
 
@@ -1327,7 +1327,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[Policy]:
-        """Update a policy
+        """Update policy
 
         Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
 
@@ -1409,7 +1409,7 @@ class PolicyEngineApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Update a policy
+        """Update policy
 
         Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
 

@@ -29,8 +29,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -65,7 +63,7 @@ public class X402V2PaymentPayload {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extensions = new HashMap<>();
+  private Object extensions;
 
   public X402V2PaymentPayload() { 
   }
@@ -166,16 +164,8 @@ public class X402V2PaymentPayload {
   }
 
 
-  public X402V2PaymentPayload extensions(@jakarta.annotation.Nullable Map<String, Object> extensions) {
+  public X402V2PaymentPayload extensions(@jakarta.annotation.Nullable Object extensions) {
     this.extensions = extensions;
-    return this;
-  }
-
-  public X402V2PaymentPayload putExtensionsItem(String key, Object extensionsItem) {
-    if (this.extensions == null) {
-      this.extensions = new HashMap<>();
-    }
-    this.extensions.put(key, extensionsItem);
     return this;
   }
 
@@ -185,15 +175,15 @@ public class X402V2PaymentPayload {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtensions() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtensions(@jakarta.annotation.Nullable Map<String, Object> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Object extensions) {
     this.extensions = extensions;
   }
 
@@ -300,11 +290,7 @@ public class X402V2PaymentPayload {
 
     // add `extensions` to the URL query string
     if (getExtensions() != null) {
-      for (String _key : getExtensions().keySet()) {
-        joiner.add(String.format("%sextensions%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtensions().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtensions().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextensions%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtensions()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -338,7 +324,7 @@ public class X402V2PaymentPayload {
       this.instance.resource = resource;
       return this;
     }
-    public X402V2PaymentPayload.Builder extensions(Map<String, Object> extensions) {
+    public X402V2PaymentPayload.Builder extensions(Object extensions) {
       this.instance.extensions = extensions;
       return this;
     }

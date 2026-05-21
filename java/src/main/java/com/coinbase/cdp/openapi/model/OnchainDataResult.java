@@ -29,7 +29,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -46,7 +45,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 public class OnchainDataResult {
   public static final String JSON_PROPERTY_RESULT = "result";
   @jakarta.annotation.Nullable
-  private List<Map<String, Object>> result = new ArrayList<>();
+  private List<Object> result = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SCHEMA = "schema";
   @jakarta.annotation.Nullable
@@ -59,12 +58,12 @@ public class OnchainDataResult {
   public OnchainDataResult() { 
   }
 
-  public OnchainDataResult result(@jakarta.annotation.Nullable List<Map<String, Object>> result) {
+  public OnchainDataResult result(@jakarta.annotation.Nullable List<Object> result) {
     this.result = result;
     return this;
   }
 
-  public OnchainDataResult addResultItem(Map<String, Object> resultItem) {
+  public OnchainDataResult addResultItem(Object resultItem) {
     if (this.result == null) {
       this.result = new ArrayList<>();
     }
@@ -79,14 +78,14 @@ public class OnchainDataResult {
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_RESULT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Map<String, Object>> getResult() {
+  public List<Object> getResult() {
     return result;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RESULT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setResult(@jakarta.annotation.Nullable List<Map<String, Object>> result) {
+  public void setResult(@jakarta.annotation.Nullable List<Object> result) {
     this.result = result;
   }
 
@@ -249,7 +248,7 @@ public class OnchainDataResult {
       this.instance = instance;
     }
 
-    public OnchainDataResult.Builder result(List<Map<String, Object>> result) {
+    public OnchainDataResult.Builder result(List<Object> result) {
       this.instance.result = result;
       return this;
     }

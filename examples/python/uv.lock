@@ -286,7 +286,7 @@ wheels = [
 
 [[package]]
 name = "cdp-sdk"
-version = "1.41.0"
+version = "1.45.1"
 source = { editable = "../../python" }
 dependencies = [
     { name = "aiohttp" },
@@ -326,7 +326,7 @@ requires-dist = [
     { name = "sphinxcontrib-napoleon", marker = "extra == 'dev'", specifier = ">=0.7" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = ">=24.8.0,<25" },
     { name = "urllib3", specifier = ">=2.2.3" },
-    { name = "web3", specifier = ">=7.6.0,<=7.10.0" },
+    { name = "web3", specifier = ">=7.6.0" },
 ]
 provides-extras = ["dev"]
 

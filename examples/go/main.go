@@ -18,6 +18,8 @@ func main() {
 		SendTransactionExample()
 	case "send_user_operation":
 		SendUserOperationExample()
+	case "custody_transfer":
+		CustodyTransferExample()
 	default:
 		fmt.Printf("Unknown example: %s\n", exampleName)
 		printUsage()
@@ -30,4 +32,5 @@ func printUsage() {
 	fmt.Println("Available examples:")
 	fmt.Println("  send_transaction    - Create an EVM account and send a transaction")
 	fmt.Println("  send_user_operation - Create a smart account and send a user operation")
+	fmt.Println("  custody_transfer    - List custody accounts and create a quoted transfer")
 }

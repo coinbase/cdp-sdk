@@ -21,6 +21,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
 from cdp.openapi_client.models.x402_resource_quality import X402ResourceQuality
 from cdp.openapi_client.models.x402_version import X402Version
@@ -39,13 +40,26 @@ class X402DiscoveryResource(BaseModel):
     accepts: Optional[List[X402PaymentRequirements]] = Field(default=None, description="Payment requirements accepted by the resource.")
     extensions: Optional[Dict[str, Any]] = Field(default=None, description="Map of x402 protocol extensions supported by the resource, keyed by extension name.")
     quality: Optional[X402ResourceQuality] = None
-    __properties: ClassVar[List[str]] = ["resource", "description", "type", "x402Version", "lastUpdated", "accepts", "extensions", "quality"]
+    service_name: Optional[StrictStr] = Field(default=None, description="Provider-supplied display name of the service this resource belongs to. This is a free-form label for grouping and presentation only — it is not a stable identifier, and two resources sharing the same `serviceName` are not guaranteed to belong to the same logical service. ", alias="serviceName")
+    tags: Optional[List[StrictStr]] = Field(default=None, description="Provider-supplied, low-cardinality string labels associated with the resource for client-side filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive. Order is not significant and duplicates are not expected. ")
+    icon_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="URL of a square icon representing the service this resource belongs to. Distinct from a brand logo: this is intended for compact, list-view rendering (favicon-style) and is normalized to a square aspect ratio at ingestion. The image is moderated and re-hosted by Coinbase, so the URL is stable and safe to render directly in clients. Omitted when the provider did not supply an icon, when the supplied icon failed moderation, or when image processing was unavailable at ingestion time. ", alias="iconUrl")
+    __properties: ClassVar[List[str]] = ["resource", "description", "type", "x402Version", "lastUpdated", "accepts", "extensions", "quality", "serviceName", "tags", "iconUrl"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
         if value not in set(['http', 'mcp']):
             raise ValueError("must be one of enum values ('http', 'mcp')")
+        return value
+
+    @field_validator('icon_url')
+    def icon_url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
         return value
 
     model_config = ConfigDict(
@@ -116,7 +130,10 @@ class X402DiscoveryResource(BaseModel):
             "lastUpdated": obj.get("lastUpdated"),
             "accepts": [X402PaymentRequirements.from_dict(_item) for _item in obj["accepts"]] if obj.get("accepts") is not None else None,
             "extensions": obj.get("extensions"),
-            "quality": X402ResourceQuality.from_dict(obj["quality"]) if obj.get("quality") is not None else None
+            "quality": X402ResourceQuality.from_dict(obj["quality"]) if obj.get("quality") is not None else None,
+            "serviceName": obj.get("serviceName"),
+            "tags": obj.get("tags"),
+            "iconUrl": obj.get("iconUrl")
         })
         return _obj
 

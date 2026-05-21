@@ -621,7 +621,7 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> WebhookSubscriptionResponse:
-        """Get webhook subscription details
+        """Get webhook subscription
 
         Retrieve detailed information about a specific webhook subscription including configuration, status, creation timestamp, and webhook signature secret.  ### Response Includes - Subscription configuration and filters - Target URL and custom headers - Webhook signature secret for verification - Creation timestamp and status 
 
@@ -692,7 +692,7 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[WebhookSubscriptionResponse]:
-        """Get webhook subscription details
+        """Get webhook subscription
 
         Retrieve detailed information about a specific webhook subscription including configuration, status, creation timestamp, and webhook signature secret.  ### Response Includes - Subscription configuration and filters - Target URL and custom headers - Webhook signature secret for verification - Creation timestamp and status 
 
@@ -763,7 +763,7 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get webhook subscription details
+        """Get webhook subscription
 
         Retrieve detailed information about a specific webhook subscription including configuration, status, creation timestamp, and webhook signature secret.  ### Response Includes - Subscription configuration and filters - Target URL and custom headers - Webhook signature secret for verification - Creation timestamp and status 
 

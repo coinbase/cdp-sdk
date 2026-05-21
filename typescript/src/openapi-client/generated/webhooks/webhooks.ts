@@ -120,7 +120,7 @@ configuration, status, creation timestamp, and webhook signature secret.
 - Webhook signature secret for verification
 - Creation timestamp and status
 
- * @summary Get webhook subscription details
+ * @summary Get webhook subscription
  */
 export const getWebhookSubscription = (
   subscriptionId: string,
