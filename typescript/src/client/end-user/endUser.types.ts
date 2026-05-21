@@ -59,7 +59,10 @@ export type ListEndUsersOptions = ListEndUsersParams;
 /**
  * The options for creating an end user.
  */
-export type CreateEndUserOptions = CreateEndUserBody;
+export type CreateEndUserOptions = CreateEndUserBody & {
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
+};
 
 /**
  * The options for adding an EVM account to an end user.
@@ -69,6 +72,8 @@ export interface AddEndUserEvmAccountOptions {
    * The unique identifier of the end user.
    */
   userId: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -88,6 +93,8 @@ export interface AddEndUserEvmSmartAccountOptions {
    * If true, enables spend permissions for the EVM smart account.
    */
   enableSpendPermissions: boolean;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -103,6 +110,8 @@ export interface AddEndUserSolanaAccountOptions {
    * The unique identifier of the end user.
    */
   userId: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -139,6 +148,8 @@ export interface ImportEndUserOptions {
    * Defaults to the known CDP public key.
    */
   encryptionPublicKey?: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -164,6 +175,8 @@ export interface RevokeDelegationForEndUserOptions {
    * The unique identifier of the end user.
    */
   userId: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 // ─── Account-Scoped Delegation Options/Results ───
@@ -225,6 +238,8 @@ export interface SignEvmTransactionOptions {
   address: string;
   /** The RLP-serialized EIP-1559 transaction to sign, hex-encoded. */
   transaction: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -242,6 +257,8 @@ export interface SignEvmMessageOptions {
   address: string;
   /** The EIP-191 message to sign. */
   message: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -259,6 +276,8 @@ export interface SignEvmTypedDataOptions {
   address: string;
   /** The EIP-712 typed data to sign. */
   typedData: EIP712Message;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -280,6 +299,8 @@ export interface SendEvmTransactionOptions {
   transaction: string;
   /** The network to send the transaction on. */
   network: SendEvmTransactionWithEndUserAccountBodyNetwork;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -307,6 +328,8 @@ export interface SendEvmAssetOptions {
   useCdpPaymaster?: boolean;
   /** A custom paymaster URL. */
   paymasterUrl?: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -332,6 +355,8 @@ export interface SendUserOperationOptions {
   paymasterUrl?: string;
   /** An optional data suffix. */
   dataSuffix?: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -353,6 +378,8 @@ export interface CreateEvmEip7702DelegationOptions {
   network: EvmEip7702DelegationNetwork;
   /** Whether to enable spend permissions for the delegation. */
   enableSpendPermissions?: boolean;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -373,6 +400,8 @@ export interface SignSolanaMessageOptions {
   address: string;
   /** The base64-encoded message to sign. */
   message: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -390,6 +419,8 @@ export interface SignSolanaTransactionOptions {
   address: string;
   /** The base64-encoded Solana transaction to sign. */
   transaction: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -411,6 +442,8 @@ export interface SendSolanaTransactionOptions {
   transaction: string;
   /** The Solana network to send on. */
   network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -436,6 +469,8 @@ export interface SendSolanaAssetOptions {
   network: SendSolanaAssetWithEndUserAccountBodyNetwork;
   /** Whether to create the recipient's associated token account if it doesn't exist. */
   createRecipientAta?: boolean;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -453,6 +488,8 @@ export interface AccountSignEvmTransactionOptions {
   address?: string;
   /** The RLP-serialized EIP-1559 transaction to sign, hex-encoded. */
   transaction: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -463,6 +500,8 @@ export interface AccountSignEvmMessageOptions {
   address?: string;
   /** The EIP-191 message to sign. */
   message: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -473,6 +512,8 @@ export interface AccountSignEvmTypedDataOptions {
   address?: string;
   /** The EIP-712 typed data to sign. */
   typedData: EIP712Message;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -485,6 +526,8 @@ export interface AccountSendEvmTransactionOptions {
   transaction: string;
   /** The network to send the transaction on. */
   network: SendEvmTransactionWithEndUserAccountBodyNetwork;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -505,6 +548,8 @@ export interface AccountSendEvmAssetOptions {
   useCdpPaymaster?: boolean;
   /** A custom paymaster URL. */
   paymasterUrl?: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -523,6 +568,8 @@ export interface AccountSendUserOperationOptions {
   paymasterUrl?: string;
   /** An optional data suffix. */
   dataSuffix?: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -535,6 +582,8 @@ export interface AccountCreateEvmEip7702DelegationOptions {
   network: EvmEip7702DelegationNetwork;
   /** Whether to enable spend permissions for the delegation. */
   enableSpendPermissions?: boolean;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -545,6 +594,8 @@ export interface AccountSignSolanaMessageOptions {
   address?: string;
   /** The base64-encoded message to sign. */
   message: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -555,6 +606,8 @@ export interface AccountSignSolanaTransactionOptions {
   address?: string;
   /** The base64-encoded Solana transaction to sign. */
   transaction: string;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -567,6 +620,8 @@ export interface AccountSendSolanaTransactionOptions {
   transaction: string;
   /** The Solana network to send on. */
   network: SendSolanaTransactionWithEndUserAccountBodyNetwork;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -585,6 +640,8 @@ export interface AccountSendSolanaAssetOptions {
   network: SendSolanaAssetWithEndUserAccountBodyNetwork;
   /** Whether to create the recipient's associated token account if it doesn't exist. */
   createRecipientAta?: boolean;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -595,6 +652,8 @@ export interface AddEvmSmartAccountOptions {
    * If true, enables spend permissions for the EVM smart account.
    */
   enableSpendPermissions: boolean;
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -617,7 +676,7 @@ export type EndUserAccountActions = {
    * console.log(result.evmAccount.address);
    * ```
    */
-  addEvmAccount: () => Promise<AddEndUserEvmAccountResult>;
+  addEvmAccount: (idempotencyKey?: string) => Promise<AddEndUserEvmAccountResult>;
 
   /**
    * Adds an EVM smart account to this end user.
@@ -657,7 +716,7 @@ export type EndUserAccountActions = {
    * console.log(result.solanaAccount.address);
    * ```
    */
-  addSolanaAccount: () => Promise<AddEndUserSolanaAccountResult>;
+  addSolanaAccount: (idempotencyKey?: string) => Promise<AddEndUserSolanaAccountResult>;
 
   /**
    * Gets the active delegation for this end user, if one exists.
@@ -687,7 +746,7 @@ export type EndUserAccountActions = {
    * await endUser.revokeDelegation();
    * ```
    */
-  revokeDelegation: () => Promise<void>;
+  revokeDelegation: (idempotencyKey?: string) => Promise<void>;
 
   // ─── Account-Scoped Delegation Methods ───
 

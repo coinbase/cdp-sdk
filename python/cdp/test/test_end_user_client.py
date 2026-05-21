@@ -629,6 +629,7 @@ async def test_add_end_user_evm_account_success(add_end_user_evm_account_respons
     mock_api_clients.end_user.add_end_user_evm_account.assert_called_once_with(
         user_id=mock_user_id,
         body={},
+        x_idempotency_key=None,
     )
 
 
@@ -731,6 +732,7 @@ async def test_add_end_user_solana_account_success(add_end_user_solana_account_r
     mock_api_clients.end_user.add_end_user_solana_account.assert_called_once_with(
         user_id=mock_user_id,
         body={},
+        x_idempotency_key=None,
     )
 
 
@@ -866,6 +868,7 @@ async def test_end_user_account_add_evm_account_method(
     mock_api_clients.end_user.add_end_user_evm_account.assert_called_once_with(
         user_id="test-user",
         body={},
+        x_idempotency_key=None,
     )
 
 
@@ -925,6 +928,7 @@ async def test_end_user_account_add_solana_account_method(
     mock_api_clients.end_user.add_end_user_solana_account.assert_called_once_with(
         user_id="test-user",
         body={},
+        x_idempotency_key=None,
     )
 
 
@@ -1361,3 +1365,150 @@ async def test_revoke_delegation_for_end_user_account():
     call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.call_args
     assert call_args.kwargs["user_id"] == "user-123"
     assert call_args.kwargs["address"] == "0x1234567890abcdef1234567890abcdef12345678"
+
+
+# ─── Idempotency Key Tests ───
+
+
+@pytest.mark.asyncio
+async def test_create_end_user_with_idempotency_key(end_user_model_factory):
+    """Test that idempotency_key is forwarded when creating an end user."""
+    mock_end_user_model = end_user_model_factory(user_id="test-user")
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.create_end_user = AsyncMock(return_value=mock_end_user_model)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    auth_method = AuthenticationMethod(EmailAuthentication(type="email", email="test@example.com"))
+
+    with patch("cdp.end_user_client.uuid.uuid4") as mock_uuid:
+        mock_uuid.return_value = "generated-uuid"
+        await client.create_end_user(
+            authentication_methods=[auth_method],
+            idempotency_key="test-idempotency-key",
+        )
+
+    call_args = mock_api_clients.end_user.create_end_user.call_args
+    assert call_args.kwargs["x_idempotency_key"] == "test-idempotency-key"
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_evm_account_with_idempotency_key(
+    add_end_user_evm_account_response_factory,
+):
+    """Test that idempotency_key is forwarded when adding an EVM account."""
+    mock_response = add_end_user_evm_account_response_factory()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.add_end_user_evm_account = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    await client.add_end_user_evm_account(user_id="user-123", idempotency_key="idem-key-123")
+
+    call_args = mock_api_clients.end_user.add_end_user_evm_account.call_args
+    assert call_args.kwargs["x_idempotency_key"] == "idem-key-123"
+
+
+@pytest.mark.asyncio
+async def test_sign_evm_transaction_with_idempotency_key():
+    """Test that idempotency_key is forwarded when signing an EVM transaction."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.sign_evm_transaction(
+        user_id="user-123", address=evm_addr, transaction="0x02...", idempotency_key="idem-sign"
+    )
+
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_evm_transaction_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["x_idempotency_key"] == "idem-sign"
+
+
+@pytest.mark.asyncio
+async def test_send_evm_asset_with_idempotency_key():
+    """Test that idempotency_key is forwarded when sending an EVM asset."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_evm_asset_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    evm_addr = "0x1234567890abcdef1234567890abcdef12345678"
+    evm_recipient = "0xabcdefabcdefabcdefabcdefabcdefabcdefab01"
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.send_evm_asset(
+        user_id="user-123",
+        address=evm_addr,
+        to=evm_recipient,
+        amount="1.5",
+        network="base-sepolia",
+        idempotency_key="idem-send",
+    )
+
+    call_args = mock_api_clients.embedded_wallets.send_evm_asset_with_end_user_account.call_args
+    assert call_args.kwargs["x_idempotency_key"] == "idem-send"
+
+
+@pytest.mark.asyncio
+async def test_sign_solana_message_with_idempotency_key():
+    """Test that idempotency_key is forwarded when signing a Solana message."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.sign_solana_message(
+        user_id="user-123", address=sol_addr, message="base64msg", idempotency_key="idem-sol"
+    )
+
+    call_args = (
+        mock_api_clients.embedded_wallets.sign_solana_message_with_end_user_account.call_args
+    )
+    assert call_args.kwargs["x_idempotency_key"] == "idem-sol"
+
+
+@pytest.mark.asyncio
+async def test_revoke_delegation_with_idempotency_key():
+    """Test that idempotency_key is forwarded when revoking delegation."""
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user = AsyncMock(return_value=None)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.revoke_delegation(user_id="user-123", idempotency_key="idem-revoke")
+
+    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user.call_args
+    assert call_args.kwargs["x_idempotency_key"] == "idem-revoke"
+
+
+@pytest.mark.asyncio
+async def test_send_solana_asset_with_idempotency_key():
+    """Test that idempotency_key is forwarded when sending a Solana asset."""
+    mock_response = MagicMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.embedded_wallets.send_solana_asset_with_end_user_account = AsyncMock(
+        return_value=mock_response
+    )
+
+    sol_addr = "7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs"
+    sol_recipient = "DRpbCBMxVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy"
+    client = EndUserClient(api_clients=mock_api_clients)
+    await client.send_solana_asset(
+        user_id="user-123",
+        address=sol_addr,
+        to=sol_recipient,
+        amount="1.5",
+        network="solana-devnet",
+        idempotency_key="idem-sol-send",
+    )
+
+    call_args = mock_api_clients.embedded_wallets.send_solana_asset_with_end_user_account.call_args
+    assert call_args.kwargs["x_idempotency_key"] == "idem-sol-send"
