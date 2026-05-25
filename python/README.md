@@ -764,6 +764,7 @@ You can transfer tokens between accounts using the `transfer` function, and wait
 import asyncio
 from cdp import CdpClient
 from solana.rpc.api import Client as SolanaClient
+from solana.rpc.types import LAMPORTS_PER_SOL
 
 async def main():
     async with CdpClient() as cdp:
@@ -782,17 +783,17 @@ async def main():
 
         confirmation = await connection.confirm_transaction(
             {
-                signature,
-                blockhash,
-                lastValidBlockHeight,
+                "signature": signature,
+                "blockhash": blockhash,
+                "lastValidBlockHeight": lastValidBlockHeight,
             },
         )
 
         if confirmation.value.err:
-            print(f"Something went wrong! Error: {confirmation.value.err.toString()}")
+            print(f"Something went wrong! Error: {confirmation.value.err}")
         else:
             print(
-                f"Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet",
+                f"Transaction confirmed: Link: https://explorer.solana.com/tx/{signature}?cluster=devnet",
             )
 ```
 
@@ -808,7 +809,7 @@ tx_hash = await sender.transfer(
     to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
     amount=amount,
     token="usdc",
-    network="devet",
+    network="devnet",
 )
 ```
 
