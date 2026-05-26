@@ -496,7 +496,6 @@ export const SendUserOperationCriteriaSchema = z
     z.discriminatedUnion("type", [
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
-      PrepareUserOperationEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
     ]),
