@@ -19,6 +19,7 @@ from cdp.policies.types import (
     PrepareUserOperationRule,
     ProgramIdCriterion,
     SendEndUserEvmTransactionRule,
+    SendEndUserOperationRule,
     SendEndUserSolTransactionRule,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
@@ -735,6 +736,67 @@ async def test_create_policy_with_evmnetwork_criteria(
                             "polygon",
                             "optimism",
                             "arbitrum",
+                        ],
+                        operator="in",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_end_user_operation_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test that a policy can be created with a SendEndUserOperationRule."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="sendEndUserOperation policy",
+        rules=[
+            SendEndUserOperationRule(
+                action="reject",
+                operation="sendEndUserOperation",
+                criteria=[
+                    EvmNetworkCriterion(
+                        type="evmNetwork",
+                        networks=[
+                            "base-sepolia",
+                            "base",
+                            "arbitrum",
+                            "optimism",
+                            "zora",
+                            "polygon",
+                            "bnb",
+                            "avalanche",
+                            "ethereum",
+                            "ethereum-sepolia",
                         ],
                         operator="in",
                     ),

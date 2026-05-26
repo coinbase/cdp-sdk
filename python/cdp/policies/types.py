@@ -1010,6 +1010,29 @@ class SendUserOperationRule(BaseModel):
     )
 
 
+class SendEndUserOperationRule(BaseModel):
+    """Type representing a 'sendEndUserOperation' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the user operation, 'reject' will block it.",
+    )
+    operation: Literal["sendEndUserOperation"] = Field(
+        "sendEndUserOperation",
+        description="The operation to which this rule applies. Must be 'sendEndUserOperation'.",
+    )
+    criteria: list[
+        EthValueCriterion
+        | EvmAddressCriterion
+        | EvmNetworkCriterion
+        | EvmDataCriterion
+        | NetUSDChangeCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 """Type representing the scope of a policy.
 Determines whether the policy applies at the project level or account level."""
 PolicyScope = Literal["project", "account"]
@@ -1027,6 +1050,7 @@ Rule = (
     | SignSolMessageRule
     | PrepareUserOperationRule
     | SendUserOperationRule
+    | SendEndUserOperationRule
     | SignEndUserEvmTransactionRule
     | SendEndUserEvmTransactionRule
     | SignEndUserEvmMessageRule

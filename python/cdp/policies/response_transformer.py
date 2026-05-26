@@ -19,6 +19,7 @@ from cdp.policies.types import (
     Rule as RuleType,
     SendEndUserEvmAssetRule as SendEndUserEvmAssetRuleModel,
     SendEndUserEvmTransactionRule as SendEndUserEvmTransactionRuleModel,
+    SendEndUserOperationRule as SendEndUserOperationRuleModel,
     SendEndUserSolAssetRule as SendEndUserSolAssetRuleModel,
     SendEndUserSolTransactionRule as SendEndUserSolTransactionRuleModel,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
@@ -369,6 +370,9 @@ response_criterion_mapping["sendEndUserSolAsset"] = response_criterion_mapping["
 response_criterion_mapping["createEndUserEvmSwap"] = response_criterion_mapping[
     "sendEvmTransaction"
 ]
+response_criterion_mapping["sendEndUserOperation"] = response_criterion_mapping[
+    "prepareUserOperation"
+]
 
 # Response rule class mapping
 response_rule_mapping = {
@@ -392,6 +396,7 @@ response_rule_mapping = {
     "sendEndUserEvmAsset": SendEndUserEvmAssetRuleModel,
     "sendEndUserSolAsset": SendEndUserSolAssetRuleModel,
     "createEndUserEvmSwap": CreateEndUserEvmSwapRuleModel,
+    "sendEndUserOperation": SendEndUserOperationRuleModel,
 }
 
 

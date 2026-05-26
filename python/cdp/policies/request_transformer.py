@@ -26,6 +26,7 @@ from cdp.openapi_client.models.send_end_user_evm_asset_rule import SendEndUserEv
 from cdp.openapi_client.models.send_end_user_evm_transaction_rule import (
     SendEndUserEvmTransactionRule,
 )
+from cdp.openapi_client.models.send_end_user_operation_rule import SendEndUserOperationRule
 from cdp.openapi_client.models.send_end_user_sol_asset_rule import SendEndUserSolAssetRule
 from cdp.openapi_client.models.send_end_user_sol_transaction_rule import (
     SendEndUserSolTransactionRule,
@@ -601,6 +602,7 @@ openapi_criterion_mapping["signEndUserSolMessage"] = openapi_criterion_mapping["
 openapi_criterion_mapping["sendEndUserEvmAsset"] = openapi_criterion_mapping["sendEvmTransaction"]
 openapi_criterion_mapping["sendEndUserSolAsset"] = openapi_criterion_mapping["sendSolTransaction"]
 openapi_criterion_mapping["createEndUserEvmSwap"] = openapi_criterion_mapping["sendEvmTransaction"]
+openapi_criterion_mapping["sendEndUserOperation"] = openapi_criterion_mapping["prepareUserOperation"]
 
 # OpenAPI rule constructor mapping
 openapi_rule_mapping = {
@@ -624,6 +626,7 @@ openapi_rule_mapping = {
     "sendEndUserEvmAsset": SendEndUserEvmAssetRule,
     "sendEndUserSolAsset": SendEndUserSolAssetRule,
     "createEndUserEvmSwap": CreateEndUserEvmSwapRule,
+    "sendEndUserOperation": SendEndUserOperationRule,
 }
 
 
