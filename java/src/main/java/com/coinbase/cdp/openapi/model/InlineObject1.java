@@ -40,7 +40,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   InlineObject1.JSON_PROPERTY_PAYER,
   InlineObject1.JSON_PROPERTY_TRANSACTION,
   InlineObject1.JSON_PROPERTY_NETWORK,
-  InlineObject1.JSON_PROPERTY_AMOUNT
+  InlineObject1.JSON_PROPERTY_AMOUNT,
+  InlineObject1.JSON_PROPERTY_EXTRA
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class InlineObject1 {
@@ -71,6 +72,10 @@ public class InlineObject1 {
   public static final String JSON_PROPERTY_AMOUNT = "amount";
   @jakarta.annotation.Nullable
   private String amount;
+
+  public static final String JSON_PROPERTY_EXTRA = "extra";
+  @jakarta.annotation.Nullable
+  private Object extra;
 
   public InlineObject1() { 
   }
@@ -243,6 +248,30 @@ public class InlineObject1 {
   }
 
 
+  public InlineObject1 extra(@jakarta.annotation.Nullable Object extra) {
+    this.extra = extra;
+    return this;
+  }
+
+  /**
+   * Optional scheme-specific success metadata returned by the facilitator.
+   * @return extra
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTRA)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
+    return extra;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTRA)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
+    this.extra = extra;
+  }
+
+
   /**
    * Return true if this inline_object_1 object is equal to o.
    */
@@ -261,12 +290,13 @@ public class InlineObject1 {
         Objects.equals(this.payer, inlineObject1.payer) &&
         Objects.equals(this.transaction, inlineObject1.transaction) &&
         Objects.equals(this.network, inlineObject1.network) &&
-        Objects.equals(this.amount, inlineObject1.amount);
+        Objects.equals(this.amount, inlineObject1.amount) &&
+        Objects.equals(this.extra, inlineObject1.extra);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(success, errorReason, errorMessage, payer, transaction, network, amount);
+    return Objects.hash(success, errorReason, errorMessage, payer, transaction, network, amount, extra);
   }
 
   @Override
@@ -280,6 +310,7 @@ public class InlineObject1 {
     sb.append("    transaction: ").append(toIndentedString(transaction)).append("\n");
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
+    sb.append("    extra: ").append(toIndentedString(extra)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -362,6 +393,11 @@ public class InlineObject1 {
       joiner.add(String.format("%samount%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAmount()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `extra` to the URL query string
+    if (getExtra() != null) {
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -405,6 +441,10 @@ public class InlineObject1 {
       this.instance.amount = amount;
       return this;
     }
+    public InlineObject1.Builder extra(Object extra) {
+      this.instance.extra = extra;
+      return this;
+    }
 
 
     /**
@@ -445,7 +485,8 @@ public class InlineObject1 {
       .payer(getPayer())
       .transaction(getTransaction())
       .network(getNetwork())
-      .amount(getAmount());
+      .amount(getAmount())
+      .extra(getExtra());
   }
 
 }

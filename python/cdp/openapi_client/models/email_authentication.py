@@ -20,6 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +29,7 @@ class EmailAuthentication(BaseModel):
     Information about an end user who authenticates using a one-time password sent to their email address.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of authentication information.")
-    email: StrictStr = Field(description="The email address of the end user.")
+    email: Annotated[str, Field(strict=True, max_length=254)] = Field(description="The email address of the end user.")
     __properties: ClassVar[List[str]] = ["type", "email"]
 
     @field_validator('type')

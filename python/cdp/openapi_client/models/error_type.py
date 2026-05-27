@@ -32,6 +32,8 @@ class ErrorType(str, Enum):
     BAD_GATEWAY = 'bad_gateway'
     CAPTURE_EXPIRED = 'capture_expired'
     CLIENT_CLOSED_REQUEST = 'client_closed_request'
+    CUSTOMER_NOT_AUTHORIZED = 'customer_not_authorized'
+    ENDPOINT_UNAVAILABLE = 'endpoint_unavailable'
     FAUCET_LIMIT_EXCEEDED = 'faucet_limit_exceeded'
     FORBIDDEN = 'forbidden'
     IDEMPOTENCY_ERROR = 'idempotency_error'
@@ -49,6 +51,7 @@ class ErrorType(str, Enum):
     SERVICE_UNAVAILABLE = 'service_unavailable'
     TIMED_OUT = 'timed_out'
     UNAUTHORIZED = 'unauthorized'
+    UNSUPPORTED_TOS_LANGUAGE = 'unsupported_tos_language'
     POLICY_VIOLATION = 'policy_violation'
     POLICY_IN_USE = 'policy_in_use'
     ACCOUNT_LIMIT_EXCEEDED = 'account_limit_exceeded'
@@ -73,6 +76,7 @@ class ErrorType(str, Enum):
     TARGET_ONCHAIN_ADDRESS_INVALID = 'target_onchain_address_invalid'
     TRANSFER_AMOUNT_INVALID = 'transfer_amount_invalid'
     TRANSFER_ASSET_NOT_SUPPORTED = 'transfer_asset_not_supported'
+    TRANSFER_QUOTE_EXPIRED = 'transfer_quote_expired'
     INSUFFICIENT_BALANCE = 'insufficient_balance'
     METADATA_TOO_MANY_ENTRIES = 'metadata_too_many_entries'
     METADATA_KEY_TOO_LONG = 'metadata_key_too_long'
@@ -91,6 +95,13 @@ class ErrorType(str, Enum):
     INSUFFICIENT_LIQUIDITY = 'insufficient_liquidity'
     INSUFFICIENT_ALLOWANCE = 'insufficient_allowance'
     TRANSACTION_SIMULATION_FAILED = 'transaction_simulation_failed'
+    DELEGATION_NOT_FOUND = 'delegation_not_found'
+    DELEGATION_EXPIRED = 'delegation_expired'
+    DELEGATION_REVOKED = 'delegation_revoked'
+    DELEGATION_NOT_AUTHORIZED = 'delegation_not_authorized'
+    DELEGATION_NOT_ENABLED = 'delegation_not_enabled'
+    NETWORK_MISMATCH = 'network_mismatch'
+    ALREADY_ENABLED = 'already_enabled'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

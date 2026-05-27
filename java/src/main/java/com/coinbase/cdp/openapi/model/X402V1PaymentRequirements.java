@@ -19,20 +19,19 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.X402V1Network;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * The x402 protocol payment requirements that the resource server expects the client&#39;s payment payload to meet.
+ * The x402 v1 payment requirements. Uses human-readable network names, and carries resource metadata (&#x60;resource&#x60;, &#x60;description&#x60;, &#x60;mimeType&#x60;) alongside the payment fields. The only supported scheme is &#x60;exact&#x60;.
  */
 @JsonPropertyOrder({
   X402V1PaymentRequirements.JSON_PROPERTY_SCHEME,
@@ -86,50 +85,9 @@ public class X402V1PaymentRequirements {
   @jakarta.annotation.Nonnull
   private SchemeEnum scheme;
 
-  /**
-   * The network of the blockchain to send payment on.
-   */
-  public enum NetworkEnum {
-    BASE_SEPOLIA(String.valueOf("base-sepolia")),
-    
-    BASE(String.valueOf("base")),
-    
-    SOLANA_DEVNET(String.valueOf("solana-devnet")),
-    
-    SOLANA(String.valueOf("solana")),
-    
-    POLYGON(String.valueOf("polygon"));
-
-    private String value;
-
-    NetworkEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static NetworkEnum fromValue(String value) {
-      for (NetworkEnum b : NetworkEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
-  private NetworkEnum network;
+  private X402V1Network network;
 
   public static final String JSON_PROPERTY_MAX_AMOUNT_REQUIRED = "maxAmountRequired";
   @jakarta.annotation.Nonnull
@@ -149,7 +107,7 @@ public class X402V1PaymentRequirements {
 
   public static final String JSON_PROPERTY_OUTPUT_SCHEMA = "outputSchema";
   @jakarta.annotation.Nullable
-  private Map<String, Object> outputSchema = new HashMap<>();
+  private Object outputSchema;
 
   public static final String JSON_PROPERTY_PAY_TO = "payTo";
   @jakarta.annotation.Nonnull
@@ -165,7 +123,7 @@ public class X402V1PaymentRequirements {
 
   public static final String JSON_PROPERTY_EXTRA = "extra";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extra = new HashMap<>();
+  private Object extra;
 
   public X402V1PaymentRequirements() { 
   }
@@ -194,7 +152,7 @@ public class X402V1PaymentRequirements {
   }
 
 
-  public X402V1PaymentRequirements network(@jakarta.annotation.Nonnull NetworkEnum network) {
+  public X402V1PaymentRequirements network(@jakarta.annotation.Nonnull X402V1Network network) {
     this.network = network;
     return this;
   }
@@ -206,14 +164,14 @@ public class X402V1PaymentRequirements {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public NetworkEnum getNetwork() {
+  public X402V1Network getNetwork() {
     return network;
   }
 
 
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setNetwork(@jakarta.annotation.Nonnull NetworkEnum network) {
+  public void setNetwork(@jakarta.annotation.Nonnull X402V1Network network) {
     this.network = network;
   }
 
@@ -314,16 +272,8 @@ public class X402V1PaymentRequirements {
   }
 
 
-  public X402V1PaymentRequirements outputSchema(@jakarta.annotation.Nullable Map<String, Object> outputSchema) {
+  public X402V1PaymentRequirements outputSchema(@jakarta.annotation.Nullable Object outputSchema) {
     this.outputSchema = outputSchema;
-    return this;
-  }
-
-  public X402V1PaymentRequirements putOutputSchemaItem(String key, Object outputSchemaItem) {
-    if (this.outputSchema == null) {
-      this.outputSchema = new HashMap<>();
-    }
-    this.outputSchema.put(key, outputSchemaItem);
     return this;
   }
 
@@ -333,15 +283,15 @@ public class X402V1PaymentRequirements {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_OUTPUT_SCHEMA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getOutputSchema() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getOutputSchema() {
     return outputSchema;
   }
 
 
   @JsonProperty(JSON_PROPERTY_OUTPUT_SCHEMA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setOutputSchema(@jakarta.annotation.Nullable Map<String, Object> outputSchema) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOutputSchema(@jakarta.annotation.Nullable Object outputSchema) {
     this.outputSchema = outputSchema;
   }
 
@@ -418,16 +368,8 @@ public class X402V1PaymentRequirements {
   }
 
 
-  public X402V1PaymentRequirements extra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  public X402V1PaymentRequirements extra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
-    return this;
-  }
-
-  public X402V1PaymentRequirements putExtraItem(String key, Object extraItem) {
-    if (this.extra == null) {
-      this.extra = new HashMap<>();
-    }
-    this.extra.put(key, extraItem);
     return this;
   }
 
@@ -437,15 +379,15 @@ public class X402V1PaymentRequirements {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtra() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
     return extra;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
   }
 
@@ -574,11 +516,7 @@ public class X402V1PaymentRequirements {
 
     // add `outputSchema` to the URL query string
     if (getOutputSchema() != null) {
-      for (String _key : getOutputSchema().keySet()) {
-        joiner.add(String.format("%soutputSchema%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getOutputSchema().get(_key), URLEncoder.encode(ApiClient.valueToString(getOutputSchema().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%soutputSchema%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getOutputSchema()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `payTo` to the URL query string
@@ -598,11 +536,7 @@ public class X402V1PaymentRequirements {
 
     // add `extra` to the URL query string
     if (getExtra() != null) {
-      for (String _key : getExtra().keySet()) {
-        joiner.add(String.format("%sextra%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtra().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtra().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -624,7 +558,7 @@ public class X402V1PaymentRequirements {
       this.instance.scheme = scheme;
       return this;
     }
-    public X402V1PaymentRequirements.Builder network(NetworkEnum network) {
+    public X402V1PaymentRequirements.Builder network(X402V1Network network) {
       this.instance.network = network;
       return this;
     }
@@ -644,7 +578,7 @@ public class X402V1PaymentRequirements {
       this.instance.mimeType = mimeType;
       return this;
     }
-    public X402V1PaymentRequirements.Builder outputSchema(Map<String, Object> outputSchema) {
+    public X402V1PaymentRequirements.Builder outputSchema(Object outputSchema) {
       this.instance.outputSchema = outputSchema;
       return this;
     }
@@ -660,7 +594,7 @@ public class X402V1PaymentRequirements {
       this.instance.asset = asset;
       return this;
     }
-    public X402V1PaymentRequirements.Builder extra(Map<String, Object> extra) {
+    public X402V1PaymentRequirements.Builder extra(Object extra) {
       this.instance.extra = extra;
       return this;
     }

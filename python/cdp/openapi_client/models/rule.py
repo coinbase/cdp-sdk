@@ -90,10 +90,10 @@ class Rule(BaseModel):
     oneof_schema_19_validator: Optional[SendEndUserEvmAssetRule] = None
     # data type: SendEndUserSolAssetRule
     oneof_schema_20_validator: Optional[SendEndUserSolAssetRule] = None
-    # data type: CreateEndUserEvmSwapRule
-    oneof_schema_21_validator: Optional[CreateEndUserEvmSwapRule] = None
     # data type: SendEndUserOperationRule
-    oneof_schema_22_validator: Optional[SendEndUserOperationRule] = None
+    oneof_schema_21_validator: Optional[SendEndUserOperationRule] = None
+    # data type: CreateEndUserEvmSwapRule
+    oneof_schema_22_validator: Optional[CreateEndUserEvmSwapRule] = None
     actual_instance: Optional[Union[CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserOperationRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule]] = None
     one_of_schemas: Set[str] = { "CreateEndUserEvmSwapRule", "PrepareUserOperationRule", "SendEndUserEvmAssetRule", "SendEndUserEvmTransactionRule", "SendEndUserOperationRule", "SendEndUserSolAssetRule", "SendEndUserSolTransactionRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEndUserEvmHashRule", "SignEndUserEvmMessageRule", "SignEndUserEvmTransactionRule", "SignEndUserEvmTypedDataRule", "SignEndUserSolMessageRule", "SignEndUserSolTransactionRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolMessageRule", "SignSolTransactionRule" }
 
@@ -218,14 +218,14 @@ class Rule(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `SendEndUserSolAssetRule`")
         else:
             match += 1
-        # validate data type: CreateEndUserEvmSwapRule
-        if not isinstance(v, CreateEndUserEvmSwapRule):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateEndUserEvmSwapRule`")
-        else:
-            match += 1
         # validate data type: SendEndUserOperationRule
         if not isinstance(v, SendEndUserOperationRule):
             error_messages.append(f"Error! Input type `{type(v)}` is not `SendEndUserOperationRule`")
+        else:
+            match += 1
+        # validate data type: CreateEndUserEvmSwapRule
+        if not isinstance(v, CreateEndUserEvmSwapRule):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateEndUserEvmSwapRule`")
         else:
             match += 1
         if match > 1:
@@ -368,15 +368,15 @@ class Rule(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into CreateEndUserEvmSwapRule
-        try:
-            instance.actual_instance = CreateEndUserEvmSwapRule.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
         # deserialize data into SendEndUserOperationRule
         try:
             instance.actual_instance = SendEndUserOperationRule.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateEndUserEvmSwapRule
+        try:
+            instance.actual_instance = CreateEndUserEvmSwapRule.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))

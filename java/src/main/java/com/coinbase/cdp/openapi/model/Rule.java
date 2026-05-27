@@ -24,6 +24,7 @@ import com.coinbase.cdp.openapi.model.CreateEndUserEvmSwapRule;
 import com.coinbase.cdp.openapi.model.PrepareUserOperationRule;
 import com.coinbase.cdp.openapi.model.SendEndUserEvmAssetRule;
 import com.coinbase.cdp.openapi.model.SendEndUserEvmTransactionRule;
+import com.coinbase.cdp.openapi.model.SendEndUserOperationRule;
 import com.coinbase.cdp.openapi.model.SendEndUserSolAssetRule;
 import com.coinbase.cdp.openapi.model.SendEndUserSolTransactionRule;
 import com.coinbase.cdp.openapi.model.SendEvmTransactionRule;
@@ -212,6 +213,32 @@ public class Rule extends AbstractOpenApiSchema {
             } catch (Exception e) {
                 // deserialization failed, continue
                 log.log(Level.FINER, "Input data does not match schema 'SendEndUserEvmTransactionRule'", e);
+            }
+
+            // deserialize SendEndUserOperationRule
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (SendEndUserOperationRule.class.equals(Integer.class) || SendEndUserOperationRule.class.equals(Long.class) || SendEndUserOperationRule.class.equals(Float.class) || SendEndUserOperationRule.class.equals(Double.class) || SendEndUserOperationRule.class.equals(Boolean.class) || SendEndUserOperationRule.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((SendEndUserOperationRule.class.equals(Integer.class) || SendEndUserOperationRule.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((SendEndUserOperationRule.class.equals(Float.class) || SendEndUserOperationRule.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (SendEndUserOperationRule.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (SendEndUserOperationRule.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(SendEndUserOperationRule.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'SendEndUserOperationRule'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'SendEndUserOperationRule'", e);
             }
 
             // deserialize SendEndUserSolAssetRule
@@ -700,6 +727,11 @@ public class Rule extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
+    public Rule(SendEndUserOperationRule o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
     public Rule(SendEndUserSolAssetRule o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
@@ -790,6 +822,7 @@ public class Rule extends AbstractOpenApiSchema {
         schemas.put("PrepareUserOperationRule", PrepareUserOperationRule.class);
         schemas.put("SendEndUserEvmAssetRule", SendEndUserEvmAssetRule.class);
         schemas.put("SendEndUserEvmTransactionRule", SendEndUserEvmTransactionRule.class);
+        schemas.put("SendEndUserOperationRule", SendEndUserOperationRule.class);
         schemas.put("SendEndUserSolAssetRule", SendEndUserSolAssetRule.class);
         schemas.put("SendEndUserSolTransactionRule", SendEndUserSolTransactionRule.class);
         schemas.put("SendEvmTransactionRule", SendEvmTransactionRule.class);
@@ -818,7 +851,7 @@ public class Rule extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule
+     * CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserOperationRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
@@ -841,6 +874,11 @@ public class Rule extends AbstractOpenApiSchema {
         }
 
         if (JSON.isInstanceOf(SendEndUserEvmTransactionRule.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        if (JSON.isInstanceOf(SendEndUserOperationRule.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
@@ -930,14 +968,14 @@ public class Rule extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule");
+        throw new RuntimeException("Invalid instance type. Must be CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserOperationRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule
+     * CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserOperationRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule
      *
-     * @return The actual instance (CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule)
+     * @return The actual instance (CreateEndUserEvmSwapRule, PrepareUserOperationRule, SendEndUserEvmAssetRule, SendEndUserEvmTransactionRule, SendEndUserOperationRule, SendEndUserSolAssetRule, SendEndUserSolTransactionRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEndUserEvmHashRule, SignEndUserEvmMessageRule, SignEndUserEvmTransactionRule, SignEndUserEvmTypedDataRule, SignEndUserSolMessageRule, SignEndUserSolTransactionRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolMessageRule, SignSolTransactionRule)
      */
     @Override
     public Object getActualInstance() {
@@ -986,6 +1024,17 @@ public class Rule extends AbstractOpenApiSchema {
      */
     public SendEndUserEvmTransactionRule getSendEndUserEvmTransactionRule() throws ClassCastException {
         return (SendEndUserEvmTransactionRule)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `SendEndUserOperationRule`. If the actual instance is not `SendEndUserOperationRule`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `SendEndUserOperationRule`
+     * @throws ClassCastException if the instance is not `SendEndUserOperationRule`
+     */
+    public SendEndUserOperationRule getSendEndUserOperationRule() throws ClassCastException {
+        return (SendEndUserOperationRule)super.getActualInstance();
     }
 
     /**
@@ -1329,9 +1378,15 @@ public class Rule extends AbstractOpenApiSchema {
         }
         return joiner.toString();
     }
+    if (getActualInstance() instanceof SendEndUserOperationRule) {
+        if (getActualInstance() != null) {
+          joiner.add(((SendEndUserOperationRule)getActualInstance()).toUrlQueryString(prefix + "one_of_20" + suffix));
+        }
+        return joiner.toString();
+    }
     if (getActualInstance() instanceof CreateEndUserEvmSwapRule) {
         if (getActualInstance() != null) {
-          joiner.add(((CreateEndUserEvmSwapRule)getActualInstance()).toUrlQueryString(prefix + "one_of_20" + suffix));
+          joiner.add(((CreateEndUserEvmSwapRule)getActualInstance()).toUrlQueryString(prefix + "one_of_21" + suffix));
         }
         return joiner.toString();
     }

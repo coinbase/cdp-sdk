@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -87,7 +85,7 @@ public class X402McpResponse {
 
   public static final String JSON_PROPERTY_RESULT = "result";
   @jakarta.annotation.Nullable
-  private Map<String, Object> result = new HashMap<>();
+  private Object result;
 
   public static final String JSON_PROPERTY_ERROR = "error";
   @jakarta.annotation.Nullable
@@ -144,16 +142,8 @@ public class X402McpResponse {
   }
 
 
-  public X402McpResponse result(@jakarta.annotation.Nullable Map<String, Object> result) {
+  public X402McpResponse result(@jakarta.annotation.Nullable Object result) {
     this.result = result;
-    return this;
-  }
-
-  public X402McpResponse putResultItem(String key, Object resultItem) {
-    if (this.result == null) {
-      this.result = new HashMap<>();
-    }
-    this.result.put(key, resultItem);
     return this;
   }
 
@@ -163,15 +153,15 @@ public class X402McpResponse {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_RESULT)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getResult() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getResult() {
     return result;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RESULT)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setResult(@jakarta.annotation.Nullable Map<String, Object> result) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setResult(@jakarta.annotation.Nullable Object result) {
     this.result = result;
   }
 
@@ -290,11 +280,7 @@ public class X402McpResponse {
 
     // add `result` to the URL query string
     if (getResult() != null) {
-      for (String _key : getResult().keySet()) {
-        joiner.add(String.format("%sresult%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getResult().get(_key), URLEncoder.encode(ApiClient.valueToString(getResult().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sresult%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getResult()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `error` to the URL query string
@@ -325,7 +311,7 @@ public class X402McpResponse {
       this.instance.id = id;
       return this;
     }
-    public X402McpResponse.Builder result(Map<String, Object> result) {
+    public X402McpResponse.Builder result(Object result) {
       this.instance.result = result;
       return this;
     }

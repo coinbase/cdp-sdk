@@ -18,19 +18,32 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictStr, field_validator
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from typing_extensions import Annotated
-from cdp.openapi_client.models.add_end_user_evm_account201_response import AddEndUserEvmAccount201Response
-from cdp.openapi_client.models.add_end_user_evm_smart_account201_response import AddEndUserEvmSmartAccount201Response
-from cdp.openapi_client.models.add_end_user_evm_smart_account_request import AddEndUserEvmSmartAccountRequest
-from cdp.openapi_client.models.add_end_user_solana_account201_response import AddEndUserSolanaAccount201Response
-from cdp.openapi_client.models.create_end_user_request import CreateEndUserRequest
-from cdp.openapi_client.models.end_user import EndUser
-from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
-from cdp.openapi_client.models.list_end_users200_response import ListEndUsers200Response
-from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
-from cdp.openapi_client.models.o_auth2_provider_type import OAuth2ProviderType
-from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
+from cdp.openapi_client.models.create_delegation_for_end_user_account_request import CreateDelegationForEndUserAccountRequest
+from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account201_response import CreateEvmEip7702DelegationWithEndUserAccount201Response
+from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account_request import CreateEvmEip7702DelegationWithEndUserAccountRequest
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.get_delegation_for_end_user200_response import GetDelegationForEndUser200Response
+from cdp.openapi_client.models.revoke_delegation_for_end_user_request import RevokeDelegationForEndUserRequest
+from cdp.openapi_client.models.send_evm_asset_with_end_user_account200_response import SendEvmAssetWithEndUserAccount200Response
+from cdp.openapi_client.models.send_evm_asset_with_end_user_account_request import SendEvmAssetWithEndUserAccountRequest
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account200_response import SendEvmTransactionWithEndUserAccount200Response
+from cdp.openapi_client.models.send_evm_transaction_with_end_user_account_request import SendEvmTransactionWithEndUserAccountRequest
+from cdp.openapi_client.models.send_solana_asset_with_end_user_account_request import SendSolanaAssetWithEndUserAccountRequest
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account200_response import SendSolanaTransactionWithEndUserAccount200Response
+from cdp.openapi_client.models.send_solana_transaction_with_end_user_account_request import SendSolanaTransactionWithEndUserAccountRequest
+from cdp.openapi_client.models.send_user_operation_with_end_user_account_request import SendUserOperationWithEndUserAccountRequest
+from cdp.openapi_client.models.sign_evm_message_with_end_user_account200_response import SignEvmMessageWithEndUserAccount200Response
+from cdp.openapi_client.models.sign_evm_message_with_end_user_account_request import SignEvmMessageWithEndUserAccountRequest
+from cdp.openapi_client.models.sign_evm_transaction_with_end_user_account200_response import SignEvmTransactionWithEndUserAccount200Response
+from cdp.openapi_client.models.sign_evm_transaction_with_end_user_account_request import SignEvmTransactionWithEndUserAccountRequest
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account200_response import SignEvmTypedDataWithEndUserAccount200Response
+from cdp.openapi_client.models.sign_evm_typed_data_with_end_user_account_request import SignEvmTypedDataWithEndUserAccountRequest
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account200_response import SignSolanaMessageWithEndUserAccount200Response
+from cdp.openapi_client.models.sign_solana_message_with_end_user_account_request import SignSolanaMessageWithEndUserAccountRequest
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account200_response import SignSolanaTransactionWithEndUserAccount200Response
+from cdp.openapi_client.models.sign_solana_transaction_with_end_user_account_request import SignSolanaTransactionWithEndUserAccountRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -51,12 +64,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_evm_account(
+    async def create_delegation_for_end_user_account(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the account to.")],
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive.")],
+        create_delegation_for_end_user_account_request: CreateDelegationForEndUserAccountRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        body: Optional[Dict[str, Any]] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -69,19 +84,23 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AddEndUserEvmAccount201Response:
-        """Add an EVM account to an end user
+    ) -> GetDelegationForEndUser200Response:
+        """Create account-scoped delegation for end user
 
-        Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
 
-        :param user_id: The ID of the end user to add the account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
+        :param address: The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param create_delegation_for_end_user_account_request: (required)
+        :type create_delegation_for_end_user_account_request: CreateDelegationForEndUserAccountRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param body:
-        :type body: object
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -104,11 +123,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_evm_account_serialize(
+        _param = self._create_delegation_for_end_user_account_serialize(
             user_id=user_id,
+            address=address,
+            create_delegation_for_end_user_account_request=create_delegation_for_end_user_account_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            body=body,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -116,12 +137,14 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserEvmAccount201Response",
+            '201': "GetDelegationForEndUser200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '404': "Error",
+            '409': "Error",
             '422': "Error",
+            '429': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -138,12 +161,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_evm_account_with_http_info(
+    async def create_delegation_for_end_user_account_with_http_info(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the account to.")],
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive.")],
+        create_delegation_for_end_user_account_request: CreateDelegationForEndUserAccountRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        body: Optional[Dict[str, Any]] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -156,19 +181,23 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AddEndUserEvmAccount201Response]:
-        """Add an EVM account to an end user
+    ) -> ApiResponse[GetDelegationForEndUser200Response]:
+        """Create account-scoped delegation for end user
 
-        Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
 
-        :param user_id: The ID of the end user to add the account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
+        :param address: The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param create_delegation_for_end_user_account_request: (required)
+        :type create_delegation_for_end_user_account_request: CreateDelegationForEndUserAccountRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param body:
-        :type body: object
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -191,11 +220,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_evm_account_serialize(
+        _param = self._create_delegation_for_end_user_account_serialize(
             user_id=user_id,
+            address=address,
+            create_delegation_for_end_user_account_request=create_delegation_for_end_user_account_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            body=body,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -203,12 +234,14 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserEvmAccount201Response",
+            '201': "GetDelegationForEndUser200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '404': "Error",
+            '409': "Error",
             '422': "Error",
+            '429': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -225,12 +258,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_evm_account_without_preload_content(
+    async def create_delegation_for_end_user_account_without_preload_content(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the account to.")],
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive.")],
+        create_delegation_for_end_user_account_request: CreateDelegationForEndUserAccountRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        body: Optional[Dict[str, Any]] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -244,18 +279,22 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Add an EVM account to an end user
+        """Create account-scoped delegation for end user
 
-        Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation. Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user. When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
 
-        :param user_id: The ID of the end user to add the account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
+        :param address: The blockchain address of the end user account to scope this delegation to. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana). For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param create_delegation_for_end_user_account_request: (required)
+        :type create_delegation_for_end_user_account_request: CreateDelegationForEndUserAccountRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param body:
-        :type body: object
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -278,11 +317,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_evm_account_serialize(
+        _param = self._create_delegation_for_end_user_account_serialize(
             user_id=user_id,
+            address=address,
+            create_delegation_for_end_user_account_request=create_delegation_for_end_user_account_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            body=body,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -290,12 +331,14 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserEvmAccount201Response",
+            '201': "GetDelegationForEndUser200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '404': "Error",
+            '409': "Error",
             '422': "Error",
+            '429': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -307,12 +350,14 @@ class EndUserAccountsApi:
         return response_data.response
 
 
-    def _add_end_user_evm_account_serialize(
+    def _create_delegation_for_end_user_account_serialize(
         self,
         user_id,
+        address,
+        create_delegation_for_end_user_account_request,
         x_wallet_auth,
         x_idempotency_key,
-        body,
+        project_id,
         _request_auth,
         _content_type,
         _headers,
@@ -336,7 +381,13 @@ class EndUserAccountsApi:
         # process the path parameters
         if user_id is not None:
             _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
         # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
         # process the header parameters
         if x_wallet_auth is not None:
             _header_params['X-Wallet-Auth'] = x_wallet_auth
@@ -344,8 +395,8 @@ class EndUserAccountsApi:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
-        if body is not None:
-            _body_params = body
+        if create_delegation_for_end_user_account_request is not None:
+            _body_params = create_delegation_for_end_user_account_request
 
 
         # set the HTTP header `Accept`
@@ -372,12 +423,12 @@ class EndUserAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
+            'endUserAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v2/end-users/{userId}/evm',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -394,12 +445,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_evm_smart_account(
+    async def create_evm_eip7702_delegation_with_end_user_account(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the smart account to.")],
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        create_evm_eip7702_delegation_with_end_user_account_request: CreateEvmEip7702DelegationWithEndUserAccountRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        add_end_user_evm_smart_account_request: Optional[AddEndUserEvmSmartAccountRequest] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -412,19 +465,23 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AddEndUserEvmSmartAccount201Response:
-        """Add an EVM smart account to an end user
+    ) -> CreateEvmEip7702DelegationWithEndUserAccount201Response:
+        """Create EIP-7702 delegation for end user EVM account
 
-        Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
 
-        :param user_id: The ID of the end user to add the smart account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
+        :param create_evm_eip7702_delegation_with_end_user_account_request: (required)
+        :type create_evm_eip7702_delegation_with_end_user_account_request: CreateEvmEip7702DelegationWithEndUserAccountRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param add_end_user_evm_smart_account_request:
-        :type add_end_user_evm_smart_account_request: AddEndUserEvmSmartAccountRequest
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -447,11 +504,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_evm_smart_account_serialize(
+        _param = self._create_evm_eip7702_delegation_with_end_user_account_serialize(
             user_id=user_id,
+            create_evm_eip7702_delegation_with_end_user_account_request=create_evm_eip7702_delegation_with_end_user_account_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            add_end_user_evm_smart_account_request=add_end_user_evm_smart_account_request,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -459,12 +518,15 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserEvmSmartAccount201Response",
+            '201': "CreateEvmEip7702DelegationWithEndUserAccount201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
             '422': "Error",
+            '429': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -481,12 +543,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_evm_smart_account_with_http_info(
+    async def create_evm_eip7702_delegation_with_end_user_account_with_http_info(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the smart account to.")],
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        create_evm_eip7702_delegation_with_end_user_account_request: CreateEvmEip7702DelegationWithEndUserAccountRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        add_end_user_evm_smart_account_request: Optional[AddEndUserEvmSmartAccountRequest] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -499,19 +563,23 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AddEndUserEvmSmartAccount201Response]:
-        """Add an EVM smart account to an end user
+    ) -> ApiResponse[CreateEvmEip7702DelegationWithEndUserAccount201Response]:
+        """Create EIP-7702 delegation for end user EVM account
 
-        Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
 
-        :param user_id: The ID of the end user to add the smart account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
+        :param create_evm_eip7702_delegation_with_end_user_account_request: (required)
+        :type create_evm_eip7702_delegation_with_end_user_account_request: CreateEvmEip7702DelegationWithEndUserAccountRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param add_end_user_evm_smart_account_request:
-        :type add_end_user_evm_smart_account_request: AddEndUserEvmSmartAccountRequest
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -534,11 +602,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_evm_smart_account_serialize(
+        _param = self._create_evm_eip7702_delegation_with_end_user_account_serialize(
             user_id=user_id,
+            create_evm_eip7702_delegation_with_end_user_account_request=create_evm_eip7702_delegation_with_end_user_account_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            add_end_user_evm_smart_account_request=add_end_user_evm_smart_account_request,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -546,12 +616,15 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserEvmSmartAccount201Response",
+            '201': "CreateEvmEip7702DelegationWithEndUserAccount201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
             '422': "Error",
+            '429': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -568,12 +641,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_evm_smart_account_without_preload_content(
+    async def create_evm_eip7702_delegation_with_end_user_account_without_preload_content(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the smart account to.")],
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        create_evm_eip7702_delegation_with_end_user_account_request: CreateEvmEip7702DelegationWithEndUserAccountRequest,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        add_end_user_evm_smart_account_request: Optional[AddEndUserEvmSmartAccountRequest] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -587,18 +662,22 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Add an EVM smart account to an end user
+        """Create EIP-7702 delegation for end user EVM account
 
-        Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.  This endpoint: - Retrieves delegation artifacts from onchain - Signs the EIP-7702 authorization for delegation - Assembles and submits a Type 4 transaction - Creates an associated smart account object  The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
 
-        :param user_id: The ID of the end user to add the smart account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
+        :param create_evm_eip7702_delegation_with_end_user_account_request: (required)
+        :type create_evm_eip7702_delegation_with_end_user_account_request: CreateEvmEip7702DelegationWithEndUserAccountRequest
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param add_end_user_evm_smart_account_request:
-        :type add_end_user_evm_smart_account_request: AddEndUserEvmSmartAccountRequest
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -621,11 +700,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_evm_smart_account_serialize(
+        _param = self._create_evm_eip7702_delegation_with_end_user_account_serialize(
             user_id=user_id,
+            create_evm_eip7702_delegation_with_end_user_account_request=create_evm_eip7702_delegation_with_end_user_account_request,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            add_end_user_evm_smart_account_request=add_end_user_evm_smart_account_request,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -633,12 +714,15 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserEvmSmartAccount201Response",
+            '201': "CreateEvmEip7702DelegationWithEndUserAccount201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
             '422': "Error",
+            '429': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -650,12 +734,14 @@ class EndUserAccountsApi:
         return response_data.response
 
 
-    def _add_end_user_evm_smart_account_serialize(
+    def _create_evm_eip7702_delegation_with_end_user_account_serialize(
         self,
         user_id,
+        create_evm_eip7702_delegation_with_end_user_account_request,
         x_wallet_auth,
         x_idempotency_key,
-        add_end_user_evm_smart_account_request,
+        x_developer_auth,
+        project_id,
         _request_auth,
         _content_type,
         _headers,
@@ -680,15 +766,21 @@ class EndUserAccountsApi:
         if user_id is not None:
             _path_params['userId'] = user_id
         # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
         # process the header parameters
         if x_wallet_auth is not None:
             _header_params['X-Wallet-Auth'] = x_wallet_auth
         if x_idempotency_key is not None:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
         # process the form parameters
         # process the body parameter
-        if add_end_user_evm_smart_account_request is not None:
-            _body_params = add_end_user_evm_smart_account_request
+        if create_evm_eip7702_delegation_with_end_user_account_request is not None:
+            _body_params = create_evm_eip7702_delegation_with_end_user_account_request
 
 
         # set the HTTP header `Accept`
@@ -715,12 +807,13 @@ class EndUserAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
+            'apiKeyAuth', 
+            'endUserAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v2/end-users/{userId}/evm-smart-account',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/eip7702/delegation',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -737,12 +830,10 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_solana_account(
+    async def get_delegation_for_end_user(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the account to.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        body: Optional[Dict[str, Any]] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -755,19 +846,15 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AddEndUserSolanaAccount201Response:
-        """Add a Solana account to an end user
+    ) -> GetDelegationForEndUser200Response:
+        """Get delegation for end user
 
-        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
 
-        :param user_id: The ID of the end user to add the account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param body:
-        :type body: object
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -790,11 +877,9 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_solana_account_serialize(
+        _param = self._get_delegation_for_end_user_serialize(
             user_id=user_id,
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            body=body,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -802,12 +887,9 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserSolanaAccount201Response",
-            '400': "Error",
+            '200': "GetDelegationForEndUser200Response",
             '401': "Error",
-            '402': "Error",
             '404': "Error",
-            '422': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -824,12 +906,10 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_solana_account_with_http_info(
+    async def get_delegation_for_end_user_with_http_info(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the account to.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        body: Optional[Dict[str, Any]] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -842,19 +922,15 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AddEndUserSolanaAccount201Response]:
-        """Add a Solana account to an end user
+    ) -> ApiResponse[GetDelegationForEndUser200Response]:
+        """Get delegation for end user
 
-        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
 
-        :param user_id: The ID of the end user to add the account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param body:
-        :type body: object
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -877,11 +953,9 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_solana_account_serialize(
+        _param = self._get_delegation_for_end_user_serialize(
             user_id=user_id,
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            body=body,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -889,12 +963,9 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserSolanaAccount201Response",
-            '400': "Error",
+            '200': "GetDelegationForEndUser200Response",
             '401': "Error",
-            '402': "Error",
             '404': "Error",
-            '422': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -911,12 +982,10 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def add_end_user_solana_account_without_preload_content(
+    async def get_delegation_for_end_user_without_preload_content(
         self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to add the account to.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        body: Optional[Dict[str, Any]] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -930,18 +999,14 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Add a Solana account to an end user
+        """Get delegation for end user
 
-        Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
 
-        :param user_id: The ID of the end user to add the account to. (required)
+        :param user_id: The ID of the end user. (required)
         :type user_id: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param body:
-        :type body: object
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -964,11 +1029,9 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._add_end_user_solana_account_serialize(
+        _param = self._get_delegation_for_end_user_serialize(
             user_id=user_id,
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            body=body,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -976,12 +1039,9 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AddEndUserSolanaAccount201Response",
-            '400': "Error",
+            '200': "GetDelegationForEndUser200Response",
             '401': "Error",
-            '402': "Error",
             '404': "Error",
-            '422': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -993,12 +1053,10 @@ class EndUserAccountsApi:
         return response_data.response
 
 
-    def _add_end_user_solana_account_serialize(
+    def _get_delegation_for_end_user_serialize(
         self,
         user_id,
-        x_wallet_auth,
-        x_idempotency_key,
-        body,
+        project_id,
         _request_auth,
         _content_type,
         _headers,
@@ -1023,611 +1081,10 @@ class EndUserAccountsApi:
         if user_id is not None:
             _path_params['userId'] = user_id
         # process the query parameters
-        # process the header parameters
-        if x_wallet_auth is not None:
-            _header_params['X-Wallet-Auth'] = x_wallet_auth
-        if x_idempotency_key is not None:
-            _header_params['X-Idempotency-Key'] = x_idempotency_key
-        # process the form parameters
-        # process the body parameter
-        if body is not None:
-            _body_params = body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'apiKeyAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/end-users/{userId}/solana',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def create_end_user(
-        self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        create_end_user_request: Optional[CreateEndUserRequest] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EndUser:
-        """Create an end user
-
-        Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param create_end_user_request:
-        :type create_end_user_request: CreateEndUserRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_end_user_serialize(
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            create_end_user_request=create_end_user_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EndUser",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '422': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def create_end_user_with_http_info(
-        self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        create_end_user_request: Optional[CreateEndUserRequest] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EndUser]:
-        """Create an end user
-
-        Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param create_end_user_request:
-        :type create_end_user_request: CreateEndUserRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_end_user_serialize(
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            create_end_user_request=create_end_user_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EndUser",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '422': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def create_end_user_without_preload_content(
-        self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        create_end_user_request: Optional[CreateEndUserRequest] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Create an end user
-
-        Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided. This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param create_end_user_request:
-        :type create_end_user_request: CreateEndUserRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_end_user_serialize(
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            create_end_user_request=create_end_user_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EndUser",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '422': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _create_end_user_serialize(
-        self,
-        x_wallet_auth,
-        x_idempotency_key,
-        create_end_user_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        if x_wallet_auth is not None:
-            _header_params['X-Wallet-Auth'] = x_wallet_auth
-        if x_idempotency_key is not None:
-            _header_params['X-Idempotency-Key'] = x_idempotency_key
-        # process the form parameters
-        # process the body parameter
-        if create_end_user_request is not None:
-            _body_params = create_end_user_request
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'apiKeyAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/end-users',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def get_end_user(
-        self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to get.")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EndUser:
-        """Get an end user
-
-        Gets an end user by ID.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param user_id: The ID of the end user to get. (required)
-        :type user_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._get_end_user_serialize(
-            user_id=user_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
-            '404': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def get_end_user_with_http_info(
-        self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to get.")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EndUser]:
-        """Get an end user
-
-        Gets an end user by ID.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param user_id: The ID of the end user to get. (required)
-        :type user_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._get_end_user_serialize(
-            user_id=user_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
-            '404': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def get_end_user_without_preload_content(
-        self,
-        user_id: Annotated[str, Field(strict=True, description="The ID of the end user to get.")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Get an end user
-
-        Gets an end user by ID.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param user_id: The ID of the end user to get. (required)
-        :type user_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._get_end_user_serialize(
-            user_id=user_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
-            '404': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _get_end_user_serialize(
-        self,
-        user_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if user_id is not None:
-            _path_params['userId'] = user_id
-        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1644,12 +1101,13 @@ class EndUserAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
+            'apiKeyAuth', 
+            'endUserAuth'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v2/end-users/{userId}',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/delegation',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1666,11 +1124,11 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def import_end_user(
+    async def get_delegation_for_end_user_account(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        import_end_user_request: Optional[ImportEndUserRequest] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1683,17 +1141,17 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EndUser:
-        """Import a private key for an end user
+    ) -> GetDelegationForEndUser200Response:
+        """Get account-scoped delegation for end user
 
-        Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
+        Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
-        :type x_wallet_auth: str
-        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
-        :type x_idempotency_key: str
-        :param import_end_user_request:
-        :type import_end_user_request: ImportEndUserRequest
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1716,10 +1174,10 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._import_end_user_serialize(
-            x_wallet_auth=x_wallet_auth,
-            x_idempotency_key=x_idempotency_key,
-            import_end_user_request=import_end_user_request,
+        _param = self._get_delegation_for_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1727,10 +1185,1491 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EndUser",
+            '200': "GetDelegationForEndUser200Response",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_delegation_for_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[GetDelegationForEndUser200Response]:
+        """Get account-scoped delegation for end user
+
+        Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_delegation_for_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "GetDelegationForEndUser200Response",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_delegation_for_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get account-scoped delegation for end user
+
+        Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI. When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The blockchain address of the end user account to query. For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_delegation_for_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "GetDelegationForEndUser200Response",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_delegation_for_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def revoke_delegation_for_end_user(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Revoke delegation for end user
+
+        Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param revoke_delegation_for_end_user_request: (required)
+        :type revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_delegation_for_end_user_serialize(
+            user_id=user_id,
+            revoke_delegation_for_end_user_request=revoke_delegation_for_end_user_request,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            x_idempotency_key=x_idempotency_key,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def revoke_delegation_for_end_user_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Revoke delegation for end user
+
+        Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param revoke_delegation_for_end_user_request: (required)
+        :type revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_delegation_for_end_user_serialize(
+            user_id=user_id,
+            revoke_delegation_for_end_user_request=revoke_delegation_for_end_user_request,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            x_idempotency_key=x_idempotency_key,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def revoke_delegation_for_end_user_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Revoke delegation for end user
+
+        Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param revoke_delegation_for_end_user_request: (required)
+        :type revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_delegation_for_end_user_serialize(
+            user_id=user_id,
+            revoke_delegation_for_end_user_request=revoke_delegation_for_end_user_request,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            x_idempotency_key=x_idempotency_key,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _revoke_delegation_for_end_user_serialize(
+        self,
+        user_id,
+        revoke_delegation_for_end_user_request,
+        x_wallet_auth,
+        x_developer_auth,
+        x_idempotency_key,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if revoke_delegation_for_end_user_request is not None:
+            _body_params = revoke_delegation_for_end_user_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/delegation',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def revoke_delegation_for_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.")],
+        revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Revoke account-scoped delegation for end user
+
+        Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param revoke_delegation_for_end_user_request: (required)
+        :type revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_delegation_for_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            revoke_delegation_for_end_user_request=revoke_delegation_for_end_user_request,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            x_idempotency_key=x_idempotency_key,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def revoke_delegation_for_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.")],
+        revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Revoke account-scoped delegation for end user
+
+        Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param revoke_delegation_for_end_user_request: (required)
+        :type revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_delegation_for_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            revoke_delegation_for_end_user_request=revoke_delegation_for_end_user_request,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            x_idempotency_key=x_idempotency_key,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def revoke_delegation_for_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(min_length=1, strict=True, max_length=128, description="The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.")],
+        revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Revoke account-scoped delegation for end user
+
+        Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key. When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive. (required)
+        :type address: str
+        :param revoke_delegation_for_end_user_request: (required)
+        :type revoke_delegation_for_end_user_request: RevokeDelegationForEndUserRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_delegation_for_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            revoke_delegation_for_end_user_request=revoke_delegation_for_end_user_request,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            x_idempotency_key=x_idempotency_key,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _revoke_delegation_for_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        revoke_delegation_for_end_user_request,
+        x_wallet_auth,
+        x_developer_auth,
+        x_idempotency_key,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if revoke_delegation_for_end_user_request is not None:
+            _body_params = revoke_delegation_for_end_user_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def send_evm_asset_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[Any, Field(description="The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed.")],
+        asset: Annotated[StrictStr, Field(description="The asset to send. Currently only \"usdc\" is supported.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_evm_asset_with_end_user_account_request: Optional[SendEvmAssetWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SendEvmAssetWithEndUserAccount200Response:
+        """Send USDC on EVM
+
+        Sends USDC from an end user's EVM account (EOA or Smart Account) to a recipient address on a supported EVM network. This endpoint simplifies USDC transfers by automatically handling contract resolution, decimal conversion, gas estimation, and transaction encoding. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\").
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed. (required)
+        :type address: str
+        :param asset: The asset to send. Currently only \"usdc\" is supported. (required)
+        :type asset: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_evm_asset_with_end_user_account_request:
+        :type send_evm_asset_with_end_user_account_request: SendEvmAssetWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_evm_asset_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_evm_asset_with_end_user_account_request=send_evm_asset_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendEvmAssetWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def send_evm_asset_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[Any, Field(description="The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed.")],
+        asset: Annotated[StrictStr, Field(description="The asset to send. Currently only \"usdc\" is supported.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_evm_asset_with_end_user_account_request: Optional[SendEvmAssetWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SendEvmAssetWithEndUserAccount200Response]:
+        """Send USDC on EVM
+
+        Sends USDC from an end user's EVM account (EOA or Smart Account) to a recipient address on a supported EVM network. This endpoint simplifies USDC transfers by automatically handling contract resolution, decimal conversion, gas estimation, and transaction encoding. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\").
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed. (required)
+        :type address: str
+        :param asset: The asset to send. Currently only \"usdc\" is supported. (required)
+        :type asset: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_evm_asset_with_end_user_account_request:
+        :type send_evm_asset_with_end_user_account_request: SendEvmAssetWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_evm_asset_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_evm_asset_with_end_user_account_request=send_evm_asset_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendEvmAssetWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def send_evm_asset_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[Any, Field(description="The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed.")],
+        asset: Annotated[StrictStr, Field(description="The asset to send. Currently only \"usdc\" is supported.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_evm_asset_with_end_user_account_request: Optional[SendEvmAssetWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Send USDC on EVM
+
+        Sends USDC from an end user's EVM account (EOA or Smart Account) to a recipient address on a supported EVM network. This endpoint simplifies USDC transfers by automatically handling contract resolution, decimal conversion, gas estimation, and transaction encoding. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\").
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The 0x-prefixed address of the EVM account (EOA or Smart Account) to send USDC from. The address does not need to be checksummed. (required)
+        :type address: str
+        :param asset: The asset to send. Currently only \"usdc\" is supported. (required)
+        :type asset: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_evm_asset_with_end_user_account_request:
+        :type send_evm_asset_with_end_user_account_request: SendEvmAssetWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_evm_asset_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_evm_asset_with_end_user_account_request=send_evm_asset_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendEvmAssetWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _send_evm_asset_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        asset,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        send_evm_asset_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        if asset is not None:
+            _path_params['asset'] = asset
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if send_evm_asset_with_end_user_account_request is not None:
+            _body_params = send_evm_asset_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/{address}/send/{asset}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def send_evm_transaction_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_evm_transaction_with_end_user_account_request: Optional[SendEvmTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SendEvmTransactionWithEndUserAccount200Response:
+        """Send transaction via end user EVM account
+
+        Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_evm_transaction_with_end_user_account_request:
+        :type send_evm_transaction_with_end_user_account_request: SendEvmTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_evm_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_evm_transaction_with_end_user_account_request=send_evm_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendEvmTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -1749,11 +2688,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def import_end_user_with_http_info(
+    async def send_evm_transaction_with_end_user_account_with_http_info(
         self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        import_end_user_request: Optional[ImportEndUserRequest] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_evm_transaction_with_end_user_account_request: Optional[SendEvmTransactionWithEndUserAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1766,17 +2708,23 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EndUser]:
-        """Import a private key for an end user
+    ) -> ApiResponse[SendEvmTransactionWithEndUserAccount200Response]:
+        """Send transaction via end user EVM account
 
-        Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
+        Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
 
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param import_end_user_request:
-        :type import_end_user_request: ImportEndUserRequest
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_evm_transaction_with_end_user_account_request:
+        :type send_evm_transaction_with_end_user_account_request: SendEvmTransactionWithEndUserAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1799,10 +2747,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._import_end_user_serialize(
+        _param = self._send_evm_transaction_with_end_user_account_serialize(
+            user_id=user_id,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            import_end_user_request=import_end_user_request,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_evm_transaction_with_end_user_account_request=send_evm_transaction_with_end_user_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1810,10 +2761,12 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EndUser",
+            '200': "SendEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
+            '404': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -1832,11 +2785,14 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def import_end_user_without_preload_content(
+    async def send_evm_transaction_with_end_user_account_without_preload_content(
         self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
-        import_end_user_request: Optional[ImportEndUserRequest] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_evm_transaction_with_end_user_account_request: Optional[SendEvmTransactionWithEndUserAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1850,16 +2806,22 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Import a private key for an end user
+        """Send transaction via end user EVM account
 
-        Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.  This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
+        Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).   **Transaction fields and API behavior**  - `to` *(Required)*: The address of the contract or account to send the transaction to. - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.   The transaction will be sent to the network indicated by the `network` field in the request body.  - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign    a nonce to the transaction based on the current state of the account.  - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.    If not provided, the API will estimate a value based on current network conditions.  - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value   based on the `to` and `data` fields of the transaction.  - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction. - `data` *(Optional)*: The data to send with the transaction; only used for contract calls. - `accessList` *(Optional)*: The access list to use for the transaction.
 
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param import_end_user_request:
-        :type import_end_user_request: ImportEndUserRequest
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_evm_transaction_with_end_user_account_request:
+        :type send_evm_transaction_with_end_user_account_request: SendEvmTransactionWithEndUserAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1882,10 +2844,13 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._import_end_user_serialize(
+        _param = self._send_evm_transaction_with_end_user_account_serialize(
+            user_id=user_id,
             x_wallet_auth=x_wallet_auth,
             x_idempotency_key=x_idempotency_key,
-            import_end_user_request=import_end_user_request,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_evm_transaction_with_end_user_account_request=send_evm_transaction_with_end_user_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1893,10 +2858,12 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EndUser",
+            '200': "SendEvmTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
+            '403': "Error",
+            '404': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -1910,11 +2877,14 @@ class EndUserAccountsApi:
         return response_data.response
 
 
-    def _import_end_user_serialize(
+    def _send_evm_transaction_with_end_user_account_serialize(
         self,
+        user_id,
         x_wallet_auth,
         x_idempotency_key,
-        import_end_user_request,
+        x_developer_auth,
+        project_id,
+        send_evm_transaction_with_end_user_account_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1936,16 +2906,24 @@ class EndUserAccountsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
         # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
         # process the header parameters
         if x_wallet_auth is not None:
             _header_params['X-Wallet-Auth'] = x_wallet_auth
         if x_idempotency_key is not None:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
         # process the form parameters
         # process the body parameter
-        if import_end_user_request is not None:
-            _body_params = import_end_user_request
+        if send_evm_transaction_with_end_user_account_request is not None:
+            _body_params = send_evm_transaction_with_end_user_account_request
 
 
         # set the HTTP header `Accept`
@@ -1972,12 +2950,13 @@ class EndUserAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
+            'apiKeyAuth', 
+            'endUserAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v2/end-users/import',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/send/transaction',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1994,11 +2973,16 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def list_end_users(
+    async def send_solana_asset_with_end_user_account(
         self,
-        page_size: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="The number of end users to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the desired page of end users. Will be empty if there are no more end users to fetch.")] = None,
-        sort: Annotated[Optional[List[StrictStr]], Field(description="Sort end users. Defaults to ascending order (oldest first).")] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[Any, Field(description="The base58 encoded address of the Solana account to send USDC from.")],
+        asset: Annotated[StrictStr, Field(description="The asset to send. Currently only \"usdc\" is supported.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_solana_asset_with_end_user_account_request: Optional[SendSolanaAssetWithEndUserAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2011,17 +2995,27 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ListEndUsers200Response:
-        """List end users
+    ) -> SendSolanaTransactionWithEndUserAccount200Response:
+        """Send USDC on Solana
 
-        Lists the end users belonging to the developer's CDP Project. By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.
+        Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\"). Use the optional `createRecipientAta` parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
 
-        :param page_size: The number of end users to return per page.
-        :type page_size: int
-        :param page_token: The token for the desired page of end users. Will be empty if there are no more end users to fetch.
-        :type page_token: str
-        :param sort: Sort end users. Defaults to ascending order (oldest first).
-        :type sort: List[str]
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The base58 encoded address of the Solana account to send USDC from. (required)
+        :type address: str
+        :param asset: The asset to send. Currently only \"usdc\" is supported. (required)
+        :type asset: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_solana_asset_with_end_user_account_request:
+        :type send_solana_asset_with_end_user_account_request: SendSolanaAssetWithEndUserAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2044,10 +3038,15 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_end_users_serialize(
-            page_size=page_size,
-            page_token=page_token,
-            sort=sort,
+        _param = self._send_solana_asset_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_solana_asset_with_end_user_account_request=send_solana_asset_with_end_user_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2055,9 +3054,13 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListEndUsers200Response",
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -2074,11 +3077,16 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def list_end_users_with_http_info(
+    async def send_solana_asset_with_end_user_account_with_http_info(
         self,
-        page_size: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="The number of end users to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the desired page of end users. Will be empty if there are no more end users to fetch.")] = None,
-        sort: Annotated[Optional[List[StrictStr]], Field(description="Sort end users. Defaults to ascending order (oldest first).")] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[Any, Field(description="The base58 encoded address of the Solana account to send USDC from.")],
+        asset: Annotated[StrictStr, Field(description="The asset to send. Currently only \"usdc\" is supported.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_solana_asset_with_end_user_account_request: Optional[SendSolanaAssetWithEndUserAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2091,17 +3099,27 @@ class EndUserAccountsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ListEndUsers200Response]:
-        """List end users
+    ) -> ApiResponse[SendSolanaTransactionWithEndUserAccount200Response]:
+        """Send USDC on Solana
 
-        Lists the end users belonging to the developer's CDP Project. By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.
+        Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\"). Use the optional `createRecipientAta` parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
 
-        :param page_size: The number of end users to return per page.
-        :type page_size: int
-        :param page_token: The token for the desired page of end users. Will be empty if there are no more end users to fetch.
-        :type page_token: str
-        :param sort: Sort end users. Defaults to ascending order (oldest first).
-        :type sort: List[str]
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The base58 encoded address of the Solana account to send USDC from. (required)
+        :type address: str
+        :param asset: The asset to send. Currently only \"usdc\" is supported. (required)
+        :type asset: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_solana_asset_with_end_user_account_request:
+        :type send_solana_asset_with_end_user_account_request: SendSolanaAssetWithEndUserAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2124,10 +3142,15 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_end_users_serialize(
-            page_size=page_size,
-            page_token=page_token,
-            sort=sort,
+        _param = self._send_solana_asset_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_solana_asset_with_end_user_account_request=send_solana_asset_with_end_user_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2135,9 +3158,13 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListEndUsers200Response",
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -2154,11 +3181,16 @@ class EndUserAccountsApi:
 
 
     @validate_call
-    async def list_end_users_without_preload_content(
+    async def send_solana_asset_with_end_user_account_without_preload_content(
         self,
-        page_size: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="The number of end users to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the desired page of end users. Will be empty if there are no more end users to fetch.")] = None,
-        sort: Annotated[Optional[List[StrictStr]], Field(description="Sort end users. Defaults to ascending order (oldest first).")] = None,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[Any, Field(description="The base58 encoded address of the Solana account to send USDC from.")],
+        asset: Annotated[StrictStr, Field(description="The asset to send. Currently only \"usdc\" is supported.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_solana_asset_with_end_user_account_request: Optional[SendSolanaAssetWithEndUserAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2172,16 +3204,26 @@ class EndUserAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List end users
+        """Send USDC on Solana
 
-        Lists the end users belonging to the developer's CDP Project. By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.
+        Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\"). Use the optional `createRecipientAta` parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
 
-        :param page_size: The number of end users to return per page.
-        :type page_size: int
-        :param page_token: The token for the desired page of end users. Will be empty if there are no more end users to fetch.
-        :type page_token: str
-        :param sort: Sort end users. Defaults to ascending order (oldest first).
-        :type sort: List[str]
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The base58 encoded address of the Solana account to send USDC from. (required)
+        :type address: str
+        :param asset: The asset to send. Currently only \"usdc\" is supported. (required)
+        :type asset: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_solana_asset_with_end_user_account_request:
+        :type send_solana_asset_with_end_user_account_request: SendSolanaAssetWithEndUserAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2204,10 +3246,15 @@ class EndUserAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_end_users_serialize(
-            page_size=page_size,
-            page_token=page_token,
-            sort=sort,
+        _param = self._send_solana_asset_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            asset=asset,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_solana_asset_with_end_user_account_request=send_solana_asset_with_end_user_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2215,9 +3262,13 @@ class EndUserAccountsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListEndUsers200Response",
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -2229,331 +3280,16 @@ class EndUserAccountsApi:
         return response_data.response
 
 
-    def _list_end_users_serialize(
+    def _send_solana_asset_with_end_user_account_serialize(
         self,
-        page_size,
-        page_token,
-        sort,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-            'sort': 'csv',
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        if page_size is not None:
-            
-            _query_params.append(('pageSize', page_size))
-            
-        if page_token is not None:
-            
-            _query_params.append(('pageToken', page_token))
-            
-        if sort is not None:
-            
-            _query_params.append(('sort', sort))
-            
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'apiKeyAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='GET',
-            resource_path='/v2/end-users',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def lookup_end_user(
-        self,
-        email: Annotated[Optional[StrictStr], Field(description="The email address to search for across all email-based authentication methods.")] = None,
-        oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
-        oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
-        phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> LookupEndUser200Response:
-        """Look up end users by identity
-
-        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param email: The email address to search for across all email-based authentication methods.
-        :type email: str
-        :param oauth_provider: The OAuth provider to search by. Must be provided together with oauthSubject.
-        :type oauth_provider: OAuth2ProviderType
-        :param oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
-        :type oauth_subject: str
-        :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
-        :type phone_number: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._lookup_end_user_serialize(
-            email=email,
-            oauth_provider=oauth_provider,
-            oauth_subject=oauth_subject,
-            phone_number=phone_number,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LookupEndUser200Response",
-            '400': "Error",
-            '401': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def lookup_end_user_with_http_info(
-        self,
-        email: Annotated[Optional[StrictStr], Field(description="The email address to search for across all email-based authentication methods.")] = None,
-        oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
-        oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
-        phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[LookupEndUser200Response]:
-        """Look up end users by identity
-
-        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param email: The email address to search for across all email-based authentication methods.
-        :type email: str
-        :param oauth_provider: The OAuth provider to search by. Must be provided together with oauthSubject.
-        :type oauth_provider: OAuth2ProviderType
-        :param oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
-        :type oauth_subject: str
-        :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
-        :type phone_number: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._lookup_end_user_serialize(
-            email=email,
-            oauth_provider=oauth_provider,
-            oauth_subject=oauth_subject,
-            phone_number=phone_number,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LookupEndUser200Response",
-            '400': "Error",
-            '401': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def lookup_end_user_without_preload_content(
-        self,
-        email: Annotated[Optional[StrictStr], Field(description="The email address to search for across all email-based authentication methods.")] = None,
-        oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
-        oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
-        phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Look up end users by identity
-
-        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param email: The email address to search for across all email-based authentication methods.
-        :type email: str
-        :param oauth_provider: The OAuth provider to search by. Must be provided together with oauthSubject.
-        :type oauth_provider: OAuth2ProviderType
-        :param oauth_subject: The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.
-        :type oauth_subject: str
-        :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
-        :type phone_number: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._lookup_end_user_serialize(
-            email=email,
-            oauth_provider=oauth_provider,
-            oauth_subject=oauth_subject,
-            phone_number=phone_number,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LookupEndUser200Response",
-            '400': "Error",
-            '401': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _lookup_end_user_serialize(
-        self,
-        email,
-        oauth_provider,
-        oauth_subject,
-        phone_number,
+        user_id,
+        address,
+        asset,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        send_solana_asset_with_end_user_account_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2575,299 +3311,28 @@ class EndUserAccountsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        if asset is not None:
+            _path_params['asset'] = asset
         # process the query parameters
-        if email is not None:
+        if project_id is not None:
             
-            _query_params.append(('email', email))
-            
-        if oauth_provider is not None:
-            
-            _query_params.append(('oauthProvider', oauth_provider.value))
-            
-        if oauth_subject is not None:
-            
-            _query_params.append(('oauthSubject', oauth_subject))
-            
-        if phone_number is not None:
-            
-            _query_params.append(('phoneNumber', phone_number))
+            _query_params.append(('projectID', project_id))
             
         # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
         # process the form parameters
         # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'apiKeyAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='GET',
-            resource_path='/v2/end-users/lookup',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def validate_end_user_access_token(
-        self,
-        validate_end_user_access_token_request: Optional[ValidateEndUserAccessTokenRequest] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EndUser:
-        """Validate end user access token
-
-        Validates the end user's access token and returns the end user's information. Returns an error if the access token is invalid or expired.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param validate_end_user_access_token_request:
-        :type validate_end_user_access_token_request: ValidateEndUserAccessTokenRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._validate_end_user_access_token_serialize(
-            validate_end_user_access_token_request=validate_end_user_access_token_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
-            '400': "Error",
-            '401': "Error",
-            '404': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def validate_end_user_access_token_with_http_info(
-        self,
-        validate_end_user_access_token_request: Optional[ValidateEndUserAccessTokenRequest] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EndUser]:
-        """Validate end user access token
-
-        Validates the end user's access token and returns the end user's information. Returns an error if the access token is invalid or expired.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param validate_end_user_access_token_request:
-        :type validate_end_user_access_token_request: ValidateEndUserAccessTokenRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._validate_end_user_access_token_serialize(
-            validate_end_user_access_token_request=validate_end_user_access_token_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
-            '400': "Error",
-            '401': "Error",
-            '404': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def validate_end_user_access_token_without_preload_content(
-        self,
-        validate_end_user_access_token_request: Optional[ValidateEndUserAccessTokenRequest] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Validate end user access token
-
-        Validates the end user's access token and returns the end user's information. Returns an error if the access token is invalid or expired.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
-
-        :param validate_end_user_access_token_request:
-        :type validate_end_user_access_token_request: ValidateEndUserAccessTokenRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._validate_end_user_access_token_serialize(
-            validate_end_user_access_token_request=validate_end_user_access_token_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EndUser",
-            '400': "Error",
-            '401': "Error",
-            '404': "Error",
-            '500': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _validate_end_user_access_token_serialize(
-        self,
-        validate_end_user_access_token_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if validate_end_user_access_token_request is not None:
-            _body_params = validate_end_user_access_token_request
+        if send_solana_asset_with_end_user_account_request is not None:
+            _body_params = send_solana_asset_with_end_user_account_request
 
 
         # set the HTTP header `Accept`
@@ -2894,12 +3359,2690 @@ class EndUserAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
+            'apiKeyAuth', 
+            'endUserAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v2/end-users/auth/validate-token',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/solana/{address}/send/{asset}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def send_solana_transaction_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_solana_transaction_with_end_user_account_request: Optional[SendSolanaTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SendSolanaTransactionWithEndUserAccount200Response:
+        """Send transaction via end user Solana account
+
+        Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_solana_transaction_with_end_user_account_request:
+        :type send_solana_transaction_with_end_user_account_request: SendSolanaTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_solana_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_solana_transaction_with_end_user_account_request=send_solana_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def send_solana_transaction_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_solana_transaction_with_end_user_account_request: Optional[SendSolanaTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SendSolanaTransactionWithEndUserAccount200Response]:
+        """Send transaction via end user Solana account
+
+        Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_solana_transaction_with_end_user_account_request:
+        :type send_solana_transaction_with_end_user_account_request: SendSolanaTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_solana_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_solana_transaction_with_end_user_account_request=send_solana_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def send_solana_transaction_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_solana_transaction_with_end_user_account_request: Optional[SendSolanaTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Send transaction via end user Solana account
+
+        Signs a transaction with the given end user Solana account and sends it to the indicated supported network. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions) **Instruction Batching** To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back. **Network Support** The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_solana_transaction_with_end_user_account_request:
+        :type send_solana_transaction_with_end_user_account_request: SendSolanaTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_solana_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_solana_transaction_with_end_user_account_request=send_solana_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SendSolanaTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _send_solana_transaction_with_end_user_account_serialize(
+        self,
+        user_id,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        send_solana_transaction_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if send_solana_transaction_with_end_user_account_request is not None:
+            _body_params = send_solana_transaction_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/solana/send/transaction',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def send_user_operation_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to execute the user operation from.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_user_operation_with_end_user_account_request: Optional[SendUserOperationWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmUserOperation:
+        """Send user operation for end user Smart Account
+
+        Prepares, signs, and sends a user operation for an end user's Smart Account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to execute the user operation from. (required)
+        :type address: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_user_operation_with_end_user_account_request:
+        :type send_user_operation_with_end_user_account_request: SendUserOperationWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_user_operation_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            x_idempotency_key=x_idempotency_key,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_user_operation_with_end_user_account_request=send_user_operation_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def send_user_operation_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to execute the user operation from.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_user_operation_with_end_user_account_request: Optional[SendUserOperationWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmUserOperation]:
+        """Send user operation for end user Smart Account
+
+        Prepares, signs, and sends a user operation for an end user's Smart Account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to execute the user operation from. (required)
+        :type address: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_user_operation_with_end_user_account_request:
+        :type send_user_operation_with_end_user_account_request: SendUserOperationWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_user_operation_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            x_idempotency_key=x_idempotency_key,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_user_operation_with_end_user_account_request=send_user_operation_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def send_user_operation_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to execute the user operation from.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        send_user_operation_with_end_user_account_request: Optional[SendUserOperationWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Send user operation for end user Smart Account
+
+        Prepares, signs, and sends a user operation for an end user's Smart Account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to execute the user operation from. (required)
+        :type address: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param send_user_operation_with_end_user_account_request:
+        :type send_user_operation_with_end_user_account_request: SendUserOperationWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_user_operation_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            x_idempotency_key=x_idempotency_key,
+            x_wallet_auth=x_wallet_auth,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            send_user_operation_with_end_user_account_request=send_user_operation_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _send_user_operation_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        x_idempotency_key,
+        x_wallet_auth,
+        x_developer_auth,
+        project_id,
+        send_user_operation_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if send_user_operation_with_end_user_account_request is not None:
+            _body_params = send_user_operation_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/send',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def sign_evm_message_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_message_with_end_user_account_request: Optional[SignEvmMessageWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SignEvmMessageWithEndUserAccount200Response:
+        """Sign EIP-191 message via end user EVM account
+
+        Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_message_with_end_user_account_request:
+        :type sign_evm_message_with_end_user_account_request: SignEvmMessageWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_message_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_message_with_end_user_account_request=sign_evm_message_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmMessageWithEndUserAccount200Response",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def sign_evm_message_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_message_with_end_user_account_request: Optional[SignEvmMessageWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SignEvmMessageWithEndUserAccount200Response]:
+        """Sign EIP-191 message via end user EVM account
+
+        Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_message_with_end_user_account_request:
+        :type sign_evm_message_with_end_user_account_request: SignEvmMessageWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_message_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_message_with_end_user_account_request=sign_evm_message_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmMessageWithEndUserAccount200Response",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def sign_evm_message_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_message_with_end_user_account_request: Optional[SignEvmMessageWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Sign EIP-191 message via end user EVM account
+
+        Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.  Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\\n\" + len(message)>` before being signed.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_message_with_end_user_account_request:
+        :type sign_evm_message_with_end_user_account_request: SignEvmMessageWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_message_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_message_with_end_user_account_request=sign_evm_message_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmMessageWithEndUserAccount200Response",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _sign_evm_message_with_end_user_account_serialize(
+        self,
+        user_id,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        sign_evm_message_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if sign_evm_message_with_end_user_account_request is not None:
+            _body_params = sign_evm_message_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/sign/message',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def sign_evm_transaction_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_transaction_with_end_user_account_request: Optional[SignEvmTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SignEvmTransactionWithEndUserAccount200Response:
+        """Sign transaction via end user EVM account
+
+        Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_transaction_with_end_user_account_request:
+        :type sign_evm_transaction_with_end_user_account_request: SignEvmTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_transaction_with_end_user_account_request=sign_evm_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def sign_evm_transaction_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_transaction_with_end_user_account_request: Optional[SignEvmTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SignEvmTransactionWithEndUserAccount200Response]:
+        """Sign transaction via end user EVM account
+
+        Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_transaction_with_end_user_account_request:
+        :type sign_evm_transaction_with_end_user_account_request: SignEvmTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_transaction_with_end_user_account_request=sign_evm_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def sign_evm_transaction_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_transaction_with_end_user_account_request: Optional[SignEvmTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Sign transaction via end user EVM account
+
+        Signs a transaction with the given end user EVM account. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).  The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_transaction_with_end_user_account_request:
+        :type sign_evm_transaction_with_end_user_account_request: SignEvmTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_transaction_with_end_user_account_request=sign_evm_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _sign_evm_transaction_with_end_user_account_serialize(
+        self,
+        user_id,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        sign_evm_transaction_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if sign_evm_transaction_with_end_user_account_request is not None:
+            _body_params = sign_evm_transaction_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/sign/transaction',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def sign_evm_typed_data_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_typed_data_with_end_user_account_request: Optional[SignEvmTypedDataWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SignEvmTypedDataWithEndUserAccount200Response:
+        """Sign EIP-712 typed data via end user EVM account
+
+        Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_typed_data_with_end_user_account_request:
+        :type sign_evm_typed_data_with_end_user_account_request: SignEvmTypedDataWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_typed_data_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_typed_data_with_end_user_account_request=sign_evm_typed_data_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmTypedDataWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def sign_evm_typed_data_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_typed_data_with_end_user_account_request: Optional[SignEvmTypedDataWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SignEvmTypedDataWithEndUserAccount200Response]:
+        """Sign EIP-712 typed data via end user EVM account
+
+        Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_typed_data_with_end_user_account_request:
+        :type sign_evm_typed_data_with_end_user_account_request: SignEvmTypedDataWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_typed_data_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_typed_data_with_end_user_account_request=sign_evm_typed_data_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmTypedDataWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def sign_evm_typed_data_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_evm_typed_data_with_end_user_account_request: Optional[SignEvmTypedDataWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Sign EIP-712 typed data via end user EVM account
+
+        Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_evm_typed_data_with_end_user_account_request:
+        :type sign_evm_typed_data_with_end_user_account_request: SignEvmTypedDataWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_evm_typed_data_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_evm_typed_data_with_end_user_account_request=sign_evm_typed_data_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignEvmTypedDataWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _sign_evm_typed_data_with_end_user_account_serialize(
+        self,
+        user_id,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        sign_evm_typed_data_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if sign_evm_typed_data_with_end_user_account_request is not None:
+            _body_params = sign_evm_typed_data_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/sign/typed-data',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def sign_solana_message_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_solana_message_with_end_user_account_request: Optional[SignSolanaMessageWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SignSolanaMessageWithEndUserAccount200Response:
+        """Sign Base64-encoded message
+
+        Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_solana_message_with_end_user_account_request:
+        :type sign_solana_message_with_end_user_account_request: SignSolanaMessageWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_solana_message_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_solana_message_with_end_user_account_request=sign_solana_message_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignSolanaMessageWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def sign_solana_message_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_solana_message_with_end_user_account_request: Optional[SignSolanaMessageWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SignSolanaMessageWithEndUserAccount200Response]:
+        """Sign Base64-encoded message
+
+        Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_solana_message_with_end_user_account_request:
+        :type sign_solana_message_with_end_user_account_request: SignSolanaMessageWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_solana_message_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_solana_message_with_end_user_account_request=sign_solana_message_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignSolanaMessageWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def sign_solana_message_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_solana_message_with_end_user_account_request: Optional[SignSolanaMessageWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Sign Base64-encoded message
+
+        Signs an arbitrary Base64 encoded message with the given Solana account. **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_solana_message_with_end_user_account_request:
+        :type sign_solana_message_with_end_user_account_request: SignSolanaMessageWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_solana_message_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_solana_message_with_end_user_account_request=sign_solana_message_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignSolanaMessageWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _sign_solana_message_with_end_user_account_serialize(
+        self,
+        user_id,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        sign_solana_message_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if sign_solana_message_with_end_user_account_request is not None:
+            _body_params = sign_solana_message_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/solana/sign/message',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def sign_solana_transaction_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_solana_transaction_with_end_user_account_request: Optional[SignSolanaTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SignSolanaTransactionWithEndUserAccount200Response:
+        """Sign transaction via end user Solana account
+
+        Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_solana_transaction_with_end_user_account_request:
+        :type sign_solana_transaction_with_end_user_account_request: SignSolanaTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_solana_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_solana_transaction_with_end_user_account_request=sign_solana_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignSolanaTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def sign_solana_transaction_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_solana_transaction_with_end_user_account_request: Optional[SignSolanaTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SignSolanaTransactionWithEndUserAccount200Response]:
+        """Sign transaction via end user Solana account
+
+        Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_solana_transaction_with_end_user_account_request:
+        :type sign_solana_transaction_with_end_user_account_request: SignSolanaTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_solana_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_solana_transaction_with_end_user_account_request=sign_solana_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignSolanaTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def sign_solana_transaction_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        x_developer_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        sign_solana_transaction_with_end_user_account_request: Optional[SignSolanaTransactionWithEndUserAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Sign transaction via end user Solana account
+
+        Signs a transaction with the given end user Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64. **Transaction types** The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html) The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param x_developer_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_developer_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param sign_solana_transaction_with_end_user_account_request:
+        :type sign_solana_transaction_with_end_user_account_request: SignSolanaTransactionWithEndUserAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._sign_solana_transaction_with_end_user_account_serialize(
+            user_id=user_id,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            x_developer_auth=x_developer_auth,
+            project_id=project_id,
+            sign_solana_transaction_with_end_user_account_request=sign_solana_transaction_with_end_user_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SignSolanaTransactionWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _sign_solana_transaction_with_end_user_account_serialize(
+        self,
+        user_id,
+        x_wallet_auth,
+        x_idempotency_key,
+        x_developer_auth,
+        project_id,
+        sign_solana_transaction_with_end_user_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        if x_developer_auth is not None:
+            _header_params['X-Developer-Auth'] = x_developer_auth
+        # process the form parameters
+        # process the body parameter
+        if sign_solana_transaction_with_end_user_account_request is not None:
+            _body_params = sign_solana_transaction_with_end_user_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth', 
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/solana/sign/transaction',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -371,7 +371,7 @@ response_criterion_mapping["createEndUserEvmSwap"] = response_criterion_mapping[
     "sendEvmTransaction"
 ]
 response_criterion_mapping["sendEndUserOperation"] = response_criterion_mapping[
-    "prepareUserOperation"
+    "sendEvmTransaction"
 ]
 
 # Response rule class mapping
@@ -386,6 +386,7 @@ response_rule_mapping = {
     "signSolMessage": SignSolMessageRuleModel,
     "prepareUserOperation": PrepareUserOperationRuleModel,
     "sendUserOperation": SendUserOperationRuleModel,
+    "sendEndUserOperation": SendEndUserOperationRuleModel,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRuleModel,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRuleModel,
     "signEndUserEvmMessage": SignEndUserEvmMessageRuleModel,
@@ -396,7 +397,6 @@ response_rule_mapping = {
     "sendEndUserEvmAsset": SendEndUserEvmAssetRuleModel,
     "sendEndUserSolAsset": SendEndUserSolAssetRuleModel,
     "createEndUserEvmSwap": CreateEndUserEvmSwapRuleModel,
-    "sendEndUserOperation": SendEndUserOperationRuleModel,
 }
 
 

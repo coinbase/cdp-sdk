@@ -19,7 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.SignEvmTransactionCriteriaInner;
+import com.coinbase.cdp.openapi.model.SendEvmTransactionCriteriaInner;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -32,7 +32,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SendUserOperationCriteria extends ArrayList<SignEvmTransactionCriteriaInner> {
+public class SendUserOperationCriteria extends ArrayList<SendEvmTransactionCriteriaInner> {
   public SendUserOperationCriteria() { 
   }
 

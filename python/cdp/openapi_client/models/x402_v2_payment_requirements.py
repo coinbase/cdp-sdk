@@ -21,18 +21,19 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.x402_v2_network import X402V2Network
 from typing import Optional, Set
 from typing_extensions import Self
 
 class X402V2PaymentRequirements(BaseModel):
     """
-    The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+    The x402 v2 payment requirements. Uses CAIP-2 network identifiers and supports `exact`, `upto`, and `batch-settlement` schemes. Carries only the payment fields (no resource metadata — that is in the enclosing `x402V2PaymentPayload.resource`).
     """ # noqa: E501
-    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Supported schemes are `exact` and `upto`.")
-    network: StrictStr = Field(description="The network of the blockchain to send payment on in caip2 format.")
-    asset: Annotated[str, Field(strict=True)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
+    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Supported schemes are `exact`, `upto`, and `batch-settlement`.")
+    network: X402V2Network = Field(description="The network of the blockchain to send payment on in CAIP-2 format.")
+    asset: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
     amount: StrictStr = Field(description="The amount to pay for the resource in atomic units of the payment asset.")
-    pay_to: Annotated[str, Field(strict=True)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
+    pay_to: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
     max_timeout_seconds: StrictInt = Field(description="The maximum time in seconds for the resource server to respond.", alias="maxTimeoutSeconds")
     extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
     __properties: ClassVar[List[str]] = ["scheme", "network", "asset", "amount", "payTo", "maxTimeoutSeconds", "extra"]
@@ -40,22 +41,8 @@ class X402V2PaymentRequirements(BaseModel):
     @field_validator('scheme')
     def scheme_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['exact', 'upto']):
-            raise ValueError("must be one of enum values ('exact', 'upto')")
-        return value
-
-    @field_validator('asset')
-    def asset_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
-        return value
-
-    @field_validator('pay_to')
-    def pay_to_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
+        if value not in set(['exact', 'upto', 'batch-settlement']):
+            raise ValueError("must be one of enum values ('exact', 'upto', 'batch-settlement')")
         return value
 
     model_config = ConfigDict(

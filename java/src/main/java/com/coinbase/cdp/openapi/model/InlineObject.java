@@ -37,7 +37,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   InlineObject.JSON_PROPERTY_IS_VALID,
   InlineObject.JSON_PROPERTY_INVALID_REASON,
   InlineObject.JSON_PROPERTY_INVALID_MESSAGE,
-  InlineObject.JSON_PROPERTY_PAYER
+  InlineObject.JSON_PROPERTY_PAYER,
+  InlineObject.JSON_PROPERTY_EXTRA
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class InlineObject {
@@ -56,6 +57,10 @@ public class InlineObject {
   public static final String JSON_PROPERTY_PAYER = "payer";
   @jakarta.annotation.Nonnull
   private String payer;
+
+  public static final String JSON_PROPERTY_EXTRA = "extra";
+  @jakarta.annotation.Nullable
+  private Object extra;
 
   public InlineObject() { 
   }
@@ -156,6 +161,30 @@ public class InlineObject {
   }
 
 
+  public InlineObject extra(@jakarta.annotation.Nullable Object extra) {
+    this.extra = extra;
+    return this;
+  }
+
+  /**
+   * Optional scheme-specific verify metadata returned by the facilitator.
+   * @return extra
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTRA)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
+    return extra;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTRA)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
+    this.extra = extra;
+  }
+
+
   /**
    * Return true if this inline_object object is equal to o.
    */
@@ -171,12 +200,13 @@ public class InlineObject {
     return Objects.equals(this.isValid, inlineObject.isValid) &&
         Objects.equals(this.invalidReason, inlineObject.invalidReason) &&
         Objects.equals(this.invalidMessage, inlineObject.invalidMessage) &&
-        Objects.equals(this.payer, inlineObject.payer);
+        Objects.equals(this.payer, inlineObject.payer) &&
+        Objects.equals(this.extra, inlineObject.extra);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isValid, invalidReason, invalidMessage, payer);
+    return Objects.hash(isValid, invalidReason, invalidMessage, payer, extra);
   }
 
   @Override
@@ -187,6 +217,7 @@ public class InlineObject {
     sb.append("    invalidReason: ").append(toIndentedString(invalidReason)).append("\n");
     sb.append("    invalidMessage: ").append(toIndentedString(invalidMessage)).append("\n");
     sb.append("    payer: ").append(toIndentedString(payer)).append("\n");
+    sb.append("    extra: ").append(toIndentedString(extra)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -254,6 +285,11 @@ public class InlineObject {
       joiner.add(String.format("%spayer%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPayer()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `extra` to the URL query string
+    if (getExtra() != null) {
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -283,6 +319,10 @@ public class InlineObject {
     }
     public InlineObject.Builder payer(String payer) {
       this.instance.payer = payer;
+      return this;
+    }
+    public InlineObject.Builder extra(Object extra) {
+      this.instance.extra = extra;
       return this;
     }
 
@@ -322,7 +362,8 @@ public class InlineObject {
       .isValid(getIsValid())
       .invalidReason(getInvalidReason())
       .invalidMessage(getInvalidMessage())
-      .payer(getPayer());
+      .payer(getPayer())
+      .extra(getExtra());
   }
 
 }

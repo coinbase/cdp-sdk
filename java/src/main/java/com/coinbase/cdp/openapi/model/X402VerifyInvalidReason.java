@@ -114,6 +114,310 @@ public enum X402VerifyInvalidReason {
   
   INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_FEE_PAYER_TRANSFERRING_FUNDS("invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"),
   
+  INVALID_BATCH_SETTLEMENT_EVM_SCHEME("invalid_batch_settlement_evm_scheme"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_NETWORK_MISMATCH("invalid_batch_settlement_evm_network_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PAYLOAD_TYPE("invalid_batch_settlement_evm_payload_type"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_CHANNEL_NOT_FOUND("invalid_batch_settlement_evm_channel_not_found"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_DEPOSIT_SIMULATION_FAILED("invalid_batch_settlement_evm_deposit_simulation_failed"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_CHANNEL_ID_MISMATCH("invalid_batch_settlement_evm_channel_id_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_CHANNEL_STATE_READ_FAILED("invalid_batch_settlement_evm_channel_state_read_failed"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_CUMULATIVE_BELOW_CLAIMED("invalid_batch_settlement_evm_cumulative_below_claimed"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_CUMULATIVE_EXCEEDS_BALANCE("invalid_batch_settlement_evm_cumulative_exceeds_balance"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_AMOUNT_MISMATCH("invalid_batch_settlement_evm_eip2612_amount_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_ASSET_MISMATCH("invalid_batch_settlement_evm_eip2612_asset_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_DEADLINE_EXPIRED("invalid_batch_settlement_evm_eip2612_deadline_expired"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_INVALID_FORMAT("invalid_batch_settlement_evm_eip2612_invalid_format"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_INVALID_SIGNATURE("invalid_batch_settlement_evm_eip2612_invalid_signature"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_OWNER_MISMATCH("invalid_batch_settlement_evm_eip2612_owner_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_EIP2612_SPENDER_MISMATCH("invalid_batch_settlement_evm_eip2612_spender_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_ERC20_APPROVAL_ASSET_MISMATCH("invalid_batch_settlement_evm_erc20_approval_asset_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_ERC20_APPROVAL_FROM_MISMATCH("invalid_batch_settlement_evm_erc20_approval_from_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_ERC20_APPROVAL_INVALID_FORMAT("invalid_batch_settlement_evm_erc20_approval_invalid_format"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_ERC20_APPROVAL_UNAVAILABLE("invalid_batch_settlement_evm_erc20_approval_unavailable"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_ERC20_APPROVAL_WRONG_SPENDER("invalid_batch_settlement_evm_erc20_approval_wrong_spender"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_ERC3009_AUTHORIZATION_REQUIRED("invalid_batch_settlement_evm_erc3009_authorization_required"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_INSUFFICIENT_BALANCE("invalid_batch_settlement_evm_insufficient_balance"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_DEPOSIT_PAYLOAD("invalid_batch_settlement_evm_deposit_payload"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_RECEIVE_AUTHORIZATION_SIGNATURE("invalid_batch_settlement_evm_receive_authorization_signature"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_REFUND_PAYLOAD("invalid_batch_settlement_evm_refund_payload"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_VOUCHER_PAYLOAD("invalid_batch_settlement_evm_voucher_payload"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_VOUCHER_SIGNATURE("invalid_batch_settlement_evm_voucher_signature"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_MISSING_EIP712_DOMAIN("invalid_batch_settlement_evm_missing_eip712_domain"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PAYLOAD_AUTHORIZATION_VALID_AFTER("invalid_batch_settlement_evm_payload_authorization_valid_after"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PAYLOAD_AUTHORIZATION_VALID_BEFORE("invalid_batch_settlement_evm_payload_authorization_valid_before"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PERMIT2_ALLOWANCE_REQUIRED("invalid_batch_settlement_evm_permit2_allowance_required"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PERMIT2_AMOUNT_MISMATCH("invalid_batch_settlement_evm_permit2_amount_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PERMIT2_AUTHORIZATION_REQUIRED("invalid_batch_settlement_evm_permit2_authorization_required"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PERMIT2_DEADLINE_EXPIRED("invalid_batch_settlement_evm_permit2_deadline_expired"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PERMIT2_INVALID_SIGNATURE("invalid_batch_settlement_evm_permit2_invalid_signature"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_PERMIT2_INVALID_SPENDER("invalid_batch_settlement_evm_permit2_invalid_spender"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_RECEIVER_AUTHORIZER_MISMATCH("invalid_batch_settlement_evm_receiver_authorizer_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_RECEIVER_MISMATCH("invalid_batch_settlement_evm_receiver_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_RPC_READ_FAILED("invalid_batch_settlement_evm_rpc_read_failed"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_TOKEN_MISMATCH("invalid_batch_settlement_evm_token_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_WITHDRAW_DELAY_MISMATCH("invalid_batch_settlement_evm_withdraw_delay_mismatch"),
+  
+  INVALID_BATCH_SETTLEMENT_EVM_WITHDRAW_DELAY_OUT_OF_RANGE("invalid_batch_settlement_evm_withdraw_delay_out_of_range"),
+  
+  INVALID_EXACT_EVM_SCHEME("invalid_exact_evm_scheme"),
+  
+  INVALID_EXACT_EVM_NETWORK_MISMATCH("invalid_exact_evm_network_mismatch"),
+  
+  INVALID_EXACT_EVM_PAYLOAD("invalid_exact_evm_payload"),
+  
+  INVALID_EXACT_EVM_PAYLOAD_MISSING_SIGNATURE("invalid_exact_evm_payload_missing_signature"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_GET_NETWORK_CONFIG("invalid_exact_evm_failed_to_get_network_config"),
+  
+  INVALID_EXACT_EVM_MISSING_EIP712_DOMAIN("invalid_exact_evm_missing_eip712_domain"),
+  
+  INVALID_EXACT_EVM_RECIPIENT_MISMATCH("invalid_exact_evm_recipient_mismatch"),
+  
+  INVALID_EXACT_EVM_AUTHORIZATION_VALUE("invalid_exact_evm_authorization_value"),
+  
+  INVALID_EXACT_EVM_REQUIRED_AMOUNT("invalid_exact_evm_required_amount"),
+  
+  INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_VALUE_MISMATCH("invalid_exact_evm_payload_authorization_value_mismatch"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_CHECK_NONCE("invalid_exact_evm_failed_to_check_nonce"),
+  
+  INVALID_EXACT_EVM_NONCE_ALREADY_USED("invalid_exact_evm_nonce_already_used"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_GET_BALANCE("invalid_exact_evm_failed_to_get_balance"),
+  
+  INVALID_EXACT_EVM_INSUFFICIENT_BALANCE("invalid_exact_evm_insufficient_balance"),
+  
+  INVALID_EXACT_EVM_SIGNATURE_FORMAT("invalid_exact_evm_signature_format"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_VERIFY_SIGNATURE("invalid_exact_evm_failed_to_verify_signature"),
+  
+  INVALID_EXACT_EVM_SIGNATURE("invalid_exact_evm_signature"),
+  
+  INVALID_EXACT_EVM_TOKEN_NAME_MISMATCH("invalid_exact_evm_token_name_mismatch"),
+  
+  INVALID_EXACT_EVM_TOKEN_VERSION_MISMATCH("invalid_exact_evm_token_version_mismatch"),
+  
+  INVALID_EXACT_EVM_EIP3009_NOT_SUPPORTED("invalid_exact_evm_eip3009_not_supported"),
+  
+  INVALID_EXACT_EVM_TRANSACTION_SIMULATION_FAILED("invalid_exact_evm_transaction_simulation_failed"),
+  
+  INVALID_EXACT_EVM_VERIFICATION_FAILED("invalid_exact_evm_verification_failed"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_PARSE_SIGNATURE("invalid_exact_evm_failed_to_parse_signature"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_CHECK_DEPLOYMENT("invalid_exact_evm_failed_to_check_deployment"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_EXECUTE_TRANSFER("invalid_exact_evm_failed_to_execute_transfer"),
+  
+  INVALID_EXACT_EVM_FAILED_TO_GET_RECEIPT("invalid_exact_evm_failed_to_get_receipt"),
+  
+  INVALID_EXACT_EVM_TRANSACTION_FAILED("invalid_exact_evm_transaction_failed"),
+  
+  INVALID_EXACT_EVM_PAYLOAD_UNDEPLOYED_SMART_WALLET("invalid_exact_evm_payload_undeployed_smart_wallet"),
+  
+  SMART_WALLET_DEPLOYMENT_FAILED("smart_wallet_deployment_failed"),
+  
+  UNSUPPORTED_PAYLOAD_TYPE("unsupported_payload_type"),
+  
+  INVALID_ERC20_APPROVAL_EXTENSION_FORMAT("invalid_erc20_approval_extension_format"),
+  
+  ERC20_APPROVAL_TX_FAILED("erc20_approval_tx_failed"),
+  
+  ERC20_APPROVAL_FROM_MISMATCH("erc20_approval_from_mismatch"),
+  
+  ERC20_APPROVAL_ASSET_MISMATCH("erc20_approval_asset_mismatch"),
+  
+  ERC20_APPROVAL_SPENDER_NOT_PERMIT2("erc20_approval_spender_not_permit2"),
+  
+  ERC20_APPROVAL_TX_PARSE_FAILED("erc20_approval_tx_parse_failed"),
+  
+  ERC20_APPROVAL_TX_WRONG_TARGET("erc20_approval_tx_wrong_target"),
+  
+  ERC20_APPROVAL_TX_WRONG_SELECTOR("erc20_approval_tx_wrong_selector"),
+  
+  ERC20_APPROVAL_TX_WRONG_SPENDER("erc20_approval_tx_wrong_spender"),
+  
+  ERC20_APPROVAL_TX_SIGNER_MISMATCH("erc20_approval_tx_signer_mismatch"),
+  
+  ERC20_APPROVAL_TX_INVALID_SIGNATURE("erc20_approval_tx_invalid_signature"),
+  
+  INVALID_EXACT_EVM_UNSUPPORTED_SCHEME("invalid_exact_evm_unsupported_scheme"),
+  
+  INVALID_EXACT_EVM_EXTRA_FIELD("invalid_exact_evm_extra_field"),
+  
+  INVALID_EXACT_EVM_PAYLOAD_RECIPIENT_MISMATCH("invalid_exact_evm_payload_recipient_mismatch"),
+  
+  INVALID_EXACT_EVM_INSUFFICIENT_FUNDS("invalid_exact_evm_insufficient_funds"),
+  
+  INVALID_EXACT_EVM_TRANSACTION_STATE("invalid_exact_evm_transaction_state"),
+  
+  INVALID_PERMIT2_SPENDER("invalid_permit2_spender"),
+  
+  INVALID_PERMIT2_RECIPIENT_MISMATCH("invalid_permit2_recipient_mismatch"),
+  
+  PERMIT2_DEADLINE_EXPIRED("permit2_deadline_expired"),
+  
+  PERMIT2_NOT_YET_VALID("permit2_not_yet_valid"),
+  
+  PERMIT2_AMOUNT_MISMATCH("permit2_amount_mismatch"),
+  
+  PERMIT2_TOKEN_MISMATCH("permit2_token_mismatch"),
+  
+  INVALID_PERMIT2_SIGNATURE("invalid_permit2_signature"),
+  
+  PERMIT2_ALLOWANCE_REQUIRED("permit2_allowance_required"),
+  
+  PERMIT2_INVALID_AMOUNT("permit2_invalid_amount"),
+  
+  PERMIT2_INVALID_DESTINATION("permit2_invalid_destination"),
+  
+  PERMIT2_INVALID_OWNER("permit2_invalid_owner"),
+  
+  PERMIT2_PAYMENT_TOO_EARLY("permit2_payment_too_early"),
+  
+  PERMIT2_INVALID_NONCE("permit2_invalid_nonce"),
+  
+  PERMIT2_2612_AMOUNT_MISMATCH("permit2_2612_amount_mismatch"),
+  
+  PERMIT2_SIMULATION_FAILED("permit2_simulation_failed"),
+  
+  PERMIT2_INSUFFICIENT_BALANCE("permit2_insufficient_balance"),
+  
+  PERMIT2_PROXY_NOT_DEPLOYED("permit2_proxy_not_deployed"),
+  
+  ERC20_APPROVAL_INSUFFICIENT_ETH_FOR_GAS("erc20_approval_insufficient_eth_for_gas"),
+  
+  ERC20_APPROVAL_BROADCAST_FAILED("erc20_approval_broadcast_failed"),
+  
+  INVALID_EXACT_SOLANA_UNSUPPORTED_SCHEME("invalid_exact_solana_unsupported_scheme"),
+  
+  INVALID_EXACT_SOLANA_NETWORK_MISMATCH("invalid_exact_solana_network_mismatch"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_MISSING_FEE_PAYER("invalid_exact_solana_payload_missing_fee_payer"),
+  
+  INVALID_EXACT_SOLANA_FEE_PAYER_NOT_MANAGED_BY_FACILITATOR("invalid_exact_solana_fee_payer_not_managed_by_facilitator"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION("invalid_exact_solana_payload_transaction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION_COULD_NOT_BE_DECODED("invalid_exact_solana_payload_transaction_could_not_be_decoded"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION_INSTRUCTIONS_LENGTH("invalid_exact_solana_payload_transaction_instructions_length"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_UNKNOWN_FOURTH_INSTRUCTION("invalid_exact_solana_payload_unknown_fourth_instruction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_UNKNOWN_FIFTH_INSTRUCTION("invalid_exact_solana_payload_unknown_fifth_instruction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_UNKNOWN_SIXTH_INSTRUCTION("invalid_exact_solana_payload_unknown_sixth_instruction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION_INSTRUCTIONS_COMPUTE_LIMIT_INSTRUCTION("invalid_exact_solana_payload_transaction_instructions_compute_limit_instruction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION_INSTRUCTIONS_COMPUTE_PRICE_INSTRUCTION("invalid_exact_solana_payload_transaction_instructions_compute_price_instruction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION_INSTRUCTIONS_COMPUTE_PRICE_INSTRUCTION_TOO_HIGH("invalid_exact_solana_payload_transaction_instructions_compute_price_instruction_too_high"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_NO_TRANSFER_INSTRUCTION("invalid_exact_solana_payload_no_transfer_instruction"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_TRANSACTION_FEE_PAYER_TRANSFERRING_FUNDS("invalid_exact_solana_payload_transaction_fee_payer_transferring_funds"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_MINT_MISMATCH("invalid_exact_solana_payload_mint_mismatch"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_RECIPIENT_MISMATCH("invalid_exact_solana_payload_recipient_mismatch"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_AMOUNT_INSUFFICIENT("invalid_exact_solana_payload_amount_insufficient"),
+  
+  INVALID_EXACT_SOLANA_INVALID_FEE_PAYER("invalid_exact_solana_invalid_fee_payer"),
+  
+  INVALID_EXACT_SOLANA_TRANSACTION_SIGNING_FAILED("invalid_exact_solana_transaction_signing_failed"),
+  
+  INVALID_EXACT_SOLANA_TRANSACTION_SIMULATION_FAILED("invalid_exact_solana_transaction_simulation_failed"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_MEMO_MISMATCH("invalid_exact_solana_payload_memo_mismatch"),
+  
+  INVALID_EXACT_SOLANA_PAYLOAD_MEMO_COUNT("invalid_exact_solana_payload_memo_count"),
+  
+  INVALID_EXACT_SOLANA_VERIFICATION_FAILED("invalid_exact_solana_verification_failed"),
+  
+  INVALID_EXACT_SOLANA_FEE_PAYER_MISMATCH("invalid_exact_solana_fee_payer_mismatch"),
+  
+  INVALID_EXACT_SOLANA_TRANSACTION_FAILED("invalid_exact_solana_transaction_failed"),
+  
+  INVALID_EXACT_SOLANA_TRANSACTION_CONFIRMATION_FAILED("invalid_exact_solana_transaction_confirmation_failed"),
+  
+  DUPLICATE_SETTLEMENT("duplicate_settlement"),
+  
+  INVALID_EXACT_SOLANA_EXTRA_FIELD("invalid_exact_solana_extra_field"),
+  
+  BATCH_SETTLEMENT_CUMULATIVE_AMOUNT_MISMATCH("batch_settlement_cumulative_amount_mismatch"),
+  
+  BATCH_SETTLEMENT_CHANNEL_BUSY("batch_settlement_channel_busy"),
+  
+  MISSING_BATCH_SETTLEMENT_CHANNEL("missing_batch_settlement_channel"),
+  
+  BATCH_SETTLEMENT_CHARGE_EXCEEDS_SIGNED_CUMULATIVE("batch_settlement_charge_exceeds_signed_cumulative"),
+  
+  BATCH_SETTLEMENT_REFUND_NO_BALANCE("batch_settlement_refund_no_balance"),
+  
+  BATCH_SETTLEMENT_REFUND_AMOUNT_INVALID("batch_settlement_refund_amount_invalid"),
+  
+  BATCH_SETTLEMENT_REFUND_AMOUNT_EXCEEDS_BALANCE("batch_settlement_refund_amount_exceeds_balance"),
+  
+  AMOUNT_TOO_LOW("amount_too_low"),
+  
+  INVALID_AMOUNT("invalid_amount"),
+  
+  KYT_RISK_DETECTED("kyt_risk_detected"),
+  
+  PERMIT2_DISABLED("permit2_disabled"),
+  
+  PREFLIGHT_VALIDATION_FAILED("preflight_validation_failed"),
+  
+  REQUEST_BLOCKED_BY_LOCATION("request_blocked_by_location"),
+  
+  SELF_SEND_NOT_ALLOWED("self_send_not_allowed"),
+  
+  INVALID_BAZAAR_EXTENSION("invalid_bazaar_extension"),
+  
   UNKNOWN_ERROR("unknown_error");
 
   private String value;

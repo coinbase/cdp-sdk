@@ -71,7 +71,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SolanaAccount:
-        """Create a Solana account
+        """Create Solana account
 
         Creates a new Solana account.
 
@@ -154,7 +154,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SolanaAccount]:
-        """Create a Solana account
+        """Create Solana account
 
         Creates a new Solana account.
 
@@ -237,7 +237,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create a Solana account
+        """Create Solana account
 
         Creates a new Solana account.
 
@@ -400,7 +400,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ExportSolanaAccount200Response:
-        """Export an Solana account
+        """Export Solana account
 
         Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
 
@@ -487,7 +487,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ExportSolanaAccount200Response]:
-        """Export an Solana account
+        """Export Solana account
 
         Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
 
@@ -574,7 +574,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Export an Solana account
+        """Export Solana account
 
         Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
 
@@ -743,7 +743,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ExportSolanaAccount200Response:
-        """Export a Solana account by name
+        """Export Solana account by name
 
         Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
 
@@ -830,7 +830,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ExportSolanaAccount200Response]:
-        """Export a Solana account by name
+        """Export Solana account by name
 
         Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
 
@@ -917,7 +917,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Export a Solana account by name
+        """Export Solana account by name
 
         Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
 
@@ -1083,7 +1083,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SolanaAccount:
-        """Get a Solana account by address
+        """Get Solana account by address
 
         Gets a Solana account by its address.
 
@@ -1155,7 +1155,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SolanaAccount]:
-        """Get a Solana account by address
+        """Get Solana account by address
 
         Gets a Solana account by its address.
 
@@ -1227,7 +1227,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a Solana account by address
+        """Get Solana account by address
 
         Gets a Solana account by its address.
 
@@ -1359,7 +1359,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SolanaAccount:
-        """Get a Solana account by name
+        """Get Solana account by name
 
         Gets a Solana account by its name.
 
@@ -1431,7 +1431,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SolanaAccount]:
-        """Get a Solana account by name
+        """Get Solana account by name
 
         Gets a Solana account by its name.
 
@@ -1503,7 +1503,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a Solana account by name
+        """Get Solana account by name
 
         Gets a Solana account by its name.
 
@@ -1637,7 +1637,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SolanaAccount:
-        """Import a Solana account
+        """Import Solana account
 
         Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
 
@@ -1720,7 +1720,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SolanaAccount]:
-        """Import a Solana account
+        """Import Solana account
 
         Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
 
@@ -1803,7 +1803,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Import a Solana account
+        """Import Solana account
 
         Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
 
@@ -1964,7 +1964,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ListSolanaAccounts200Response:
-        """List Solana accounts or get account by name
+        """List Solana accounts
 
         Lists the Solana accounts belonging to the developer. The response is paginated, and by default, returns 20 accounts per page.  If a name is provided, the response will contain only the account with that name.
 
@@ -2038,7 +2038,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ListSolanaAccounts200Response]:
-        """List Solana accounts or get account by name
+        """List Solana accounts
 
         Lists the Solana accounts belonging to the developer. The response is paginated, and by default, returns 20 accounts per page.  If a name is provided, the response will contain only the account with that name.
 
@@ -2112,7 +2112,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List Solana accounts or get account by name
+        """List Solana accounts
 
         Lists the Solana accounts belonging to the developer. The response is paginated, and by default, returns 20 accounts per page.  If a name is provided, the response will contain only the account with that name.
 
@@ -2254,7 +2254,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SendSolanaTransactionWithEndUserAccount200Response:
-        """Send a Solana transaction
+        """Send Solana transaction
 
         Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.  The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)  **Instruction Batching**  To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.  **Network Support**  The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -2338,7 +2338,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SendSolanaTransactionWithEndUserAccount200Response]:
-        """Send a Solana transaction
+        """Send Solana transaction
 
         Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.  The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)  **Instruction Batching**  To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.  **Network Support**  The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -2422,7 +2422,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send a Solana transaction
+        """Send Solana transaction
 
         Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.  The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions) * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)  **Instruction Batching**  To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.  **Network Support**  The following Solana networks are supported: * `solana` - Solana Mainnet * `solana-devnet` - Solana Devnet  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -2586,7 +2586,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignSolanaMessageWithEndUserAccount200Response:
-        """Sign a message
+        """Sign message
 
         Signs an arbitrary message with the given Solana account.  **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
 
@@ -2674,7 +2674,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignSolanaMessageWithEndUserAccount200Response]:
-        """Sign a message
+        """Sign message
 
         Signs an arbitrary message with the given Solana account.  **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
 
@@ -2762,7 +2762,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign a message
+        """Sign message
 
         Signs an arbitrary message with the given Solana account.  **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
 
@@ -2932,7 +2932,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignSolanaTransactionWithEndUserAccount200Response:
-        """Sign a transaction
+        """Sign transaction
 
         Signs a transaction with the given Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -3021,7 +3021,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignSolanaTransactionWithEndUserAccount200Response]:
-        """Sign a transaction
+        """Sign transaction
 
         Signs a transaction with the given Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -3110,7 +3110,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sign a transaction
+        """Sign transaction
 
         Signs a transaction with the given Solana account. The unsigned transaction should be serialized into a byte array and then encoded as base64.  **Transaction types**  The following transaction types are supported: * [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html) * [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)  The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
 
@@ -3280,7 +3280,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SolanaAccount:
-        """Update a Solana account
+        """Update Solana account
 
         Updates an existing Solana account. Use this to update the account's name or account-level policy.
 
@@ -3362,7 +3362,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SolanaAccount]:
-        """Update a Solana account
+        """Update Solana account
 
         Updates an existing Solana account. Use this to update the account's name or account-level policy.
 
@@ -3444,7 +3444,7 @@ class SolanaAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Update a Solana account
+        """Update Solana account
 
         Updates an existing Solana account. Use this to update the account's name or account-level policy.
 

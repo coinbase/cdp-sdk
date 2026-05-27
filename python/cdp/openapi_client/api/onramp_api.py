@@ -17,7 +17,7 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr
+from pydantic import Field, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.create_onramp_order201_response import CreateOnrampOrder201Response
@@ -622,7 +622,7 @@ class OnrampApi:
     @validate_call
     async def get_onramp_order_by_id(
         self,
-        order_id: Annotated[StrictStr, Field(description="The ID of the onramp order to retrieve.")],
+        order_id: Annotated[str, Field(strict=True, description="The ID of the onramp order to retrieve.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -692,7 +692,7 @@ class OnrampApi:
     @validate_call
     async def get_onramp_order_by_id_with_http_info(
         self,
-        order_id: Annotated[StrictStr, Field(description="The ID of the onramp order to retrieve.")],
+        order_id: Annotated[str, Field(strict=True, description="The ID of the onramp order to retrieve.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -762,7 +762,7 @@ class OnrampApi:
     @validate_call
     async def get_onramp_order_by_id_without_preload_content(
         self,
-        order_id: Annotated[StrictStr, Field(description="The ID of the onramp order to retrieve.")],
+        order_id: Annotated[str, Field(strict=True, description="The ID of the onramp order to retrieve.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],

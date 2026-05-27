@@ -29,7 +29,7 @@ class SmsAuthentication(BaseModel):
     Information about an end user who authenticates using a one-time password sent to their phone number via SMS.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of authentication information.")
-    phone_number: Annotated[str, Field(strict=True)] = Field(description="The phone number of the end user in E.164 format.", alias="phoneNumber")
+    phone_number: Annotated[str, Field(strict=True)] = Field(description="Phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.", alias="phoneNumber")
     __properties: ClassVar[List[str]] = ["type", "phoneNumber"]
 
     @field_validator('type')

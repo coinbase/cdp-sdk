@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.capability_name import CapabilityName
 from cdp.openapi_client.models.error_type import ErrorType
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,7 +34,8 @@ class Error(BaseModel):
     error_message: StrictStr = Field(description="The error message.", alias="errorMessage")
     correlation_id: Optional[StrictStr] = Field(default=None, description="A unique identifier for the request that generated the error. This can be used to help debug issues with the API.", alias="correlationId")
     error_link: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="A link to the corresponding error documentation.", alias="errorLink")
-    __properties: ClassVar[List[str]] = ["errorType", "errorMessage", "correlationId", "errorLink"]
+    unauthorized_capabilities: Optional[List[CapabilityName]] = Field(default=None, description="The capability code(s) that were not authorized for the customer on this request. Present only when `errorType` is `customer_not_authorized`; absent for every other error type.  Use this list to render onboarding UX for the listed capabilities, or fetch `GET /v2/customers/{customerId}` and inspect each entry's `status` / `requirements` to discover what (if anything) can be submitted to resolve the block. ", alias="unauthorizedCapabilities")
+    __properties: ClassVar[List[str]] = ["errorType", "errorMessage", "correlationId", "errorLink", "unauthorizedCapabilities"]
 
     @field_validator('error_link')
     def error_link_validate_regular_expression(cls, value):
@@ -99,7 +101,8 @@ class Error(BaseModel):
             "errorType": obj.get("errorType"),
             "errorMessage": obj.get("errorMessage"),
             "correlationId": obj.get("correlationId"),
-            "errorLink": obj.get("errorLink")
+            "errorLink": obj.get("errorLink"),
+            "unauthorizedCapabilities": obj.get("unauthorizedCapabilities")
         })
         return _obj
 

@@ -53,12 +53,14 @@ public class X402SearchResourcesResponse {
   private Boolean partialResults;
 
   /**
-   * The search method used to retrieve the results (e.g., \&quot;text\&quot; or \&quot;vector\&quot;).
+   * The search method used to retrieve the results (e.g., \&quot;text\&quot;, \&quot;vector\&quot;, \&quot;hybrid\&quot;).
    */
   public enum SearchMethodEnum {
     TEXT(String.valueOf("text")),
     
-    VECTOR(String.valueOf("vector"));
+    VECTOR(String.valueOf("vector")),
+    
+    HYBRID(String.valueOf("hybrid"));
 
     private String value;
 
@@ -160,7 +162,7 @@ public class X402SearchResourcesResponse {
   }
 
   /**
-   * The search method used to retrieve the results (e.g., \&quot;text\&quot; or \&quot;vector\&quot;).
+   * The search method used to retrieve the results (e.g., \&quot;text\&quot;, \&quot;vector\&quot;, \&quot;hybrid\&quot;).
    * @return searchMethod
    */
   @jakarta.annotation.Nullable

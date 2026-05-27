@@ -32,18 +32,12 @@ class InlineObject1(BaseModel):
     success: StrictBool = Field(description="Indicates whether the payment settlement is successful.")
     error_reason: Optional[X402SettleErrorReason] = Field(default=None, alias="errorReason")
     error_message: Optional[StrictStr] = Field(default=None, description="The message describing the error reason.", alias="errorMessage")
-    payer: Annotated[str, Field(strict=True)] = Field(description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
+    payer: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
     transaction: Annotated[str, Field(strict=True)] = Field(description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.")
     network: StrictStr = Field(description="The network where the settlement occurred.")
     amount: Optional[StrictStr] = Field(default=None, description="The amount that was settled, in atomic units.")
-    __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network", "amount"]
-
-    @field_validator('payer')
-    def payer_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
-        return value
+    extra: Optional[Dict[str, Any]] = Field(default=None, description="Optional scheme-specific success metadata returned by the facilitator.")
+    __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network", "amount", "extra"]
 
     @field_validator('transaction')
     def transaction_validate_regular_expression(cls, value):
@@ -109,7 +103,8 @@ class InlineObject1(BaseModel):
             "payer": obj.get("payer"),
             "transaction": obj.get("transaction"),
             "network": obj.get("network"),
-            "amount": obj.get("amount")
+            "amount": obj.get("amount"),
+            "extra": obj.get("extra")
         })
         return _obj
 

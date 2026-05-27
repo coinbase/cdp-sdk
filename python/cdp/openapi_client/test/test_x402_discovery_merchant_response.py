@@ -38,14 +38,14 @@ class TestX402DiscoveryMerchantResponse(unittest.TestCase):
             return X402DiscoveryMerchantResponse(
                 x402_version = 2,
                 pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                resources = [{resource=https://api.example.com/premium/data, description=Premium API access for data analysis., type=http, x402Version=2, lastUpdated=2024-01-15T10:30:00Z, accepts=[{scheme=exact, network=eip155:8453, amount=1000000, payTo=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, asset=0x036CbD53842c5426634e7929541eC2318f3dCF7e, maxTimeoutSeconds=60}], extensions={bazaar={info={input={type=http, method=POST}}, schema={}}}, quality={l30DaysTotalCalls=42, l30DaysUniquePayers=15, lastCalledAt=2024-01-15T10:30:00Z}}],
+                resources = [{resource=https://api.example.com/premium/data, description=Premium API access for data analysis., type=http, x402Version=2, lastUpdated=2024-01-15T10:30:00Z, accepts=[{scheme=exact, network=eip155:8453, amount=1000000, payTo=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, asset=0x036CbD53842c5426634e7929541eC2318f3dCF7e, maxTimeoutSeconds=60}], extensions={bazaar={info={input={type=http, method=POST}}, schema={}}}, quality={l30DaysTotalCalls=42, l30DaysUniquePayers=15, lastCalledAt=2024-01-15T10:30:00Z}, serviceName=Premium Data API, tags=[data, analytics], iconUrl=https://res.cloudinary.com/bdb-prod/image/upload/...}],
                 pagination = {limit=20, offset=0, total=10}
             )
         else:
             return X402DiscoveryMerchantResponse(
                 x402_version = 2,
                 pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                resources = [{resource=https://api.example.com/premium/data, description=Premium API access for data analysis., type=http, x402Version=2, lastUpdated=2024-01-15T10:30:00Z, accepts=[{scheme=exact, network=eip155:8453, amount=1000000, payTo=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, asset=0x036CbD53842c5426634e7929541eC2318f3dCF7e, maxTimeoutSeconds=60}], extensions={bazaar={info={input={type=http, method=POST}}, schema={}}}, quality={l30DaysTotalCalls=42, l30DaysUniquePayers=15, lastCalledAt=2024-01-15T10:30:00Z}}],
+                resources = [{resource=https://api.example.com/premium/data, description=Premium API access for data analysis., type=http, x402Version=2, lastUpdated=2024-01-15T10:30:00Z, accepts=[{scheme=exact, network=eip155:8453, amount=1000000, payTo=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, asset=0x036CbD53842c5426634e7929541eC2318f3dCF7e, maxTimeoutSeconds=60}], extensions={bazaar={info={input={type=http, method=POST}}, schema={}}}, quality={l30DaysTotalCalls=42, l30DaysUniquePayers=15, lastCalledAt=2024-01-15T10:30:00Z}, serviceName=Premium Data API, tags=[data, analytics], iconUrl=https://res.cloudinary.com/bdb-prod/image/upload/...}],
                 pagination = {limit=20, offset=0, total=10},
         )
         """

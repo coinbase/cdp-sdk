@@ -30,77 +30,77 @@ class TestSolanaAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_create_solana_account(self) -> None:
         """Test case for create_solana_account
 
-        Create a Solana account
+        Create Solana account
         """
         pass
 
     async def test_export_solana_account(self) -> None:
         """Test case for export_solana_account
 
-        Export an Solana account
+        Export Solana account
         """
         pass
 
     async def test_export_solana_account_by_name(self) -> None:
         """Test case for export_solana_account_by_name
 
-        Export a Solana account by name
+        Export Solana account by name
         """
         pass
 
     async def test_get_solana_account(self) -> None:
         """Test case for get_solana_account
 
-        Get a Solana account by address
+        Get Solana account by address
         """
         pass
 
     async def test_get_solana_account_by_name(self) -> None:
         """Test case for get_solana_account_by_name
 
-        Get a Solana account by name
+        Get Solana account by name
         """
         pass
 
     async def test_import_solana_account(self) -> None:
         """Test case for import_solana_account
 
-        Import a Solana account
+        Import Solana account
         """
         pass
 
     async def test_list_solana_accounts(self) -> None:
         """Test case for list_solana_accounts
 
-        List Solana accounts or get account by name
+        List Solana accounts
         """
         pass
 
     async def test_send_solana_transaction(self) -> None:
         """Test case for send_solana_transaction
 
-        Send a Solana transaction
+        Send Solana transaction
         """
         pass
 
     async def test_sign_solana_message(self) -> None:
         """Test case for sign_solana_message
 
-        Sign a message
+        Sign message
         """
         pass
 
     async def test_sign_solana_transaction(self) -> None:
         """Test case for sign_solana_transaction
 
-        Sign a transaction
+        Sign transaction
         """
         pass
 
     async def test_update_solana_account(self) -> None:
         """Test case for update_solana_account
 
-        Update a Solana account
+        Update Solana account
         """
         pass
 

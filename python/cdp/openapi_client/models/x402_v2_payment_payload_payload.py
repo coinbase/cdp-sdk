@@ -18,18 +18,20 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
+from cdp.openapi_client.models.x402_batch_settlement_evm_payload import X402BatchSettlementEvmPayload
 from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
 from cdp.openapi_client.models.x402_exact_evm_permit2_payload import X402ExactEvmPermit2Payload
 from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload
+from cdp.openapi_client.models.x402_upto_evm_permit2_payload import X402UptoEvmPermit2Payload
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-X402V2PAYMENTPAYLOADPAYLOAD_ONE_OF_SCHEMAS = ["X402ExactEvmPayload", "X402ExactEvmPermit2Payload", "X402ExactSolanaPayload"]
+X402V2PAYMENTPAYLOADPAYLOAD_ONE_OF_SCHEMAS = ["X402BatchSettlementEvmPayload", "X402ExactEvmPayload", "X402ExactEvmPermit2Payload", "X402ExactSolanaPayload", "X402UptoEvmPermit2Payload"]
 
 class X402V2PaymentPayloadPayload(BaseModel):
     """
-    The payload of the payment depending on the x402Version, scheme, and network.
+    The payload of the payment depending on the x402Version, scheme, and network. Discriminated by scheme-specific fields: exact-EVM/upto-EVM payloads carry a `signature`; exact-Solana carries a `transaction`; batch-settlement carries a `type` discriminator. See `x402BatchSettlementEvmPayload` for the documented batch-settlement variants.
     """
     # data type: X402ExactEvmPayload
     oneof_schema_1_validator: Optional[X402ExactEvmPayload] = None
@@ -37,8 +39,12 @@ class X402V2PaymentPayloadPayload(BaseModel):
     oneof_schema_2_validator: Optional[X402ExactEvmPermit2Payload] = None
     # data type: X402ExactSolanaPayload
     oneof_schema_3_validator: Optional[X402ExactSolanaPayload] = None
-    actual_instance: Optional[Union[X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload]] = None
-    one_of_schemas: Set[str] = { "X402ExactEvmPayload", "X402ExactEvmPermit2Payload", "X402ExactSolanaPayload" }
+    # data type: X402UptoEvmPermit2Payload
+    oneof_schema_4_validator: Optional[X402UptoEvmPermit2Payload] = None
+    # data type: X402BatchSettlementEvmPayload
+    oneof_schema_5_validator: Optional[X402BatchSettlementEvmPayload] = None
+    actual_instance: Optional[Union[X402BatchSettlementEvmPayload, X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload, X402UptoEvmPermit2Payload]] = None
+    one_of_schemas: Set[str] = { "X402BatchSettlementEvmPayload", "X402ExactEvmPayload", "X402ExactEvmPermit2Payload", "X402ExactSolanaPayload", "X402UptoEvmPermit2Payload" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -76,12 +82,22 @@ class X402V2PaymentPayloadPayload(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `X402ExactSolanaPayload`")
         else:
             match += 1
+        # validate data type: X402UptoEvmPermit2Payload
+        if not isinstance(v, X402UptoEvmPermit2Payload):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `X402UptoEvmPermit2Payload`")
+        else:
+            match += 1
+        # validate data type: X402BatchSettlementEvmPayload
+        if not isinstance(v, X402BatchSettlementEvmPayload):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `X402BatchSettlementEvmPayload`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in X402V2PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in X402V2PaymentPayloadPayload with oneOf schemas: X402BatchSettlementEvmPayload, X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload, X402UptoEvmPermit2Payload. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in X402V2PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in X402V2PaymentPayloadPayload with oneOf schemas: X402BatchSettlementEvmPayload, X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload, X402UptoEvmPermit2Payload. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -114,13 +130,25 @@ class X402V2PaymentPayloadPayload(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into X402UptoEvmPermit2Payload
+        try:
+            instance.actual_instance = X402UptoEvmPermit2Payload.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into X402BatchSettlementEvmPayload
+        try:
+            instance.actual_instance = X402BatchSettlementEvmPayload.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into X402V2PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into X402V2PaymentPayloadPayload with oneOf schemas: X402BatchSettlementEvmPayload, X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload, X402UptoEvmPermit2Payload. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into X402V2PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into X402V2PaymentPayloadPayload with oneOf schemas: X402BatchSettlementEvmPayload, X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload, X402UptoEvmPermit2Payload. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -134,7 +162,7 @@ class X402V2PaymentPayloadPayload(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], X402BatchSettlementEvmPayload, X402ExactEvmPayload, X402ExactEvmPermit2Payload, X402ExactSolanaPayload, X402UptoEvmPermit2Payload]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

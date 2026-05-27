@@ -30,22 +30,22 @@ class X402SupportedPaymentKind(BaseModel):
     """ # noqa: E501
     x402_version: X402Version = Field(alias="x402Version")
     scheme: StrictStr = Field(description="The scheme of the payment protocol.")
-    network: StrictStr = Field(description="The network of the blockchain.")
-    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
+    network: StrictStr = Field(description="The network of the blockchain. The format corresponds to the `x402Version` of the enclosing `x402SupportedPaymentKind`: v1 uses human-readable names (see `X402V1Network`); v2 uses CAIP-2 chain IDs (see `X402V2Network`).")
+    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info. Common scheme-specific fields:   - `exact` on Solana: `feePayer` — the base58-encoded Solana address that pays transaction fees.   - `upto` on EVM: `name`, `version`, and `facilitatorAddress` — the EVM address of the facilitator that the client must bind into the Permit2 witness when constructing the payment payload.   - `batch-settlement` on EVM: `name`, `version`, `receiverAuthorizer` (the EVM address authorized to sign claim batches), `withdrawDelay` (channel non-cooperative withdraw delay in seconds, 900–2,592,000), and optionally `assetTransferMethod` (e.g., `\"eip3009\"`).")
     __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "extra"]
 
     @field_validator('scheme')
     def scheme_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['exact', 'upto']):
-            raise ValueError("must be one of enum values ('exact', 'upto')")
+        if value not in set(['exact', 'upto', 'batch-settlement']):
+            raise ValueError("must be one of enum values ('exact', 'upto', 'batch-settlement')")
         return value
 
     @field_validator('network')
     def network_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', 'avalanche', 'arbitrum', 'arbitrum-sepolia', 'world', 'world-sepolia']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon', 'eip155:8453', 'eip155:84532', 'eip155:137', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', 'avalanche', 'arbitrum', 'arbitrum-sepolia', 'world', 'world-sepolia')")
+        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'eip155:8453', 'eip155:84532', 'eip155:137', 'eip155:42161', 'eip155:480', 'eip155:4801', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'eip155:8453', 'eip155:84532', 'eip155:137', 'eip155:42161', 'eip155:480', 'eip155:4801', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')")
         return value
 
     model_config = ConfigDict(

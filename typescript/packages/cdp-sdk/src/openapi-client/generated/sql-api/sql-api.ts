@@ -95,7 +95,7 @@ export const getSQLGrammar = (options?: SecondParameter<typeof cdpApiClient<stri
 
 This includes table names, column definitions, data types, and indexed fields.
 
- * @summary Get schemas details
+ * @summary Get schema details
  */
 export const getSQLSchema = (
   params?: GetSQLSchemaParams,

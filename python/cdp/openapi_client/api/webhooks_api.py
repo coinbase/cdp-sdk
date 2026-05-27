@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from datetime import datetime
-from pydantic import Field, StrictStr
+from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.webhook_event_list_response import WebhookEventListResponse
@@ -334,7 +334,7 @@ class WebhooksApi:
     @validate_call
     async def delete_webhook_subscription(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -405,7 +405,7 @@ class WebhooksApi:
     @validate_call
     async def delete_webhook_subscription_with_http_info(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -476,7 +476,7 @@ class WebhooksApi:
     @validate_call
     async def delete_webhook_subscription_without_preload_content(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -607,7 +607,7 @@ class WebhooksApi:
     @validate_call
     async def get_webhook_subscription(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -621,7 +621,7 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> WebhookSubscriptionResponse:
-        """Get webhook subscription details
+        """Get webhook subscription
 
         Retrieve detailed information about a specific webhook subscription including configuration, status, creation timestamp, and webhook signature secret.  ### Response Includes - Subscription configuration and filters - Target URL and custom headers - Webhook signature secret for verification - Creation timestamp and status 
 
@@ -678,7 +678,7 @@ class WebhooksApi:
     @validate_call
     async def get_webhook_subscription_with_http_info(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -692,7 +692,7 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[WebhookSubscriptionResponse]:
-        """Get webhook subscription details
+        """Get webhook subscription
 
         Retrieve detailed information about a specific webhook subscription including configuration, status, creation timestamp, and webhook signature secret.  ### Response Includes - Subscription configuration and filters - Target URL and custom headers - Webhook signature secret for verification - Creation timestamp and status 
 
@@ -749,7 +749,7 @@ class WebhooksApi:
     @validate_call
     async def get_webhook_subscription_without_preload_content(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -763,7 +763,7 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get webhook subscription details
+        """Get webhook subscription
 
         Retrieve detailed information about a specific webhook subscription including configuration, status, creation timestamp, and webhook signature secret.  ### Response Includes - Subscription configuration and filters - Target URL and custom headers - Webhook signature secret for verification - Creation timestamp and status 
 
@@ -880,7 +880,7 @@ class WebhooksApi:
     @validate_call
     async def list_webhook_subscription_events(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         event_id: Annotated[Optional[StrictStr], Field(description="Filter by a specific event ID.")] = None,
         min_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or after this timestamp (RFC 3339 format).")] = None,
         max_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or before this timestamp (RFC 3339 format).")] = None,
@@ -968,7 +968,7 @@ class WebhooksApi:
     @validate_call
     async def list_webhook_subscription_events_with_http_info(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         event_id: Annotated[Optional[StrictStr], Field(description="Filter by a specific event ID.")] = None,
         min_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or after this timestamp (RFC 3339 format).")] = None,
         max_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or before this timestamp (RFC 3339 format).")] = None,
@@ -1056,7 +1056,7 @@ class WebhooksApi:
     @validate_call
     async def list_webhook_subscription_events_without_preload_content(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         event_id: Annotated[Optional[StrictStr], Field(description="Filter by a specific event ID.")] = None,
         min_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or after this timestamp (RFC 3339 format).")] = None,
         max_created_at: Annotated[Optional[datetime], Field(description="Filter events created at or before this timestamp (RFC 3339 format).")] = None,
@@ -1534,7 +1534,7 @@ class WebhooksApi:
     @validate_call
     async def update_webhook_subscription(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         webhook_subscription_update_request: WebhookSubscriptionUpdateRequest,
         _request_timeout: Union[
             None,
@@ -1610,7 +1610,7 @@ class WebhooksApi:
     @validate_call
     async def update_webhook_subscription_with_http_info(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         webhook_subscription_update_request: WebhookSubscriptionUpdateRequest,
         _request_timeout: Union[
             None,
@@ -1686,7 +1686,7 @@ class WebhooksApi:
     @validate_call
     async def update_webhook_subscription_without_preload_content(
         self,
-        subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
+        subscription_id: Annotated[str, Field(strict=True, description="Unique identifier for the webhook subscription.")],
         webhook_subscription_update_request: WebhookSubscriptionUpdateRequest,
         _request_timeout: Union[
             None,

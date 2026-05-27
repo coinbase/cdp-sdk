@@ -6,20 +6,51 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
-  AddEndUserEvmAccount201,
-  AddEndUserEvmAccountBody,
-  AddEndUserEvmSmartAccount201,
-  AddEndUserEvmSmartAccountBody,
-  AddEndUserSolanaAccount201,
-  AddEndUserSolanaAccountBody,
-  CreateEndUserBody,
-  EndUser,
-  ImportEndUserBody,
-  ListEndUsers200,
-  ListEndUsersParams,
-  LookupEndUser200,
-  LookupEndUserParams,
-  ValidateEndUserAccessTokenBody,
+  BlockchainAddress,
+  CreateDelegationForEndUserAccount201,
+  CreateDelegationForEndUserAccountBody,
+  CreateDelegationForEndUserAccountParams,
+  CreateEvmEip7702DelegationWithEndUserAccount201,
+  CreateEvmEip7702DelegationWithEndUserAccountBody,
+  CreateEvmEip7702DelegationWithEndUserAccountParams,
+  EvmUserOperation,
+  GetDelegationForEndUser200,
+  GetDelegationForEndUserAccount200,
+  GetDelegationForEndUserAccountParams,
+  GetDelegationForEndUserParams,
+  RevokeDelegationForEndUserAccountBody,
+  RevokeDelegationForEndUserAccountParams,
+  RevokeDelegationForEndUserBody,
+  RevokeDelegationForEndUserParams,
+  SendEvmAssetWithEndUserAccount200,
+  SendEvmAssetWithEndUserAccountBody,
+  SendEvmAssetWithEndUserAccountParams,
+  SendEvmTransactionWithEndUserAccount200,
+  SendEvmTransactionWithEndUserAccountBody,
+  SendEvmTransactionWithEndUserAccountParams,
+  SendSolanaAssetWithEndUserAccount200,
+  SendSolanaAssetWithEndUserAccountBody,
+  SendSolanaAssetWithEndUserAccountParams,
+  SendSolanaTransactionWithEndUserAccount200,
+  SendSolanaTransactionWithEndUserAccountBody,
+  SendSolanaTransactionWithEndUserAccountParams,
+  SendUserOperationWithEndUserAccountBody,
+  SendUserOperationWithEndUserAccountParams,
+  SignEvmMessageWithEndUserAccount200,
+  SignEvmMessageWithEndUserAccountBody,
+  SignEvmMessageWithEndUserAccountParams,
+  SignEvmTransactionWithEndUserAccount200,
+  SignEvmTransactionWithEndUserAccountBody,
+  SignEvmTransactionWithEndUserAccountParams,
+  SignEvmTypedDataWithEndUserAccount200,
+  SignEvmTypedDataWithEndUserAccountBody,
+  SignEvmTypedDataWithEndUserAccountParams,
+  SignSolanaMessageWithEndUserAccount200,
+  SignSolanaMessageWithEndUserAccountBody,
+  SignSolanaMessageWithEndUserAccountParams,
+  SignSolanaTransactionWithEndUserAccount200,
+  SignSolanaTransactionWithEndUserAccountBody,
+  SignSolanaTransactionWithEndUserAccountParams,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -27,188 +58,449 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided.
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Create an end user
- */
-export const createEndUser = (
-  createEndUserBody: CreateEndUserBody,
-  options?: SecondParameter<typeof cdpApiClient<EndUser>>,
-) => {
-  return cdpApiClient<EndUser>(
-    {
-      url: `/v2/end-users`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: createEndUserBody,
-    },
-    options,
-  );
-};
-/**
- * Lists the end users belonging to the developer's CDP Project.
-By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.
- * @summary List end users
- */
-export const listEndUsers = (
-  params?: ListEndUsersParams,
-  options?: SecondParameter<typeof cdpApiClient<ListEndUsers200>>,
-) => {
-  return cdpApiClient<ListEndUsers200>({ url: `/v2/end-users`, method: "GET", params }, options);
-};
-/**
- * Validates the end user's access token and returns the end user's information. Returns an error if the access token is invalid or expired.
+ * Signs a transaction with the given end user EVM account.
+The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
 
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Validate end user access token
+The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+ * @summary Sign transaction via end user EVM account
  */
-export const validateEndUserAccessToken = (
-  validateEndUserAccessTokenBody: ValidateEndUserAccessTokenBody,
-  options?: SecondParameter<typeof cdpApiClient<EndUser>>,
-) => {
-  return cdpApiClient<EndUser>(
-    {
-      url: `/v2/end-users/auth/validate-token`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: validateEndUserAccessTokenBody,
-    },
-    options,
-  );
-};
-/**
- * Gets an end user by ID.
-
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Get an end user
- */
-export const getEndUser = (
+export const signEvmTransactionWithEndUserAccount = (
   userId: string,
-  options?: SecondParameter<typeof cdpApiClient<EndUser>>,
+  signEvmTransactionWithEndUserAccountBody: SignEvmTransactionWithEndUserAccountBody,
+  params?: SignEvmTransactionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SignEvmTransactionWithEndUserAccount200>>,
 ) => {
-  return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
-};
-/**
- * Looks up end users. Exactly one lookup type must be provided per request:
-
-- **email**: searches across all email-based authentication methods
-  (email, Google, Apple, GitHub). May return multiple end users if the
-  same email address appears across different auth methods.
-
-- **oauthProvider + oauthSubject**: looks up a user by their OAuth
-  provider and subject (the `sub` claim from the provider's ID token).
-  Both params must be provided together.
-
-- **phoneNumber**: looks up a user by their SMS-verified phone number.
-
-Returns all matching end users. If no end users match, an empty array is returned.
-
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Look up end users by identity
- */
-export const lookupEndUser = (
-  params?: LookupEndUserParams,
-  options?: SecondParameter<typeof cdpApiClient<LookupEndUser200>>,
-) => {
-  return cdpApiClient<LookupEndUser200>(
-    { url: `/v2/end-users/lookup`, method: "GET", params },
+  return cdpApiClient<SignEvmTransactionWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signEvmTransactionWithEndUserAccountBody,
+      params,
+    },
     options,
   );
 };
 /**
- * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts.
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Add an EVM account to an end user
+ * Signs a transaction with the given end user EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).
+
+
+**Transaction fields and API behavior**
+
+- `to` *(Required)*: The address of the contract or account to send the transaction to.
+- `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.
+  The transaction will be sent to the network indicated by the `network` field in the request body.
+
+- `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign
+   a nonce to the transaction based on the current state of the account.
+
+- `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.
+   If not provided, the API will estimate a value based on current network conditions.
+
+- `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.
+   If not provided, the API will estimate a value based on current network conditions.
+
+- `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value
+  based on the `to` and `data` fields of the transaction.
+
+- `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
+- `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
+- `accessList` *(Optional)*: The access list to use for the transaction.
+ * @summary Send transaction via end user EVM account
  */
-export const addEndUserEvmAccount = (
+export const sendEvmTransactionWithEndUserAccount = (
   userId: string,
-  addEndUserEvmAccountBody?: AddEndUserEvmAccountBody,
-  options?: SecondParameter<typeof cdpApiClient<AddEndUserEvmAccount201>>,
+  sendEvmTransactionWithEndUserAccountBody: SendEvmTransactionWithEndUserAccountBody,
+  params?: SendEvmTransactionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SendEvmTransactionWithEndUserAccount200>>,
 ) => {
-  return cdpApiClient<AddEndUserEvmAccount201>(
+  return cdpApiClient<SendEvmTransactionWithEndUserAccount200>(
     {
-      url: `/v2/end-users/${userId}/evm`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/send/transaction`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: addEndUserEvmAccountBody,
+      data: sendEvmTransactionWithEndUserAccountBody,
+      params,
     },
     options,
   );
 };
 /**
- * Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account.
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Add an EVM smart account to an end user
+ * Sends USDC from an end user's EVM account (EOA or Smart Account) to a recipient address on a supported EVM network. This endpoint simplifies USDC transfers by automatically handling contract resolution, decimal conversion, gas estimation, and transaction encoding.
+The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50").
+ * @summary Send USDC on EVM
  */
-export const addEndUserEvmSmartAccount = (
+export const sendEvmAssetWithEndUserAccount = (
   userId: string,
-  addEndUserEvmSmartAccountBody?: AddEndUserEvmSmartAccountBody,
-  options?: SecondParameter<typeof cdpApiClient<AddEndUserEvmSmartAccount201>>,
+  address: BlockchainAddress,
+  asset: "usdc",
+  sendEvmAssetWithEndUserAccountBody: SendEvmAssetWithEndUserAccountBody,
+  params?: SendEvmAssetWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SendEvmAssetWithEndUserAccount200>>,
 ) => {
-  return cdpApiClient<AddEndUserEvmSmartAccount201>(
+  return cdpApiClient<SendEvmAssetWithEndUserAccount200>(
     {
-      url: `/v2/end-users/${userId}/evm-smart-account`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/${address}/send/${asset}`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: addEndUserEvmSmartAccountBody,
+      data: sendEvmAssetWithEndUserAccountBody,
+      params,
     },
     options,
   );
 };
 /**
- * Adds a new Solana account to an existing end user. End users can have up to 10 Solana accounts.
-This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
- * @summary Add a Solana account to an end user
- */
-export const addEndUserSolanaAccount = (
-  userId: string,
-  addEndUserSolanaAccountBody?: AddEndUserSolanaAccountBody,
-  options?: SecondParameter<typeof cdpApiClient<AddEndUserSolanaAccount201>>,
-) => {
-  return cdpApiClient<AddEndUserSolanaAccount201>(
-    {
-      url: `/v2/end-users/${userId}/solana`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: addEndUserSolanaAccountBody,
-    },
-    options,
-  );
-};
-/**
- * Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+ * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given end user EVM account.
 
-This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
- * @summary Import a private key for an end user
+Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
+ * @summary Sign EIP-191 message via end user EVM account
  */
-export const importEndUser = (
-  importEndUserBody: ImportEndUserBody,
-  options?: SecondParameter<typeof cdpApiClient<EndUser>>,
+export const signEvmMessageWithEndUserAccount = (
+  userId: string,
+  signEvmMessageWithEndUserAccountBody: SignEvmMessageWithEndUserAccountBody,
+  params?: SignEvmMessageWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SignEvmMessageWithEndUserAccount200>>,
 ) => {
-  return cdpApiClient<EndUser>(
+  return cdpApiClient<SignEvmMessageWithEndUserAccount200>(
     {
-      url: `/v2/end-users/import`,
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign/message`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: importEndUserBody,
+      data: signEvmMessageWithEndUserAccountBody,
+      params,
     },
     options,
   );
 };
-export type CreateEndUserResult = NonNullable<Awaited<ReturnType<typeof createEndUser>>>;
-export type ListEndUsersResult = NonNullable<Awaited<ReturnType<typeof listEndUsers>>>;
-export type ValidateEndUserAccessTokenResult = NonNullable<
-  Awaited<ReturnType<typeof validateEndUserAccessToken>>
+/**
+ * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given end user EVM account.
+ * @summary Sign EIP-712 typed data via end user EVM account
+ */
+export const signEvmTypedDataWithEndUserAccount = (
+  userId: string,
+  signEvmTypedDataWithEndUserAccountBody: SignEvmTypedDataWithEndUserAccountBody,
+  params?: SignEvmTypedDataWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SignEvmTypedDataWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<SignEvmTypedDataWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/sign/typed-data`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signEvmTypedDataWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
+ * @summary Get delegation for end user
+ */
+export const getDelegationForEndUser = (
+  userId: string,
+  params?: GetDelegationForEndUserParams,
+  options?: SecondParameter<typeof cdpApiClient<GetDelegationForEndUser200>>,
+) => {
+  return cdpApiClient<GetDelegationForEndUser200>(
+    { url: `/v2/embedded-wallet-api/end-users/${userId}/delegation`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+ * @summary Revoke delegation for end user
+ */
+export const revokeDelegationForEndUser = (
+  userId: string,
+  revokeDelegationForEndUserBody: RevokeDelegationForEndUserBody,
+  params?: RevokeDelegationForEndUserParams,
+  options?: SecondParameter<typeof cdpApiClient<void>>,
+) => {
+  return cdpApiClient<void>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/delegation`,
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      data: revokeDelegationForEndUserBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Creates an account-scoped delegation that allows a developer to sign on behalf of an end user for a single blockchain account (identified by its address) for the specified duration. The end user must be authenticated to authorize this delegation.
+Multiple account-scoped delegations may exist concurrently for a single end user (one per canonical account address). Account-scoped and user-scoped delegations cannot coexist for the same user.
+When the address corresponds to an EVM Smart Account, the delegation is scoped to the Smart Account's owner EOA rather than the Smart Account address itself. This means `/address/{smartAccountAddress}/delegation` and `/address/{ownerEoaAddress}/delegation` resolve to the same delegation, and the 409 `account_scoped_delegation_active` error may be returned when creating via either address if one already exists for the canonical owner.
+ * @summary Create account-scoped delegation for end user
+ */
+export const createDelegationForEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  createDelegationForEndUserAccountBody: CreateDelegationForEndUserAccountBody,
+  params?: CreateDelegationForEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<CreateDelegationForEndUserAccount201>>,
+) => {
+  return cdpApiClient<CreateDelegationForEndUserAccount201>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createDelegationForEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+ * @summary Get account-scoped delegation for end user
+ */
+export const getDelegationForEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  params?: GetDelegationForEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<GetDelegationForEndUserAccount200>>,
+) => {
+  return cdpApiClient<GetDelegationForEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
+      method: "GET",
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+ * @summary Revoke account-scoped delegation for end user
+ */
+export const revokeDelegationForEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  revokeDelegationForEndUserAccountBody: RevokeDelegationForEndUserAccountBody,
+  params?: RevokeDelegationForEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<void>>,
+) => {
+  return cdpApiClient<void>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      data: revokeDelegationForEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
+
+This endpoint:
+- Retrieves delegation artifacts from onchain
+- Signs the EIP-7702 authorization for delegation
+- Assembles and submits a Type 4 transaction
+- Creates an associated smart account object
+
+The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.
+ * @summary Create EIP-7702 delegation for end user EVM account
+ */
+export const createEvmEip7702DelegationWithEndUserAccount = (
+  userId: string,
+  createEvmEip7702DelegationWithEndUserAccountBody: CreateEvmEip7702DelegationWithEndUserAccountBody,
+  params?: CreateEvmEip7702DelegationWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<CreateEvmEip7702DelegationWithEndUserAccount201>>,
+) => {
+  return cdpApiClient<CreateEvmEip7702DelegationWithEndUserAccount201>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/eip7702/delegation`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createEvmEip7702DelegationWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Prepares, signs, and sends a user operation for an end user's Smart Account.
+ * @summary Send user operation for end user Smart Account
+ */
+export const sendUserOperationWithEndUserAccount = (
+  userId: string,
+  address: string,
+  sendUserOperationWithEndUserAccountBody: SendUserOperationWithEndUserAccountBody,
+  params?: SendUserOperationWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/send`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendUserOperationWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Signs an arbitrary Base64 encoded message with the given Solana account.
+ **WARNING:**  Never sign a message that you didn't generate as it may put your funds at risk.
+ * @summary Sign Base64-encoded message
+ */
+export const signSolanaMessageWithEndUserAccount = (
+  userId: string,
+  signSolanaMessageWithEndUserAccountBody: SignSolanaMessageWithEndUserAccountBody,
+  params?: SignSolanaMessageWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SignSolanaMessageWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<SignSolanaMessageWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign/message`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signSolanaMessageWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Signs a transaction with the given end user Solana account.
+The unsigned transaction should be serialized into a byte array and then encoded as base64.
+**Transaction types**
+The following transaction types are supported:
+* [Legacy transactions](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html)
+* [Versioned transactions](https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html)
+The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+ * @summary Sign transaction via end user Solana account
+ */
+export const signSolanaTransactionWithEndUserAccount = (
+  userId: string,
+  signSolanaTransactionWithEndUserAccountBody: SignSolanaTransactionWithEndUserAccountBody,
+  params?: SignSolanaTransactionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SignSolanaTransactionWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<SignSolanaTransactionWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signSolanaTransactionWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
+The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+The unsigned transaction should be serialized into a byte array and then encoded as base64.
+**Transaction types**
+The following transaction types are supported:
+* [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions)
+* [Versioned transactions](https://solana.com/developers/guides/advanced/versions)
+**Instruction Batching**
+To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+**Network Support**
+The following Solana networks are supported:
+* `solana` - Solana Mainnet
+* `solana-devnet` - Solana Devnet
+The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+ * @summary Send transaction via end user Solana account
+ */
+export const sendSolanaTransactionWithEndUserAccount = (
+  userId: string,
+  sendSolanaTransactionWithEndUserAccountBody: SendSolanaTransactionWithEndUserAccountBody,
+  params?: SendSolanaTransactionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SendSolanaTransactionWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<SendSolanaTransactionWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/send/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendSolanaTransactionWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
+The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50").
+Use the optional `createRecipientAta` parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+ * @summary Send USDC on Solana
+ */
+export const sendSolanaAssetWithEndUserAccount = (
+  userId: string,
+  address: BlockchainAddress,
+  asset: "usdc",
+  sendSolanaAssetWithEndUserAccountBody: SendSolanaAssetWithEndUserAccountBody,
+  params?: SendSolanaAssetWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SendSolanaAssetWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<SendSolanaAssetWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/${address}/send/${asset}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendSolanaAssetWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+export type SignEvmTransactionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof signEvmTransactionWithEndUserAccount>>
 >;
-export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;
-export type LookupEndUserResult = NonNullable<Awaited<ReturnType<typeof lookupEndUser>>>;
-export type AddEndUserEvmAccountResult = NonNullable<
-  Awaited<ReturnType<typeof addEndUserEvmAccount>>
+export type SendEvmTransactionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof sendEvmTransactionWithEndUserAccount>>
 >;
-export type AddEndUserEvmSmartAccountResult = NonNullable<
-  Awaited<ReturnType<typeof addEndUserEvmSmartAccount>>
+export type SendEvmAssetWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof sendEvmAssetWithEndUserAccount>>
 >;
-export type AddEndUserSolanaAccountResult = NonNullable<
-  Awaited<ReturnType<typeof addEndUserSolanaAccount>>
+export type SignEvmMessageWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof signEvmMessageWithEndUserAccount>>
 >;
-export type ImportEndUserResult = NonNullable<Awaited<ReturnType<typeof importEndUser>>>;
+export type SignEvmTypedDataWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof signEvmTypedDataWithEndUserAccount>>
+>;
+export type GetDelegationForEndUserResult = NonNullable<
+  Awaited<ReturnType<typeof getDelegationForEndUser>>
+>;
+export type RevokeDelegationForEndUserResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUser>>
+>;
+export type CreateDelegationForEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof createDelegationForEndUserAccount>>
+>;
+export type GetDelegationForEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof getDelegationForEndUserAccount>>
+>;
+export type RevokeDelegationForEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUserAccount>>
+>;
+export type CreateEvmEip7702DelegationWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof createEvmEip7702DelegationWithEndUserAccount>>
+>;
+export type SendUserOperationWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof sendUserOperationWithEndUserAccount>>
+>;
+export type SignSolanaMessageWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof signSolanaMessageWithEndUserAccount>>
+>;
+export type SignSolanaTransactionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof signSolanaTransactionWithEndUserAccount>>
+>;
+export type SendSolanaTransactionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof sendSolanaTransactionWithEndUserAccount>>
+>;
+export type SendSolanaAssetWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof sendSolanaAssetWithEndUserAccount>>
+>;

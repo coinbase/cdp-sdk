@@ -86,7 +86,7 @@ public class EvmSwapsApi {
   }
 
   /**
-   * Create a swap quote
+   * Create swap quote
    * Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
    * @param createEvmSwapQuoteRequest  (required)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -99,7 +99,7 @@ public class EvmSwapsApi {
   }
 
   /**
-   * Create a swap quote
+   * Create swap quote
    * Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
    * @param createEvmSwapQuoteRequest  (required)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -180,7 +180,7 @@ public class EvmSwapsApi {
   }
 
   /**
-   * Get a price estimate for a swap
+   * Get swap price estimate
    * Get a price estimate for a swap between two tokens on an EVM network.
    * @param network  (required)
    * @param toToken  (required)
@@ -199,7 +199,7 @@ public class EvmSwapsApi {
   }
 
   /**
-   * Get a price estimate for a swap
+   * Get swap price estimate
    * Get a price estimate for a swap between two tokens on an EVM network.
    * @param network  (required)
    * @param toToken  (required)

@@ -199,7 +199,7 @@ public class X402FacilitatorApi {
   }
 
   /**
-   * List discovered x402 resources
+   * List x402 resources
    * Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
    * @param type Filter by protocol type (e.g., \&quot;http\&quot;, \&quot;mcp\&quot;). Currently, the only supported protocol type is \&quot;http\&quot;. (optional)
    * @param limit The number of discovered x402 resources to return per page. (optional, default to 100)
@@ -213,7 +213,7 @@ public class X402FacilitatorApi {
   }
 
   /**
-   * List discovered x402 resources
+   * List x402 resources
    * Lists all active discovered x402 resources. This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata. The response is paginated, and by default, returns 100 items per page.
    * @param type Filter by protocol type (e.g., \&quot;http\&quot;, \&quot;mcp\&quot;). Currently, the only supported protocol type is \&quot;http\&quot;. (optional)
    * @param limit The number of discovered x402 resources to return per page. (optional, default to 100)
@@ -516,7 +516,7 @@ public class X402FacilitatorApi {
   }
 
   /**
-   * Settle a payment
+   * Settle payment
    * Settle an x402 protocol payment with a specific scheme and network.
    * @param verifyX402PaymentRequest  (required)
    * @return InlineObject1
@@ -528,7 +528,7 @@ public class X402FacilitatorApi {
   }
 
   /**
-   * Settle a payment
+   * Settle payment
    * Settle an x402 protocol payment with a specific scheme and network.
    * @param verifyX402PaymentRequest  (required)
    * @return ApiResponse&lt;InlineObject1&gt;
@@ -682,7 +682,7 @@ public class X402FacilitatorApi {
   }
 
   /**
-   * Verify a payment
+   * Verify payment
    * Verify an x402 protocol payment with a specific scheme and network.
    * @param verifyX402PaymentRequest  (required)
    * @return InlineObject
@@ -694,7 +694,7 @@ public class X402FacilitatorApi {
   }
 
   /**
-   * Verify a payment
+   * Verify payment
    * Verify an x402 protocol payment with a specific scheme and network.
    * @param verifyX402PaymentRequest  (required)
    * @return ApiResponse&lt;InlineObject&gt;

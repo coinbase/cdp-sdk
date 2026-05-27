@@ -602,7 +602,7 @@ openapi_criterion_mapping["signEndUserSolMessage"] = openapi_criterion_mapping["
 openapi_criterion_mapping["sendEndUserEvmAsset"] = openapi_criterion_mapping["sendEvmTransaction"]
 openapi_criterion_mapping["sendEndUserSolAsset"] = openapi_criterion_mapping["sendSolTransaction"]
 openapi_criterion_mapping["createEndUserEvmSwap"] = openapi_criterion_mapping["sendEvmTransaction"]
-openapi_criterion_mapping["sendEndUserOperation"] = openapi_criterion_mapping["prepareUserOperation"]
+openapi_criterion_mapping["sendEndUserOperation"] = openapi_criterion_mapping["sendEvmTransaction"]
 
 # OpenAPI rule constructor mapping
 openapi_rule_mapping = {
@@ -616,6 +616,7 @@ openapi_rule_mapping = {
     "signSolMessage": SignSolMessageRule,
     "prepareUserOperation": PrepareUserOperationRule,
     "sendUserOperation": SendUserOperationRule,
+    "sendEndUserOperation": SendEndUserOperationRule,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRule,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRule,
     "signEndUserEvmMessage": SignEndUserEvmMessageRule,
@@ -626,7 +627,6 @@ openapi_rule_mapping = {
     "sendEndUserEvmAsset": SendEndUserEvmAssetRule,
     "sendEndUserSolAsset": SendEndUserSolAssetRule,
     "createEndUserEvmSwap": CreateEndUserEvmSwapRule,
-    "sendEndUserOperation": SendEndUserOperationRule,
 }
 
 

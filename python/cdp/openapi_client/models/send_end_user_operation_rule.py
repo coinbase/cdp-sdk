@@ -110,3 +110,5 @@ class SendEndUserOperationRule(BaseModel):
             "criteria": [SendEvmTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
         })
         return _obj
+
+

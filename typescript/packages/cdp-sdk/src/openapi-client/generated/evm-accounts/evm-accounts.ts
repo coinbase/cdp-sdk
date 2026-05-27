@@ -51,7 +51,7 @@ export const listEvmAccounts = (
 };
 /**
  * Creates a new EVM account.
- * @summary Create an EVM account
+ * @summary Create EVM account
  */
 export const createEvmAccount = (
   createEvmAccountBody?: CreateEvmAccountBody,
@@ -69,7 +69,7 @@ export const createEvmAccount = (
 };
 /**
  * Gets an EVM account by its address.
- * @summary Get an EVM account by address
+ * @summary Get EVM account by address
  */
 export const getEvmAccount = (
   address: string,
@@ -79,7 +79,7 @@ export const getEvmAccount = (
 };
 /**
  * Updates an existing EVM account. Use this to update the account's name or account-level policy.
- * @summary Update an EVM account
+ * @summary Update EVM account
  */
 export const updateEvmAccount = (
   address: string,
@@ -98,7 +98,7 @@ export const updateEvmAccount = (
 };
 /**
  * Gets an EVM account by its name.
- * @summary Get an EVM account by name
+ * @summary Get EVM account by name
  */
 export const getEvmAccountByName = (
   name: string,
@@ -136,7 +136,7 @@ The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com
 - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
 - `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
 - `accessList` *(Optional)*: The access list to use for the transaction.
- * @summary Send a transaction
+ * @summary Send transaction
  */
 export const sendEvmTransaction = (
   address: string,
@@ -158,7 +158,7 @@ export const sendEvmTransaction = (
 The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
 
 The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md). The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
- * @summary Sign a transaction
+ * @summary Sign transaction
  */
 export const signEvmTransaction = (
   address: string,
@@ -177,7 +177,7 @@ export const signEvmTransaction = (
 };
 /**
  * Signs an arbitrary 32 byte hash with the given EVM account.
- * @summary Sign a hash
+ * @summary Sign hash
  */
 export const signEvmHash = (
   address: string,
@@ -198,7 +198,7 @@ export const signEvmHash = (
  * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.
 
 Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
- * @summary Sign an EIP-191 message
+ * @summary Sign EIP-191 message
  */
 export const signEvmMessage = (
   address: string,
@@ -263,7 +263,7 @@ export const createEvmEip7702Delegation = (
 };
 /**
  * Returns the EIP-7702 delegation operation. Use the delegationOperationId returned by the Create EIP-7702 delegation endpoint to poll for operation completion.
- * @summary Get EIP-7702 delegation operation for an operationID
+ * @summary Get EIP-7702 delegation operation by ID
  */
 export const getEvmEip7702DelegationOperationById = (
   delegationOperationId: string,
@@ -276,7 +276,7 @@ export const getEvmEip7702DelegationOperationById = (
 };
 /**
  * Import an existing EVM account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
- * @summary Import an EVM account
+ * @summary Import EVM account
  */
 export const importEvmAccount = (
   importEvmAccountBody: ImportEvmAccountBody,
@@ -294,7 +294,7 @@ export const importEvmAccount = (
 };
 /**
  * Export an existing EVM account's private key. It is important to store the private key in a secure place after it's exported.
- * @summary Export an EVM account
+ * @summary Export EVM account
  */
 export const exportEvmAccount = (
   address: string,
@@ -313,7 +313,7 @@ export const exportEvmAccount = (
 };
 /**
  * Export an existing EVM account's private key by its name. It is important to store the private key in a secure place after it's exported.
- * @summary Export an EVM account by name
+ * @summary Export EVM account by name
  */
 export const exportEvmAccountByName = (
   name: string,

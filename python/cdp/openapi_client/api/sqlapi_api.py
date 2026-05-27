@@ -318,7 +318,7 @@ class SQLAPIApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> OnchainDataSchemaResponse:
-        """Get schemas details
+        """Get schema details
 
         Retrieve the schema information for the available tables in the SQL API's indexed data.  This includes table names, column definitions, data types, and indexed fields. 
 
@@ -391,7 +391,7 @@ class SQLAPIApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[OnchainDataSchemaResponse]:
-        """Get schemas details
+        """Get schema details
 
         Retrieve the schema information for the available tables in the SQL API's indexed data.  This includes table names, column definitions, data types, and indexed fields. 
 
@@ -464,7 +464,7 @@ class SQLAPIApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get schemas details
+        """Get schema details
 
         Retrieve the schema information for the available tables in the SQL API's indexed data.  This includes table names, column definitions, data types, and indexed fields. 
 

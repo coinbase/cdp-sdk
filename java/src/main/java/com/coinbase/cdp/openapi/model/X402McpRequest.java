@@ -26,8 +26,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -90,7 +88,7 @@ public class X402McpRequest {
 
   public static final String JSON_PROPERTY_PARAMS = "params";
   @jakarta.annotation.Nullable
-  private Map<String, Object> params = new HashMap<>();
+  private Object params;
 
   public X402McpRequest() { 
   }
@@ -167,16 +165,8 @@ public class X402McpRequest {
   }
 
 
-  public X402McpRequest params(@jakarta.annotation.Nullable Map<String, Object> params) {
+  public X402McpRequest params(@jakarta.annotation.Nullable Object params) {
     this.params = params;
-    return this;
-  }
-
-  public X402McpRequest putParamsItem(String key, Object paramsItem) {
-    if (this.params == null) {
-      this.params = new HashMap<>();
-    }
-    this.params.put(key, paramsItem);
     return this;
   }
 
@@ -186,15 +176,15 @@ public class X402McpRequest {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PARAMS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getParams() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getParams() {
     return params;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PARAMS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setParams(@jakarta.annotation.Nullable Map<String, Object> params) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setParams(@jakarta.annotation.Nullable Object params) {
     this.params = params;
   }
 
@@ -294,11 +284,7 @@ public class X402McpRequest {
 
     // add `params` to the URL query string
     if (getParams() != null) {
-      for (String _key : getParams().keySet()) {
-        joiner.add(String.format("%sparams%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getParams().get(_key), URLEncoder.encode(ApiClient.valueToString(getParams().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sparams%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getParams()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -328,7 +314,7 @@ public class X402McpRequest {
       this.instance.method = method;
       return this;
     }
-    public X402McpRequest.Builder params(Map<String, Object> params) {
+    public X402McpRequest.Builder params(Object params) {
       this.instance.params = params;
       return this;
     }
