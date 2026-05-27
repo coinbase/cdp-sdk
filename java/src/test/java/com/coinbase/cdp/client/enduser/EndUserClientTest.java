@@ -11,7 +11,6 @@ import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
 import com.coinbase.cdp.openapi.api.EndUserAccountManagementApi;
-import com.coinbase.cdp.openapi.api.EndUserAccountsApi;
 import com.coinbase.cdp.openapi.model.*;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +45,8 @@ class EndUserClientTest {
 
     // Replace the generated API instances with mocks
     try {
-      var endUserAccountManagementField = EndUserClient.class.getDeclaredField("endUserAccountManagementApi");
+      var endUserAccountManagementField =
+          EndUserClient.class.getDeclaredField("endUserAccountManagementApi");
       endUserAccountManagementField.setAccessible(true);
       endUserAccountManagementField.set(client, endUserAccountManagementApi);
 
@@ -66,7 +66,8 @@ class EndUserClientTest {
     void createsEndUserWithRequest() throws ApiException {
       EndUser expected = new EndUser().userId(USER_ID);
       CreateEndUserRequest request = new CreateEndUserRequest().userId(USER_ID);
-      when(endUserAccountManagementApi.createEndUser(eq(WALLET_JWT), isNull(), any())).thenReturn(expected);
+      when(endUserAccountManagementApi.createEndUser(eq(WALLET_JWT), isNull(), any()))
+          .thenReturn(expected);
 
       EndUser result = client.createEndUser(request);
 
@@ -84,14 +85,16 @@ class EndUserClientTest {
       EndUser result = client.createEndUser(request, IDEMPOTENCY_KEY);
 
       assertThat(result).isEqualTo(expected);
-      verify(endUserAccountManagementApi).createEndUser(eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), eq(request));
+      verify(endUserAccountManagementApi)
+          .createEndUser(eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), eq(request));
     }
 
     @Test
     void generatesUserIdIfNotSet() throws ApiException {
       EndUser expected = new EndUser().userId("generated-id");
       CreateEndUserRequest request = new CreateEndUserRequest();
-      when(endUserAccountManagementApi.createEndUser(eq(WALLET_JWT), isNull(), any())).thenReturn(expected);
+      when(endUserAccountManagementApi.createEndUser(eq(WALLET_JWT), isNull(), any()))
+          .thenReturn(expected);
 
       client.createEndUser(request);
 
@@ -104,7 +107,8 @@ class EndUserClientTest {
     @Test
     void listsEndUsersWithDefaults() throws ApiException {
       ListEndUsers200Response expected = new ListEndUsers200Response();
-      when(endUserAccountManagementApi.listEndUsers(isNull(), isNull(), isNull())).thenReturn(expected);
+      when(endUserAccountManagementApi.listEndUsers(isNull(), isNull(), isNull()))
+          .thenReturn(expected);
 
       ListEndUsers200Response result = client.listEndUsers();
 
@@ -161,7 +165,8 @@ class EndUserClientTest {
       EndUser expected = new EndUser().userId(USER_ID);
       ImportEndUserRequest request =
           new ImportEndUserRequest().userId(USER_ID).encryptedPrivateKey("encrypted-key");
-      when(endUserAccountManagementApi.importEndUser(eq(WALLET_JWT), isNull(), any())).thenReturn(expected);
+      when(endUserAccountManagementApi.importEndUser(eq(WALLET_JWT), isNull(), any()))
+          .thenReturn(expected);
 
       EndUser result = client.importEndUser(request);
 
@@ -186,7 +191,8 @@ class EndUserClientTest {
       EndUser expected = new EndUser();
       ImportEndUserRequest request =
           new ImportEndUserRequest().encryptedPrivateKey("encrypted-key");
-      when(endUserAccountManagementApi.importEndUser(eq(WALLET_JWT), isNull(), any())).thenReturn(expected);
+      when(endUserAccountManagementApi.importEndUser(eq(WALLET_JWT), isNull(), any()))
+          .thenReturn(expected);
 
       client.importEndUser(request);
 
@@ -199,7 +205,8 @@ class EndUserClientTest {
     @Test
     void addsEvmAccount() throws ApiException {
       AddEndUserEvmAccount201Response expected = new AddEndUserEvmAccount201Response();
-      when(endUserAccountManagementApi.addEndUserEvmAccount(eq(USER_ID), eq(WALLET_JWT), isNull(), any()))
+      when(endUserAccountManagementApi.addEndUserEvmAccount(
+              eq(USER_ID), eq(WALLET_JWT), isNull(), any()))
           .thenReturn(expected);
 
       AddEndUserEvmAccount201Response result = client.addEndUserEvmAccount(USER_ID);
@@ -257,7 +264,8 @@ class EndUserClientTest {
     @Test
     void addsSolanaAccount() throws ApiException {
       AddEndUserSolanaAccount201Response expected = new AddEndUserSolanaAccount201Response();
-      when(endUserAccountManagementApi.addEndUserSolanaAccount(eq(USER_ID), eq(WALLET_JWT), isNull(), any()))
+      when(endUserAccountManagementApi.addEndUserSolanaAccount(
+              eq(USER_ID), eq(WALLET_JWT), isNull(), any()))
           .thenReturn(expected);
 
       AddEndUserSolanaAccount201Response result = client.addEndUserSolanaAccount(USER_ID);
@@ -755,7 +763,8 @@ class EndUserClientTest {
 
       // Inject mock APIs
       try {
-        var endUserAccountManagementField = EndUserClient.class.getDeclaredField("endUserAccountManagementApi");
+        var endUserAccountManagementField =
+            EndUserClient.class.getDeclaredField("endUserAccountManagementApi");
         endUserAccountManagementField.setAccessible(true);
         endUserAccountManagementField.set(tokenProviderClient, endUserAccountManagementApi);
 
@@ -771,7 +780,8 @@ class EndUserClientTest {
     void usesTokenProviderWalletJwt() throws ApiException {
       EndUser expected = new EndUser().userId(USER_ID);
       CreateEndUserRequest request = new CreateEndUserRequest().userId(USER_ID);
-      when(endUserAccountManagementApi.createEndUser(eq(WALLET_JWT), isNull(), any())).thenReturn(expected);
+      when(endUserAccountManagementApi.createEndUser(eq(WALLET_JWT), isNull(), any()))
+          .thenReturn(expected);
 
       EndUser result = tokenProviderClient.createEndUser(request);
 
@@ -787,7 +797,8 @@ class EndUserClientTest {
       EndUserClient noWalletClient = new EndUserClient(apiClient, noWalletProvider);
 
       try {
-        var endUserAccountManagementField = EndUserClient.class.getDeclaredField("endUserAccountManagementApi");
+        var endUserAccountManagementField =
+            EndUserClient.class.getDeclaredField("endUserAccountManagementApi");
         endUserAccountManagementField.setAccessible(true);
         endUserAccountManagementField.set(noWalletClient, endUserAccountManagementApi);
       } catch (Exception e) {
@@ -796,7 +807,8 @@ class EndUserClientTest {
 
       EndUser expected = new EndUser().userId(USER_ID);
       CreateEndUserRequest request = new CreateEndUserRequest().userId(USER_ID);
-      when(endUserAccountManagementApi.createEndUser(isNull(), isNull(), any())).thenReturn(expected);
+      when(endUserAccountManagementApi.createEndUser(isNull(), isNull(), any()))
+          .thenReturn(expected);
 
       EndUser result = noWalletClient.createEndUser(request);
 
