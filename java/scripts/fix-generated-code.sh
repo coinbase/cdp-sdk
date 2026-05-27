@@ -33,6 +33,9 @@ TYPES=(
     "CreateEndUserEvmSwapCriteria"
     "SendEndUserEvmAssetCriteria"
     "SendEndUserSolAssetCriteria"
+    "SendEndUserOperationCriteria"
+    "TransferFees"
+    "Abi"
 )
 
 for TYPE in "${TYPES[@]}"; do

@@ -118,7 +118,7 @@ public class SendEndUserOperationRule {
 
   public static final String JSON_PROPERTY_CRITERIA = "criteria";
   @jakarta.annotation.Nonnull
-  private SendEndUserOperationCriteria criteria;
+  private SendEndUserOperationCriteria criteria = new SendEndUserOperationCriteria();
 
   public SendEndUserOperationRule() { 
   }
