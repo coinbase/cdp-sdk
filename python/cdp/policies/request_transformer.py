@@ -525,28 +525,35 @@ openapi_criterion_mapping = {
         ),
     },
     "sendUserOperation": {
-        "ethValue": lambda c: SignEvmTransactionCriteriaInner(
+        "ethValue": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EthValueCriterion(
                 eth_value=c.ethValue,
                 operator=c.operator,
                 type="ethValue",
             )
         ),
-        "evmAddress": lambda c: SignEvmTransactionCriteriaInner(
+        "evmAddress": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
             )
         ),
-        "netUSDChange": lambda c: SignEvmTransactionCriteriaInner(
+        "evmNetwork": lambda c: SendEvmTransactionCriteriaInner(
+            actual_instance=EvmNetworkCriterion(
+                networks=c.networks,
+                operator=c.operator,
+                type="evmNetwork",
+            )
+        ),
+        "netUSDChange": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=NetUSDChangeCriterion(
                 change_cents=c.changeCents,
                 operator=c.operator,
                 type="netUSDChange",
             )
         ),
-        "evmData": lambda c: SignEvmTransactionCriteriaInner(
+        "evmData": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
                 abi=EvmDataCriterionAbi(
