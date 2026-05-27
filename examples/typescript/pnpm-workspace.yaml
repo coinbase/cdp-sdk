@@ -1,2 +1,2 @@
 packages:
-  - "../../typescript/src"
+  - "../../typescript/packages/cdp-sdk"
