@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from "vite
 import axios, { AxiosInstance, AxiosHeaders } from "axios";
 import { withAuth } from "./withAuth.js";
 import { generateWalletJwt, generateJwt } from "../../utils/jwt.js";
-import pkgJson from "../../../package.json" with { type: "json" };
+import pkgJson from "../../../../package.json" with { type: "json" };
 
 const version = pkgJson.version;
 

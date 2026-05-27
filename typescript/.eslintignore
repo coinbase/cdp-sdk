@@ -1,9 +1,0 @@
-docs/
-coverage/
-.github/
-**/**/*.json
-*.md
-dist/
-src/_types/
-src/_cjs/
-src/_esm/ 

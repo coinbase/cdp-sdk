@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["./src/client/cdp.ts"],
+  "entryPoints": ["./packages/cdp-sdk/src/client/cdp.ts"],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/client",
   "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./ts-frontmatter.mjs"],

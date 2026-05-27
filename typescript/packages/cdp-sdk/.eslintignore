@@ -1,0 +1,8 @@
+docs/
+coverage/
+**/**/*.json
+*.md
+dist/
+_types/
+_cjs/
+_esm/

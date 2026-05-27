@@ -18,7 +18,7 @@ jobs:
     environment: npm
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           egress-policy: audit
 
@@ -36,7 +36,7 @@ jobs:
           node-version: 22.22.1
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
-          cache-dependency-path: ./typescript
+          cache-dependency-path: ./typescript/pnpm-lock.yaml
 
       - name: Use latest npm for trusted publishing
         run: npm install -g npm@latest
@@ -49,5 +49,5 @@ jobs:
 
       - name: Publish
         run: |
-          pnpm run prepublish
+          pnpm --filter @coinbase/cdp-sdk run prepublish
           pnpm publish --recursive --no-git-checks --access public

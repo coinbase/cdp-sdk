@@ -3,7 +3,7 @@
   "include": ["src"],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "outDir": "./src/_esm",
+    "outDir": "./_esm",
     "sourceMap": true
   }
 }

@@ -1,11 +1,11 @@
 {
   "entryPoints": [
-    "./src/auth/hooks/axios/withAuth.ts",
-    "./src/auth/utils/hash.ts",
-    "./src/auth/utils/http.ts",
-    "./src/auth/utils/jwt.ts",
-    "./src/auth/utils/ws.ts",
-    "./src/auth/errors.ts"
+    "./packages/cdp-sdk/src/auth/hooks/axios/withAuth.ts",
+    "./packages/cdp-sdk/src/auth/utils/hash.ts",
+    "./packages/cdp-sdk/src/auth/utils/http.ts",
+    "./packages/cdp-sdk/src/auth/utils/jwt.ts",
+    "./packages/cdp-sdk/src/auth/utils/ws.ts",
+    "./packages/cdp-sdk/src/auth/errors.ts"
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/auth",
@@ -14,7 +14,7 @@
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
-  "readme": "./src/auth/README.md",
+  "readme": "./packages/cdp-sdk/src/auth/README.md",
   "name": "index",
   "includeVersion": true,
   "sort": ["kind"],
