@@ -7,7 +7,6 @@ import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
 import com.coinbase.cdp.openapi.api.EndUserAccountManagementApi;
-import com.coinbase.cdp.openapi.api.EndUserAccountsApi;
 import com.coinbase.cdp.openapi.model.AddEndUserEvmAccount201Response;
 import com.coinbase.cdp.openapi.model.AddEndUserEvmSmartAccount201Response;
 import com.coinbase.cdp.openapi.model.AddEndUserEvmSmartAccountRequest;
@@ -168,7 +167,8 @@ public class EndUserClient {
    * @throws ApiException if the API call fails
    */
   public ListEndUsers200Response listEndUsers(ListEndUsersOptions options) throws ApiException {
-    return endUserAccountManagementApi.listEndUsers(options.pageSize(), options.pageToken(), options.sort());
+    return endUserAccountManagementApi.listEndUsers(
+        options.pageSize(), options.pageToken(), options.sort());
   }
 
   /**
@@ -248,7 +248,8 @@ public class EndUserClient {
       throws ApiException {
     Object body = new Object();
     String walletJwt = generateWalletJwt("POST", "/v2/end-users/" + userId + "/evm/accounts", body);
-    return endUserAccountManagementApi.addEndUserEvmAccount(userId, walletJwt, idempotencyKey, body);
+    return endUserAccountManagementApi.addEndUserEvmAccount(
+        userId, walletJwt, idempotencyKey, body);
   }
 
   /**
@@ -278,7 +279,8 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/evm/smart-accounts", request);
-    return endUserAccountManagementApi.addEndUserEvmSmartAccount(userId, walletJwt, idempotencyKey, request);
+    return endUserAccountManagementApi.addEndUserEvmSmartAccount(
+        userId, walletJwt, idempotencyKey, request);
   }
 
   /**
@@ -306,7 +308,8 @@ public class EndUserClient {
     Object body = new Object();
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/solana/accounts", body);
-    return endUserAccountManagementApi.addEndUserSolanaAccount(userId, walletJwt, idempotencyKey, body);
+    return endUserAccountManagementApi.addEndUserSolanaAccount(
+        userId, walletJwt, idempotencyKey, body);
   }
 
   // ==================== Delegation Management ====================
