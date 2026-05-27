@@ -77,6 +77,7 @@ client: check-openapi preprocess-openapi
 	@cp -r build/generated/src/main/java/com/coinbase/cdp/openapi/* src/main/java/com/coinbase/cdp/openapi/
 	@echo "Applying generated code fixes..."
 	@./scripts/fix-generated-code.sh
+	@$(GRADLE) spotlessApply
 	@echo "OpenAPI client generation completed"
 
 stage-deploy:
