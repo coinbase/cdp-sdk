@@ -54,9 +54,11 @@
   "repository": "https://github.com/coinbase/cdp-sdk",
   "license": "MIT",
   "files": [
+    "src",
     "_cjs",
     "_esm",
-    "_types"
+    "_types",
+    "!**/*.test.ts"
   ],
   "keywords": [
     "coinbase",
