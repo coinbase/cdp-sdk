@@ -4046,7 +4046,7 @@ describe("CDP Client E2E Tests", () => {
             const url = call[0] as string;
             const body = call[1]?.body;
             return (
-              url.includes("https://sepolia.optimism.io") &&
+              url.startsWith("https://sepolia.optimism.io") &&
               body &&
               body.toString().includes("eth_sendTransaction")
             );
