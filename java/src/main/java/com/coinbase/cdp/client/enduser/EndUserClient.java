@@ -5,7 +5,7 @@ import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
-import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
+import com.coinbase.cdp.openapi.api.EndUserAccountsApi;
 import com.coinbase.cdp.openapi.api.EndUserAccountManagementApi;
 import com.coinbase.cdp.openapi.model.AddEndUserEvmAccount201Response;
 import com.coinbase.cdp.openapi.model.AddEndUserEvmSmartAccount201Response;
@@ -89,7 +89,7 @@ public class EndUserClient {
   private final CdpClient cdpClient;
   private final TokenProvider tokenProvider;
   private final EndUserAccountManagementApi endUserAccountManagementApi;
-  private final EmbeddedWalletsApi embeddedWalletsApi;
+  private final EndUserAccountsApi endUserAccountsApi;
 
   /**
    * Creates a new EndUser client for instance-based usage.
@@ -101,7 +101,7 @@ public class EndUserClient {
     this.tokenProvider = null;
     ApiClient apiClient = cdpClient.getApiClient();
     this.endUserAccountManagementApi = new EndUserAccountManagementApi(apiClient);
-    this.embeddedWalletsApi = new EmbeddedWalletsApi(apiClient);
+    this.endUserAccountsApi = new EndUserAccountsApi(apiClient);
   }
 
   /**
@@ -114,7 +114,7 @@ public class EndUserClient {
     this.cdpClient = null;
     this.tokenProvider = tokenProvider;
     this.endUserAccountManagementApi = new EndUserAccountManagementApi(apiClient);
-    this.embeddedWalletsApi = new EmbeddedWalletsApi(apiClient);
+    this.endUserAccountsApi = new EndUserAccountsApi(apiClient);
   }
 
   // ==================== CRUD Operations ====================
@@ -322,7 +322,7 @@ public class EndUserClient {
    * @throws ApiException if the API call fails
    */
   public GetDelegationForEndUser200Response getDelegation(String userId) throws ApiException {
-    return embeddedWalletsApi.getDelegationForEndUser(userId, null);
+    return endUserAccountsApi.getDelegationForEndUser(userId, null);
   }
 
   /**
@@ -335,7 +335,7 @@ public class EndUserClient {
     RevokeDelegationForEndUserRequest request = new RevokeDelegationForEndUserRequest();
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/revoke-delegation", request);
-    embeddedWalletsApi.revokeDelegationForEndUser(userId, request, walletJwt, null, null, null);
+    endUserAccountsApi.revokeDelegationForEndUser(userId, request, walletJwt, null, null, null);
   }
 
   // ==================== Delegated EVM Sign Methods ====================
@@ -367,7 +367,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/evm/sign-transaction", request);
-    return embeddedWalletsApi.signEvmTransactionWithEndUserAccount(
+    return endUserAccountsApi.signEvmTransactionWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -398,7 +398,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/evm/sign-message", request);
-    return embeddedWalletsApi.signEvmMessageWithEndUserAccount(
+    return endUserAccountsApi.signEvmMessageWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -429,7 +429,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/evm/sign-typed-data", request);
-    return embeddedWalletsApi.signEvmTypedDataWithEndUserAccount(
+    return endUserAccountsApi.signEvmTypedDataWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -462,7 +462,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/evm/send-transaction", request);
-    return embeddedWalletsApi.sendEvmTransactionWithEndUserAccount(
+    return endUserAccountsApi.sendEvmTransactionWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -505,7 +505,7 @@ public class EndUserClient {
             "POST",
             "/v2/end-users/" + userId + "/evm/accounts/" + address + "/send/" + asset,
             request);
-    return embeddedWalletsApi.sendEvmAssetWithEndUserAccount(
+    return endUserAccountsApi.sendEvmAssetWithEndUserAccount(
         userId, address, asset, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -545,7 +545,7 @@ public class EndUserClient {
             "POST",
             "/v2/end-users/" + userId + "/evm/smart-accounts/" + address + "/send/user-operation",
             request);
-    return embeddedWalletsApi.sendUserOperationWithEndUserAccount(
+    return endUserAccountsApi.sendUserOperationWithEndUserAccount(
         userId, address, idempotencyKey, walletJwt, null, null, request);
   }
 
@@ -580,7 +580,7 @@ public class EndUserClient {
     String walletJwt =
         generateWalletJwt(
             "POST", "/v2/end-users/" + userId + "/evm/create-eip7702-delegation", request);
-    return embeddedWalletsApi.createEvmEip7702DelegationWithEndUserAccount(
+    return endUserAccountsApi.createEvmEip7702DelegationWithEndUserAccount(
         userId, request, walletJwt, idempotencyKey, null, null);
   }
 
@@ -613,7 +613,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/solana/sign-message", request);
-    return embeddedWalletsApi.signSolanaMessageWithEndUserAccount(
+    return endUserAccountsApi.signSolanaMessageWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -644,7 +644,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/solana/sign-transaction", request);
-    return embeddedWalletsApi.signSolanaTransactionWithEndUserAccount(
+    return endUserAccountsApi.signSolanaTransactionWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -677,7 +677,7 @@ public class EndUserClient {
       throws ApiException {
     String walletJwt =
         generateWalletJwt("POST", "/v2/end-users/" + userId + "/solana/send-transaction", request);
-    return embeddedWalletsApi.sendSolanaTransactionWithEndUserAccount(
+    return endUserAccountsApi.sendSolanaTransactionWithEndUserAccount(
         userId, walletJwt, idempotencyKey, null, null, request);
   }
 
@@ -720,7 +720,7 @@ public class EndUserClient {
             "POST",
             "/v2/end-users/" + userId + "/solana/accounts/" + address + "/send/" + asset,
             request);
-    return embeddedWalletsApi.sendSolanaAssetWithEndUserAccount(
+    return endUserAccountsApi.sendSolanaAssetWithEndUserAccount(
         userId, address, asset, walletJwt, idempotencyKey, null, null, request);
   }
 
