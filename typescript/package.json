@@ -1,6 +1,7 @@
 {
   "private": true,
   "packageManager": "pnpm@10.11.1",
+  "type": "module",
   "scripts": {
     "build": "pnpm -r run build",
     "changeset": "changeset",
