@@ -49,5 +49,4 @@ jobs:
 
       - name: Publish
         run: |
-          pnpm --filter @coinbase/cdp-sdk run prepublish
           pnpm publish --recursive --no-git-checks --access public
