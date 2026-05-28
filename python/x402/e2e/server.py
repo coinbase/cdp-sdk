@@ -56,9 +56,10 @@ def main() -> None:
 
     from flask import Flask, jsonify
     from werkzeug.serving import make_server
-    from x402.mechanisms.evm.exact import ExactEvmServerScheme
     from x402.http.middleware.flask import PaymentMiddleware
+    from x402.mechanisms.evm.exact import ExactEvmServerScheme
     from x402.server import x402ResourceServerSync
+
     from cdp_x402.core import create_cdp_facilitator_client_sync  # noqa: PLC0415
 
     app = Flask(__name__)

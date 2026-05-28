@@ -40,9 +40,7 @@ def _resolve_facilitator_credentials(
     3. ``CDP_API_KEY_ID`` / ``CDP_API_KEY_SECRET`` env var
     """
     resolved_id = (
-        api_key_id
-        or os.environ.get("CDP_SERVER_API_KEY_ID")
-        or os.environ.get("CDP_API_KEY_ID")
+        api_key_id or os.environ.get("CDP_SERVER_API_KEY_ID") or os.environ.get("CDP_API_KEY_ID")
     )
     resolved_secret = (
         api_key_secret

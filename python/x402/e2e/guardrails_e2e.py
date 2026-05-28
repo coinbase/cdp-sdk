@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["cdp-sdk", "x402[flask,evm,requests,httpx]", "flask", "werkzeug", "eth-account", "web3>=7.0.0,<7.16.0", "httpx"]
+# dependencies = ["cdp-sdk", "x402[flask,evm,requests,httpx]", "flask", "werkzeug", "eth-account", "web3>=7.0.0,<7.16.0", "httpx"]  # noqa: E501
 # ///
 """
 E2E tests for the Python x402 spend guardrails SDK and pre-flight balance check.
@@ -65,9 +65,10 @@ def _start_server(pay_to: str) -> None:
 
     from flask import Flask, jsonify
     from werkzeug.serving import make_server
-    from x402.mechanisms.evm.exact import ExactEvmServerScheme
     from x402.http.middleware.flask import PaymentMiddleware
+    from x402.mechanisms.evm.exact import ExactEvmServerScheme
     from x402.server import x402ResourceServerSync
+
     from cdp_x402.core import create_cdp_facilitator_client_sync  # noqa: PLC0415
 
     app = Flask(__name__)
@@ -115,10 +116,10 @@ def _run_guardrails_test(private_key_hex: str) -> None:
     """Make x402 payments with spend controls and assert guardrail behaviour."""
     import requests
     from eth_account import Account
-    from x402.mechanisms.evm.exact import ExactEvmScheme
-    from x402.mechanisms.evm.signers import EthAccountSigner
     from x402.client import x402ClientSync
     from x402.http.clients.requests import x402HTTPAdapter
+    from x402.mechanisms.evm.exact import ExactEvmScheme
+    from x402.mechanisms.evm.signers import EthAccountSigner
 
     # Build two clients:
     # - client_ok: generous cap, all payments succeed
@@ -127,7 +128,7 @@ def _run_guardrails_test(private_key_hex: str) -> None:
     python_root = str(Path(__file__).resolve().parents[1])
     sys.path.insert(0, python_root)
 
-    from cdp_x402.core.guardrails import apply_spend_controls, SpendControls, Amount
+    from cdp_x402.core.guardrails import Amount, SpendControls, apply_spend_controls
     from cdp_x402.core.guardrails.types import SpendControlError
 
     account = Account.from_key(private_key_hex)
@@ -198,9 +199,7 @@ def _run_guardrails_test(private_key_hex: str) -> None:
                 f"Expected SpendControlError(cumulative_cap) as cause, "
                 f"got {type(exc).__name__}: {exc}"
             ) from exc
-        assert cause.code == "cumulative_cap", (
-            f"Expected code='cumulative_cap', got {cause.code!r}"
-        )
+        assert cause.code == "cumulative_cap", f"Expected code='cumulative_cap', got {cause.code!r}"
     else:
         raise AssertionError(
             "Expected second payment to be blocked by cumulative cap, but it succeeded"
@@ -222,12 +221,18 @@ def _run_pre_flight_balance_check_tests() -> None:
     python_root = str(Path(__file__).resolve().parents[1])
     sys.path.insert(0, python_root)
 
-    from cdp_x402.core import create_cdp_x402_client, CdpX402ClientConfig, InsufficientFundsError  # noqa: PLC0415
+    from unittest.mock import MagicMock  # noqa: PLC0415
+
+    import httpx  # noqa: PLC0415
+    from x402.http.clients.httpx import x402AsyncTransport  # noqa: PLC0415
+
+    from cdp_x402.core import (  # noqa: PLC0415
+        CdpX402ClientConfig,
+        InsufficientFundsError,
+        create_cdp_x402_client,
+    )
     from cdp_x402.core.balance_check import create_balance_check_hook  # noqa: PLC0415
     from cdp_x402.core.wallets.config import WalletConfig  # noqa: PLC0415
-    from x402.http.clients.httpx import x402AsyncTransport  # noqa: PLC0415
-    from unittest.mock import MagicMock  # noqa: PLC0415
-    import httpx  # noqa: PLC0415
 
     USDC_SOLANA_DEVNET = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
     USDC_POLYGON = "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
@@ -275,7 +280,8 @@ def _run_pre_flight_balance_check_tests() -> None:
                     )
                 else:
                     raise AssertionError(
-                        "Expected InsufficientFundsError from unfunded wallet, but request succeeded"
+                        "Expected InsufficientFundsError from unfunded wallet,"
+                        " but request succeeded"
                     )
             print("    [EVM/Base Sepolia (CDP indexed, transport path)]: PASSED")
 
@@ -286,18 +292,45 @@ def _run_pre_flight_balance_check_tests() -> None:
                 svm_address=result.svm_address,
             )
             for label, network, asset, expected_addr in [
-                ("Solana devnet (CDP indexed)", "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", USDC_SOLANA_DEVNET, result.svm_address),
+                (
+                    "Solana devnet (CDP indexed)",
+                    "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+                    USDC_SOLANA_DEVNET,
+                    result.svm_address,
+                ),
                 ("Polygon (on-chain balanceOf)", "eip155:137", USDC_POLYGON, result.evm_address),
-                ("Base mainnet (CDP indexed)", "eip155:8453", USDC_BASE_MAINNET, result.evm_address),
-                ("Arbitrum (on-chain balanceOf)", "eip155:42161", USDC_ARBITRUM, result.evm_address),
+                (
+                    "Base mainnet (CDP indexed)",
+                    "eip155:8453",
+                    USDC_BASE_MAINNET,
+                    result.evm_address,
+                ),
+                (
+                    "Arbitrum (on-chain balanceOf)",
+                    "eip155:42161",
+                    USDC_ARBITRUM,
+                    result.evm_address,
+                ),
                 ("World Chain (on-chain balanceOf)", "eip155:480", USDC_WORLD, result.evm_address),
-                ("World Chain Sepolia (on-chain balanceOf)", "eip155:4801", USDC_WORLD_SEPOLIA, result.evm_address),
-                ("Solana mainnet (CDP indexed)", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp", USDC_SOLANA_MAINNET, result.svm_address),
+                (
+                    "World Chain Sepolia (on-chain balanceOf)",
+                    "eip155:4801",
+                    USDC_WORLD_SEPOLIA,
+                    result.evm_address,
+                ),
+                (
+                    "Solana mainnet (CDP indexed)",
+                    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+                    USDC_SOLANA_MAINNET,
+                    result.svm_address,
+                ),
             ]:
                 try:
                     await hook(_make_ctx(network, asset))
                 except InsufficientFundsError as exc:
-                    assert exc.available == 0, f"[{label}] Expected available=0, got {exc.available}"
+                    assert exc.available == 0, (
+                        f"[{label}] Expected available=0, got {exc.available}"
+                    )
                     assert exc.required > 0, f"[{label}] Expected required>0, got {exc.required}"
                     assert exc.address.lower() == expected_addr.lower(), (
                         f"[{label}] Expected address={expected_addr!r}, got {exc.address!r}"
@@ -305,7 +338,8 @@ def _run_pre_flight_balance_check_tests() -> None:
                     print(f"    [{label}]: PASSED")
                 else:
                     raise AssertionError(
-                        f"[{label}] Expected InsufficientFundsError for unfunded wallet, but check passed"
+                        f"[{label}] Expected InsufficientFundsError for unfunded wallet,"
+                        " but check passed"
                     )
         finally:
             await result.cdp_client.close()

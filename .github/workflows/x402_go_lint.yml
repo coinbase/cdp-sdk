@@ -61,7 +61,7 @@ jobs:
 
       - name: Check formatting
         run: |
-          unformatted=$(gofmt -l ./x402/...)
+          unformatted=$(gofmt -l $(find ./x402 -name '*.go'))
           if [ -n "$unformatted" ]; then
             echo "The following files need formatting:"
             echo "$unformatted"

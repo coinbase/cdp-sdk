@@ -25,15 +25,18 @@ install:
 		uv venv || (echo "Error: Failed to create virtual environment" && exit 1); \
 		echo "Virtual environment created successfully at .venv"; \
 	fi
-	uv sync --extra dev || (echo "Error: Failed to install dependencies" && exit 1)
+	uv sync --extra dev --extra server-fastapi --extra server-flask || (echo "Error: Failed to install dependencies" && exit 1)
 
 .PHONY: test
 test:
-	uv sync --extra dev && uv run pytest || (echo "Error: Tests failed" && exit 1)
+	uv sync --extra dev --extra server-fastapi --extra server-flask && uv run pytest || (echo "Error: Tests failed" && exit 1)
 
 .PHONY: e2e
 e2e:
-	uv sync --extra dev && uv run pytest tests/ -v -m e2e || (echo "Error: E2E Tests failed" && exit 1)
+	uv sync --extra dev --extra server-fastapi --extra server-flask && \
+	uv run e2e/server_e2e.py && \
+	uv run e2e/cdp_wallet_e2e.py && \
+	uv run e2e/guardrails_e2e.py || (echo "Error: E2E Tests failed" && exit 1)
 
 .PHONY: setup
 setup:

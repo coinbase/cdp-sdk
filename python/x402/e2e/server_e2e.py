@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["cdp-sdk>=1.45.1", "x402[flask,evm,requests]", "flask", "werkzeug", "eth-account", "web3>=7.0.0,<7.16.0"]
+# dependencies = ["cdp-sdk>=1.45.1", "x402[flask,evm,requests]", "flask", "werkzeug", "eth-account", "web3>=7.0.0,<7.16.0"]  # noqa: E501
 # ///
 """
 E2E test for the Python x402 facilitator SDK.
@@ -54,9 +54,10 @@ def _start_server(pay_to: str) -> None:
 
     from flask import Flask, jsonify
     from werkzeug.serving import make_server
-    from x402.mechanisms.evm.exact import ExactEvmServerScheme
     from x402.http.middleware.flask import PaymentMiddleware
+    from x402.mechanisms.evm.exact import ExactEvmServerScheme
     from x402.server import x402ResourceServerSync
+
     from cdp_x402.core import create_cdp_facilitator_client_sync  # noqa: PLC0415
 
     app = Flask(__name__)
@@ -94,10 +95,10 @@ def _run_payment_test(private_key_hex: str) -> None:
     """Make a real x402 payment and assert the server returns 200."""
     import requests
     from eth_account import Account
-    from x402.mechanisms.evm.exact import ExactEvmScheme
-    from x402.mechanisms.evm.signers import EthAccountSigner
     from x402.client import x402ClientSync
     from x402.http.clients.requests import x402HTTPAdapter
+    from x402.mechanisms.evm.exact import ExactEvmScheme
+    from x402.mechanisms.evm.signers import EthAccountSigner
 
     account = Account.from_key(private_key_hex)
     signer = EthAccountSigner(account)
@@ -144,8 +145,8 @@ def main() -> int:
     t.start()
 
     # Give the server a moment to bind.
-    import time
     import socket
+    import time
 
     for _ in range(30):
         try:

@@ -117,9 +117,6 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "bs58": "^6.0.0",
-    "@coinbase/x402-express": "workspace:*",
-    "@coinbase/x402-hono": "workspace:*",
-    "@coinbase/x402-next": "workspace:*",
     "@hono/node-server": "^1.0.0",
     "@types/express": "^4.17.21",
     "dotenv": "^17.4.2",

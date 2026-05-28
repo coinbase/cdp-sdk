@@ -76,9 +76,7 @@ jobs:
         working-directory: ./typescript/packages/x402
 
       - name: Run Python x402 e2e tests
-        run: |
-          uv pip install -e ".[dev,server-fastapi,server-flask]"
-          uv run pytest e2e/
+        run: make e2e
         working-directory: ./python/x402
 
       - name: Run Go x402 e2e tests

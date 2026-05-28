@@ -224,9 +224,7 @@ async def _main() -> None:
     account_name = os.environ.get("CDP_ACCOUNT_NAME", "x402-e2e-test")
     owner_account_name = os.environ.get("CDP_OWNER_ACCOUNT_NAME", "x402-e2e-scw-owner")
     run_scw_env = os.environ.get("CDP_RUN_SCW_E2E")
-    run_scw = (
-        True if run_scw_env is None else run_scw_env.lower() not in {"0", "false", "no"}
-    )
+    run_scw = True if run_scw_env is None else run_scw_env.lower() not in {"0", "false", "no"}
 
     from cdp_x402.core.credentials import resolve_credentials  # noqa: PLC0415
 
@@ -241,9 +239,7 @@ async def _main() -> None:
     from cdp import CdpClient  # noqa: PLC0415
 
     async with CdpClient() as cdp_client:
-        receiver = await cdp_client.evm.get_or_create_account(
-            name=f"{account_name}-receiver"
-        )
+        receiver = await cdp_client.evm.get_or_create_account(name=f"{account_name}-receiver")
         pay_to = receiver.address
     print(f"Receiver address: {pay_to}")
 
@@ -257,7 +253,8 @@ async def _main() -> None:
         await _run_scw_tests(account_name, owner_account_name)
     else:
         print(
-            "\n=== CDP x402 E2E (SCW) — skipped (unset CDP_RUN_SCW_E2E or set it to a value other than 0/false/no to enable) ==="
+            "\n=== CDP x402 E2E (SCW) — skipped"
+            " (unset CDP_RUN_SCW_E2E or set it to a value other than 0/false/no to enable) ==="
         )
 
     print("\nAll CDP wallet e2e tests passed.")
