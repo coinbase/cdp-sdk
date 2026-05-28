@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["./src/client/policies/policies.ts", "./src/client/policies/policies.types.ts"],
+  "entryPoints": ["./packages/cdp-sdk/src/client/policies/policies.ts", "./packages/cdp-sdk/src/client/policies/policies.types.ts"],
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,
   "out": "./docs-md/policies",

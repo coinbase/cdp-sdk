@@ -3,9 +3,9 @@
   "include": ["src"],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "outDir": "./src/_cjs",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "sourceMap": true
+    "declaration": true,
+    "declarationDir": "./_types",
+    "emitDeclarationOnly": true,
+    "declarationMap": true
   }
 }

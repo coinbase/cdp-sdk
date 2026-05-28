@@ -17,7 +17,7 @@ export default defineConfig({
           extension: ".js",
         },
       },
-      workspace: "./src/openapi-client",
+      workspace: "./packages/cdp-sdk/src/openapi-client",
     },
     hooks: {
       afterAllFilesWrite: "pnpm format",

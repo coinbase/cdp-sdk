@@ -151,9 +151,9 @@ The following table provides more context of many of the authentication paramete
 | :-- | :-- | :-- |
 | `apiKeyId` | true | The unique identifier for your API key. Supported formats are:<br/>- `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`<br/>- `organizations/{orgId}/apiKeys/{keyId}` |
 | `apiKeySecret` | true | Your API key secret. Supported formats are:<br/>- Edwards key (Ed25519): `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==`<br/>- Elliptic Curve key (ES256): `-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n` |
-| `requestMethod` | true* | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). Can be `null` for JWTs intended for websocket connections. |
-| `requestHost` | true* | The API host you're calling (ie, `api.cdp.coinbase.com`). Can be `null` for JWTs intended for websocket connections. |
-| `requestPath` | true* | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). Can be `null` for JWTs intended for websocket connections. |
+| `requestMethod` | true\* | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). Can be `null` for JWTs intended for websocket connections. |
+| `requestHost` | true\* | The API host you're calling (ie, `api.cdp.coinbase.com`). Can be `null` for JWTs intended for websocket connections. |
+| `requestPath` | true\* | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). Can be `null` for JWTs intended for websocket connections. |
 | `requestBody` | false | Optional request body data. |
 | `expiresIn` | false | The JWT expiration time in seconds. After this time, the JWT will no longer be valid, and a new one must be generated. Defaults to `120` (ie, 2 minutes) if not specified. |
 

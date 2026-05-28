@@ -1,0 +1,6 @@
+_cjs/
+_esm/
+_types/
+docs/
+coverage/
+node_modules/

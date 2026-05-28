@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "openapi.yaml"
-      - "typescript/src/openapi-client/generated/**"
+      - "typescript/packages/cdp-sdk/src/openapi-client/generated/**"
       - "python/cdp/openapi_client/**"
       - "go/openapi/**"
       - "java/src/main/java/com/coinbase/cdp/openapi/**"
@@ -139,7 +139,7 @@ jobs:
 
             # Show modified files with better formatting
             git diff --name-only | while read -r file; do
-              if [[ $file == typescript/src/openapi-client/generated/* ]]; then
+              if [[ $file == typescript/packages/cdp-sdk/src/openapi-client/generated/* ]]; then
                 echo "  📝 TypeScript: $file"
               elif [[ $file == python/cdp/openapi_client/* ]]; then
                 echo "  🐍 Python: $file"
@@ -187,7 +187,7 @@ jobs:
           echo "## Detailed diff of changes:"
           echo ""
           echo "### TypeScript Changes:"
-          git diff --color=always -- 'typescript/src/openapi-client/generated/**' || echo "No TypeScript changes"
+          git diff --color=always -- 'typescript/packages/cdp-sdk/src/openapi-client/generated/**' || echo "No TypeScript changes"
           echo ""
           echo "### Python Changes:"
           git diff --color=always -- 'python/cdp/openapi_client/**' || echo "No Python changes"
@@ -242,7 +242,7 @@ jobs:
 
             To fix this issue:
             1. Revert any manual changes to files in:
-               - \`typescript/src/openapi-client/generated/\`
+               - \`typescript/packages/cdp-sdk/src/openapi-client/generated/\`
                - \`python/cdp/openapi_client/\`
                - \`go/openapi/\`
                - \`java/src/main/java/com/coinbase/cdp/openapi/\`

@@ -158,6 +158,7 @@ const account = await cdp.solana.createAccount();
 ```
 
 #### Import a Solana account as follows:
+
 ```typescript
 const account = await cdp.solana.importAccount({
   privateKey: "3MLZ...Uko8zz",
@@ -212,11 +213,12 @@ const account = await cdp.solana.getOrCreateAccount({
 ```
 
 #### Get or Create a Smart Account as follows:
+
 ```typescript
 const owner = await cdp.evm.createAccount();
 const account = await cdp.evm.getOrCreateSmartAccount({
   name: "Account1",
-  owner
+  owner,
 });
 ```
 
@@ -227,8 +229,8 @@ const account = await cdp.evm.getOrCreateSmartAccount({
 ```typescript
 const account = await cdp.evm.createAccount({
   name: "AccountWithPolicy",
-  accountPolicy: "abcdef12-3456-7890-1234-567890123456"
-})
+  accountPolicy: "abcdef12-3456-7890-1234-567890123456",
+});
 ```
 
 #### Create a Solana account with policy as follows:
@@ -236,8 +238,8 @@ const account = await cdp.evm.createAccount({
 ```typescript
 const account = await cdp.solana.createAccount({
   name: "AccountWithPolicy",
-  accountPolicy: "abcdef12-3456-7890-1234-567890123456"
-})
+  accountPolicy: "abcdef12-3456-7890-1234-567890123456",
+});
 ```
 
 ### Updating EVM or Solana accounts
@@ -410,7 +412,9 @@ await cdp.solana.requestFaucet({
 });
 
 const rpc = createSolanaRpc("https://api.devnet.solana.com");
-const { value: { blockhash, lastValidBlockHeight } } = await rpc.getLatestBlockhash().send();
+const {
+  value: { blockhash, lastValidBlockHeight },
+} = await rpc.getLatestBlockhash().send();
 
 const instruction = getTransferSolInstruction({
   source: createNoopSigner(solanaAddress(account.address)),
@@ -420,13 +424,9 @@ const instruction = getTransferSolInstruction({
 
 const txMsg = pipe(
   createTransactionMessage({ version: 0 }),
-  (tx) => setTransactionMessageFeePayer(solanaAddress(account.address), tx),
-  (tx) =>
-    setTransactionMessageLifetimeUsingBlockhash(
-      { blockhash, lastValidBlockHeight },
-      tx,
-    ),
-  (tx) => appendTransactionMessageInstructions([instruction], tx),
+  tx => setTransactionMessageFeePayer(solanaAddress(account.address), tx),
+  tx => setTransactionMessageLifetimeUsingBlockhash({ blockhash, lastValidBlockHeight }, tx),
+  tx => appendTransactionMessageInstructions([instruction], tx),
 );
 
 const serializedTx = getBase64EncodedWireTransaction(compileTransaction(txMsg));
@@ -543,6 +543,7 @@ The SDK provides three approaches for performing token swaps:
 The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
 
 **Regular Account (EOA):**
+
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -560,10 +561,14 @@ console.log(`Swap executed: ${transactionHash}`);
 ```
 
 **Smart Account:**
+
 ```typescript
 // Create or retrieve a smart account with funds already in it
 const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+  name: "MyExistingFundedSmartAccount",
+  owner,
+});
 
 // Execute a swap directly on a smart account in one line
 const { userOpHash } = await smartAccount.swap({
@@ -592,7 +597,7 @@ const swapPrice = await cdp.evm.getSwapPrice({
   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
-  taker: "0x1234567890123456789012345678901234567890"
+  taker: "0x1234567890123456789012345678901234567890",
 });
 
 if (swapPrice.liquidityAvailable) {
@@ -610,6 +615,7 @@ Use `account.quoteSwap()` / `smartAccount.quoteSwap()` when you need full contro
 **Important:** `quoteSwap()` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
 
 **Regular Account (EOA):**
+
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -634,10 +640,14 @@ const { transactionHash } = await swapQuote.execute();
 ```
 
 **Smart Account:**
+
 ```typescript
 // Create or retrieve a smart account with funds already in it
 const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+  name: "MyExistingFundedSmartAccount",
+  owner,
+});
 
 // Step 1: Create a swap quote with full transaction details for smart account
 const swapQuote = await smartAccount.quoteSwap({
@@ -682,22 +692,26 @@ All approaches handle Permit2 signatures automatically for ERC20 token swaps. Ma
 To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
 
 **Regular account (EOA) swap examples:**
+
 - [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.swap.ts) - All-in-one regular account swap execution
 - [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.quoteSwap.ts) - Account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 - [Swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.swapWithNetworkHoisting.ts) - All-in-one swap and two-step approach swap for EVM chains
 
 **Smart account swap examples:**
+
 - [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/swap.ts) - All-in-one smart account swap execution with user operations and optional paymaster support
 - [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 - [Smart account swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/smartAccount.swapWithNetworkHoisting.ts) - All-in-one smart account swap and two-step approach smart account swap for EVM chains
 
 **BYO wallet (viem) regular account (EOA) swap examples:**
+
 - [Execute a swap transaction using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets
 - [Two-step quote and execute process using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.quoteSwapAndExecute.ts) - Detailed two-step approach with viem wallets
 
 **BYO wallet (viem + account abstraction) smart account swap examples:**
+
 - [Execute a swap transaction using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.swap.ts) - All-in-one smart account swap with custom bundler/paymaster setup
 - [Two-step quote and execute process using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.quoteSwapAndExecute.ts) - Advanced account abstraction integration
 
@@ -816,6 +830,7 @@ await sender.transfer({
   network: "base-sepolia",
 });
 ```
+
 #### Solana
 
 For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
@@ -1239,9 +1254,7 @@ You can create an end user with authentication methods and optionally create EVM
 
 ```typescript
 const endUser = await cdp.endUser.createEndUser({
-  authenticationMethods: [
-    { type: "email", email: "user@example.com" }
-  ],
+  authenticationMethods: [{ type: "email", email: "user@example.com" }],
   evmAccount: { createSmartAccount: true },
   solanaAccount: { createSmartAccount: false },
 });
@@ -1255,9 +1268,7 @@ You can import an existing private key for an end user:
 
 ```typescript
 const endUser = await cdp.endUser.importEndUser({
-  authenticationMethods: [
-    { type: "email", email: "user@example.com" }
-  ],
+  authenticationMethods: [{ type: "email", email: "user@example.com" }],
   privateKey: "0x...", // EVM private key (hex string)
   keyType: "evm",
 });
@@ -1269,9 +1280,7 @@ You can also import a Solana private key:
 
 ```typescript
 const endUser = await cdp.endUser.importEndUser({
-  authenticationMethods: [
-    { type: "email", email: "user@example.com" }
-  ],
+  authenticationMethods: [{ type: "email", email: "user@example.com" }],
   privateKey: "3Kzj...", // base58 encoded
   keyType: "solana",
 });
@@ -1335,10 +1344,10 @@ When your end user has signed in with an [Embedded Wallet](https://docs.cdp.coin
 ```typescript
 try {
   const endUser = await cdp.endUser.validateAccessToken({
-      accessToken,
+    accessToken,
   });
-  console.log(endUser)
-} catch(e) {
+  console.log(endUser);
+} catch (e) {
   // the access token is not valid or expired
 }
 ```
@@ -1702,6 +1711,7 @@ Common errors and their solutions.
 If you encounter TypeScript compilation errors when using the CDP SDK, particularly with `generateJwt` or import statements, you may need to update your TypeScript configuration.
 
 **Error symptoms:**
+
 - Type errors with `generateJwt` function
 - Module resolution errors
 - Import/export type mismatches
@@ -1713,7 +1723,7 @@ Update your `tsconfig.json` to use a modern module resolution strategy. Change `
 ```json
 {
   "compilerOptions": {
-    "moduleResolution": "node16",  // or "nodenext"
+    "moduleResolution": "node16" // or "nodenext"
     // ... other options
   }
 }

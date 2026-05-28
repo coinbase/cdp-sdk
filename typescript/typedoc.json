@@ -1,14 +1,14 @@
 {
   "entryPoints": [
-    "./src/client/cdp.ts",
-    "./src/client/evm/**",
-    "./src/client/solana/**",
-    "./src/client/policies/**",
-    "./src/accounts/evm/types.ts",
-    "./src/accounts/solana/types.ts",
-    "./src/actions/evm/types.ts",
-    "./src/actions/solana/types.ts",
-    "./src/auth/**"
+    "./packages/cdp-sdk/src/client/cdp.ts",
+    "./packages/cdp-sdk/src/client/evm/**",
+    "./packages/cdp-sdk/src/client/solana/**",
+    "./packages/cdp-sdk/src/client/policies/**",
+    "./packages/cdp-sdk/src/accounts/evm/types.ts",
+    "./packages/cdp-sdk/src/accounts/solana/types.ts",
+    "./packages/cdp-sdk/src/actions/evm/types.ts",
+    "./packages/cdp-sdk/src/actions/solana/types.ts",
+    "./packages/cdp-sdk/src/auth/**"
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs",

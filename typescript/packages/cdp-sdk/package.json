@@ -1,0 +1,71 @@
+{
+  "name": "@coinbase/cdp-sdk",
+  "version": "1.50.0",
+  "description": "SDK for interacting with the Coinbase Developer Platform Wallet API",
+  "type": "module",
+  "main": "./_cjs/index.js",
+  "module": "./_esm/index.js",
+  "types": "./_types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./_types/index.d.ts",
+      "import": "./_esm/index.js",
+      "default": "./_cjs/index.js"
+    },
+    "./auth": {
+      "types": "./_types/auth/index.d.ts",
+      "import": "./_esm/auth/index.js",
+      "default": "./_cjs/auth/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "tsc --project ./tsconfig.cjs.json && printf '{\"type\":\"commonjs\"}' > ./_cjs/package.json",
+    "build:esm": "tsc --project ./tsconfig.esm.json && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./_esm/package.json",
+    "build:types": "tsc --project ./tsconfig.types.json",
+    "check:auth-crypto-imports": "tsx scripts/check-auth-crypto-imports.ts",
+    "clean": "rm -rf _esm _cjs _types",
+    "format": "prettier -c ../../.prettierrc --write \"**/*.{ts,js,cjs,json,md}\" && tsx scripts/sort-msw-index.ts",
+    "format:check": "prettier -c ../../.prettierrc --check \"**/*.{ts,js,cjs,json,md}\"",
+    "lint": "eslint -c .eslintrc.json \"src/**/*.ts\"",
+    "lint:fix": "eslint -c .eslintrc.json \"src/**/*.ts\" --fix",
+    "prepublish": "tsx scripts/prepublish.ts",
+    "test": "vitest --config=./vitest.config.ts run",
+    "test:coverage": "vitest --config=./vitest.config.ts run --coverage",
+    "test:e2e": "pnpm build && DISABLE_CDP_ERROR_REPORTING=true vitest --config=./vitest.e2e.config.ts run",
+    "test:e2e:watch": "vitest --config=./vitest.e2e.config.ts",
+    "test:watch": "vitest --config=./vitest.config.ts"
+  },
+  "dependencies": {
+    "@solana-program/system": "^0.10.0",
+    "@solana-program/token": "^0.9.0",
+    "@solana/kit": "^5.5.1",
+    "abitype": "1.0.6",
+    "axios": "1.16.0",
+    "axios-retry": "^4.5.0",
+    "bs58": "^6.0.0",
+    "jose": "^6.2.0",
+    "md5": "^2.3.0",
+    "uncrypto": "^0.1.3",
+    "viem": "^2.47.0",
+    "zod": "^3.25.76"
+  },
+  "author": "Coinbase Inc.",
+  "repository": "https://github.com/coinbase/cdp-sdk",
+  "license": "MIT",
+  "files": [
+    "src",
+    "_cjs",
+    "_esm",
+    "_types",
+    "!**/*.test.ts"
+  ],
+  "keywords": [
+    "coinbase",
+    "coinbase developer platform",
+    "coinbase sdk",
+    "cdp sdk",
+    "sdk",
+    "api"
+  ]
+}

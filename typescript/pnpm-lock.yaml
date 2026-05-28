@@ -95,7 +95,7 @@ importers:
         specifier: 1.6.1
         version: 1.6.1(@types/node@20.19.37)
 
-  src:
+  packages/cdp-sdk:
     dependencies:
       '@solana-program/system':
         specifier: ^0.10.0

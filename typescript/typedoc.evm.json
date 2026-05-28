@@ -1,9 +1,9 @@
 {
   "entryPoints": [
-    "./src/client/evm/evm.ts",
-    "./src/client/evm/evm.types.ts",
-    "./src/accounts/evm/types.ts",
-    "./src/actions/evm/types.ts"
+    "./packages/cdp-sdk/src/client/evm/evm.ts",
+    "./packages/cdp-sdk/src/client/evm/evm.types.ts",
+    "./packages/cdp-sdk/src/accounts/evm/types.ts",
+    "./packages/cdp-sdk/src/actions/evm/types.ts"
   ],
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,

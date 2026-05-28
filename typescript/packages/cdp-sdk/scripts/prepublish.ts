@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 // Get the directory of the current module
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const packageJsonPath = join(__dirname, "../src/package.json");
+const packageJsonPath = join(__dirname, "../package.json");
 
 // Read package.json
 const packageJsonContent = await readFile(packageJsonPath, "utf-8");

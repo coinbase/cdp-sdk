@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@coinbase/cdp-sdk':
         specifier: workspace:*
-        version: link:../../typescript/src
+        version: link:../../typescript/packages/cdp-sdk
       '@solana-program/system':
         specifier: 0.10.0
         version: 0.10.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))
@@ -39,7 +39,7 @@ importers:
         specifier: 2.47.0
         version: 2.47.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)(zod@3.25.76)
 
-  ../../typescript/src:
+  ../../typescript/packages/cdp-sdk:
     dependencies:
       '@solana-program/system':
         specifier: ^0.10.0

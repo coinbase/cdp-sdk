@@ -1,9 +1,9 @@
 {
   "entryPoints": [
-    "./src/client/solana/solana.ts",
-    "./src/client/solana/solana.types.ts",
-    "./src/accounts/solana/types.ts",
-    "./src/actions/solana/types.ts"
+    "./packages/cdp-sdk/src/client/solana/solana.ts",
+    "./packages/cdp-sdk/src/client/solana/solana.types.ts",
+    "./packages/cdp-sdk/src/accounts/solana/types.ts",
+    "./packages/cdp-sdk/src/actions/solana/types.ts"
   ],
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,
