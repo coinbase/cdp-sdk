@@ -591,6 +591,7 @@ export const EvmOperationEnum = z.enum([
   "signEvmHash",
   "prepareUserOperation",
   "sendUserOperation",
+  "signEndUserEvmHash",
 ]);
 /**
  * Type representing the operations that can be governed by a policy.
@@ -648,6 +649,24 @@ export const SignEvmHashRuleSchema = z.object({
   operation: z.literal("signEvmHash"),
 });
 export type SignEvmHashRule = z.infer<typeof SignEvmHashRuleSchema>;
+
+/**
+ * Type representing a 'signEndUserEvmHash' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEndUserEvmHashRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEndUserEvmHash".
+   */
+  operation: z.literal("signEndUserEvmHash"),
+});
+export type SignEndUserEvmHashRule = z.infer<typeof SignEndUserEvmHashRuleSchema>;
 
 /**
  * Type representing a 'signEvmMessage' policy rule that can accept or reject specific operations

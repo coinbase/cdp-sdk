@@ -40,6 +40,7 @@ from cdp.openapi_client.models.send_sol_transaction_criteria_inner import (
 )
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
+from cdp.openapi_client.models.sign_end_user_evm_hash_rule import SignEndUserEvmHashRule
 from cdp.openapi_client.models.sign_end_user_evm_message_rule import SignEndUserEvmMessageRule
 from cdp.openapi_client.models.sign_end_user_evm_transaction_rule import (
     SignEndUserEvmTransactionRule,
@@ -597,6 +598,7 @@ openapi_criterion_mapping["signEndUserEvmTransaction"] = openapi_criterion_mappi
 openapi_criterion_mapping["sendEndUserEvmTransaction"] = openapi_criterion_mapping[
     "sendEvmTransaction"
 ]
+openapi_criterion_mapping["signEndUserEvmHash"] = openapi_criterion_mapping["signEvmHash"]
 openapi_criterion_mapping["signEndUserEvmMessage"] = openapi_criterion_mapping["signEvmMessage"]
 openapi_criterion_mapping["signEndUserEvmTypedData"] = openapi_criterion_mapping["signEvmTypedData"]
 openapi_criterion_mapping["signEndUserSolTransaction"] = openapi_criterion_mapping[
@@ -626,6 +628,7 @@ openapi_rule_mapping = {
     "sendEndUserOperation": SendEndUserOperationRule,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRule,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRule,
+    "signEndUserEvmHash": SignEndUserEvmHashRule,
     "signEndUserEvmMessage": SignEndUserEvmMessageRule,
     "signEndUserEvmTypedData": SignEndUserEvmTypedDataRule,
     "signEndUserSolTransaction": SignEndUserSolTransactionRule,

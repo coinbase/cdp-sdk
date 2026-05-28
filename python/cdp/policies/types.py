@@ -250,6 +250,19 @@ class SignEvmHashRule(BaseModel):
     )
 
 
+class SignEndUserEvmHashRule(BaseModel):
+    """Type representing a 'signEndUserEvmHash' policy rule that can accept or reject specific operations."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow signing, 'reject' will block it.",
+    )
+    operation: Literal["signEndUserEvmHash"] = Field(
+        "signEndUserEvmHash",
+        description="The operation to which this rule applies. Must be 'signEndUserEvmHash'.",
+    )
+
+
 class EvmMessageCriterion(BaseModel):
     """Type representing a 'evmMessage' criterion that can be used to govern the behavior of projects and accounts."""
 
@@ -1055,6 +1068,7 @@ Rule = (
     | SendEndUserEvmTransactionRule
     | SignEndUserEvmMessageRule
     | SignEndUserEvmTypedDataRule
+    | SignEndUserEvmHashRule
     | SignEndUserSolTransactionRule
     | SendEndUserSolTransactionRule
     | SignEndUserSolMessageRule

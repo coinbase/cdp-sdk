@@ -25,6 +25,7 @@ from cdp.policies.types import (
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
     SendUserOperationRule as SendUserOperationRuleModel,
+    SignEndUserEvmHashRule as SignEndUserEvmHashRuleModel,
     SignEndUserEvmMessageRule as SignEndUserEvmMessageRuleModel,
     SignEndUserEvmTransactionRule as SignEndUserEvmTransactionRuleModel,
     SignEndUserEvmTypedDataRule as SignEndUserEvmTypedDataRuleModel,
@@ -354,6 +355,7 @@ response_criterion_mapping["signEndUserEvmTransaction"] = response_criterion_map
 response_criterion_mapping["sendEndUserEvmTransaction"] = response_criterion_mapping[
     "sendEvmTransaction"
 ]
+response_criterion_mapping["signEndUserEvmHash"] = response_criterion_mapping["signEvmHash"]
 response_criterion_mapping["signEndUserEvmMessage"] = response_criterion_mapping["signEvmMessage"]
 response_criterion_mapping["signEndUserEvmTypedData"] = response_criterion_mapping[
     "signEvmTypedData"
@@ -389,6 +391,7 @@ response_rule_mapping = {
     "sendEndUserOperation": SendEndUserOperationRuleModel,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRuleModel,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRuleModel,
+    "signEndUserEvmHash": SignEndUserEvmHashRuleModel,
     "signEndUserEvmMessage": SignEndUserEvmMessageRuleModel,
     "signEndUserEvmTypedData": SignEndUserEvmTypedDataRuleModel,
     "signEndUserSolTransaction": SignEndUserSolTransactionRuleModel,
