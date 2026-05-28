@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.51.0
+
+### Minor Changes
+
+- [#704](https://github.com/coinbase/cdp-sdk/pull/704) [`73197ee`](https://github.com/coinbase/cdp-sdk/commit/73197ee7e4aeaaa5616f6184cb72053c26493f18) Thanks [@sammccord](https://github.com/sammccord)! - Added SendEndUserOperationRule schema for the sendEndUserOperation operation, supporting ethValue, evmAddress, evmNetwork, evmData, and netUSDChange criteria.
+
+- [#704](https://github.com/coinbase/cdp-sdk/pull/704) [`73197ee`](https://github.com/coinbase/cdp-sdk/commit/73197ee7e4aeaaa5616f6184cb72053c26493f18) Thanks [@sammccord](https://github.com/sammccord)! - Added SignEndUserEvmHashRule schema for the signEndUserEvmHash operation.
+
 ## 1.50.0
 
 ### Minor Changes
