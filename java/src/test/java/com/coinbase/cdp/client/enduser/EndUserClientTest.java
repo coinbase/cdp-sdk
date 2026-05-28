@@ -9,7 +9,7 @@ import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.client.enduser.EndUserClientOptions.ListEndUsersOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
-import com.coinbase.cdp.openapi.api.EmbeddedWalletsApi;
+import com.coinbase.cdp.openapi.api.EndUserAccountsApi;
 import com.coinbase.cdp.openapi.api.EndUserAccountManagementApi;
 import com.coinbase.cdp.openapi.model.*;
 import java.util.List;
@@ -28,13 +28,13 @@ class EndUserClientTest {
   private static final String IDEMPOTENCY_KEY = "test-idempotency-key";
 
   private EndUserAccountManagementApi endUserAccountManagementApi;
-  private EmbeddedWalletsApi embeddedWalletsApi;
+  private EndUserAccountsApi endUserAccountsApi;
   private EndUserClient client;
 
   @BeforeEach
   void setUp() {
     endUserAccountManagementApi = mock(EndUserAccountManagementApi.class);
-    embeddedWalletsApi = mock(EmbeddedWalletsApi.class);
+    endUserAccountsApi = mock(EndUserAccountsApi.class);
 
     // Create client using CdpClient constructor, then replace APIs via reflection
     CdpClient cdpClient = mock(CdpClient.class);
@@ -50,9 +50,9 @@ class EndUserClientTest {
       endUserAccountManagementField.setAccessible(true);
       endUserAccountManagementField.set(client, endUserAccountManagementApi);
 
-      var embeddedWalletsField = EndUserClient.class.getDeclaredField("embeddedWalletsApi");
+      var embeddedWalletsField = EndUserClient.class.getDeclaredField("endUserAccountsApi");
       embeddedWalletsField.setAccessible(true);
-      embeddedWalletsField.set(client, embeddedWalletsApi);
+      embeddedWalletsField.set(client, endUserAccountsApi);
     } catch (Exception e) {
       throw new RuntimeException("Failed to inject mock APIs", e);
     }
@@ -294,12 +294,12 @@ class EndUserClientTest {
     @Test
     void getsDelegation() throws ApiException {
       GetDelegationForEndUser200Response expected = new GetDelegationForEndUser200Response();
-      when(embeddedWalletsApi.getDelegationForEndUser(eq(USER_ID), isNull())).thenReturn(expected);
+      when(endUserAccountsApi.getDelegationForEndUser(eq(USER_ID), isNull())).thenReturn(expected);
 
       GetDelegationForEndUser200Response result = client.getDelegation(USER_ID);
 
       assertThat(result).isEqualTo(expected);
-      verify(embeddedWalletsApi).getDelegationForEndUser(eq(USER_ID), isNull());
+      verify(endUserAccountsApi).getDelegationForEndUser(eq(USER_ID), isNull());
     }
   }
 
@@ -309,7 +309,7 @@ class EndUserClientTest {
     void revokesDelegation() throws ApiException {
       client.revokeDelegation(USER_ID);
 
-      verify(embeddedWalletsApi)
+      verify(endUserAccountsApi)
           .revokeDelegationForEndUser(
               eq(USER_ID),
               any(RevokeDelegationForEndUserRequest.class),
@@ -330,7 +330,7 @@ class EndUserClientTest {
           new SignEvmTransactionWithEndUserAccount200Response();
       SignEvmTransactionWithEndUserAccountRequest request =
           new SignEvmTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signEvmTransactionWithEndUserAccount(
+      when(endUserAccountsApi.signEvmTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -346,7 +346,7 @@ class EndUserClientTest {
           new SignEvmTransactionWithEndUserAccount200Response();
       SignEvmTransactionWithEndUserAccountRequest request =
           new SignEvmTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signEvmTransactionWithEndUserAccount(
+      when(endUserAccountsApi.signEvmTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -365,7 +365,7 @@ class EndUserClientTest {
           new SignEvmMessageWithEndUserAccount200Response();
       SignEvmMessageWithEndUserAccountRequest request =
           new SignEvmMessageWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signEvmMessageWithEndUserAccount(
+      when(endUserAccountsApi.signEvmMessageWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -380,7 +380,7 @@ class EndUserClientTest {
           new SignEvmMessageWithEndUserAccount200Response();
       SignEvmMessageWithEndUserAccountRequest request =
           new SignEvmMessageWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signEvmMessageWithEndUserAccount(
+      when(endUserAccountsApi.signEvmMessageWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -399,7 +399,7 @@ class EndUserClientTest {
           new SignEvmTypedDataWithEndUserAccount200Response();
       SignEvmTypedDataWithEndUserAccountRequest request =
           new SignEvmTypedDataWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signEvmTypedDataWithEndUserAccount(
+      when(endUserAccountsApi.signEvmTypedDataWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -415,7 +415,7 @@ class EndUserClientTest {
           new SignEvmTypedDataWithEndUserAccount200Response();
       SignEvmTypedDataWithEndUserAccountRequest request =
           new SignEvmTypedDataWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signEvmTypedDataWithEndUserAccount(
+      when(endUserAccountsApi.signEvmTypedDataWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -436,7 +436,7 @@ class EndUserClientTest {
           new SendEvmTransactionWithEndUserAccount200Response();
       SendEvmTransactionWithEndUserAccountRequest request =
           new SendEvmTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendEvmTransactionWithEndUserAccount(
+      when(endUserAccountsApi.sendEvmTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -452,7 +452,7 @@ class EndUserClientTest {
           new SendEvmTransactionWithEndUserAccount200Response();
       SendEvmTransactionWithEndUserAccountRequest request =
           new SendEvmTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendEvmTransactionWithEndUserAccount(
+      when(endUserAccountsApi.sendEvmTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -470,7 +470,7 @@ class EndUserClientTest {
       SendEvmAssetWithEndUserAccount200Response expected =
           new SendEvmAssetWithEndUserAccount200Response();
       SendEvmAssetWithEndUserAccountRequest request = new SendEvmAssetWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendEvmAssetWithEndUserAccount(
+      when(endUserAccountsApi.sendEvmAssetWithEndUserAccount(
               eq(USER_ID),
               eq(EVM_ADDRESS),
               eq(ASSET),
@@ -492,7 +492,7 @@ class EndUserClientTest {
       SendEvmAssetWithEndUserAccount200Response expected =
           new SendEvmAssetWithEndUserAccount200Response();
       SendEvmAssetWithEndUserAccountRequest request = new SendEvmAssetWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendEvmAssetWithEndUserAccount(
+      when(endUserAccountsApi.sendEvmAssetWithEndUserAccount(
               eq(USER_ID),
               eq(EVM_ADDRESS),
               eq(ASSET),
@@ -517,7 +517,7 @@ class EndUserClientTest {
       EvmUserOperation expected = new EvmUserOperation();
       SendUserOperationWithEndUserAccountRequest request =
           new SendUserOperationWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendUserOperationWithEndUserAccount(
+      when(endUserAccountsApi.sendUserOperationWithEndUserAccount(
               eq(USER_ID),
               eq(EVM_ADDRESS),
               isNull(),
@@ -537,7 +537,7 @@ class EndUserClientTest {
       EvmUserOperation expected = new EvmUserOperation();
       SendUserOperationWithEndUserAccountRequest request =
           new SendUserOperationWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendUserOperationWithEndUserAccount(
+      when(endUserAccountsApi.sendUserOperationWithEndUserAccount(
               eq(USER_ID),
               eq(EVM_ADDRESS),
               eq(IDEMPOTENCY_KEY),
@@ -562,7 +562,7 @@ class EndUserClientTest {
           new CreateEvmEip7702DelegationWithEndUserAccount201Response();
       CreateEvmEip7702DelegationWithEndUserAccountRequest request =
           new CreateEvmEip7702DelegationWithEndUserAccountRequest();
-      when(embeddedWalletsApi.createEvmEip7702DelegationWithEndUserAccount(
+      when(endUserAccountsApi.createEvmEip7702DelegationWithEndUserAccount(
               eq(USER_ID), eq(request), eq(WALLET_JWT), isNull(), isNull(), isNull()))
           .thenReturn(expected);
 
@@ -578,7 +578,7 @@ class EndUserClientTest {
           new CreateEvmEip7702DelegationWithEndUserAccount201Response();
       CreateEvmEip7702DelegationWithEndUserAccountRequest request =
           new CreateEvmEip7702DelegationWithEndUserAccountRequest();
-      when(embeddedWalletsApi.createEvmEip7702DelegationWithEndUserAccount(
+      when(endUserAccountsApi.createEvmEip7702DelegationWithEndUserAccount(
               eq(USER_ID), eq(request), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull()))
           .thenReturn(expected);
 
@@ -599,7 +599,7 @@ class EndUserClientTest {
           new SignSolanaMessageWithEndUserAccount200Response();
       SignSolanaMessageWithEndUserAccountRequest request =
           new SignSolanaMessageWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signSolanaMessageWithEndUserAccount(
+      when(endUserAccountsApi.signSolanaMessageWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -615,7 +615,7 @@ class EndUserClientTest {
           new SignSolanaMessageWithEndUserAccount200Response();
       SignSolanaMessageWithEndUserAccountRequest request =
           new SignSolanaMessageWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signSolanaMessageWithEndUserAccount(
+      when(endUserAccountsApi.signSolanaMessageWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -634,7 +634,7 @@ class EndUserClientTest {
           new SignSolanaTransactionWithEndUserAccount200Response();
       SignSolanaTransactionWithEndUserAccountRequest request =
           new SignSolanaTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signSolanaTransactionWithEndUserAccount(
+      when(endUserAccountsApi.signSolanaTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -650,7 +650,7 @@ class EndUserClientTest {
           new SignSolanaTransactionWithEndUserAccount200Response();
       SignSolanaTransactionWithEndUserAccountRequest request =
           new SignSolanaTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.signSolanaTransactionWithEndUserAccount(
+      when(endUserAccountsApi.signSolanaTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -671,7 +671,7 @@ class EndUserClientTest {
           new SendSolanaTransactionWithEndUserAccount200Response();
       SendSolanaTransactionWithEndUserAccountRequest request =
           new SendSolanaTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendSolanaTransactionWithEndUserAccount(
+      when(endUserAccountsApi.sendSolanaTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), isNull(), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -687,7 +687,7 @@ class EndUserClientTest {
           new SendSolanaTransactionWithEndUserAccount200Response();
       SendSolanaTransactionWithEndUserAccountRequest request =
           new SendSolanaTransactionWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendSolanaTransactionWithEndUserAccount(
+      when(endUserAccountsApi.sendSolanaTransactionWithEndUserAccount(
               eq(USER_ID), eq(WALLET_JWT), eq(IDEMPOTENCY_KEY), isNull(), isNull(), eq(request)))
           .thenReturn(expected);
 
@@ -706,7 +706,7 @@ class EndUserClientTest {
           new SendSolanaTransactionWithEndUserAccount200Response();
       SendSolanaAssetWithEndUserAccountRequest request =
           new SendSolanaAssetWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendSolanaAssetWithEndUserAccount(
+      when(endUserAccountsApi.sendSolanaAssetWithEndUserAccount(
               eq(USER_ID),
               eq(SOLANA_ADDRESS),
               eq(ASSET),
@@ -729,7 +729,7 @@ class EndUserClientTest {
           new SendSolanaTransactionWithEndUserAccount200Response();
       SendSolanaAssetWithEndUserAccountRequest request =
           new SendSolanaAssetWithEndUserAccountRequest();
-      when(embeddedWalletsApi.sendSolanaAssetWithEndUserAccount(
+      when(endUserAccountsApi.sendSolanaAssetWithEndUserAccount(
               eq(USER_ID),
               eq(SOLANA_ADDRESS),
               eq(ASSET),
@@ -768,9 +768,9 @@ class EndUserClientTest {
         endUserAccountManagementField.setAccessible(true);
         endUserAccountManagementField.set(tokenProviderClient, endUserAccountManagementApi);
 
-        var embeddedWalletsField = EndUserClient.class.getDeclaredField("embeddedWalletsApi");
+        var embeddedWalletsField = EndUserClient.class.getDeclaredField("endUserAccountsApi");
         embeddedWalletsField.setAccessible(true);
-        embeddedWalletsField.set(tokenProviderClient, embeddedWalletsApi);
+        embeddedWalletsField.set(tokenProviderClient, endUserAccountsApi);
       } catch (Exception e) {
         throw new RuntimeException("Failed to inject mock APIs", e);
       }
