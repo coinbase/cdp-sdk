@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.47.0] - 2026-05-28
+
+### Features
+
+- Added SendEndUserOperationRule for the sendEndUserOperation operation, supporting ethValue, evmAddress, evmNetwork, evmData, and netUSDChange criteria. ([#send-end-user-operation-rule](https://github.com/coinbase/cdp-sdk/pull/send-end-user-operation-rule))
+- Added SignEndUserEvmHashRule for the signEndUserEvmHash operation. ([#sign-end-user-evm-hash-rule](https://github.com/coinbase/cdp-sdk/pull/sign-end-user-evm-hash-rule))
+
+
 ## [1.46.0] - 2026-05-21
 
 ### Features
