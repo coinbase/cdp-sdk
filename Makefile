@@ -120,10 +120,11 @@ x402-test-ts:
 	pnpm --dir typescript --filter "@coinbase/x402" --filter "@coinbase/x402-express" \
 		--filter "@coinbase/x402-hono" --filter "@coinbase/x402-next" run test
 
-## x402-test-e2e: run x402 e2e tests (requires credentials in go/x402/e2e/.env)
+## x402-test-e2e: run x402 e2e tests (requires credentials — see go/x402/e2e/.env.example)
 x402-test-e2e:
 	pnpm --dir typescript/packages/x402 run test:e2e
 	cd python/x402 && uv run pytest e2e/
+	cd go/x402/e2e && go run server_e2e.go
 
 # ============================================================
 # x402 — Verify (fmt + lint + typecheck + test)
