@@ -59,11 +59,7 @@ async function main(): Promise<void> {
     process.env.CDP_OWNER_ACCOUNT_NAME ?? "x402-scw-owner";
   const accountName = process.env.CDP_ACCOUNT_NAME ?? "x402-server-wallet-1";
 
-  const {
-    client,
-    evmAddress: scwAddress,
-    ownerWallet,
-  } = await createCdpX402Client({
+  const cdpX402Client = await createCdpX402Client({
     walletConfig: {
       type: "cdp-smart",
       accountName,
@@ -71,13 +67,14 @@ async function main(): Promise<void> {
     },
     spendControls,
   });
+  const { evmAddress: scwAddress, ownerWallet } = cdpX402Client;
 
   console.log(`\nSmart Contract Wallet address: ${scwAddress}`);
   if (ownerWallet) {
     console.log(`Owner wallet name:             ${ownerWallet}`);
   }
 
-  const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+  const fetchWithPayment = wrapFetchWithPayment(fetch, cdpX402Client.client);
 
   console.log(`\nMaking request to: ${url}\n`);
   try {

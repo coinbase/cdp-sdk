@@ -40,13 +40,14 @@ async function main(): Promise<void> {
   const accountName = process.env.CDP_ACCOUNT_NAME ?? "x402-server-wallet-1";
   const fundScw = process.env.FUND_SCW === "true";
 
-  const { client, cdpClient, evmAddress: scwAddress, ownerWallet } = await createCdpX402Client({
+  const cdpX402ClientResult = await createCdpX402Client({
     walletConfig: {
       type: "cdp-smart",
       accountName,
       ownerAccountName,
     },
   });
+  const { cdpClient, evmAddress: scwAddress, ownerWallet } = cdpX402ClientResult;
 
   console.log(`\nSmart Contract Wallet address: ${scwAddress}`);
   if (ownerWallet) {
@@ -58,16 +59,16 @@ async function main(): Promise<void> {
   if (fundScw && ownerWallet && cdpClient) {
     console.log("\nFunding SCW from owner account (0.005 USDC)...");
     const ownerAccount = await cdpClient.evm.getOrCreateAccount({ name: ownerAccountName });
-    const result = await ownerAccount.transfer({
+    const transfer = await ownerAccount.transfer({
       to: scwAddress,
       amount: parseUnits("0.005", 6),
       token: "usdc",
       network: "base-sepolia",
     });
-    console.log(`Funded! Transaction: ${result.transactionHash}`);
+    console.log(`Funded! Transaction: ${transfer.transactionHash}`);
   }
 
-  const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+  const fetchWithPayment = wrapFetchWithPayment(fetch, cdpX402ClientResult.client);
 
   console.log(`\nMaking request to: ${url}\n`);
   const response = await fetchWithPayment(url, { method: "GET" });

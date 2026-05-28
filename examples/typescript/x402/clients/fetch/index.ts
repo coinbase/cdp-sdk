@@ -22,8 +22,7 @@
  */
 
 import { config } from "dotenv";
-import { wrapFetchWithPayment } from "@x402/fetch";
-import { CdpX402Client } from "@coinbase/x402";
+import { CdpX402Client, wrapFetchWithPayment } from "@coinbase/x402";
 
 config();
 
