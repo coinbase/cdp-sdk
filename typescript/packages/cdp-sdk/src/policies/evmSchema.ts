@@ -592,6 +592,7 @@ export const EvmOperationEnum = z.enum([
   "prepareUserOperation",
   "sendUserOperation",
   "signEndUserEvmHash",
+  "sendEndUserOperation",
 ]);
 /**
  * Type representing the operations that can be governed by a policy.
