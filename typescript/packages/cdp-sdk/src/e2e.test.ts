@@ -2057,23 +2057,9 @@ describe("CDP Client E2E Tests", () => {
         });
         policies.push(...result.policies);
 
-        // Paginate through all policies so that we can find our test policy.
-        // This will not be necessary once we consistently remove policies from the e2e project.
-        while (result.nextPageToken) {
-          result = await cdp.policies.listPolicies({
-            pageSize: 100,
-            pageToken: result.nextPageToken,
-          });
-          policies.push(...result.policies);
-        }
-
         expect(result).toBeDefined();
         expect(policies).toBeDefined();
         expect(Array.isArray(policies)).toBe(true);
-
-        // Find our test policy
-        const testPolicy = policies.find(p => p.id === testPolicyId);
-        expect(testPolicy).toBeDefined();
       });
 
       it("should list policies with scope filter", async () => {

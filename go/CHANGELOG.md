@@ -5,6 +5,7 @@
 ### Features
 
 - Add support for SendEndUserEvmAsset, SendEndUserSolAsset, and CreateEndUserEvmSwap policy rules and criteria
+- Regenerate OpenAPI client with latest spec updates
 
 ## [1.1.0] - 2025-07-21
 
