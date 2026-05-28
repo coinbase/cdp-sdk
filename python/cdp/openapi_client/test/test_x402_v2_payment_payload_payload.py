@@ -38,14 +38,36 @@ class TestX402V2PaymentPayloadPayload(unittest.TestCase):
             return X402V2PaymentPayloadPayload(
                 signature = '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
                 authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, value=1000000000000000000, validAfter=1716150000, validBefore=1716150000, nonce=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef},
-                permit2_authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, permitted={token=0x036CbD53842c5426634e7929541eC2318f3dCF7e, amount=1000000}, spender=0x4020615294c913F045dc10f0a5cdEbd86c280001, nonce=12345678901234567890, deadline=1716150000, witness={to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, validAfter=1716150000, extra=0x}},
+                permit2_authorization = cdp.openapi_client.models.x402_upto_evm_permit2_payload_permit2_authorization.x402UptoEvmPermit2Payload_permit2Authorization(
+                    from = '0x857b06519E91e3A54538791bDbb0E22373e36b66', 
+                    permitted = cdp.openapi_client.models.x402_upto_evm_permit2_payload_permit2_authorization_permitted.x402UptoEvmPermit2Payload_permit2Authorization_permitted(
+                        token = '0x036CbD53842c5426634e7929541eC2318f3dCF7e', 
+                        amount = '5000000', ), 
+                    spender = '0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002', 
+                    nonce = '12345678901234567890', 
+                    deadline = '1740672154', 
+                    witness = cdp.openapi_client.models.x402_upto_evm_permit2_payload_permit2_authorization_witness.x402UptoEvmPermit2Payload_permit2Authorization_witness(
+                        to = '0x209693Bc6afc0C5328bA36FaF03C514EF312287C', 
+                        facilitator = '0x1111111111111111111111111111111111111111', 
+                        valid_after = '1740672089', ), ),
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA='
             )
         else:
             return X402V2PaymentPayloadPayload(
                 signature = '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
                 authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, value=1000000000000000000, validAfter=1716150000, validBefore=1716150000, nonce=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef},
-                permit2_authorization = {from=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, permitted={token=0x036CbD53842c5426634e7929541eC2318f3dCF7e, amount=1000000}, spender=0x4020615294c913F045dc10f0a5cdEbd86c280001, nonce=12345678901234567890, deadline=1716150000, witness={to=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, validAfter=1716150000, extra=0x}},
+                permit2_authorization = cdp.openapi_client.models.x402_upto_evm_permit2_payload_permit2_authorization.x402UptoEvmPermit2Payload_permit2Authorization(
+                    from = '0x857b06519E91e3A54538791bDbb0E22373e36b66', 
+                    permitted = cdp.openapi_client.models.x402_upto_evm_permit2_payload_permit2_authorization_permitted.x402UptoEvmPermit2Payload_permit2Authorization_permitted(
+                        token = '0x036CbD53842c5426634e7929541eC2318f3dCF7e', 
+                        amount = '5000000', ), 
+                    spender = '0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002', 
+                    nonce = '12345678901234567890', 
+                    deadline = '1740672154', 
+                    witness = cdp.openapi_client.models.x402_upto_evm_permit2_payload_permit2_authorization_witness.x402UptoEvmPermit2Payload_permit2Authorization_witness(
+                        to = '0x209693Bc6afc0C5328bA36FaF03C514EF312287C', 
+                        facilitator = '0x1111111111111111111111111111111111111111', 
+                        valid_after = '1740672089', ), ),
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=',
         )
         """

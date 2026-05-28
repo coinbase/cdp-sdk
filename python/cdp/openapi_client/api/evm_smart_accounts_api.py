@@ -68,7 +68,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmSmartAccount:
-        """Create a Smart Account
+        """Create Smart Account
 
         Creates a new Smart Account.
 
@@ -144,7 +144,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmSmartAccount]:
-        """Create a Smart Account
+        """Create Smart Account
 
         Creates a new Smart Account.
 
@@ -220,7 +220,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create a Smart Account
+        """Create Smart Account
 
         Creates a new Smart Account.
 
@@ -374,7 +374,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Create a spend permission
+        """Create spend permission
 
         Creates a spend permission for the given smart account address.
 
@@ -422,6 +422,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '500': "Error",
             '502': "Error",
@@ -458,7 +459,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Create a spend permission
+        """Create spend permission
 
         Creates a spend permission for the given smart account address.
 
@@ -506,6 +507,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '500': "Error",
             '502': "Error",
@@ -542,7 +544,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create a spend permission
+        """Create spend permission
 
         Creates a spend permission for the given smart account address.
 
@@ -590,6 +592,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '500': "Error",
             '502': "Error",
@@ -705,7 +708,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmSmartAccount:
-        """Get a Smart Account by address
+        """Get Smart Account by address
 
         Gets a Smart Account by its address.
 
@@ -777,7 +780,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmSmartAccount]:
-        """Get a Smart Account by address
+        """Get Smart Account by address
 
         Gets a Smart Account by its address.
 
@@ -849,7 +852,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a Smart Account by address
+        """Get Smart Account by address
 
         Gets a Smart Account by its address.
 
@@ -981,7 +984,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmSmartAccount:
-        """Get a Smart Account by name
+        """Get Smart Account by name
 
         Gets a Smart Account by its name.
 
@@ -1053,7 +1056,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmSmartAccount]:
-        """Get a Smart Account by name
+        """Get Smart Account by name
 
         Gets a Smart Account by its name.
 
@@ -1125,7 +1128,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a Smart Account by name
+        """Get Smart Account by name
 
         Gets a Smart Account by its name.
 
@@ -1258,7 +1261,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Get a user operation
+        """Get user operation
 
         Gets a user operation by its hash.
 
@@ -1334,7 +1337,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Get a user operation
+        """Get user operation
 
         Gets a user operation by its hash.
 
@@ -1410,7 +1413,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a user operation
+        """Get user operation
 
         Gets a user operation by its hash.
 
@@ -2153,7 +2156,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Prepare and send a user operation for EVM Smart Account
+        """Prepare and send user operation
 
         Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
 
@@ -2241,7 +2244,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Prepare and send a user operation for EVM Smart Account
+        """Prepare and send user operation
 
         Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
 
@@ -2329,7 +2332,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Prepare and send a user operation for EVM Smart Account
+        """Prepare and send user operation
 
         Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
 
@@ -2497,7 +2500,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Prepare a user operation
+        """Prepare user operation
 
         Prepares a new user operation on a Smart Account for a specific network.
 
@@ -2574,7 +2577,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Prepare a user operation
+        """Prepare user operation
 
         Prepares a new user operation on a Smart Account for a specific network.
 
@@ -2651,7 +2654,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Prepare a user operation
+        """Prepare user operation
 
         Prepares a new user operation on a Smart Account for a specific network.
 
@@ -2806,7 +2809,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Revoke a spend permission
+        """Revoke spend permission
 
         Revokes an existing spend permission.
 
@@ -2854,6 +2857,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '500': "Error",
             '502': "Error",
@@ -2890,7 +2894,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Revoke a spend permission
+        """Revoke spend permission
 
         Revokes an existing spend permission.
 
@@ -2938,6 +2942,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '500': "Error",
             '502': "Error",
@@ -2974,7 +2979,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Revoke a spend permission
+        """Revoke spend permission
 
         Revokes an existing spend permission.
 
@@ -3022,6 +3027,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '500': "Error",
             '502': "Error",
@@ -3139,7 +3145,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmUserOperation:
-        """Send a user operation
+        """Send user operation
 
         Sends a user operation with a signature. The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
 
@@ -3222,7 +3228,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmUserOperation]:
-        """Send a user operation
+        """Send user operation
 
         Sends a user operation with a signature. The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
 
@@ -3305,7 +3311,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send a user operation
+        """Send user operation
 
         Sends a user operation with a signature. The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
 
@@ -3466,7 +3472,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> EvmSmartAccount:
-        """Update an EVM Smart Account
+        """Update EVM Smart Account
 
         Updates an existing EVM smart account. Use this to update the smart account's name.
 
@@ -3544,7 +3550,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[EvmSmartAccount]:
-        """Update an EVM Smart Account
+        """Update EVM Smart Account
 
         Updates an existing EVM smart account. Use this to update the smart account's name.
 
@@ -3622,7 +3628,7 @@ class EVMSmartAccountsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Update an EVM Smart Account
+        """Update EVM Smart Account
 
         Updates an existing EVM smart account. Use this to update the smart account's name.
 

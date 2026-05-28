@@ -37,7 +37,7 @@ class TestSQLAPIApi(unittest.IsolatedAsyncioTestCase):
     async def test_get_sql_schema(self) -> None:
         """Test case for get_sql_schema
 
-        Get schemas details
+        Get schema details
         """
         pass
 

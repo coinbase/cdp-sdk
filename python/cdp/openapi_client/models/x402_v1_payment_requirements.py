@@ -21,23 +21,24 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.x402_v1_network import X402V1Network
 from typing import Optional, Set
 from typing_extensions import Self
 
 class X402V1PaymentRequirements(BaseModel):
     """
-    The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+    The x402 v1 payment requirements. Uses human-readable network names, and carries resource metadata (`resource`, `description`, `mimeType`) alongside the payment fields. The only supported scheme is `exact`.
     """ # noqa: E501
     scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
-    network: StrictStr = Field(description="The network of the blockchain to send payment on.")
+    network: X402V1Network = Field(description="The network of the blockchain to send payment on.")
     max_amount_required: StrictStr = Field(description="The maximum amount required to pay for the resource in atomic units of the payment asset.", alias="maxAmountRequired")
     resource: StrictStr = Field(description="The URL of the resource to pay for.")
     description: Annotated[str, Field(min_length=0, strict=True, max_length=500)] = Field(description="A human-readable description of the resource.")
     mime_type: StrictStr = Field(description="The MIME type of the resource response.", alias="mimeType")
     output_schema: Optional[Dict[str, Any]] = Field(default=None, description="The optional JSON schema describing the resource output.", alias="outputSchema")
-    pay_to: Annotated[str, Field(strict=True)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
+    pay_to: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
     max_timeout_seconds: StrictInt = Field(description="The maximum time in seconds for the resource server to respond.", alias="maxTimeoutSeconds")
-    asset: Annotated[str, Field(strict=True)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
+    asset: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
     extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
     __properties: ClassVar[List[str]] = ["scheme", "network", "maxAmountRequired", "resource", "description", "mimeType", "outputSchema", "payTo", "maxTimeoutSeconds", "asset", "extra"]
 
@@ -46,27 +47,6 @@ class X402V1PaymentRequirements(BaseModel):
         """Validates the enum"""
         if value not in set(['exact']):
             raise ValueError("must be one of enum values ('exact')")
-        return value
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon')")
-        return value
-
-    @field_validator('pay_to')
-    def pay_to_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
-        return value
-
-    @field_validator('asset')
-    def asset_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
         return value
 
     model_config = ConfigDict(

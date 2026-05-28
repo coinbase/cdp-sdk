@@ -19,11 +19,13 @@ from cdp.policies.types import (
     Rule as RuleType,
     SendEndUserEvmAssetRule as SendEndUserEvmAssetRuleModel,
     SendEndUserEvmTransactionRule as SendEndUserEvmTransactionRuleModel,
+    SendEndUserOperationRule as SendEndUserOperationRuleModel,
     SendEndUserSolAssetRule as SendEndUserSolAssetRuleModel,
     SendEndUserSolTransactionRule as SendEndUserSolTransactionRuleModel,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
     SendUserOperationRule as SendUserOperationRuleModel,
+    SignEndUserEvmHashRule as SignEndUserEvmHashRuleModel,
     SignEndUserEvmMessageRule as SignEndUserEvmMessageRuleModel,
     SignEndUserEvmTransactionRule as SignEndUserEvmTransactionRuleModel,
     SignEndUserEvmTypedDataRule as SignEndUserEvmTypedDataRuleModel,
@@ -353,6 +355,7 @@ response_criterion_mapping["signEndUserEvmTransaction"] = response_criterion_map
 response_criterion_mapping["sendEndUserEvmTransaction"] = response_criterion_mapping[
     "sendEvmTransaction"
 ]
+response_criterion_mapping["signEndUserEvmHash"] = response_criterion_mapping["signEvmHash"]
 response_criterion_mapping["signEndUserEvmMessage"] = response_criterion_mapping["signEvmMessage"]
 response_criterion_mapping["signEndUserEvmTypedData"] = response_criterion_mapping[
     "signEvmTypedData"
@@ -369,6 +372,9 @@ response_criterion_mapping["sendEndUserSolAsset"] = response_criterion_mapping["
 response_criterion_mapping["createEndUserEvmSwap"] = response_criterion_mapping[
     "sendEvmTransaction"
 ]
+response_criterion_mapping["sendEndUserOperation"] = response_criterion_mapping[
+    "sendEvmTransaction"
+]
 
 # Response rule class mapping
 response_rule_mapping = {
@@ -382,8 +388,10 @@ response_rule_mapping = {
     "signSolMessage": SignSolMessageRuleModel,
     "prepareUserOperation": PrepareUserOperationRuleModel,
     "sendUserOperation": SendUserOperationRuleModel,
+    "sendEndUserOperation": SendEndUserOperationRuleModel,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRuleModel,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRuleModel,
+    "signEndUserEvmHash": SignEndUserEvmHashRuleModel,
     "signEndUserEvmMessage": SignEndUserEvmMessageRuleModel,
     "signEndUserEvmTypedData": SignEndUserEvmTypedDataRuleModel,
     "signEndUserSolTransaction": SignEndUserSolTransactionRuleModel,

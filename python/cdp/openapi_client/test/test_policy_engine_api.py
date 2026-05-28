@@ -30,21 +30,21 @@ class TestPolicyEngineApi(unittest.IsolatedAsyncioTestCase):
     async def test_create_policy(self) -> None:
         """Test case for create_policy
 
-        Create a policy
+        Create policy
         """
         pass
 
     async def test_delete_policy(self) -> None:
         """Test case for delete_policy
 
-        Delete a policy
+        Delete policy
         """
         pass
 
     async def test_get_policy_by_id(self) -> None:
         """Test case for get_policy_by_id
 
-        Get a policy by ID
+        Get policy by ID
         """
         pass
 
@@ -58,7 +58,7 @@ class TestPolicyEngineApi(unittest.IsolatedAsyncioTestCase):
     async def test_update_policy(self) -> None:
         """Test case for update_policy
 
-        Update a policy
+        Update policy
         """
         pass
 

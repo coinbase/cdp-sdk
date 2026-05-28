@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.CapabilityName;
 import com.coinbase.cdp.openapi.model.ErrorType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,7 +27,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -38,7 +41,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   Error.JSON_PROPERTY_ERROR_TYPE,
   Error.JSON_PROPERTY_ERROR_MESSAGE,
   Error.JSON_PROPERTY_CORRELATION_ID,
-  Error.JSON_PROPERTY_ERROR_LINK
+  Error.JSON_PROPERTY_ERROR_LINK,
+  Error.JSON_PROPERTY_UNAUTHORIZED_CAPABILITIES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class Error {
@@ -57,6 +61,10 @@ public class Error {
   public static final String JSON_PROPERTY_ERROR_LINK = "errorLink";
   @jakarta.annotation.Nullable
   private URI errorLink;
+
+  public static final String JSON_PROPERTY_UNAUTHORIZED_CAPABILITIES = "unauthorizedCapabilities";
+  @jakarta.annotation.Nullable
+  private List<CapabilityName> unauthorizedCapabilities = new ArrayList<>();
 
   public Error() { 
   }
@@ -157,6 +165,38 @@ public class Error {
   }
 
 
+  public Error unauthorizedCapabilities(@jakarta.annotation.Nullable List<CapabilityName> unauthorizedCapabilities) {
+    this.unauthorizedCapabilities = unauthorizedCapabilities;
+    return this;
+  }
+
+  public Error addUnauthorizedCapabilitiesItem(CapabilityName unauthorizedCapabilitiesItem) {
+    if (this.unauthorizedCapabilities == null) {
+      this.unauthorizedCapabilities = new ArrayList<>();
+    }
+    this.unauthorizedCapabilities.add(unauthorizedCapabilitiesItem);
+    return this;
+  }
+
+  /**
+   * The capability code(s) that were not authorized for the customer on this request. Present only when &#x60;errorType&#x60; is &#x60;customer_not_authorized&#x60;; absent for every other error type.  Use this list to render onboarding UX for the listed capabilities, or fetch &#x60;GET /v2/customers/{customerId}&#x60; and inspect each entry&#39;s &#x60;status&#x60; / &#x60;requirements&#x60; to discover what (if anything) can be submitted to resolve the block. 
+   * @return unauthorizedCapabilities
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_UNAUTHORIZED_CAPABILITIES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<CapabilityName> getUnauthorizedCapabilities() {
+    return unauthorizedCapabilities;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_UNAUTHORIZED_CAPABILITIES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUnauthorizedCapabilities(@jakarta.annotation.Nullable List<CapabilityName> unauthorizedCapabilities) {
+    this.unauthorizedCapabilities = unauthorizedCapabilities;
+  }
+
+
   /**
    * Return true if this Error object is equal to o.
    */
@@ -172,12 +212,13 @@ public class Error {
     return Objects.equals(this.errorType, error.errorType) &&
         Objects.equals(this.errorMessage, error.errorMessage) &&
         Objects.equals(this.correlationId, error.correlationId) &&
-        Objects.equals(this.errorLink, error.errorLink);
+        Objects.equals(this.errorLink, error.errorLink) &&
+        Objects.equals(this.unauthorizedCapabilities, error.unauthorizedCapabilities);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(errorType, errorMessage, correlationId, errorLink);
+    return Objects.hash(errorType, errorMessage, correlationId, errorLink, unauthorizedCapabilities);
   }
 
   @Override
@@ -188,6 +229,7 @@ public class Error {
     sb.append("    errorMessage: ").append(toIndentedString(errorMessage)).append("\n");
     sb.append("    correlationId: ").append(toIndentedString(correlationId)).append("\n");
     sb.append("    errorLink: ").append(toIndentedString(errorLink)).append("\n");
+    sb.append("    unauthorizedCapabilities: ").append(toIndentedString(unauthorizedCapabilities)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -255,6 +297,17 @@ public class Error {
       joiner.add(String.format("%serrorLink%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getErrorLink()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `unauthorizedCapabilities` to the URL query string
+    if (getUnauthorizedCapabilities() != null) {
+      for (int i = 0; i < getUnauthorizedCapabilities().size(); i++) {
+        if (getUnauthorizedCapabilities().get(i) != null) {
+          joiner.add(String.format("%sunauthorizedCapabilities%s%s=%s", prefix, suffix,
+              "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
+              URLEncoder.encode(ApiClient.valueToString(getUnauthorizedCapabilities().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+        }
+      }
+    }
+
     return joiner.toString();
   }
 
@@ -284,6 +337,10 @@ public class Error {
     }
     public Error.Builder errorLink(URI errorLink) {
       this.instance.errorLink = errorLink;
+      return this;
+    }
+    public Error.Builder unauthorizedCapabilities(List<CapabilityName> unauthorizedCapabilities) {
+      this.instance.unauthorizedCapabilities = unauthorizedCapabilities;
       return this;
     }
 
@@ -323,7 +380,8 @@ public class Error {
       .errorType(getErrorType())
       .errorMessage(getErrorMessage())
       .correlationId(getCorrelationId())
-      .errorLink(getErrorLink());
+      .errorLink(getErrorLink())
+      .unauthorizedCapabilities(getUnauthorizedCapabilities());
   }
 
 }

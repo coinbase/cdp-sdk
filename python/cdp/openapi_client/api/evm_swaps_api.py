@@ -61,7 +61,7 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> CreateSwapQuoteResponseWrapper:
-        """Create a swap quote
+        """Create swap quote
 
         Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
 
@@ -137,7 +137,7 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[CreateSwapQuoteResponseWrapper]:
-        """Create a swap quote
+        """Create swap quote
 
         Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
 
@@ -213,7 +213,7 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create a swap quote
+        """Create swap quote
 
         Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
 
@@ -371,7 +371,7 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> GetSwapPriceResponseWrapper:
-        """Get a price estimate for a swap
+        """Get swap price estimate
 
         Get a price estimate for a swap between two tokens on an EVM network.
 
@@ -471,7 +471,7 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[GetSwapPriceResponseWrapper]:
-        """Get a price estimate for a swap
+        """Get swap price estimate
 
         Get a price estimate for a swap between two tokens on an EVM network.
 
@@ -571,7 +571,7 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a price estimate for a swap
+        """Get swap price estimate
 
         Get a price estimate for a swap between two tokens on an EVM network.
 

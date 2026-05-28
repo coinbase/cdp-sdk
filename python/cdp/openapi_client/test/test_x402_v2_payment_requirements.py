@@ -37,7 +37,7 @@ class TestX402V2PaymentRequirements(unittest.TestCase):
         if include_optional:
             return X402V2PaymentRequirements(
                 scheme = 'exact',
-                network = 'eip155:1',
+                network = 'eip155:8453',
                 asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 amount = '1000000',
                 pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
@@ -47,7 +47,7 @@ class TestX402V2PaymentRequirements(unittest.TestCase):
         else:
             return X402V2PaymentRequirements(
                 scheme = 'exact',
-                network = 'eip155:1',
+                network = 'eip155:8453',
                 asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 amount = '1000000',
                 pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',

@@ -30,7 +30,7 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_create_evm_account(self) -> None:
         """Test case for create_evm_account
 
-        Create an EVM account
+        Create EVM account
         """
         pass
 
@@ -44,42 +44,42 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_export_evm_account(self) -> None:
         """Test case for export_evm_account
 
-        Export an EVM account
+        Export EVM account
         """
         pass
 
     async def test_export_evm_account_by_name(self) -> None:
         """Test case for export_evm_account_by_name
 
-        Export an EVM account by name
+        Export EVM account by name
         """
         pass
 
     async def test_get_evm_account(self) -> None:
         """Test case for get_evm_account
 
-        Get an EVM account by address
+        Get EVM account by address
         """
         pass
 
     async def test_get_evm_account_by_name(self) -> None:
         """Test case for get_evm_account_by_name
 
-        Get an EVM account by name
+        Get EVM account by name
         """
         pass
 
     async def test_get_evm_eip7702_delegation_operation_by_id(self) -> None:
         """Test case for get_evm_eip7702_delegation_operation_by_id
 
-        Get EIP-7702 delegation operation for an operationID
+        Get EIP-7702 delegation operation by ID
         """
         pass
 
     async def test_import_evm_account(self) -> None:
         """Test case for import_evm_account
 
-        Import an EVM account
+        Import EVM account
         """
         pass
 
@@ -93,28 +93,28 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_send_evm_transaction(self) -> None:
         """Test case for send_evm_transaction
 
-        Send a transaction
+        Send transaction
         """
         pass
 
     async def test_sign_evm_hash(self) -> None:
         """Test case for sign_evm_hash
 
-        Sign a hash
+        Sign hash
         """
         pass
 
     async def test_sign_evm_message(self) -> None:
         """Test case for sign_evm_message
 
-        Sign an EIP-191 message
+        Sign EIP-191 message
         """
         pass
 
     async def test_sign_evm_transaction(self) -> None:
         """Test case for sign_evm_transaction
 
-        Sign a transaction
+        Sign transaction
         """
         pass
 
@@ -128,7 +128,7 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_update_evm_account(self) -> None:
         """Test case for update_evm_account
 
-        Update an EVM account
+        Update EVM account
         """
         pass
 

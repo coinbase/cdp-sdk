@@ -42,7 +42,8 @@ class TestInlineObject1(unittest.TestCase):
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 transaction = '0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9',
                 network = 'base',
-                amount = '1000000'
+                amount = '1000000',
+                extra = {chargedAmount=1000000, channelState={channelId=0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890, balance=9000000, totalClaimed=1000000, withdrawRequestedAt=0, refundNonce=0}, voucherState={signedMaxClaimable=1000000, signature=0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b}}
             )
         else:
             return InlineObject1(

@@ -26,6 +26,7 @@ from cdp.openapi_client.models.send_end_user_evm_asset_rule import SendEndUserEv
 from cdp.openapi_client.models.send_end_user_evm_transaction_rule import (
     SendEndUserEvmTransactionRule,
 )
+from cdp.openapi_client.models.send_end_user_operation_rule import SendEndUserOperationRule
 from cdp.openapi_client.models.send_end_user_sol_asset_rule import SendEndUserSolAssetRule
 from cdp.openapi_client.models.send_end_user_sol_transaction_rule import (
     SendEndUserSolTransactionRule,
@@ -39,6 +40,7 @@ from cdp.openapi_client.models.send_sol_transaction_criteria_inner import (
 )
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
+from cdp.openapi_client.models.sign_end_user_evm_hash_rule import SignEndUserEvmHashRule
 from cdp.openapi_client.models.sign_end_user_evm_message_rule import SignEndUserEvmMessageRule
 from cdp.openapi_client.models.sign_end_user_evm_transaction_rule import (
     SignEndUserEvmTransactionRule,
@@ -524,28 +526,35 @@ openapi_criterion_mapping = {
         ),
     },
     "sendUserOperation": {
-        "ethValue": lambda c: SignEvmTransactionCriteriaInner(
+        "ethValue": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EthValueCriterion(
                 eth_value=c.ethValue,
                 operator=c.operator,
                 type="ethValue",
             )
         ),
-        "evmAddress": lambda c: SignEvmTransactionCriteriaInner(
+        "evmAddress": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
             )
         ),
-        "netUSDChange": lambda c: SignEvmTransactionCriteriaInner(
+        "evmNetwork": lambda c: SendEvmTransactionCriteriaInner(
+            actual_instance=EvmNetworkCriterion(
+                networks=c.networks,
+                operator=c.operator,
+                type="evmNetwork",
+            )
+        ),
+        "netUSDChange": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=NetUSDChangeCriterion(
                 change_cents=c.changeCents,
                 operator=c.operator,
                 type="netUSDChange",
             )
         ),
-        "evmData": lambda c: SignEvmTransactionCriteriaInner(
+        "evmData": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
                 abi=EvmDataCriterionAbi(
@@ -589,6 +598,7 @@ openapi_criterion_mapping["signEndUserEvmTransaction"] = openapi_criterion_mappi
 openapi_criterion_mapping["sendEndUserEvmTransaction"] = openapi_criterion_mapping[
     "sendEvmTransaction"
 ]
+openapi_criterion_mapping["signEndUserEvmHash"] = openapi_criterion_mapping["signEvmHash"]
 openapi_criterion_mapping["signEndUserEvmMessage"] = openapi_criterion_mapping["signEvmMessage"]
 openapi_criterion_mapping["signEndUserEvmTypedData"] = openapi_criterion_mapping["signEvmTypedData"]
 openapi_criterion_mapping["signEndUserSolTransaction"] = openapi_criterion_mapping[
@@ -601,6 +611,7 @@ openapi_criterion_mapping["signEndUserSolMessage"] = openapi_criterion_mapping["
 openapi_criterion_mapping["sendEndUserEvmAsset"] = openapi_criterion_mapping["sendEvmTransaction"]
 openapi_criterion_mapping["sendEndUserSolAsset"] = openapi_criterion_mapping["sendSolTransaction"]
 openapi_criterion_mapping["createEndUserEvmSwap"] = openapi_criterion_mapping["sendEvmTransaction"]
+openapi_criterion_mapping["sendEndUserOperation"] = openapi_criterion_mapping["sendEvmTransaction"]
 
 # OpenAPI rule constructor mapping
 openapi_rule_mapping = {
@@ -614,8 +625,10 @@ openapi_rule_mapping = {
     "signSolMessage": SignSolMessageRule,
     "prepareUserOperation": PrepareUserOperationRule,
     "sendUserOperation": SendUserOperationRule,
+    "sendEndUserOperation": SendEndUserOperationRule,
     "signEndUserEvmTransaction": SignEndUserEvmTransactionRule,
     "sendEndUserEvmTransaction": SendEndUserEvmTransactionRule,
+    "signEndUserEvmHash": SignEndUserEvmHashRule,
     "signEndUserEvmMessage": SignEndUserEvmMessageRule,
     "signEndUserEvmTypedData": SignEndUserEvmTypedDataRule,
     "signEndUserSolTransaction": SignEndUserSolTransactionRule,

@@ -26,8 +26,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -53,7 +51,9 @@ public class X402SupportedPaymentKind {
   public enum SchemeEnum {
     EXACT(String.valueOf("exact")),
     
-    UPTO(String.valueOf("upto"));
+    UPTO(String.valueOf("upto")),
+    
+    BATCH_SETTLEMENT(String.valueOf("batch-settlement"));
 
     private String value;
 
@@ -87,7 +87,7 @@ public class X402SupportedPaymentKind {
   private SchemeEnum scheme;
 
   /**
-   * The network of the blockchain.
+   * The network of the blockchain. The format corresponds to the &#x60;x402Version&#x60; of the enclosing &#x60;x402SupportedPaymentKind&#x60;: v1 uses human-readable names (see &#x60;X402V1Network&#x60;); v2 uses CAIP-2 chain IDs (see &#x60;X402V2Network&#x60;).
    */
   public enum NetworkEnum {
     BASE_SEPOLIA(String.valueOf("base-sepolia")),
@@ -98,27 +98,21 @@ public class X402SupportedPaymentKind {
     
     SOLANA(String.valueOf("solana")),
     
-    POLYGON(String.valueOf("polygon")),
-    
     EIP155_8453(String.valueOf("eip155:8453")),
     
     EIP155_84532(String.valueOf("eip155:84532")),
     
     EIP155_137(String.valueOf("eip155:137")),
     
+    EIP155_42161(String.valueOf("eip155:42161")),
+    
+    EIP155_480(String.valueOf("eip155:480")),
+    
+    EIP155_4801(String.valueOf("eip155:4801")),
+    
     SOLANA_5EYKT4_US_FV8_P8_NJD_TREP_Y1VZQ_KQ_Z_KVDP(String.valueOf("solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")),
     
-    SOLANA_ET_WTRABZA_YQ6I_MFE_Y_KOU_RU166_VU2XQA1(String.valueOf("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1")),
-    
-    AVALANCHE(String.valueOf("avalanche")),
-    
-    ARBITRUM(String.valueOf("arbitrum")),
-    
-    ARBITRUM_SEPOLIA(String.valueOf("arbitrum-sepolia")),
-    
-    WORLD(String.valueOf("world")),
-    
-    WORLD_SEPOLIA(String.valueOf("world-sepolia"));
+    SOLANA_ET_WTRABZA_YQ6I_MFE_Y_KOU_RU166_VU2XQA1(String.valueOf("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"));
 
     private String value;
 
@@ -153,7 +147,7 @@ public class X402SupportedPaymentKind {
 
   public static final String JSON_PROPERTY_EXTRA = "extra";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extra = new HashMap<>();
+  private Object extra;
 
   public X402SupportedPaymentKind() { 
   }
@@ -212,7 +206,7 @@ public class X402SupportedPaymentKind {
   }
 
   /**
-   * The network of the blockchain.
+   * The network of the blockchain. The format corresponds to the &#x60;x402Version&#x60; of the enclosing &#x60;x402SupportedPaymentKind&#x60;: v1 uses human-readable names (see &#x60;X402V1Network&#x60;); v2 uses CAIP-2 chain IDs (see &#x60;X402V2Network&#x60;).
    * @return network
    */
   @jakarta.annotation.Nonnull
@@ -230,34 +224,26 @@ public class X402SupportedPaymentKind {
   }
 
 
-  public X402SupportedPaymentKind extra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  public X402SupportedPaymentKind extra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
     return this;
   }
 
-  public X402SupportedPaymentKind putExtraItem(String key, Object extraItem) {
-    if (this.extra == null) {
-      this.extra = new HashMap<>();
-    }
-    this.extra.put(key, extraItem);
-    return this;
-  }
-
   /**
-   * The optional additional scheme-specific payment info.
+   * The optional additional scheme-specific payment info. Common scheme-specific fields:   - &#x60;exact&#x60; on Solana: &#x60;feePayer&#x60; — the base58-encoded Solana address that pays transaction fees.   - &#x60;upto&#x60; on EVM: &#x60;name&#x60;, &#x60;version&#x60;, and &#x60;facilitatorAddress&#x60; — the EVM address of the facilitator that the client must bind into the Permit2 witness when constructing the payment payload.   - &#x60;batch-settlement&#x60; on EVM: &#x60;name&#x60;, &#x60;version&#x60;, &#x60;receiverAuthorizer&#x60; (the EVM address authorized to sign claim batches), &#x60;withdrawDelay&#x60; (channel non-cooperative withdraw delay in seconds, 900–2,592,000), and optionally &#x60;assetTransferMethod&#x60; (e.g., &#x60;\&quot;eip3009\&quot;&#x60;).
    * @return extra
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtra() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
     return extra;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
   }
 
@@ -357,11 +343,7 @@ public class X402SupportedPaymentKind {
 
     // add `extra` to the URL query string
     if (getExtra() != null) {
-      for (String _key : getExtra().keySet()) {
-        joiner.add(String.format("%sextra%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtra().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtra().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -391,7 +373,7 @@ public class X402SupportedPaymentKind {
       this.instance.network = network;
       return this;
     }
-    public X402SupportedPaymentKind.Builder extra(Map<String, Object> extra) {
+    public X402SupportedPaymentKind.Builder extra(Object extra) {
       this.instance.extra = extra;
       return this;
     }

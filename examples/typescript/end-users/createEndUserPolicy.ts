@@ -112,6 +112,33 @@ const policy = await cdp.policies.createPolicy({
           },
         ],
       },
+      // Restrict end-user smart account operations to specific networks with a max value and USD exposure limit
+      {
+        action: "accept",
+        operation: "sendEndUserOperation",
+        criteria: [
+          {
+            type: "ethValue",
+            ethValue: "1000000000000000000", // 1 ETH in wei
+            operator: "<=",
+          },
+          {
+            type: "evmNetwork",
+            networks: ["base", "base-sepolia"],
+            operator: "in",
+          },
+          {
+            type: "netUSDChange",
+            changeCents: 50000, // $500.00
+            operator: "<=",
+          },
+        ],
+      },
+      // Accept end-user EVM hash signing (no criteria — blanket accept/reject)
+      {
+        action: "accept",
+        operation: "signEndUserEvmHash",
+      },
     ],
   },
 });

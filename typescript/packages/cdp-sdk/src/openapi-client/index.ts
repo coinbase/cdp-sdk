@@ -10,11 +10,10 @@ export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/onramp/onramp.js";
 export * from "./generated/onchain-data/onchain-data.js";
 export * from "./generated/end-user-accounts/end-user-accounts.js";
-export * from "./generated/embedded-wallets/embedded-wallets.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
 
 import { configure } from "./cdpApiClient.js";
-import * as embeddedWallets from "./generated/embedded-wallets/embedded-wallets.js";
+import * as endUserAccountManagement from "./generated/end-user-account-management/end-user-account-management.js";
 import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
 import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
@@ -39,7 +38,7 @@ export const CdpOpenApiClient = {
   ...onchainData,
   ...policies,
   ...endUserAccounts,
-  ...embeddedWallets,
+  ...endUserAccountManagement,
   configure,
 };
 
@@ -62,3 +61,8 @@ export const OpenApiPoliciesMethods = {
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
 export * from "./generated/sql-api/sql-api.js";
+export * from "./generated/accounts/accounts.js";
+export * from "./generated/deposit-destinations/deposit-destinations.js";
+export * from "./generated/transfers/transfers.js";
+export * from "./generated/end-user-account-management/end-user-account-management.js";
+export * from "./generated/payment-methods/payment-methods.js";

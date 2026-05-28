@@ -1,4 +1,4 @@
-from cdp.openapi_client.api.embedded_wallets_api import EmbeddedWalletsApi
+from cdp.openapi_client.api.end_user_account_management_api import EndUserAccountManagementApi
 from cdp.openapi_client.api.end_user_accounts_api import EndUserAccountsApi
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
@@ -21,7 +21,7 @@ class ApiClients:
 
     Attributes:
         _cdp_client (CdpApiClient): The CDP API client used to initialize individual API clients.
-        _end_user (Optional[EndUserAccountsApi]): The EndUserAccountsApi client instance.
+        _end_user (Optional[EndUserAccountManagementApi]): The EndUserAccountManagementApi client instance.
         _evm_accounts (Optional[EVMAccountsApi]): The EVMAccountsApi client instance.
         _evm_smart_accounts (Optional[EVMSmartAccountsApi]): The EVMSmartAccountsApi client instance.
         _evm_swaps (Optional[EVMSwapsApi]): The EVMSwapsApi client instance.
@@ -50,8 +50,8 @@ class ApiClients:
         self._solana_accounts: SolanaAccountsApi | None = None
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
-        self._end_user: EndUserAccountsApi | None = None
-        self._embedded_wallets: EmbeddedWalletsApi | None = None
+        self._end_user: EndUserAccountManagementApi | None = None
+        self._embedded_wallets: EndUserAccountsApi | None = None
         self._webhooks: WebhooksApi | None = None
         self._closed = False
 
@@ -208,32 +208,32 @@ class ApiClients:
         return self._policies
 
     @property
-    def end_user(self) -> EndUserAccountsApi:
-        """Get the EndUserAccountsApi client instance.
+    def end_user(self) -> EndUserAccountManagementApi:
+        """Get the EndUserAccountManagementApi client instance.
 
         Returns:
-            EndUserAccountsApi: The EndUserAccountsApi client instance.
+            EndUserAccountManagementApi: The EndUserAccountManagementApi client instance.
 
         """
         self._check_closed()
         if self._end_user is None:
-            self._end_user = EndUserAccountsApi(api_client=self._cdp_client)
+            self._end_user = EndUserAccountManagementApi(api_client=self._cdp_client)
         return self._end_user
 
     @property
-    def embedded_wallets(self) -> EmbeddedWalletsApi:
-        """Get the EmbeddedWalletsApi client instance.
+    def embedded_wallets(self) -> EndUserAccountsApi:
+        """Get the EndUserAccountsApi client instance for embedded wallet operations.
 
         Returns:
-            EmbeddedWalletsApi: The EmbeddedWalletsApi client instance.
+            EndUserAccountsApi: The EndUserAccountsApi client instance.
 
         Note:
-            This property lazily initializes the EmbeddedWalletsApi client on first access.
+            This property lazily initializes the EndUserAccountsApi client on first access.
 
         """
         self._check_closed()
         if self._embedded_wallets is None:
-            self._embedded_wallets = EmbeddedWalletsApi(api_client=self._cdp_client)
+            self._embedded_wallets = EndUserAccountsApi(api_client=self._cdp_client)
         return self._embedded_wallets
 
     @property

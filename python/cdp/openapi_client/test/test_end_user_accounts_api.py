@@ -27,66 +27,115 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
-    async def test_add_end_user_evm_account(self) -> None:
-        """Test case for add_end_user_evm_account
+    async def test_create_delegation_for_end_user_account(self) -> None:
+        """Test case for create_delegation_for_end_user_account
 
-        Add an EVM account to an end user
+        Create account-scoped delegation for end user
         """
         pass
 
-    async def test_add_end_user_evm_smart_account(self) -> None:
-        """Test case for add_end_user_evm_smart_account
+    async def test_create_evm_eip7702_delegation_with_end_user_account(self) -> None:
+        """Test case for create_evm_eip7702_delegation_with_end_user_account
 
-        Add an EVM smart account to an end user
+        Create EIP-7702 delegation for end user EVM account
         """
         pass
 
-    async def test_add_end_user_solana_account(self) -> None:
-        """Test case for add_end_user_solana_account
+    async def test_get_delegation_for_end_user(self) -> None:
+        """Test case for get_delegation_for_end_user
 
-        Add a Solana account to an end user
+        Get delegation for end user
         """
         pass
 
-    async def test_create_end_user(self) -> None:
-        """Test case for create_end_user
+    async def test_get_delegation_for_end_user_account(self) -> None:
+        """Test case for get_delegation_for_end_user_account
 
-        Create an end user
+        Get account-scoped delegation for end user
         """
         pass
 
-    async def test_get_end_user(self) -> None:
-        """Test case for get_end_user
+    async def test_revoke_delegation_for_end_user(self) -> None:
+        """Test case for revoke_delegation_for_end_user
 
-        Get an end user
+        Revoke delegation for end user
         """
         pass
 
-    async def test_import_end_user(self) -> None:
-        """Test case for import_end_user
+    async def test_revoke_delegation_for_end_user_account(self) -> None:
+        """Test case for revoke_delegation_for_end_user_account
 
-        Import a private key for an end user
+        Revoke account-scoped delegation for end user
         """
         pass
 
-    async def test_list_end_users(self) -> None:
-        """Test case for list_end_users
+    async def test_send_evm_asset_with_end_user_account(self) -> None:
+        """Test case for send_evm_asset_with_end_user_account
 
-        List end users
+        Send USDC on EVM
         """
         pass
 
-    async def test_lookup_end_user(self) -> None:
-        """Test case for lookup_end_user
+    async def test_send_evm_transaction_with_end_user_account(self) -> None:
+        """Test case for send_evm_transaction_with_end_user_account
 
-        Look up end users by identity
+        Send transaction via end user EVM account
         """
         pass
 
-    async def test_validate_end_user_access_token(self) -> None:
-        """Test case for validate_end_user_access_token
+    async def test_send_solana_asset_with_end_user_account(self) -> None:
+        """Test case for send_solana_asset_with_end_user_account
 
-        Validate end user access token
+        Send USDC on Solana
+        """
+        pass
+
+    async def test_send_solana_transaction_with_end_user_account(self) -> None:
+        """Test case for send_solana_transaction_with_end_user_account
+
+        Send transaction via end user Solana account
+        """
+        pass
+
+    async def test_send_user_operation_with_end_user_account(self) -> None:
+        """Test case for send_user_operation_with_end_user_account
+
+        Send user operation for end user Smart Account
+        """
+        pass
+
+    async def test_sign_evm_message_with_end_user_account(self) -> None:
+        """Test case for sign_evm_message_with_end_user_account
+
+        Sign EIP-191 message via end user EVM account
+        """
+        pass
+
+    async def test_sign_evm_transaction_with_end_user_account(self) -> None:
+        """Test case for sign_evm_transaction_with_end_user_account
+
+        Sign transaction via end user EVM account
+        """
+        pass
+
+    async def test_sign_evm_typed_data_with_end_user_account(self) -> None:
+        """Test case for sign_evm_typed_data_with_end_user_account
+
+        Sign EIP-712 typed data via end user EVM account
+        """
+        pass
+
+    async def test_sign_solana_message_with_end_user_account(self) -> None:
+        """Test case for sign_solana_message_with_end_user_account
+
+        Sign Base64-encoded message
+        """
+        pass
+
+    async def test_sign_solana_transaction_with_end_user_account(self) -> None:
+        """Test case for sign_solana_transaction_with_end_user_account
+
+        Sign transaction via end user Solana account
         """
         pass
 

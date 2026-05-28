@@ -27,7 +27,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
  * Verify an x402 protocol payment with a specific scheme and network.
- * @summary Verify a payment
+ * @summary Verify payment
  */
 export const verifyX402Payment = (
   verifyX402PaymentBody: VerifyX402PaymentBody,
@@ -45,7 +45,7 @@ export const verifyX402Payment = (
 };
 /**
  * Settle an x402 protocol payment with a specific scheme and network.
- * @summary Settle a payment
+ * @summary Settle payment
  */
 export const settleX402Payment = (
   settleX402PaymentBody: SettleX402PaymentBody,
@@ -77,7 +77,7 @@ export const supportedX402PaymentKinds = (
  * Lists all active discovered x402 resources.
 This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata.
 The response is paginated, and by default, returns 100 items per page.
- * @summary List discovered x402 resources
+ * @summary List x402 resources
  */
 export const listX402DiscoveryResources = (
   params?: ListX402DiscoveryResourcesParams,

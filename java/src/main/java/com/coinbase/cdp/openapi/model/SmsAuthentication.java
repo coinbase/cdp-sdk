@@ -112,7 +112,7 @@ public class SmsAuthentication {
   }
 
   /**
-   * The phone number of the end user in E.164 format.
+   * Phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.
    * @return phoneNumber
    */
   @jakarta.annotation.Nonnull

@@ -31,7 +31,7 @@ class X402SearchResourcesResponse(BaseModel):
     """ # noqa: E501
     resources: List[X402DiscoveryResource] = Field(description="List of x402 resources matching the search query and filters.")
     partial_results: StrictBool = Field(description="Indicates whether the result set was truncated because there were more results than the requested limit.", alias="partialResults")
-    search_method: Optional[StrictStr] = Field(default=None, description="The search method used to retrieve the results (e.g., \"text\" or \"vector\").", alias="searchMethod")
+    search_method: Optional[StrictStr] = Field(default=None, description="The search method used to retrieve the results (e.g., \"text\", \"vector\", \"hybrid\").", alias="searchMethod")
     x402_version: X402Version = Field(alias="x402Version")
     __properties: ClassVar[List[str]] = ["resources", "partialResults", "searchMethod", "x402Version"]
 
@@ -41,8 +41,8 @@ class X402SearchResourcesResponse(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['text', 'vector']):
-            raise ValueError("must be one of enum values ('text', 'vector')")
+        if value not in set(['text', 'vector', 'hybrid']):
+            raise ValueError("must be one of enum values ('text', 'vector', 'hybrid')")
         return value
 
     model_config = ConfigDict(

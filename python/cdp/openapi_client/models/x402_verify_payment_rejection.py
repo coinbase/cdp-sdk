@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.x402_verify_invalid_reason import X402VerifyInvalidReason
@@ -32,18 +32,8 @@ class X402VerifyPaymentRejection(BaseModel):
     is_valid: StrictBool = Field(description="Indicates whether the payment is valid.", alias="isValid")
     invalid_reason: X402VerifyInvalidReason = Field(alias="invalidReason")
     invalid_message: Optional[StrictStr] = Field(default=None, description="The message describing the invalid reason.", alias="invalidMessage")
-    payer: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
+    payer: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
     __properties: ClassVar[List[str]] = ["isValid", "invalidReason", "invalidMessage", "payer"]
-
-    @field_validator('payer')
-    def payer_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

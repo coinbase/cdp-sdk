@@ -30,14 +30,14 @@ class TestEVMSwapsApi(unittest.IsolatedAsyncioTestCase):
     async def test_create_evm_swap_quote(self) -> None:
         """Test case for create_evm_swap_quote
 
-        Create a swap quote
+        Create swap quote
         """
         pass
 
     async def test_get_evm_swap_price(self) -> None:
         """Test case for get_evm_swap_price
 
-        Get a price estimate for a swap
+        Get swap price estimate
         """
         pass
 

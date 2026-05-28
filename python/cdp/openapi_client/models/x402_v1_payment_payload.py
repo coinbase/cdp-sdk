@@ -20,19 +20,20 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.x402_v2_payment_payload_payload import X402V2PaymentPayloadPayload
+from cdp.openapi_client.models.x402_v1_network import X402V1Network
+from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
 from cdp.openapi_client.models.x402_version import X402Version
 from typing import Optional, Set
 from typing_extensions import Self
 
 class X402V1PaymentPayload(BaseModel):
     """
-    The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    The x402 v1 protocol payment payload. Uses human-readable network names and requires `scheme` and `network` alongside the inner `payload` object.
     """ # noqa: E501
-    x402_version: X402Version = Field(alias="x402Version")
+    x402_version: X402Version = Field(description="The x402 protocol version. Must be `1` for this payload shape.", alias="x402Version")
     scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
-    network: StrictStr = Field(description="The network of the blockchain to send payment on.")
-    payload: X402V2PaymentPayloadPayload
+    network: X402V1Network = Field(description="The network of the blockchain to send payment on.")
+    payload: X402V1PaymentPayloadPayload
     __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "payload"]
 
     @field_validator('scheme')
@@ -40,13 +41,6 @@ class X402V1PaymentPayload(BaseModel):
         """Validates the enum"""
         if value not in set(['exact']):
             raise ValueError("must be one of enum values ('exact')")
-        return value
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'polygon')")
         return value
 
     model_config = ConfigDict(
@@ -106,7 +100,7 @@ class X402V1PaymentPayload(BaseModel):
             "x402Version": obj.get("x402Version"),
             "scheme": obj.get("scheme"),
             "network": obj.get("network"),
-            "payload": X402V2PaymentPayloadPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None
+            "payload": X402V1PaymentPayloadPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None
         })
         return _obj
 

@@ -599,8 +599,8 @@ try (CdpClient cdp = CdpClient.create()) {
 | `PolicyEngineApi` | Policy management for operation controls |
 | `FaucetsApi` | Request testnet funds |
 | `OnchainDataApi` | Query on-chain data |
-| `EndUserAccountsApi` | End user CRUD operations |
-| `EmbeddedWalletsApi` | Delegated signing/sending for end users |
+| `EndUserAccountManagementApi` | End user CRUD operations |
+| `EndUserAccountsApi` | End user transaction operations |
 
 See the `com.coinbase.cdp.openapi.api` package for all available APIs.
 

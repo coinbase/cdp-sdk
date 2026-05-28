@@ -32,20 +32,10 @@ class X402SettlePaymentRejection(BaseModel):
     success: StrictBool = Field(description="Indicates whether the payment settlement is successful.")
     error_reason: X402SettleErrorReason = Field(alias="errorReason")
     error_message: Optional[StrictStr] = Field(default=None, description="The message describing the error reason.", alias="errorMessage")
-    payer: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
+    payer: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
     transaction: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.")
     network: Optional[StrictStr] = Field(default=None, description="The network where the settlement occurred.")
     __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network"]
-
-    @field_validator('payer')
-    def payer_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
-        return value
 
     @field_validator('transaction')
     def transaction_validate_regular_expression(cls, value):

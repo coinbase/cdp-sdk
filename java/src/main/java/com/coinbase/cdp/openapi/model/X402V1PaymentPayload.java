@@ -19,7 +19,8 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.X402V2PaymentPayloadPayload;
+import com.coinbase.cdp.openapi.model.X402V1Network;
+import com.coinbase.cdp.openapi.model.X402V1PaymentPayloadPayload;
 import com.coinbase.cdp.openapi.model.X402Version;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+ * The x402 v1 protocol payment payload. Uses human-readable network names and requires &#x60;scheme&#x60; and &#x60;network&#x60; alongside the inner &#x60;payload&#x60; object.
  */
 @JsonPropertyOrder({
   X402V1PaymentPayload.JSON_PROPERTY_X402_VERSION,
@@ -83,54 +84,13 @@ public class X402V1PaymentPayload {
   @jakarta.annotation.Nonnull
   private SchemeEnum scheme;
 
-  /**
-   * The network of the blockchain to send payment on.
-   */
-  public enum NetworkEnum {
-    BASE_SEPOLIA(String.valueOf("base-sepolia")),
-    
-    BASE(String.valueOf("base")),
-    
-    SOLANA_DEVNET(String.valueOf("solana-devnet")),
-    
-    SOLANA(String.valueOf("solana")),
-    
-    POLYGON(String.valueOf("polygon"));
-
-    private String value;
-
-    NetworkEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static NetworkEnum fromValue(String value) {
-      for (NetworkEnum b : NetworkEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
-  private NetworkEnum network;
+  private X402V1Network network;
 
   public static final String JSON_PROPERTY_PAYLOAD = "payload";
   @jakarta.annotation.Nonnull
-  private X402V2PaymentPayloadPayload payload;
+  private X402V1PaymentPayloadPayload payload;
 
   public X402V1PaymentPayload() { 
   }
@@ -141,7 +101,7 @@ public class X402V1PaymentPayload {
   }
 
   /**
-   * Get x402Version
+   * The x402 protocol version. Must be &#x60;1&#x60; for this payload shape.
    * @return x402Version
    */
   @jakarta.annotation.Nonnull
@@ -183,7 +143,7 @@ public class X402V1PaymentPayload {
   }
 
 
-  public X402V1PaymentPayload network(@jakarta.annotation.Nonnull NetworkEnum network) {
+  public X402V1PaymentPayload network(@jakarta.annotation.Nonnull X402V1Network network) {
     this.network = network;
     return this;
   }
@@ -195,19 +155,19 @@ public class X402V1PaymentPayload {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public NetworkEnum getNetwork() {
+  public X402V1Network getNetwork() {
     return network;
   }
 
 
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setNetwork(@jakarta.annotation.Nonnull NetworkEnum network) {
+  public void setNetwork(@jakarta.annotation.Nonnull X402V1Network network) {
     this.network = network;
   }
 
 
-  public X402V1PaymentPayload payload(@jakarta.annotation.Nonnull X402V2PaymentPayloadPayload payload) {
+  public X402V1PaymentPayload payload(@jakarta.annotation.Nonnull X402V1PaymentPayloadPayload payload) {
     this.payload = payload;
     return this;
   }
@@ -219,14 +179,14 @@ public class X402V1PaymentPayload {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PAYLOAD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public X402V2PaymentPayloadPayload getPayload() {
+  public X402V1PaymentPayloadPayload getPayload() {
     return payload;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAYLOAD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPayload(@jakarta.annotation.Nonnull X402V2PaymentPayloadPayload payload) {
+  public void setPayload(@jakarta.annotation.Nonnull X402V1PaymentPayloadPayload payload) {
     this.payload = payload;
   }
 
@@ -352,11 +312,11 @@ public class X402V1PaymentPayload {
       this.instance.scheme = scheme;
       return this;
     }
-    public X402V1PaymentPayload.Builder network(NetworkEnum network) {
+    public X402V1PaymentPayload.Builder network(X402V1Network network) {
       this.instance.network = network;
       return this;
     }
-    public X402V1PaymentPayload.Builder payload(X402V2PaymentPayloadPayload payload) {
+    public X402V1PaymentPayload.Builder payload(X402V1PaymentPayloadPayload payload) {
       this.instance.payload = payload;
       return this;
     }

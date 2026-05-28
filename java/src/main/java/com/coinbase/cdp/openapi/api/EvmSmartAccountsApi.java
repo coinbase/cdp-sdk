@@ -93,7 +93,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Create a Smart Account
+   * Create Smart Account
    * Creates a new Smart Account.
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param createEvmSmartAccountRequest  (optional)
@@ -106,7 +106,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Create a Smart Account
+   * Create Smart Account
    * Creates a new Smart Account.
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @param createEvmSmartAccountRequest  (optional)
@@ -183,7 +183,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Create a spend permission
+   * Create spend permission
    * Creates a spend permission for the given smart account address.
    * @param address The address of the Smart Account to create the spend permission for. (required)
    * @param createSpendPermissionRequest  (required)
@@ -198,7 +198,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Create a spend permission
+   * Create spend permission
    * Creates a spend permission for the given smart account address.
    * @param address The address of the Smart Account to create the spend permission for. (required)
    * @param createSpendPermissionRequest  (required)
@@ -289,7 +289,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Get a Smart Account by address
+   * Get Smart Account by address
    * Gets a Smart Account by its address.
    * @param address The 0x-prefixed address of the Smart Account. (required)
    * @return EvmSmartAccount
@@ -301,7 +301,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Get a Smart Account by address
+   * Get Smart Account by address
    * Gets a Smart Account by its address.
    * @param address The 0x-prefixed address of the Smart Account. (required)
    * @return ApiResponse&lt;EvmSmartAccount&gt;
@@ -373,7 +373,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Get a Smart Account by name
+   * Get Smart Account by name
    * Gets a Smart Account by its name.
    * @param name The name of the Smart Account. (required)
    * @return EvmSmartAccount
@@ -385,7 +385,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Get a Smart Account by name
+   * Get Smart Account by name
    * Gets a Smart Account by its name.
    * @param name The name of the Smart Account. (required)
    * @return ApiResponse&lt;EvmSmartAccount&gt;
@@ -457,7 +457,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Get a user operation
+   * Get user operation
    * Gets a user operation by its hash.
    * @param address The address of the Smart Account the user operation belongs to. (required)
    * @param userOpHash The hash of the user operation to fetch. (required)
@@ -470,7 +470,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Get a user operation
+   * Get user operation
    * Gets a user operation by its hash.
    * @param address The address of the Smart Account the user operation belongs to. (required)
    * @param userOpHash The hash of the user operation to fetch. (required)
@@ -751,7 +751,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Prepare and send a user operation for EVM Smart Account
+   * Prepare and send user operation
    * Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
    * @param address The address of the EVM Smart Account to execute the user operation from. (required)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -766,7 +766,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Prepare and send a user operation for EVM Smart Account
+   * Prepare and send user operation
    * Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
    * @param address The address of the EVM Smart Account to execute the user operation from. (required)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
@@ -853,7 +853,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Prepare a user operation
+   * Prepare user operation
    * Prepares a new user operation on a Smart Account for a specific network.
    * @param address The address of the Smart Account to create the user operation on. (required)
    * @param prepareUserOperationRequest  (optional)
@@ -866,7 +866,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Prepare a user operation
+   * Prepare user operation
    * Prepares a new user operation on a Smart Account for a specific network.
    * @param address The address of the Smart Account to create the user operation on. (required)
    * @param prepareUserOperationRequest  (optional)
@@ -945,7 +945,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Revoke a spend permission
+   * Revoke spend permission
    * Revokes an existing spend permission.
    * @param address The address of the Smart account this spend permission is valid for. (required)
    * @param revokeSpendPermissionRequest  (required)
@@ -960,7 +960,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Revoke a spend permission
+   * Revoke spend permission
    * Revokes an existing spend permission.
    * @param address The address of the Smart account this spend permission is valid for. (required)
    * @param revokeSpendPermissionRequest  (required)
@@ -1051,7 +1051,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Send a user operation
+   * Send user operation
    * Sends a user operation with a signature. The payload to sign must be the &#x60;userOpHash&#x60; field of the user operation. This hash should be signed directly (not using &#x60;personal_sign&#x60; or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the &#x60;r&#x60; value - 32 bytes for the &#x60;s&#x60; value - 1 byte for the &#x60;v&#x60; value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
    * @param address The address of the Smart Account to send the user operation from. (required)
    * @param userOpHash The hash of the user operation to send. (required)
@@ -1065,7 +1065,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Send a user operation
+   * Send user operation
    * Sends a user operation with a signature. The payload to sign must be the &#x60;userOpHash&#x60; field of the user operation. This hash should be signed directly (not using &#x60;personal_sign&#x60; or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the &#x60;r&#x60; value - 32 bytes for the &#x60;s&#x60; value - 1 byte for the &#x60;v&#x60; value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
    * @param address The address of the Smart Account to send the user operation from. (required)
    * @param userOpHash The hash of the user operation to send. (required)
@@ -1150,7 +1150,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Update an EVM Smart Account
+   * Update EVM Smart Account
    * Updates an existing EVM smart account. Use this to update the smart account&#39;s name.
    * @param address The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed. (required)
    * @param updateEvmSmartAccountRequest  (optional)
@@ -1163,7 +1163,7 @@ public class EvmSmartAccountsApi {
   }
 
   /**
-   * Update an EVM Smart Account
+   * Update EVM Smart Account
    * Updates an existing EVM smart account. Use this to update the smart account&#39;s name.
    * @param address The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed. (required)
    * @param updateEvmSmartAccountRequest  (optional)

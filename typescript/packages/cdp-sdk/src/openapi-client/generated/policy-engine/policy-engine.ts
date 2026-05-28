@@ -33,7 +33,7 @@ export const listPolicies = (
 };
 /**
  * Create a policy that can be used to govern the behavior of accounts.
- * @summary Create a policy
+ * @summary Create policy
  */
 export const createPolicy = (
   createPolicyBody: CreatePolicyBody,
@@ -51,7 +51,7 @@ export const createPolicy = (
 };
 /**
  * Get a policy by its ID.
- * @summary Get a policy by ID
+ * @summary Get policy by ID
  */
 export const getPolicyById = (
   policyId: string,
@@ -64,7 +64,7 @@ export const getPolicyById = (
 };
 /**
  * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
- * @summary Delete a policy
+ * @summary Delete policy
  */
 export const deletePolicy = (
   policyId: string,
@@ -77,7 +77,7 @@ export const deletePolicy = (
 };
 /**
  * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
- * @summary Update a policy
+ * @summary Update policy
  */
 export const updatePolicy = (
   policyId: string,

@@ -19,20 +19,19 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.X402V2Network;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * The x402 protocol payment requirements that the resource server expects the client&#39;s payment payload to meet.
+ * The x402 v2 payment requirements. Uses CAIP-2 network identifiers and supports &#x60;exact&#x60;, &#x60;upto&#x60;, and &#x60;batch-settlement&#x60; schemes. Carries only the payment fields (no resource metadata — that is in the enclosing &#x60;x402V2PaymentPayload.resource&#x60;).
  */
 @JsonPropertyOrder({
   X402V2PaymentRequirements.JSON_PROPERTY_SCHEME,
@@ -46,12 +45,14 @@ import com.coinbase.cdp.openapi.ApiClient;
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class X402V2PaymentRequirements {
   /**
-   * The scheme of the payment protocol to use. Supported schemes are &#x60;exact&#x60; and &#x60;upto&#x60;.
+   * The scheme of the payment protocol to use. Supported schemes are &#x60;exact&#x60;, &#x60;upto&#x60;, and &#x60;batch-settlement&#x60;.
    */
   public enum SchemeEnum {
     EXACT(String.valueOf("exact")),
     
-    UPTO(String.valueOf("upto"));
+    UPTO(String.valueOf("upto")),
+    
+    BATCH_SETTLEMENT(String.valueOf("batch-settlement"));
 
     private String value;
 
@@ -86,7 +87,7 @@ public class X402V2PaymentRequirements {
 
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
-  private String network;
+  private X402V2Network network;
 
   public static final String JSON_PROPERTY_ASSET = "asset";
   @jakarta.annotation.Nonnull
@@ -106,7 +107,7 @@ public class X402V2PaymentRequirements {
 
   public static final String JSON_PROPERTY_EXTRA = "extra";
   @jakarta.annotation.Nullable
-  private Map<String, Object> extra = new HashMap<>();
+  private Object extra;
 
   public X402V2PaymentRequirements() { 
   }
@@ -117,7 +118,7 @@ public class X402V2PaymentRequirements {
   }
 
   /**
-   * The scheme of the payment protocol to use. Supported schemes are &#x60;exact&#x60; and &#x60;upto&#x60;.
+   * The scheme of the payment protocol to use. Supported schemes are &#x60;exact&#x60;, &#x60;upto&#x60;, and &#x60;batch-settlement&#x60;.
    * @return scheme
    */
   @jakarta.annotation.Nonnull
@@ -135,26 +136,26 @@ public class X402V2PaymentRequirements {
   }
 
 
-  public X402V2PaymentRequirements network(@jakarta.annotation.Nonnull String network) {
+  public X402V2PaymentRequirements network(@jakarta.annotation.Nonnull X402V2Network network) {
     this.network = network;
     return this;
   }
 
   /**
-   * The network of the blockchain to send payment on in caip2 format.
+   * The network of the blockchain to send payment on in CAIP-2 format.
    * @return network
    */
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getNetwork() {
+  public X402V2Network getNetwork() {
     return network;
   }
 
 
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setNetwork(@jakarta.annotation.Nonnull String network) {
+  public void setNetwork(@jakarta.annotation.Nonnull X402V2Network network) {
     this.network = network;
   }
 
@@ -255,16 +256,8 @@ public class X402V2PaymentRequirements {
   }
 
 
-  public X402V2PaymentRequirements extra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  public X402V2PaymentRequirements extra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
-    return this;
-  }
-
-  public X402V2PaymentRequirements putExtraItem(String key, Object extraItem) {
-    if (this.extra == null) {
-      this.extra = new HashMap<>();
-    }
-    this.extra.put(key, extraItem);
     return this;
   }
 
@@ -274,15 +267,15 @@ public class X402V2PaymentRequirements {
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getExtra() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getExtra() {
     return extra;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTRA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtra(@jakarta.annotation.Nullable Map<String, Object> extra) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtra(@jakarta.annotation.Nullable Object extra) {
     this.extra = extra;
   }
 
@@ -403,11 +396,7 @@ public class X402V2PaymentRequirements {
 
     // add `extra` to the URL query string
     if (getExtra() != null) {
-      for (String _key : getExtra().keySet()) {
-        joiner.add(String.format("%sextra%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
-            getExtra().get(_key), URLEncoder.encode(ApiClient.valueToString(getExtra().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-      }
+      joiner.add(String.format("%sextra%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExtra()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -429,7 +418,7 @@ public class X402V2PaymentRequirements {
       this.instance.scheme = scheme;
       return this;
     }
-    public X402V2PaymentRequirements.Builder network(String network) {
+    public X402V2PaymentRequirements.Builder network(X402V2Network network) {
       this.instance.network = network;
       return this;
     }
@@ -449,7 +438,7 @@ public class X402V2PaymentRequirements {
       this.instance.maxTimeoutSeconds = maxTimeoutSeconds;
       return this;
     }
-    public X402V2PaymentRequirements.Builder extra(Map<String, Object> extra) {
+    public X402V2PaymentRequirements.Builder extra(Object extra) {
       this.instance.extra = extra;
       return this;
     }

@@ -39,7 +39,10 @@ class TestError(unittest.TestCase):
                 error_type = 'invalid_request',
                 error_message = 'Unable to create EVM account',
                 correlation_id = '41deb8d59a9dc9a7-IAD',
-                error_link = 'https://example.com'
+                error_link = 'https://example.com',
+                unauthorized_capabilities = [
+                    'custodyCrypto'
+                    ]
             )
         else:
             return Error(

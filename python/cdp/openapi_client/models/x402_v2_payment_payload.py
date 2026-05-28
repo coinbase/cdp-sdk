@@ -29,9 +29,9 @@ from typing_extensions import Self
 
 class X402V2PaymentPayload(BaseModel):
     """
-    The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    The x402 v2 protocol payment payload. Uses CAIP-2 network identifiers. The `accepted` field carries the full payment requirements; `scheme` and `network` are not top-level fields (they are on the nested `accepted` object).
     """ # noqa: E501
-    x402_version: X402Version = Field(alias="x402Version")
+    x402_version: X402Version = Field(description="The x402 protocol version. Must be `2` for this payload shape.", alias="x402Version")
     payload: X402V2PaymentPayloadPayload
     accepted: X402V2PaymentRequirements
     resource: Optional[X402ResourceInfo] = None
