@@ -9,7 +9,6 @@ Subpackages
 
    cdp.auth
    cdp.openapi_client
-   cdp.x402
 
 Submodules
 ----------

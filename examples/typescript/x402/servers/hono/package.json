@@ -1,0 +1,28 @@
+{
+  "name": "x402-hono-example",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "prepare:local-packages": "pnpm --dir ../../../../typescript/packages/x402 install && pnpm --dir ../../../../typescript/packages/x402 build && pnpm --dir ../../../../typescript/packages/hono install && pnpm --dir ../../../../typescript/packages/hono build",
+    "prestart": "pnpm prepare:local-packages",
+    "start": "tsx server.ts"
+  },
+  "dependencies": {
+    "@coinbase/x402": "file:../../../../typescript/packages/x402",
+    "@coinbase/x402-hono": "file:../../../../typescript/packages/hono",
+    "@hono/node-server": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@coinbase/x402": "file:../../../../typescript/packages/x402",
+      "baseline-browser-mapping": "2.10.25",
+      "fast-uri": "3.1.2",
+      "axios": "1.15.2"
+    }
+  }
+}

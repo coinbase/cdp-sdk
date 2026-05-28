@@ -40,6 +40,19 @@ CDP SDK has full-featured client libraries for the following languages. Follow t
 - [Go](./go)
 - [Rust](./rust)
 
+### x402 Payment Protocol
+
+The repo also includes CDP-opinionated wrappers for the [x402 payment protocol](https://github.com/coinbase/x402), enabling paid HTTP requests using CDP wallets and the CDP hosted facilitator:
+
+| Package | Language | Description |
+| ------- | -------- | ----------- |
+| [`@coinbase/x402`](./typescript/packages/x402) | TypeScript | Core CDP x402 client, wallet adapters, facilitator, resource server |
+| [`@coinbase/x402-express`](./typescript/packages/x402-express) | TypeScript | CDP-opinionated Express middleware |
+| [`@coinbase/x402-hono`](./typescript/packages/x402-hono) | TypeScript | CDP-opinionated Hono middleware |
+| [`@coinbase/x402-next`](./typescript/packages/x402-next) | TypeScript | CDP-opinionated Next.js middleware and route handler |
+| [`cdp-x402`](./python/x402) | Python | CDP x402 client, middleware for FastAPI and Flask |
+| [`github.com/coinbase/cdp-sdk/go/x402`](./go/x402) | Go | CDP-authenticated facilitator client |
+
 ## 📚 Documentation
 
 CDP SDK has auto-generated SDK docs for each of the full-featured client libraries:

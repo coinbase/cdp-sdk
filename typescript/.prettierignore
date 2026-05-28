@@ -1,9 +1,4 @@
-docs/
-coverage/
-.github/
-**/**/*.json
-*.md
-dist/
-src/_types/
-src/_cjs/
-src/_esm/
+node_modules
+dist
+pnpm-lock.yaml
+*.tsbuildinfo

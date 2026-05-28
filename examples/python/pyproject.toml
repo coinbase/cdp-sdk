@@ -4,6 +4,7 @@ version = "0.0.0"
 requires-python = ">=3.10"
 dependencies = [
     "cdp-sdk",
+    "cdp-x402",
     "solana>=0.36.6",
     "web3>=7.6.0",
     "base58>=2.1.1",
@@ -16,3 +17,4 @@ package = false
 
 [tool.uv.sources]
 cdp-sdk = { path = "../../python", editable = true }
+cdp-x402 = { path = "../../python/x402", editable = true }

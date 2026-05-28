@@ -18,10 +18,18 @@ This repository contains the CDP SDK implementations in multiple programming lan
 
 ```
 cdp-sdk/
-├── go/         # Go implementation
-├── python/     # Python implementation
-├── rust/  # Rust implementation
-└── typescript/ # TypeScript implementation
+├── go/                 # Go CDP SDK implementation
+│   └── x402/          # Go CDP x402 payment protocol package
+├── python/             # Python CDP SDK implementation
+│   └── x402/          # Python cdp-x402 package
+├── rust/               # Rust implementation
+├── typescript/         # TypeScript CDP SDK implementation
+│   └── packages/
+│       ├── x402/           # @coinbase/x402 core package
+│       ├── x402-express/   # @coinbase/x402-express middleware
+│       ├── x402-hono/      # @coinbase/x402-hono middleware
+│       └── x402-next/      # @coinbase/x402-next middleware
+└── examples/           # Runnable examples for all languages and packages
 ```
 
 ## Language-Specific Guides
@@ -175,3 +183,27 @@ pnpm orval
 ```
 
 Each language implementation follows its own idiomatic conventions and best practices. Please refer to the specific language directories for more detailed documentation and requirements.
+
+## x402 Packages
+
+The repo includes CDP-opinionated wrappers for the [x402 payment protocol](https://github.com/coinbase/x402). Each language has its own x402 sub-package with a dedicated contributing guide:
+
+- [Go x402 Contributing Guide](./go/x402/CONTRIBUTING.md)
+- [TypeScript x402 Contributing Guide](./typescript/CONTRIBUTING.md)
+- [Python x402 Contributing Guide](./python/x402/CONTRIBUTING.md)
+
+### Common x402 Commands (from repo root)
+
+```bash
+# Format all x402 SDKs
+make x402-fmt
+
+# Lint all x402 SDKs
+make x402-lint
+
+# Run all x402 unit tests
+make x402-test
+
+# Run all checks (fmt + lint + typecheck + test)
+make x402-verify
+```

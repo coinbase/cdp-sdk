@@ -21,7 +21,7 @@ VALIDATION_PREREQUISITES = golangci-lint
 TARGET=target
 BIN=$(TARGET)/bin
 
-.PHONY: usage
+.PHONY: usage build test-cover fmt verify deps-dev
 usage:
 	@ echo "Usage: make [`cat Makefile | grep "^[A-z\%\-]*:" | awk '{print $$1}' | sed "s/://g" | sed "s/%/[1-3]/g" | xargs`]"
 
@@ -73,6 +73,28 @@ docs:
 test: build_deps
 	@ printf "\nRunning Go tests\n"
 	@ go test -v ./...
+
+## build: compile all packages (including x402)
+.PHONY: build
+build:
+	go build -v ./...
+
+## test-cover: run tests and open an HTML coverage report
+test-cover:
+	go test -race -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out
+
+## fmt: format all Go files with goimports (superset of gofmt)
+fmt:
+	goimports -w .
+
+## verify: fmt + lint + test (run before opening a PR)
+verify: fmt lint test
+
+## deps-dev: install development tools (golangci-lint, goimports)
+deps-dev:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install golang.org/x/tools/cmd/goimports@latest
 
 .PHONY: client
 client:

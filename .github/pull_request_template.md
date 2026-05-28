@@ -53,6 +53,11 @@ A couple of things to include in your PR for completeness:
 - [ ] Added a changelog entry
 - [ ] Added e2e tests if introducing new functionality
 
+**x402 packages** (if changing `go/x402/`, `python/x402/`, or `typescript/packages/x402*/`):
+
+- [ ] I have formatted and linted my code (`make x402-verify`)
+- [ ] All new and existing tests pass (`make x402-test`)
+
 <!--
 For instructions on adding changelog entries:
 See here for TypeScript: https://github.com/coinbase/cdp-sdk/blob/main/typescript/CONTRIBUTING.md#changelog

@@ -1,0 +1,59 @@
+name: E2E x402 TypeScript Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "typescript/packages/x402/**"
+      - "typescript/packages/x402-express/**"
+      - "typescript/packages/x402-hono/**"
+      - "typescript/packages/x402-next/**"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ./typescript
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version: 22.22.1
+          cache: "pnpm"
+          cache-dependency-path: "./typescript/pnpm-lock.yaml"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build x402 packages
+        run: pnpm --filter "@coinbase/x402" --filter "@coinbase/x402-express" --filter "@coinbase/x402-hono" --filter "@coinbase/x402-next" run build
+
+      - name: Run x402 E2E tests
+        env:
+          CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
+          CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
+          CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
+          CDP_E2E_SMART_ACCOUNT_ADDRESS: ${{ vars.CDP_E2E_SMART_ACCOUNT_ADDRESS }}
+          DISABLE_CDP_ERROR_REPORTING: true
+          DISABLE_CDP_USAGE_TRACKING: true
+        run: pnpm --filter "@coinbase/x402" run test:e2e

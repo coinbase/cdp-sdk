@@ -1,0 +1,22 @@
+{
+  "name": "@coinbase/x402-example-scw-client",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Example: CDP Smart Contract Wallet payment client",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@coinbase/x402": "file:../../../../typescript/packages/x402",
+    "@x402/fetch": "^2.0.0",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.0.0",
+    "viem": "^2.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "axios": "1.15.2"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+The `cdp.x402` submodule (`FacilitatorConfig`, `create_facilitator_config`, `facilitator`) has been removed from `cdp-sdk`. Install the new `cdp-x402` package (`pip install cdp-x402`) which provides the complete x402 payment protocol integration including a full client, resource server, middleware for FastAPI and Flask, spend controls, and Bazaar discovery.

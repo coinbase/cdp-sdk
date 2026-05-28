@@ -58,6 +58,16 @@ _esm
 _types
 
 # TypeScript
+.vscode/
+*.swp
+*.swo
+*~
+Thumbs.db
+*.tgz
+.ruff_cache/
+
+# Compiled Go binaries in e2e directories
+go/x402/e2e/e2e
 *.tsbuildinfo
 typescript/docs
 typescript/docs-md

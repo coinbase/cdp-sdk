@@ -1,0 +1,139 @@
+{
+  "name": "@coinbase/x402",
+  "version": "0.0.1",
+  "description": "Coinbase-opinionated wrapper for the x402 payment protocol",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./client": {
+      "import": {
+        "types": "./dist/core/client/index.d.ts",
+        "default": "./dist/core/client/index.js"
+      },
+      "require": {
+        "types": "./dist/core/client/index.d.cts",
+        "default": "./dist/core/client/index.cjs"
+      }
+    },
+    "./wallets": {
+      "import": {
+        "types": "./dist/core/wallets/index.d.ts",
+        "default": "./dist/core/wallets/index.js"
+      },
+      "require": {
+        "types": "./dist/core/wallets/index.d.cts",
+        "default": "./dist/core/wallets/index.cjs"
+      }
+    },
+    "./facilitator": {
+      "import": {
+        "types": "./dist/core/facilitator/index.d.ts",
+        "default": "./dist/core/facilitator/index.js"
+      },
+      "require": {
+        "types": "./dist/core/facilitator/index.d.cts",
+        "default": "./dist/core/facilitator/index.cjs"
+      }
+    },
+    "./server": {
+      "import": {
+        "types": "./dist/core/server/index.d.ts",
+        "default": "./dist/core/server/index.js"
+      },
+      "require": {
+        "types": "./dist/core/server/index.d.cts",
+        "default": "./dist/core/server/index.cjs"
+      }
+    },
+    "./extensions": {
+      "import": {
+        "types": "./dist/core/extensions/index.d.ts",
+        "default": "./dist/core/extensions/index.js"
+      },
+      "require": {
+        "types": "./dist/core/extensions/index.d.cts",
+        "default": "./dist/core/extensions/index.cjs"
+      }
+    },
+    "./guardrails": {
+      "import": {
+        "types": "./dist/core/guardrails/index.d.ts",
+        "default": "./dist/core/guardrails/index.js"
+      },
+      "require": {
+        "types": "./dist/core/guardrails/index.d.cts",
+        "default": "./dist/core/guardrails/index.cjs"
+      }
+    },
+    "./core": {
+      "import": {
+        "types": "./dist/core/index.d.ts",
+        "default": "./dist/core/index.js"
+      },
+      "require": {
+        "types": "./dist/core/index.d.cts",
+        "default": "./dist/core/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:e2e": "vitest run --config e2e/vitest.config.ts",
+    "lint": "eslint src/ tests/",
+    "lint:check": "eslint src/ tests/",
+    "lint:fix": "eslint --fix src/ tests/",
+    "format": "prettier --write src/ tests/",
+    "format:check": "prettier --check src/ tests/"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "workspace:*",
+    "@solana/kit": ">=2.1.0",
+    "@x402/core": "~2.11.0",
+    "@x402/evm": "~2.11.0",
+    "@x402/fetch": "~2.11.0",
+    "@x402/svm": "~2.11.0",
+    "viem": "^2.39.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "bs58": "^6.0.0",
+    "@coinbase/x402-express": "workspace:*",
+    "@coinbase/x402-hono": "workspace:*",
+    "@coinbase/x402-next": "workspace:*",
+    "@hono/node-server": "^1.0.0",
+    "@types/express": "^4.17.21",
+    "dotenv": "^17.4.2",
+    "eslint": "^9.0.0",
+    "express": "^4.18.2",
+    "hono": "^4.0.0",
+    "next": "16.2.6",
+    "prettier": "^3.5.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^3.0.0",
+    "@x402/express": "~2.11.0",
+    "@x402/hono": "~2.11.0",
+    "@x402/next": "~2.11.0"
+  }
+}

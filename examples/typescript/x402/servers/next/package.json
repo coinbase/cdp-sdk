@@ -1,0 +1,34 @@
+{
+  "name": "x402-next-example",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "prepare:local-packages": "pnpm --dir ../../../../typescript/packages/x402 install && pnpm --dir ../../../../typescript/packages/x402 build && pnpm --dir ../../../../typescript/packages/next install && pnpm --dir ../../../../typescript/packages/next build",
+    "predev": "pnpm prepare:local-packages",
+    "prebuild": "pnpm prepare:local-packages",
+    "prestart": "pnpm prepare:local-packages",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@coinbase/x402": "file:../../../../typescript/packages/x402",
+    "@coinbase/x402-next": "file:../../../../typescript/packages/next",
+    "next": "16.2.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@coinbase/x402": "file:../../../../typescript/packages/x402",
+      "baseline-browser-mapping": "2.10.25",
+      "fast-uri": "3.1.2",
+      "axios": "1.15.2"
+    }
+  }
+}

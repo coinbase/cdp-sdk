@@ -1,0 +1,86 @@
+name: x402 E2E Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: E2E Tests (TypeScript + Python + Go)
+    runs-on: ubuntu-latest
+    env:
+      CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
+      CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
+      CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
+      PAYER_PRIVATE_KEY: ${{ secrets.PAYER_PRIVATE_KEY }}
+      RECEIVER_ADDRESS: ${{ secrets.RECEIVER_ADDRESS }}
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version-file: go/x402/e2e/go.mod
+
+      - name: Install TypeScript x402 dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./typescript
+
+      - name: Build TypeScript x402 packages
+        run: pnpm --filter "@coinbase/x402" --filter "@coinbase/x402-express" --filter "@coinbase/x402-hono" --filter "@coinbase/x402-next" run build
+        working-directory: ./typescript
+
+      - name: Validate required E2E environment variables
+        run: |
+          missing=0
+          for name in CDP_API_KEY_ID CDP_API_KEY_SECRET CDP_WALLET_SECRET PAYER_PRIVATE_KEY RECEIVER_ADDRESS; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required secret: ${name}"
+              missing=1
+            fi
+          done
+          if [ "${missing}" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Run TypeScript x402 e2e tests
+        run: pnpm run test:e2e
+        working-directory: ./typescript/packages/x402
+
+      - name: Run Python x402 e2e tests
+        run: |
+          uv pip install -e ".[dev,server-fastapi,server-flask]"
+          uv run pytest e2e/
+        working-directory: ./python/x402
+
+      - name: Run Go x402 e2e tests
+        run: go run server_e2e.go
+        working-directory: ./go/x402/e2e
