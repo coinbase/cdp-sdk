@@ -175,5 +175,5 @@ cd ../../java && ./gradlew build
 ## Learn More
 
 - [CDP Documentation](https://docs.cdp.coinbase.com)
-- [API Reference](https://docs.cdp.coinbase.com/api-reference)
+- [API Reference](https://docs.cdp.coinbase.com/api-reference/v2/introduction)
 - [Java SDK README](../../java/README.md)
