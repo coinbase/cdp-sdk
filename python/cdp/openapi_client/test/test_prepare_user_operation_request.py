@@ -45,6 +45,7 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
                         override_gas_limit = '100000', )
                     ],
                 paymaster_url = 'https://example.com',
+                paymaster_context = {policyId=962b252c-a726-4a37-8d86-333ce0a07299},
                 data_suffix = '0xdddddddd62617365617070070080218021802180218021802180218021'
             )
         else:

@@ -69,7 +69,7 @@ class X402FacilitatorApi:
     ) -> X402DiscoveryMerchantResponse:
         """List merchant discovery info
 
-        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list. The response is paginated, and by default, returns 20 items per page.
 
         :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
         :type pay_to: str
@@ -112,7 +112,6 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "X402DiscoveryMerchantResponse",
             '400': "Error",
-            '404': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -149,7 +148,7 @@ class X402FacilitatorApi:
     ) -> ApiResponse[X402DiscoveryMerchantResponse]:
         """List merchant discovery info
 
-        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list. The response is paginated, and by default, returns 20 items per page.
 
         :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
         :type pay_to: str
@@ -192,7 +191,6 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "X402DiscoveryMerchantResponse",
             '400': "Error",
-            '404': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -229,7 +227,7 @@ class X402FacilitatorApi:
     ) -> RESTResponseType:
         """List merchant discovery info
 
-        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list. The response is paginated, and by default, returns 20 items per page.
 
         :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
         :type pay_to: str
@@ -272,7 +270,6 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "X402DiscoveryMerchantResponse",
             '400': "Error",
-            '404': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",

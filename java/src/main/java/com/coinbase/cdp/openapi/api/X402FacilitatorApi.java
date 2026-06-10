@@ -94,7 +94,7 @@ public class X402FacilitatorApi {
 
   /**
    * List merchant discovery info
-   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the &#x60;payTo&#x60; address, the endpoint returns an empty &#x60;resources&#x60; list. The response is paginated, and by default, returns 20 items per page.
    * @param payTo The merchant&#39;s payment address to look up. This is the onchain address that payment requirements route funds to. (required)
    * @param limit The number of resources to return per page. (optional, default to 20)
    * @param offset The offset of the first resource to return. (optional, default to 0)
@@ -108,7 +108,7 @@ public class X402FacilitatorApi {
 
   /**
    * List merchant discovery info
-   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the &#x60;payTo&#x60; address, the endpoint returns an empty &#x60;resources&#x60; list. The response is paginated, and by default, returns 20 items per page.
    * @param payTo The merchant&#39;s payment address to look up. This is the onchain address that payment requirements route funds to. (required)
    * @param limit The number of resources to return per page. (optional, default to 20)
    * @param offset The offset of the first resource to return. (optional, default to 0)

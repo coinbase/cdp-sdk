@@ -91,6 +91,7 @@ export const listX402DiscoveryResources = (
 /**
  * Gets x402 merchant discovery information for a given merchant payment address.
 This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements.
+If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list.
 The response is paginated, and by default, returns 20 items per page.
  * @summary List merchant discovery info
  */

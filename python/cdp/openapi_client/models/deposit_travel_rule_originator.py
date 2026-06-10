@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.date_of_birth import DateOfBirth
 from cdp.openapi_client.models.deposit_travel_rule_vasp import DepositTravelRuleVasp
+from cdp.openapi_client.models.personal_identification import PersonalIdentification
 from cdp.openapi_client.models.physical_address import PhysicalAddress
 from typing import Optional, Set
 from typing_extensions import Self
@@ -34,9 +35,9 @@ class DepositTravelRuleOriginator(BaseModel):
     address: Optional[PhysicalAddress] = None
     wallet_type: Optional[StrictStr] = Field(default=None, description="The type of the originator's wallet.", alias="walletType")
     virtual_asset_service_provider: Optional[DepositTravelRuleVasp] = Field(default=None, alias="virtualAssetServiceProvider")
-    personal_id: Optional[StrictStr] = Field(default=None, description="Government-issued personal identification number for the originator.", alias="personalId")
+    personal_identification: Optional[PersonalIdentification] = Field(default=None, description="Government-issued personal identification for the originator, carrying the identifier value, its type, and the issuing country.", alias="personalIdentification")
     date_of_birth: Optional[DateOfBirth] = Field(default=None, alias="dateOfBirth")
-    __properties: ClassVar[List[str]] = ["name", "address", "walletType", "virtualAssetServiceProvider", "personalId", "dateOfBirth"]
+    __properties: ClassVar[List[str]] = ["name", "address", "walletType", "virtualAssetServiceProvider", "personalIdentification", "dateOfBirth"]
 
     @field_validator('wallet_type')
     def wallet_type_validate_enum(cls, value):
@@ -93,6 +94,9 @@ class DepositTravelRuleOriginator(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of virtual_asset_service_provider
         if self.virtual_asset_service_provider:
             _dict['virtualAssetServiceProvider'] = self.virtual_asset_service_provider.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of personal_identification
+        if self.personal_identification:
+            _dict['personalIdentification'] = self.personal_identification.to_dict()
         # override the default output from pydantic by calling `to_dict()` of date_of_birth
         if self.date_of_birth:
             _dict['dateOfBirth'] = self.date_of_birth.to_dict()
@@ -112,7 +116,7 @@ class DepositTravelRuleOriginator(BaseModel):
             "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
             "walletType": obj.get("walletType"),
             "virtualAssetServiceProvider": DepositTravelRuleVasp.from_dict(obj["virtualAssetServiceProvider"]) if obj.get("virtualAssetServiceProvider") is not None else None,
-            "personalId": obj.get("personalId"),
+            "personalIdentification": PersonalIdentification.from_dict(obj["personalIdentification"]) if obj.get("personalIdentification") is not None else None,
             "dateOfBirth": DateOfBirth.from_dict(obj["dateOfBirth"]) if obj.get("dateOfBirth") is not None else None
         })
         return _obj

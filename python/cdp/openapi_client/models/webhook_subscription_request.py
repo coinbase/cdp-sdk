@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.event_type import EventType
 from cdp.openapi_client.models.webhook_target import WebhookTarget
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,11 +31,11 @@ class WebhookSubscriptionRequest(BaseModel):
     Request to create a new webhook subscription with support for multi-label filtering. 
     """ # noqa: E501
     description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\", \"acceptance.payment_session.authorization_succeeded\"). The subscription will only receive events matching these types AND the label filter(s). ", alias="eventTypes")
+    event_types: List[EventType] = Field(description="Types of events to subscribe to. Event types follow a dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\", \"acceptance.payment_session.authorization_succeeded\"). The subscription will only receive events matching these types AND the label filter(s). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     target: WebhookTarget
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
-    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when an event contains ALL the key-value pairs specified here. Additional labels on the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.  **Note:** Currently, labels are supported for onchain webhooks only.  See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering). ")
+    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when an event contains ALL the key-value pairs specified here. Additional labels on the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.  **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).  **Allowed labels for `onchain.activity.detected`** (all in snake_case format): - `network` (required) — Blockchain network - `contract_address` — Smart contract address - `event_name` — Event name (e.g., \"Transfer\", \"Burn\") - `event_signature` — Event signature hash - `transaction_from` — Transaction sender address - `transaction_to` — Transaction recipient address - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`) ")
     __properties: ClassVar[List[str]] = ["description", "eventTypes", "isEnabled", "target", "metadata", "labels"]
 
     model_config = ConfigDict(

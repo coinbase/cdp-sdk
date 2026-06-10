@@ -17,15 +17,14 @@ import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
-import com.coinbase.cdp.openapi.model.CreateOnrampOrder201Response;
-import com.coinbase.cdp.openapi.model.CreateOnrampOrderRequest;
-import com.coinbase.cdp.openapi.model.CreateOnrampSession201Response;
-import com.coinbase.cdp.openapi.model.CreateOnrampSessionRequest;
-import com.coinbase.cdp.openapi.model.Error;
-import com.coinbase.cdp.openapi.model.GetOnrampOrderById200Response;
-import com.coinbase.cdp.openapi.model.GetOnrampUserLimits200Response;
-import com.coinbase.cdp.openapi.model.GetOnrampUserLimitsRequest;
-import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeRequest;
+import com.coinbase.cdp.openapi.model.OfframpTransactionCreatedEvent;
+import com.coinbase.cdp.openapi.model.OfframpTransactionFailedEvent;
+import com.coinbase.cdp.openapi.model.OfframpTransactionSuccessEvent;
+import com.coinbase.cdp.openapi.model.OfframpTransactionUpdatedEvent;
+import com.coinbase.cdp.openapi.model.OnrampTransactionCreatedEvent;
+import com.coinbase.cdp.openapi.model.OnrampTransactionFailedEvent;
+import com.coinbase.cdp.openapi.model.OnrampTransactionSuccessEvent;
+import com.coinbase.cdp.openapi.model.OnrampTransactionUpdatedEvent;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -90,363 +89,24 @@ public class OnrampApi {
   }
 
   /**
-   * Create an onramp order
-   * Create a new Onramp order or get a quote for an Onramp order. Either &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; must be provided.  This API currently only supports the payment method &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60;.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/onramp-apis/apple-pay-onramp-api).
-   * @param createOnrampOrderRequest  (optional)
-   * @return CreateOnrampOrder201Response
+   * Offramp transaction created
+   * Triggered when the &#x60;offramp.transaction.created&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionCreatedEvent The &#x60;offramp.transaction.created&#x60; webhook event payload. (required)
    * @throws ApiException if fails to make API call
    */
-  public CreateOnrampOrder201Response createOnrampOrder(CreateOnrampOrderRequest createOnrampOrderRequest) throws ApiException {
-    ApiResponse<CreateOnrampOrder201Response> localVarResponse = createOnrampOrderWithHttpInfo(createOnrampOrderRequest);
-    return localVarResponse.getData();
+  public void offrampTransactionCreatedWebhook(OfframpTransactionCreatedEvent offrampTransactionCreatedEvent) throws ApiException {
+    offrampTransactionCreatedWebhookWithHttpInfo(offrampTransactionCreatedEvent);
   }
 
   /**
-   * Create an onramp order
-   * Create a new Onramp order or get a quote for an Onramp order. Either &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; must be provided.  This API currently only supports the payment method &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60;.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/onramp-apis/apple-pay-onramp-api).
-   * @param createOnrampOrderRequest  (optional)
-   * @return ApiResponse&lt;CreateOnrampOrder201Response&gt;
-   * @throws ApiException if fails to make API call
-   */
-  public ApiResponse<CreateOnrampOrder201Response> createOnrampOrderWithHttpInfo(CreateOnrampOrderRequest createOnrampOrderRequest) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createOnrampOrderRequestBuilder(createOnrampOrderRequest);
-    try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofInputStream());
-      if (memberVarResponseInterceptor != null) {
-        memberVarResponseInterceptor.accept(localVarResponse);
-      }
-      try {
-        if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("createOnrampOrder", localVarResponse);
-        }
-        if (localVarResponse.body() == null) {
-          return new ApiResponse<CreateOnrampOrder201Response>(
-              localVarResponse.statusCode(),
-              localVarResponse.headers().map(),
-              null
-          );
-        }
-
-        String responseBody = new String(localVarResponse.body().readAllBytes());
-        localVarResponse.body().close();
-
-        return new ApiResponse<CreateOnrampOrder201Response>(
-            localVarResponse.statusCode(),
-            localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<CreateOnrampOrder201Response>() {})
-        );
-      } finally {
-      }
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new ApiException(e);
-    }
-  }
-
-  private HttpRequest.Builder createOnrampOrderRequestBuilder(CreateOnrampOrderRequest createOnrampOrderRequest) throws ApiException {
-
-    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
-
-    String localVarPath = "/v2/onramp/orders";
-
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
-
-    localVarRequestBuilder.header("Content-Type", "application/json");
-    localVarRequestBuilder.header("Accept", "application/json");
-
-    try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(createOnrampOrderRequest);
-      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    if (memberVarReadTimeout != null) {
-      localVarRequestBuilder.timeout(memberVarReadTimeout);
-    }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
-    }
-    return localVarRequestBuilder;
-  }
-
-  /**
-   * Create an onramp session
-   * Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: &#x60;destinationAddress&#x60;, &#x60;purchaseCurrency&#x60;, &#x60;destinationNetwork&#x60;  **Returns**: Basic single-use onramp URL. The &#x60;quote&#x60; object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (&#x60;paymentAmount&#x60; OR &#x60;purchaseAmount&#x60;), &#x60;paymentCurrency&#x60;  **Returns**: One-click onramp URL for streamlined checkout. The &#x60;quote&#x60; object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + &#x60;paymentMethod&#x60;, &#x60;country&#x60;, &#x60;subdivision&#x60;  **Returns**: Complete pricing quote and one-click onramp URL. Both &#x60;session&#x60; and &#x60;quote&#x60; objects will be included in the response.  **Note**: Only one of &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; should be provided, not both. Providing both will result in an error. When &#x60;paymentAmount&#x60; is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When &#x60;purchaseAmount&#x60; is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
-   * @param createOnrampSessionRequest  (optional)
-   * @return CreateOnrampSession201Response
-   * @throws ApiException if fails to make API call
-   */
-  public CreateOnrampSession201Response createOnrampSession(CreateOnrampSessionRequest createOnrampSessionRequest) throws ApiException {
-    ApiResponse<CreateOnrampSession201Response> localVarResponse = createOnrampSessionWithHttpInfo(createOnrampSessionRequest);
-    return localVarResponse.getData();
-  }
-
-  /**
-   * Create an onramp session
-   * Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: &#x60;destinationAddress&#x60;, &#x60;purchaseCurrency&#x60;, &#x60;destinationNetwork&#x60;  **Returns**: Basic single-use onramp URL. The &#x60;quote&#x60; object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (&#x60;paymentAmount&#x60; OR &#x60;purchaseAmount&#x60;), &#x60;paymentCurrency&#x60;  **Returns**: One-click onramp URL for streamlined checkout. The &#x60;quote&#x60; object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + &#x60;paymentMethod&#x60;, &#x60;country&#x60;, &#x60;subdivision&#x60;  **Returns**: Complete pricing quote and one-click onramp URL. Both &#x60;session&#x60; and &#x60;quote&#x60; objects will be included in the response.  **Note**: Only one of &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; should be provided, not both. Providing both will result in an error. When &#x60;paymentAmount&#x60; is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When &#x60;purchaseAmount&#x60; is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
-   * @param createOnrampSessionRequest  (optional)
-   * @return ApiResponse&lt;CreateOnrampSession201Response&gt;
-   * @throws ApiException if fails to make API call
-   */
-  public ApiResponse<CreateOnrampSession201Response> createOnrampSessionWithHttpInfo(CreateOnrampSessionRequest createOnrampSessionRequest) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createOnrampSessionRequestBuilder(createOnrampSessionRequest);
-    try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofInputStream());
-      if (memberVarResponseInterceptor != null) {
-        memberVarResponseInterceptor.accept(localVarResponse);
-      }
-      try {
-        if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("createOnrampSession", localVarResponse);
-        }
-        if (localVarResponse.body() == null) {
-          return new ApiResponse<CreateOnrampSession201Response>(
-              localVarResponse.statusCode(),
-              localVarResponse.headers().map(),
-              null
-          );
-        }
-
-        String responseBody = new String(localVarResponse.body().readAllBytes());
-        localVarResponse.body().close();
-
-        return new ApiResponse<CreateOnrampSession201Response>(
-            localVarResponse.statusCode(),
-            localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<CreateOnrampSession201Response>() {})
-        );
-      } finally {
-      }
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new ApiException(e);
-    }
-  }
-
-  private HttpRequest.Builder createOnrampSessionRequestBuilder(CreateOnrampSessionRequest createOnrampSessionRequest) throws ApiException {
-
-    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
-
-    String localVarPath = "/v2/onramp/sessions";
-
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
-
-    localVarRequestBuilder.header("Content-Type", "application/json");
-    localVarRequestBuilder.header("Accept", "application/json");
-
-    try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(createOnrampSessionRequest);
-      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    if (memberVarReadTimeout != null) {
-      localVarRequestBuilder.timeout(memberVarReadTimeout);
-    }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
-    }
-    return localVarRequestBuilder;
-  }
-
-  /**
-   * Get an onramp order by ID
-   * Get an onramp order by ID.
-   * @param orderId The ID of the onramp order to retrieve. (required)
-   * @return GetOnrampOrderById200Response
-   * @throws ApiException if fails to make API call
-   */
-  public GetOnrampOrderById200Response getOnrampOrderById(String orderId) throws ApiException {
-    ApiResponse<GetOnrampOrderById200Response> localVarResponse = getOnrampOrderByIdWithHttpInfo(orderId);
-    return localVarResponse.getData();
-  }
-
-  /**
-   * Get an onramp order by ID
-   * Get an onramp order by ID.
-   * @param orderId The ID of the onramp order to retrieve. (required)
-   * @return ApiResponse&lt;GetOnrampOrderById200Response&gt;
-   * @throws ApiException if fails to make API call
-   */
-  public ApiResponse<GetOnrampOrderById200Response> getOnrampOrderByIdWithHttpInfo(String orderId) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = getOnrampOrderByIdRequestBuilder(orderId);
-    try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofInputStream());
-      if (memberVarResponseInterceptor != null) {
-        memberVarResponseInterceptor.accept(localVarResponse);
-      }
-      try {
-        if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("getOnrampOrderById", localVarResponse);
-        }
-        if (localVarResponse.body() == null) {
-          return new ApiResponse<GetOnrampOrderById200Response>(
-              localVarResponse.statusCode(),
-              localVarResponse.headers().map(),
-              null
-          );
-        }
-
-        String responseBody = new String(localVarResponse.body().readAllBytes());
-        localVarResponse.body().close();
-
-        return new ApiResponse<GetOnrampOrderById200Response>(
-            localVarResponse.statusCode(),
-            localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<GetOnrampOrderById200Response>() {})
-        );
-      } finally {
-      }
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new ApiException(e);
-    }
-  }
-
-  private HttpRequest.Builder getOnrampOrderByIdRequestBuilder(String orderId) throws ApiException {
-    // verify the required parameter 'orderId' is set
-    if (orderId == null) {
-      throw new ApiException(400, "Missing the required parameter 'orderId' when calling getOnrampOrderById");
-    }
-
-    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
-
-    String localVarPath = "/v2/onramp/orders/{orderId}"
-        .replace("{orderId}", ApiClient.urlEncode(orderId.toString()));
-
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
-
-    localVarRequestBuilder.header("Accept", "application/json");
-
-    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
-    if (memberVarReadTimeout != null) {
-      localVarRequestBuilder.timeout(memberVarReadTimeout);
-    }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
-    }
-    return localVarRequestBuilder;
-  }
-
-  /**
-   * Get onramp user limits
-   * Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; payment method with phone number identification. The phone number must have been previously verified via OTP.
-   * @param getOnrampUserLimitsRequest  (optional)
-   * @return GetOnrampUserLimits200Response
-   * @throws ApiException if fails to make API call
-   */
-  public GetOnrampUserLimits200Response getOnrampUserLimits(GetOnrampUserLimitsRequest getOnrampUserLimitsRequest) throws ApiException {
-    ApiResponse<GetOnrampUserLimits200Response> localVarResponse = getOnrampUserLimitsWithHttpInfo(getOnrampUserLimitsRequest);
-    return localVarResponse.getData();
-  }
-
-  /**
-   * Get onramp user limits
-   * Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; payment method with phone number identification. The phone number must have been previously verified via OTP.
-   * @param getOnrampUserLimitsRequest  (optional)
-   * @return ApiResponse&lt;GetOnrampUserLimits200Response&gt;
-   * @throws ApiException if fails to make API call
-   */
-  public ApiResponse<GetOnrampUserLimits200Response> getOnrampUserLimitsWithHttpInfo(GetOnrampUserLimitsRequest getOnrampUserLimitsRequest) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = getOnrampUserLimitsRequestBuilder(getOnrampUserLimitsRequest);
-    try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofInputStream());
-      if (memberVarResponseInterceptor != null) {
-        memberVarResponseInterceptor.accept(localVarResponse);
-      }
-      try {
-        if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("getOnrampUserLimits", localVarResponse);
-        }
-        if (localVarResponse.body() == null) {
-          return new ApiResponse<GetOnrampUserLimits200Response>(
-              localVarResponse.statusCode(),
-              localVarResponse.headers().map(),
-              null
-          );
-        }
-
-        String responseBody = new String(localVarResponse.body().readAllBytes());
-        localVarResponse.body().close();
-
-        return new ApiResponse<GetOnrampUserLimits200Response>(
-            localVarResponse.statusCode(),
-            localVarResponse.headers().map(),
-            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<GetOnrampUserLimits200Response>() {})
-        );
-      } finally {
-      }
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new ApiException(e);
-    }
-  }
-
-  private HttpRequest.Builder getOnrampUserLimitsRequestBuilder(GetOnrampUserLimitsRequest getOnrampUserLimitsRequest) throws ApiException {
-
-    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
-
-    String localVarPath = "/v2/onramp/limits";
-
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
-
-    localVarRequestBuilder.header("Content-Type", "application/json");
-    localVarRequestBuilder.header("Accept", "application/json");
-
-    try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(getOnrampUserLimitsRequest);
-      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    if (memberVarReadTimeout != null) {
-      localVarRequestBuilder.timeout(memberVarReadTimeout);
-    }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
-    }
-    return localVarRequestBuilder;
-  }
-
-  /**
-   * Request limit upgrade
-   * Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
-   * @param onrampLimitUpgradeRequest  (optional)
-   * @throws ApiException if fails to make API call
-   */
-  public void requestLimitsUpgrade(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
-    requestLimitsUpgradeWithHttpInfo(onrampLimitUpgradeRequest);
-  }
-
-  /**
-   * Request limit upgrade
-   * Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
-   * @param onrampLimitUpgradeRequest  (optional)
+   * Offramp transaction created
+   * Triggered when the &#x60;offramp.transaction.created&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionCreatedEvent The &#x60;offramp.transaction.created&#x60; webhook event payload. (required)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> requestLimitsUpgradeWithHttpInfo(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = requestLimitsUpgradeRequestBuilder(onrampLimitUpgradeRequest);
+  public ApiResponse<Void> offrampTransactionCreatedWebhookWithHttpInfo(OfframpTransactionCreatedEvent offrampTransactionCreatedEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = offrampTransactionCreatedWebhookRequestBuilder(offrampTransactionCreatedEvent);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -456,7 +116,7 @@ public class OnrampApi {
       }
       try {
         if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("requestLimitsUpgrade", localVarResponse);
+          throw getApiException("offrampTransactionCreatedWebhook", localVarResponse);
         }
         return new ApiResponse<>(
             localVarResponse.statusCode(),
@@ -479,11 +139,15 @@ public class OnrampApi {
     }
   }
 
-  private HttpRequest.Builder requestLimitsUpgradeRequestBuilder(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
+  private HttpRequest.Builder offrampTransactionCreatedWebhookRequestBuilder(OfframpTransactionCreatedEvent offrampTransactionCreatedEvent) throws ApiException {
+    // verify the required parameter 'offrampTransactionCreatedEvent' is set
+    if (offrampTransactionCreatedEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'offrampTransactionCreatedEvent' when calling offrampTransactionCreatedWebhook");
+    }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
-    String localVarPath = "/v2/onramp/limits/upgrade";
+    String localVarPath = "/offrampTransactionCreated";
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 
@@ -491,7 +155,574 @@ public class OnrampApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampLimitUpgradeRequest);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(offrampTransactionCreatedEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Offramp transaction failed
+   * Triggered when the &#x60;offramp.transaction.failed&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionFailedEvent The &#x60;offramp.transaction.failed&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void offrampTransactionFailedWebhook(OfframpTransactionFailedEvent offrampTransactionFailedEvent) throws ApiException {
+    offrampTransactionFailedWebhookWithHttpInfo(offrampTransactionFailedEvent);
+  }
+
+  /**
+   * Offramp transaction failed
+   * Triggered when the &#x60;offramp.transaction.failed&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionFailedEvent The &#x60;offramp.transaction.failed&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> offrampTransactionFailedWebhookWithHttpInfo(OfframpTransactionFailedEvent offrampTransactionFailedEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = offrampTransactionFailedWebhookRequestBuilder(offrampTransactionFailedEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("offrampTransactionFailedWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder offrampTransactionFailedWebhookRequestBuilder(OfframpTransactionFailedEvent offrampTransactionFailedEvent) throws ApiException {
+    // verify the required parameter 'offrampTransactionFailedEvent' is set
+    if (offrampTransactionFailedEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'offrampTransactionFailedEvent' when calling offrampTransactionFailedWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/offrampTransactionFailed";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(offrampTransactionFailedEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Offramp transaction succeeded
+   * Triggered when the &#x60;offramp.transaction.success&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionSuccessEvent The &#x60;offramp.transaction.success&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void offrampTransactionSuccessWebhook(OfframpTransactionSuccessEvent offrampTransactionSuccessEvent) throws ApiException {
+    offrampTransactionSuccessWebhookWithHttpInfo(offrampTransactionSuccessEvent);
+  }
+
+  /**
+   * Offramp transaction succeeded
+   * Triggered when the &#x60;offramp.transaction.success&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionSuccessEvent The &#x60;offramp.transaction.success&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> offrampTransactionSuccessWebhookWithHttpInfo(OfframpTransactionSuccessEvent offrampTransactionSuccessEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = offrampTransactionSuccessWebhookRequestBuilder(offrampTransactionSuccessEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("offrampTransactionSuccessWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder offrampTransactionSuccessWebhookRequestBuilder(OfframpTransactionSuccessEvent offrampTransactionSuccessEvent) throws ApiException {
+    // verify the required parameter 'offrampTransactionSuccessEvent' is set
+    if (offrampTransactionSuccessEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'offrampTransactionSuccessEvent' when calling offrampTransactionSuccessWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/offrampTransactionSuccess";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(offrampTransactionSuccessEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Offramp transaction updated
+   * Triggered when the &#x60;offramp.transaction.updated&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionUpdatedEvent The &#x60;offramp.transaction.updated&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void offrampTransactionUpdatedWebhook(OfframpTransactionUpdatedEvent offrampTransactionUpdatedEvent) throws ApiException {
+    offrampTransactionUpdatedWebhookWithHttpInfo(offrampTransactionUpdatedEvent);
+  }
+
+  /**
+   * Offramp transaction updated
+   * Triggered when the &#x60;offramp.transaction.updated&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param offrampTransactionUpdatedEvent The &#x60;offramp.transaction.updated&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> offrampTransactionUpdatedWebhookWithHttpInfo(OfframpTransactionUpdatedEvent offrampTransactionUpdatedEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = offrampTransactionUpdatedWebhookRequestBuilder(offrampTransactionUpdatedEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("offrampTransactionUpdatedWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder offrampTransactionUpdatedWebhookRequestBuilder(OfframpTransactionUpdatedEvent offrampTransactionUpdatedEvent) throws ApiException {
+    // verify the required parameter 'offrampTransactionUpdatedEvent' is set
+    if (offrampTransactionUpdatedEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'offrampTransactionUpdatedEvent' when calling offrampTransactionUpdatedWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/offrampTransactionUpdated";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(offrampTransactionUpdatedEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Onramp transaction created
+   * Triggered when the &#x60;onramp.transaction.created&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionCreatedEvent The &#x60;onramp.transaction.created&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void onrampTransactionCreatedWebhook(OnrampTransactionCreatedEvent onrampTransactionCreatedEvent) throws ApiException {
+    onrampTransactionCreatedWebhookWithHttpInfo(onrampTransactionCreatedEvent);
+  }
+
+  /**
+   * Onramp transaction created
+   * Triggered when the &#x60;onramp.transaction.created&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionCreatedEvent The &#x60;onramp.transaction.created&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> onrampTransactionCreatedWebhookWithHttpInfo(OnrampTransactionCreatedEvent onrampTransactionCreatedEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = onrampTransactionCreatedWebhookRequestBuilder(onrampTransactionCreatedEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("onrampTransactionCreatedWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder onrampTransactionCreatedWebhookRequestBuilder(OnrampTransactionCreatedEvent onrampTransactionCreatedEvent) throws ApiException {
+    // verify the required parameter 'onrampTransactionCreatedEvent' is set
+    if (onrampTransactionCreatedEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'onrampTransactionCreatedEvent' when calling onrampTransactionCreatedWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/onrampTransactionCreated";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampTransactionCreatedEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Onramp transaction failed
+   * Triggered when the &#x60;onramp.transaction.failed&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionFailedEvent The &#x60;onramp.transaction.failed&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void onrampTransactionFailedWebhook(OnrampTransactionFailedEvent onrampTransactionFailedEvent) throws ApiException {
+    onrampTransactionFailedWebhookWithHttpInfo(onrampTransactionFailedEvent);
+  }
+
+  /**
+   * Onramp transaction failed
+   * Triggered when the &#x60;onramp.transaction.failed&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionFailedEvent The &#x60;onramp.transaction.failed&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> onrampTransactionFailedWebhookWithHttpInfo(OnrampTransactionFailedEvent onrampTransactionFailedEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = onrampTransactionFailedWebhookRequestBuilder(onrampTransactionFailedEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("onrampTransactionFailedWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder onrampTransactionFailedWebhookRequestBuilder(OnrampTransactionFailedEvent onrampTransactionFailedEvent) throws ApiException {
+    // verify the required parameter 'onrampTransactionFailedEvent' is set
+    if (onrampTransactionFailedEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'onrampTransactionFailedEvent' when calling onrampTransactionFailedWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/onrampTransactionFailed";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampTransactionFailedEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Onramp transaction succeeded
+   * Triggered when the &#x60;onramp.transaction.success&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionSuccessEvent The &#x60;onramp.transaction.success&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void onrampTransactionSuccessWebhook(OnrampTransactionSuccessEvent onrampTransactionSuccessEvent) throws ApiException {
+    onrampTransactionSuccessWebhookWithHttpInfo(onrampTransactionSuccessEvent);
+  }
+
+  /**
+   * Onramp transaction succeeded
+   * Triggered when the &#x60;onramp.transaction.success&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionSuccessEvent The &#x60;onramp.transaction.success&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> onrampTransactionSuccessWebhookWithHttpInfo(OnrampTransactionSuccessEvent onrampTransactionSuccessEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = onrampTransactionSuccessWebhookRequestBuilder(onrampTransactionSuccessEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("onrampTransactionSuccessWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder onrampTransactionSuccessWebhookRequestBuilder(OnrampTransactionSuccessEvent onrampTransactionSuccessEvent) throws ApiException {
+    // verify the required parameter 'onrampTransactionSuccessEvent' is set
+    if (onrampTransactionSuccessEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'onrampTransactionSuccessEvent' when calling onrampTransactionSuccessWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/onrampTransactionSuccess";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampTransactionSuccessEvent);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Onramp transaction updated
+   * Triggered when the &#x60;onramp.transaction.updated&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionUpdatedEvent The &#x60;onramp.transaction.updated&#x60; webhook event payload. (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void onrampTransactionUpdatedWebhook(OnrampTransactionUpdatedEvent onrampTransactionUpdatedEvent) throws ApiException {
+    onrampTransactionUpdatedWebhookWithHttpInfo(onrampTransactionUpdatedEvent);
+  }
+
+  /**
+   * Onramp transaction updated
+   * Triggered when the &#x60;onramp.transaction.updated&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+   * @param onrampTransactionUpdatedEvent The &#x60;onramp.transaction.updated&#x60; webhook event payload. (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> onrampTransactionUpdatedWebhookWithHttpInfo(OnrampTransactionUpdatedEvent onrampTransactionUpdatedEvent) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = onrampTransactionUpdatedWebhookRequestBuilder(onrampTransactionUpdatedEvent);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("onrampTransactionUpdatedWebhook", localVarResponse);
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        // Drain the InputStream
+        while (localVarResponse.body().read() != -1) {
+          // Ignore
+        }
+        localVarResponse.body().close();
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder onrampTransactionUpdatedWebhookRequestBuilder(OnrampTransactionUpdatedEvent onrampTransactionUpdatedEvent) throws ApiException {
+    // verify the required parameter 'onrampTransactionUpdatedEvent' is set
+    if (onrampTransactionUpdatedEvent == null) {
+      throw new ApiException(400, "Missing the required parameter 'onrampTransactionUpdatedEvent' when calling onrampTransactionUpdatedWebhook");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/onrampTransactionUpdated";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampTransactionUpdatedEvent);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);

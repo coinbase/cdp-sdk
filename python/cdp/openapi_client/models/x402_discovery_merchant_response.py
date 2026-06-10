@@ -29,11 +29,11 @@ from typing_extensions import Self
 
 class X402DiscoveryMerchantResponse(BaseModel):
     """
-    Response containing x402 resources associated with a merchant payment address.
+    Response containing x402 resources associated with a merchant payment address. The resources list is empty when no active resources are found.
     """ # noqa: E501
     x402_version: X402Version = Field(alias="x402Version")
     pay_to: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).", alias="payTo")
-    resources: List[X402DiscoveryResource] = Field(description="List of discovered x402 resources associated with the merchant's payTo address.")
+    resources: List[X402DiscoveryResource] = Field(description="List of discovered x402 resources associated with the merchant's payTo address. This list is empty when no active resources are found.")
     pagination: X402DiscoveryMerchantResponsePagination
     __properties: ClassVar[List[str]] = ["x402Version", "payTo", "resources", "pagination"]
 

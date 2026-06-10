@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_onramp_session_request import CreateOnrampSessionRequest
+from cdp.openapi_client.models.onramp_session_request import OnrampSessionRequest
 
-class TestCreateOnrampSessionRequest(unittest.TestCase):
-    """CreateOnrampSessionRequest unit test stubs"""
+class TestOnrampSessionRequest(unittest.TestCase):
+    """OnrampSessionRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,16 +26,16 @@ class TestCreateOnrampSessionRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateOnrampSessionRequest:
-        """Test CreateOnrampSessionRequest
+    def make_instance(self, include_optional) -> OnrampSessionRequest:
+        """Test OnrampSessionRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateOnrampSessionRequest`
+        # uncomment below to create an instance of `OnrampSessionRequest`
         """
-        model = CreateOnrampSessionRequest()
+        model = OnrampSessionRequest()
         if include_optional:
-            return CreateOnrampSessionRequest(
+            return OnrampSessionRequest(
                 purchase_currency = 'USDC',
                 destination_network = 'base',
                 destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
@@ -50,15 +50,15 @@ class TestCreateOnrampSessionRequest(unittest.TestCase):
                 partner_user_ref = 'user-1234'
             )
         else:
-            return CreateOnrampSessionRequest(
+            return OnrampSessionRequest(
                 purchase_currency = 'USDC',
                 destination_network = 'base',
                 destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
         )
         """
 
-    def testCreateOnrampSessionRequest(self):
-        """Test CreateOnrampSessionRequest"""
+    def testOnrampSessionRequest(self):
+        """Test OnrampSessionRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

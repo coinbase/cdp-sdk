@@ -20,6 +20,8 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.date_of_birth import DateOfBirth
+from cdp.openapi_client.models.personal_identification import PersonalIdentification
 from cdp.openapi_client.models.physical_address import PhysicalAddress
 from cdp.openapi_client.models.travel_rule_originator_all_of_virtual_asset_service_provider import TravelRuleOriginatorAllOfVirtualAssetServiceProvider
 from typing import Optional, Set
@@ -33,7 +35,9 @@ class TravelRuleOriginator(BaseModel):
     name: Optional[StrictStr] = Field(default=None, description="Full name of the party.")
     address: Optional[PhysicalAddress] = None
     virtual_asset_service_provider: Optional[TravelRuleOriginatorAllOfVirtualAssetServiceProvider] = Field(default=None, alias="virtualAssetServiceProvider")
-    __properties: ClassVar[List[str]] = ["financialInstitution", "name", "address", "virtualAssetServiceProvider"]
+    personal_identification: Optional[PersonalIdentification] = Field(default=None, description="Government-issued personal identification for the originator, carrying the identifier value, its type, and the issuing country. Required for transfers originating from certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.", alias="personalIdentification")
+    date_of_birth: Optional[DateOfBirth] = Field(default=None, description="Date of birth of the originator. Required by certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.", alias="dateOfBirth")
+    __properties: ClassVar[List[str]] = ["financialInstitution", "name", "address", "virtualAssetServiceProvider", "personalIdentification", "dateOfBirth"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -80,6 +84,12 @@ class TravelRuleOriginator(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of virtual_asset_service_provider
         if self.virtual_asset_service_provider:
             _dict['virtualAssetServiceProvider'] = self.virtual_asset_service_provider.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of personal_identification
+        if self.personal_identification:
+            _dict['personalIdentification'] = self.personal_identification.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of date_of_birth
+        if self.date_of_birth:
+            _dict['dateOfBirth'] = self.date_of_birth.to_dict()
         return _dict
 
     @classmethod
@@ -95,7 +105,9 @@ class TravelRuleOriginator(BaseModel):
             "financialInstitution": obj.get("financialInstitution"),
             "name": obj.get("name"),
             "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
-            "virtualAssetServiceProvider": TravelRuleOriginatorAllOfVirtualAssetServiceProvider.from_dict(obj["virtualAssetServiceProvider"]) if obj.get("virtualAssetServiceProvider") is not None else None
+            "virtualAssetServiceProvider": TravelRuleOriginatorAllOfVirtualAssetServiceProvider.from_dict(obj["virtualAssetServiceProvider"]) if obj.get("virtualAssetServiceProvider") is not None else None,
+            "personalIdentification": PersonalIdentification.from_dict(obj["personalIdentification"]) if obj.get("personalIdentification") is not None else None,
+            "dateOfBirth": DateOfBirth.from_dict(obj["dateOfBirth"]) if obj.get("dateOfBirth") is not None else None
         })
         return _obj
 

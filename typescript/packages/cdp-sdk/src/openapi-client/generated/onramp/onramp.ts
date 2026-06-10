@@ -9,11 +9,11 @@ import type {
   CreateOnrampOrder201,
   CreateOnrampOrderBody,
   CreateOnrampSession201,
-  CreateOnrampSessionBody,
   GetOnrampOrderById200,
   GetOnrampUserLimits200,
   GetOnrampUserLimitsBody,
   OnrampLimitUpgradeRequest,
+  OnrampSessionRequest,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -77,7 +77,7 @@ export const getOnrampOrderById = (
  * @summary Create an onramp session
  */
 export const createOnrampSession = (
-  createOnrampSessionBody: CreateOnrampSessionBody,
+  onrampSessionRequest: OnrampSessionRequest,
   options?: SecondParameter<typeof cdpApiClient<CreateOnrampSession201>>,
 ) => {
   return cdpApiClient<CreateOnrampSession201>(
@@ -85,7 +85,7 @@ export const createOnrampSession = (
       url: `/v2/onramp/sessions`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: createOnrampSessionBody,
+      data: onrampSessionRequest,
     },
     options,
   );

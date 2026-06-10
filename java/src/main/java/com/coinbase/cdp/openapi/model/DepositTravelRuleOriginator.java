@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.DateOfBirth;
 import com.coinbase.cdp.openapi.model.DepositTravelRuleVasp;
+import com.coinbase.cdp.openapi.model.PersonalIdentification;
 import com.coinbase.cdp.openapi.model.PhysicalAddress;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,7 +41,7 @@ import com.coinbase.cdp.openapi.ApiClient;
   DepositTravelRuleOriginator.JSON_PROPERTY_ADDRESS,
   DepositTravelRuleOriginator.JSON_PROPERTY_WALLET_TYPE,
   DepositTravelRuleOriginator.JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER,
-  DepositTravelRuleOriginator.JSON_PROPERTY_PERSONAL_ID,
+  DepositTravelRuleOriginator.JSON_PROPERTY_PERSONAL_IDENTIFICATION,
   DepositTravelRuleOriginator.JSON_PROPERTY_DATE_OF_BIRTH
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -102,9 +103,9 @@ public class DepositTravelRuleOriginator {
   @jakarta.annotation.Nullable
   private DepositTravelRuleVasp virtualAssetServiceProvider;
 
-  public static final String JSON_PROPERTY_PERSONAL_ID = "personalId";
+  public static final String JSON_PROPERTY_PERSONAL_IDENTIFICATION = "personalIdentification";
   @jakarta.annotation.Nullable
-  private String personalId;
+  private PersonalIdentification personalIdentification;
 
   public static final String JSON_PROPERTY_DATE_OF_BIRTH = "dateOfBirth";
   @jakarta.annotation.Nullable
@@ -209,27 +210,27 @@ public class DepositTravelRuleOriginator {
   }
 
 
-  public DepositTravelRuleOriginator personalId(@jakarta.annotation.Nullable String personalId) {
-    this.personalId = personalId;
+  public DepositTravelRuleOriginator personalIdentification(@jakarta.annotation.Nullable PersonalIdentification personalIdentification) {
+    this.personalIdentification = personalIdentification;
     return this;
   }
 
   /**
-   * Government-issued personal identification number for the originator.
-   * @return personalId
+   * Government-issued personal identification for the originator, carrying the identifier value, its type, and the issuing country.
+   * @return personalIdentification
    */
   @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PERSONAL_ID)
+  @JsonProperty(JSON_PROPERTY_PERSONAL_IDENTIFICATION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getPersonalId() {
-    return personalId;
+  public PersonalIdentification getPersonalIdentification() {
+    return personalIdentification;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PERSONAL_ID)
+  @JsonProperty(JSON_PROPERTY_PERSONAL_IDENTIFICATION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPersonalId(@jakarta.annotation.Nullable String personalId) {
-    this.personalId = personalId;
+  public void setPersonalIdentification(@jakarta.annotation.Nullable PersonalIdentification personalIdentification) {
+    this.personalIdentification = personalIdentification;
   }
 
 
@@ -273,13 +274,13 @@ public class DepositTravelRuleOriginator {
         Objects.equals(this.address, depositTravelRuleOriginator.address) &&
         Objects.equals(this.walletType, depositTravelRuleOriginator.walletType) &&
         Objects.equals(this.virtualAssetServiceProvider, depositTravelRuleOriginator.virtualAssetServiceProvider) &&
-        Objects.equals(this.personalId, depositTravelRuleOriginator.personalId) &&
+        Objects.equals(this.personalIdentification, depositTravelRuleOriginator.personalIdentification) &&
         Objects.equals(this.dateOfBirth, depositTravelRuleOriginator.dateOfBirth);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, address, walletType, virtualAssetServiceProvider, personalId, dateOfBirth);
+    return Objects.hash(name, address, walletType, virtualAssetServiceProvider, personalIdentification, dateOfBirth);
   }
 
   @Override
@@ -290,7 +291,7 @@ public class DepositTravelRuleOriginator {
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("    walletType: ").append(toIndentedString(walletType)).append("\n");
     sb.append("    virtualAssetServiceProvider: ").append(toIndentedString(virtualAssetServiceProvider)).append("\n");
-    sb.append("    personalId: ").append(toIndentedString(personalId)).append("\n");
+    sb.append("    personalIdentification: ").append(toIndentedString(personalIdentification)).append("\n");
     sb.append("    dateOfBirth: ").append(toIndentedString(dateOfBirth)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -359,9 +360,9 @@ public class DepositTravelRuleOriginator {
       joiner.add(getVirtualAssetServiceProvider().toUrlQueryString(prefix + "virtualAssetServiceProvider" + suffix));
     }
 
-    // add `personalId` to the URL query string
-    if (getPersonalId() != null) {
-      joiner.add(String.format("%spersonalId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPersonalId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `personalIdentification` to the URL query string
+    if (getPersonalIdentification() != null) {
+      joiner.add(getPersonalIdentification().toUrlQueryString(prefix + "personalIdentification" + suffix));
     }
 
     // add `dateOfBirth` to the URL query string
@@ -400,8 +401,8 @@ public class DepositTravelRuleOriginator {
       this.instance.virtualAssetServiceProvider = virtualAssetServiceProvider;
       return this;
     }
-    public DepositTravelRuleOriginator.Builder personalId(String personalId) {
-      this.instance.personalId = personalId;
+    public DepositTravelRuleOriginator.Builder personalIdentification(PersonalIdentification personalIdentification) {
+      this.instance.personalIdentification = personalIdentification;
       return this;
     }
     public DepositTravelRuleOriginator.Builder dateOfBirth(DateOfBirth dateOfBirth) {
@@ -446,7 +447,7 @@ public class DepositTravelRuleOriginator {
       .address(getAddress())
       .walletType(getWalletType())
       .virtualAssetServiceProvider(getVirtualAssetServiceProvider())
-      .personalId(getPersonalId())
+      .personalIdentification(getPersonalIdentification())
       .dateOfBirth(getDateOfBirth());
   }
 

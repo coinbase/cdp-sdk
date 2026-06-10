@@ -178,7 +178,27 @@ public enum ErrorType {
   
   NETWORK_MISMATCH("network_mismatch"),
   
-  ALREADY_ENABLED("already_enabled");
+  ALREADY_ENABLED("already_enabled"),
+  
+  PAYMENT_SESSION_ALREADY_CANCELED("payment_session_already_canceled"),
+  
+  PAYMENT_SESSION_ALREADY_AUTHORIZED("payment_session_already_authorized"),
+  
+  PAYMENT_SESSION_ACTION_PENDING("payment_session_action_pending"),
+  
+  NO_CAPTURABLE_BALANCE("no_capturable_balance"),
+  
+  NO_VOIDABLE_BALANCE("no_voidable_balance"),
+  
+  NO_REFUNDABLE_BALANCE("no_refundable_balance"),
+  
+  ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE("entity_not_configured_for_payment_acceptance"),
+  
+  DAILY_TRANSACTION_LIMIT_EXCEEDED("daily_transaction_limit_exceeded"),
+  
+  DAILY_AMOUNT_LIMIT_EXCEEDED("daily_amount_limit_exceeded"),
+  
+  STALE_ATTESTATION("stale_attestation");
 
   private String value;
 

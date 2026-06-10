@@ -40,7 +40,8 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   PrepareAndSendUserOperationRequest.JSON_PROPERTY_NETWORK,
   PrepareAndSendUserOperationRequest.JSON_PROPERTY_CALLS,
-  PrepareAndSendUserOperationRequest.JSON_PROPERTY_PAYMASTER_URL
+  PrepareAndSendUserOperationRequest.JSON_PROPERTY_PAYMASTER_URL,
+  PrepareAndSendUserOperationRequest.JSON_PROPERTY_PAYMASTER_CONTEXT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class PrepareAndSendUserOperationRequest {
@@ -55,6 +56,10 @@ public class PrepareAndSendUserOperationRequest {
   public static final String JSON_PROPERTY_PAYMASTER_URL = "paymasterUrl";
   @jakarta.annotation.Nullable
   private URI paymasterUrl;
+
+  public static final String JSON_PROPERTY_PAYMASTER_CONTEXT = "paymasterContext";
+  @jakarta.annotation.Nullable
+  private Object paymasterContext;
 
   public PrepareAndSendUserOperationRequest() { 
   }
@@ -139,6 +144,30 @@ public class PrepareAndSendUserOperationRequest {
   }
 
 
+  public PrepareAndSendUserOperationRequest paymasterContext(@jakarta.annotation.Nullable Object paymasterContext) {
+    this.paymasterContext = paymasterContext;
+    return this;
+  }
+
+  /**
+   * The ERC-7677 &#x60;context&#x60; object forwarded to the paymaster service as part of the &#x60;paymasterService&#x60; capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing &#x60;paymasterContext&#x60; without a paymaster configured results in an &#x60;invalid_request&#x60; error.
+   * @return paymasterContext
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PAYMASTER_CONTEXT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getPaymasterContext() {
+    return paymasterContext;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAYMASTER_CONTEXT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPaymasterContext(@jakarta.annotation.Nullable Object paymasterContext) {
+    this.paymasterContext = paymasterContext;
+  }
+
+
   /**
    * Return true if this prepareAndSendUserOperation_request object is equal to o.
    */
@@ -153,12 +182,13 @@ public class PrepareAndSendUserOperationRequest {
     PrepareAndSendUserOperationRequest prepareAndSendUserOperationRequest = (PrepareAndSendUserOperationRequest) o;
     return Objects.equals(this.network, prepareAndSendUserOperationRequest.network) &&
         Objects.equals(this.calls, prepareAndSendUserOperationRequest.calls) &&
-        Objects.equals(this.paymasterUrl, prepareAndSendUserOperationRequest.paymasterUrl);
+        Objects.equals(this.paymasterUrl, prepareAndSendUserOperationRequest.paymasterUrl) &&
+        Objects.equals(this.paymasterContext, prepareAndSendUserOperationRequest.paymasterContext);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(network, calls, paymasterUrl);
+    return Objects.hash(network, calls, paymasterUrl, paymasterContext);
   }
 
   @Override
@@ -168,6 +198,7 @@ public class PrepareAndSendUserOperationRequest {
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
     sb.append("    calls: ").append(toIndentedString(calls)).append("\n");
     sb.append("    paymasterUrl: ").append(toIndentedString(paymasterUrl)).append("\n");
+    sb.append("    paymasterContext: ").append(toIndentedString(paymasterContext)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -235,6 +266,11 @@ public class PrepareAndSendUserOperationRequest {
       joiner.add(String.format("%spaymasterUrl%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPaymasterUrl()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `paymasterContext` to the URL query string
+    if (getPaymasterContext() != null) {
+      joiner.add(String.format("%spaymasterContext%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPaymasterContext()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -260,6 +296,10 @@ public class PrepareAndSendUserOperationRequest {
     }
     public PrepareAndSendUserOperationRequest.Builder paymasterUrl(URI paymasterUrl) {
       this.instance.paymasterUrl = paymasterUrl;
+      return this;
+    }
+    public PrepareAndSendUserOperationRequest.Builder paymasterContext(Object paymasterContext) {
+      this.instance.paymasterContext = paymasterContext;
       return this;
     }
 
@@ -298,7 +338,8 @@ public class PrepareAndSendUserOperationRequest {
     return new PrepareAndSendUserOperationRequest.Builder()
       .network(getNetwork())
       .calls(getCalls())
-      .paymasterUrl(getPaymasterUrl());
+      .paymasterUrl(getPaymasterUrl())
+      .paymasterContext(getPaymasterContext());
   }
 
 }

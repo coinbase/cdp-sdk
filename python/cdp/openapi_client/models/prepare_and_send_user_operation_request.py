@@ -33,7 +33,8 @@ class PrepareAndSendUserOperationRequest(BaseModel):
     network: EvmUserOperationNetwork
     calls: List[EvmCall] = Field(description="The list of calls to make from the Smart Account.")
     paymaster_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="The URL of the paymaster to use for the user operation.", alias="paymasterUrl")
-    __properties: ClassVar[List[str]] = ["network", "calls", "paymasterUrl"]
+    paymaster_context: Optional[Dict[str, Any]] = Field(default=None, description="The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.", alias="paymasterContext")
+    __properties: ClassVar[List[str]] = ["network", "calls", "paymasterUrl", "paymasterContext"]
 
     @field_validator('paymaster_url')
     def paymaster_url_validate_regular_expression(cls, value):
@@ -105,7 +106,8 @@ class PrepareAndSendUserOperationRequest(BaseModel):
         _obj = cls.model_validate({
             "network": obj.get("network"),
             "calls": [EvmCall.from_dict(_item) for _item in obj["calls"]] if obj.get("calls") is not None else None,
-            "paymasterUrl": obj.get("paymasterUrl")
+            "paymasterUrl": obj.get("paymasterUrl"),
+            "paymasterContext": obj.get("paymasterContext")
         })
         return _obj
 

@@ -71,29 +71,7 @@ tags:
     x-slo-tier:
       tier: ga
     description: |-
-      The End User Accounts APIs enable end users to directly create, manage, and use their accounts. They are typically accessed via the CDP Web SDK. End users authenticate with the APIs via the `InitiateAuthentication` endpoint, and use the returned access token and refresh token to authenticate with the other endpoints. The End User Accounts APIs offer end users full control over their accounts, including the ability to sign transactions and messages, and to export their accounts' private keys.
-
-      There are three authentication credentials involved in the End User Accounts APIs:
-
-      1. **Access Token**: A JWT signed by CDP, encoded in base64. This is used to identify the end user, and is
-        issued after the end user has signed in using one of the provided authentication methods.
-        The APIs provide multiple mechanisms for end user authentication, including custom auth JWT authentication,
-        email one-time-password (OTP) authentication, and social sign-in.
-
-
-      2. **Refresh Token**: A cryptographically random string, set as the `cdp_refresh_token` cookie in the end user's browser.
-        By hitting the `RefreshAccessToken` endpoint, the included refresh token can be used to obtain a new access token
-        without requiring the end user to sign in again.
-
-
-      3. **Temporary Wallet Secret (TWS)**: Requests to signing-related endpoints must also be authenticated using a
-        **Temporary Wallet Secret** (TWS) generated on the end user's browser/device. Typically, this is done using the CDP frontend SDKs. The Temporary Wallet Secret
-        follows similar semantics to the Wallet Secret used by the EVM and Solana Account APIs, with the following key differences:
-
-        - The end user must register their TWS with the End User Account Management APIs before it can be used.
-        - Temporary Wallet Secrets have a time-to-live (TTL) defined by the `validUntil` field in the TWS registration request.
-        - A maximum of five TWS's can be registered for a single end user at any given time.
-
+      The End User Accounts APIs enable end users to directly create, manage, and use their accounts. They are typically accessed via the CDP Web SDK, which handles end-user authentication and Temporary Wallet Secret management on behalf of the developer. The End User Accounts APIs offer end users full control over their accounts, including the ability to sign transactions and messages, and to export their accounts' private keys.
 
       ## Delegated Signing
 
@@ -101,7 +79,7 @@ tags:
 
       To use delegated signing, the end user must first create a short-lived **delegation grant** by authenticating with their access token and Temporary Wallet Secret. The grant specifies an `expiresAt` timestamp that defines how long the developer is authorized to sign on the end user's behalf.
 
-      Once a delegation grant is active, the developer's server can use its CDP API key to perform signing operations for that end user. The delegation middleware transparently validates that an active (non-expired, non-revoked) grant exists for the {project, user} pair before allowing the operation to proceed.
+      Once a delegation grant is active, the developer's server can use its CDP API key to perform signing operations for that end user. The delegation middleware transparently validates that an active (non-expired, non-revoked) grant exists for the `{project, user}` pair before allowing the operation to proceed.
 
       **Grant lifecycle:**
 
@@ -109,7 +87,7 @@ tags:
         - Grants are time-bounded by the `expiresAt` timestamp and are automatically cleaned up after expiration.
         - Grants can be revoked early by either the end user (using their access token and TWS) or the
           developer (using their API key), via the `RevokeDelegationForEndUser` endpoint.
-        - Only one active grant can exist per {project, user} pair at a given time.
+        - Only one active grant can exist per `{project, user}` pair at a given time.
   - name: EVM Accounts
     x-audience: public
     x-slo-tier:
@@ -1522,9 +1500,10 @@ paths:
                   address:
                     line1: 123 Main St
                     line2: Unit 201
-                    city: Luxembourg
-                    postCode: L-1234
-                    countryCode: LU
+                    city: San Francisco
+                    state: California
+                    postCode: '94105'
+                    countryCode: US
                   financialInstitution: PayPal, Inc.
                   vaspName: Fidelity Digital Asset Services, LLC
                   vaspAddress:
@@ -1535,6 +1514,14 @@ paths:
                     postCode: '94105'
                     countryCode: US
                   vaspIdentifier: 5493001KJTIIGC8Y1R17
+                  personalIdentification:
+                    type: social_security_number
+                    value: 123-45-6789
+                    countryOfIssue: US
+                  dateOfBirth:
+                    day: '15'
+                    month: '08'
+                    year: '1990'
                 beneficiary:
                   name: Jane Smith
                   address:
@@ -2481,6 +2468,9 @@ paths:
           Both params must be provided together.
 
         - **phoneNumber**: looks up a user by their SMS-verified phone number.
+        - **siweAddress**: looks up a user by the Ethereum address they authenticated
+          with via Sign In With Ethereum (EIP-4361).
+
 
         Returns all matching end users. If no end users match, an empty array is returned.
 
@@ -2519,6 +2509,13 @@ paths:
           schema:
             $ref: '#/components/schemas/PhoneNumber'
           example: '+14155552671'
+        - name: siweAddress
+          in: query
+          required: false
+          description: The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).
+          schema:
+            $ref: '#/components/schemas/BlockchainAddress'
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
       responses:
         '200':
           description: Successfully looked up end users.
@@ -2608,6 +2605,21 @@ paths:
                         solanaAccounts: []
                         solanaAccountObjects: []
                         createdAt: '2025-11-17T13:00:00Z'
+                siwe_match:
+                  summary: End user found by SIWE address
+                  value:
+                    endUsers:
+                      - userId: user-005
+                        authenticationMethods:
+                          - type: siwe
+                            address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        evmAccounts: []
+                        evmAccountObjects: []
+                        evmSmartAccounts: []
+                        evmSmartAccountObjects: []
+                        solanaAccounts: []
+                        solanaAccountObjects: []
+                        createdAt: '2025-11-17T14:00:00Z'
                 no_matches:
                   summary: No end users found
                   value:
@@ -2623,12 +2635,12 @@ paths:
                   summary: No lookup parameter provided
                   value:
                     errorType: invalid_request
-                    errorMessage: 'Exactly one lookup type must be provided: email, phoneNumber, or oauthProvider+oauthSubject.'
+                    errorMessage: 'Exactly one lookup type must be provided: email, phoneNumber, siweAddress, or oauthProvider+oauthSubject.'
                 multiple_lookup_params:
                   summary: Multiple lookup parameters provided
                   value:
                     errorType: invalid_request
-                    errorMessage: 'Exactly one lookup type must be provided: email, phoneNumber, or oauthProvider+oauthSubject.'
+                    errorMessage: 'Exactly one lookup type must be provided: email, phoneNumber, siweAddress, or oauthProvider+oauthSubject.'
                 oauth_missing_subject:
                   summary: oauthProvider provided without oauthSubject
                   value:
@@ -3435,6 +3447,8 @@ paths:
                     - $ref: '#/components/schemas/Url'
                   description: Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
                   example: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+                paymasterContext:
+                  $ref: '#/components/schemas/PaymasterContext'
                 walletSecretId:
                   description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
                   type: string
@@ -3532,6 +3546,12 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Cannot specify both 'useCdpPaymaster' and 'paymasterUrl'. Please use only one.
+                    errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
+                paymaster_context_without_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'paymasterContext requires a paymaster: set paymasterUrl or useCdpPaymaster.'
+                    errorParam: paymasterContext
                     errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -4351,6 +4371,8 @@ paths:
                     - $ref: '#/components/schemas/Url'
                   description: The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option.
                   example: https://api.developer.coinbase.com/rpc/v1/base/<token>
+                paymasterContext:
+                  $ref: '#/components/schemas/PaymasterContext'
                 walletSecretId:
                   description: Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
                   type: string
@@ -4383,6 +4405,10 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field "network" is required.
+                paymaster_context_without_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'paymasterContext requires a paymaster: set paymasterUrl or useCdpPaymaster.'
                 invalid_signature:
                   value:
                     errorType: invalid_signature
@@ -6544,6 +6570,8 @@ paths:
                     - $ref: '#/components/schemas/Url'
                   description: The URL of the paymaster to use for the user operation.
                   example: https://api.developer.coinbase.com/rpc/v1/base/<token>
+                paymasterContext:
+                  $ref: '#/components/schemas/PaymasterContext'
                 dataSuffix:
                   type: string
                   pattern: ^0x[0-9a-fA-F]+$
@@ -6570,6 +6598,10 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field "network" is required.
+                paymaster_context_without_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'paymasterContext requires a paymaster: set paymasterUrl.'
         '403':
           description: Access to resource forbidden.
           content:
@@ -6637,6 +6669,8 @@ paths:
                     - $ref: '#/components/schemas/Url'
                   description: The URL of the paymaster to use for the user operation.
                   example: https://api.developer.coinbase.com/rpc/v1/base/<token>
+                paymasterContext:
+                  $ref: '#/components/schemas/PaymasterContext'
               required:
                 - network
                 - calls
@@ -6658,6 +6692,10 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field "network" is required.
+                paymaster_context_without_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'paymasterContext requires a paymaster: set paymasterUrl.'
                 invalid_signature:
                   value:
                     errorType: invalid_signature
@@ -9420,58 +9458,30 @@ paths:
           - accounts:write@entity
         enforcement: any
       description: |
-        Subscribe to real-time events across CDP products using flexible filtering.
+        Subscribe to real-time events across CDP products.
 
-        ### Event Types
+        ### Filtering
 
-        **Onchain Events** - Monitor Base mainnet with microsecond precision:
-        - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity
-        - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)
+        Onchain events can utilize multi-label filtering to only receive events that match all the specified labels.
 
-        **Onramp/Offramp Events** - Transaction lifecycle notifications:
-        - `onramp.transaction.created`, `onramp.transaction.updated`
-        - `onramp.transaction.success`, `onramp.transaction.failed`
-        - `offramp.transaction.created`, `offramp.transaction.updated`
-        - `offramp.transaction.success`, `offramp.transaction.failed`
-        - **No labels required** - maximum simplicity for transaction monitoring
+        Allows labels are:
+        - `network` (required) — Blockchain network
+        - `contract_address` — Smart contract address
+        - `event_name` — Event name (e.g., "Transfer", "Burn")
+        - `event_signature` — Event signature (e.g., "Transfer(address,address,uint256)")
+        - `transaction_from` — Transaction sender address
+        - `transaction_to` — Transaction recipient address
+        - `params.*` — Any event parameter from the log event (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
 
-        **Payments Transfers Events** - Transfer lifecycle notifications:
-        - `payments.transfers.quoted` - Transfer created and awaiting execution
-        - `payments.transfers.processing` - Transfer execution in progress
-        - `payments.transfers.completed` - Transfer completed successfully
-        - `payments.transfers.failed` - Transfer failed
-        - `payments.transfers.travel_rule_incomplete` - Travel rule information is missing
-        - `payments.transfers.travel_rule_completed` - Travel rule information has been provided and the transfer will proceed
-        - **No labels required** - enable the transfers webhook to monitor status transitions
-
-        **Wallet Events** - Wallet activity notifications:
-        - `wallet.activity.detected`
+        For webhook types that aren't `onchain.*`, labels are ignored.
 
         ### Webhook Signature Verification
-        All webhooks include cryptographic signatures for security.
-        The signature secret is returned in `secret` field when creating a subscription.
 
-        **Note:** Webhooks are in beta and this interface is subject to change.
+        All webhooks include an HMAC-SHA256 signed header for security. The signature is signed with the secret that is returned in the `secret` field when creating a subscription.
+
+        Do not lose the secret, as you will not be able to recreate it. If you lose the secret, you will need to create a new subscription.
 
         See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.
-
-        ### Onchain Label Filtering
-
-        For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).
-
-        **Allowed labels** (all in snake_case format):
-        - `network` (required) - Blockchain network
-        - `contract_address` - Smart contract address
-        - `event_name` - Event name (e.g., "Transfer", "Burn")
-        - `event_signature` - Event signature hash
-        - `transaction_from` - Transaction sender address
-        - `transaction_to` - Transaction recipient address
-        - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-
-        **Examples**:
-        - **Liquidity Pool Monitor**: `{"network": "base-mainnet", "contract_address": "0xcd1f9777571493aeacb7eae45cd30a226d3e612d", "event_name": "Burn"}`
-        - **Price Oracle Tracker**: `{"network": "base-mainnet", "contract_address": "0xbac4a9428ea707c51f171ed9890c3c2fa810305d", "event_name": "PriceUpdated"}`
-        - **DeFi Protocol Activity**: `{"network": "base-mainnet", "contract_address": "0x45c6e6a47a711b14d8357d5243f46704904578e3", "event_name": "Deposit"}`
       tags:
         - Webhooks
       security:
@@ -9493,32 +9503,6 @@ paths:
                     network: base-mainnet
                     contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
                     event_name: Burn
-                  target:
-                    url: https://api.example.com/webhooks
-                  isEnabled: true
-              onramp_transactions:
-                summary: 'Onramp: Transaction lifecycle'
-                value:
-                  description: Onramp transaction status webhook.
-                  eventTypes:
-                    - onramp.transaction.created
-                    - onramp.transaction.updated
-                    - onramp.transaction.success
-                    - onramp.transaction.failed
-                  labels: {}
-                  target:
-                    url: https://api.example.com/webhooks
-                  isEnabled: true
-              offramp_transactions:
-                summary: 'Offramp: Transaction lifecycle'
-                value:
-                  description: Offramp transaction status webhook.
-                  eventTypes:
-                    - offramp.transaction.created
-                    - offramp.transaction.updated
-                    - offramp.transaction.success
-                    - offramp.transaction.failed
-                  labels: {}
                   target:
                     url: https://api.example.com/webhooks
                   isEnabled: true
@@ -10072,6 +10056,7 @@ paths:
       description: |-
         Gets x402 merchant discovery information for a given merchant payment address.
         This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements.
+        If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list.
         The response is paginated, and by default, returns 20 items per page.
       operationId: listX402DiscoveryMerchant
       tags:
@@ -10122,17 +10107,6 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid request. Please check the request parameters.
-        '404':
-          description: Merchant not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                not_found:
-                  value:
-                    errorType: not_found
-                    errorMessage: No resources found for the specified payTo address.
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -10475,6 +10449,23 @@ paths:
                   value:
                     errorType: guest_region_forbidden
                     errorMessage: Guest onramp transactions are not allowed in the user's region.
+                phone_number_verification_expired:
+                  value:
+                    errorType: phone_number_verification_expired
+                    errorMessage: The user's phone number verification has expired. Please re-verify the user's phone number.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          description: Rate limit or guest transaction quota exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Rate limit exceeded.
                 guest_transaction_limit:
                   value:
                     errorType: guest_transaction_limit
@@ -10483,14 +10474,6 @@ paths:
                   value:
                     errorType: guest_transaction_count
                     errorMessage: The user has reached the lifetime guest onramp transaction count limit (15).
-                phone_number_verification_expired:
-                  value:
-                    errorType: phone_number_verification_expired
-                    errorMessage: The user's phone number verification has expired. Please re-verify the user's phone number.
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '429':
-          $ref: '#/components/responses/RateLimitExceeded'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /v2/onramp/orders/{orderId}:
@@ -10571,68 +10554,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                purchaseCurrency:
-                  description: |-
-                    The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
-
-                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
-                  type: string
-                  example: USDC
-                destinationNetwork:
-                  description: |-
-                    The name of the crypto network the purchased currency will be sent on.
-
-                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
-                  type: string
-                  example: base
-                destinationAddress:
-                  allOf:
-                    - $ref: '#/components/schemas/BlockchainAddress'
-                  description: The address the purchased crypto will be sent to.
-                paymentAmount:
-                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.
-                  type: string
-                  example: '100.00'
-                purchaseAmount:
-                  description: A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.
-                  type: string
-                  example: '10.000000'
-                paymentCurrency:
-                  description: The fiat currency to be converted to crypto.
-                  type: string
-                  example: USD
-                paymentMethod:
-                  $ref: '#/components/schemas/OnrampQuotePaymentMethodTypeId'
-                country:
-                  description: The ISO 3166-1 two letter country code (e.g. US).
-                  type: string
-                  example: US
-                subdivision:
-                  description: The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
-                  type: string
-                  example: NY
-                redirectUrl:
-                  allOf:
-                    - $ref: '#/components/schemas/Uri'
-                  description: URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.
-                  example: https://example.com/success
-                clientIp:
-                  description: The IP address of the end user requesting the onramp transaction.
-                  type: string
-                  example: 127.0.0.1
-                partnerUserRef:
-                  description: |-
-                    A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
-
-                    This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
-                  type: string
-                  example: user-1234
-              required:
-                - destinationAddress
-                - purchaseCurrency
-                - destinationNetwork
+              $ref: '#/components/schemas/OnrampSessionRequest'
       responses:
         '201':
           description: Onramp session created successfully.
@@ -10982,7 +10904,267 @@ paths:
                     errorMessage: Payment method not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
-webhooks: {}
+webhooks:
+  onchainActivityDetected:
+    post:
+      summary: Onchain activity detected
+      description: Triggered when onchain activity matching your subscription filters is detected. Your API will receive a POST request at the webhook URL you configured. Use `labels` on your webhook subscription to filter which onchain events are delivered (see the Create Webhook Subscription endpoint for allowed labels).
+      operationId: onchainActivityDetectedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onchain Data
+      requestBody:
+        description: The decoded blockchain event data. Payload shape varies by the type of onchain activity detected (token transfer, contract interaction, etc.).
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnchainActivityDetectedEvent'
+            examples:
+              erc20_transfer:
+                summary: ERC-20 token transfer detected
+                value:
+                  block_number: 46218191
+                  contract_address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631'
+                  event_name: Transfer
+                  event_signature: Transfer(address,address,uint256)
+                  log_index: 29
+                  network: base-mainnet
+                  parameters:
+                    from: '0xF33a96b5932D9E9B9A0eDA447AbD8C9d48d2e0c8'
+                    to: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+                    value: '474891138228179365'
+                  timestamp: '2026-05-19T21:22:10Z'
+                  transaction_from: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+                  transaction_hash: '0xa58e4471bcce875b1ea49cc0864a620d3a484b9b7c1b0b4fd18ce83f5b30e5e0'
+                  transaction_to: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+      responses:
+        '200':
+          description: Webhook received and processed successfully. Return a 200 status code to acknowledge receipt. If your endpoint does not return a 2xx status code, the webhook will be retried with exponential backoff.
+        '401':
+          description: Invalid signature. The webhook signature verification failed.
+  walletActivityDetected:
+    post:
+      summary: Wallet activity detected
+      description: Triggered when the `wallet.activity.detected` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: walletActivityDetectedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onchain Data
+      requestBody:
+        description: The `wallet.activity.detected` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletActivityDetectedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  walletActivityMulti:
+    post:
+      summary: Wallet activity multi
+      description: Triggered when the `wallet.activity.multi` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: walletActivityMultiWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onchain Data
+      requestBody:
+        description: The `wallet.activity.multi` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletActivityMultiEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  onrampTransactionCreated:
+    post:
+      summary: Onramp transaction created
+      description: Triggered when the `onramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: onrampTransactionCreatedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `onramp.transaction.created` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnrampTransactionCreatedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  onrampTransactionUpdated:
+    post:
+      summary: Onramp transaction updated
+      description: Triggered when the `onramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: onrampTransactionUpdatedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `onramp.transaction.updated` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnrampTransactionUpdatedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  onrampTransactionSuccess:
+    post:
+      summary: Onramp transaction succeeded
+      description: Triggered when the `onramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: onrampTransactionSuccessWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `onramp.transaction.success` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnrampTransactionSuccessEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  onrampTransactionFailed:
+    post:
+      summary: Onramp transaction failed
+      description: Triggered when the `onramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: onrampTransactionFailedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `onramp.transaction.failed` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnrampTransactionFailedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  offrampTransactionCreated:
+    post:
+      summary: Offramp transaction created
+      description: Triggered when the `offramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: offrampTransactionCreatedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `offramp.transaction.created` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfframpTransactionCreatedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  offrampTransactionUpdated:
+    post:
+      summary: Offramp transaction updated
+      description: Triggered when the `offramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: offrampTransactionUpdatedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `offramp.transaction.updated` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfframpTransactionUpdatedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  offrampTransactionSuccess:
+    post:
+      summary: Offramp transaction succeeded
+      description: Triggered when the `offramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: offrampTransactionSuccessWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `offramp.transaction.success` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfframpTransactionSuccessEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  offrampTransactionFailed:
+    post:
+      summary: Offramp transaction failed
+      description: Triggered when the `offramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+      operationId: offrampTransactionFailedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Onramp
+      requestBody:
+        description: The `offramp.transaction.failed` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfframpTransactionFailedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
 components:
   securitySchemes:
     apiKeyAuth:
@@ -11001,6 +11183,15 @@ components:
       type: http
       scheme: none
       description: This security scheme is used for APIs that do not require authentication, such as End User Auth flows used to initiate authentication or public, read-only endpoints.
+    webhookSignature:
+      x-audience: public
+      type: apiKey
+      in: header
+      name: X-Hook0-Signature
+      description: |-
+        HMAC-SHA256 signature of the raw request body, computed using your webhook secret. Webhook receivers should always verify this header before processing the event. The header value is hex-encoded and prefixed by the algorithm and timestamp, e.g. `t=1700000000,v1=abc123...` (refer to the Webhook Security docs for the exact verification algorithm).
+
+        This scheme applies to webhook delivery (outbound POSTs from CDP to your endpoint), not to inbound CDP API requests.
   parameters:
     PageSize:
       name: pageSize
@@ -11217,6 +11408,16 @@ components:
         - delegation_not_enabled
         - network_mismatch
         - already_enabled
+        - payment_session_already_canceled
+        - payment_session_already_authorized
+        - payment_session_action_pending
+        - no_capturable_balance
+        - no_voidable_balance
+        - no_refundable_balance
+        - entity_not_configured_for_payment_acceptance
+        - daily_transaction_limit_exceeded
+        - daily_amount_limit_exceeded
+        - stale_attestation
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -11280,7 +11481,7 @@ components:
           **Steps to resolve:**
           1. Fetch the customer with `GET /v2/customers/{customerId}` and inspect
              the `requirements` field. If `requirements.due` is non-empty, submit
-             the listed fields via `POST /v2/customers/{customerId}` and retry.
+             the listed fields via `PUT /v2/customers/{customerId}` and retry.
           2. If `requirements.due` is empty, no further action is available — the
              customer is not currently eligible for this action.
         forbidden: |-
@@ -11973,6 +12174,73 @@ components:
 
           **Common causes:**
           - Calling an enable endpoint on a resource that already has the feature enabled
+        payment_session_already_canceled: |-
+          This error occurs when an action is attempted on a payment session that has already been canceled.
+
+          **Steps to resolve:**
+          1. Create a new payment session to proceed with the payment flow
+        payment_session_already_authorized: |-
+          This error occurs when attempting to authorize a payment session that has already been authorized.
+
+          **Steps to resolve:**
+          1. Check the payment session status — it is already authorized
+          2. Proceed to capture, void, or other post-authorization actions as needed
+        payment_session_action_pending: |-
+          This error occurs when another action is already in progress for the payment session.
+
+          **Steps to resolve:**
+          1. Wait for the current action to complete before retrying
+          2. Check the payment session status to confirm the current action result
+        no_capturable_balance: |-
+          This error occurs when there is no remaining balance available to capture on the payment session.
+
+          **Steps to resolve:**
+          1. Verify the payment session status and previously captured amounts
+          2. Ensure the session was authorized and has uncaptured funds remaining
+        no_voidable_balance: |-
+          This error occurs when there is no held balance remaining to void on the payment session.
+
+          **Steps to resolve:**
+          1. Verify the payment session has an authorized but uncaptured balance
+          2. Check whether the session has already been fully captured or voided
+        no_refundable_balance: |-
+          This error occurs when the payment session has no captured amount available to refund.
+
+          **Steps to resolve:**
+          1. Verify the payment session has been previously captured
+          2. Check that the session has not already been fully refunded
+        entity_not_configured_for_payment_acceptance: |-
+          This error occurs when the entity is not configured to accept payments.
+
+          **Steps to resolve:**
+          1. Contact support to enable payment acceptance for the entity
+        daily_transaction_limit_exceeded: |-
+          This error occurs when the daily transaction limit has been exceeded.
+
+          **Steps to resolve:**
+          1. Wait until the next day when the daily limit resets
+          2. Contact support for questions about your limit
+        daily_amount_limit_exceeded: |-
+          This error occurs when the daily authorization amount limit has been exceeded.
+
+          **Steps to resolve:**
+          1. Wait until the next day when the daily limit resets
+          2. Contact support for questions about your limit
+        stale_attestation: |-
+          The platform attestation (iOS App Attest assertion or Android Play Integrity token) was
+          generated against a challenge that has since expired. The request was well-formed, but
+          the challenge is no longer valid.
+
+          **Steps to resolve:**
+          1. Call [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge) to obtain
+             a fresh challenge.
+          2. Re-run the platform attestation flow against the new challenge.
+          3. Submit the new attestation to
+             [Create Onramp Mobile Session](#operation/createOnrampMobileSession) promptly —
+             challenges are short-lived.
+
+          **Common causes:**
+          - Too much time elapsed between obtaining the challenge and submitting the attestation.
     Url:
       type: string
       format: uri
@@ -12824,6 +13092,23 @@ components:
       required:
         - source
         - target
+      example:
+        transferId: transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114
+        status: completed
+        source:
+          accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
+          asset: usd
+        target:
+          address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+          network: base
+          asset: usdc
+        sourceAmount: '103.50'
+        sourceAsset: usd
+        targetAmount: '100.00'
+        targetAsset: usdc
+        completedAt: '2025-01-01T00:05:00Z'
+        createdAt: '2025-01-01T00:00:00Z'
+        updatedAt: '2025-01-01T00:05:00Z'
     CreateTransferSource:
       description: The source of the transfer.
       oneOf:
@@ -12883,6 +13168,75 @@ components:
           state: California
           postCode: '94105'
           countryCode: US
+    PersonalIdentification:
+      type: object
+      description: A government-issued personal identifier, paired with its type and issuing country so downstream Travel Rule reporting can classify the identifier correctly. Field shapes mirror IVMS-101 `NationalIdentification` (the format Travel Rule reporting ultimately marshals to) — most notably the 35-character maximum on `value`.
+      properties:
+        type:
+          type: string
+          description: The kind of government-issued identifier carried in `value`. Values map 1:1 to IVMS-101 `NationalIdentifierTypeCode` so downstream Travel Rule reporting can serialize without ambiguity.
+          enum:
+            - social_security_number
+            - tax_id
+            - passport_number
+            - national_id_card
+            - drivers_license
+          x-enum-descriptions:
+            - 'Social security or equivalent national insurance number (IVMS-101 `SOCS`). For US: full SSN; for LU: matricule national.'
+            - Tax authority identifier (IVMS-101 `TXID`). E.g. US ITIN, BR CPF, IN PAN.
+            - Passport number (IVMS-101 `CCPT`).
+            - State-issued identity card number (IVMS-101 `IDCD`).
+            - Driver's license number (IVMS-101 `DRLC`).
+          example: social_security_number
+        value:
+          type: string
+          description: The identifier as issued by the relevant authority. Length matches the IVMS-101 `NationalIdentifier` 35-character cap. Letters, digits, and common separators (hyphens, spaces, dots) are accepted; the exact character set depends on `type` and `countryOfIssue`.
+          minLength: 1
+          maxLength: 35
+          example: 123-45-6789
+        countryOfIssue:
+          type: string
+          description: ISO 3166-1 alpha-2 country code of the authority that issued the identifier. Required when the identifier format depends on the issuing jurisdiction (e.g. a "national ID" means different things in DE vs. BR).
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}$
+          example: US
+      required:
+        - type
+        - value
+      example:
+        type: social_security_number
+        value: 123-45-6789
+        countryOfIssue: US
+    DateOfBirth:
+      type: object
+      description: Date of birth.
+      properties:
+        day:
+          type: string
+          description: Day of birth (01-31).
+          minLength: 2
+          maxLength: 2
+          pattern: ^[0-9]{2}$
+          example: '15'
+        month:
+          type: string
+          description: Month of birth (01-12).
+          minLength: 2
+          maxLength: 2
+          pattern: ^[0-9]{2}$
+          example: '08'
+        year:
+          type: string
+          description: Year of birth (four digits).
+          minLength: 4
+          maxLength: 4
+          pattern: ^[0-9]{4}$
+          example: '1990'
+      example:
+        day: '15'
+        month: '08'
+        year: '1990'
     TravelRuleOriginator:
       allOf:
         - $ref: '#/components/schemas/TravelRuleParty'
@@ -12903,6 +13257,22 @@ components:
                   type: string
                   description: The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP).
                   example: 5493001KJTIIGC8Y1R17
+            personalIdentification:
+              allOf:
+                - $ref: '#/components/schemas/PersonalIdentification'
+              description: Government-issued personal identification for the originator, carrying the identifier value, its type, and the issuing country. Required for transfers originating from certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.
+              example:
+                type: social_security_number
+                value: 123-45-6789
+                countryOfIssue: US
+            dateOfBirth:
+              allOf:
+                - $ref: '#/components/schemas/DateOfBirth'
+              description: Date of birth of the originator. Required by certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.
+              example:
+                day: '15'
+                month: '08'
+                year: '1990'
       description: Originator (sender) party.
     TravelRuleBeneficiary:
       allOf:
@@ -12945,10 +13315,12 @@ components:
 
             **Impact on required fields:**
 
-            When `isIntermediary` is `true`, you must provide the `originator` object with details about the original sender, including:
+            When `isIntermediary` is `true`, you must provide the `originator` object with details about the **original sender**, including:
             - Originator name
             - Originator address
             - Your VASP information (`virtualAssetServiceProvider` object with `name`, `address`, and `identifier`)
+
+            For jurisdictions that require them (such as Coinbase Luxembourg), `personalIdentification` and `dateOfBirth` must also reflect the **original sender's** identity — not the intermediary's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
           example: true
         originator:
           $ref: '#/components/schemas/TravelRuleOriginator'
@@ -12962,9 +13334,10 @@ components:
           address:
             line1: 123 Main St
             line2: Unit 201
-            city: Luxembourg
-            postCode: L-1234
-            countryCode: LU
+            city: San Francisco
+            state: California
+            postCode: '94105'
+            countryCode: US
           financialInstitution: PayPal, Inc.
           vasp:
             name: Fidelity Digital Asset Services, LLC
@@ -12976,6 +13349,14 @@ components:
               postCode: '94105'
               countryCode: US
             identifier: 5493001KJTIIGC8Y1R17
+          personalIdentification:
+            type: social_security_number
+            value: 123-45-6789
+            countryOfIssue: US
+          dateOfBirth:
+            day: '15'
+            month: '08'
+            year: '1990'
         beneficiary:
           name: Jane Smith
           address:
@@ -13047,35 +13428,6 @@ components:
       example:
         identifier: 5493001KJTIIGC8Y1R17
         name: Fidelity Digital Asset Services, LLC
-    DateOfBirth:
-      type: object
-      description: Date of birth.
-      properties:
-        day:
-          type: string
-          description: Day of birth (01-31).
-          minLength: 2
-          maxLength: 2
-          pattern: ^[0-9]{2}$
-          example: '15'
-        month:
-          type: string
-          description: Month of birth (01-12).
-          minLength: 2
-          maxLength: 2
-          pattern: ^[0-9]{2}$
-          example: '08'
-        year:
-          type: string
-          description: Year of birth (four digits).
-          minLength: 4
-          maxLength: 4
-          pattern: ^[0-9]{4}$
-          example: '1990'
-      example:
-        day: '15'
-        month: '08'
-        year: '1990'
     DepositTravelRuleOriginator:
       type: object
       description: Originator information for a deposit travel rule submission.
@@ -13098,10 +13450,14 @@ components:
           example: custodial
         virtualAssetServiceProvider:
           $ref: '#/components/schemas/DepositTravelRuleVasp'
-        personalId:
-          type: string
-          description: Government-issued personal identification number for the originator.
-          example: 123-45-6789
+        personalIdentification:
+          allOf:
+            - $ref: '#/components/schemas/PersonalIdentification'
+          description: Government-issued personal identification for the originator, carrying the identifier value, its type, and the issuing country.
+          example:
+            type: social_security_number
+            value: 123-45-6789
+            countryOfIssue: US
         dateOfBirth:
           $ref: '#/components/schemas/DateOfBirth'
       example:
@@ -13557,6 +13913,12 @@ components:
         - solanaAccounts
         - solanaAccountObjects
         - createdAt
+    PaymasterContext:
+      type: object
+      additionalProperties: true
+      description: The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+      example:
+        policyId: 962b252c-a726-4a37-8d86-333ce0a07299
     EIP712Domain:
       type: object
       description: The domain of the EIP-712 typed data.
@@ -17211,6 +17573,24 @@ components:
           description: Total number of unique token addresses discovered.
           example: 15
           minimum: 0
+    EventType:
+      type: string
+      description: |
+        A webhook event type identifier following dot-separated format:
+        `<domain>.<entity>.<verb>` (e.g., "onchain.activity.detected").
+      example: onchain.activity.detected
+      enum:
+        - onchain.activity.detected
+        - wallet.activity.detected
+        - wallet.activity.multi
+        - onramp.transaction.created
+        - onramp.transaction.updated
+        - onramp.transaction.success
+        - onramp.transaction.failed
+        - offramp.transaction.created
+        - offramp.transaction.updated
+        - offramp.transaction.success
+        - offramp.transaction.failed
     WebhookTarget:
       type: object
       description: |
@@ -17270,7 +17650,7 @@ components:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
             "acceptance.payment_session.authorization_succeeded").
           items:
-            type: string
+            $ref: '#/components/schemas/EventType'
           example:
             - onchain.activity.detected
         isEnabled:
@@ -17363,7 +17743,7 @@ components:
             "acceptance.payment_session.authorization_succeeded").
             The subscription will only receive events matching these types AND the label filter(s).
           items:
-            type: string
+            $ref: '#/components/schemas/EventType'
           example:
             - onchain.activity.detected
         isEnabled:
@@ -17381,15 +17761,28 @@ components:
             an event contains ALL the key-value pairs specified here. Additional labels on
             the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 
-            **Note:** Currently, labels are supported for onchain webhooks only.
+            **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
 
-            See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+            **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+            - `network` (required) — Blockchain network
+            - `contract_address` — Smart contract address
+            - `event_name` — Event name (e.g., "Transfer", "Burn")
+            - `event_signature` — Event signature hash
+            - `transaction_from` — Transaction sender address
+            - `transaction_to` — Transaction recipient address
+            - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
           additionalProperties:
             type: string
-          example:
-            network: base-mainnet
-            contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
-            event_name: Transfer
+          examples:
+            - network: base-mainnet
+              contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+              event_name: Burn
+            - network: base-mainnet
+              contract_address: '0xbac4a9428ea707c51f171ed9890c3c2fa810305d'
+              event_name: PriceUpdated
+            - network: base-mainnet
+              contract_address: '0x45c6e6a47a711b14d8357d5243f46704904578e3'
+              event_name: Deposit
       required:
         - eventTypes
         - isEnabled
@@ -17410,7 +17803,7 @@ components:
             Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
-            type: string
+            $ref: '#/components/schemas/EventType'
           example:
             - onchain.activity.detected
         isEnabled:
@@ -17425,17 +17818,30 @@ components:
           type: object
           description: |
             Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-
-            **Note:** Currently, labels are supported for onchain webhooks only.
-
-            See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
             Omit to receive all events for the selected event types.
+
+            **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+
+            **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+            - `network` (required) — Blockchain network
+            - `contract_address` — Smart contract address
+            - `event_name` — Event name (e.g., "Transfer", "Burn")
+            - `event_signature` — Event signature hash
+            - `transaction_from` — Transaction sender address
+            - `transaction_to` — Transaction recipient address
+            - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
           additionalProperties:
             type: string
-          example:
-            network: base-mainnet
-            contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
-            event_name: Transfer
+          examples:
+            - network: base-mainnet
+              contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+              event_name: Burn
+            - network: base-mainnet
+              contract_address: '0xbac4a9428ea707c51f171ed9890c3c2fa810305d'
+              event_name: PriceUpdated
+            - network: base-mainnet
+              contract_address: '0x45c6e6a47a711b14d8357d5243f46704904578e3'
+              event_name: Deposit
       required:
         - eventTypes
         - isEnabled
@@ -19255,7 +19661,7 @@ components:
         - pagination
     x402DiscoveryMerchantResponse:
       type: object
-      description: Response containing x402 resources associated with a merchant payment address.
+      description: Response containing x402 resources associated with a merchant payment address. The resources list is empty when no active resources are found.
       properties:
         x402Version:
           $ref: '#/components/schemas/X402Version'
@@ -19263,7 +19669,7 @@ components:
           $ref: '#/components/schemas/BlockchainAddress'
         resources:
           type: array
-          description: List of discovered x402 resources associated with the merchant's payTo address.
+          description: List of discovered x402 resources associated with the merchant's payTo address. This list is empty when no active resources are found.
           items:
             $ref: '#/components/schemas/x402DiscoveryResource'
           example:
@@ -19625,6 +20031,71 @@ components:
       pattern: ^.*://.*$
       description: A valid URI.
       example: foo://bar
+    OnrampSessionRequest:
+      type: object
+      description: Common request parameters shared by [Create Onramp Session](#operation/createOnrampSession) and [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge).
+      properties:
+        purchaseCurrency:
+          description: |-
+            The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of the crypto asset to be purchased.
+
+            Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+          type: string
+          example: USDC
+        destinationNetwork:
+          description: |-
+            The name of the crypto network the purchased currency will be sent on.
+
+            Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+          type: string
+          example: base
+        destinationAddress:
+          allOf:
+            - $ref: '#/components/schemas/BlockchainAddress'
+          description: The address the purchased crypto will be sent to.
+          example: '0x1234567890abcdef1234567890abcdef12345678'
+        paymentAmount:
+          description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount of the payment currency.
+          type: string
+          example: '100.00'
+        purchaseAmount:
+          description: A string representing the amount of crypto the user wishes to purchase. When using this parameter, the returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase currency.
+          type: string
+          example: '10.000000'
+        paymentCurrency:
+          description: The fiat currency to be converted to crypto.
+          type: string
+          example: USD
+        paymentMethod:
+          $ref: '#/components/schemas/OnrampQuotePaymentMethodTypeId'
+        country:
+          description: The ISO 3166-1 two letter country code (e.g. US).
+          type: string
+          example: US
+        subdivision:
+          description: The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
+          type: string
+          example: NY
+        redirectUrl:
+          allOf:
+            - $ref: '#/components/schemas/Uri'
+          description: URI to redirect the user to after they complete or dismiss the transaction. Embedded in the returned onramp URL as a query parameter.
+          example: https://example.com/success
+        clientIp:
+          description: The IP address of the end user requesting the onramp transaction.
+          type: string
+          example: 127.0.0.1
+        partnerUserRef:
+          description: |-
+            A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
+
+            This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+          type: string
+          example: user-1234
+      required:
+        - destinationAddress
+        - purchaseCurrency
+        - destinationNetwork
     OnrampSession:
       type: object
       description: An onramp session containing a ready-to-use onramp URL.
@@ -20039,6 +20510,589 @@ components:
           fedwire: '#/components/schemas/FedwirePaymentMethod'
           swift: '#/components/schemas/SwiftPaymentMethod'
           sepa: '#/components/schemas/SepaPaymentMethod'
+    OnchainActivityEventParameters:
+      type: object
+      description: Decoded event parameters from the contract event. Keys correspond to the named arguments in the event signature (e.g., `from`, `to`, `value` for an ERC-20 `Transfer`). Values are returned as strings to preserve precision for large integers and to avoid loss for address types. The exact set of keys depends on the contract event.
+      additionalProperties:
+        type: string
+      example:
+        from: '0xF33a96b5932D9E9B9A0eDA447AbD8C9d48d2e0c8'
+        to: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+        value: '474891138228179365'
+    OnchainActivityDetectedEvent:
+      type: object
+      x-event-type: onchain.activity.detected
+      description: The payload delivered when onchain activity matching your subscription filters is detected. Each event corresponds to a single decoded contract log emitted onchain. The set of keys in `parameters` varies by the contract event being decoded (e.g., `Transfer(address,address,uint256)`).
+      properties:
+        block_number:
+          type: integer
+          format: int64
+          description: The block number containing the transaction that emitted the event.
+          example: 46218191
+        contract_address:
+          type: string
+          description: The contract address that emitted the event.
+          example: '0x940181a94A35A4569E4529A3CDfB74e38FD98631'
+        event_name:
+          type: string
+          description: The name of the decoded contract event.
+          example: Transfer
+        event_signature:
+          type: string
+          description: The canonical event signature used to decode the log, including parameter types (e.g., `Transfer(address,address,uint256)`).
+          example: Transfer(address,address,uint256)
+        log_index:
+          type: integer
+          format: int64
+          description: The zero-based index of the log within the transaction.
+          example: 29
+        network:
+          type: string
+          description: The blockchain network where the activity was detected.
+          example: base-mainnet
+        parameters:
+          $ref: '#/components/schemas/OnchainActivityEventParameters'
+        timestamp:
+          type: string
+          format: date-time
+          description: The block timestamp of the transaction (ISO 8601 format).
+          example: '2026-05-19T21:22:10Z'
+        transaction_from:
+          type: string
+          description: The address that initiated the transaction (the transaction sender).
+          example: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+        transaction_hash:
+          type: string
+          description: The hash of the transaction that emitted the event.
+          example: '0xa58e4471bcce875b1ea49cc0864a620d3a484b9b7c1b0b4fd18ce83f5b30e5e0'
+        transaction_to:
+          type: string
+          description: The address the transaction was sent to (typically a contract address).
+          example: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+      required:
+        - block_number
+        - contract_address
+        - event_name
+        - event_signature
+        - log_index
+        - network
+        - parameters
+        - timestamp
+        - transaction_from
+        - transaction_hash
+        - transaction_to
+      example:
+        block_number: 46218191
+        contract_address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631'
+        event_name: Transfer
+        event_signature: Transfer(address,address,uint256)
+        log_index: 29
+        network: base-mainnet
+        parameters:
+          from: '0xF33a96b5932D9E9B9A0eDA447AbD8C9d48d2e0c8'
+          to: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+          value: '474891138228179365'
+        timestamp: '2026-05-19T21:22:10Z'
+        transaction_from: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+        transaction_hash: '0xa58e4471bcce875b1ea49cc0864a620d3a484b9b7c1b0b4fd18ce83f5b30e5e0'
+        transaction_to: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+    OnchainActivityEventData:
+      type: object
+      description: Decoded blockchain event data for the wallet activity webhook. The exact fields depend on the type of onchain activity detected. Common fields include network, block info, and transaction hash. Additional fields are event-specific (e.g., `from`, `to`, `value` for transfers).
+      properties:
+        network:
+          type: string
+          description: The blockchain network where the activity was detected.
+          example: base-mainnet
+        blockNumber:
+          type: string
+          description: The block number containing the transaction.
+          example: '12345678'
+        blockTimestamp:
+          type: string
+          format: date-time
+          description: The timestamp of the block.
+          example: '2025-06-01T11:59:55Z'
+        transactionHash:
+          type: string
+          description: The transaction hash of the detected activity.
+          example: '0xabc123def456789012345678901234567890abcdef1234567890abcdef123456'
+        logIndex:
+          type: string
+          description: The log index within the transaction.
+          example: '0'
+        contractAddress:
+          type: string
+          description: The contract address that emitted the event.
+          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        eventName:
+          type: string
+          description: The name of the decoded contract event.
+          example: Transfer
+      additionalProperties: true
+      required:
+        - network
+        - transactionHash
+      example:
+        network: base-mainnet
+        blockNumber: '12345678'
+        blockTimestamp: '2025-06-01T11:59:55Z'
+        transactionHash: '0xabc123def456789012345678901234567890abcdef1234567890abcdef123456'
+        logIndex: '0'
+        contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        eventName: Transfer
+    WalletActivityEventBase:
+      type: object
+      description: Common fields included in every wallet activity webhook event payload.
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Unique identifier for this webhook event. Use this for idempotency.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        timestamp:
+          type: string
+          format: date-time
+          description: When this event occurred (ISO 8601 format).
+          example: '2025-06-01T12:00:00Z'
+        data:
+          $ref: '#/components/schemas/OnchainActivityEventData'
+      required:
+        - eventId
+        - timestamp
+        - data
+    WalletActivityDetectedEvent:
+      x-event-type: wallet.activity.detected
+      allOf:
+        - $ref: '#/components/schemas/WalletActivityEventBase'
+        - type: object
+          properties:
+            eventType:
+              type: string
+              description: The type of webhook event.
+              enum:
+                - wallet.activity.detected
+              example: wallet.activity.detected
+          required:
+            - eventType
+    WalletActivityMultiEvent:
+      x-event-type: wallet.activity.multi
+      allOf:
+        - $ref: '#/components/schemas/WalletActivityEventBase'
+        - type: object
+          properties:
+            eventType:
+              type: string
+              description: The type of webhook event.
+              enum:
+                - wallet.activity.multi
+              example: wallet.activity.multi
+          required:
+            - eventType
+    MoneyAmount:
+      type: object
+      description: A monetary amount with currency.
+      properties:
+        currency:
+          type: string
+          description: Currency code (e.g., "USD", "USDC", "ETH").
+          example: USD
+        value:
+          type: string
+          description: The amount as a string.
+          example: '100.00'
+      required:
+        - currency
+        - value
+      example:
+        currency: USD
+        value: '5.00'
+    OnrampTransactionPayload:
+      type: object
+      description: Webhook payload for standard onramp transactions (guest checkout and authed flow). Serialized from the OnrampTransaction proto via protojson with eventType appended.
+      properties:
+        eventType:
+          type: string
+          description: The webhook event type.
+          example: onramp.transaction.updated
+        transactionId:
+          type: string
+          description: Unique transaction identifier.
+          example: 1f087a54-ff1f-62e8-9f85-aa77ac0499a5
+        status:
+          type: string
+          description: Current status of the transaction.
+          enum:
+            - ONRAMP_TRANSACTION_STATUS_UNSPECIFIED
+            - ONRAMP_TRANSACTION_STATUS_CREATED
+            - ONRAMP_TRANSACTION_STATUS_IN_PROGRESS
+            - ONRAMP_TRANSACTION_STATUS_SUCCESS
+            - ONRAMP_TRANSACTION_STATUS_FAILED
+            - ONRAMP_TRANSACTION_STATUS_AWAITING_AUTH
+            - ONRAMP_TRANSACTION_STATUS_AWAITING_PAYMENT
+          example: ONRAMP_TRANSACTION_STATUS_IN_PROGRESS
+        purchaseCurrency:
+          type: string
+          description: The crypto currency purchased (e.g., "USDC", "ETH").
+          example: USDC
+        purchaseNetwork:
+          type: string
+          description: The blockchain network for the purchase (e.g., "ethereum", "base").
+          example: ethereum
+        purchaseAmount:
+          $ref: '#/components/schemas/MoneyAmount'
+        paymentTotal:
+          $ref: '#/components/schemas/MoneyAmount'
+        paymentTotalUsd:
+          $ref: '#/components/schemas/MoneyAmount'
+        paymentSubtotal:
+          $ref: '#/components/schemas/MoneyAmount'
+        coinbaseFee:
+          $ref: '#/components/schemas/MoneyAmount'
+        networkFee:
+          $ref: '#/components/schemas/MoneyAmount'
+        exchangeRate:
+          $ref: '#/components/schemas/MoneyAmount'
+        txHash:
+          type: string
+          description: The onchain transaction hash of the send (0x-prefixed for EVM).
+          example: 0x
+        createdAt:
+          type: string
+          format: date-time
+          description: When the transaction was created.
+          example: '2025-09-02T02:34:13Z'
+        completedAt:
+          type: string
+          format: date-time
+          description: When the transaction completed (uses send_started_at for early success).
+          example: '0001-01-01T00:00:00Z'
+        country:
+          type: string
+          description: The user's country code.
+          example: US
+        userId:
+          type: string
+          description: Hashed user identifier (entity hash for guest, user ID for authed).
+          example: 4132b63ee21128686458155b28570289
+        paymentMethod:
+          type: string
+          description: The payment method used.
+          enum:
+            - UNSPECIFIED
+            - CARD
+            - ACH_BANK_ACCOUNT
+            - APPLE_PAY
+            - FIAT_WALLET
+            - CRYPTO_ACCOUNT
+            - GUEST_CHECKOUT_CARD
+            - PAYPAL
+            - RTP
+            - GUEST_CHECKOUT_APPLE_PAY
+            - GUEST_CHECKOUT_GOOGLE_PAY
+          example: CARD
+        walletAddress:
+          type: string
+          description: The destination wallet address.
+          example: '0xe0512E358C347cc2b1A42d057065CE642068b7Ba'
+        type:
+          type: string
+          description: The type of onramp transaction.
+          enum:
+            - ONRAMP_TRANSACTION_TYPE_UNSPECIFIED
+            - ONRAMP_TRANSACTION_TYPE_BUY_AND_SEND
+            - ONRAMP_TRANSACTION_TYPE_SEND
+          example: ONRAMP_TRANSACTION_TYPE_BUY_AND_SEND
+        userType:
+          type: string
+          description: Whether the user is authed or guest.
+          enum:
+            - USER_TYPE_UNSPECIFIED
+            - USER_TYPE_AUTHED
+            - USER_TYPE_GUEST
+          example: USER_TYPE_GUEST
+        partnerUserRef:
+          type: string
+          description: The partnerUserId provided when initializing the onramp session.
+          example: example_user_ref
+        contractAddress:
+          type: string
+          description: The token contract address (populated when asset metadata is available).
+          example: ''
+        failureReason:
+          type: string
+          description: The reason for failure (if applicable).
+          enum:
+            - FAILURE_REASON_UNSPECIFIED
+            - FAILURE_REASON_BUY_FAILED
+            - FAILURE_REASON_SEND_FAILED
+          example: FAILURE_REASON_UNSPECIFIED
+        endPartnerName:
+          type: string
+          description: The name of the developer app.
+          example: ''
+        errorCode:
+          type: string
+          description: Error code for the transaction failure (if applicable).
+          example: ERROR_CODE_UNSPECIFIED
+      required:
+        - eventType
+        - transactionId
+        - status
+    OrderFee:
+      type: object
+      description: A fee associated with a Headless Onramp API order.
+      properties:
+        feeType:
+          type: string
+          description: The type of fee.
+          enum:
+            - FEE_TYPE_UNSPECIFIED
+            - FEE_TYPE_NETWORK
+            - FEE_TYPE_EXCHANGE
+          example: FEE_TYPE_NETWORK
+        feeAmount:
+          type: string
+          description: The amount of the fee.
+          example: '0.5'
+        feeCurrency:
+          type: string
+          description: The currency of the fee.
+          example: USD
+    OnrampOrderPayload:
+      type: object
+      description: Webhook payload for Headless Onramp API orders (Apple Pay / Google Pay). Serialized from the OnrampOrder proto via protojson with eventType appended.
+      properties:
+        eventType:
+          type: string
+          description: The webhook event type.
+          example: onramp.transaction.success
+        orderId:
+          type: string
+          format: uuid
+          description: Unique order identifier.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        paymentTotal:
+          type: string
+          description: The total fiat amount paid.
+          example: '100.75'
+        paymentSubtotal:
+          type: string
+          description: The fiat amount converted to crypto (excluding fees).
+          example: '100'
+        paymentCurrency:
+          type: string
+          description: The fiat currency used for payment.
+          example: USD
+        paymentMethod:
+          type: string
+          description: The payment method used.
+          enum:
+            - UNSPECIFIED
+            - CARD
+            - ACH_BANK_ACCOUNT
+            - APPLE_PAY
+            - FIAT_WALLET
+            - CRYPTO_ACCOUNT
+            - GUEST_CHECKOUT_CARD
+            - PAYPAL
+            - RTP
+            - GUEST_CHECKOUT_APPLE_PAY
+            - GUEST_CHECKOUT_GOOGLE_PAY
+          example: GUEST_CHECKOUT_APPLE_PAY
+        purchaseAmount:
+          type: string
+          description: The amount of crypto purchased.
+          example: '100.000000'
+        purchaseCurrency:
+          type: string
+          description: The crypto currency purchased.
+          example: USDC
+        fees:
+          type: array
+          description: Breakdown of fees for the order.
+          items:
+            $ref: '#/components/schemas/OrderFee'
+          example:
+            - feeType: FEE_TYPE_NETWORK
+              feeAmount: '0.5'
+              feeCurrency: USD
+            - feeType: FEE_TYPE_EXCHANGE
+              feeAmount: '0.25'
+              feeCurrency: USD
+        exchangeRate:
+          type: string
+          description: The exchange rate used for conversion.
+          example: '1'
+        destinationAddress:
+          type: string
+          description: The destination wallet address.
+          example: '0x1234567890abcdef1234567890abcdef12345678'
+        destinationNetwork:
+          type: string
+          description: The blockchain network for delivery.
+          example: base
+        status:
+          type: string
+          description: The status of the order.
+          enum:
+            - ONRAMP_ORDER_STATUS_UNSPECIFIED
+            - ONRAMP_ORDER_STATUS_PENDING_AUTH
+            - ONRAMP_ORDER_STATUS_PENDING_PAYMENT
+            - ONRAMP_ORDER_STATUS_PROCESSING
+            - ONRAMP_ORDER_STATUS_COMPLETED
+            - ONRAMP_ORDER_STATUS_FAILED
+          example: ONRAMP_ORDER_STATUS_COMPLETED
+        txHash:
+          type: string
+          description: The onchain transaction hash (available once crypto is sent).
+          example: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
+        createdAt:
+          type: string
+          format: date-time
+          description: When the order was created.
+          example: '2025-09-10T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the order was last updated.
+          example: '2025-09-10T10:35:00Z'
+        partnerUserRef:
+          type: string
+          description: The partner user reference ID.
+          example: example_user_ref
+      required:
+        - eventType
+        - orderId
+        - status
+    OnrampTransactionEvent:
+      description: Webhook payload for all onramp transaction events (created, updated, success, failed). Shape depends on transaction type — standard flow (guest checkout / authorized) uses OnrampTransactionPayload, Headless API (Apple Pay / Google Pay) uses OnrampOrderPayload. Distinguish by presence of `orderId` (Headless) vs `transactionId` (standard).
+      oneOf:
+        - $ref: '#/components/schemas/OnrampTransactionPayload'
+        - $ref: '#/components/schemas/OnrampOrderPayload'
+    OnrampTransactionCreatedEvent:
+      x-event-type: onramp.transaction.created
+      allOf:
+        - $ref: '#/components/schemas/OnrampTransactionEvent'
+    OnrampTransactionUpdatedEvent:
+      x-event-type: onramp.transaction.updated
+      allOf:
+        - $ref: '#/components/schemas/OnrampTransactionEvent'
+    OnrampTransactionSuccessEvent:
+      x-event-type: onramp.transaction.success
+      allOf:
+        - $ref: '#/components/schemas/OnrampTransactionEvent'
+    OnrampTransactionFailedEvent:
+      x-event-type: onramp.transaction.failed
+      allOf:
+        - $ref: '#/components/schemas/OnrampTransactionEvent'
+    OfframpTransactionPayload:
+      type: object
+      description: Webhook payload for offramp transactions. Serialized from the OfframpTransaction proto via protojson with eventType appended.
+      properties:
+        eventType:
+          type: string
+          description: The webhook event type.
+          example: offramp.transaction.updated
+        transactionId:
+          type: string
+          description: Unique transaction identifier.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        status:
+          type: string
+          description: Current status of the offramp transaction.
+          enum:
+            - TRANSACTION_STATUS_UNSPECIFIED
+            - TRANSACTION_STATUS_CREATED
+            - TRANSACTION_STATUS_EXPIRED
+            - TRANSACTION_STATUS_STARTED
+            - TRANSACTION_STATUS_SUCCESS
+            - TRANSACTION_STATUS_FAILED
+          example: TRANSACTION_STATUS_STARTED
+        asset:
+          type: string
+          description: The crypto currency being sold (e.g., "ETH", "USDC").
+          example: ETH
+        network:
+          type: string
+          description: The blockchain network (e.g., "ethereum", "base").
+          example: ethereum
+        sellAmount:
+          $ref: '#/components/schemas/MoneyAmount'
+        total:
+          $ref: '#/components/schemas/MoneyAmount'
+        minimumTotal:
+          $ref: '#/components/schemas/MoneyAmount'
+        subtotal:
+          $ref: '#/components/schemas/MoneyAmount'
+        coinbaseFee:
+          $ref: '#/components/schemas/MoneyAmount'
+        exchangeRate:
+          $ref: '#/components/schemas/MoneyAmount'
+        unitPrice:
+          $ref: '#/components/schemas/MoneyAmount'
+        fromAddress:
+          type: string
+          description: The address crypto was received from.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        toAddress:
+          type: string
+          description: The address crypto was sent to (Coinbase deposit address).
+          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        createdAt:
+          type: string
+          format: date-time
+          description: When the transaction was created.
+          example: '2025-09-02T02:34:13Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the transaction was last updated.
+          example: '2025-09-02T02:40:00Z'
+        txHash:
+          type: string
+          description: The onchain transaction hash of the crypto send.
+          example: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
+        redirectUrl:
+          type: string
+          description: The URL the user was redirected to after confirming the offramp.
+          example: https://partner.com/offramp/complete
+        paymentMethod:
+          type: string
+          description: The payment method type used for cashout.
+          enum:
+            - UNSPECIFIED
+            - CARD
+            - ACH_BANK_ACCOUNT
+            - APPLE_PAY
+            - FIAT_WALLET
+            - CRYPTO_ACCOUNT
+            - GUEST_CHECKOUT_CARD
+            - PAYPAL
+            - RTP
+            - GUEST_CHECKOUT_APPLE_PAY
+            - GUEST_CHECKOUT_GOOGLE_PAY
+          example: ACH_BANK_ACCOUNT
+      required:
+        - eventType
+        - transactionId
+        - status
+    OfframpTransactionCreatedEvent:
+      x-event-type: offramp.transaction.created
+      allOf:
+        - $ref: '#/components/schemas/OfframpTransactionPayload'
+    OfframpTransactionUpdatedEvent:
+      x-event-type: offramp.transaction.updated
+      allOf:
+        - $ref: '#/components/schemas/OfframpTransactionPayload'
+    OfframpTransactionSuccessEvent:
+      x-event-type: offramp.transaction.success
+      allOf:
+        - $ref: '#/components/schemas/OfframpTransactionPayload'
+    OfframpTransactionFailedEvent:
+      x-event-type: offramp.transaction.failed
+      allOf:
+        - $ref: '#/components/schemas/OfframpTransactionPayload'
   responses:
     IdempotencyError:
       description: Idempotency key conflict.

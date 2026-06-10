@@ -46,7 +46,7 @@ class TestDepositTravelRuleOriginator(unittest.TestCase):
                     country_code = 'US', ),
                 wallet_type = 'custodial',
                 virtual_asset_service_provider = {identifier=5493001KJTIIGC8Y1R17, name=Fidelity Digital Asset Services, LLC},
-                personal_id = '123-45-6789',
+                personal_identification = {type=social_security_number, value=123-45-6789, countryOfIssue=US},
                 date_of_birth = {day=15, month=08, year=1990}
             )
         else:

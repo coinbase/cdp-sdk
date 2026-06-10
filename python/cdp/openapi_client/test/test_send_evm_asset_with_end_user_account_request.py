@@ -41,6 +41,7 @@ class TestSendEvmAssetWithEndUserAccountRequest(unittest.TestCase):
                 network = 'base-sepolia',
                 use_cdp_paymaster = True,
                 paymaster_url = 'https://example.com',
+                paymaster_context = {policyId=962b252c-a726-4a37-8d86-333ce0a07299},
                 wallet_secret_id = 'e051beeb-7163-4527-a5b6-35e301529ff2'
             )
         else:

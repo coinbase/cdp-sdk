@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.EventType;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.WebhookTarget;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -54,7 +55,7 @@ public class WebhookSubscriptionUpdateRequest {
 
   public static final String JSON_PROPERTY_EVENT_TYPES = "eventTypes";
   @jakarta.annotation.Nonnull
-  private List<String> eventTypes = new ArrayList<>();
+  private List<EventType> eventTypes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_IS_ENABLED = "isEnabled";
   @jakarta.annotation.Nonnull
@@ -99,12 +100,12 @@ public class WebhookSubscriptionUpdateRequest {
   }
 
 
-  public WebhookSubscriptionUpdateRequest eventTypes(@jakarta.annotation.Nonnull List<String> eventTypes) {
+  public WebhookSubscriptionUpdateRequest eventTypes(@jakarta.annotation.Nonnull List<EventType> eventTypes) {
     this.eventTypes = eventTypes;
     return this;
   }
 
-  public WebhookSubscriptionUpdateRequest addEventTypesItem(String eventTypesItem) {
+  public WebhookSubscriptionUpdateRequest addEventTypesItem(EventType eventTypesItem) {
     if (this.eventTypes == null) {
       this.eventTypes = new ArrayList<>();
     }
@@ -119,14 +120,14 @@ public class WebhookSubscriptionUpdateRequest {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EVENT_TYPES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public List<String> getEventTypes() {
+  public List<EventType> getEventTypes() {
     return eventTypes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EVENT_TYPES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEventTypes(@jakarta.annotation.Nonnull List<String> eventTypes) {
+  public void setEventTypes(@jakarta.annotation.Nonnull List<EventType> eventTypes) {
     this.eventTypes = eventTypes;
   }
 
@@ -217,7 +218,7 @@ public class WebhookSubscriptionUpdateRequest {
   }
 
   /**
-   * Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.  **Note:** Currently, labels are supported for onchain webhooks only.  See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering). Omit to receive all events for the selected event types. 
+   * Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs. Omit to receive all events for the selected event types.  **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).  **Allowed labels for &#x60;onchain.activity.detected&#x60;** (all in snake_case format): - &#x60;network&#x60; (required) — Blockchain network - &#x60;contract_address&#x60; — Smart contract address - &#x60;event_name&#x60; — Event name (e.g., \&quot;Transfer\&quot;, \&quot;Burn\&quot;) - &#x60;event_signature&#x60; — Event signature hash - &#x60;transaction_from&#x60; — Transaction sender address - &#x60;transaction_to&#x60; — Transaction recipient address - &#x60;params.*&#x60; — Any event parameter (e.g., &#x60;params.from&#x60;, &#x60;params.to&#x60;, &#x60;params.sender&#x60;, &#x60;params.tokenId&#x60;) 
    * @return labels
    */
   @jakarta.annotation.Nullable
@@ -325,9 +326,11 @@ public class WebhookSubscriptionUpdateRequest {
     // add `eventTypes` to the URL query string
     if (getEventTypes() != null) {
       for (int i = 0; i < getEventTypes().size(); i++) {
-        joiner.add(String.format("%seventTypes%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
-            URLEncoder.encode(ApiClient.valueToString(getEventTypes().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+        if (getEventTypes().get(i) != null) {
+          joiner.add(String.format("%seventTypes%s%s=%s", prefix, suffix,
+              "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
+              URLEncoder.encode(ApiClient.valueToString(getEventTypes().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+        }
       }
     }
 
@@ -374,7 +377,7 @@ public class WebhookSubscriptionUpdateRequest {
       this.instance.description = description;
       return this;
     }
-    public WebhookSubscriptionUpdateRequest.Builder eventTypes(List<String> eventTypes) {
+    public WebhookSubscriptionUpdateRequest.Builder eventTypes(List<EventType> eventTypes) {
       this.instance.eventTypes = eventTypes;
       return this;
     }
