@@ -13,6 +13,7 @@ export {
   type UpdatePolicyBody,
 } from "./policies/types.js";
 export { NetworkError } from "./openapi-client/errors.js";
+export { SmartAccountAlreadyExistsError } from "./errors.js";
 export type { SpendPermission, SpendPermissionInput } from "./spend-permissions/types.js";
 export type { SpendPermissionNetwork, ListEndUsers200, EndUser } from "./openapi-client/index.js";
 export type {
@@ -57,21 +58,3 @@ export type {
 } from "./actions/webhooks/index.js";
 
 export { parseEther, parseUnits } from "viem";
-
-export type {
-  X402ResourceQuality,
-  X402DiscoveryResource,
-  X402DiscoveryResourceType,
-  X402DiscoveryResourcesResponse,
-  X402DiscoveryMerchantResponse,
-  X402SearchResourcesResponse,
-  X402SearchResourcesResponseSearchMethod,
-  ListX402DiscoveryResourcesParams,
-  ListX402DiscoveryMerchantParams,
-  SearchX402ResourcesParams,
-} from "./openapi-client/index.js";
-export {
-  listX402DiscoveryResources,
-  listX402DiscoveryMerchant,
-  searchX402Resources,
-} from "./openapi-client/index.js";

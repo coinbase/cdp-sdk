@@ -75,7 +75,7 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
-import { UserInputValidationError } from "../../errors.js";
+import { SmartAccountAlreadyExistsError, UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
@@ -651,6 +651,13 @@ export class EvmClient implements EvmClientInterface {
             // If it failed because the account already exists, get the existing account
             const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
             if (doesAccountAlreadyExist) {
+              // Distinguish: same-name conflict (retry by name) vs. owner-already-has-a-different-smart-account
+              const isMultipleOwnersError =
+                error instanceof APIError &&
+                error.errorMessage.includes("Multiple smart wallets with the same owner");
+              if (isMultipleOwnersError) {
+                throw new SmartAccountAlreadyExistsError(error.errorMessage);
+              }
               const account = await this._getSmartAccountInternal(options);
               return account;
             }

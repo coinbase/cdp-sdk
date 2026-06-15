@@ -16,6 +16,11 @@
       "types": "./_types/auth/index.d.ts",
       "import": "./_esm/auth/index.js",
       "default": "./_cjs/auth/index.js"
+    },
+    "./x402": {
+      "types": "./_types/x402/index.d.ts",
+      "import": "./_esm/x402/index.js",
+      "default": "./_cjs/x402/index.js"
     }
   },
   "scripts": {
@@ -40,6 +45,10 @@
     "@solana-program/system": "^0.10.0",
     "@solana-program/token": "^0.9.0",
     "@solana/kit": "^5.5.1",
+    "@x402/core": "~2.11.0",
+    "@x402/evm": "~2.11.0",
+    "@x402/fetch": "~2.11.0",
+    "@x402/svm": "~2.11.0",
     "abitype": "1.0.6",
     "axios": "1.16.0",
     "axios-retry": "^4.5.0",

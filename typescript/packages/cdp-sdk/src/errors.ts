@@ -33,3 +33,23 @@ export class UserInputValidationError extends Error {
     }
   }
 }
+
+/**
+ * SmartAccountAlreadyExistsError is thrown when attempting to create a smart account
+ * for an owner EOA that already has a smart wallet registered under a different name.
+ * CDP allows only one smart wallet per owner EOA.
+ */
+export class SmartAccountAlreadyExistsError extends Error {
+  /**
+   * Initializes a new SmartAccountAlreadyExistsError instance.
+   *
+   * @param message - The error message. Defaults to "Multiple smart wallets with the same owner".
+   */
+  constructor(message: string = "Multiple smart wallets with the same owner") {
+    super(message);
+    this.name = "SmartAccountAlreadyExistsError";
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, SmartAccountAlreadyExistsError);
+    }
+  }
+}

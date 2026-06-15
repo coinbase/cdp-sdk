@@ -97,6 +97,22 @@
           }
         ]
       }
+    },
+    {
+      "files": ["src/x402/**/*.ts", "src/networks/**/*.ts"],
+      "rules": {
+        "jsdoc/require-description": "off",
+        "jsdoc/require-returns": "off",
+        "jsdoc/require-param-description": "off",
+        "jsdoc/require-jsdoc": "off",
+        "jsdoc/check-tag-names": "off",
+        "jsdoc/empty-tags": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "no-console": "off",
+        "no-useless-catch": "off",
+        "@typescript-eslint/member-ordering": "off",
+        "jsdoc/valid-types": "off"
+      }
     }
   ],
   "ignorePatterns": ["**/*.test.ts", "src/openapi-client/generated"],

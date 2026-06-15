@@ -4,8 +4,8 @@
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
     "outDir": "./_cjs",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "sourceMap": true
   }
 }
