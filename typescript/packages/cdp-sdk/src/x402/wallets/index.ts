@@ -63,13 +63,12 @@ export function toX402Signer(account: SolanaAccount): TransactionSigner;
 export function toX402Signer(
   account: EvmServerAccount | EvmSmartAccount | SolanaAccount,
 ): ClientEvmSigner | TransactionSigner {
-  if ("address" in account && typeof (account as EvmServerAccount).signMessage === "function") {
-    if ("type" in account && (account as EvmServerAccount).type === "evm-server") {
-      return fromCdpEvmAccount(account as EvmServerAccount);
-    }
-    if ("type" in account && (account as EvmSmartAccount).type === "evm-smart") {
-      return fromCdpSmartWallet(account as EvmSmartAccount);
-    }
+  if ("type" in account && account.type === "evm-server") {
+    return fromCdpEvmAccount(account);
   }
+  if ("type" in account && account.type === "evm-smart") {
+    return fromCdpSmartWallet(account);
+  }
+
   return cdpSolanaAccountToSvmSigner(account as SolanaAccount);
 }

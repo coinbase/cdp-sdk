@@ -27,6 +27,13 @@ export const FACILITATOR_PATHS = {
   supported: "/platform/v2/x402/supported",
 } as const;
 
+/** Devnet facilitator endpoint paths */
+const FACILITATOR_DEVNET_PATHS = {
+  verify: "/platform/v2/x402/devnet/verify",
+  settle: "/platform/v2/x402/devnet/settle",
+  supported: "/platform/v2/x402/devnet/supported",
+} as const;
+
 export {
   CDP_FACILITATOR_NETWORKS,
   CDP_USDC_ADDRESSES,
@@ -75,6 +82,8 @@ export interface CdpFacilitatorClientArgs {
   network?: "mainnet" | "devnet";
 }
 
+type FacilitatorEnvironment = NonNullable<CdpFacilitatorClientArgs["network"]>;
+
 /**
  *
  * @param credentials
@@ -108,16 +117,20 @@ async function getEndpointAuthHeaders(
  * Creates a function that generates fresh CDP auth headers for each facilitator request.
  *
  * @param credentials - CDP API key credentials (apiKeyId + apiKeySecret)
+ * @param environment - Target facilitator environment used to select signed paths.
  * @returns A function matching the x402 `FacilitatorConfig.createAuthHeaders` signature
  */
 export function createCdpAuthHeaders(
   credentials: FacilitatorCredentials,
+  environment: FacilitatorEnvironment = "mainnet",
 ): () => Promise<FacilitatorAuthHeaders> {
+  const paths = environment === "devnet" ? FACILITATOR_DEVNET_PATHS : FACILITATOR_PATHS;
+
   return async (): Promise<FacilitatorAuthHeaders> => {
     const [verify, settle, supported] = await Promise.all([
-      getEndpointAuthHeaders(credentials, FACILITATOR_PATHS.verify),
-      getEndpointAuthHeaders(credentials, FACILITATOR_PATHS.settle),
-      getEndpointAuthHeaders(credentials, FACILITATOR_PATHS.supported, "GET"),
+      getEndpointAuthHeaders(credentials, paths.verify),
+      getEndpointAuthHeaders(credentials, paths.settle),
+      getEndpointAuthHeaders(credentials, paths.supported, "GET"),
     ]);
 
     return {
@@ -171,10 +184,11 @@ function resolveFacilitatorCredentials(args?: CdpFacilitatorClientArgs): Facilit
  */
 export function createCdpFacilitatorClient(args?: CdpFacilitatorClientArgs): HTTPFacilitatorClient {
   const credentials = resolveFacilitatorCredentials(args);
-  const url = args?.network === "devnet" ? CDP_FACILITATOR_DEVNET_URL : CDP_FACILITATOR_URL;
+  const environment = args?.network ?? "mainnet";
+  const url = environment === "devnet" ? CDP_FACILITATOR_DEVNET_URL : CDP_FACILITATOR_URL;
 
   return new HTTPFacilitatorClient({
     url,
-    createAuthHeaders: createCdpAuthHeaders(credentials),
+    createAuthHeaders: createCdpAuthHeaders(credentials, environment),
   });
 }
