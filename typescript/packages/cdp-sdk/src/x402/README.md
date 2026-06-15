@@ -16,16 +16,16 @@ All required credentials are passed as environment variables. Explicit values in
 
 Used by `CdpX402Client` / `createCdpX402Client` and any code that calls into the CDP wallet or signing APIs.
 
-| Variable                 | Required       | Default                | Description                                                                           |
-| ------------------------ | -------------- | ---------------------- | ------------------------------------------------------------------------------------- |
-| `CDP_API_KEY_ID`         | Yes            | —                      | CDP API key ID                                                                        |
-| `CDP_API_KEY_SECRET`     | Yes            | —                      | CDP API key secret                                                                    |
-| `CDP_WALLET_SECRET`      | Yes            | —                      | Wallet secret (seed encryption key)                                                   |
-| `CDP_WALLET_TYPE`        | No             | `cdp-eoa`              | Wallet backend: `cdp-eoa` (Server Wallet EOA) or `cdp-smart` (Smart Contract Wallet)  |
-| `CDP_ACCOUNT_NAME`       | No             | `x402-server-wallet-1` | Named CDP account for the paying wallet                                               |
-| `CDP_OWNER_ACCOUNT_NAME` | cdp-smart only | —                      | Owner EOA account name when `CDP_WALLET_TYPE=cdp-smart`                               |
-| `CDP_RPC_URLS`           | No             | —                      | JSON object overriding public RPC endpoints, keyed by CAIP-2 ID                       |
-| `CDP_DISABLE_PREFLIGHT_BALANCE_CHECK` | No | `false`           | Set to `true` to skip the pre-payment balance check                                   |
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `CDP_API_KEY_ID` | Yes | — | CDP API key ID |
+| `CDP_API_KEY_SECRET` | Yes | — | CDP API key secret |
+| `CDP_WALLET_SECRET` | Yes | — | Wallet secret (seed encryption key) |
+| `CDP_WALLET_TYPE` | No | `cdp-eoa` | Wallet backend: `cdp-eoa` (Server Wallet EOA) or `cdp-smart` (Smart Contract Wallet) |
+| `CDP_ACCOUNT_NAME` | No | `x402-server-wallet-1` | Named CDP account for the paying wallet |
+| `CDP_OWNER_ACCOUNT_NAME` | cdp-smart only | — | Owner EOA account name when `CDP_WALLET_TYPE=cdp-smart` |
+| `CDP_RPC_URLS` | No | — | JSON object overriding public RPC endpoints, keyed by CAIP-2 ID |
+| `CDP_DISABLE_PREFLIGHT_BALANCE_CHECK` | No | `false` | Set to `true` to skip the pre-payment balance check |
 
 #### Obtaining credentials
 
@@ -37,11 +37,11 @@ Used by `CdpX402Client` / `createCdpX402Client` and any code that calls into the
 
 Used by `createCdpFacilitatorClient`, `createCdpResourceServer`, `createCdpExpressMiddleware`, `createCdpHonoMiddleware`, and `createCdpPaymentProxy`.
 
-| Variable                    | Required                          | Default | Description                                    |
-| --------------------------- | --------------------------------- | ------- | ---------------------------------------------- |
-| `CDP_SERVER_API_KEY_ID`     | Yes                               | —       | CDP API key ID for the seller                  |
-| `CDP_SERVER_API_KEY_SECRET` | Yes                               | —       | CDP API key secret for the seller              |
-| `CDP_SERVER_WALLET_SECRET`  | `createCdpResourceServer` only    | —       | Wallet secret for receiver wallet provisioning |
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `CDP_SERVER_API_KEY_ID` | Yes | — | CDP API key ID for the seller |
+| `CDP_SERVER_API_KEY_SECRET` | Yes | — | CDP API key secret for the seller |
+| `CDP_SERVER_WALLET_SECRET` | `createCdpResourceServer` only | — | Wallet secret for receiver wallet provisioning |
 
 > The SDKs fall back to `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` / `CDP_WALLET_SECRET` if the `CDP_SERVER_*` equivalents are not set, but using server-prefixed names avoids credential collisions when buyer and seller code run in the same process.
 
@@ -49,11 +49,11 @@ Used by `createCdpFacilitatorClient`, `createCdpResourceServer`, `createCdpExpre
 
 When using `createCdpResourceServer`, the receiver wallet is configured independently using `CDP_SERVER_*` wallet variables:
 
-| Variable                        | Required       | Default                  | Description                                       |
-| ------------------------------- | -------------- | ------------------------ | ------------------------------------------------- |
-| `CDP_SERVER_WALLET_TYPE`        | No             | `cdp-eoa`                | Wallet backend: `cdp-eoa` or `cdp-smart`          |
-| `CDP_SERVER_ACCOUNT_NAME`       | No             | `x402-receiver-wallet-1` | Named CDP account for the receiver wallet         |
-| `CDP_SERVER_OWNER_ACCOUNT_NAME` | cdp-smart only | —                        | Owner EOA account name for Smart Contract Wallets |
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `CDP_SERVER_WALLET_TYPE` | No | `cdp-eoa` | Wallet backend: `cdp-eoa` or `cdp-smart` |
+| `CDP_SERVER_ACCOUNT_NAME` | No | `x402-receiver-wallet-1` | Named CDP account for the receiver wallet |
+| `CDP_SERVER_OWNER_ACCOUNT_NAME` | cdp-smart only | — | Owner EOA account name for Smart Contract Wallets |
 
 ### Example `.env` (buyer)
 
@@ -122,14 +122,14 @@ const server = await createCdpResourceServer({
 
 ### `CdpRouteConfig` fields
 
-| Field               | Type                | Required | Default                       | Description                                                                          |
-| ------------------- | ------------------- | -------- | ----------------------------- | ------------------------------------------------------------------------------------ |
-| `price`             | `string`            | Yes      | —                             | Payment amount, e.g. `"$0.01"`                                                       |
-| `description`       | `string`            | No       | —                             | Human-readable description of the resource                                           |
-| `networks`          | `string[]`          | No       | Base mainnet + Solana mainnet | CAIP-2 network IDs to accept payments on                                             |
-| `maxTimeoutSeconds` | `number`            | No       | `300`                         | Seconds before a payment token expires                                               |
-| `scheme`            | `"exact" \| "upto"` | No       | `"exact"`                     | Payment scheme; `"upto"` allows the buyer to pay up to the stated amount (EVM only)  |
-| `extensions`        | `CdpExtensions`     | No       | Auto-injected                 | Extension overrides (Bazaar, gas sponsoring)                                         |
+| Field | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `price` | `string` | Yes | — | Payment amount, e.g. `"$0.01"` |
+| `description` | `string` | No | — | Human-readable description of the resource |
+| `networks` | `string[]` | No | Base mainnet + Solana mainnet | CAIP-2 network IDs to accept payments on |
+| `maxTimeoutSeconds` | `number` | No | `300` | Seconds before a payment token expires |
+| `scheme` | `"exact" \| "upto"` | No | `"exact"` | Payment scheme; `"upto"` allows the buyer to pay up to the stated amount (EVM only) |
+| `extensions` | `CdpExtensions` | No | Auto-injected | Extension overrides (Bazaar, gas sponsoring) |
 
 ### Default networks
 
@@ -253,25 +253,25 @@ applySpendControls(client, {
 
 ### `SpendControls` reference
 
-| Field                        | Type                     | Description                                                                              |
-| ---------------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
-| `maxAmountPerPayment`        | `Amount`                 | Hard cap on a single payment's atomic amount.                                            |
-| `maxCumulativeSpend`         | `Amount`                 | Cap on total spend for a single asset. `asset` is **required**.                          |
-| `maxCumulativeSpendWindow`   | `Duration`               | Rolling window for the cumulative cap (e.g. `"24h"`, `"7d"`). Omit for a lifetime cap.   |
-| `allowedNetworks`            | `string[]`               | Allow-list of CAIP-2 network IDs. Empty/omitted means allow all.                         |
-| `allowedAssets`              | `string[]`               | Allow-list of asset contract addresses. Empty/omitted means allow all.                   |
-| `allowedPayees`              | `string[]`               | Allow-list of payee addresses. Empty/omitted means allow all.                            |
-| `onApproachingLimit`         | `(spent, limit) => void` | Notifier fired when the running total crosses a threshold.                               |
-| `approachingLimitThresholds` | `number[]`               | Thresholds as fractions of the cap (default `[0.8, 0.95]`).                              |
-| `maxLedgerEntries`           | `number`                 | Max entries in the in-memory ledger (default `10_000`).                                  |
-| `store`                      | `SpendStore`             | Custom storage backend (e.g. Redis). Defaults to in-memory.                              |
+| Field | Type | Description |
+| --- | --- | --- |
+| `maxAmountPerPayment` | `Amount` | Hard cap on a single payment's atomic amount. |
+| `maxCumulativeSpend` | `Amount` | Cap on total spend for a single asset. `asset` is **required**. |
+| `maxCumulativeSpendWindow` | `Duration` | Rolling window for the cumulative cap (e.g. `"24h"`, `"7d"`). Omit for a lifetime cap. |
+| `allowedNetworks` | `string[]` | Allow-list of CAIP-2 network IDs. Empty/omitted means allow all. |
+| `allowedAssets` | `string[]` | Allow-list of asset contract addresses. Empty/omitted means allow all. |
+| `allowedPayees` | `string[]` | Allow-list of payee addresses. Empty/omitted means allow all. |
+| `onApproachingLimit` | `(spent, limit) => void` | Notifier fired when the running total crosses a threshold. |
+| `approachingLimitThresholds` | `number[]` | Thresholds as fractions of the cap (default `[0.8, 0.95]`). |
+| `maxLedgerEntries` | `number` | Max entries in the in-memory ledger (default `10_000`). |
+| `store` | `SpendStore` | Custom storage backend (e.g. Redis). Defaults to in-memory. |
 
 ### `Amount`
 
 ```typescript
 type Amount = {
   atomic: bigint | string; // Amount in the asset's smallest denomination
-  asset?: string;          // ERC-20 contract address or SPL mint
+  asset?: string; // ERC-20 contract address or SPL mint
 };
 ```
 
@@ -295,7 +295,11 @@ Accepts a number (milliseconds) or a shorthand string:
 ```typescript
 import { CdpX402Client, SpendControlError } from "@coinbase/cdp-sdk/x402";
 
-const client = new CdpX402Client({ spendControls: { /* ... */ } });
+const client = new CdpX402Client({
+  spendControls: {
+    /* ... */
+  },
+});
 const fetchWithPayment = client.wrapFetch();
 
 try {
@@ -334,7 +338,7 @@ import { redis } from "./redis-client.js";
 const redisStore: SpendStore = {
   async load() {
     const raw = await redis.lrange("x402:spend-ledger", 0, -1);
-    return raw.map((s) => JSON.parse(s) as SpendLedgerEntry);
+    return raw.map(s => JSON.parse(s) as SpendLedgerEntry);
   },
   async append(entry) {
     await redis.rpush("x402:spend-ledger", JSON.stringify(entry));
@@ -342,22 +346,24 @@ const redisStore: SpendStore = {
   async prune(olderThanMs) {
     const cutoff = Date.now() - olderThanMs;
     const all = await this.load();
-    const kept = all.filter((e) => e.at >= cutoff);
+    const kept = all.filter(e => e.at >= cutoff);
     await redis.del("x402:spend-ledger");
     if (kept.length > 0) {
-      await redis.rpush("x402:spend-ledger", ...kept.map((e) => JSON.stringify(e)));
+      await redis.rpush("x402:spend-ledger", ...kept.map(e => JSON.stringify(e)));
     }
   },
   async removeEntry(entry) {
     const all = await this.load();
-    const idx = [...all].reverse().findIndex(
-      (e) => e.at === entry.at && e.asset === entry.asset && e.atomicAmount === entry.atomicAmount,
-    );
+    const idx = [...all]
+      .reverse()
+      .findIndex(
+        e => e.at === entry.at && e.asset === entry.asset && e.atomicAmount === entry.atomicAmount,
+      );
     if (idx !== -1) {
       all.splice(all.length - 1 - idx, 1);
       await redis.del("x402:spend-ledger");
       if (all.length > 0) {
-        await redis.rpush("x402:spend-ledger", ...all.map((e) => JSON.stringify(e)));
+        await redis.rpush("x402:spend-ledger", ...all.map(e => JSON.stringify(e)));
       }
     }
   },

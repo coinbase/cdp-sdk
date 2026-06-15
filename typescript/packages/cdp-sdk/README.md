@@ -1680,11 +1680,15 @@ For a complete working example, see [webhooks/createWebhookSubscription.ts](http
 The `@coinbase/cdp-sdk/x402` subpath integrates the [x402 HTTP payment protocol](https://x402.org) directly into the CDP SDK. Import everything from a single subpath:
 
 ```typescript
-import { CdpX402Client, createCdpX402Client, toX402Signer, createCdpFacilitatorClient } from "@coinbase/cdp-sdk/x402";
+import {
+  CdpX402Client,
+  createCdpX402Client,
+  toX402Signer,
+  createCdpFacilitatorClient,
+} from "@coinbase/cdp-sdk/x402";
 ```
 
-> [!NOTE]
-> The `@x402/core`, `@x402/evm`, and `@x402/svm` packages are optional dependencies and are only installed when needed.
+> [!NOTE] The `@x402/core`, `@x402/evm`, and `@x402/svm` packages are optional dependencies and are only installed when needed.
 
 ### Buyer quickstart
 
