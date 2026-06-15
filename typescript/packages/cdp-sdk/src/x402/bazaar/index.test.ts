@@ -20,12 +20,6 @@ describe("createCdpBazaarClient", () => {
     vi.clearAllMocks();
   });
 
-  it("throws when a custom baseUrl is provided", () => {
-    expect(() => createCdpBazaarClient({ baseUrl: "https://example.com" })).toThrow(
-      "Custom Bazaar baseUrl overrides are no longer supported.",
-    );
-  });
-
   it("delegates search to the generated OpenAPI client", async () => {
     const expected = {
       x402Version: 2,

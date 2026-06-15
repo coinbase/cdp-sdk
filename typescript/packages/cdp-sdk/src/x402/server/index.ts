@@ -25,7 +25,7 @@
  *
  * @example Simplified CDP format:
  * ```typescript
- * import { createCdpResourceServer } from "@coinbase/x402/server";
+ * import { createCdpResourceServer } from "@coinbase/cdp-sdk/x402";
  * import { paymentMiddlewareFromHTTPServer } from "@x402/express";
  *
  * const server = await createCdpResourceServer({
@@ -191,7 +191,7 @@ export interface CdpRouteConfig {
    * `github.com/x402-foundation/x402/go/extensions/bazaar`
    *
    * ```typescript
-   * import { CDP_EXTENSION_BAZAAR } from "@coinbase/x402/extensions";
+   * import { CDP_EXTENSION_BAZAAR } from "@coinbase/cdp-sdk/x402";
    *
    * routes: {
    *   "GET /search": {
@@ -313,8 +313,7 @@ export interface CdpSchemeRegistration {
  *
  * @example
  * ```typescript
- * import { getCdpDefaultSchemes } from "@coinbase/x402/server";
- * import { createCdpFacilitatorClient } from "@coinbase/x402/facilitator";
+ * import { getCdpDefaultSchemes, createCdpFacilitatorClient } from "@coinbase/cdp-sdk/x402";
  * import { paymentMiddlewareFromConfig } from "@x402/express";
  *
  * app.use(paymentMiddlewareFromConfig(routes, createCdpFacilitatorClient(), getCdpDefaultSchemes()));

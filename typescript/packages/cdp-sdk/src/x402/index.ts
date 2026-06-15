@@ -62,7 +62,6 @@ export type { CdpX402ClientConfig, ResolvedCdpCredentials } from "./credentials/
 export { createCdpBazaarClient } from "./bazaar/index.js";
 export type {
   CdpBazaarClient,
-  CdpBazaarClientArgs,
   X402SearchResourcesResponseSearchMethod,
   X402SearchResourcesResponse,
   X402ResourceQuality,

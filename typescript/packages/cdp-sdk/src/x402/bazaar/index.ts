@@ -17,8 +17,8 @@ import type {
   X402DiscoveryResourceType,
   X402DiscoveryResourcesResponse,
   X402ResourceQuality,
-  X402SearchResourcesResponse,
-  X402SearchResourcesResponseSearchMethod,
+  X402SearchResourcesResponse as SdkX402SearchResourcesResponse,
+  X402SearchResourcesResponseSearchMethod as SdkX402SearchResourcesResponseSearchMethod,
   ListX402DiscoveryMerchantParams,
   ListX402DiscoveryResourcesParams,
   SearchX402ResourcesParams,
@@ -30,23 +30,29 @@ export type {
   X402DiscoveryResourceType,
   X402DiscoveryResourcesResponse,
   X402DiscoveryMerchantResponse,
-  X402SearchResourcesResponse,
-  X402SearchResourcesResponseSearchMethod,
   ListX402DiscoveryResourcesParams,
   ListX402DiscoveryMerchantParams,
   SearchX402ResourcesParams,
 };
 
-/** Options for creating a CDP Bazaar client. */
-export interface CdpBazaarClientArgs {
-  /**
-   * Override the CDP Bazaar base URL.
-   *
-   * @deprecated Custom base URL overrides are no longer supported in the SDK
-   * and will throw at runtime.
-   */
-  baseUrl?: string;
-}
+/**
+ * The CDP Bazaar API can return additional values (e.g. `"hybrid"`) that are
+ * not yet declared by the generated enum at generation time. We widen
+ * the type here so consumers performing exhaustive checks see the full set of
+ * runtime values.
+ */
+export type X402SearchResourcesResponseSearchMethod =
+  | SdkX402SearchResourcesResponseSearchMethod
+  | "hybrid"
+  | (string & {});
+
+/**
+ * Search-response type overriding the generated strict `searchMethod` enum with
+ * a widened type that includes runtime values not yet present in the generated client.
+ */
+export type X402SearchResourcesResponse = Omit<SdkX402SearchResourcesResponse, "searchMethod"> & {
+  searchMethod?: X402SearchResourcesResponseSearchMethod;
+};
 
 /** CDP Bazaar client interface for discovering and searching x402 resources. */
 export interface CdpBazaarClient {
@@ -73,7 +79,6 @@ export interface CdpBazaarClient {
  *
  * No CDP API key credentials are required — the Bazaar endpoints are public.
  *
- * @param args
  * @example
  * ```typescript
  * const bazaar = createCdpBazaarClient();
@@ -81,21 +86,14 @@ export interface CdpBazaarClient {
  * const results = await bazaar.searchResources({ query: "weather APIs" });
  * ```
  */
-export function createCdpBazaarClient(args?: CdpBazaarClientArgs): CdpBazaarClient {
-  if (args?.baseUrl) {
-    throw new Error(
-      "Custom Bazaar baseUrl overrides are no longer supported. " +
-        "Use the default CDP API host for discovery/search endpoints.",
-    );
-  }
-
+export function createCdpBazaarClient(): CdpBazaarClient {
   return {
     async listResources(params) {
       return listX402DiscoveryResources(params);
     },
 
     async searchResources(params) {
-      return searchX402Resources(params);
+      return searchX402Resources(params) as Promise<X402SearchResourcesResponse>;
     },
 
     async getMerchantResources(params) {
