@@ -1,0 +1,22 @@
+{
+  "name": "cdp-sdk-example-x402-next-server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "workspace:*",
+    "@coinbase/x402-next": "workspace:*",
+    "next": "16.2.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.8.3"
+  }
+}

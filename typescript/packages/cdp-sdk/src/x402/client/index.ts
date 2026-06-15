@@ -10,7 +10,7 @@
  * configuration from environment variables:
  *
  * ```typescript
- * import { CdpX402Client } from "@coinbase/x402";
+ * import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
  *
  * const client = new CdpX402Client();
  * const fetchWithPayment = client.wrapFetch();
@@ -20,7 +20,7 @@
  * For explicit control, use `createCdpX402Client`:
  *
  * ```typescript
- * import { createCdpX402Client } from "@coinbase/x402";
+ * import { createCdpX402Client } from "@coinbase/cdp-sdk/x402";
  *
  * const { client, evmAddress } = await createCdpX402Client({
  *   walletConfig: { type: "cdp-smart", ownerAccountName: "my-owner" },
@@ -37,16 +37,12 @@ import { registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import { createBalanceCheckHook } from "./balance-check.js";
 import { CdpClient } from "../../client/cdp.js";
-import { SmartAccountAlreadyExistsError } from "../../errors.js";
 import { CDP_EVM_RPC_URLS } from "../../networks/index.js";
-import { type CdpX402ClientConfig, resolveCredentials } from "../credentials/index.js";
+import { type CdpX402ClientConfig } from "../credentials/index.js";
 import { applySpendControls } from "../guardrails/apply.js";
 import { wrapFetchWithPayment } from "../guardrails/wrap-fetch.js";
 import { resolveWalletConfig, type ResolvedWalletConfig } from "../wallets/config.js";
-import { fromCdpEvmAccount } from "../wallets/evm-signer.js";
-import { findSmartAccountByOwner } from "../wallets/provision.js";
-import { fromCdpSmartWallet } from "../wallets/scw-signer.js";
-import { cdpSolanaAccountToSvmSigner } from "../wallets/svm-signer.js";
+import { provisionCdpAccounts } from "../wallets/provision.js";
 
 import type { Network, PaymentRequired, PaymentPayload } from "@x402/core/types";
 
@@ -110,8 +106,9 @@ type CdpSignerSetup = {
 };
 
 /**
- * Provisions CDP accounts, registers EVM and SVM signers on the given client,
- * and returns the resulting addresses and CdpClient instance.
+ * Provisions CDP accounts via `provisionCdpAccounts`, registers EVM and SVM
+ * signers on the given x402 client, and wires balance-check and spend-control
+ * hooks.
  *
  * @param client
  * @param config
@@ -122,59 +119,8 @@ async function setupCdpSigners(
   config: CdpX402ClientConfig | undefined,
   walletConfig: ResolvedWalletConfig,
 ): Promise<CdpSignerSetup> {
-  const credentials = resolveCredentials(config);
-  const cdpClient = new CdpClient({
-    apiKeyId: credentials.apiKeyId,
-    apiKeySecret: credentials.apiKeySecret,
-    walletSecret: credentials.walletSecret,
-  });
-
-  const svmAccount = await cdpClient.solana.getOrCreateAccount({
-    name: walletConfig.accountName,
-  });
-
-  let evmAddress: `0x${string}`;
-  let ownerWallet: string | undefined;
-  let evmSigner;
-
-  if (walletConfig.type === "cdp-smart") {
-    const ownerAccount = await cdpClient.evm.getOrCreateAccount({
-      name: walletConfig.ownerAccountName!,
-    });
-
-    let smartAccount;
-    try {
-      smartAccount = await cdpClient.evm.getOrCreateSmartAccount({
-        name: walletConfig.accountName,
-        owner: ownerAccount,
-      });
-    } catch (error) {
-      /*
-       * CDP allows only one smart wallet per owner. If the owner already has a smart wallet
-       * registered under a different name, recover by finding and using the existing one.
-       */
-      if (error instanceof SmartAccountAlreadyExistsError) {
-        const existingAddress = await findSmartAccountByOwner(cdpClient, ownerAccount.address);
-        if (!existingAddress) throw error;
-        smartAccount = await cdpClient.evm.getSmartAccount({
-          address: existingAddress as `0x${string}`,
-          owner: ownerAccount,
-        });
-      } else {
-        throw error;
-      }
-    }
-
-    evmAddress = smartAccount.address as `0x${string}`;
-    ownerWallet = walletConfig.ownerAccountName!;
-    evmSigner = fromCdpSmartWallet(smartAccount);
-  } else {
-    const evmAccount = await cdpClient.evm.getOrCreateAccount({
-      name: walletConfig.accountName,
-    });
-    evmAddress = evmAccount.address as `0x${string}`;
-    evmSigner = fromCdpEvmAccount(evmAccount);
-  }
+  const { cdpClient, evmAddress, svmAddress, ownerWallet, evmSigner, svmSigner } =
+    await provisionCdpAccounts(config, walletConfig);
 
   // Explicit config takes precedence over env var; both are merged over defaults.
   const resolvedRpcUrls = { ...parseRpcUrlsFromEnv(), ...config?.rpcUrls };
@@ -194,7 +140,7 @@ async function setupCdpSigners(
   }
 
   registerExactEvmScheme(client, { signer: evmSigner });
-  registerExactSvmScheme(client, { signer: cdpSolanaAccountToSvmSigner(svmAccount) });
+  registerExactSvmScheme(client, { signer: svmSigner });
   client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, uptoRpcUrls));
 
   /*
@@ -212,7 +158,7 @@ async function setupCdpSigners(
       createBalanceCheckHook({
         cdpClient,
         evmAddress,
-        svmAddress: svmAccount.address,
+        svmAddress,
         rpcUrls: resolvedRpcUrls,
       }),
     );
@@ -223,7 +169,7 @@ async function setupCdpSigners(
     applySpendControls(client, config.spendControls);
   }
 
-  return { cdpClient, evmAddress, svmAddress: svmAccount.address, ownerWallet };
+  return { cdpClient, evmAddress, svmAddress, ownerWallet };
 }
 
 /**
@@ -241,7 +187,7 @@ async function setupCdpSigners(
  * @example
  * ```typescript
  * // Reads CDP_WALLET_TYPE, CDP_API_KEY_*, CDP_WALLET_SECRET from env
- * import { CdpX402Client } from "@coinbase/x402";
+ * import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
  * const client = new CdpX402Client();
  * const fetchWithPayment = client.wrapFetch();
  * const response = await fetchWithPayment("https://api.example.com/paid");

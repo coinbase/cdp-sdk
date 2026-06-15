@@ -7,7 +7,7 @@
  * @example
  * ```typescript
  * import { CdpClient } from "@coinbase/cdp-sdk";
- * import { createX402Client, createCdpFacilitatorClient, toX402Signer } from "@coinbase/cdp-sdk/x402";
+ * import { createCdpX402Client, createCdpFacilitatorClient, toX402Signer } from "@coinbase/cdp-sdk/x402";
  * ```
  *
  * @packageDocumentation
