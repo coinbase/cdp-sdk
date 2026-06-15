@@ -106,18 +106,6 @@ importers:
       '@solana/kit':
         specifier: ^5.5.1
         version: 5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6)
-      '@x402/core':
-        specifier: ~2.11.0
-        version: 2.11.0
-      '@x402/evm':
-        specifier: ~2.11.0
-        version: 2.11.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
-      '@x402/fetch':
-        specifier: ~2.11.0
-        version: 2.11.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
-      '@x402/svm':
-        specifier: ~2.11.0
-        version: 2.11.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
       abitype:
         specifier: 1.0.6
         version: 1.0.6(typescript@5.9.3)(zod@3.25.76)
@@ -145,6 +133,16 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
+    optionalDependencies:
+      '@x402/core':
+        specifier: ~2.11.0
+        version: 2.11.0
+      '@x402/evm':
+        specifier: ~2.11.0
+        version: 2.11.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      '@x402/svm':
+        specifier: ~2.11.0
+        version: 2.11.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
 
   packages/x402-express:
     dependencies:
@@ -2283,9 +2281,6 @@ packages:
 
   '@x402/extensions@2.11.0':
     resolution: {integrity: sha512-S0SOoUsx4WtWqiWZuqslSzhopW/JcrEbnEC5l2sIQH/TABWzR0DgJLy36C43tD6TOJc0tEPN9bHuD+V8DYWomA==}
-
-  '@x402/fetch@2.11.0':
-    resolution: {integrity: sha512-sDkoq1ZZt10/UVa75bCXTbWkXMbPOOQpkdSxWB0ybHtlmqT7PM6hU4DVCov4iL792W1Oi38VtxfUw5EkvdvYtw==}
 
   '@x402/hono@2.11.0':
     resolution: {integrity: sha512-myPsDNMeCLqQgk0O1Rbdx2kdpVNRumnnwiV3fTgSbiQzxiTWDc5IU/7fEWPSsXNbLtt9kB6eXWT9VxEkcJJolg==}
@@ -7146,16 +7141,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - ethers
-      - typescript
-      - utf-8-validate
-
-  '@x402/fetch@2.11.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)':
-    dependencies:
-      '@x402/core': 2.11.0
-      viem: 2.47.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - bufferutil
       - typescript
       - utf-8-validate
 
