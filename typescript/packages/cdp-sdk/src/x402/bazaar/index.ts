@@ -162,7 +162,10 @@ export function createCdpBazaarClient(args?: CdpBazaarClientArgs): CdpBazaarClie
  * @param baseUrlInput
  */
 function createRawFetchBazaarClient(baseUrlInput: string): CdpBazaarClient {
-  const baseUrl = baseUrlInput.replace(/\/+$/, "");
+  let baseUrl = baseUrlInput;
+  while (baseUrl.endsWith("/")) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
   const correlationContext = Object.entries(SDK_METADATA)
     .map(([key, value]) => `${key}=${value}`)
     .join(",");
