@@ -129,17 +129,6 @@ export type {
   SpendTrackerOptions,
 } from "./guardrails/index.js";
 
-export { x402Client } from "@x402/core/client";
-export { toClientEvmSigner } from "@x402/evm";
-export { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
-export type { RoutesConfig, RouteConfig } from "@x402/core/server";
-export type {
-  Network,
-  PaymentPayload,
-  PaymentRequired,
-  PaymentRequirements,
-} from "@x402/core/types";
-
 // Networks registry (CAIP-2 ids, USDC addresses, chainId maps)
 export {
   baseMainnetCaip2,

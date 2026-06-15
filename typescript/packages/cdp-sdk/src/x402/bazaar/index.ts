@@ -30,6 +30,7 @@ export type {
   X402DiscoveryResourceType,
   X402DiscoveryResourcesResponse,
   X402DiscoveryMerchantResponse,
+  X402SearchResourcesResponse,
   X402SearchResourcesResponseSearchMethod,
   ListX402DiscoveryResourcesParams,
   ListX402DiscoveryMerchantParams,
