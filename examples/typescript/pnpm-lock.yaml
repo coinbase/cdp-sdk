@@ -97,8 +97,8 @@ importers:
         specifier: workspace:*
         version: link:../x402-next
       '@hono/node-server':
-        specifier: ^2.0.5
-        version: 2.0.5(hono@4.12.25)
+        specifier: 2.0.4
+        version: 2.0.4(hono@4.12.25)
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
@@ -523,8 +523,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/node-server@2.0.5':
-    resolution: {integrity: sha512-yQFvDmyDo3y6rEOJZDUYPJ49DIKTPpIk4kGvm40xx4Ejne0Pu9a1+exxPN+C1UppWK/WGZX9F++/Xs231tE86g==}
+  '@hono/node-server@2.0.4':
+    resolution: {integrity: sha512-Ut3y0dMMPWy6bZ2kVfx25EOVbZlm15dhF4mOsezMlhpNHy+4MkU1qN9Y6lnruYi4wPmFzimGX2X7LF/FwHli4A==}
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
@@ -2821,7 +2821,7 @@ snapshots:
     dependencies:
       hono: 4.12.25
 
-  '@hono/node-server@2.0.5(hono@4.12.25)':
+  '@hono/node-server@2.0.4(hono@4.12.25)':
     dependencies:
       hono: 4.12.25
 
