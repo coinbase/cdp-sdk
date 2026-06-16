@@ -7,7 +7,6 @@ import { fromCdpEvmAccount } from "./evm-signer.js";
 import { fromCdpSmartWallet } from "./scw-signer.js";
 import { cdpSolanaAccountToSvmSigner } from "./svm-signer.js";
 import { CdpClient } from "../../client/cdp.js";
-import { SmartAccountAlreadyExistsError } from "../../errors.js";
 import { type CdpX402ClientConfig, resolveCredentials } from "../credentials/index.js";
 
 import type { TransactionSigner } from "@solana/kit";
@@ -86,28 +85,10 @@ export async function provisionCdpAccounts(
       name: walletConfig.ownerAccountName!,
     });
 
-    let smartAccount;
-    try {
-      smartAccount = await cdpClient.evm.getOrCreateSmartAccount({
-        name: walletConfig.accountName,
-        owner: ownerAccount,
-      });
-    } catch (error) {
-      /*
-       * CDP allows only one smart wallet per owner. If the owner already has a smart wallet
-       * registered under a different name, recover by finding and using the existing one.
-       */
-      if (error instanceof SmartAccountAlreadyExistsError) {
-        const existingAddress = await findSmartAccountByOwner(cdpClient, ownerAccount.address);
-        if (!existingAddress) throw error;
-        smartAccount = await cdpClient.evm.getSmartAccount({
-          address: existingAddress as `0x${string}`,
-          owner: ownerAccount,
-        });
-      } else {
-        throw error;
-      }
-    }
+    const smartAccount = await cdpClient.evm.getOrCreateSmartAccount({
+      name: walletConfig.accountName,
+      owner: ownerAccount,
+    });
 
     evmAddress = smartAccount.address as `0x${string}`;
     ownerWallet = walletConfig.ownerAccountName!;

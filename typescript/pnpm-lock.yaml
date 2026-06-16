@@ -106,6 +106,15 @@ importers:
       '@solana/kit':
         specifier: ^5.5.1
         version: 5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      '@x402/core':
+        specifier: ~2.11.0
+        version: 2.11.0
+      '@x402/evm':
+        specifier: ~2.11.0
+        version: 2.11.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      '@x402/svm':
+        specifier: ~2.11.0
+        version: 2.11.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
       abitype:
         specifier: 1.0.6
         version: 1.0.6(typescript@5.9.3)(zod@3.25.76)
@@ -133,16 +142,34 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
-    optionalDependencies:
-      '@x402/core':
+    devDependencies:
+      '@coinbase/x402-express':
+        specifier: workspace:*
+        version: link:../x402-express
+      '@coinbase/x402-hono':
+        specifier: workspace:*
+        version: link:../x402-hono
+      '@coinbase/x402-next':
+        specifier: workspace:*
+        version: link:../x402-next
+      '@hono/node-server':
+        specifier: ^2.0.5
+        version: 2.0.5(hono@4.12.25)
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
+      '@x402/express':
         specifier: ~2.11.0
-        version: 2.11.0
-      '@x402/evm':
-        specifier: ~2.11.0
-        version: 2.11.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
-      '@x402/svm':
-        specifier: ~2.11.0
-        version: 2.11.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
+        version: 2.11.0(bufferutil@4.1.0)(express@4.22.2)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      express:
+        specifier: ^4.22.2
+        version: 4.22.2
+      hono:
+        specifier: ^4.12.25
+        version: 4.12.25
+      next:
+        specifier: 16.2.6
+        version: 16.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
   packages/x402-express:
     dependencies:
@@ -912,6 +939,12 @@ packages:
 
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
+
+  '@hono/node-server@2.0.5':
+    resolution: {integrity: sha512-yQFvDmyDo3y6rEOJZDUYPJ49DIKTPpIk4kGvm40xx4Ejne0Pu9a1+exxPN+C1UppWK/WGZX9F++/Xs231tE86g==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      hono: ^4
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -4575,6 +4608,7 @@ packages:
   tsconfck@2.1.2:
     resolution: {integrity: sha512-ghqN1b0puy3MhhviwO2kGF8SeMDNhEbnKxjK7h6+fvY9JAxqvXi8y5NAHSQv687OVboS2uZIByzGd45/YxrRHg==}
     engines: {node: ^14.13.1 || ^16 || >=18}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^4.3.5 || ^5.0.0
@@ -5502,6 +5536,10 @@ snapshots:
       '@shikijs/themes': 3.23.0
       '@shikijs/types': 3.23.0
       '@shikijs/vscode-textmate': 10.0.2
+
+  '@hono/node-server@2.0.5(hono@4.12.25)':
+    dependencies:
+      hono: 4.12.25
 
   '@humanfs/core@0.19.2':
     dependencies:

@@ -75,5 +75,16 @@
     "cdp sdk",
     "sdk",
     "api"
-  ]
+  ],
+  "devDependencies": {
+    "@coinbase/x402-express": "workspace:*",
+    "@coinbase/x402-hono": "workspace:*",
+    "@coinbase/x402-next": "workspace:*",
+    "@hono/node-server": "^2.0.5",
+    "@types/express": "^5.0.6",
+    "@x402/express": "~2.11.0",
+    "express": "^4.22.2",
+    "hono": "^4.12.25",
+    "next": "16.2.6"
+  }
 }
