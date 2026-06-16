@@ -17,8 +17,8 @@ import type {
   X402DiscoveryResourceType,
   X402DiscoveryResourcesResponse,
   X402ResourceQuality,
-  X402SearchResourcesResponse as SdkX402SearchResourcesResponse,
-  X402SearchResourcesResponseSearchMethod as SdkX402SearchResourcesResponseSearchMethod,
+  X402SearchResourcesResponse,
+  X402SearchResourcesResponseSearchMethod,
   ListX402DiscoveryMerchantParams,
   ListX402DiscoveryResourcesParams,
   SearchX402ResourcesParams,
@@ -30,28 +30,11 @@ export type {
   X402DiscoveryResourceType,
   X402DiscoveryResourcesResponse,
   X402DiscoveryMerchantResponse,
+  X402SearchResourcesResponse,
+  X402SearchResourcesResponseSearchMethod,
   ListX402DiscoveryResourcesParams,
   ListX402DiscoveryMerchantParams,
   SearchX402ResourcesParams,
-};
-
-/**
- * The CDP Bazaar API can return additional values (e.g. `"hybrid"`) that are
- * not yet declared by the generated enum at generation time. We widen
- * the type here so consumers performing exhaustive checks see the full set of
- * runtime values.
- */
-export type X402SearchResourcesResponseSearchMethod =
-  | SdkX402SearchResourcesResponseSearchMethod
-  | "hybrid"
-  | (string & {});
-
-/**
- * Search-response type overriding the generated strict `searchMethod` enum with
- * a widened type that includes runtime values not yet present in the generated client.
- */
-export type X402SearchResourcesResponse = Omit<SdkX402SearchResourcesResponse, "searchMethod"> & {
-  searchMethod?: X402SearchResourcesResponseSearchMethod;
 };
 
 /** CDP Bazaar client interface for discovering and searching x402 resources. */
@@ -93,7 +76,7 @@ export function createCdpBazaarClient(): CdpBazaarClient {
     },
 
     async searchResources(params) {
-      return searchX402Resources(params) as Promise<X402SearchResourcesResponse>;
+      return searchX402Resources(params);
     },
 
     async getMerchantResources(params) {
