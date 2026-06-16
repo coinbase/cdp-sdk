@@ -4505,7 +4505,7 @@ describe("x402 E2E — EOA client, EOA receiver", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("provisions a CDP EVM account", () => {
@@ -4571,7 +4571,7 @@ describe("x402 E2E — SCW client, SCW receiver", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("provisions a CDP Smart Contract Wallet", () => {
@@ -4656,7 +4656,7 @@ describe("x402 E2E — upto scheme, EOA client, EOA receiver", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("provisions a CDP EVM account for the payer", () => {
@@ -4711,7 +4711,7 @@ describe("x402 E2E — spend controls guardrail", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("passes a payment that is within the cumulative cap", async () => {
@@ -4763,7 +4763,7 @@ describe("x402 E2E — pre-flight balance check", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -4938,7 +4938,7 @@ describe("x402 E2E — Express middleware", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("returns 200 for the health endpoint", async () => {
@@ -5005,8 +5005,8 @@ describe("x402 E2E — Hono middleware", () => {
         },
       }),
     );
-    app.get(X402_PROTECTED_PATH, (c) => c.json({ message: "payment accepted" }));
-    app.get("/health", (c) => c.json({ status: "ok" }));
+    app.get(X402_PROTECTED_PATH, c => c.json({ message: "payment accepted" }));
+    app.get("/health", c => c.json({ status: "ok" }));
 
     await new Promise<void>((resolve, reject) => {
       const s = honoServe({ fetch: app.fetch, port: HONO_PORT }, () => resolve());
@@ -5016,7 +5016,7 @@ describe("x402 E2E — Hono middleware", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("returns 200 for the health endpoint", async () => {
@@ -5131,7 +5131,7 @@ describe("x402 E2E — Next.js middleware", () => {
   }, 60_000);
 
   afterAll(async () => {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>(resolve => server.close(() => resolve()));
   });
 
   it("returns 200 for the health endpoint", async () => {

@@ -147,7 +147,7 @@ describe("guardrails/spend-tracker", () => {
       });
       await tracker.prune(3_500, 1_500);
       const entries = await tracker.entries();
-      expect(entries.map((e) => e.atomicAmount)).toEqual([2n, 3n]);
+      expect(entries.map(e => e.atomicAmount)).toEqual([2n, 3n]);
     });
 
     it("keeps an entry exactly at the cutoff boundary", async () => {

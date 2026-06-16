@@ -1,9 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-import {
-  createBalanceCheckHook,
-  InsufficientFundsError,
-} from "./balance-check.js";
+import { createBalanceCheckHook, InsufficientFundsError } from "./balance-check.js";
 
 const EVM_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678" as `0x${string}`;
 const SVM_ADDRESS = "7nYT1Dv9QfMsQHcZJbNyA9JkHqoVrpLmkCFfBjDqkbu";
@@ -214,7 +211,7 @@ describe("createBalanceCheckHook", () => {
     });
     const err = await hook(
       ctx({ network: "eip155:84532", asset: USDC_BASE_SEPOLIA, amount: "1000000" }),
-    ).catch((e) => e);
+    ).catch(e => e);
     expect(err).toBeInstanceOf(InsufficientFundsError);
     expect((err as InsufficientFundsError).available).toBe(0n);
     expect((err as InsufficientFundsError).required).toBe(1_000_000n);

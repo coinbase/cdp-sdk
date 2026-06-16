@@ -1,11 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import {
-  parseAmount,
-  parseDuration,
-  SpendControlError,
-  SpendControlErrorCodes,
-} from "./types.js";
+import { parseAmount, parseDuration, SpendControlError, SpendControlErrorCodes } from "./types.js";
 
 describe("guardrails/types", () => {
   describe("parseAmount", () => {

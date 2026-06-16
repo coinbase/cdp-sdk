@@ -145,14 +145,14 @@ describe("getCdpExtensionRegistrations()", () => {
   });
 
   it("covers all three CDP extension keys", () => {
-    const keys = getCdpExtensionRegistrations().map((r) => r.key);
+    const keys = getCdpExtensionRegistrations().map(r => r.key);
     expect(keys).toContain(CDP_EXTENSION_GAS_SPONSORING_EIP2612);
     expect(keys).toContain(CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL);
     expect(keys).toContain(CDP_EXTENSION_BAZAAR);
   });
 
   it("all keys are distinct", () => {
-    const keys = getCdpExtensionRegistrations().map((r) => r.key);
+    const keys = getCdpExtensionRegistrations().map(r => r.key);
     expect(new Set(keys).size).toBe(keys.length);
   });
 

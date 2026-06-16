@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import {
-  normalizeAsset,
-  normalizeNetwork,
-  normalizePayee,
-} from "./normalize.js";
+import { normalizeAsset, normalizeNetwork, normalizePayee } from "./normalize.js";
 import { SpendControlError } from "./types.js";
 
 describe("guardrails/normalize", () => {

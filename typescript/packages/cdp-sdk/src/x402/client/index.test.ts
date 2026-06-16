@@ -98,14 +98,14 @@ vi.mock("@x402/svm/exact/client", () => ({
 }));
 
 vi.mock("../wallets/evm-signer.js", () => ({
-  fromCdpEvmAccount: vi.fn().mockImplementation((account) => ({
+  fromCdpEvmAccount: vi.fn().mockImplementation(account => ({
     address: account.address,
     signTypedData: account.signTypedData,
   })),
 }));
 
 vi.mock("../wallets/scw-signer.js", () => ({
-  fromCdpSmartWallet: vi.fn().mockImplementation((account) => ({
+  fromCdpSmartWallet: vi.fn().mockImplementation(account => ({
     address: account.address,
     signTypedData: account.signTypedData,
   })),
@@ -114,7 +114,7 @@ vi.mock("../wallets/scw-signer.js", () => ({
 }));
 
 vi.mock("../wallets/svm-signer.js", () => ({
-  cdpSolanaAccountToSvmSigner: vi.fn().mockImplementation((account) => ({
+  cdpSolanaAccountToSvmSigner: vi.fn().mockImplementation(account => ({
     address: account.address,
     signTransactions: vi.fn().mockResolvedValue([]),
   })),

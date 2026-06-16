@@ -296,7 +296,7 @@ describe("createCdpResourceServer", () => {
 
       const [, passedRoutes] = (x402HTTPResourceServer as ReturnType<typeof vi.fn>).mock.calls[0];
       const accepts = passedRoutes["GET /paid"].accepts;
-      const networks = (accepts as Array<{ network: string }>).map((a) => a.network);
+      const networks = (accepts as Array<{ network: string }>).map(a => a.network);
       expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]);
       expect(networks).toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
     });
@@ -660,8 +660,8 @@ describe("createCdpResourceServer", () => {
 
 describe("CDP_SERVER_DEFAULT_NETWORKS", () => {
   it("contains at least one EVM and one Solana network", () => {
-    const evmNets = CDP_SERVER_DEFAULT_NETWORKS.filter((n) => n.startsWith("eip155:"));
-    const svmNets = CDP_SERVER_DEFAULT_NETWORKS.filter((n) => n.startsWith("solana:"));
+    const evmNets = CDP_SERVER_DEFAULT_NETWORKS.filter(n => n.startsWith("eip155:"));
+    const svmNets = CDP_SERVER_DEFAULT_NETWORKS.filter(n => n.startsWith("solana:"));
     expect(evmNets.length).toBeGreaterThan(0);
     expect(svmNets.length).toBeGreaterThan(0);
   });
@@ -675,8 +675,8 @@ describe("getCdpDefaultSchemes", () => {
   it("returns three entries — exact+upto for EVM and exact for Solana", () => {
     const schemes = getCdpDefaultSchemes();
     expect(schemes).toHaveLength(3);
-    const evmSchemes = schemes.filter((s) => (s.network as string) === "eip155:*");
-    const svmSchemes = schemes.filter((s) => (s.network as string) === "solana:*");
+    const evmSchemes = schemes.filter(s => (s.network as string) === "eip155:*");
+    const svmSchemes = schemes.filter(s => (s.network as string) === "solana:*");
     expect(evmSchemes).toHaveLength(2);
     expect(svmSchemes).toHaveLength(1);
   });
@@ -684,15 +684,15 @@ describe("getCdpDefaultSchemes", () => {
   it("EVM entries cover exact and upto schemes", () => {
     const schemes = getCdpDefaultSchemes();
     const evmSchemeNames = schemes
-      .filter((s) => (s.network as string) === "eip155:*")
-      .map((s) => s.server.scheme);
+      .filter(s => (s.network as string) === "eip155:*")
+      .map(s => s.server.scheme);
     expect(evmSchemeNames).toContain("exact");
     expect(evmSchemeNames).toContain("upto");
   });
 
   it("Solana entry covers exact scheme only", () => {
     const schemes = getCdpDefaultSchemes();
-    const svmEntry = schemes.find((s) => (s.network as string) === "solana:*");
+    const svmEntry = schemes.find(s => (s.network as string) === "solana:*");
     expect(svmEntry?.server.scheme).toBe("exact");
   });
 
@@ -749,7 +749,7 @@ describe("CdpResourceServer extension registration", () => {
       mockResourceServer.registerExtension as ReturnType<typeof vi.fn>
     ).mock.calls.map((call: [{ key: string }]) => call[0].key);
 
-    const expectedKeys = getCdpExtensionRegistrations().map((r) => r.key);
+    const expectedKeys = getCdpExtensionRegistrations().map(r => r.key);
     expect(registeredKeys).toEqual(expect.arrayContaining(expectedKeys));
     expect(registeredKeys).toHaveLength(expectedKeys.length);
   });

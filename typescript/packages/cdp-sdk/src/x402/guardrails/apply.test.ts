@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-import {
-  applySpendControls,
-  getSpendControlsRegistry,
-} from "./apply.js";
+import { applySpendControls, getSpendControlsRegistry } from "./apply.js";
 import { SpendControlError } from "./types.js";
 import type { PaymentPayload, PaymentRequirements } from "@x402/core/types";
 
@@ -470,8 +467,8 @@ describe("guardrails/apply", () => {
         client.beforeHooks[0](ctxA),
         client.beforeHooks[0](ctxB),
       ]);
-      const fulfilled = results.filter((r) => r.status === "fulfilled");
-      const rejected = results.filter((r) => r.status === "rejected");
+      const fulfilled = results.filter(r => r.status === "fulfilled");
+      const rejected = results.filter(r => r.status === "rejected");
       expect(fulfilled).toHaveLength(1);
       expect(rejected).toHaveLength(1);
       expect((rejected[0] as PromiseRejectedResult).reason).toBeInstanceOf(SpendControlError);

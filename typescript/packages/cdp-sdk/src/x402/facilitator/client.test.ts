@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createCdpFacilitatorClient, CDP_FACILITATOR_URL } from "./index.js";
 
 vi.mock("@x402/core/server", () => ({
-  HTTPFacilitatorClient: vi.fn().mockImplementation((config) => ({
+  HTTPFacilitatorClient: vi.fn().mockImplementation(config => ({
     _config: config,
     verify: vi.fn(),
     settle: vi.fn(),

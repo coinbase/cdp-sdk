@@ -7,10 +7,7 @@
 
 import { describe, it, expect } from "vitest";
 import { fromCdpEvmAccount } from "./evm-signer.js";
-import {
-  fromCdpSmartWallet,
-  resolveNetworkFromChainId,
-} from "./scw-signer.js";
+import { fromCdpSmartWallet, resolveNetworkFromChainId } from "./scw-signer.js";
 
 const ANVIL_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
