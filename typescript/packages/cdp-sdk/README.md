@@ -35,6 +35,11 @@
   - [Solana Sending](#solana-sending)
 - [Webhooks](#webhooks)
   - [Create Subscription](#create-subscription)
+- [x402 Payments](#x402-payments)
+  - [Buyer quickstart](#buyer-quickstart)
+  - [Seller quickstart](#seller-quickstart)
+  - [Spend controls](#spend-controls)
+  - [Bazaar discovery](#bazaar-discovery)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1669,6 +1674,134 @@ The available wallet event types are:
 - `wallet.delegation.revoked`
 
 For a complete working example, see [webhooks/createWebhookSubscription.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/webhooks/createWebhookSubscription.ts).
+
+## x402 Payments
+
+The `@coinbase/cdp-sdk/x402` subpath integrates the [x402 HTTP payment protocol](https://x402.org) directly into the CDP SDK. Import everything from a single subpath:
+
+```typescript
+import {
+  CdpX402Client,
+  createCdpX402Client,
+  toX402Signer,
+  createCdpFacilitatorClient,
+} from "@coinbase/cdp-sdk/x402";
+```
+
+> [!NOTE] The `@x402/core`, `@x402/evm`, and `@x402/svm` packages are optional dependencies and are only installed when needed.
+
+### Buyer quickstart
+
+When a server returns a `402 Payment Required` response, the SDK handles the full payment flow automatically — selecting the payment option, signing the transaction, and retrying the request with the payment header attached.
+
+#### Lazy initialization (recommended)
+
+`CdpX402Client` initializes on the first payment. All config is read from environment variables:
+
+```typescript
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+
+const client = new CdpX402Client();
+const fetchWithPayment = client.wrapFetch();
+
+const response = await fetchWithPayment("https://api.example.com/paid-endpoint");
+const data = await response.json();
+```
+
+Set `CDP_WALLET_TYPE=cdp-smart` to switch to a Smart Contract Wallet without changing code.
+
+#### Eager initialization
+
+Use `createCdpX402Client` when you need the wallet address before the first payment (e.g. to fund the wallet):
+
+```typescript
+import { createCdpX402Client, wrapFetchWithPayment } from "@coinbase/cdp-sdk/x402";
+
+const { client, evmAddress, svmAddress } = await createCdpX402Client();
+console.log("Paying from EVM address:", evmAddress);
+
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+const response = await fetchWithPayment("https://api.example.com/paid-endpoint");
+```
+
+#### Smart Contract Wallet
+
+```typescript
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+
+const client = new CdpX402Client({
+  walletConfig: {
+    type: "cdp-smart",
+    ownerAccountName: "my-owner-wallet",
+    accountName: "my-smart-wallet",
+  },
+});
+```
+
+### Seller quickstart
+
+`createCdpResourceServer` auto-provisions a receiver wallet, wires the CDP facilitator, and returns a server compatible with any x402 framework middleware:
+
+```typescript
+import { createCdpResourceServer } from "@coinbase/cdp-sdk/x402";
+import { paymentMiddlewareFromHTTPServer } from "@x402/express";
+import express from "express";
+
+const server = await createCdpResourceServer({
+  routes: {
+    "GET /report": { price: "$0.01", description: "AI-generated report" },
+  },
+});
+
+console.log("EVM receiver:", server.payToEvmAddress);
+console.log("Solana receiver:", server.payToSvmAddress);
+
+const app = express();
+app.use(paymentMiddlewareFromHTTPServer(server));
+app.get("/report", (_req, res) => res.json({ report: "..." }));
+app.listen(8402);
+```
+
+For framework-specific middleware helpers that take an explicit `payTo` address (without auto-provisioning), use `@coinbase/x402-express`, `@coinbase/x402-hono`, or `@coinbase/x402-next`.
+
+### Spend controls
+
+Limit what and how much an x402 client will pay:
+
+```typescript
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+
+const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
+
+const client = new CdpX402Client({
+  spendControls: {
+    maxAmountPerPayment: { atomic: 2_000_000n, asset: USDC_BASE_SEPOLIA }, // 2 USDC
+    maxCumulativeSpend: { atomic: 10_000_000n, asset: USDC_BASE_SEPOLIA }, // 10 USDC
+    maxCumulativeSpendWindow: "24h",
+    allowedNetworks: ["eip155:84532"],
+    allowedAssets: [USDC_BASE_SEPOLIA],
+    onApproachingLimit: (spent, limit) =>
+      console.warn(`Approaching cap: ${spent.atomic}/${limit.atomic}`),
+  },
+});
+```
+
+See the [x402 README](src/x402/README.md) for the full spend controls reference.
+
+### Bazaar discovery
+
+The CDP Bazaar is a discovery index for x402-gated APIs. No CDP API key required:
+
+```typescript
+import { createCdpBazaarClient } from "@coinbase/cdp-sdk/x402";
+
+const bazaar = createCdpBazaarClient();
+
+const results = await bazaar.searchResources({ query: "weather forecast APIs" });
+console.log(results.resources.map(r => r.resource));
+```
+
+For environment variable reference, route configuration, and detailed spend controls, see the [x402 README](src/x402/README.md).
 
 ## Authentication tools
 

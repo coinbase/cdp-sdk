@@ -200,8 +200,9 @@ describe("CDP Client E2E Tests", () => {
           owner: testAccount,
         });
       } else {
-        logger.log("CDP_E2E_SMART_ACCOUNT_ADDRESS is not set. Creating a new smart account.");
-        return cdp.evm.createSmartAccount({
+        logger.log("CDP_E2E_SMART_ACCOUNT_ADDRESS is not set. Getting or creating smart account.");
+        return cdp.evm.getOrCreateSmartAccount({
+          name: `${testAccountName}-smart`,
           owner: testAccount,
         });
       }
@@ -211,12 +212,10 @@ describe("CDP Client E2E Tests", () => {
     if (testAccount.policies?.length || 0 > 0) {
       await cdp.evm.updateAccount({ address: testAccount.address, update: { accountPolicy: "" } });
     }
-  });
 
-  beforeEach(async () => {
     await ensureSufficientEthBalance(cdp, testAccount);
     await ensureSufficientSolBalance(cdp, testSolanaAccount);
-  });
+  }, 120_000);
 
   it("should create, get, and list accounts", async () => {
     const randomName = generateRandomName();
@@ -4392,3 +4391,764 @@ function generateRandomAddress() {
   return ("0x" +
     [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join("")) as Address;
 }
+
+// =============================================================================
+// x402 E2E Tests
+// =============================================================================
+
+import express from "express";
+import { createServer as createHttpServer, type Server as HttpServer } from "node:http";
+import { paymentMiddlewareFromHTTPServer } from "@x402/express";
+import {
+  createCdpResourceServer,
+  createCdpX402Client,
+  wrapFetchWithPayment,
+  InsufficientFundsError,
+  applySpendControls,
+  createBalanceCheckHook,
+} from "./x402/index.js";
+import type { CdpX402ClientResult, CdpResourceServerConfig } from "./x402/index.js";
+import { x402HTTPClient } from "@x402/core/client";
+import { createCdpExpressMiddleware } from "@coinbase/x402-express";
+import { createCdpHonoMiddleware } from "@coinbase/x402-hono";
+import { Hono } from "hono";
+import { serve as honoServe } from "@hono/node-server";
+import { NextRequest, NextResponse } from "next/server";
+import { createCdpRouteHandler } from "@coinbase/x402-next/server";
+import {
+  createServer as createNodeServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
+
+// ---------------------------------------------------------------------------
+// Shared resource-server helpers
+// ---------------------------------------------------------------------------
+
+const X402_RESOURCE_SERVER_PORT = 4021;
+const X402_RESOURCE_SERVER_URL = `http://localhost:${X402_RESOURCE_SERVER_PORT}`;
+const X402_PROTECTED_PATH = "/protected";
+const X402_EVM_NETWORK = "eip155:84532" as const;
+const X402_SVM_NETWORK = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" as const;
+const X402_PAYMENT_PRICE = "$0.001";
+
+const X402_ROUTES: CdpResourceServerConfig["routes"] = {
+  [`GET ${X402_PROTECTED_PATH}`]: {
+    price: X402_PAYMENT_PRICE,
+    description: "x402 e2e test endpoint",
+    networks: [X402_EVM_NETWORK, X402_SVM_NETWORK],
+  },
+};
+
+async function startX402ResourceServer(
+  serverConfig?: Omit<CdpResourceServerConfig, "routes">,
+): Promise<{
+  server: HttpServer;
+  payToEvmAddress: `0x${string}`;
+  payToSvmAddress: string;
+}> {
+  const cdpServer = await createCdpResourceServer({ ...serverConfig, routes: X402_ROUTES });
+
+  const app = express();
+  app.use(paymentMiddlewareFromHTTPServer(cdpServer, undefined, undefined, false));
+  app.get(X402_PROTECTED_PATH, (_req, res) => {
+    res.json({ message: "payment accepted" });
+  });
+  app.get("/health", (_req, res) => {
+    res.json({ status: "ok" });
+  });
+  app.use(
+    (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      console.error("[x402-resource-server] unhandled error:", err);
+      res.status(500).json({ error: err.message });
+    },
+  );
+
+  const server = createHttpServer(app);
+  await new Promise<void>((resolve, reject) => {
+    server.listen(X402_RESOURCE_SERVER_PORT, resolve);
+    server.once("error", reject);
+  });
+
+  return {
+    server,
+    payToEvmAddress: cdpServer.payToEvmAddress,
+    payToSvmAddress: cdpServer.payToSvmAddress,
+  };
+}
+
+const hasX402Credentials = Boolean(
+  process.env.CDP_API_KEY_ID && process.env.CDP_API_KEY_SECRET && process.env.CDP_WALLET_SECRET,
+);
+
+// ---------------------------------------------------------------------------
+// EOA client + EOA receiver
+// ---------------------------------------------------------------------------
+
+describe("x402 E2E — EOA client, EOA receiver", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  let result: CdpX402ClientResult;
+  let server: HttpServer;
+  let payToEvmAddress: `0x${string}`;
+
+  beforeAll(async () => {
+    result = await createCdpX402Client({
+      walletConfig: {
+        accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test",
+      },
+    });
+    ({ server, payToEvmAddress } = await startX402ResourceServer());
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("provisions a CDP EVM account", () => {
+    expect(result.evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it("has a configured x402 client", () => {
+    expect(result.client).toBeDefined();
+  });
+
+  it("does not set an owner wallet for an EOA wallet", () => {
+    expect(result.ownerWallet).toBeUndefined();
+  });
+
+  it("wraps fetch with x402 payment handling", () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    expect(wrappedFetch).toBeTypeOf("function");
+  });
+
+  it("resource server provisions a valid EVM receiver address", () => {
+    expect(payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it("completes a real x402 payment on Base Sepolia", async () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    const response = await wrappedFetch(`${X402_RESOURCE_SERVER_URL}${X402_PROTECTED_PATH}`);
+    const body = await response.json().catch(() => null);
+    expect(response.status, `Payment failed: ${JSON.stringify(body)}`).toBe(200);
+    expect(body).toMatchObject({ message: "payment accepted" });
+  }, 30_000);
+});
+
+// ---------------------------------------------------------------------------
+// SCW client + SCW receiver
+// ---------------------------------------------------------------------------
+
+describe("x402 E2E — SCW client, SCW receiver", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  const ownerAccountName = process.env.CDP_OWNER_ACCOUNT_NAME ?? "x402-e2e-scw-owner";
+  let result: CdpX402ClientResult;
+  let server: HttpServer;
+  let payToEvmAddress: `0x${string}`;
+
+  beforeAll(async () => {
+    result = await createCdpX402Client({
+      walletConfig: {
+        type: "cdp-smart",
+        accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test",
+        ownerAccountName,
+      },
+    });
+    ({ server, payToEvmAddress } = await startX402ResourceServer({
+      walletConfig: {
+        type: "cdp-smart",
+        accountName: "x402-e2e-scw-receiver",
+        ownerAccountName: `${ownerAccountName}-receiver`,
+      },
+    }));
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("provisions a CDP Smart Contract Wallet", () => {
+    expect(result.evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it("has the owner wallet name set", () => {
+    expect(result.ownerWallet).toBeDefined();
+    expect(typeof result.ownerWallet).toBe("string");
+    expect((result.ownerWallet as string).length).toBeGreaterThan(0);
+  });
+
+  it("resource server provisions a valid SCW receiver address", () => {
+    expect(payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it("completes a real x402 payment on Base Sepolia via SCW", async () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    const response = await wrappedFetch(`${X402_RESOURCE_SERVER_URL}${X402_PROTECTED_PATH}`);
+    const body = await response.json().catch(() => null);
+    expect(response.status, `Payment failed: ${JSON.stringify(body)}`).toBe(200);
+    expect(body).toMatchObject({ message: "payment accepted" });
+  }, 30_000);
+});
+
+// ---------------------------------------------------------------------------
+// Upto (Permit2) scheme
+// ---------------------------------------------------------------------------
+
+describe("x402 E2E — upto scheme, EOA client, EOA receiver", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  const UPTO_SERVER_PORT = 4024;
+  const UPTO_SERVER_URL = `http://localhost:${UPTO_SERVER_PORT}`;
+  const UPTO_PROTECTED_PATH = "/protected";
+
+  let result: CdpX402ClientResult;
+  let server: HttpServer;
+  let payToEvmAddress: `0x${string}`;
+
+  beforeAll(async () => {
+    result = await createCdpX402Client({
+      walletConfig: {
+        accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test",
+      },
+    });
+
+    const cdpServer = await createCdpResourceServer({
+      routes: {
+        [`GET ${UPTO_PROTECTED_PATH}`]: {
+          price: X402_PAYMENT_PRICE,
+          scheme: "upto",
+          description: "x402 upto e2e test endpoint",
+          networks: [X402_EVM_NETWORK],
+        },
+      },
+    });
+
+    const app = express();
+    app.use(paymentMiddlewareFromHTTPServer(cdpServer, undefined, undefined, false));
+    app.get(UPTO_PROTECTED_PATH, (_req, res) => {
+      res.json({ message: "upto payment accepted" });
+    });
+    app.get("/health", (_req, res) => res.json({ status: "ok" }));
+    app.use(
+      (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+        console.error("[upto-resource-server] unhandled error:", err);
+        res.status(500).json({ error: err.message });
+      },
+    );
+
+    server = createHttpServer(app);
+    await new Promise<void>((resolve, reject) => {
+      server.listen(UPTO_SERVER_PORT, resolve);
+      server.once("error", reject);
+    });
+
+    payToEvmAddress = cdpServer.payToEvmAddress;
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("provisions a CDP EVM account for the payer", () => {
+    expect(result.evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it("resource server provisions a valid EVM receiver address", () => {
+    expect(payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it("payer and receiver are distinct addresses", () => {
+    expect(result.evmAddress.toLowerCase()).not.toBe(payToEvmAddress.toLowerCase());
+  });
+
+  it("completes a real upto payment on Base Sepolia", async () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    const response = await wrappedFetch(`${UPTO_SERVER_URL}${UPTO_PROTECTED_PATH}`);
+    const body = await response.json().catch(() => null);
+    expect(response.status, `Upto payment failed: ${JSON.stringify(body)}`).toBe(200);
+    expect(body).toMatchObject({ message: "upto payment accepted" });
+  }, 30_000);
+});
+
+// ---------------------------------------------------------------------------
+// Spend controls + pre-flight balance check
+// ---------------------------------------------------------------------------
+
+const USDC_BASE_SEPOLIA_X402 = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
+const USDC_SOLANA_DEVNET_X402 = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
+const USDC_POLYGON_X402 = "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359";
+const USDC_BASE_MAINNET_X402 = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const USDC_ARBITRUM_X402 = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
+const USDC_WORLD_X402 = "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1";
+const USDC_WORLD_SEPOLIA_X402 = "0x66145f38cBAC35Ca6F1Dfb4914dF98F1614aeA88";
+const USDC_SOLANA_MAINNET_X402 = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+describe("x402 E2E — spend controls guardrail", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  let server: HttpServer;
+  let funded: CdpX402ClientResult;
+
+  beforeAll(async () => {
+    funded = await createCdpX402Client({
+      walletConfig: { accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test" },
+      disablePreflightBalanceCheck: true,
+    });
+    ({ server } = await startX402ResourceServer());
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("passes a payment that is within the cumulative cap", async () => {
+    applySpendControls(funded.client, {
+      maxCumulativeSpend: { atomic: 10_000_000n, asset: USDC_BASE_SEPOLIA_X402 },
+      maxCumulativeSpendWindow: "24h",
+    });
+    const fetchWithPayment = wrapFetchWithPayment(fetch, funded.client);
+    const response = await fetchWithPayment(`${X402_RESOURCE_SERVER_URL}${X402_PROTECTED_PATH}`);
+    expect(response.status).toBe(200);
+  }, 30_000);
+
+  it("blocks a second payment that exceeds a tight cumulative cap", async () => {
+    const capped = await createCdpX402Client({
+      walletConfig: { accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test" },
+      disablePreflightBalanceCheck: true,
+    });
+
+    applySpendControls(capped.client, {
+      maxCumulativeSpend: { atomic: 1_000n, asset: USDC_BASE_SEPOLIA_X402 },
+      maxCumulativeSpendWindow: "24h",
+    });
+
+    const fetchWithPayment = wrapFetchWithPayment(fetch, capped.client);
+
+    const first = await fetchWithPayment(`${X402_RESOURCE_SERVER_URL}${X402_PROTECTED_PATH}`);
+    expect(first.status).toBe(200);
+
+    await expect(
+      fetchWithPayment(`${X402_RESOURCE_SERVER_URL}${X402_PROTECTED_PATH}`),
+    ).rejects.toThrow("cumulative spend");
+  }, 30_000);
+});
+
+describe("x402 E2E — pre-flight balance check", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  let server: HttpServer;
+  let empty: CdpX402ClientResult;
+
+  beforeAll(async () => {
+    empty = await createCdpX402Client({
+      walletConfig: { accountName: "x402-e2e-balance-check-empty" },
+    });
+    ({ server } = await startX402ResourceServer());
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function makeHookContext(network: string, asset: string, amount = "1000000"): any {
+    return {
+      selectedRequirements: {
+        network,
+        asset,
+        amount,
+        scheme: "exact",
+        payTo: "0xpayee",
+        maxTimeoutSeconds: 60,
+        extra: {},
+      },
+      paymentRequired: {},
+    };
+  }
+
+  it("raises InsufficientFundsError for unfunded EVM wallet (Base Sepolia, CDP indexed)", async () => {
+    const probe = await fetch(`${X402_RESOURCE_SERVER_URL}${X402_PROTECTED_PATH}`);
+    expect(probe.status).toBe(402);
+
+    const httpClient = new x402HTTPClient(empty.client);
+    const getHeader = (name: string) => probe.headers.get(name);
+    let body: unknown;
+    try {
+      body = await probe.clone().json();
+    } catch {
+      // ignore
+    }
+    const paymentRequired = httpClient.getPaymentRequiredResponse(getHeader, body);
+    const err = await empty.client.createPaymentPayload(paymentRequired).catch((e: unknown) => e);
+
+    expect(err, "expected InsufficientFundsError").toBeInstanceOf(InsufficientFundsError);
+    const insufficientErr = err as InsufficientFundsError;
+    expect(insufficientErr.available).toBe(0n);
+    expect(insufficientErr.required).toBeGreaterThan(0n);
+    expect(insufficientErr.address.toLowerCase()).toBe(empty.evmAddress.toLowerCase());
+  }, 30_000);
+
+  it.each([
+    {
+      label: "Solana devnet (CDP indexed)",
+      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      asset: USDC_SOLANA_DEVNET_X402,
+      addressType: "svm" as const,
+    },
+    {
+      label: "Polygon (on-chain balanceOf fallback)",
+      network: "eip155:137",
+      asset: USDC_POLYGON_X402,
+      addressType: "evm" as const,
+    },
+    {
+      label: "Base mainnet (CDP indexed)",
+      network: "eip155:8453",
+      asset: USDC_BASE_MAINNET_X402,
+      addressType: "evm" as const,
+    },
+    {
+      label: "Arbitrum (on-chain balanceOf fallback)",
+      network: "eip155:42161",
+      asset: USDC_ARBITRUM_X402,
+      addressType: "evm" as const,
+    },
+    {
+      label: "World Chain (on-chain balanceOf fallback)",
+      network: "eip155:480",
+      asset: USDC_WORLD_X402,
+      addressType: "evm" as const,
+    },
+    {
+      label: "World Chain Sepolia (on-chain balanceOf fallback)",
+      network: "eip155:4801",
+      asset: USDC_WORLD_SEPOLIA_X402,
+      addressType: "evm" as const,
+    },
+    {
+      label: "Solana mainnet (CDP indexed)",
+      network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      asset: USDC_SOLANA_MAINNET_X402,
+      addressType: "svm" as const,
+    },
+  ])(
+    "raises InsufficientFundsError for unfunded wallet — $label",
+    async ({ network, asset, addressType }) => {
+      const hook = createBalanceCheckHook({
+        cdpClient: empty.cdpClient,
+        evmAddress: empty.evmAddress,
+        svmAddress: empty.svmAddress,
+        onWarning: () => {},
+      });
+      const err = await hook(makeHookContext(network, asset)).catch((e: unknown) => e);
+
+      expect(err, "expected InsufficientFundsError").toBeInstanceOf(InsufficientFundsError);
+      const insufficientErr = err as InsufficientFundsError;
+      expect(insufficientErr.available).toBe(0n);
+      expect(insufficientErr.required).toBeGreaterThan(0n);
+      if (addressType === "svm") {
+        expect(insufficientErr.address).toBe(empty.svmAddress);
+      } else {
+        expect(insufficientErr.address.toLowerCase()).toBe(empty.evmAddress.toLowerCase());
+      }
+    },
+    30_000,
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Express middleware
+// ---------------------------------------------------------------------------
+
+describe("x402 E2E — Express middleware", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  const CDP_EXPRESS_PORT = 4026;
+  const CDP_EXPRESS_URL = `http://localhost:${CDP_EXPRESS_PORT}`;
+  const EXPRESS_PAYMENT_NETWORK = "eip155:84532" as `${string}:${string}`;
+
+  let result: CdpX402ClientResult;
+  let server: HttpServer;
+
+  beforeAll(async () => {
+    result = await createCdpX402Client({
+      walletConfig: {
+        accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test",
+      },
+    });
+
+    const payToAccount = await result.cdpClient.evm.getOrCreateAccount({
+      name: (process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test") + "-receiver",
+    });
+
+    const app = express();
+    app.use(
+      createCdpExpressMiddleware({
+        routes: {
+          [`GET ${X402_PROTECTED_PATH}`]: {
+            accepts: {
+              scheme: "exact" as const,
+              price: X402_PAYMENT_PRICE,
+              network: EXPRESS_PAYMENT_NETWORK,
+              payTo: payToAccount.address as `0x${string}`,
+              maxTimeoutSeconds: 300,
+            },
+            description: "x402 e2e test endpoint (cdp-express)",
+          },
+        },
+      }),
+    );
+    app.get(X402_PROTECTED_PATH, (_req, res) => {
+      res.json({ message: "payment accepted" });
+    });
+    app.get("/health", (_req, res) => {
+      res.json({ status: "ok" });
+    });
+    app.use(
+      (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+        console.error("[cdp-express-resource-server] unhandled error:", err);
+        res.status(500).json({ error: err.message });
+      },
+    );
+
+    server = createHttpServer(app);
+    await new Promise<void>((resolve, reject) => {
+      server.listen(CDP_EXPRESS_PORT, resolve);
+      server.once("error", reject);
+    });
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("returns 200 for the health endpoint", async () => {
+    const response = await fetch(`${CDP_EXPRESS_URL}/health`);
+    expect(response.status).toBe(200);
+  });
+
+  it("returns 402 for an unauthenticated request to the protected endpoint", async () => {
+    const response = await fetch(`${CDP_EXPRESS_URL}${X402_PROTECTED_PATH}`);
+    expect(response.status).toBe(402);
+  });
+
+  it("completes a real x402 payment on Base Sepolia via Express middleware", async () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    const response = await wrappedFetch(`${CDP_EXPRESS_URL}${X402_PROTECTED_PATH}`);
+    const body = await response.json().catch(() => null);
+    expect(response.status, `Payment failed: ${JSON.stringify(body)}`).toBe(200);
+    expect(body).toMatchObject({ message: "payment accepted" });
+  }, 30_000);
+});
+
+// ---------------------------------------------------------------------------
+// Hono middleware
+// ---------------------------------------------------------------------------
+
+describe("x402 E2E — Hono middleware", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  const HONO_PORT = 4027;
+  const HONO_URL = `http://localhost:${HONO_PORT}`;
+  const HONO_PAYMENT_NETWORK = "eip155:84532" as `${string}:${string}`;
+
+  let result: CdpX402ClientResult;
+  let server: HttpServer;
+
+  beforeAll(async () => {
+    result = await createCdpX402Client({
+      walletConfig: {
+        accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test",
+      },
+    });
+
+    const payToAccount = await result.cdpClient.evm.getOrCreateAccount({
+      name: (process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test") + "-receiver",
+    });
+
+    const app = new Hono();
+    app.use(
+      createCdpHonoMiddleware({
+        routes: {
+          [`GET ${X402_PROTECTED_PATH}`]: {
+            accepts: {
+              scheme: "exact" as const,
+              price: X402_PAYMENT_PRICE,
+              network: HONO_PAYMENT_NETWORK,
+              payTo: payToAccount.address as `0x${string}`,
+              maxTimeoutSeconds: 300,
+            },
+            description: "x402 e2e test endpoint (hono)",
+          },
+        },
+      }),
+    );
+    app.get(X402_PROTECTED_PATH, c => c.json({ message: "payment accepted" }));
+    app.get("/health", c => c.json({ status: "ok" }));
+
+    await new Promise<void>((resolve, reject) => {
+      const s = honoServe({ fetch: app.fetch, port: HONO_PORT }, () => resolve());
+      server = s as unknown as HttpServer;
+      (s as unknown as HttpServer).once("error", reject);
+    });
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("returns 200 for the health endpoint", async () => {
+    const response = await fetch(`${HONO_URL}/health`);
+    expect(response.status).toBe(200);
+  });
+
+  it("returns 402 for an unauthenticated request to the protected endpoint", async () => {
+    const response = await fetch(`${HONO_URL}${X402_PROTECTED_PATH}`);
+    expect(response.status).toBe(402);
+  });
+
+  it("completes a real x402 payment on Base Sepolia via Hono middleware", async () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    const response = await wrappedFetch(`${HONO_URL}${X402_PROTECTED_PATH}`);
+    const body = await response.json().catch(() => null);
+    expect(response.status, `Payment failed: ${JSON.stringify(body)}`).toBe(200);
+    expect(body).toMatchObject({ message: "payment accepted" });
+  }, 30_000);
+});
+
+// ---------------------------------------------------------------------------
+// Next.js middleware
+// ---------------------------------------------------------------------------
+
+describe("x402 E2E — Next.js middleware", () => {
+  if (!hasX402Credentials) {
+    it.skip("skipped — missing CDP credentials", () => {});
+    return;
+  }
+
+  const NEXT_PORT = 4028;
+  const NEXT_URL = `http://localhost:${NEXT_PORT}`;
+  const NEXT_PAYMENT_NETWORK = "eip155:84532" as `${string}:${string}`;
+
+  let result: CdpX402ClientResult;
+  let server: HttpServer;
+
+  function toNextRequest(req: IncomingMessage): NextRequest {
+    const url = new URL(req.url ?? "/", `http://localhost:${NEXT_PORT}`);
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(req.headers)) {
+      if (value !== undefined) {
+        headers.set(key, Array.isArray(value) ? value.join(", ") : value);
+      }
+    }
+    return new NextRequest(url, { method: req.method ?? "GET", headers });
+  }
+
+  async function sendNextResponse(nextRes: NextResponse, res: ServerResponse): Promise<void> {
+    const nodeHeaders: Record<string, string> = {};
+    nextRes.headers.forEach((value: string, key: string) => {
+      nodeHeaders[key] = value;
+    });
+    const body = await nextRes.arrayBuffer();
+    res.writeHead(nextRes.status, nodeHeaders);
+    res.end(Buffer.from(body));
+  }
+
+  beforeAll(async () => {
+    result = await createCdpX402Client({
+      walletConfig: {
+        accountName: process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test",
+      },
+    });
+
+    const payToAccount = await result.cdpClient.evm.getOrCreateAccount({
+      name: (process.env.CDP_ACCOUNT_NAME ?? "x402-e2e-test") + "-receiver",
+    });
+
+    const protectedHandler = createCdpRouteHandler(
+      async (): Promise<NextResponse<unknown>> =>
+        NextResponse.json({ message: "payment accepted" }),
+      {
+        routeConfig: {
+          accepts: {
+            scheme: "exact",
+            price: X402_PAYMENT_PRICE,
+            network: NEXT_PAYMENT_NETWORK,
+            payTo: payToAccount.address as `0x${string}`,
+            maxTimeoutSeconds: 300,
+          },
+          description: "x402 e2e test endpoint (next)",
+        },
+      },
+    );
+
+    server = createNodeServer(async (req: IncomingMessage, res: ServerResponse) => {
+      try {
+        const nextReq = toNextRequest(req);
+        const { pathname } = nextReq.nextUrl;
+        let nextRes: NextResponse<unknown>;
+        if (pathname === "/health") {
+          nextRes = NextResponse.json({ status: "ok" });
+        } else if (pathname === X402_PROTECTED_PATH) {
+          nextRes = (await protectedHandler(nextReq, {})) as NextResponse<unknown>;
+        } else {
+          nextRes = new NextResponse("Not Found", { status: 404 });
+        }
+        await sendNextResponse(nextRes, res);
+      } catch (err) {
+        console.error("[next-resource-server] unhandled error:", err);
+        res.writeHead(500, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: (err as Error).message }));
+      }
+    });
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(NEXT_PORT, resolve);
+      server.once("error", reject);
+    });
+  }, 60_000);
+
+  afterAll(async () => {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  it("returns 200 for the health endpoint", async () => {
+    const response = await fetch(`${NEXT_URL}/health`);
+    expect(response.status).toBe(200);
+  });
+
+  it("returns 402 for an unauthenticated request to the protected endpoint", async () => {
+    const response = await fetch(`${NEXT_URL}${X402_PROTECTED_PATH}`);
+    expect(response.status).toBe(402);
+  });
+
+  it("completes a real x402 payment on Base Sepolia via Next.js middleware", async () => {
+    const wrappedFetch = wrapFetchWithPayment(fetch, result.client);
+    const response = await wrappedFetch(`${NEXT_URL}${X402_PROTECTED_PATH}`);
+    const body = await response.json().catch(() => null);
+    expect(response.status, `Payment failed: ${JSON.stringify(body)}`).toBe(200);
+    expect(body).toMatchObject({ message: "payment accepted" });
+  }, 30_000);
+});

@@ -1,0 +1,17 @@
+{
+  "name": "cdp-sdk-example-x402-hono-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx server.ts"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "workspace:*",
+    "@coinbase/x402-hono": "workspace:*",
+    "@hono/node-server": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "hono": "^4.0.0",
+    "tsx": "^4.0.0"
+  }
+}

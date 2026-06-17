@@ -40,6 +40,7 @@ import {
   GetOrCreateSmartAccountOptions,
 } from "./evm.types.js";
 import { APIError } from "../../openapi-client/errors.js";
+import { SmartAccountAlreadyExistsError } from "../../errors.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
@@ -732,6 +733,208 @@ describe("EvmClient", () => {
         Provided Owner Address: 0xowner2
         ]
       `);
+    });
+
+    it("should recover by owner lookup when API returns 409 with multiple-owner message", async () => {
+      const mockOwnerAccount: EvmAccount = {
+        address: "0xowner" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const mockExistingSmartAccount = {
+        address: "0xexisting" as Address,
+        owners: [mockOwnerAccount.address],
+        name: "other-name",
+      };
+
+      const mockSmartAccount: EvmSmartAccount = {
+        address: "0xexisting" as Address,
+        owners: [mockOwnerAccount],
+        name: "other-name",
+        type: "evm-smart" as const,
+        transfer: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        listTokenBalances: vi.fn(),
+        useSpendPermission: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
+        useNetwork: vi.fn(),
+      };
+
+      const getOrCreateOptions: GetOrCreateSmartAccountOptions = {
+        name: "test-smart-account",
+        owner: mockOwnerAccount,
+      };
+
+      const getEvmSmartAccountByNameMock =
+        CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
+          typeof CdpOpenApiClient.getEvmSmartAccountByName
+        >;
+      getEvmSmartAccountByNameMock.mockRejectedValueOnce(
+        new APIError(404, "not_found", "Account not found"),
+      );
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockRejectedValueOnce(
+        new APIError(
+          409,
+          "already_exists",
+          "Multiple smart wallets with the same owner is not supported.",
+        ),
+      );
+
+      const listEvmSmartAccountsMock = CdpOpenApiClient.listEvmSmartAccounts as MockedFunction<
+        typeof CdpOpenApiClient.listEvmSmartAccounts
+      >;
+      listEvmSmartAccountsMock.mockResolvedValueOnce({
+        accounts: [mockExistingSmartAccount],
+        nextPageToken: undefined,
+      });
+
+      const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.getEvmSmartAccount
+      >;
+      getEvmSmartAccountMock.mockResolvedValueOnce(mockExistingSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValueOnce(mockSmartAccount);
+
+      const result = await client.getOrCreateSmartAccount(getOrCreateOptions);
+      expect(result.address).toBe("0xexisting");
+    });
+
+    it("should recover by owner lookup when API returns 400 with multiple-owner message", async () => {
+      const mockOwnerAccount: EvmAccount = {
+        address: "0xowner" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const mockExistingSmartAccount = {
+        address: "0xexisting" as Address,
+        owners: [mockOwnerAccount.address],
+        name: "other-name",
+      };
+
+      const mockSmartAccount: EvmSmartAccount = {
+        address: "0xexisting" as Address,
+        owners: [mockOwnerAccount],
+        name: "other-name",
+        type: "evm-smart" as const,
+        transfer: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        listTokenBalances: vi.fn(),
+        useSpendPermission: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
+        useNetwork: vi.fn(),
+      };
+
+      const getOrCreateOptions: GetOrCreateSmartAccountOptions = {
+        name: "test-smart-account",
+        owner: mockOwnerAccount,
+      };
+
+      const getEvmSmartAccountByNameMock =
+        CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
+          typeof CdpOpenApiClient.getEvmSmartAccountByName
+        >;
+      getEvmSmartAccountByNameMock.mockRejectedValueOnce(
+        new APIError(404, "not_found", "Account not found"),
+      );
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockRejectedValueOnce(
+        new APIError(
+          400,
+          "invalid_request",
+          "Multiple smart wallets with the same owner is not supported.",
+        ),
+      );
+
+      const listEvmSmartAccountsMock = CdpOpenApiClient.listEvmSmartAccounts as MockedFunction<
+        typeof CdpOpenApiClient.listEvmSmartAccounts
+      >;
+      listEvmSmartAccountsMock.mockResolvedValueOnce({
+        accounts: [mockExistingSmartAccount],
+        nextPageToken: undefined,
+      });
+
+      const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.getEvmSmartAccount
+      >;
+      getEvmSmartAccountMock.mockResolvedValueOnce(mockExistingSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValueOnce(mockSmartAccount);
+
+      const result = await client.getOrCreateSmartAccount(getOrCreateOptions);
+      expect(result.address).toBe("0xexisting");
+    });
+
+    it("should throw SmartAccountAlreadyExistsError when owner is not found in listing", async () => {
+      const mockOwnerAccount: EvmAccount = {
+        address: "0xowner" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const getOrCreateOptions: GetOrCreateSmartAccountOptions = {
+        name: "test-smart-account",
+        owner: mockOwnerAccount,
+      };
+
+      const getEvmSmartAccountByNameMock =
+        CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
+          typeof CdpOpenApiClient.getEvmSmartAccountByName
+        >;
+      getEvmSmartAccountByNameMock.mockRejectedValueOnce(
+        new APIError(404, "not_found", "Account not found"),
+      );
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockRejectedValueOnce(
+        new APIError(
+          400,
+          "invalid_request",
+          "Multiple smart wallets with the same owner is not supported.",
+        ),
+      );
+
+      const listEvmSmartAccountsMock = CdpOpenApiClient.listEvmSmartAccounts as MockedFunction<
+        typeof CdpOpenApiClient.listEvmSmartAccounts
+      >;
+      listEvmSmartAccountsMock.mockResolvedValueOnce({
+        accounts: [{ address: "0xother" as Address, owners: ["0xunrelated" as Address], name: "" }],
+        nextPageToken: undefined,
+      });
+
+      await expect(client.getOrCreateSmartAccount(getOrCreateOptions)).rejects.toThrow(
+        SmartAccountAlreadyExistsError,
+      );
     });
   });
 

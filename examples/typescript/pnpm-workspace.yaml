@@ -1,2 +1,8 @@
 packages:
   - "../../typescript/packages/cdp-sdk"
+  - "../../typescript/packages/x402-express"
+  - "../../typescript/packages/x402-hono"
+  - "../../typescript/packages/x402-next"
+  - "x402/servers/express"
+  - "x402/servers/hono"
+  - "x402/servers/next"

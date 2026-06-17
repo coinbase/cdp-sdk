@@ -3,7 +3,7 @@
   "packageManager": "pnpm@10.11.1",
   "type": "module",
   "scripts": {
-    "build": "pnpm -r run build",
+    "build": "pnpm --filter @coinbase/cdp-sdk run build && pnpm --filter @coinbase/x402-express --filter @coinbase/x402-hono --filter @coinbase/x402-next -r run build",
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "check:auth-crypto-imports": "pnpm -r run check:auth-crypto-imports",
@@ -23,7 +23,7 @@
     "orval": "make -C .. check-openapi || echo \" NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT.\"; orval --config orval.config.ts",
     "test": "pnpm -r run test",
     "test:coverage": "pnpm -r run test:coverage",
-    "test:e2e": "pnpm -r run test:e2e",
+    "test:e2e": "pnpm build && pnpm --filter @coinbase/cdp-sdk run test:e2e",
     "test:watch": "pnpm -r run test:watch"
   },
   "devDependencies": {

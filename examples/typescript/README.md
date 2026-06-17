@@ -16,3 +16,15 @@ To run an example, use `pnpm tsx` followed by the path to the example file, for 
 ```bash
 pnpm tsx evm/createAccount.ts
 ```
+
+### x402 payment examples
+
+Client-side x402 scripts run the same way:
+
+```bash
+pnpm tsx x402/clients/fetch/index.ts
+pnpm tsx x402/clients/scw/index.ts
+pnpm tsx x402/clients/scw/spend-controls.ts
+```
+
+Server examples (Express, Hono, Next.js) have their own `package.json` under `x402/servers/`. See [`x402/README.md`](./x402/README.md) for details.

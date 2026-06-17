@@ -75,7 +75,7 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
-import { UserInputValidationError } from "../../errors.js";
+import { SmartAccountAlreadyExistsError, UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
@@ -650,6 +650,32 @@ export class EvmClient implements EvmClientInterface {
           } catch (error) {
             // If it failed because the account already exists, get the existing account
             const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
+            // The API may return 400 instead of 409 for the "multiple owners" constraint.
+            const isMultipleOwnersError =
+              error instanceof APIError &&
+              error.errorMessage.includes("Multiple smart wallets with the same owner");
+            if (isMultipleOwnersError) {
+              /*
+               * The owner already has a smart account registered under a different name.
+               * Page through all smart accounts to find the one owned by this address,
+               * then return it rather than failing.
+               */
+              const ownerAddress = options.owner.address.toLowerCase();
+              let pageToken: string | undefined;
+              do {
+                const page = await this.listSmartAccounts({ pageToken });
+                const match = page.accounts.find(a => a.owners[0]?.toLowerCase() === ownerAddress);
+                if (match) {
+                  return this._getSmartAccountInternal({
+                    address: match.address,
+                    owner: options.owner,
+                  });
+                }
+                pageToken = page.nextPageToken;
+              } while (pageToken);
+              // Owner's smart account not found in listing — surface the original error.
+              throw new SmartAccountAlreadyExistsError((error as APIError).errorMessage);
+            }
             if (doesAccountAlreadyExist) {
               const account = await this._getSmartAccountInternal(options);
               return account;
