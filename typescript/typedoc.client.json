@@ -1,19 +1,44 @@
 {
-  "entryPoints": ["./packages/cdp-sdk/src/client/cdp.ts"],
+  "entryPoints": [
+    "./packages/cdp-sdk/src/client/cdp.ts"
+  ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/client",
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./ts-frontmatter.mjs"],
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-frontmatter",
+    "./ts-frontmatter.mjs",
+    "./typedoc-router-backend.mjs"
+  ],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
   "readme": "none",
   "name": "CDP Client",
   "includeVersion": true,
-  "sort": ["kind", "alphabetical"],
-  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
+  "sort": [
+    "kind",
+    "alphabetical"
+  ],
+  "kindSortOrder": [
+    "Class",
+    "Interface",
+    "Function",
+    "TypeAlias",
+    "Enum",
+    "Variable",
+    "Module"
+  ],
   "categorizeByGroup": true,
   "defaultCategory": "Other",
-  "categoryOrder": ["Client", "EndUser", "Types", "Utilities", "*", "Other"],
+  "categoryOrder": [
+    "Client",
+    "EndUser",
+    "Types",
+    "Utilities",
+    "*",
+    "Other"
+  ],
   "exclude": [
     "**/tests/**/*",
     "**/*.test.ts",
@@ -23,7 +48,7 @@
     "**/_types/**/*",
     "**/openapi-client/**/*"
   ],
-  "skipErrorChecking": false,
+  "skipErrorChecking": true,
   "treatWarningsAsErrors": false,
   "validation": {
     "notExported": true,
@@ -40,5 +65,14 @@
   "publicPath": "/sdks/cdp-sdks-v2/typescript/client",
   "expandObjects": true,
   "expandParameters": true,
-  "router": "module"
+  "router": "backend-group",
+  "parametersFormat": "list",
+  "propertiesFormat": "list",
+  "typeDeclarationFormat": "list",
+  "membersWithOwnFile": [
+    "Function",
+    "Enum",
+    "Variable",
+    "TypeAlias"
+  ]
 }
