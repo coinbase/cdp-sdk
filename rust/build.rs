@@ -108,8 +108,7 @@ fn simplify_single_ref_allof(value: &mut serde_json::Value) {
 }
 
 // Remove `not` subschemas, which typify-impl 0.4.3 does not support and panics on
-// (e.g. `not: { anyOf: [...] }` used by the webhook *EventPayload schemas).
-// `not` is a validation-only constraint and has no effect on the generated Rust types.
+// (e.g. `not: { anyOf: [...] }`.
 fn remove_not_schemas(value: &mut serde_json::Value) {
     match value {
         serde_json::Value::Object(map) => {
