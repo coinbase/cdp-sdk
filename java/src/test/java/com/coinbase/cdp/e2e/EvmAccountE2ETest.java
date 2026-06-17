@@ -399,6 +399,9 @@ class EvmAccountE2ETest {
     // Wait for faucet funds to be confirmed on-chain by polling for transaction receipt
     TestUtils.waitForTransactionReceipt(faucetTxHash);
 
+    // Wait for the funds to land before transferring.
+    TestUtils.sleep(5000);
+
     try {
       var result =
           cdp.evm()
