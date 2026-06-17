@@ -35,6 +35,18 @@ dev = [
     "ruff>=0.7.1,<0.8",
     "towncrier>=24.8.0,<25"
 ]
+x402 = [
+    "x402[mechanisms,extensions]>=2.11.0",
+    "httpx>=0.28.0",
+]
+x402-fastapi = [
+    "x402[mechanisms,extensions,fastapi]>=2.11.0",
+    "httpx>=0.28.0",
+]
+x402-flask = [
+    "x402[mechanisms,extensions,flask]>=2.11.0",
+    "httpx>=0.28.0",
+]
 
 [build-system]
 requires = ["hatchling"]

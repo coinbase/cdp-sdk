@@ -1,33 +1,36 @@
-"""x402: CDP-opinionated wrapper for the x402 payment protocol."""
+"""
+Core CDP x402 facilitator, Bazaar, payment client, resource server,
+wallet adapters, and spend controls.
+"""
 
-try:
-    from x402.client import x402Client  # noqa: F401
-except ImportError as _x402_missing:
-    raise ImportError(
-        "The cdp.x402 module requires the x402 package with mechanism extras. "
-        "Install it with: pip install 'cdp-sdk[x402]'\n"
-        "For FastAPI support: pip install 'cdp-sdk[x402-fastapi]'\n"
-        "For Flask support: pip install 'cdp-sdk[x402-flask]'"
-    ) from _x402_missing
+from cdp.openapi_client.models import (
+    X402DiscoveryMerchantResponse,
+    X402DiscoveryResource,
+    X402DiscoveryResourcesResponse,
+    X402ResourceQuality,
+    X402SearchResourcesResponse,
+)
 
-# Backward-compatible re-exports from the original cdp.x402 module.
-from cdp.x402.x402 import FacilitatorConfig, create_facilitator_config, facilitator
-
-from cdp.x402.core import (
+from cdp.x402.core.balance_check import InsufficientFundsError, create_balance_check_hook
+from cdp.x402.core.bazaar import (
+    CDPBazaarClient,
+    ListDiscoveryResourcesParams,
+    MerchantResourcesParams,
+    SearchDiscoveryResourcesParams,
+    create_cdp_bazaar_client,
+)
+from cdp.x402.core.client import (
+    CDPx402Client,
+    CDPx402ClientConfig,
+    CDPx402ClientResult,
+    create_cdp_x402_client,
+)
+from cdp.x402.core.constants import (
     ARBITRUM_CAIP2,
     BASE_MAINNET_CAIP2,
     BASE_SEPOLIA_CAIP2,
     CDP_DEFAULT_NETWORKS,
-    CDP_EXTENSION_BAZAAR,
-    CDP_EXTENSION_GAS_SPONSORING_EIP2612,
-    CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
-    CDP_SERVER_DEFAULT_EVM_NETWORKS,
-    CDP_SERVER_DEFAULT_NETWORKS,
-    CDP_SERVER_DEFAULT_SVM_NETWORKS,
-    CDP_SUPPORTED_EXTENSIONS,
     CDP_USDC_ADDRESSES,
-    DEFAULT_APPROACHING_LIMIT_THRESHOLDS,
-    DEFAULT_MAX_LEDGER_ENTRIES,
     POLYGON_CAIP2,
     SOLANA_DEVNET_CAIP2,
     SOLANA_MAINNET_CAIP2,
@@ -41,27 +44,30 @@ from cdp.x402.core import (
     USDC_ADDRESS_WORLD_SEPOLIA,
     WORLD_CAIP2,
     WORLD_SEPOLIA_CAIP2,
+)
+from cdp.x402.core.credentials import resolve_credentials
+from cdp.x402.core.extensions import (
+    CDP_EXTENSION_BAZAAR,
+    CDP_EXTENSION_GAS_SPONSORING_EIP2612,
+    CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
+    CDP_SUPPORTED_EXTENSIONS,
+    CDPExtensions,
+    build_bazaar_declaration,
+    get_cdp_extension_registrations,
+)
+from cdp.x402.core.facilitator import (
+    create_cdp_facilitator_client,
+    create_cdp_facilitator_client_sync,
+)
+from cdp.x402.core.guardrails import (
+    DEFAULT_APPROACHING_LIMIT_THRESHOLDS,
+    DEFAULT_MAX_LEDGER_ENTRIES,
     Address,
     Amount,
     Asset,
-    CDPAccountProvisionResult,
-    CDPBazaarClient,
-    CDPExtensions,
-    CDPPaymentScheme,
-    CDPResourceServer,
-    CDPResourceServerConfig,
-    CDPRouteConfig,
-    CDPSchemeRegistration,
-    CDPx402Client,
-    CDPx402ClientConfig,
-    CDPx402ClientResult,
     Duration,
-    InsufficientFundsError,
-    ListDiscoveryResourcesParams,
-    MerchantResourcesParams,
     RecordSpendInput,
     ResolvedSpendControls,
-    SearchDiscoveryResourcesParams,
     SpendControlError,
     SpendControlErrorCode,
     SpendControlErrorCodes,
@@ -72,36 +78,38 @@ from cdp.x402.core import (
     SpendStore,
     SpendTracker,
     TotalSpendQuery,
-    WalletConfig,
-    X402DiscoveryMerchantResponse,
-    X402DiscoveryResource,
-    X402DiscoveryResourcesResponse,
-    X402ResourceQuality,
-    X402SearchResourcesResponse,
     apply_spend_controls,
-    build_bazaar_declaration,
     cdp_x402_http_adapter,
     cdp_x402_httpx_transport,
-    create_balance_check_hook,
-    create_cdp_bazaar_client,
-    create_cdp_facilitator_client,
-    create_cdp_facilitator_client_sync,
-    create_cdp_resource_server,
-    create_cdp_x402_client,
-    from_cdp_evm_account,
-    from_cdp_smart_wallet,
-    get_cdp_default_schemes,
-    get_cdp_extension_registrations,
     get_spend_controls_registry,
     normalize_asset,
     normalize_network,
     normalize_payee,
     parse_amount,
     parse_duration,
-    provision_cdp_accounts,
-    resolve_credentials,
+)
+from cdp.x402.core.resource_server import (
+    CDP_SERVER_DEFAULT_EVM_NETWORKS,
+    CDP_SERVER_DEFAULT_NETWORKS,
+    CDP_SERVER_DEFAULT_SVM_NETWORKS,
+    CDPPaymentScheme,
+    CDPResourceServer,
+    CDPResourceServerConfig,
+    CDPRouteConfig,
+    CDPSchemeRegistration,
+    create_cdp_resource_server,
+    get_cdp_default_schemes,
+)
+from cdp.x402.core.wallets import (
+    WalletConfig,
+    from_cdp_evm_account,
+    from_cdp_smart_wallet,
     resolve_network_from_chain_id,
     resolve_wallet_config,
+)
+from cdp.x402.core.wallets.provision import (
+    CDPAccountProvisionResult,
+    provision_cdp_accounts,
 )
 
 __all__ = [
@@ -179,11 +187,6 @@ __all__ = [
     "get_cdp_extension_registrations",
     # Guardrails
     "apply_spend_controls",
-    "SpendControlsRegistry",
-    "get_spend_controls_registry",
-    # Settlement-aware HTTP transports
-    "cdp_x402_httpx_transport",
-    "cdp_x402_http_adapter",
     "SpendControls",
     "SpendControlError",
     "SpendControlErrorCode",
@@ -206,4 +209,8 @@ __all__ = [
     "normalize_payee",
     "ResolvedSpendControls",
     "DEFAULT_APPROACHING_LIMIT_THRESHOLDS",
+    "SpendControlsRegistry",
+    "get_spend_controls_registry",
+    "cdp_x402_httpx_transport",
+    "cdp_x402_http_adapter",
 ]

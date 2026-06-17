@@ -45,7 +45,13 @@ jobs:
       - name: Run unit tests (Python 3.10)
         if: matrix.python == '3.10'
         run: make test-3.10
-  
+
       - name: Run unit tests (Python 3.11+)
         if: matrix.python != '3.10'
         run: make test
+
+      - name: Install x402 extras
+        run: make install-x402
+
+      - name: Run x402 unit tests
+        run: make test-x402

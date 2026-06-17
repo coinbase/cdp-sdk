@@ -37,6 +37,15 @@ install:
 	fi
 	uv sync --extra dev || (echo "Error: Failed to install dependencies" && exit 1)
 
+.PHONY: install-x402
+install-x402:
+	@if [ ! -d ".venv" ]; then \
+		echo "Creating virtual environment with uv..."; \
+		uv venv || (echo "Error: Failed to create virtual environment" && exit 1); \
+		echo "Virtual environment created successfully at .venv"; \
+	fi
+	uv sync --extra dev --extra x402-fastapi --extra x402-flask || (echo "Error: Failed to install x402 dependencies" && exit 1)
+
 # Python 3.10 has some mocking bugs in pytests, so we skip those tests
 .PHONY: test-3.10
 test-3.10:
@@ -44,11 +53,19 @@ test-3.10:
 
 .PHONY: test
 test:
-	uv sync --extra dev && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
+	uv sync --extra dev && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" --ignore=cdp/test/x402 || (echo "Error: Tests failed" && exit 1)
+
+.PHONY: test-x402
+test-x402:
+	uv sync --extra dev --extra x402-fastapi --extra x402-flask && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/x402 -v || (echo "Error: x402 Tests failed" && exit 1)
 
 .PHONY: e2e
 e2e:
 	uv sync --extra dev && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
+
+.PHONY: e2e-x402
+e2e-x402:
+	uv sync --extra dev --extra x402-fastapi --extra x402-flask && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/x402/test_e2e.py -v -m e2e || (echo "Error: x402 E2E Tests failed" && exit 1)
 
 .PHONY: setup
 setup:
