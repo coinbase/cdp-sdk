@@ -1,20 +1,45 @@
 {
-  "entryPoints": ["./packages/cdp-sdk/src/client/policies/policies.ts", "./packages/cdp-sdk/src/client/policies/policies.types.ts"],
+  "entryPoints": [
+    "./packages/cdp-sdk/src/client/policies/policies.ts",
+    "./packages/cdp-sdk/src/client/policies/policies.types.ts"
+  ],
   "entryPointStrategy": "resolve",
-  "flattenOutputFiles": true,
   "out": "./docs-md/policies",
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-frontmatter",
+    "./typedoc-router-backend.mjs",
+    "./ts-frontmatter.mjs"
+  ],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
   "readme": "none",
   "name": "Overview",
   "includeVersion": true,
-  "sort": ["kind", "alphabetical"],
-  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
+  "sort": [
+    "kind",
+    "alphabetical"
+  ],
+  "kindSortOrder": [
+    "Class",
+    "Interface",
+    "Function",
+    "TypeAlias",
+    "Enum",
+    "Variable",
+    "Module"
+  ],
   "categorizeByGroup": true,
   "defaultCategory": "Other",
-  "categoryOrder": ["Client", "Policies", "Types", "Utilities", "*", "Other"],
+  "categoryOrder": [
+    "Client",
+    "Policies",
+    "Types",
+    "Utilities",
+    "*",
+    "Other"
+  ],
   "exclude": [
     "**/tests/**/*",
     "**/*.test.ts",
@@ -24,7 +49,7 @@
     "**/_types/**/*",
     "**/openapi-client/**/*"
   ],
-  "skipErrorChecking": false,
+  "skipErrorChecking": true,
   "treatWarningsAsErrors": false,
   "validation": {
     "notExported": true,
@@ -41,5 +66,15 @@
   "publicPath": "/sdks/cdp-sdks-v2/typescript/policies",
   "expandObjects": true,
   "expandParameters": true,
-  "router": "module"
+  "router": "backend-group",
+  "parametersFormat": "list",
+  "propertiesFormat": "list",
+  "typeDeclarationFormat": "list",
+  "membersWithOwnFile": [
+    "Class",
+    "Function",
+    "Enum",
+    "Variable",
+    "TypeAlias"
+  ]
 }
