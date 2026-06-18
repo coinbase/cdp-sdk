@@ -630,6 +630,7 @@ async def test_send_user_operation(mock_send_user_operation, smart_account_model
         mock_calls,
         test_network,
         test_paymaster_url,
+        paymaster_context=None,
     )
 
     assert result == mock_user_operation

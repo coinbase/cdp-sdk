@@ -17,14 +17,21 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from cdp.openapi_client.models.offramp_transaction_created_event import OfframpTransactionCreatedEvent
-from cdp.openapi_client.models.offramp_transaction_failed_event import OfframpTransactionFailedEvent
-from cdp.openapi_client.models.offramp_transaction_success_event import OfframpTransactionSuccessEvent
-from cdp.openapi_client.models.offramp_transaction_updated_event import OfframpTransactionUpdatedEvent
-from cdp.openapi_client.models.onramp_transaction_created_event import OnrampTransactionCreatedEvent
-from cdp.openapi_client.models.onramp_transaction_failed_event import OnrampTransactionFailedEvent
-from cdp.openapi_client.models.onramp_transaction_success_event import OnrampTransactionSuccessEvent
-from cdp.openapi_client.models.onramp_transaction_updated_event import OnrampTransactionUpdatedEvent
+from pydantic import Field, field_validator
+from typing import Optional
+from typing_extensions import Annotated
+from cdp.openapi_client.models.create_onramp_order201_response import CreateOnrampOrder201Response
+from cdp.openapi_client.models.create_onramp_order_request import CreateOnrampOrderRequest
+from cdp.openapi_client.models.create_onramp_session201_response import CreateOnrampSession201Response
+from cdp.openapi_client.models.get_onramp_order_by_id200_response import GetOnrampOrderById200Response
+from cdp.openapi_client.models.get_onramp_user_limits200_response import GetOnrampUserLimits200Response
+from cdp.openapi_client.models.get_onramp_user_limits_request import GetOnrampUserLimitsRequest
+from cdp.openapi_client.models.initiate_onramp_verification_request import InitiateOnrampVerificationRequest
+from cdp.openapi_client.models.onramp_limit_upgrade_request import OnrampLimitUpgradeRequest
+from cdp.openapi_client.models.onramp_session_request import OnrampSessionRequest
+from cdp.openapi_client.models.onramp_verification_confirmation import OnrampVerificationConfirmation
+from cdp.openapi_client.models.onramp_verification_initiation import OnrampVerificationInitiation
+from cdp.openapi_client.models.submit_onramp_verification_request import SubmitOnrampVerificationRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -45,9 +52,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_created_webhook(
+    async def create_onramp_order(
         self,
-        offramp_transaction_created_event: ,
+        create_onramp_order_request: Optional[CreateOnrampOrderRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -60,13 +67,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Offramp transaction created
+    ) -> CreateOnrampOrder201Response:
+        """Create an onramp order
 
-        Triggered when the `offramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.  This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
 
-        :param offramp_transaction_created_event: The `offramp.transaction.created` webhook event payload. (required)
-        :type offramp_transaction_created_event: OfframpTransactionCreatedEvent
+        :param create_onramp_order_request:
+        :type create_onramp_order_request: CreateOnrampOrderRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -89,8 +96,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_created_webhook_serialize(
-            offramp_transaction_created_event=offramp_transaction_created_event,
+        _param = self._create_onramp_order_serialize(
+            create_onramp_order_request=create_onramp_order_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -98,8 +105,12 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "CreateOnrampOrder201Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -113,9 +124,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_created_webhook_with_http_info(
+    async def create_onramp_order_with_http_info(
         self,
-        offramp_transaction_created_event: ,
+        create_onramp_order_request: Optional[CreateOnrampOrderRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -128,13 +139,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Offramp transaction created
+    ) -> ApiResponse[CreateOnrampOrder201Response]:
+        """Create an onramp order
 
-        Triggered when the `offramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.  This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
 
-        :param offramp_transaction_created_event: The `offramp.transaction.created` webhook event payload. (required)
-        :type offramp_transaction_created_event: OfframpTransactionCreatedEvent
+        :param create_onramp_order_request:
+        :type create_onramp_order_request: CreateOnrampOrderRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -157,8 +168,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_created_webhook_serialize(
-            offramp_transaction_created_event=offramp_transaction_created_event,
+        _param = self._create_onramp_order_serialize(
+            create_onramp_order_request=create_onramp_order_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -166,8 +177,12 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "CreateOnrampOrder201Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -181,9 +196,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_created_webhook_without_preload_content(
+    async def create_onramp_order_without_preload_content(
         self,
-        offramp_transaction_created_event: ,
+        create_onramp_order_request: Optional[CreateOnrampOrderRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -197,12 +212,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Offramp transaction created
+        """Create an onramp order
 
-        Triggered when the `offramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.  This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
 
-        :param offramp_transaction_created_event: The `offramp.transaction.created` webhook event payload. (required)
-        :type offramp_transaction_created_event: OfframpTransactionCreatedEvent
+        :param create_onramp_order_request:
+        :type create_onramp_order_request: CreateOnrampOrderRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -225,8 +240,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_created_webhook_serialize(
-            offramp_transaction_created_event=offramp_transaction_created_event,
+        _param = self._create_onramp_order_serialize(
+            create_onramp_order_request=create_onramp_order_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -234,8 +249,12 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "CreateOnrampOrder201Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -244,9 +263,9 @@ class OnrampApi:
         return response_data.response
 
 
-    def _offramp_transaction_created_webhook_serialize(
+    def _create_onramp_order_serialize(
         self,
-        offramp_transaction_created_event,
+        create_onramp_order_request,
         _request_auth,
         _content_type,
         _headers,
@@ -272,10 +291,17 @@ class OnrampApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if offramp_transaction_created_event is not None:
-            _body_params = offramp_transaction_created_event
+        if create_onramp_order_request is not None:
+            _body_params = create_onramp_order_request
 
 
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
 
         # set the HTTP header `Content-Type`
         if _content_type:
@@ -293,12 +319,12 @@ class OnrampApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/offrampTransactionCreated',
+            resource_path='/v2/onramp/orders',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -315,9 +341,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_failed_webhook(
+    async def create_onramp_session(
         self,
-        offramp_transaction_failed_event: ,
+        onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -330,13 +356,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Offramp transaction failed
+    ) -> CreateOnrampSession201Response:
+        """Create an onramp session
 
-        Triggered when the `offramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
-        :param offramp_transaction_failed_event: The `offramp.transaction.failed` webhook event payload. (required)
-        :type offramp_transaction_failed_event: OfframpTransactionFailedEvent
+        :param onramp_session_request:
+        :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -359,8 +385,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_failed_webhook_serialize(
-            offramp_transaction_failed_event=offramp_transaction_failed_event,
+        _param = self._create_onramp_session_serialize(
+            onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -368,8 +394,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "CreateOnrampSession201Response",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -383,9 +412,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_failed_webhook_with_http_info(
+    async def create_onramp_session_with_http_info(
         self,
-        offramp_transaction_failed_event: ,
+        onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -398,13 +427,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Offramp transaction failed
+    ) -> ApiResponse[CreateOnrampSession201Response]:
+        """Create an onramp session
 
-        Triggered when the `offramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
-        :param offramp_transaction_failed_event: The `offramp.transaction.failed` webhook event payload. (required)
-        :type offramp_transaction_failed_event: OfframpTransactionFailedEvent
+        :param onramp_session_request:
+        :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -427,8 +456,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_failed_webhook_serialize(
-            offramp_transaction_failed_event=offramp_transaction_failed_event,
+        _param = self._create_onramp_session_serialize(
+            onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -436,8 +465,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "CreateOnrampSession201Response",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -451,9 +483,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_failed_webhook_without_preload_content(
+    async def create_onramp_session_without_preload_content(
         self,
-        offramp_transaction_failed_event: ,
+        onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -467,12 +499,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Offramp transaction failed
+        """Create an onramp session
 
-        Triggered when the `offramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
-        :param offramp_transaction_failed_event: The `offramp.transaction.failed` webhook event payload. (required)
-        :type offramp_transaction_failed_event: OfframpTransactionFailedEvent
+        :param onramp_session_request:
+        :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -495,8 +527,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_failed_webhook_serialize(
-            offramp_transaction_failed_event=offramp_transaction_failed_event,
+        _param = self._create_onramp_session_serialize(
+            onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -504,8 +536,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "CreateOnrampSession201Response",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -514,9 +549,9 @@ class OnrampApi:
         return response_data.response
 
 
-    def _offramp_transaction_failed_webhook_serialize(
+    def _create_onramp_session_serialize(
         self,
-        offramp_transaction_failed_event,
+        onramp_session_request,
         _request_auth,
         _content_type,
         _headers,
@@ -542,10 +577,17 @@ class OnrampApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if offramp_transaction_failed_event is not None:
-            _body_params = offramp_transaction_failed_event
+        if onramp_session_request is not None:
+            _body_params = onramp_session_request
 
 
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
 
         # set the HTTP header `Content-Type`
         if _content_type:
@@ -563,12 +605,12 @@ class OnrampApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/offrampTransactionFailed',
+            resource_path='/v2/onramp/sessions',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -585,9 +627,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_success_webhook(
+    async def get_onramp_order_by_id(
         self,
-        offramp_transaction_success_event: ,
+        order_id: Annotated[str, Field(strict=True, description="The ID of the onramp order to retrieve.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -600,13 +642,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Offramp transaction succeeded
+    ) -> GetOnrampOrderById200Response:
+        """Get an onramp order by ID
 
-        Triggered when the `offramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Get an onramp order by ID.
 
-        :param offramp_transaction_success_event: The `offramp.transaction.success` webhook event payload. (required)
-        :type offramp_transaction_success_event: OfframpTransactionSuccessEvent
+        :param order_id: The ID of the onramp order to retrieve. (required)
+        :type order_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -629,8 +671,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_success_webhook_serialize(
-            offramp_transaction_success_event=offramp_transaction_success_event,
+        _param = self._get_onramp_order_by_id_serialize(
+            order_id=order_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -638,8 +680,10 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "GetOnrampOrderById200Response",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -653,9 +697,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_success_webhook_with_http_info(
+    async def get_onramp_order_by_id_with_http_info(
         self,
-        offramp_transaction_success_event: ,
+        order_id: Annotated[str, Field(strict=True, description="The ID of the onramp order to retrieve.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -668,13 +712,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Offramp transaction succeeded
+    ) -> ApiResponse[GetOnrampOrderById200Response]:
+        """Get an onramp order by ID
 
-        Triggered when the `offramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Get an onramp order by ID.
 
-        :param offramp_transaction_success_event: The `offramp.transaction.success` webhook event payload. (required)
-        :type offramp_transaction_success_event: OfframpTransactionSuccessEvent
+        :param order_id: The ID of the onramp order to retrieve. (required)
+        :type order_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -697,8 +741,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_success_webhook_serialize(
-            offramp_transaction_success_event=offramp_transaction_success_event,
+        _param = self._get_onramp_order_by_id_serialize(
+            order_id=order_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -706,8 +750,10 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "GetOnrampOrderById200Response",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -721,9 +767,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_success_webhook_without_preload_content(
+    async def get_onramp_order_by_id_without_preload_content(
         self,
-        offramp_transaction_success_event: ,
+        order_id: Annotated[str, Field(strict=True, description="The ID of the onramp order to retrieve.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -737,12 +783,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Offramp transaction succeeded
+        """Get an onramp order by ID
 
-        Triggered when the `offramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Get an onramp order by ID.
 
-        :param offramp_transaction_success_event: The `offramp.transaction.success` webhook event payload. (required)
-        :type offramp_transaction_success_event: OfframpTransactionSuccessEvent
+        :param order_id: The ID of the onramp order to retrieve. (required)
+        :type order_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -765,8 +811,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_success_webhook_serialize(
-            offramp_transaction_success_event=offramp_transaction_success_event,
+        _param = self._get_onramp_order_by_id_serialize(
+            order_id=order_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -774,8 +820,10 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "GetOnrampOrderById200Response",
+            '401': "Error",
+            '404': "Error",
+            '429': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -784,9 +832,9 @@ class OnrampApi:
         return response_data.response
 
 
-    def _offramp_transaction_success_webhook_serialize(
+    def _get_onramp_order_by_id_serialize(
         self,
-        offramp_transaction_success_event,
+        order_id,
         _request_auth,
         _content_type,
         _headers,
@@ -808,37 +856,31 @@ class OnrampApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if order_id is not None:
+            _path_params['orderId'] = order_id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if offramp_transaction_success_event is not None:
-            _body_params = offramp_transaction_success_event
 
 
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
             )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
+
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/offrampTransactionSuccess',
+            method='GET',
+            resource_path='/v2/onramp/orders/{orderId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -855,9 +897,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_updated_webhook(
+    async def get_onramp_user_limits(
         self,
-        offramp_transaction_updated_event: ,
+        get_onramp_user_limits_request: Optional[GetOnrampUserLimitsRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -870,13 +912,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Offramp transaction updated
+    ) -> GetOnrampUserLimits200Response:
+        """Get onramp user limits
 
-        Triggered when the `offramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports `GUEST_CHECKOUT_APPLE_PAY` payment method with phone number identification. The phone number must have been previously verified via OTP.
 
-        :param offramp_transaction_updated_event: The `offramp.transaction.updated` webhook event payload. (required)
-        :type offramp_transaction_updated_event: OfframpTransactionUpdatedEvent
+        :param get_onramp_user_limits_request:
+        :type get_onramp_user_limits_request: GetOnrampUserLimitsRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -899,8 +941,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_updated_webhook_serialize(
-            offramp_transaction_updated_event=offramp_transaction_updated_event,
+        _param = self._get_onramp_user_limits_serialize(
+            get_onramp_user_limits_request=get_onramp_user_limits_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -908,8 +950,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "GetOnrampUserLimits200Response",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -923,9 +968,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_updated_webhook_with_http_info(
+    async def get_onramp_user_limits_with_http_info(
         self,
-        offramp_transaction_updated_event: ,
+        get_onramp_user_limits_request: Optional[GetOnrampUserLimitsRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -938,13 +983,13 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Offramp transaction updated
+    ) -> ApiResponse[GetOnrampUserLimits200Response]:
+        """Get onramp user limits
 
-        Triggered when the `offramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports `GUEST_CHECKOUT_APPLE_PAY` payment method with phone number identification. The phone number must have been previously verified via OTP.
 
-        :param offramp_transaction_updated_event: The `offramp.transaction.updated` webhook event payload. (required)
-        :type offramp_transaction_updated_event: OfframpTransactionUpdatedEvent
+        :param get_onramp_user_limits_request:
+        :type get_onramp_user_limits_request: GetOnrampUserLimitsRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -967,8 +1012,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_updated_webhook_serialize(
-            offramp_transaction_updated_event=offramp_transaction_updated_event,
+        _param = self._get_onramp_user_limits_serialize(
+            get_onramp_user_limits_request=get_onramp_user_limits_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -976,8 +1021,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "GetOnrampUserLimits200Response",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -991,9 +1039,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def offramp_transaction_updated_webhook_without_preload_content(
+    async def get_onramp_user_limits_without_preload_content(
         self,
-        offramp_transaction_updated_event: ,
+        get_onramp_user_limits_request: Optional[GetOnrampUserLimitsRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1007,12 +1055,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Offramp transaction updated
+        """Get onramp user limits
 
-        Triggered when the `offramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction. Currently supports `GUEST_CHECKOUT_APPLE_PAY` payment method with phone number identification. The phone number must have been previously verified via OTP.
 
-        :param offramp_transaction_updated_event: The `offramp.transaction.updated` webhook event payload. (required)
-        :type offramp_transaction_updated_event: OfframpTransactionUpdatedEvent
+        :param get_onramp_user_limits_request:
+        :type get_onramp_user_limits_request: GetOnrampUserLimitsRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1035,8 +1083,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._offramp_transaction_updated_webhook_serialize(
-            offramp_transaction_updated_event=offramp_transaction_updated_event,
+        _param = self._get_onramp_user_limits_serialize(
+            get_onramp_user_limits_request=get_onramp_user_limits_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1044,8 +1092,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "GetOnrampUserLimits200Response",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1054,9 +1105,9 @@ class OnrampApi:
         return response_data.response
 
 
-    def _offramp_transaction_updated_webhook_serialize(
+    def _get_onramp_user_limits_serialize(
         self,
-        offramp_transaction_updated_event,
+        get_onramp_user_limits_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1082,10 +1133,17 @@ class OnrampApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if offramp_transaction_updated_event is not None:
-            _body_params = offramp_transaction_updated_event
+        if get_onramp_user_limits_request is not None:
+            _body_params = get_onramp_user_limits_request
 
 
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
 
         # set the HTTP header `Content-Type`
         if _content_type:
@@ -1103,12 +1161,12 @@ class OnrampApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/offrampTransactionUpdated',
+            resource_path='/v2/onramp/limits',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1125,9 +1183,10 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_created_webhook(
+    async def initiate_onramp_verification(
         self,
-        onramp_transaction_created_event: ,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        initiate_onramp_verification_request: Optional[InitiateOnrampVerificationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1140,13 +1199,15 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Onramp transaction created
+    ) -> OnrampVerificationInitiation:
+        """Initiate onramp verification
 
-        Triggered when the `onramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
 
-        :param onramp_transaction_created_event: The `onramp.transaction.created` webhook event payload. (required)
-        :type onramp_transaction_created_event: OnrampTransactionCreatedEvent
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param initiate_onramp_verification_request:
+        :type initiate_onramp_verification_request: InitiateOnrampVerificationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1169,8 +1230,9 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_created_webhook_serialize(
-            onramp_transaction_created_event=onramp_transaction_created_event,
+        _param = self._initiate_onramp_verification_serialize(
+            x_idempotency_key=x_idempotency_key,
+            initiate_onramp_verification_request=initiate_onramp_verification_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1178,8 +1240,13 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "OnrampVerificationInitiation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1193,9 +1260,10 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_created_webhook_with_http_info(
+    async def initiate_onramp_verification_with_http_info(
         self,
-        onramp_transaction_created_event: ,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        initiate_onramp_verification_request: Optional[InitiateOnrampVerificationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1208,13 +1276,15 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Onramp transaction created
+    ) -> ApiResponse[OnrampVerificationInitiation]:
+        """Initiate onramp verification
 
-        Triggered when the `onramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
 
-        :param onramp_transaction_created_event: The `onramp.transaction.created` webhook event payload. (required)
-        :type onramp_transaction_created_event: OnrampTransactionCreatedEvent
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param initiate_onramp_verification_request:
+        :type initiate_onramp_verification_request: InitiateOnrampVerificationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1237,8 +1307,9 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_created_webhook_serialize(
-            onramp_transaction_created_event=onramp_transaction_created_event,
+        _param = self._initiate_onramp_verification_serialize(
+            x_idempotency_key=x_idempotency_key,
+            initiate_onramp_verification_request=initiate_onramp_verification_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1246,8 +1317,13 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "OnrampVerificationInitiation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1261,9 +1337,10 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_created_webhook_without_preload_content(
+    async def initiate_onramp_verification_without_preload_content(
         self,
-        onramp_transaction_created_event: ,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        initiate_onramp_verification_request: Optional[InitiateOnrampVerificationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1277,12 +1354,14 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Onramp transaction created
+        """Initiate onramp verification
 
-        Triggered when the `onramp.transaction.created` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
 
-        :param onramp_transaction_created_event: The `onramp.transaction.created` webhook event payload. (required)
-        :type onramp_transaction_created_event: OnrampTransactionCreatedEvent
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param initiate_onramp_verification_request:
+        :type initiate_onramp_verification_request: InitiateOnrampVerificationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1305,8 +1384,9 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_created_webhook_serialize(
-            onramp_transaction_created_event=onramp_transaction_created_event,
+        _param = self._initiate_onramp_verification_serialize(
+            x_idempotency_key=x_idempotency_key,
+            initiate_onramp_verification_request=initiate_onramp_verification_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1314,8 +1394,13 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '201': "OnrampVerificationInitiation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1324,9 +1409,10 @@ class OnrampApi:
         return response_data.response
 
 
-    def _onramp_transaction_created_webhook_serialize(
+    def _initiate_onramp_verification_serialize(
         self,
-        onramp_transaction_created_event,
+        x_idempotency_key,
+        initiate_onramp_verification_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1350,12 +1436,21 @@ class OnrampApi:
         # process the path parameters
         # process the query parameters
         # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
-        if onramp_transaction_created_event is not None:
-            _body_params = onramp_transaction_created_event
+        if initiate_onramp_verification_request is not None:
+            _body_params = initiate_onramp_verification_request
 
 
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
 
         # set the HTTP header `Content-Type`
         if _content_type:
@@ -1373,12 +1468,12 @@ class OnrampApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/onrampTransactionCreated',
+            resource_path='/v2/onramp/verifications',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1395,9 +1490,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_failed_webhook(
+    async def request_limits_upgrade(
         self,
-        onramp_transaction_failed_event: ,
+        onramp_limit_upgrade_request: Optional[OnrampLimitUpgradeRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1411,12 +1506,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> None:
-        """Onramp transaction failed
+        """Request limit upgrade
 
-        Triggered when the `onramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the `limitUpgradeOptions` array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - `ssnLast4`: Last 4 digits of the Social Security Number (no dashes or spaces). - `dateOfBirth`: Date of birth (day, month, year as zero-padded strings).
 
-        :param onramp_transaction_failed_event: The `onramp.transaction.failed` webhook event payload. (required)
-        :type onramp_transaction_failed_event: OnrampTransactionFailedEvent
+        :param onramp_limit_upgrade_request:
+        :type onramp_limit_upgrade_request: OnrampLimitUpgradeRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1439,8 +1534,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_failed_webhook_serialize(
-            onramp_transaction_failed_event=onramp_transaction_failed_event,
+        _param = self._request_limits_upgrade_serialize(
+            onramp_limit_upgrade_request=onramp_limit_upgrade_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1448,8 +1543,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '202': None,
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1463,9 +1561,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_failed_webhook_with_http_info(
+    async def request_limits_upgrade_with_http_info(
         self,
-        onramp_transaction_failed_event: ,
+        onramp_limit_upgrade_request: Optional[OnrampLimitUpgradeRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1479,12 +1577,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[None]:
-        """Onramp transaction failed
+        """Request limit upgrade
 
-        Triggered when the `onramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the `limitUpgradeOptions` array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - `ssnLast4`: Last 4 digits of the Social Security Number (no dashes or spaces). - `dateOfBirth`: Date of birth (day, month, year as zero-padded strings).
 
-        :param onramp_transaction_failed_event: The `onramp.transaction.failed` webhook event payload. (required)
-        :type onramp_transaction_failed_event: OnrampTransactionFailedEvent
+        :param onramp_limit_upgrade_request:
+        :type onramp_limit_upgrade_request: OnrampLimitUpgradeRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1507,8 +1605,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_failed_webhook_serialize(
-            onramp_transaction_failed_event=onramp_transaction_failed_event,
+        _param = self._request_limits_upgrade_serialize(
+            onramp_limit_upgrade_request=onramp_limit_upgrade_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1516,8 +1614,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '202': None,
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1531,9 +1632,9 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_failed_webhook_without_preload_content(
+    async def request_limits_upgrade_without_preload_content(
         self,
-        onramp_transaction_failed_event: ,
+        onramp_limit_upgrade_request: Optional[OnrampLimitUpgradeRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1547,12 +1648,12 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Onramp transaction failed
+        """Request limit upgrade
 
-        Triggered when the `onramp.transaction.failed` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the `limitUpgradeOptions` array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - `ssnLast4`: Last 4 digits of the Social Security Number (no dashes or spaces). - `dateOfBirth`: Date of birth (day, month, year as zero-padded strings).
 
-        :param onramp_transaction_failed_event: The `onramp.transaction.failed` webhook event payload. (required)
-        :type onramp_transaction_failed_event: OnrampTransactionFailedEvent
+        :param onramp_limit_upgrade_request:
+        :type onramp_limit_upgrade_request: OnrampLimitUpgradeRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1575,8 +1676,8 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_failed_webhook_serialize(
-            onramp_transaction_failed_event=onramp_transaction_failed_event,
+        _param = self._request_limits_upgrade_serialize(
+            onramp_limit_upgrade_request=onramp_limit_upgrade_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1584,8 +1685,11 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '202': None,
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1594,9 +1698,9 @@ class OnrampApi:
         return response_data.response
 
 
-    def _onramp_transaction_failed_webhook_serialize(
+    def _request_limits_upgrade_serialize(
         self,
-        onramp_transaction_failed_event,
+        onramp_limit_upgrade_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1622,10 +1726,17 @@ class OnrampApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if onramp_transaction_failed_event is not None:
-            _body_params = onramp_transaction_failed_event
+        if onramp_limit_upgrade_request is not None:
+            _body_params = onramp_limit_upgrade_request
 
 
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
 
         # set the HTTP header `Content-Type`
         if _content_type:
@@ -1643,12 +1754,12 @@ class OnrampApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/onrampTransactionFailed',
+            resource_path='/v2/onramp/limits/upgrade',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1665,9 +1776,11 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_success_webhook(
+    async def submit_onramp_verification(
         self,
-        onramp_transaction_success_event: ,
+        verification_id: Annotated[str, Field(strict=True, description="The verification ID returned by the Initiate Onramp Verification endpoint.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        submit_onramp_verification_request: Optional[SubmitOnrampVerificationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1680,13 +1793,17 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Onramp transaction succeeded
+    ) -> OnrampVerificationConfirmation:
+        """Submit onramp verification
 
-        Triggered when the `onramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
 
-        :param onramp_transaction_success_event: The `onramp.transaction.success` webhook event payload. (required)
-        :type onramp_transaction_success_event: OnrampTransactionSuccessEvent
+        :param verification_id: The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+        :type verification_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param submit_onramp_verification_request:
+        :type submit_onramp_verification_request: SubmitOnrampVerificationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1709,8 +1826,10 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_success_webhook_serialize(
-            onramp_transaction_success_event=onramp_transaction_success_event,
+        _param = self._submit_onramp_verification_serialize(
+            verification_id=verification_id,
+            x_idempotency_key=x_idempotency_key,
+            submit_onramp_verification_request=submit_onramp_verification_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1718,8 +1837,14 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "OnrampVerificationConfirmation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1733,9 +1858,11 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_success_webhook_with_http_info(
+    async def submit_onramp_verification_with_http_info(
         self,
-        onramp_transaction_success_event: ,
+        verification_id: Annotated[str, Field(strict=True, description="The verification ID returned by the Initiate Onramp Verification endpoint.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        submit_onramp_verification_request: Optional[SubmitOnrampVerificationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1748,13 +1875,17 @@ class OnrampApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Onramp transaction succeeded
+    ) -> ApiResponse[OnrampVerificationConfirmation]:
+        """Submit onramp verification
 
-        Triggered when the `onramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
 
-        :param onramp_transaction_success_event: The `onramp.transaction.success` webhook event payload. (required)
-        :type onramp_transaction_success_event: OnrampTransactionSuccessEvent
+        :param verification_id: The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+        :type verification_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param submit_onramp_verification_request:
+        :type submit_onramp_verification_request: SubmitOnrampVerificationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1777,8 +1908,10 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_success_webhook_serialize(
-            onramp_transaction_success_event=onramp_transaction_success_event,
+        _param = self._submit_onramp_verification_serialize(
+            verification_id=verification_id,
+            x_idempotency_key=x_idempotency_key,
+            submit_onramp_verification_request=submit_onramp_verification_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1786,8 +1919,14 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "OnrampVerificationConfirmation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1801,9 +1940,11 @@ class OnrampApi:
 
 
     @validate_call
-    async def onramp_transaction_success_webhook_without_preload_content(
+    async def submit_onramp_verification_without_preload_content(
         self,
-        onramp_transaction_success_event: ,
+        verification_id: Annotated[str, Field(strict=True, description="The verification ID returned by the Initiate Onramp Verification endpoint.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        submit_onramp_verification_request: Optional[SubmitOnrampVerificationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1817,12 +1958,16 @@ class OnrampApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Onramp transaction succeeded
+        """Submit onramp verification
 
-        Triggered when the `onramp.transaction.success` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
 
-        :param onramp_transaction_success_event: The `onramp.transaction.success` webhook event payload. (required)
-        :type onramp_transaction_success_event: OnrampTransactionSuccessEvent
+        :param verification_id: The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+        :type verification_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param submit_onramp_verification_request:
+        :type submit_onramp_verification_request: SubmitOnrampVerificationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1845,8 +1990,10 @@ class OnrampApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onramp_transaction_success_webhook_serialize(
-            onramp_transaction_success_event=onramp_transaction_success_event,
+        _param = self._submit_onramp_verification_serialize(
+            verification_id=verification_id,
+            x_idempotency_key=x_idempotency_key,
+            submit_onramp_verification_request=submit_onramp_verification_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1854,8 +2001,14 @@ class OnrampApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "OnrampVerificationConfirmation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1864,9 +2017,11 @@ class OnrampApi:
         return response_data.response
 
 
-    def _onramp_transaction_success_webhook_serialize(
+    def _submit_onramp_verification_serialize(
         self,
-        onramp_transaction_success_event,
+        verification_id,
+        x_idempotency_key,
+        submit_onramp_verification_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1888,14 +2043,25 @@ class OnrampApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if verification_id is not None:
+            _path_params['verificationId'] = verification_id
         # process the query parameters
         # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
-        if onramp_transaction_success_event is not None:
-            _body_params = onramp_transaction_success_event
+        if submit_onramp_verification_request is not None:
+            _body_params = submit_onramp_verification_request
 
 
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
 
         # set the HTTP header `Content-Type`
         if _content_type:
@@ -1913,282 +2079,12 @@ class OnrampApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/onrampTransactionSuccess',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def onramp_transaction_updated_webhook(
-        self,
-        onramp_transaction_updated_event: ,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Onramp transaction updated
-
-        Triggered when the `onramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-
-        :param onramp_transaction_updated_event: The `onramp.transaction.updated` webhook event payload. (required)
-        :type onramp_transaction_updated_event: OnrampTransactionUpdatedEvent
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._onramp_transaction_updated_webhook_serialize(
-            onramp_transaction_updated_event=onramp_transaction_updated_event,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def onramp_transaction_updated_webhook_with_http_info(
-        self,
-        onramp_transaction_updated_event: ,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Onramp transaction updated
-
-        Triggered when the `onramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-
-        :param onramp_transaction_updated_event: The `onramp.transaction.updated` webhook event payload. (required)
-        :type onramp_transaction_updated_event: OnrampTransactionUpdatedEvent
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._onramp_transaction_updated_webhook_serialize(
-            onramp_transaction_updated_event=onramp_transaction_updated_event,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def onramp_transaction_updated_webhook_without_preload_content(
-        self,
-        onramp_transaction_updated_event: ,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Onramp transaction updated
-
-        Triggered when the `onramp.transaction.updated` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-
-        :param onramp_transaction_updated_event: The `onramp.transaction.updated` webhook event payload. (required)
-        :type onramp_transaction_updated_event: OnrampTransactionUpdatedEvent
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._onramp_transaction_updated_webhook_serialize(
-            onramp_transaction_updated_event=onramp_transaction_updated_event,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _onramp_transaction_updated_webhook_serialize(
-        self,
-        onramp_transaction_updated_event,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if onramp_transaction_updated_event is not None:
-            _body_params = onramp_transaction_updated_event
-
-
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'webhookSignature'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/onrampTransactionUpdated',
+            resource_path='/v2/onramp/verifications/{verificationId}/submit',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

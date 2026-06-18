@@ -266,6 +266,7 @@ class EvmSmartAccount(BaseModel):
         network: str,
         paymaster_url: str | None = None,
         data_suffix: str | None = None,
+        paymaster_context: dict[str, Any] | None = None,
     ) -> EvmUserOperationModel:
         """Send a user operation for the smart account.
 
@@ -274,6 +275,7 @@ class EvmSmartAccount(BaseModel):
             network (str): The network.
             paymaster_url (str): The paymaster URL.
             data_suffix (str): Optional data suffix (EIP-8021) to enable transaction attribution.
+            paymaster_context (dict[str, Any], optional): The ERC-7677 paymaster context forwarded to the paymaster service. Only valid when a paymaster is configured. Defaults to None.
 
         Returns:
             EvmUserOperationModel: The user operation model.
@@ -296,6 +298,7 @@ class EvmSmartAccount(BaseModel):
                 network,
                 paymaster_url,
                 data_suffix,
+                paymaster_context=paymaster_context,
             )
         except Exception as error:
             track_error(error, "send_user_operation")

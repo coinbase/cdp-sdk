@@ -952,6 +952,7 @@ export class EvmClient implements EvmClientInterface {
    * @param {string} options.network - The network to prepare the user operation for.
    * @param {EvmCall[]} options.calls - The calls to include in the user operation.
    * @param {string} [options.paymasterUrl] - The optional paymaster URL to use for the user operation.
+   * @param {PaymasterContext} [options.paymasterContext] - The optional ERC-7677 paymaster context. Only valid when a paymaster is configured.
    *
    * @returns A promise that resolves to the user operation hash.
    *
@@ -988,6 +989,7 @@ export class EvmClient implements EvmClientInterface {
           overrideGasLimit: call.overrideGasLimit,
         })),
         paymasterUrl: options.paymasterUrl,
+        paymasterContext: options.paymasterContext,
         dataSuffix: options.dataSuffix,
       });
 
@@ -1000,6 +1002,7 @@ export class EvmClient implements EvmClientInterface {
           value: BigInt(call.value),
           data: call.data as Hex,
         })),
+        expiresAt: userOp.expiresAt,
       };
     } catch (error) {
       Analytics.trackError(error, "prepareUserOperation");
@@ -1062,6 +1065,7 @@ export class EvmClient implements EvmClientInterface {
         smartAccountAddress: options.smartAccount.address as Address,
         userOpHash: userOp.userOpHash as Hex,
         status: userOp.status as typeof EvmUserOperationStatus.broadcast,
+        expiresAt: userOp.expiresAt,
       };
     } catch (error) {
       Analytics.trackError(error, "prepareAndSendUserOperation");
@@ -1211,6 +1215,7 @@ export class EvmClient implements EvmClientInterface {
         network: options.network,
         calls: options.calls,
         paymasterUrl: options.paymasterUrl,
+        paymasterContext: options.paymasterContext,
         idempotencyKey: options.idempotencyKey,
         dataSuffix: options.dataSuffix,
       });

@@ -8,6 +8,7 @@ import {
 } from "../../openapi-client/index.js";
 
 import type { EvmSmartAccount } from "../../accounts/evm/types.js";
+import type { PaymasterContext } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, Hex } from "../../types/misc.js";
 
@@ -78,6 +79,8 @@ export type SendUserOperationOptions<T extends readonly unknown[]> = {
   network: EvmUserOperationNetwork;
   /** Optional URL of the paymaster service to use for gas sponsorship. Must be ERC-7677 compliant. */
   paymasterUrl?: string;
+  /** Optional paymaster context (ERC-7677) to pass to the paymaster service. */
+  paymasterContext?: PaymasterContext;
   /** The idempotency key. */
   idempotencyKey?: string;
   /** Optional data suffix (EIP-8021) to enable transaction attribution. */
@@ -94,6 +97,8 @@ export type SendUserOperationReturnType = {
   status: typeof EvmUserOperationStatus.broadcast;
   /** The hash of the user operation. This is not the transaction hash which is only available after the operation is completed.*/
   userOpHash: Hex;
+  /** The timestamp at which the prepared user operation expires, as an ISO 8601 string. */
+  expiresAt?: string;
 };
 
 /**
@@ -106,6 +111,8 @@ export type PrepareAndSendUserOperationReturnType = {
   status: typeof EvmUserOperationStatus.broadcast;
   /** The hash of the user operation. This is not the transaction hash which is only available after the operation is completed.*/
   userOpHash: Hex;
+  /** The timestamp at which the prepared user operation expires, as an ISO 8601 string. */
+  expiresAt?: string;
 };
 
 /**
@@ -196,6 +203,7 @@ export async function sendUserOperation<T extends readonly unknown[]>(
     network,
     calls: encodedCalls,
     paymasterUrl,
+    paymasterContext: options.paymasterContext,
     dataSuffix: options.dataSuffix,
   });
 
@@ -218,5 +226,6 @@ export async function sendUserOperation<T extends readonly unknown[]>(
     smartAccountAddress: options.smartAccount.address,
     status: broadcastResponse.status,
     userOpHash: createOpResponse.userOpHash,
+    expiresAt: broadcastResponse.expiresAt,
   } as SendUserOperationReturnType;
 }

@@ -17,9 +17,12 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from cdp.openapi_client.models.onchain_activity_detected_event import OnchainActivityDetectedEvent
-from cdp.openapi_client.models.wallet_activity_detected_event import WalletActivityDetectedEvent
-from cdp.openapi_client.models.wallet_activity_multi_event import WalletActivityMultiEvent
+from pydantic import Field, StrictInt, StrictStr, field_validator
+from typing import Optional
+from typing_extensions import Annotated
+from cdp.openapi_client.models.account_token_addresses_response import AccountTokenAddressesResponse
+from cdp.openapi_client.models.list_evm_token_balances200_response import ListEvmTokenBalances200Response
+from cdp.openapi_client.models.list_evm_token_balances_network import ListEvmTokenBalancesNetwork
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -40,9 +43,12 @@ class OnchainDataApi:
 
 
     @validate_call
-    async def onchain_activity_detected_webhook(
+    async def list_data_token_balances(
         self,
-        onchain_activity_detected_event: ,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.")],
+        network: Annotated[ListEvmTokenBalancesNetwork, Field(description="The human-readable network name to get the balances for.")],
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -55,13 +61,19 @@ class OnchainDataApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Onchain activity detected
+    ) -> ListEvmTokenBalances200Response:
+        """List EVM token balances
 
-        Triggered when onchain activity matching your subscription filters is detected. Your API will receive a POST request at the webhook URL you configured. Use `labels` on your webhook subscription to filter which onchain events are delivered (see the Create Webhook Subscription endpoint for allowed labels).
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
 
-        :param onchain_activity_detected_event: The decoded blockchain event data. Payload shape varies by the type of onchain activity detected (token transfer, contract interaction, etc.). (required)
-        :type onchain_activity_detected_event: OnchainActivityDetectedEvent
+        :param address: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
+        :type address: str
+        :param network: The human-readable network name to get the balances for. (required)
+        :type network: ListEvmTokenBalancesNetwork
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -84,8 +96,11 @@ class OnchainDataApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onchain_activity_detected_webhook_serialize(
-            onchain_activity_detected_event=onchain_activity_detected_event,
+        _param = self._list_data_token_balances_serialize(
+            address=address,
+            network=network,
+            page_size=page_size,
+            page_token=page_token,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -93,8 +108,12 @@ class OnchainDataApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "ListEvmTokenBalances200Response",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -108,9 +127,12 @@ class OnchainDataApi:
 
 
     @validate_call
-    async def onchain_activity_detected_webhook_with_http_info(
+    async def list_data_token_balances_with_http_info(
         self,
-        onchain_activity_detected_event: ,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.")],
+        network: Annotated[ListEvmTokenBalancesNetwork, Field(description="The human-readable network name to get the balances for.")],
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -123,13 +145,19 @@ class OnchainDataApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Onchain activity detected
+    ) -> ApiResponse[ListEvmTokenBalances200Response]:
+        """List EVM token balances
 
-        Triggered when onchain activity matching your subscription filters is detected. Your API will receive a POST request at the webhook URL you configured. Use `labels` on your webhook subscription to filter which onchain events are delivered (see the Create Webhook Subscription endpoint for allowed labels).
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
 
-        :param onchain_activity_detected_event: The decoded blockchain event data. Payload shape varies by the type of onchain activity detected (token transfer, contract interaction, etc.). (required)
-        :type onchain_activity_detected_event: OnchainActivityDetectedEvent
+        :param address: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
+        :type address: str
+        :param network: The human-readable network name to get the balances for. (required)
+        :type network: ListEvmTokenBalancesNetwork
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -152,8 +180,11 @@ class OnchainDataApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onchain_activity_detected_webhook_serialize(
-            onchain_activity_detected_event=onchain_activity_detected_event,
+        _param = self._list_data_token_balances_serialize(
+            address=address,
+            network=network,
+            page_size=page_size,
+            page_token=page_token,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -161,8 +192,12 @@ class OnchainDataApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "ListEvmTokenBalances200Response",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -176,9 +211,12 @@ class OnchainDataApi:
 
 
     @validate_call
-    async def onchain_activity_detected_webhook_without_preload_content(
+    async def list_data_token_balances_without_preload_content(
         self,
-        onchain_activity_detected_event: ,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.")],
+        network: Annotated[ListEvmTokenBalancesNetwork, Field(description="The human-readable network name to get the balances for.")],
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -192,12 +230,18 @@ class OnchainDataApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Onchain activity detected
+        """List EVM token balances
 
-        Triggered when onchain activity matching your subscription filters is detected. Your API will receive a POST request at the webhook URL you configured. Use `labels` on your webhook subscription to filter which onchain events are delivered (see the Create Webhook Subscription endpoint for allowed labels).
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
 
-        :param onchain_activity_detected_event: The decoded blockchain event data. Payload shape varies by the type of onchain activity detected (token transfer, contract interaction, etc.). (required)
-        :type onchain_activity_detected_event: OnchainActivityDetectedEvent
+        :param address: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
+        :type address: str
+        :param network: The human-readable network name to get the balances for. (required)
+        :type network: ListEvmTokenBalancesNetwork
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -220,8 +264,11 @@ class OnchainDataApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._onchain_activity_detected_webhook_serialize(
-            onchain_activity_detected_event=onchain_activity_detected_event,
+        _param = self._list_data_token_balances_serialize(
+            address=address,
+            network=network,
+            page_size=page_size,
+            page_token=page_token,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -229,8 +276,12 @@ class OnchainDataApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "ListEvmTokenBalances200Response",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -239,9 +290,12 @@ class OnchainDataApi:
         return response_data.response
 
 
-    def _onchain_activity_detected_webhook_serialize(
+    def _list_data_token_balances_serialize(
         self,
-        onchain_activity_detected_event,
+        address,
+        network,
+        page_size,
+        page_token,
         _request_auth,
         _content_type,
         _headers,
@@ -263,37 +317,41 @@ class OnchainDataApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        if network is not None:
+            _path_params['network'] = network.value
         # process the query parameters
+        if page_size is not None:
+            
+            _query_params.append(('pageSize', page_size))
+            
+        if page_token is not None:
+            
+            _query_params.append(('pageToken', page_token))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if onchain_activity_detected_event is not None:
-            _body_params = onchain_activity_detected_event
 
 
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
             )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
+
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/onchainActivityDetected',
+            method='GET',
+            resource_path='/v2/data/evm/token-balances/{network}/{address}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -310,9 +368,10 @@ class OnchainDataApi:
 
 
     @validate_call
-    async def wallet_activity_detected_webhook(
+    async def list_tokens_for_account(
         self,
-        wallet_activity_detected_event: ,
+        network: Annotated[StrictStr, Field(description="The blockchain network to query.")],
+        address: Annotated[str, Field(strict=True, description="The account address to analyze for token interactions.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -325,13 +384,15 @@ class OnchainDataApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Wallet activity detected
+    ) -> AccountTokenAddressesResponse:
+        """List token addresses for account
 
-        Triggered when the `wallet.activity.detected` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
 
-        :param wallet_activity_detected_event: The `wallet.activity.detected` webhook event payload. (required)
-        :type wallet_activity_detected_event: WalletActivityDetectedEvent
+        :param network: The blockchain network to query. (required)
+        :type network: str
+        :param address: The account address to analyze for token interactions. (required)
+        :type address: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -354,8 +415,9 @@ class OnchainDataApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._wallet_activity_detected_webhook_serialize(
-            wallet_activity_detected_event=wallet_activity_detected_event,
+        _param = self._list_tokens_for_account_serialize(
+            network=network,
+            address=address,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -363,8 +425,11 @@ class OnchainDataApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "AccountTokenAddressesResponse",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -378,9 +443,10 @@ class OnchainDataApi:
 
 
     @validate_call
-    async def wallet_activity_detected_webhook_with_http_info(
+    async def list_tokens_for_account_with_http_info(
         self,
-        wallet_activity_detected_event: ,
+        network: Annotated[StrictStr, Field(description="The blockchain network to query.")],
+        address: Annotated[str, Field(strict=True, description="The account address to analyze for token interactions.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -393,13 +459,15 @@ class OnchainDataApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Wallet activity detected
+    ) -> ApiResponse[AccountTokenAddressesResponse]:
+        """List token addresses for account
 
-        Triggered when the `wallet.activity.detected` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
 
-        :param wallet_activity_detected_event: The `wallet.activity.detected` webhook event payload. (required)
-        :type wallet_activity_detected_event: WalletActivityDetectedEvent
+        :param network: The blockchain network to query. (required)
+        :type network: str
+        :param address: The account address to analyze for token interactions. (required)
+        :type address: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -422,8 +490,9 @@ class OnchainDataApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._wallet_activity_detected_webhook_serialize(
-            wallet_activity_detected_event=wallet_activity_detected_event,
+        _param = self._list_tokens_for_account_serialize(
+            network=network,
+            address=address,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -431,8 +500,11 @@ class OnchainDataApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "AccountTokenAddressesResponse",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -446,9 +518,10 @@ class OnchainDataApi:
 
 
     @validate_call
-    async def wallet_activity_detected_webhook_without_preload_content(
+    async def list_tokens_for_account_without_preload_content(
         self,
-        wallet_activity_detected_event: ,
+        network: Annotated[StrictStr, Field(description="The blockchain network to query.")],
+        address: Annotated[str, Field(strict=True, description="The account address to analyze for token interactions.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -462,12 +535,14 @@ class OnchainDataApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Wallet activity detected
+        """List token addresses for account
 
-        Triggered when the `wallet.activity.detected` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
 
-        :param wallet_activity_detected_event: The `wallet.activity.detected` webhook event payload. (required)
-        :type wallet_activity_detected_event: WalletActivityDetectedEvent
+        :param network: The blockchain network to query. (required)
+        :type network: str
+        :param address: The account address to analyze for token interactions. (required)
+        :type address: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -490,8 +565,9 @@ class OnchainDataApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._wallet_activity_detected_webhook_serialize(
-            wallet_activity_detected_event=wallet_activity_detected_event,
+        _param = self._list_tokens_for_account_serialize(
+            network=network,
+            address=address,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -499,8 +575,11 @@ class OnchainDataApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
+            '200': "AccountTokenAddressesResponse",
+            '400': "Error",
+            '401': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -509,9 +588,10 @@ class OnchainDataApi:
         return response_data.response
 
 
-    def _wallet_activity_detected_webhook_serialize(
+    def _list_tokens_for_account_serialize(
         self,
-        wallet_activity_detected_event,
+        network,
+        address,
         _request_auth,
         _content_type,
         _headers,
@@ -533,307 +613,33 @@ class OnchainDataApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if network is not None:
+            _path_params['network'] = network
+        if address is not None:
+            _path_params['address'] = address
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if wallet_activity_detected_event is not None:
-            _body_params = wallet_activity_detected_event
 
 
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
             )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
+
 
         # authentication setting
         _auth_settings: List[str] = [
-            'webhookSignature'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/walletActivityDetected',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def wallet_activity_multi_webhook(
-        self,
-        wallet_activity_multi_event: ,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Wallet activity multi
-
-        Triggered when the `wallet.activity.multi` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-
-        :param wallet_activity_multi_event: The `wallet.activity.multi` webhook event payload. (required)
-        :type wallet_activity_multi_event: WalletActivityMultiEvent
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._wallet_activity_multi_webhook_serialize(
-            wallet_activity_multi_event=wallet_activity_multi_event,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def wallet_activity_multi_webhook_with_http_info(
-        self,
-        wallet_activity_multi_event: ,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Wallet activity multi
-
-        Triggered when the `wallet.activity.multi` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-
-        :param wallet_activity_multi_event: The `wallet.activity.multi` webhook event payload. (required)
-        :type wallet_activity_multi_event: WalletActivityMultiEvent
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._wallet_activity_multi_webhook_serialize(
-            wallet_activity_multi_event=wallet_activity_multi_event,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def wallet_activity_multi_webhook_without_preload_content(
-        self,
-        wallet_activity_multi_event: ,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Wallet activity multi
-
-        Triggered when the `wallet.activity.multi` webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-
-        :param wallet_activity_multi_event: The `wallet.activity.multi` webhook event payload. (required)
-        :type wallet_activity_multi_event: WalletActivityMultiEvent
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._wallet_activity_multi_webhook_serialize(
-            wallet_activity_multi_event=wallet_activity_multi_event,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': None,
-            '401': None,
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _wallet_activity_multi_webhook_serialize(
-        self,
-        wallet_activity_multi_event,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if wallet_activity_multi_event is not None:
-            _body_params = wallet_activity_multi_event
-
-
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'webhookSignature'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/walletActivityMulti',
+            method='GET',
+            resource_path='/v2/data/evm/token-ownership/{network}/{address}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
