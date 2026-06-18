@@ -79,5 +79,6 @@
     "Enum",
     "Variable",
     "TypeAlias"
-  ]
+  ],
+  "tsconfig": "./packages/cdp-sdk/tsconfig.json"
 }
