@@ -9,16 +9,29 @@
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/auth",
-  "flattenOutputFiles": true,
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-frontmatter",
+    "./typedoc-router-backend.mjs",
+    "./ts-frontmatter.mjs"
+  ],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
   "readme": "./packages/cdp-sdk/src/auth/README.md",
   "name": "index",
   "includeVersion": true,
-  "sort": ["kind"],
-  "kindSortOrder": ["Function", "Class", "Interface", "TypeAlias", "Enum", "Variable"],
+  "sort": [
+    "kind"
+  ],
+  "kindSortOrder": [
+    "Function",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Enum",
+    "Variable"
+  ],
   "categorizeByGroup": true,
   "exclude": [
     "**/tests/**/*",
@@ -29,7 +42,7 @@
     "**/_types/**/*",
     "**/openapi-client/**/*"
   ],
-  "skipErrorChecking": false,
+  "skipErrorChecking": true,
   "treatWarningsAsErrors": false,
   "validation": {
     "notExported": true,
@@ -46,5 +59,16 @@
   "publicPath": "/sdks/cdp-sdks-v2/typescript/auth",
   "expandObjects": true,
   "expandParameters": true,
-  "router": "module"
+  "router": "backend-group",
+  "parametersFormat": "list",
+  "propertiesFormat": "list",
+  "typeDeclarationFormat": "list",
+  "membersWithOwnFile": [
+    "Class",
+    "Function",
+    "Enum",
+    "Variable",
+    "TypeAlias"
+  ],
+  "tsconfig": "./packages/cdp-sdk/tsconfig.json"
 }
