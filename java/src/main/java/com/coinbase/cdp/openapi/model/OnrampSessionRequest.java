@@ -32,24 +32,24 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * CreateOnrampSessionRequest
+ * Common request parameters shared by [Create Onramp Session](#operation/createOnrampSession) and [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge).
  */
 @JsonPropertyOrder({
-  CreateOnrampSessionRequest.JSON_PROPERTY_PURCHASE_CURRENCY,
-  CreateOnrampSessionRequest.JSON_PROPERTY_DESTINATION_NETWORK,
-  CreateOnrampSessionRequest.JSON_PROPERTY_DESTINATION_ADDRESS,
-  CreateOnrampSessionRequest.JSON_PROPERTY_PAYMENT_AMOUNT,
-  CreateOnrampSessionRequest.JSON_PROPERTY_PURCHASE_AMOUNT,
-  CreateOnrampSessionRequest.JSON_PROPERTY_PAYMENT_CURRENCY,
-  CreateOnrampSessionRequest.JSON_PROPERTY_PAYMENT_METHOD,
-  CreateOnrampSessionRequest.JSON_PROPERTY_COUNTRY,
-  CreateOnrampSessionRequest.JSON_PROPERTY_SUBDIVISION,
-  CreateOnrampSessionRequest.JSON_PROPERTY_REDIRECT_URL,
-  CreateOnrampSessionRequest.JSON_PROPERTY_CLIENT_IP,
-  CreateOnrampSessionRequest.JSON_PROPERTY_PARTNER_USER_REF
+  OnrampSessionRequest.JSON_PROPERTY_PURCHASE_CURRENCY,
+  OnrampSessionRequest.JSON_PROPERTY_DESTINATION_NETWORK,
+  OnrampSessionRequest.JSON_PROPERTY_DESTINATION_ADDRESS,
+  OnrampSessionRequest.JSON_PROPERTY_PAYMENT_AMOUNT,
+  OnrampSessionRequest.JSON_PROPERTY_PURCHASE_AMOUNT,
+  OnrampSessionRequest.JSON_PROPERTY_PAYMENT_CURRENCY,
+  OnrampSessionRequest.JSON_PROPERTY_PAYMENT_METHOD,
+  OnrampSessionRequest.JSON_PROPERTY_COUNTRY,
+  OnrampSessionRequest.JSON_PROPERTY_SUBDIVISION,
+  OnrampSessionRequest.JSON_PROPERTY_REDIRECT_URL,
+  OnrampSessionRequest.JSON_PROPERTY_CLIENT_IP,
+  OnrampSessionRequest.JSON_PROPERTY_PARTNER_USER_REF
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class CreateOnrampSessionRequest {
+public class OnrampSessionRequest {
   public static final String JSON_PROPERTY_PURCHASE_CURRENCY = "purchaseCurrency";
   @jakarta.annotation.Nonnull
   private String purchaseCurrency;
@@ -98,16 +98,16 @@ public class CreateOnrampSessionRequest {
   @jakarta.annotation.Nullable
   private String partnerUserRef;
 
-  public CreateOnrampSessionRequest() { 
+  public OnrampSessionRequest() { 
   }
 
-  public CreateOnrampSessionRequest purchaseCurrency(@jakarta.annotation.Nonnull String purchaseCurrency) {
+  public OnrampSessionRequest purchaseCurrency(@jakarta.annotation.Nonnull String purchaseCurrency) {
     this.purchaseCurrency = purchaseCurrency;
     return this;
   }
 
   /**
-   * The ticker (e.g. &#x60;BTC&#x60;, &#x60;USDC&#x60;, &#x60;SOL&#x60;) or the Coinbase UUID (e.g. &#x60;d85dce9b-5b73-5c3c-8978-522ce1d1c1b4&#x60;)  of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user&#39;s location.
+   * The ticker (e.g. &#x60;BTC&#x60;, &#x60;USDC&#x60;, &#x60;SOL&#x60;) or the Coinbase UUID (e.g. &#x60;d85dce9b-5b73-5c3c-8978-522ce1d1c1b4&#x60;) of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user&#39;s location.
    * @return purchaseCurrency
    */
   @jakarta.annotation.Nonnull
@@ -125,7 +125,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest destinationNetwork(@jakarta.annotation.Nonnull String destinationNetwork) {
+  public OnrampSessionRequest destinationNetwork(@jakarta.annotation.Nonnull String destinationNetwork) {
     this.destinationNetwork = destinationNetwork;
     return this;
   }
@@ -149,7 +149,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest destinationAddress(@jakarta.annotation.Nonnull String destinationAddress) {
+  public OnrampSessionRequest destinationAddress(@jakarta.annotation.Nonnull String destinationAddress) {
     this.destinationAddress = destinationAddress;
     return this;
   }
@@ -173,13 +173,13 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest paymentAmount(@jakarta.annotation.Nullable String paymentAmount) {
+  public OnrampSessionRequest paymentAmount(@jakarta.annotation.Nullable String paymentAmount) {
     this.paymentAmount = paymentAmount;
     return this;
   }
 
   /**
-   * A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.
+   * A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount of the payment currency.
    * @return paymentAmount
    */
   @jakarta.annotation.Nullable
@@ -197,13 +197,13 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest purchaseAmount(@jakarta.annotation.Nullable String purchaseAmount) {
+  public OnrampSessionRequest purchaseAmount(@jakarta.annotation.Nullable String purchaseAmount) {
     this.purchaseAmount = purchaseAmount;
     return this;
   }
 
   /**
-   * A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.
+   * A string representing the amount of crypto the user wishes to purchase. When using this parameter, the returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase currency.
    * @return purchaseAmount
    */
   @jakarta.annotation.Nullable
@@ -221,7 +221,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest paymentCurrency(@jakarta.annotation.Nullable String paymentCurrency) {
+  public OnrampSessionRequest paymentCurrency(@jakarta.annotation.Nullable String paymentCurrency) {
     this.paymentCurrency = paymentCurrency;
     return this;
   }
@@ -245,7 +245,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest paymentMethod(@jakarta.annotation.Nullable OnrampQuotePaymentMethodTypeId paymentMethod) {
+  public OnrampSessionRequest paymentMethod(@jakarta.annotation.Nullable OnrampQuotePaymentMethodTypeId paymentMethod) {
     this.paymentMethod = paymentMethod;
     return this;
   }
@@ -269,7 +269,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest country(@jakarta.annotation.Nullable String country) {
+  public OnrampSessionRequest country(@jakarta.annotation.Nullable String country) {
     this.country = country;
     return this;
   }
@@ -293,7 +293,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest subdivision(@jakarta.annotation.Nullable String subdivision) {
+  public OnrampSessionRequest subdivision(@jakarta.annotation.Nullable String subdivision) {
     this.subdivision = subdivision;
     return this;
   }
@@ -317,13 +317,13 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest redirectUrl(@jakarta.annotation.Nullable URI redirectUrl) {
+  public OnrampSessionRequest redirectUrl(@jakarta.annotation.Nullable URI redirectUrl) {
     this.redirectUrl = redirectUrl;
     return this;
   }
 
   /**
-   * URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.
+   * URI to redirect the user to after they complete or dismiss the transaction. Embedded in the returned onramp URL as a query parameter.
    * @return redirectUrl
    */
   @jakarta.annotation.Nullable
@@ -341,7 +341,7 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest clientIp(@jakarta.annotation.Nullable String clientIp) {
+  public OnrampSessionRequest clientIp(@jakarta.annotation.Nullable String clientIp) {
     this.clientIp = clientIp;
     return this;
   }
@@ -365,13 +365,13 @@ public class CreateOnrampSessionRequest {
   }
 
 
-  public CreateOnrampSessionRequest partnerUserRef(@jakarta.annotation.Nullable String partnerUserRef) {
+  public OnrampSessionRequest partnerUserRef(@jakarta.annotation.Nullable String partnerUserRef) {
     this.partnerUserRef = partnerUserRef;
     return this;
   }
 
   /**
-   * A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \&quot;sandbox-user-1234\&quot;) to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.  This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+   * A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with \&quot;sandbox-\&quot; (e.g. \&quot;sandbox-user-1234\&quot;) to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.  This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
    * @return partnerUserRef
    */
   @jakarta.annotation.Nullable
@@ -390,7 +390,7 @@ public class CreateOnrampSessionRequest {
 
 
   /**
-   * Return true if this createOnrampSession_request object is equal to o.
+   * Return true if this OnrampSessionRequest object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -400,19 +400,19 @@ public class CreateOnrampSessionRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    CreateOnrampSessionRequest createOnrampSessionRequest = (CreateOnrampSessionRequest) o;
-    return Objects.equals(this.purchaseCurrency, createOnrampSessionRequest.purchaseCurrency) &&
-        Objects.equals(this.destinationNetwork, createOnrampSessionRequest.destinationNetwork) &&
-        Objects.equals(this.destinationAddress, createOnrampSessionRequest.destinationAddress) &&
-        Objects.equals(this.paymentAmount, createOnrampSessionRequest.paymentAmount) &&
-        Objects.equals(this.purchaseAmount, createOnrampSessionRequest.purchaseAmount) &&
-        Objects.equals(this.paymentCurrency, createOnrampSessionRequest.paymentCurrency) &&
-        Objects.equals(this.paymentMethod, createOnrampSessionRequest.paymentMethod) &&
-        Objects.equals(this.country, createOnrampSessionRequest.country) &&
-        Objects.equals(this.subdivision, createOnrampSessionRequest.subdivision) &&
-        Objects.equals(this.redirectUrl, createOnrampSessionRequest.redirectUrl) &&
-        Objects.equals(this.clientIp, createOnrampSessionRequest.clientIp) &&
-        Objects.equals(this.partnerUserRef, createOnrampSessionRequest.partnerUserRef);
+    OnrampSessionRequest onrampSessionRequest = (OnrampSessionRequest) o;
+    return Objects.equals(this.purchaseCurrency, onrampSessionRequest.purchaseCurrency) &&
+        Objects.equals(this.destinationNetwork, onrampSessionRequest.destinationNetwork) &&
+        Objects.equals(this.destinationAddress, onrampSessionRequest.destinationAddress) &&
+        Objects.equals(this.paymentAmount, onrampSessionRequest.paymentAmount) &&
+        Objects.equals(this.purchaseAmount, onrampSessionRequest.purchaseAmount) &&
+        Objects.equals(this.paymentCurrency, onrampSessionRequest.paymentCurrency) &&
+        Objects.equals(this.paymentMethod, onrampSessionRequest.paymentMethod) &&
+        Objects.equals(this.country, onrampSessionRequest.country) &&
+        Objects.equals(this.subdivision, onrampSessionRequest.subdivision) &&
+        Objects.equals(this.redirectUrl, onrampSessionRequest.redirectUrl) &&
+        Objects.equals(this.clientIp, onrampSessionRequest.clientIp) &&
+        Objects.equals(this.partnerUserRef, onrampSessionRequest.partnerUserRef);
   }
 
   @Override
@@ -423,7 +423,7 @@ public class CreateOnrampSessionRequest {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CreateOnrampSessionRequest {\n");
+    sb.append("class OnrampSessionRequest {\n");
     sb.append("    purchaseCurrency: ").append(toIndentedString(purchaseCurrency)).append("\n");
     sb.append("    destinationNetwork: ").append(toIndentedString(destinationNetwork)).append("\n");
     sb.append("    destinationAddress: ").append(toIndentedString(destinationAddress)).append("\n");
@@ -548,72 +548,72 @@ public class CreateOnrampSessionRequest {
 
     public static class Builder {
 
-    private CreateOnrampSessionRequest instance;
+    private OnrampSessionRequest instance;
 
     public Builder() {
-      this(new CreateOnrampSessionRequest());
+      this(new OnrampSessionRequest());
     }
 
-    protected Builder(CreateOnrampSessionRequest instance) {
+    protected Builder(OnrampSessionRequest instance) {
       this.instance = instance;
     }
 
-    public CreateOnrampSessionRequest.Builder purchaseCurrency(String purchaseCurrency) {
+    public OnrampSessionRequest.Builder purchaseCurrency(String purchaseCurrency) {
       this.instance.purchaseCurrency = purchaseCurrency;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder destinationNetwork(String destinationNetwork) {
+    public OnrampSessionRequest.Builder destinationNetwork(String destinationNetwork) {
       this.instance.destinationNetwork = destinationNetwork;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder destinationAddress(String destinationAddress) {
+    public OnrampSessionRequest.Builder destinationAddress(String destinationAddress) {
       this.instance.destinationAddress = destinationAddress;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder paymentAmount(String paymentAmount) {
+    public OnrampSessionRequest.Builder paymentAmount(String paymentAmount) {
       this.instance.paymentAmount = paymentAmount;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder purchaseAmount(String purchaseAmount) {
+    public OnrampSessionRequest.Builder purchaseAmount(String purchaseAmount) {
       this.instance.purchaseAmount = purchaseAmount;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder paymentCurrency(String paymentCurrency) {
+    public OnrampSessionRequest.Builder paymentCurrency(String paymentCurrency) {
       this.instance.paymentCurrency = paymentCurrency;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder paymentMethod(OnrampQuotePaymentMethodTypeId paymentMethod) {
+    public OnrampSessionRequest.Builder paymentMethod(OnrampQuotePaymentMethodTypeId paymentMethod) {
       this.instance.paymentMethod = paymentMethod;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder country(String country) {
+    public OnrampSessionRequest.Builder country(String country) {
       this.instance.country = country;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder subdivision(String subdivision) {
+    public OnrampSessionRequest.Builder subdivision(String subdivision) {
       this.instance.subdivision = subdivision;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder redirectUrl(URI redirectUrl) {
+    public OnrampSessionRequest.Builder redirectUrl(URI redirectUrl) {
       this.instance.redirectUrl = redirectUrl;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder clientIp(String clientIp) {
+    public OnrampSessionRequest.Builder clientIp(String clientIp) {
       this.instance.clientIp = clientIp;
       return this;
     }
-    public CreateOnrampSessionRequest.Builder partnerUserRef(String partnerUserRef) {
+    public OnrampSessionRequest.Builder partnerUserRef(String partnerUserRef) {
       this.instance.partnerUserRef = partnerUserRef;
       return this;
     }
 
 
     /**
-    * returns a built CreateOnrampSessionRequest instance.
+    * returns a built OnrampSessionRequest instance.
     *
     * The builder is not reusable.
     */
-    public CreateOnrampSessionRequest build() {
+    public OnrampSessionRequest build() {
       try {
         return this.instance;
       } finally {
@@ -631,15 +631,15 @@ public class CreateOnrampSessionRequest {
   /**
   * Create a builder with no initialized field.
   */
-  public static CreateOnrampSessionRequest.Builder builder() {
-    return new CreateOnrampSessionRequest.Builder();
+  public static OnrampSessionRequest.Builder builder() {
+    return new OnrampSessionRequest.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public CreateOnrampSessionRequest.Builder toBuilder() {
-    return new CreateOnrampSessionRequest.Builder()
+  public OnrampSessionRequest.Builder toBuilder() {
+    return new OnrampSessionRequest.Builder()
       .purchaseCurrency(getPurchaseCurrency())
       .destinationNetwork(getDestinationNetwork())
       .destinationAddress(getDestinationAddress())

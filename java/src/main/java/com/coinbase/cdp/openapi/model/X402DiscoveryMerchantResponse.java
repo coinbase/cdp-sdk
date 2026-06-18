@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * Response containing x402 resources associated with a merchant payment address.
+ * Response containing x402 resources associated with a merchant payment address. The resources list is empty when no active resources are found.
  */
 @JsonPropertyOrder({
   X402DiscoveryMerchantResponse.JSON_PROPERTY_X402_VERSION,
@@ -126,7 +126,7 @@ public class X402DiscoveryMerchantResponse {
   }
 
   /**
-   * List of discovered x402 resources associated with the merchant&#39;s payTo address.
+   * List of discovered x402 resources associated with the merchant&#39;s payTo address. This list is empty when no active resources are found.
    * @return resources
    */
   @jakarta.annotation.Nonnull

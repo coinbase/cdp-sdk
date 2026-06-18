@@ -105,7 +105,6 @@ class AccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Account",
             '400': "Error",
-            '403': "Error",
             '422': "Error",
             '503': "Error",
         }
@@ -180,7 +179,6 @@ class AccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Account",
             '400': "Error",
-            '403': "Error",
             '422': "Error",
             '503': "Error",
         }
@@ -255,7 +253,6 @@ class AccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Account",
             '400': "Error",
-            '403': "Error",
             '422': "Error",
             '503': "Error",
         }

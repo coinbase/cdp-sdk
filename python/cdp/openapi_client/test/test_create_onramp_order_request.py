@@ -48,6 +48,8 @@ class TestCreateOnrampOrderRequest(unittest.TestCase):
                 payment_method = 'GUEST_CHECKOUT_APPLE_PAY',
                 phone_number = '+12055555555',
                 phone_number_verified_at = '2025-04-24T00:00:00Z',
+                sms_verification_id = 'onramp_verification_a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+                email_verification_id = 'onramp_verification_a1b2c3d4-e5f6-7890-abcd-ef1234567890',
                 purchase_amount = '10.000000',
                 purchase_currency = 'USDC',
                 client_ip = '127.0.0.1',

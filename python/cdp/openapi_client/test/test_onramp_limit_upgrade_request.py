@@ -44,7 +44,6 @@ class TestOnrampLimitUpgradeRequest(unittest.TestCase):
             return OnrampLimitUpgradeRequest(
                 user_id = '+12055555555',
                 user_id_type = 'phone_number',
-                fields = {ssnLast4=5678, dateOfBirth={day=15, month=08, year=1990}},
         )
         """
 

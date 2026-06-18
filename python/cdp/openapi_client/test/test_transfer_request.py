@@ -44,7 +44,7 @@ class TestTransferRequest(unittest.TestCase):
                 validate_only = False,
                 execute = True,
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
-                travel_rule = {isSelf=false, isIntermediary=true, originator={name=John Doe, address={line1=123 Main St, line2=Unit 201, city=Luxembourg, postCode=L-1234, countryCode=LU}, financialInstitution=PayPal, Inc., vasp={name=Fidelity Digital Asset Services, LLC, address={line1=123 Market St, line2=Suite 400, city=San Francisco, state=California, postCode=94105, countryCode=US}, identifier=5493001KJTIIGC8Y1R17}}, beneficiary={name=Jane Smith, address={line1=456 Oak Ave, city=Paris, postCode=75001, countryCode=FR}, walletType=custodial}}
+                travel_rule = {isSelf=false, isIntermediary=true, originator={name=John Doe, address={line1=123 Main St, line2=Unit 201, city=San Francisco, state=California, postCode=94105, countryCode=US}, financialInstitution=PayPal, Inc., vasp={name=Fidelity Digital Asset Services, LLC, address={line1=123 Market St, line2=Suite 400, city=San Francisco, state=California, postCode=94105, countryCode=US}, identifier=5493001KJTIIGC8Y1R17}, personalIdentification={type=social_security_number, value=123-45-6789, countryOfIssue=US}, dateOfBirth={day=15, month=08, year=1990}}, beneficiary={name=Jane Smith, address={line1=456 Oak Ave, city=Paris, postCode=75001, countryCode=FR}, walletType=custodial}}
             )
         else:
             return TransferRequest(

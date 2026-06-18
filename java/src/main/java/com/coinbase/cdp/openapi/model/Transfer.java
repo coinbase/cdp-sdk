@@ -293,7 +293,7 @@ public class Transfer {
   }
 
   /**
-   * The amount of the target asset that will be received, as a decimal string in standard unit denomination.
+   * The amount of the target asset received, as a decimal string in standard unit denomination. May be omitted in the &#x60;quoted&#x60; state if the value cannot be guaranteed; see &#x60;estimate.targetAmount&#x60; for the expected value. Populated with the actual executed amount once the transfer completes.
    * @return targetAmount
    */
   @jakarta.annotation.Nullable
@@ -341,7 +341,7 @@ public class Transfer {
   }
 
   /**
-   * Get exchangeRate
+   * Exchange rate information for currency conversion. The rate indicates how much of the target asset is equivalent to one unit of the source asset. May be omitted in the &#x60;quoted&#x60; state if the rate cannot be guaranteed; see &#x60;estimate.exchangeRate&#x60; for the expected rate. Populated with the actual executed rate once the transfer completes.
    * @return exchangeRate
    */
   @jakarta.annotation.Nullable
@@ -365,7 +365,7 @@ public class Transfer {
   }
 
   /**
-   * Get fees
+   * The fees associated with this transfer. Different transfer types have different fee structures. May be omitted in the &#x60;quoted&#x60; state if the fees cannot be guaranteed; see &#x60;estimate.fees&#x60; for the expected fees. Populated with the actual fees once the transfer completes.
    * @return fees
    */
   @jakarta.annotation.Nullable

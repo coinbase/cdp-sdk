@@ -46,6 +46,7 @@ class TestSendUserOperationWithEndUserAccountRequest(unittest.TestCase):
                     ],
                 use_cdp_paymaster = True,
                 paymaster_url = 'https://example.com',
+                paymaster_context = {policyId=962b252c-a726-4a37-8d86-333ce0a07299},
                 wallet_secret_id = 'e051beeb-7163-4527-a5b6-35e301529ff2',
                 data_suffix = '0xdddddddd62617365617070070080218021802180218021802180218021'
             )

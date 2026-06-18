@@ -55,10 +55,24 @@ class TestOnrampApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_initiate_onramp_verification(self) -> None:
+        """Test case for initiate_onramp_verification
+
+        Initiate onramp verification
+        """
+        pass
+
     async def test_request_limits_upgrade(self) -> None:
         """Test case for request_limits_upgrade
 
         Request limit upgrade
+        """
+        pass
+
+    async def test_submit_onramp_verification(self) -> None:
+        """Test case for submit_onramp_verification
+
+        Submit onramp verification
         """
         pass
 

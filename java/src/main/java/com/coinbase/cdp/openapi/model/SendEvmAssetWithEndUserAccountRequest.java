@@ -39,6 +39,7 @@ import com.coinbase.cdp.openapi.ApiClient;
   SendEvmAssetWithEndUserAccountRequest.JSON_PROPERTY_NETWORK,
   SendEvmAssetWithEndUserAccountRequest.JSON_PROPERTY_USE_CDP_PAYMASTER,
   SendEvmAssetWithEndUserAccountRequest.JSON_PROPERTY_PAYMASTER_URL,
+  SendEvmAssetWithEndUserAccountRequest.JSON_PROPERTY_PAYMASTER_CONTEXT,
   SendEvmAssetWithEndUserAccountRequest.JSON_PROPERTY_WALLET_SECRET_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -115,6 +116,10 @@ public class SendEvmAssetWithEndUserAccountRequest {
   public static final String JSON_PROPERTY_PAYMASTER_URL = "paymasterUrl";
   @jakarta.annotation.Nullable
   private URI paymasterUrl;
+
+  public static final String JSON_PROPERTY_PAYMASTER_CONTEXT = "paymasterContext";
+  @jakarta.annotation.Nullable
+  private Object paymasterContext;
 
   public static final String JSON_PROPERTY_WALLET_SECRET_ID = "walletSecretId";
   @jakarta.annotation.Nullable
@@ -243,6 +248,30 @@ public class SendEvmAssetWithEndUserAccountRequest {
   }
 
 
+  public SendEvmAssetWithEndUserAccountRequest paymasterContext(@jakarta.annotation.Nullable Object paymasterContext) {
+    this.paymasterContext = paymasterContext;
+    return this;
+  }
+
+  /**
+   * The ERC-7677 &#x60;context&#x60; object forwarded to the paymaster service as part of the &#x60;paymasterService&#x60; capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing &#x60;paymasterContext&#x60; without a paymaster configured results in an &#x60;invalid_request&#x60; error.
+   * @return paymasterContext
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PAYMASTER_CONTEXT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getPaymasterContext() {
+    return paymasterContext;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAYMASTER_CONTEXT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPaymasterContext(@jakarta.annotation.Nullable Object paymasterContext) {
+    this.paymasterContext = paymasterContext;
+  }
+
+
   public SendEvmAssetWithEndUserAccountRequest walletSecretId(@jakarta.annotation.Nullable String walletSecretId) {
     this.walletSecretId = walletSecretId;
     return this;
@@ -284,12 +313,13 @@ public class SendEvmAssetWithEndUserAccountRequest {
         Objects.equals(this.network, sendEvmAssetWithEndUserAccountRequest.network) &&
         Objects.equals(this.useCdpPaymaster, sendEvmAssetWithEndUserAccountRequest.useCdpPaymaster) &&
         Objects.equals(this.paymasterUrl, sendEvmAssetWithEndUserAccountRequest.paymasterUrl) &&
+        Objects.equals(this.paymasterContext, sendEvmAssetWithEndUserAccountRequest.paymasterContext) &&
         Objects.equals(this.walletSecretId, sendEvmAssetWithEndUserAccountRequest.walletSecretId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(to, amount, network, useCdpPaymaster, paymasterUrl, walletSecretId);
+    return Objects.hash(to, amount, network, useCdpPaymaster, paymasterUrl, paymasterContext, walletSecretId);
   }
 
   @Override
@@ -301,6 +331,7 @@ public class SendEvmAssetWithEndUserAccountRequest {
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
     sb.append("    useCdpPaymaster: ").append(toIndentedString(useCdpPaymaster)).append("\n");
     sb.append("    paymasterUrl: ").append(toIndentedString(paymasterUrl)).append("\n");
+    sb.append("    paymasterContext: ").append(toIndentedString(paymasterContext)).append("\n");
     sb.append("    walletSecretId: ").append(toIndentedString(walletSecretId)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -374,6 +405,11 @@ public class SendEvmAssetWithEndUserAccountRequest {
       joiner.add(String.format("%spaymasterUrl%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPaymasterUrl()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `paymasterContext` to the URL query string
+    if (getPaymasterContext() != null) {
+      joiner.add(String.format("%spaymasterContext%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPaymasterContext()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `walletSecretId` to the URL query string
     if (getWalletSecretId() != null) {
       joiner.add(String.format("%swalletSecretId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getWalletSecretId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -412,6 +448,10 @@ public class SendEvmAssetWithEndUserAccountRequest {
     }
     public SendEvmAssetWithEndUserAccountRequest.Builder paymasterUrl(URI paymasterUrl) {
       this.instance.paymasterUrl = paymasterUrl;
+      return this;
+    }
+    public SendEvmAssetWithEndUserAccountRequest.Builder paymasterContext(Object paymasterContext) {
+      this.instance.paymasterContext = paymasterContext;
       return this;
     }
     public SendEvmAssetWithEndUserAccountRequest.Builder walletSecretId(String walletSecretId) {
@@ -457,6 +497,7 @@ public class SendEvmAssetWithEndUserAccountRequest {
       .network(getNetwork())
       .useCdpPaymaster(getUseCdpPaymaster())
       .paymasterUrl(getPaymasterUrl())
+      .paymasterContext(getPaymasterContext())
       .walletSecretId(getWalletSecretId());
   }
 

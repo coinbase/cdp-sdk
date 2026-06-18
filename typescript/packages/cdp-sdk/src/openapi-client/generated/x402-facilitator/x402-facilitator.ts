@@ -18,6 +18,8 @@ import type {
   X402SearchResourcesResponse,
   X402SettleResponseResponse,
   X402SupportedPaymentKindsResponseResponse,
+  X402ValidateRequest,
+  X402ValidateResponse,
   X402VerifyResponseResponse,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -91,6 +93,7 @@ export const listX402DiscoveryResources = (
 /**
  * Gets x402 merchant discovery information for a given merchant payment address.
 This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements.
+If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list.
 The response is paginated, and by default, returns 20 items per page.
  * @summary List merchant discovery info
  */
@@ -137,6 +140,26 @@ export const postX402DiscoveryMcp = (
     options,
   );
 };
+/**
+ * Validates an x402 endpoint's bazaar-discovery configuration by probing the seller's URL live.
+Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live.
+This operation is read-only: it performs no payment and does not index the resource.
+ * @summary Validate x402 endpoint
+ */
+export const validateX402Resource = (
+  x402ValidateRequest: X402ValidateRequest,
+  options?: SecondParameter<typeof cdpApiClient<X402ValidateResponse>>,
+) => {
+  return cdpApiClient<X402ValidateResponse>(
+    {
+      url: `/v2/x402/validate`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: x402ValidateRequest,
+    },
+    options,
+  );
+};
 export type VerifyX402PaymentResult = NonNullable<Awaited<ReturnType<typeof verifyX402Payment>>>;
 export type SettleX402PaymentResult = NonNullable<Awaited<ReturnType<typeof settleX402Payment>>>;
 export type SupportedX402PaymentKindsResult = NonNullable<
@@ -153,4 +176,7 @@ export type SearchX402ResourcesResult = NonNullable<
 >;
 export type PostX402DiscoveryMcpResult = NonNullable<
   Awaited<ReturnType<typeof postX402DiscoveryMcp>>
+>;
+export type ValidateX402ResourceResult = NonNullable<
+  Awaited<ReturnType<typeof validateX402Resource>>
 >;

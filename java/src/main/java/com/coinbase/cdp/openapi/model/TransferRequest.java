@@ -321,7 +321,7 @@ public class TransferRequest {
   }
 
   /**
-   * Get travelRule
+   * Travel Rule compliance information for this transfer. Required for transfers to external wallets above regulatory thresholds. Fields required differ by region and Coinbase contracting entity.
    * @return travelRule
    */
   @jakarta.annotation.Nullable

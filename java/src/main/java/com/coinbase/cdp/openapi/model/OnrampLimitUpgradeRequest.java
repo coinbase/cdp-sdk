@@ -50,7 +50,7 @@ public class OnrampLimitUpgradeRequest {
   private OnrampUserIdType userIdType;
 
   public static final String JSON_PROPERTY_FIELDS = "fields";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private OnrampLimitUpgradeIdentityFields fields;
 
   public OnrampLimitUpgradeRequest() { 
@@ -104,26 +104,26 @@ public class OnrampLimitUpgradeRequest {
   }
 
 
-  public OnrampLimitUpgradeRequest fields(@jakarta.annotation.Nonnull OnrampLimitUpgradeIdentityFields fields) {
+  public OnrampLimitUpgradeRequest fields(@jakarta.annotation.Nullable OnrampLimitUpgradeIdentityFields fields) {
     this.fields = fields;
     return this;
   }
 
   /**
-   * Populate the properties that correspond to the &#x60;fields&#x60; array from the user&#39;s &#x60;OnrampLimitUpgradeOption&#x60;.
+   * Populate the properties that correspond to the &#x60;fields&#x60; array from the user&#39;s &#x60;OnrampLimitUpgradeOption&#x60;. These fields are required; a request without them is rejected.
    * @return fields
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_FIELDS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OnrampLimitUpgradeIdentityFields getFields() {
     return fields;
   }
 
 
   @JsonProperty(JSON_PROPERTY_FIELDS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setFields(@jakarta.annotation.Nonnull OnrampLimitUpgradeIdentityFields fields) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFields(@jakarta.annotation.Nullable OnrampLimitUpgradeIdentityFields fields) {
     this.fields = fields;
   }
 

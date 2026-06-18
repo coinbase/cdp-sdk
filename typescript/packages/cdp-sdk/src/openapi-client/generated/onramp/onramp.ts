@@ -9,17 +9,65 @@ import type {
   CreateOnrampOrder201,
   CreateOnrampOrderBody,
   CreateOnrampSession201,
-  CreateOnrampSessionBody,
   GetOnrampOrderById200,
   GetOnrampUserLimits200,
   GetOnrampUserLimitsBody,
+  InitiateOnrampVerificationRequest,
   OnrampLimitUpgradeRequest,
+  OnrampSessionRequest,
+  OnrampVerificationConfirmation,
+  OnrampVerificationId,
+  OnrampVerificationInitiation,
+  SubmitOnrampVerificationRequest,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.
+
+**Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+ * @summary Initiate onramp verification
+ */
+export const initiateOnrampVerification = (
+  initiateOnrampVerificationRequest: InitiateOnrampVerificationRequest,
+  options?: SecondParameter<typeof cdpApiClient<OnrampVerificationInitiation>>,
+) => {
+  return cdpApiClient<OnrampVerificationInitiation>(
+    {
+      url: `/v2/onramp/verifications`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: initiateOnrampVerificationRequest,
+    },
+    options,
+  );
+};
+/**
+ * Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.
+
+The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.
+
+**Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+ * @summary Submit onramp verification
+ */
+export const submitOnrampVerification = (
+  verificationId: OnrampVerificationId,
+  submitOnrampVerificationRequest: SubmitOnrampVerificationRequest,
+  options?: SecondParameter<typeof cdpApiClient<OnrampVerificationConfirmation>>,
+) => {
+  return cdpApiClient<OnrampVerificationConfirmation>(
+    {
+      url: `/v2/onramp/verifications/${verificationId}/submit`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: submitOnrampVerificationRequest,
+    },
+    options,
+  );
+};
 /**
  * Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
 
@@ -77,7 +125,7 @@ export const getOnrampOrderById = (
  * @summary Create an onramp session
  */
 export const createOnrampSession = (
-  createOnrampSessionBody: CreateOnrampSessionBody,
+  onrampSessionRequest: OnrampSessionRequest,
   options?: SecondParameter<typeof cdpApiClient<CreateOnrampSession201>>,
 ) => {
   return cdpApiClient<CreateOnrampSession201>(
@@ -85,7 +133,7 @@ export const createOnrampSession = (
       url: `/v2/onramp/sessions`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: createOnrampSessionBody,
+      data: onrampSessionRequest,
     },
     options,
   );
@@ -136,6 +184,12 @@ export const requestLimitsUpgrade = (
     options,
   );
 };
+export type InitiateOnrampVerificationResult = NonNullable<
+  Awaited<ReturnType<typeof initiateOnrampVerification>>
+>;
+export type SubmitOnrampVerificationResult = NonNullable<
+  Awaited<ReturnType<typeof submitOnrampVerification>>
+>;
 export type CreateOnrampOrderResult = NonNullable<Awaited<ReturnType<typeof createOnrampOrder>>>;
 export type GetOnrampOrderByIdResult = NonNullable<Awaited<ReturnType<typeof getOnrampOrderById>>>;
 export type CreateOnrampSessionResult = NonNullable<

@@ -100,6 +100,9 @@ export const getEndUser = (
   Both params must be provided together.
 
 - **phoneNumber**: looks up a user by their SMS-verified phone number.
+- **siweAddress**: looks up a user by the Ethereum address they authenticated
+  with via Sign In With Ethereum (EIP-4361).
+
 
 Returns all matching end users. If no end users match, an empty array is returned.
 

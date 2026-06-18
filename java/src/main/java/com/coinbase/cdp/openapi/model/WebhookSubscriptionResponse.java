@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.EventType;
 import com.coinbase.cdp.openapi.model.WebhookSubscriptionResponseMetadata;
 import com.coinbase.cdp.openapi.model.WebhookTarget;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -68,7 +69,7 @@ public class WebhookSubscriptionResponse {
 
   public static final String JSON_PROPERTY_EVENT_TYPES = "eventTypes";
   @jakarta.annotation.Nonnull
-  private List<String> eventTypes = new ArrayList<>();
+  private List<EventType> eventTypes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_IS_ENABLED = "isEnabled";
   @jakarta.annotation.Nonnull
@@ -169,12 +170,12 @@ public class WebhookSubscriptionResponse {
   }
 
 
-  public WebhookSubscriptionResponse eventTypes(@jakarta.annotation.Nonnull List<String> eventTypes) {
+  public WebhookSubscriptionResponse eventTypes(@jakarta.annotation.Nonnull List<EventType> eventTypes) {
     this.eventTypes = eventTypes;
     return this;
   }
 
-  public WebhookSubscriptionResponse addEventTypesItem(String eventTypesItem) {
+  public WebhookSubscriptionResponse addEventTypesItem(EventType eventTypesItem) {
     if (this.eventTypes == null) {
       this.eventTypes = new ArrayList<>();
     }
@@ -189,14 +190,14 @@ public class WebhookSubscriptionResponse {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EVENT_TYPES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public List<String> getEventTypes() {
+  public List<EventType> getEventTypes() {
     return eventTypes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EVENT_TYPES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEventTypes(@jakarta.annotation.Nonnull List<String> eventTypes) {
+  public void setEventTypes(@jakarta.annotation.Nonnull List<EventType> eventTypes) {
     this.eventTypes = eventTypes;
   }
 
@@ -461,9 +462,11 @@ public class WebhookSubscriptionResponse {
     // add `eventTypes` to the URL query string
     if (getEventTypes() != null) {
       for (int i = 0; i < getEventTypes().size(); i++) {
-        joiner.add(String.format("%seventTypes%s%s=%s", prefix, suffix,
-            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
-            URLEncoder.encode(ApiClient.valueToString(getEventTypes().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+        if (getEventTypes().get(i) != null) {
+          joiner.add(String.format("%seventTypes%s%s=%s", prefix, suffix,
+              "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
+              URLEncoder.encode(ApiClient.valueToString(getEventTypes().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+        }
       }
     }
 
@@ -528,7 +531,7 @@ public class WebhookSubscriptionResponse {
       this.instance.description = description;
       return this;
     }
-    public WebhookSubscriptionResponse.Builder eventTypes(List<String> eventTypes) {
+    public WebhookSubscriptionResponse.Builder eventTypes(List<EventType> eventTypes) {
       this.instance.eventTypes = eventTypes;
       return this;
     }

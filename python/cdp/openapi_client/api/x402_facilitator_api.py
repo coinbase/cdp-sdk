@@ -29,6 +29,8 @@ from cdp.openapi_client.models.x402_discovery_resources_response import X402Disc
 from cdp.openapi_client.models.x402_mcp_request import X402McpRequest
 from cdp.openapi_client.models.x402_mcp_response import X402McpResponse
 from cdp.openapi_client.models.x402_search_resources_response import X402SearchResourcesResponse
+from cdp.openapi_client.models.x402_validate_request import X402ValidateRequest
+from cdp.openapi_client.models.x402_validate_response import X402ValidateResponse
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -69,7 +71,7 @@ class X402FacilitatorApi:
     ) -> X402DiscoveryMerchantResponse:
         """List merchant discovery info
 
-        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list. The response is paginated, and by default, returns 20 items per page.
 
         :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
         :type pay_to: str
@@ -112,7 +114,6 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "X402DiscoveryMerchantResponse",
             '400': "Error",
-            '404': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -149,7 +150,7 @@ class X402FacilitatorApi:
     ) -> ApiResponse[X402DiscoveryMerchantResponse]:
         """List merchant discovery info
 
-        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list. The response is paginated, and by default, returns 20 items per page.
 
         :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
         :type pay_to: str
@@ -192,7 +193,6 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "X402DiscoveryMerchantResponse",
             '400': "Error",
-            '404': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -229,7 +229,7 @@ class X402FacilitatorApi:
     ) -> RESTResponseType:
         """List merchant discovery info
 
-        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+        Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified `payTo` address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the `payTo` address, the endpoint returns an empty `resources` list. The response is paginated, and by default, returns 20 items per page.
 
         :param pay_to: The merchant's payment address to look up. This is the onchain address that payment requirements route funds to. (required)
         :type pay_to: str
@@ -272,7 +272,6 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "X402DiscoveryMerchantResponse",
             '400': "Error",
-            '404': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -1890,6 +1889,292 @@ class X402FacilitatorApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/x402/supported',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def validate_x402_resource(
+        self,
+        x402_validate_request: X402ValidateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402ValidateResponse:
+        """Validate x402 endpoint
+
+        Validates an x402 endpoint's bazaar-discovery configuration by probing the seller's URL live. Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live. This operation is read-only: it performs no payment and does not index the resource.
+
+        :param x402_validate_request: (required)
+        :type x402_validate_request: X402ValidateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._validate_x402_resource_serialize(
+            x402_validate_request=x402_validate_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402ValidateResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def validate_x402_resource_with_http_info(
+        self,
+        x402_validate_request: X402ValidateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402ValidateResponse]:
+        """Validate x402 endpoint
+
+        Validates an x402 endpoint's bazaar-discovery configuration by probing the seller's URL live. Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live. This operation is read-only: it performs no payment and does not index the resource.
+
+        :param x402_validate_request: (required)
+        :type x402_validate_request: X402ValidateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._validate_x402_resource_serialize(
+            x402_validate_request=x402_validate_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402ValidateResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def validate_x402_resource_without_preload_content(
+        self,
+        x402_validate_request: X402ValidateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Validate x402 endpoint
+
+        Validates an x402 endpoint's bazaar-discovery configuration by probing the seller's URL live. Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live. This operation is read-only: it performs no payment and does not index the resource.
+
+        :param x402_validate_request: (required)
+        :type x402_validate_request: X402ValidateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._validate_x402_resource_serialize(
+            x402_validate_request=x402_validate_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402ValidateResponse",
+            '400': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _validate_x402_resource_serialize(
+        self,
+        x402_validate_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if x402_validate_request is not None:
+            _body_params = x402_validate_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/x402/validate',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
