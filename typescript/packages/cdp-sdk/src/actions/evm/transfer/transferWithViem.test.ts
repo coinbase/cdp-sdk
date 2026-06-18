@@ -118,21 +118,8 @@ describe("transferWithViem", () => {
         transferArgsWithoutNetwork,
       );
 
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
-
-      // Check approve transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(1, {
-        account: mockAccount.address,
-        to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address on base
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [transferArgs.to as Address, transferArgs.amount],
-        }),
-      });
-
-      // Check transfer transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(2, {
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
         to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address on base
         data: encodeFunctionData({
@@ -166,21 +153,8 @@ describe("transferWithViem", () => {
         transferArgsWithoutNetwork,
       );
 
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
-
-      // Check approve transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(1, {
-        account: mockAccount.address,
-        to: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // USDC address on base-sepolia
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [transferArgs.to as Address, transferArgs.amount],
-        }),
-      });
-
-      // Check transfer transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(2, {
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
         to: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // USDC address on base-sepolia
         data: encodeFunctionData({
@@ -214,21 +188,8 @@ describe("transferWithViem", () => {
         transferArgsWithoutNetwork,
       );
 
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
-
-      // Check approve transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(1, {
-        account: mockAccount.address,
-        to: customTokenAddress,
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [transferArgs.to as Address, transferArgs.amount],
-        }),
-      });
-
-      // Check transfer transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(2, {
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
         to: customTokenAddress,
         data: encodeFunctionData({
@@ -269,21 +230,8 @@ describe("transferWithViem", () => {
         transferArgsWithoutNetwork,
       );
 
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
-
-      // Check approve transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(1, {
-        account: mockAccount.address,
-        to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address on base
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [recipientAccount.address, transferArgs.amount],
-        }),
-      });
-
-      // Check transfer transaction
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(2, {
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
         to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address on base
         data: encodeFunctionData({
@@ -319,33 +267,9 @@ describe("transferWithViem", () => {
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
     });
 
-    it("should throw error when approve transaction fails", async () => {
-      const error = new Error("Approve failed");
-      mockWalletClient.sendTransaction = vi.fn().mockRejectedValue(error);
-
-      const transferArgs: TransferOptions = {
-        to: "0x1234567890123456789012345678901234567890" as Address,
-        amount: parseUnits("100", 6),
-        token: "usdc",
-        network: "base",
-      };
-
-      const { network, ...transferArgsWithoutNetwork } = transferArgs;
-      await expect(
-        transferWithViem(mockWalletClient, mockAccount, transferArgsWithoutNetwork),
-      ).rejects.toThrow("Approve failed");
-
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
-    });
-
-    it("should throw error when transfer transaction fails", async () => {
-      const approveHash = "0xapprove123" as Hex;
+    it("should throw error when ERC20 transfer transaction fails", async () => {
       const error = new Error("Transfer failed");
-
-      mockWalletClient.sendTransaction = vi
-        .fn()
-        .mockResolvedValueOnce(approveHash)
-        .mockRejectedValueOnce(error);
+      mockWalletClient.sendTransaction = vi.fn().mockRejectedValue(error);
 
       const transferArgs: TransferOptions = {
         to: "0x1234567890123456789012345678901234567890" as Address,
@@ -359,7 +283,7 @@ describe("transferWithViem", () => {
         transferWithViem(mockWalletClient, mockAccount, transferArgsWithoutNetwork),
       ).rejects.toThrow("Transfer failed");
 
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
+      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
     });
   });
 

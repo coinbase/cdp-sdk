@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.51.1
+
+### Patch Changes
+
+- [#729](https://github.com/coinbase/cdp-sdk/pull/729) [`4cdbf7b`](https://github.com/coinbase/cdp-sdk/commit/4cdbf7b5f2cab35a2a5ee9b3f671c43bf2f74cd3) Thanks [@sddioulde](https://github.com/sddioulde)! - Removed erroneous call from network-scoped EVM account ERC-20 transfers
+
 ## 1.51.0
 
 ### Minor Changes

@@ -40,18 +40,6 @@ export async function transferWithViem<T extends EvmAccount>(
   const network = mapChainToNetwork(walletClient.chain) as Network;
   const erc20Address = getErc20Address(token, network);
 
-  // First approve the transfer
-  await walletClient.sendTransaction({
-    account: from.address,
-    to: erc20Address,
-    data: encodeFunctionData({
-      abi: erc20Abi,
-      functionName: "approve",
-      args: [to, value],
-    }),
-  });
-
-  // Then execute the transfer
   const hash = await walletClient.sendTransaction({
     account: from.address,
     to: erc20Address,
