@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.51.2
+
+### Patch Changes
+
+- Added paymasterContext and expiresAt for UserOperation methods
+
 ## 1.51.1
 
 ### Patch Changes
