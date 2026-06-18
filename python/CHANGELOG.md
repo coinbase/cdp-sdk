@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.47.1] - 2026-06-18
+
+### Bugfixes
+
+- Added paymasterContext and expiresAt for UserOperation methods ([#730](https://github.com/coinbase/cdp-sdk/pull/730))
+
+
 ## [1.47.0] - 2026-05-28
 
 ### Features
