@@ -75,7 +75,7 @@ public class OnchainActivityDetectedEvent {
 
   public static final String JSON_PROPERTY_PARAMETERS = "parameters";
   @jakarta.annotation.Nonnull
-  private OnchainActivityEventParameters parameters = new HashMap<>();
+  private OnchainActivityEventParameters parameters = new OnchainActivityEventParameters();
 
   public static final String JSON_PROPERTY_TIMESTAMP = "timestamp";
   @jakarta.annotation.Nonnull
