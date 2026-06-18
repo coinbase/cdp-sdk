@@ -30,21 +30,34 @@ Queries are executed against optimized data structures for high-performance anal
   - No DDL or DML operations
   - Query that follow limits (defined below)
 
-### Supported Tables
-
-  - `<network>.events` - Base mainnet decoded event logs with parameters, event signature, topics, and more.
-  - `<network>.transactions` - Base mainnet transaction data including hash, block number, gas usage.
-  - `<network>.blocks` - Base mainnet block information.
-  - `<network>.encoded_logs` - Encoded log data of event logs that aren't able to be decoded by our event decoder (ex: log0 opcode).
-  - `<network>.decoded_user_operations` - Decoded user operations data including hash, block number, gas usage, builder codes, entrypoint version, and more.
-  - `<network>.transaction_attributions` - Information about the attributions of a transaction to a builder and associated builder codes.
-
 ### Supported Networks
 
   - Base Mainnet: `base`
   - Base Sepolia: `base_sepolia`
+  - Solana Mainnet: `solana`
+  - Hyperevm Mainnet: `hyperevm`
 
-  So for example, valid tables are: `base.events`, `base_sepolia.events`, `base.transactions`, etc.
+### Supported Tables
+
+The below tables are supported for `base` and `base_sepolia` networks.
+
+  | Table | Description |
+  | --- | --- |
+  | `<network>.events` | Decoded event logs with parameters, event signature, topics, and more. |
+  | `<network>.transactions` | Transaction data including hash, block number, and gas usage. |
+  | `<network>.blocks` | Block information. |
+  | `<network>.encoded_logs` | Encoded log data for event logs that cannot be decoded by our event decoder (ex: log0 opcode). |
+  | `<network>.decoded_user_operations` | Decoded user operations data including hash, block number, gas usage, builder codes, entrypoint version, and more. |
+  | `<network>.transaction_attributions` | Information about the attributions of a transaction to a builder and associated builder codes. |
+
+  Following the above, the valid tables on Base Mainnet are `base.events`, `base.transactions`, `base.blocks`, `base.encoded_logs`, `base.decoded_user_operations`, and `base.transaction_attributions`.
+
+Separately, there is a limited set of tables supported for `solana` and `hyperevm` networks:
+
+  | Table | Description |
+  | --- | --- |
+  | `solana.instructions` | Solana instruction call data including program ID, instruction data, and more. Currently supports just Token2022 and SPL Token programs. |
+  | `hyperevm.events` | Hyperevm decoded event logs with parameters, event signature, topics, and more. Currently supports just B20 events. |
 
 ### Query Limits
 

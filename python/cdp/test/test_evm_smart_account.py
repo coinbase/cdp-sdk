@@ -732,6 +732,7 @@ async def test_network_scoped_smart_account_uses_base_node_rpc_as_paymaster(smar
                 "base",
                 base_node_url,
                 None,  # data_suffix
+                paymaster_context=None,
             )
 
             assert result == mock_user_op

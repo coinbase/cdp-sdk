@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.onramp_limit_upgrade_identity_fields import OnrampLimitUpgradeIdentityFields
 from cdp.openapi_client.models.onramp_user_id_type import OnrampUserIdType
 from typing import Optional, Set
@@ -31,7 +31,7 @@ class OnrampLimitUpgradeRequest(BaseModel):
     """ # noqa: E501
     user_id: StrictStr = Field(description="The user identifier value. For `phone_number` type, this must be in E.164 format.", alias="userId")
     user_id_type: OnrampUserIdType = Field(alias="userIdType")
-    fields: OnrampLimitUpgradeIdentityFields = Field(description="Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.")
+    fields: Optional[OnrampLimitUpgradeIdentityFields] = Field(default=None, description="Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. These fields are required; a request without them is rejected.")
     __properties: ClassVar[List[str]] = ["userId", "userIdType", "fields"]
 
     model_config = ConfigDict(

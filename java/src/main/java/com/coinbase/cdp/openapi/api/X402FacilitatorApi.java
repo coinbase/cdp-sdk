@@ -28,6 +28,8 @@ import com.coinbase.cdp.openapi.model.X402McpRequest;
 import com.coinbase.cdp.openapi.model.X402McpResponse;
 import com.coinbase.cdp.openapi.model.X402SearchResourcesResponse;
 import com.coinbase.cdp.openapi.model.X402SettlePaymentRejection;
+import com.coinbase.cdp.openapi.model.X402ValidateRequest;
+import com.coinbase.cdp.openapi.model.X402ValidateResponse;
 import com.coinbase.cdp.openapi.model.X402VerifyPaymentRejection;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -94,7 +96,7 @@ public class X402FacilitatorApi {
 
   /**
    * List merchant discovery info
-   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the &#x60;payTo&#x60; address, the endpoint returns an empty &#x60;resources&#x60; list. The response is paginated, and by default, returns 20 items per page.
    * @param payTo The merchant&#39;s payment address to look up. This is the onchain address that payment requirements route funds to. (required)
    * @param limit The number of resources to return per page. (optional, default to 20)
    * @param offset The offset of the first resource to return. (optional, default to 0)
@@ -108,7 +110,7 @@ public class X402FacilitatorApi {
 
   /**
    * List merchant discovery info
-   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. The response is paginated, and by default, returns 20 items per page.
+   * Gets x402 merchant discovery information for a given merchant payment address. This endpoint returns all active x402 resources associated with the specified &#x60;payTo&#x60; address, allowing clients to discover what payment-gated resources a merchant exposes and their corresponding payment requirements. If no active resources are found for the &#x60;payTo&#x60; address, the endpoint returns an empty &#x60;resources&#x60; list. The response is paginated, and by default, returns 20 items per page.
    * @param payTo The merchant&#39;s payment address to look up. This is the onchain address that payment requirements route funds to. (required)
    * @param limit The number of resources to return per page. (optional, default to 20)
    * @param offset The offset of the first resource to return. (optional, default to 0)
@@ -672,6 +674,95 @@ public class X402FacilitatorApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Validate x402 endpoint
+   * Validates an x402 endpoint&#39;s bazaar-discovery configuration by probing the seller&#39;s URL live. Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live. This operation is read-only: it performs no payment and does not index the resource.
+   * @param x402ValidateRequest  (required)
+   * @return X402ValidateResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402ValidateResponse validateX402Resource(X402ValidateRequest x402ValidateRequest) throws ApiException {
+    ApiResponse<X402ValidateResponse> localVarResponse = validateX402ResourceWithHttpInfo(x402ValidateRequest);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Validate x402 endpoint
+   * Validates an x402 endpoint&#39;s bazaar-discovery configuration by probing the seller&#39;s URL live. Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live. This operation is read-only: it performs no payment and does not index the resource.
+   * @param x402ValidateRequest  (required)
+   * @return ApiResponse&lt;X402ValidateResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402ValidateResponse> validateX402ResourceWithHttpInfo(X402ValidateRequest x402ValidateRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = validateX402ResourceRequestBuilder(x402ValidateRequest);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("validateX402Resource", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402ValidateResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402ValidateResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402ValidateResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder validateX402ResourceRequestBuilder(X402ValidateRequest x402ValidateRequest) throws ApiException {
+    // verify the required parameter 'x402ValidateRequest' is set
+    if (x402ValidateRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'x402ValidateRequest' when calling validateX402Resource");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/validate";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(x402ValidateRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

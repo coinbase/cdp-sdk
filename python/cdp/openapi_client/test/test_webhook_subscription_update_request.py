@@ -41,7 +41,9 @@ class TestWebhookSubscriptionUpdateRequest(unittest.TestCase):
                 is_enabled = False,
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
-                labels = {network=base-mainnet, contract_address=0x833589fcd6edb6e08f4c7c32d4f71b54bda02913, event_name=Transfer}
+                labels = {
+                    'key' : ''
+                    }
             )
         else:
             return WebhookSubscriptionUpdateRequest(

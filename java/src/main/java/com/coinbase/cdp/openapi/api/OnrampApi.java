@@ -20,12 +20,16 @@ import com.coinbase.cdp.openapi.Pair;
 import com.coinbase.cdp.openapi.model.CreateOnrampOrder201Response;
 import com.coinbase.cdp.openapi.model.CreateOnrampOrderRequest;
 import com.coinbase.cdp.openapi.model.CreateOnrampSession201Response;
-import com.coinbase.cdp.openapi.model.CreateOnrampSessionRequest;
 import com.coinbase.cdp.openapi.model.Error;
 import com.coinbase.cdp.openapi.model.GetOnrampOrderById200Response;
 import com.coinbase.cdp.openapi.model.GetOnrampUserLimits200Response;
 import com.coinbase.cdp.openapi.model.GetOnrampUserLimitsRequest;
+import com.coinbase.cdp.openapi.model.InitiateOnrampVerificationRequest;
 import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeRequest;
+import com.coinbase.cdp.openapi.model.OnrampSessionRequest;
+import com.coinbase.cdp.openapi.model.OnrampVerificationConfirmation;
+import com.coinbase.cdp.openapi.model.OnrampVerificationInitiation;
+import com.coinbase.cdp.openapi.model.SubmitOnrampVerificationRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -177,24 +181,24 @@ public class OnrampApi {
   /**
    * Create an onramp session
    * Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: &#x60;destinationAddress&#x60;, &#x60;purchaseCurrency&#x60;, &#x60;destinationNetwork&#x60;  **Returns**: Basic single-use onramp URL. The &#x60;quote&#x60; object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (&#x60;paymentAmount&#x60; OR &#x60;purchaseAmount&#x60;), &#x60;paymentCurrency&#x60;  **Returns**: One-click onramp URL for streamlined checkout. The &#x60;quote&#x60; object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + &#x60;paymentMethod&#x60;, &#x60;country&#x60;, &#x60;subdivision&#x60;  **Returns**: Complete pricing quote and one-click onramp URL. Both &#x60;session&#x60; and &#x60;quote&#x60; objects will be included in the response.  **Note**: Only one of &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; should be provided, not both. Providing both will result in an error. When &#x60;paymentAmount&#x60; is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When &#x60;purchaseAmount&#x60; is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
-   * @param createOnrampSessionRequest  (optional)
+   * @param onrampSessionRequest  (optional)
    * @return CreateOnrampSession201Response
    * @throws ApiException if fails to make API call
    */
-  public CreateOnrampSession201Response createOnrampSession(CreateOnrampSessionRequest createOnrampSessionRequest) throws ApiException {
-    ApiResponse<CreateOnrampSession201Response> localVarResponse = createOnrampSessionWithHttpInfo(createOnrampSessionRequest);
+  public CreateOnrampSession201Response createOnrampSession(OnrampSessionRequest onrampSessionRequest) throws ApiException {
+    ApiResponse<CreateOnrampSession201Response> localVarResponse = createOnrampSessionWithHttpInfo(onrampSessionRequest);
     return localVarResponse.getData();
   }
 
   /**
    * Create an onramp session
    * Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: &#x60;destinationAddress&#x60;, &#x60;purchaseCurrency&#x60;, &#x60;destinationNetwork&#x60;  **Returns**: Basic single-use onramp URL. The &#x60;quote&#x60; object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (&#x60;paymentAmount&#x60; OR &#x60;purchaseAmount&#x60;), &#x60;paymentCurrency&#x60;  **Returns**: One-click onramp URL for streamlined checkout. The &#x60;quote&#x60; object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + &#x60;paymentMethod&#x60;, &#x60;country&#x60;, &#x60;subdivision&#x60;  **Returns**: Complete pricing quote and one-click onramp URL. Both &#x60;session&#x60; and &#x60;quote&#x60; objects will be included in the response.  **Note**: Only one of &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; should be provided, not both. Providing both will result in an error. When &#x60;paymentAmount&#x60; is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When &#x60;purchaseAmount&#x60; is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
-   * @param createOnrampSessionRequest  (optional)
+   * @param onrampSessionRequest  (optional)
    * @return ApiResponse&lt;CreateOnrampSession201Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<CreateOnrampSession201Response> createOnrampSessionWithHttpInfo(CreateOnrampSessionRequest createOnrampSessionRequest) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createOnrampSessionRequestBuilder(createOnrampSessionRequest);
+  public ApiResponse<CreateOnrampSession201Response> createOnrampSessionWithHttpInfo(OnrampSessionRequest onrampSessionRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createOnrampSessionRequestBuilder(onrampSessionRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -233,7 +237,7 @@ public class OnrampApi {
     }
   }
 
-  private HttpRequest.Builder createOnrampSessionRequestBuilder(CreateOnrampSessionRequest createOnrampSessionRequest) throws ApiException {
+  private HttpRequest.Builder createOnrampSessionRequestBuilder(OnrampSessionRequest onrampSessionRequest) throws ApiException {
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
@@ -245,7 +249,7 @@ public class OnrampApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(createOnrampSessionRequest);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampSessionRequest);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);
@@ -429,6 +433,96 @@ public class OnrampApi {
   }
 
   /**
+   * Initiate onramp verification
+   * Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a &#x60;verificationId&#x60; that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param initiateOnrampVerificationRequest  (optional)
+   * @return OnrampVerificationInitiation
+   * @throws ApiException if fails to make API call
+   */
+  public OnrampVerificationInitiation initiateOnrampVerification(String xIdempotencyKey, InitiateOnrampVerificationRequest initiateOnrampVerificationRequest) throws ApiException {
+    ApiResponse<OnrampVerificationInitiation> localVarResponse = initiateOnrampVerificationWithHttpInfo(xIdempotencyKey, initiateOnrampVerificationRequest);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Initiate onramp verification
+   * Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a &#x60;verificationId&#x60; that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param initiateOnrampVerificationRequest  (optional)
+   * @return ApiResponse&lt;OnrampVerificationInitiation&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<OnrampVerificationInitiation> initiateOnrampVerificationWithHttpInfo(String xIdempotencyKey, InitiateOnrampVerificationRequest initiateOnrampVerificationRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = initiateOnrampVerificationRequestBuilder(xIdempotencyKey, initiateOnrampVerificationRequest);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("initiateOnrampVerification", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<OnrampVerificationInitiation>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<OnrampVerificationInitiation>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<OnrampVerificationInitiation>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder initiateOnrampVerificationRequestBuilder(String xIdempotencyKey, InitiateOnrampVerificationRequest initiateOnrampVerificationRequest) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/onramp/verifications";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(initiateOnrampVerificationRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Request limit upgrade
    * Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
    * @param onrampLimitUpgradeRequest  (optional)
@@ -492,6 +586,103 @@ public class OnrampApi {
 
     try {
       byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onrampLimitUpgradeRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Submit onramp verification
+   * Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same &#x60;verificationId&#x60;. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned &#x60;verificationId&#x60; should be stored on the user&#39;s device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+   * @param verificationId The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param submitOnrampVerificationRequest  (optional)
+   * @return OnrampVerificationConfirmation
+   * @throws ApiException if fails to make API call
+   */
+  public OnrampVerificationConfirmation submitOnrampVerification(String verificationId, String xIdempotencyKey, SubmitOnrampVerificationRequest submitOnrampVerificationRequest) throws ApiException {
+    ApiResponse<OnrampVerificationConfirmation> localVarResponse = submitOnrampVerificationWithHttpInfo(verificationId, xIdempotencyKey, submitOnrampVerificationRequest);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Submit onramp verification
+   * Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same &#x60;verificationId&#x60;. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned &#x60;verificationId&#x60; should be stored on the user&#39;s device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+   * @param verificationId The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param submitOnrampVerificationRequest  (optional)
+   * @return ApiResponse&lt;OnrampVerificationConfirmation&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<OnrampVerificationConfirmation> submitOnrampVerificationWithHttpInfo(String verificationId, String xIdempotencyKey, SubmitOnrampVerificationRequest submitOnrampVerificationRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = submitOnrampVerificationRequestBuilder(verificationId, xIdempotencyKey, submitOnrampVerificationRequest);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("submitOnrampVerification", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<OnrampVerificationConfirmation>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<OnrampVerificationConfirmation>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<OnrampVerificationConfirmation>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder submitOnrampVerificationRequestBuilder(String verificationId, String xIdempotencyKey, SubmitOnrampVerificationRequest submitOnrampVerificationRequest) throws ApiException {
+    // verify the required parameter 'verificationId' is set
+    if (verificationId == null) {
+      throw new ApiException(400, "Missing the required parameter 'verificationId' when calling submitOnrampVerification");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/onramp/verifications/{verificationId}/submit"
+        .replace("{verificationId}", ApiClient.urlEncode(verificationId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(submitOnrampVerificationRequest);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);

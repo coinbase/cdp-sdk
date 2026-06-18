@@ -34,8 +34,8 @@ class DepositTravelRuleOriginator(BaseModel):
     address: Optional[PhysicalAddress] = None
     wallet_type: Optional[StrictStr] = Field(default=None, description="The type of the originator's wallet.", alias="walletType")
     virtual_asset_service_provider: Optional[DepositTravelRuleVasp] = Field(default=None, alias="virtualAssetServiceProvider")
-    personal_id: Optional[StrictStr] = Field(default=None, description="Government-issued personal identification number for the originator.", alias="personalId")
-    date_of_birth: Optional[DateOfBirth] = Field(default=None, alias="dateOfBirth")
+    personal_id: Optional[StrictStr] = Field(default=None, description="Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier).", alias="personalId")
+    date_of_birth: Optional[DateOfBirth] = Field(default=None, description="Date of birth of the originator.", alias="dateOfBirth")
     __properties: ClassVar[List[str]] = ["name", "address", "walletType", "virtualAssetServiceProvider", "personalId", "dateOfBirth"]
 
     @field_validator('wallet_type')

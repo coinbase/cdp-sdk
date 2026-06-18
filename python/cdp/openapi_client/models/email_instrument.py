@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -31,6 +31,13 @@ class EmailInstrument(BaseModel):
     email: Annotated[str, Field(strict=True, max_length=254)] = Field(description="The email address of the recipient. The recipient will need to have an account with Coinbase or onboard to Coinbase to receive the payment.")
     asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="Asset symbol of the payment received by the recipient.")
     __properties: ClassVar[List[str]] = ["email", "asset"]
+
+    @field_validator('email')
+    def email_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}\/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}\/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

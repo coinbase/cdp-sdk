@@ -25,22 +25,22 @@ from cdp.openapi_client.models.onramp_quote_payment_method_type_id import Onramp
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateOnrampSessionRequest(BaseModel):
+class OnrampSessionRequest(BaseModel):
     """
-    CreateOnrampSessionRequest
+    Common request parameters shared by [Create Onramp Session](#operation/createOnrampSession) and [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge).
     """ # noqa: E501
-    purchase_currency: StrictStr = Field(description="The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.", alias="purchaseCurrency")
+    purchase_currency: StrictStr = Field(description="The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.", alias="purchaseCurrency")
     destination_network: StrictStr = Field(description="The name of the crypto network the purchased currency will be sent on.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.", alias="destinationNetwork")
     destination_address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The address the purchased crypto will be sent to.", alias="destinationAddress")
-    payment_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.", alias="paymentAmount")
-    purchase_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.", alias="purchaseAmount")
+    payment_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount of the payment currency.", alias="paymentAmount")
+    purchase_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of crypto the user wishes to purchase. When using this parameter, the returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase currency.", alias="purchaseAmount")
     payment_currency: Optional[StrictStr] = Field(default=None, description="The fiat currency to be converted to crypto.", alias="paymentCurrency")
     payment_method: Optional[OnrampQuotePaymentMethodTypeId] = Field(default=None, alias="paymentMethod")
     country: Optional[StrictStr] = Field(default=None, description="The ISO 3166-1 two letter country code (e.g. US).")
     subdivision: Optional[StrictStr] = Field(default=None, description="The ISO 3166-2 two letter state code (e.g. NY). Only required for US.")
-    redirect_url: Optional[Annotated[str, Field(min_length=5, strict=True, max_length=2048)]] = Field(default=None, description="URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.", alias="redirectUrl")
+    redirect_url: Optional[Annotated[str, Field(min_length=5, strict=True, max_length=2048)]] = Field(default=None, description="URI to redirect the user to after they complete or dismiss the transaction. Embedded in the returned onramp URL as a query parameter.", alias="redirectUrl")
     client_ip: Optional[StrictStr] = Field(default=None, description="The IP address of the end user requesting the onramp transaction.", alias="clientIp")
-    partner_user_ref: Optional[StrictStr] = Field(default=None, description="A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.  This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.", alias="partnerUserRef")
+    partner_user_ref: Optional[StrictStr] = Field(default=None, description="A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with \"sandbox-\" (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.  This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.", alias="partnerUserRef")
     __properties: ClassVar[List[str]] = ["purchaseCurrency", "destinationNetwork", "destinationAddress", "paymentAmount", "purchaseAmount", "paymentCurrency", "paymentMethod", "country", "subdivision", "redirectUrl", "clientIp", "partnerUserRef"]
 
     @field_validator('redirect_url')
@@ -71,7 +71,7 @@ class CreateOnrampSessionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateOnrampSessionRequest from a JSON string"""
+        """Create an instance of OnrampSessionRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -96,7 +96,7 @@ class CreateOnrampSessionRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateOnrampSessionRequest from a dict"""
+        """Create an instance of OnrampSessionRequest from a dict"""
         if obj is None:
             return None
 

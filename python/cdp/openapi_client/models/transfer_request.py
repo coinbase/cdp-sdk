@@ -39,7 +39,7 @@ class TransferRequest(BaseModel):
     validate_only: Optional[StrictBool] = Field(default=False, description="If true, validates the transfer without initiating it.  If the request is valid, a 2xx will be returned. If the request is invalid, a 4xx error will be returned. The response will include an errorType, for e.g. invalid_target if the specified target cannot receive funds.", alias="validateOnly")
     execute: StrictBool = Field(description="Whether to immediately execute the transfer. If false, the transfer will be created in quoted status and must be executed manually via the /execute endpoint.")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
-    travel_rule: Optional[TravelRule] = Field(default=None, alias="travelRule")
+    travel_rule: Optional[TravelRule] = Field(default=None, description="Travel Rule compliance information for this transfer. Required for transfers to external wallets above regulatory thresholds. Fields required differ by region and Coinbase contracting entity.", alias="travelRule")
     __properties: ClassVar[List[str]] = ["source", "target", "amount", "asset", "amountType", "validateOnly", "execute", "metadata", "travelRule"]
 
     @field_validator('amount_type')

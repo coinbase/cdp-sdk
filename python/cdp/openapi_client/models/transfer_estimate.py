@@ -29,9 +29,9 @@ from typing_extensions import Self
 
 class TransferEstimate(BaseModel):
     """
-    A point-in-time snapshot of estimated values for a transfer where exact amounts cannot be locked in at quote time (e.g., when the executed rate is determined at execution time and moves with the market).  Present in both pre-execution and post-execution states: * **Quoted state:** top-level fields whose values cannot be guaranteed are absent;   `estimate` holds their estimated values.  * **Completed state:** top-level fields contain the actual executed values;   `estimate` is retained as an immutable audit snapshot of the pre-execution estimate.
+    Captures estimated values for transfers where amounts can't be guaranteed (e.g., USDC -> EURC).  The values in `estimate` are not modified after a transfer is executed. They are preserved as an immutable record of the original pre-execution snapshot.  The actual executed values are populated in the `transfer` resource post-execution.
     """ # noqa: E501
-    exchange_rate: Optional[TransferExchangeRate] = Field(default=None, alias="exchangeRate")
+    exchange_rate: Optional[TransferExchangeRate] = Field(default=None, description="The estimated exchange rate at the time this estimate was captured.", alias="exchangeRate")
     target_amount: Optional[StrictStr] = Field(default=None, description="Estimated amount of the target asset that will be received, as a decimal string in standard unit denomination.", alias="targetAmount")
     target_asset: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]] = Field(default=None, description="The asset symbol of the estimated target amount.", alias="targetAsset")
     fees: Optional[List[TransferFee]] = Field(default=None, description="The fees associated with this transfer. Different transfer types have different fee structures.  **NOTE:** These examples are not exhaustive.  Common examples: * **Crypto transfers**: Network fees (gas) paid in the native token * **Fiat conversions**: Processing fees + exchange fees in USD * **Wire transfers**: Wire fees ($15) + processing fees ($5) in USD * **Crypto conversions**: Spread fees paid in the source asset.")

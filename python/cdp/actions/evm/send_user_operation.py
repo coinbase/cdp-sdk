@@ -1,3 +1,5 @@
+from typing import Any
+
 from eth_account.signers.base import BaseAccount
 from web3 import Web3
 
@@ -22,6 +24,7 @@ async def send_user_operation(
     network: str,
     paymaster_url: str | None = None,
     data_suffix: str | None = None,
+    paymaster_context: dict[str, Any] | None = None,
 ) -> EvmUserOperation:
     """Send a user operation.
 
@@ -33,6 +36,7 @@ async def send_user_operation(
         network (str): The network.
         paymaster_url (str): The paymaster URL.
         data_suffix (str): Optional data suffix (EIP-8021) to enable transaction attribution.
+        paymaster_context (dict[str, Any]): The ERC-7677 paymaster context forwarded to the paymaster service. Only valid when a paymaster is configured.
 
     Returns:
         UserOperation: The user operation object.
@@ -72,6 +76,7 @@ async def send_user_operation(
         calls=encoded_calls,
         paymaster_url=paymaster_url,
         data_suffix=data_suffix,
+        paymaster_context=paymaster_context,
     )
     user_operation_model = await api_clients.evm_smart_accounts.prepare_user_operation(
         address, prepare_user_operation_request

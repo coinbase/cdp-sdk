@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.DateOfBirth;
 import com.coinbase.cdp.openapi.model.PhysicalAddress;
 import com.coinbase.cdp.openapi.model.TravelRuleOriginatorAllOfVirtualAssetServiceProvider;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,7 +39,9 @@ import com.coinbase.cdp.openapi.ApiClient;
   TravelRuleOriginator.JSON_PROPERTY_FINANCIAL_INSTITUTION,
   TravelRuleOriginator.JSON_PROPERTY_NAME,
   TravelRuleOriginator.JSON_PROPERTY_ADDRESS,
-  TravelRuleOriginator.JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER
+  TravelRuleOriginator.JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER,
+  TravelRuleOriginator.JSON_PROPERTY_PERSONAL_ID,
+  TravelRuleOriginator.JSON_PROPERTY_DATE_OF_BIRTH
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class TravelRuleOriginator {
@@ -57,6 +60,14 @@ public class TravelRuleOriginator {
   public static final String JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER = "virtualAssetServiceProvider";
   @jakarta.annotation.Nullable
   private TravelRuleOriginatorAllOfVirtualAssetServiceProvider virtualAssetServiceProvider;
+
+  public static final String JSON_PROPERTY_PERSONAL_ID = "personalId";
+  @jakarta.annotation.Nullable
+  private String personalId;
+
+  public static final String JSON_PROPERTY_DATE_OF_BIRTH = "dateOfBirth";
+  @jakarta.annotation.Nullable
+  private DateOfBirth dateOfBirth;
 
   public TravelRuleOriginator() { 
   }
@@ -157,6 +168,54 @@ public class TravelRuleOriginator {
   }
 
 
+  public TravelRuleOriginator personalId(@jakarta.annotation.Nullable String personalId) {
+    this.personalId = personalId;
+    return this;
+  }
+
+  /**
+   * Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver&#39;s license. For institutions: LEI (Legal Entity Identifier).
+   * @return personalId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PERSONAL_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getPersonalId() {
+    return personalId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PERSONAL_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPersonalId(@jakarta.annotation.Nullable String personalId) {
+    this.personalId = personalId;
+  }
+
+
+  public TravelRuleOriginator dateOfBirth(@jakarta.annotation.Nullable DateOfBirth dateOfBirth) {
+    this.dateOfBirth = dateOfBirth;
+    return this;
+  }
+
+  /**
+   * Date of birth of the originator. Required by certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.
+   * @return dateOfBirth
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DATE_OF_BIRTH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public DateOfBirth getDateOfBirth() {
+    return dateOfBirth;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DATE_OF_BIRTH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDateOfBirth(@jakarta.annotation.Nullable DateOfBirth dateOfBirth) {
+    this.dateOfBirth = dateOfBirth;
+  }
+
+
   /**
    * Return true if this TravelRuleOriginator object is equal to o.
    */
@@ -172,12 +231,14 @@ public class TravelRuleOriginator {
     return Objects.equals(this.financialInstitution, travelRuleOriginator.financialInstitution) &&
         Objects.equals(this.name, travelRuleOriginator.name) &&
         Objects.equals(this.address, travelRuleOriginator.address) &&
-        Objects.equals(this.virtualAssetServiceProvider, travelRuleOriginator.virtualAssetServiceProvider);
+        Objects.equals(this.virtualAssetServiceProvider, travelRuleOriginator.virtualAssetServiceProvider) &&
+        Objects.equals(this.personalId, travelRuleOriginator.personalId) &&
+        Objects.equals(this.dateOfBirth, travelRuleOriginator.dateOfBirth);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(financialInstitution, name, address, virtualAssetServiceProvider);
+    return Objects.hash(financialInstitution, name, address, virtualAssetServiceProvider, personalId, dateOfBirth);
   }
 
   @Override
@@ -188,6 +249,8 @@ public class TravelRuleOriginator {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("    virtualAssetServiceProvider: ").append(toIndentedString(virtualAssetServiceProvider)).append("\n");
+    sb.append("    personalId: ").append(toIndentedString(personalId)).append("\n");
+    sb.append("    dateOfBirth: ").append(toIndentedString(dateOfBirth)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -255,6 +318,16 @@ public class TravelRuleOriginator {
       joiner.add(getVirtualAssetServiceProvider().toUrlQueryString(prefix + "virtualAssetServiceProvider" + suffix));
     }
 
+    // add `personalId` to the URL query string
+    if (getPersonalId() != null) {
+      joiner.add(String.format("%spersonalId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPersonalId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `dateOfBirth` to the URL query string
+    if (getDateOfBirth() != null) {
+      joiner.add(getDateOfBirth().toUrlQueryString(prefix + "dateOfBirth" + suffix));
+    }
+
     return joiner.toString();
   }
 
@@ -284,6 +357,14 @@ public class TravelRuleOriginator {
     }
     public TravelRuleOriginator.Builder virtualAssetServiceProvider(TravelRuleOriginatorAllOfVirtualAssetServiceProvider virtualAssetServiceProvider) {
       this.instance.virtualAssetServiceProvider = virtualAssetServiceProvider;
+      return this;
+    }
+    public TravelRuleOriginator.Builder personalId(String personalId) {
+      this.instance.personalId = personalId;
+      return this;
+    }
+    public TravelRuleOriginator.Builder dateOfBirth(DateOfBirth dateOfBirth) {
+      this.instance.dateOfBirth = dateOfBirth;
       return this;
     }
 
@@ -323,7 +404,9 @@ public class TravelRuleOriginator {
       .financialInstitution(getFinancialInstitution())
       .name(getName())
       .address(getAddress())
-      .virtualAssetServiceProvider(getVirtualAssetServiceProvider());
+      .virtualAssetServiceProvider(getVirtualAssetServiceProvider())
+      .personalId(getPersonalId())
+      .dateOfBirth(getDateOfBirth());
   }
 
 }

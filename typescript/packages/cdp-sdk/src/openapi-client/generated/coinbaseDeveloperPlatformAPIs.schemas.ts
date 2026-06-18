@@ -96,6 +96,12 @@ export const ErrorType = {
   guest_transaction_limit: "guest_transaction_limit",
   guest_transaction_count: "guest_transaction_count",
   phone_number_verification_expired: "phone_number_verification_expired",
+  otp_verification_code_invalid: "otp_verification_code_invalid",
+  otp_verification_destination_mismatch: "otp_verification_destination_mismatch",
+  otp_verification_expired: "otp_verification_expired",
+  otp_verification_invalid: "otp_verification_invalid",
+  otp_verification_not_found: "otp_verification_not_found",
+  otp_verification_required: "otp_verification_required",
   document_verification_failed: "document_verification_failed",
   recipient_allowlist_violation: "recipient_allowlist_violation",
   recipient_allowlist_pending: "recipient_allowlist_pending",
@@ -137,6 +143,17 @@ export const ErrorType = {
   delegation_not_enabled: "delegation_not_enabled",
   network_mismatch: "network_mismatch",
   already_enabled: "already_enabled",
+  payment_session_already_canceled: "payment_session_already_canceled",
+  payment_session_already_authorized: "payment_session_already_authorized",
+  payment_session_action_pending: "payment_session_action_pending",
+  no_capturable_balance: "no_capturable_balance",
+  no_voidable_balance: "no_voidable_balance",
+  no_refundable_balance: "no_refundable_balance",
+  entity_not_configured_for_payment_acceptance: "entity_not_configured_for_payment_acceptance",
+  daily_transaction_limit_exceeded: "daily_transaction_limit_exceeded",
+  daily_amount_limit_exceeded: "daily_amount_limit_exceeded",
+  stale_attestation: "stale_attestation",
+  moderation_rejected: "moderation_rejected",
 } as const;
 
 /**
@@ -439,6 +456,7 @@ export const TransferStatus = {
 /**
  * An email address. Maximum length 254 characters per [RFC 5321](https://www.rfc-editor.org/rfc/rfc5321).
  * @maxLength 254
+ * @pattern ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$
  */
 export type Email = string;
 
@@ -586,21 +604,20 @@ Common examples:
 export type TransferFees = TransferFee[];
 
 /**
- * A point-in-time snapshot of estimated values for a transfer where exact amounts cannot be locked in at quote time (e.g., when the executed rate is determined at execution time and moves with the market).
+ * Captures estimated values for transfers where amounts can't be guaranteed (e.g., USDC -> EURC).
 
-Present in both pre-execution and post-execution states:
-* **Quoted state:** top-level fields whose values cannot be guaranteed are absent;
-  `estimate` holds their estimated values.
+The values in `estimate` are not modified after a transfer is executed. They are preserved as an immutable record of the original pre-execution snapshot.
 
-* **Completed state:** top-level fields contain the actual executed values;
-  `estimate` is retained as an immutable audit snapshot of the pre-execution estimate.
+The actual executed values are populated in the `transfer` resource post-execution.
  */
 export interface TransferEstimate {
+  /** The estimated exchange rate at the time this estimate was captured. */
   exchangeRate?: TransferExchangeRate;
   /** Estimated amount of the target asset that will be received, as a decimal string in standard unit denomination. */
   targetAmount?: string;
   /** The asset symbol of the estimated target amount. */
   targetAsset?: Asset;
+  /** The estimated fees at the time this estimate was captured. */
   fees?: TransferFees;
   /** The date and time when this estimate was captured. */
   estimatedAt: string;
@@ -668,11 +685,13 @@ export interface Transfer {
   sourceAmount?: string;
   /** The asset symbol of the source amount. */
   sourceAsset?: Asset;
-  /** The amount of the target asset that will be received, as a decimal string in standard unit denomination. */
+  /** The amount of the target asset received, as a decimal string in standard unit denomination. May be omitted in the `quoted` state if the value cannot be guaranteed; see `estimate.targetAmount` for the expected value. Populated with the actual executed amount once the transfer completes. */
   targetAmount?: string;
   /** The asset symbol of the target amount. */
   targetAsset?: Asset;
+  /** Exchange rate information for currency conversion. The rate indicates how much of the target asset is equivalent to one unit of the source asset. May be omitted in the `quoted` state if the rate cannot be guaranteed; see `estimate.exchangeRate` for the expected rate. Populated with the actual executed rate once the transfer completes. */
   exchangeRate?: TransferExchangeRate;
+  /** The fees associated with this transfer. Different transfer types have different fee structures. May be omitted in the `quoted` state if the fees cannot be guaranteed; see `estimate.fees` for the expected fees. Populated with the actual fees once the transfer completes. */
   fees?: TransferFees;
   estimate?: TransferEstimate;
   /** The date and time the transfer was completed. */
@@ -730,6 +749,33 @@ export interface TravelRuleParty {
 }
 
 /**
+ * Date of birth.
+ */
+export interface DateOfBirth {
+  /**
+   * Day of birth (01-31).
+   * @minLength 2
+   * @maxLength 2
+   * @pattern ^[0-9]{2}$
+   */
+  day?: string;
+  /**
+   * Month of birth (01-12).
+   * @minLength 2
+   * @maxLength 2
+   * @pattern ^[0-9]{2}$
+   */
+  month?: string;
+  /**
+   * Year of birth (four digits).
+   * @minLength 4
+   * @maxLength 4
+   * @pattern ^[0-9]{4}$
+   */
+  year?: string;
+}
+
+/**
  * Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers.
  */
 export type TravelRuleOriginatorAllOfVirtualAssetServiceProvider = {
@@ -744,6 +790,10 @@ export type TravelRuleOriginatorAllOfVirtualAssetServiceProvider = {
 export type TravelRuleOriginatorAllOf = {
   /** Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers. */
   virtualAssetServiceProvider?: TravelRuleOriginatorAllOfVirtualAssetServiceProvider;
+  /** Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier). */
+  personalId?: string;
+  /** Date of birth of the originator. Required by certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations. */
+  dateOfBirth?: DateOfBirth;
 };
 
 /**
@@ -796,10 +846,12 @@ The Travel Rule (FATF Recommendation 16) requires VASPs to share originator and 
 
 **Impact on required fields:**
 
-When `isIntermediary` is `true`, you must provide the `originator` object with details about the original sender, including:
+When `isIntermediary` is `true`, you must provide the `originator` object with details about the **original sender**, including:
 - Originator name
 - Originator address
 - Your VASP information (`virtualAssetServiceProvider` object with `name`, `address`, and `identifier`)
+
+For jurisdictions that require them (such as Coinbase Luxembourg), `personalIdentification` and `dateOfBirth` must also reflect the **original sender's** identity — not the intermediary's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
  */
   isIntermediary?: boolean;
   originator?: TravelRuleOriginator;
@@ -843,6 +895,7 @@ export interface TransferRequest {
   /** Whether to immediately execute the transfer. If false, the transfer will be created in quoted status and must be executed manually via the /execute endpoint. */
   execute: boolean;
   metadata?: Metadata;
+  /** Travel Rule compliance information for this transfer. Required for transfers to external wallets above regulatory thresholds. Fields required differ by region and Coinbase contracting entity. */
   travelRule?: TravelRule;
 }
 
@@ -854,33 +907,6 @@ export interface DepositTravelRuleVasp {
   identifier?: string;
   /** The name of the Virtual Asset Service Provider (VASP). */
   name?: string;
-}
-
-/**
- * Date of birth.
- */
-export interface DateOfBirth {
-  /**
-   * Day of birth (01-31).
-   * @minLength 2
-   * @maxLength 2
-   * @pattern ^[0-9]{2}$
-   */
-  day?: string;
-  /**
-   * Month of birth (01-12).
-   * @minLength 2
-   * @maxLength 2
-   * @pattern ^[0-9]{2}$
-   */
-  month?: string;
-  /**
-   * Year of birth (four digits).
-   * @minLength 4
-   * @maxLength 4
-   * @pattern ^[0-9]{4}$
-   */
-  year?: string;
 }
 
 /**
@@ -907,8 +933,9 @@ export interface DepositTravelRuleOriginator {
   /** The type of the originator's wallet. */
   walletType?: DepositTravelRuleOriginatorWalletType;
   virtualAssetServiceProvider?: DepositTravelRuleVasp;
-  /** Government-issued personal identification number for the originator. */
+  /** Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier). */
   personalId?: string;
+  /** Date of birth of the originator. */
   dateOfBirth?: DateOfBirth;
 }
 
@@ -924,7 +951,9 @@ export interface DepositTravelRuleBeneficiary {
  * Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
  */
 export interface DepositTravelRuleRequest {
+  /** Originator information for the travel rule submission. */
   originator?: DepositTravelRuleOriginator;
+  /** Beneficiary information for the travel rule submission. */
   beneficiary?: DepositTravelRuleBeneficiary;
   /** Indicates whether the user attests that the originating wallet belongs to them. */
   isSelf?: boolean;
@@ -1204,6 +1233,13 @@ export interface EndUser {
 }
 
 /**
+ * The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+ */
+export interface PaymasterContext {
+  [key: string]: unknown;
+}
+
+/**
  * The domain of the EIP-712 typed data.
  */
 export interface EIP712Domain {
@@ -1373,6 +1409,8 @@ export interface EvmUserOperation {
   transactionHash?: string;
   /** The list of receipts associated with the user operation. */
   receipts?: UserOperationReceipt[];
+  /** The timestamp at which the prepared user operation expires. */
+  expiresAt?: string;
 }
 
 export interface EvmAccount {
@@ -4073,6 +4111,40 @@ export interface AccountTokenAddressesResponse {
 }
 
 /**
+ * A webhook event type identifier following dot-separated format:
+`<domain>.<entity>.<verb>` (e.g., "onchain.activity.detected").
+
+ */
+export type EventType = (typeof EventType)[keyof typeof EventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EventType = {
+  onchainactivitydetected: "onchain.activity.detected",
+  walletactivitydetected: "wallet.activity.detected",
+  walletactivitymulti: "wallet.activity.multi",
+  wallettransactioncreated: "wallet.transaction.created",
+  wallettransactionsigned: "wallet.transaction.signed",
+  wallettransactionbroadcast: "wallet.transaction.broadcast",
+  wallettransactionreplaced: "wallet.transaction.replaced",
+  wallettransactionpending: "wallet.transaction.pending",
+  wallettransactionconfirmed: "wallet.transaction.confirmed",
+  wallettransactionfailed: "wallet.transaction.failed",
+  walletdelegationcreated: "wallet.delegation.created",
+  walletdelegationrevoked: "wallet.delegation.revoked",
+  wallettyped_datasigned: "wallet.typed_data.signed",
+  walletmessagesigned: "wallet.message.signed",
+  wallethashsigned: "wallet.hash.signed",
+  onramptransactioncreated: "onramp.transaction.created",
+  onramptransactionupdated: "onramp.transaction.updated",
+  onramptransactionsuccess: "onramp.transaction.success",
+  onramptransactionfailed: "onramp.transaction.failed",
+  offramptransactioncreated: "offramp.transaction.created",
+  offramptransactionupdated: "offramp.transaction.updated",
+  offramptransactionsuccess: "offramp.transaction.success",
+  offramptransactionfailed: "offramp.transaction.failed",
+} as const;
+
+/**
  * Additional headers to include in webhook requests.
  */
 export type WebhookTargetHeaders = { [key: string]: string };
@@ -4124,7 +4196,7 @@ export interface WebhookSubscriptionResponse {
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 "acceptance.payment_session.authorization_succeeded").
  */
-  eventTypes: string[];
+  eventTypes: EventType[];
   /** Whether the subscription is enabled. */
   isEnabled: boolean;
   /** Additional metadata for the subscription. */
@@ -4155,9 +4227,16 @@ export type WebhookSubscriptionListResponse = WebhookSubscriptionListResponseAll
 an event contains ALL the key-value pairs specified here. Additional labels on
 the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 
-**Note:** Currently, labels are supported for onchain webhooks only.
+**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
 
-See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+- `network` (required) — Blockchain network
+- `contract_address` — Smart contract address
+- `event_name` — Event name (e.g., "Transfer", "Burn")
+- `event_signature` — Event signature hash
+- `transaction_from` — Transaction sender address
+- `transaction_to` — Transaction recipient address
+- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
 
  */
 export type WebhookSubscriptionRequestLabels = { [key: string]: string };
@@ -4174,7 +4253,7 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
 "acceptance.payment_session.authorization_succeeded").
 The subscription will only receive events matching these types AND the label filter(s).
  */
-  eventTypes: string[];
+  eventTypes: EventType[];
   /** Whether the subscription is enabled. */
   isEnabled: boolean;
   target: WebhookTarget;
@@ -4183,20 +4262,34 @@ The subscription will only receive events matching these types AND the label fil
 an event contains ALL the key-value pairs specified here. Additional labels on
 the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 
-**Note:** Currently, labels are supported for onchain webhooks only.
+**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
 
-See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+- `network` (required) — Blockchain network
+- `contract_address` — Smart contract address
+- `event_name` — Event name (e.g., "Transfer", "Burn")
+- `event_signature` — Event signature hash
+- `transaction_from` — Transaction sender address
+- `transaction_to` — Transaction recipient address
+- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
  */
   labels?: WebhookSubscriptionRequestLabels;
 }
 
 /**
  * Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-
-**Note:** Currently, labels are supported for onchain webhooks only.
-
-See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 Omit to receive all events for the selected event types.
+
+**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+
+**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+- `network` (required) — Blockchain network
+- `contract_address` — Smart contract address
+- `event_name` — Event name (e.g., "Transfer", "Burn")
+- `event_signature` — Event signature hash
+- `transaction_from` — Transaction sender address
+- `transaction_to` — Transaction recipient address
+- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
 
  */
 export type WebhookSubscriptionUpdateRequestLabels = { [key: string]: string };
@@ -4211,17 +4304,24 @@ export interface WebhookSubscriptionUpdateRequest {
   /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
-  eventTypes: string[];
+  eventTypes: EventType[];
   /** Whether the subscription is enabled. */
   isEnabled: boolean;
   target: WebhookTarget;
   metadata?: Metadata;
   /** Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-
-**Note:** Currently, labels are supported for onchain webhooks only.
-
-See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 Omit to receive all events for the selected event types.
+
+**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+
+**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+- `network` (required) — Blockchain network
+- `contract_address` — Smart contract address
+- `event_name` — Event name (e.g., "Transfer", "Burn")
+- `event_signature` — Event signature hash
+- `transaction_from` — Transaction sender address
+- `transaction_to` — Transaction recipient address
+- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
  */
   labels?: WebhookSubscriptionUpdateRequestLabels;
 }
@@ -5782,12 +5882,12 @@ export type X402DiscoveryMerchantResponsePagination = {
 };
 
 /**
- * Response containing x402 resources associated with a merchant payment address.
+ * Response containing x402 resources associated with a merchant payment address. The resources list is empty when no active resources are found.
  */
 export interface X402DiscoveryMerchantResponse {
   x402Version: X402Version;
   payTo: BlockchainAddress;
-  /** List of discovered x402 resources associated with the merchant's payTo address. */
+  /** List of discovered x402 resources associated with the merchant's payTo address. This list is empty when no active resources are found. */
   resources: X402DiscoveryResource[];
   /** Pagination information for the response. */
   pagination: X402DiscoveryMerchantResponsePagination;
@@ -5907,6 +6007,235 @@ export interface X402McpResponse {
   /** The result of the method call (present on success). */
   result?: X402McpResponseResult;
   error?: X402McpError;
+}
+
+/**
+ * A valid HTTPS URL.
+ * @minLength 12
+ * @maxLength 2048
+ * @pattern ^https://.*$
+ */
+export type HttpsUrl = string;
+
+/**
+ * The HTTP method used to probe the endpoint. Only GET and POST are supported; other verbs are intentionally rejected because x402 resources are expected to respond to these methods.
+ */
+export type X402ValidateRequestMethod =
+  (typeof X402ValidateRequestMethod)[keyof typeof X402ValidateRequestMethod];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402ValidateRequestMethod = {
+  GET: "GET",
+  POST: "POST",
+} as const;
+
+/**
+ * Request to validate an x402 endpoint's bazaar-discovery configuration.
+ */
+export interface X402ValidateRequest {
+  /** HTTPS URL of the x402 endpoint to validate. Must use the `https://` scheme. */
+  resource: HttpsUrl;
+  /** The HTTP method used to probe the endpoint. Only GET and POST are supported; other verbs are intentionally rejected because x402 resources are expected to respond to these methods. */
+  method?: X402ValidateRequestMethod;
+}
+
+/**
+ * The name of the preflight check. New values may be added in future versions; clients should handle unknown values gracefully.
+ */
+export type X402ValidateCheckCheck =
+  (typeof X402ValidateCheckCheck)[keyof typeof X402ValidateCheckCheck];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402ValidateCheckCheck = {
+  reachable: "reachable",
+  returns_402: "returns_402",
+  has_bazaar_extension: "has_bazaar_extension",
+  parse: "parse",
+} as const;
+
+/**
+ * Whether this check is a hard indexing requirement or a quality recommendation. A `required` check affects validity when it fails. An `advisory` check (for example, a missing output schema) is a suggestion to improve discoverability and does not make the endpoint invalid.
+ */
+export type X402ValidateCheckSeverity =
+  (typeof X402ValidateCheckSeverity)[keyof typeof X402ValidateCheckSeverity];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402ValidateCheckSeverity = {
+  required: "required",
+  advisory: "advisory",
+} as const;
+
+/**
+ * The result of a single preflight check performed against the x402 endpoint.
+ */
+export interface X402ValidateCheck {
+  /** The name of the preflight check. New values may be added in future versions; clients should handle unknown values gracefully. */
+  check: X402ValidateCheckCheck;
+  /** Whether the check passed. */
+  passed: boolean;
+  /** A human-readable explanation of the check result. */
+  detail: string;
+  /** The value the check expected, when applicable. */
+  expected?: string;
+  /** The value the check observed, when applicable. */
+  actual?: string;
+  /** Whether this check is a hard indexing requirement or a quality recommendation. A `required` check affects validity when it fails. An `advisory` check (for example, a missing output schema) is a suggestion to improve discoverability and does not make the endpoint invalid. */
+  severity: X402ValidateCheckSeverity;
+}
+
+/**
+ * The simulated facilitator outcome: `accepted` if the facilitator would index the resource, or `rejected` if it would reject it.
+ */
+export type X402ValidateSimulationOutcome =
+  (typeof X402ValidateSimulationOutcome)[keyof typeof X402ValidateSimulationOutcome];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402ValidateSimulationOutcome = {
+  accepted: "accepted",
+  rejected: "rejected",
+} as const;
+
+/**
+ * The simulated facilitator decision for the x402 endpoint.
+ */
+export interface X402ValidateSimulation {
+  /** The simulated facilitator outcome: `accepted` if the facilitator would index the resource, or `rejected` if it would reject it. */
+  outcome: X402ValidateSimulationOutcome;
+  /** The reason the resource would be rejected, present only when `outcome` is `rejected`. */
+  rejectionReason?: string;
+}
+
+/**
+ * Bazaar index status for a validated x402 endpoint.
+ */
+export interface X402ValidateIndex {
+  /** Whether the indexed resource is active and served in discovery results. */
+  active: boolean;
+  /**
+   * When the endpoint was last crawled, or `null` if it has been indexed but not yet crawled.
+   * @nullable
+   */
+  lastCrawledAt: string | null;
+  /** Quality metrics for the indexed resource, present only when the endpoint has call history. */
+  quality?: X402ResourceQuality;
+}
+
+/**
+ * The raw decoded payment requirements returned by the endpoint, or `null` if the endpoint was not reachable or did not return a parseable 402 payload. Lets sellers inspect exactly what their endpoint is advertising.
+ * @nullable
+ */
+export type X402ValidateResponsePaymentRequirements = X402PaymentRequirements | null;
+
+/**
+ * The `extensions.bazaar` block from the endpoint's discovery metadata, or `null` if the bazaar extension was absent or the endpoint was not reachable. Lets sellers verify the discovery configuration their endpoint is advertising.
+ * @nullable
+ */
+export type X402ValidateResponseBazaarExtension = { [key: string]: unknown } | null;
+
+/**
+ * Bazaar index status for the endpoint, or `null` if the endpoint is not yet indexed. Present on every response regardless of simulation outcome.
+ * @nullable
+ */
+export type X402ValidateResponseIndex = X402ValidateIndex | null;
+
+/**
+ * Response from validating an x402 endpoint's bazaar-discovery configuration.
+ */
+export interface X402ValidateResponse {
+  /** Whether the endpoint is valid: all preflight checks passed and the facilitator would index the resource. */
+  valid: boolean;
+  /**
+   * The HTTP status code returned by the endpoint, or `null` if the endpoint was not reachable.
+   * @nullable
+   */
+  statusCode: number | null;
+  /**
+   * The x402 protocol version advertised by the endpoint, or `null` if it could not be determined. Intentionally a bare integer rather than the `X402Version` enum so the validator can surface unsupported or malformed version values returned by non-conforming endpoints.
+   * @nullable
+   */
+  x402Version: number | null;
+  /** All check results in run order. Well-known check names are `reachable`, `returns_402`, `has_bazaar_extension`, and `parse`. Additional checks may be added in future versions. */
+  preflight: X402ValidateCheck[];
+  /**
+   * The raw decoded payment requirements returned by the endpoint, or `null` if the endpoint was not reachable or did not return a parseable 402 payload. Lets sellers inspect exactly what their endpoint is advertising.
+   * @nullable
+   */
+  paymentRequirements: X402ValidateResponsePaymentRequirements;
+  /**
+   * The `extensions.bazaar` block from the endpoint's discovery metadata, or `null` if the bazaar extension was absent or the endpoint was not reachable. Lets sellers verify the discovery configuration their endpoint is advertising.
+   * @nullable
+   */
+  bazaarExtension: X402ValidateResponseBazaarExtension;
+  simulation: X402ValidateSimulation;
+  /**
+   * Bazaar index status for the endpoint, or `null` if the endpoint is not yet indexed. Present on every response regardless of simulation outcome.
+   * @nullable
+   */
+  index: X402ValidateResponseIndex;
+}
+
+/**
+ * The OTP delivery channel.
+ */
+export type InitiateOnrampVerificationRequestChannel =
+  (typeof InitiateOnrampVerificationRequestChannel)[keyof typeof InitiateOnrampVerificationRequestChannel];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const InitiateOnrampVerificationRequestChannel = {
+  sms: "sms",
+  email: "email",
+} as const;
+
+/**
+ * The phone number or email address to send the OTP to.
+ */
+export type InitiateOnrampVerificationRequestDestination = PhoneNumber | Email;
+
+/**
+ * Request body for initiating an onramp OTP verification.
+ */
+export interface InitiateOnrampVerificationRequest {
+  /** The OTP delivery channel. */
+  channel: InitiateOnrampVerificationRequestChannel;
+  /** The phone number or email address to send the OTP to. */
+  destination: InitiateOnrampVerificationRequestDestination;
+}
+
+/**
+ * A unique identifier for an onramp verification record, in the format `onramp_verification_<uuid>`.
+ * @pattern ^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$
+ */
+export type OnrampVerificationId = string;
+
+/**
+ * The result of initiating an onramp OTP verification.
+ */
+export interface OnrampVerificationInitiation {
+  /** Identifier returned by this endpoint. Pass to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes. */
+  verificationId: OnrampVerificationId;
+  /** The deadline for submitting the OTP code (10 minutes from now). */
+  otpExpiresAt: string;
+}
+
+/**
+ * Request body for submitting an OTP code to complete an onramp verification.
+ */
+export interface SubmitOnrampVerificationRequest {
+  /**
+   * The 6-digit OTP code the user received.
+   * @pattern ^\d{6}$
+   */
+  otpCode: string;
+}
+
+/**
+ * The result of successfully submitting an onramp OTP verification.
+ */
+export interface OnrampVerificationConfirmation {
+  /** The same verification ID. Store on the user's device and pass to the Create Onramp Order endpoint. Valid for 60 days. */
+  verificationId: OnrampVerificationId;
+  /** The date and time when this verification expires for order placement. */
+  verificationExpiresAt: string;
 }
 
 /**
@@ -6041,6 +6370,41 @@ export const OnrampQuotePaymentMethodTypeId = {
 export type Uri = string;
 
 /**
+ * Common request parameters shared by [Create Onramp Session](#operation/createOnrampSession) and [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge).
+ */
+export interface OnrampSessionRequest {
+  /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of the crypto asset to be purchased.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
+  purchaseCurrency: string;
+  /** The name of the crypto network the purchased currency will be sent on.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
+  destinationNetwork: string;
+  /** The address the purchased crypto will be sent to. */
+  destinationAddress: BlockchainAddress;
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount of the payment currency. */
+  paymentAmount?: string;
+  /** A string representing the amount of crypto the user wishes to purchase. When using this parameter, the returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase currency. */
+  purchaseAmount?: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency?: string;
+  paymentMethod?: OnrampQuotePaymentMethodTypeId;
+  /** The ISO 3166-1 two letter country code (e.g. US). */
+  country?: string;
+  /** The ISO 3166-2 two letter state code (e.g. NY). Only required for US. */
+  subdivision?: string;
+  /** URI to redirect the user to after they complete or dismiss the transaction. Embedded in the returned onramp URL as a query parameter. */
+  redirectUrl?: Uri;
+  /** The IP address of the end user requesting the onramp transaction. */
+  clientIp?: string;
+  /** A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
+
+This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
+  partnerUserRef?: string;
+}
+
+/**
  * An onramp session containing a ready-to-use onramp URL.
  */
 export interface OnrampSession {
@@ -6130,8 +6494,8 @@ export interface OnrampLimitUpgradeRequest {
   /** The user identifier value. For `phone_number` type, this must be in E.164 format. */
   userId: string;
   userIdType: OnrampUserIdType;
-  /** Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. */
-  fields: OnrampLimitUpgradeIdentityFields;
+  /** Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. These fields are required; a request without them is rejected. */
+  fields?: OnrampLimitUpgradeIdentityFields;
 }
 
 /**
@@ -6332,6 +6696,913 @@ export type PaymentMethodsPaymentMethod =
   | SepaPaymentMethod;
 
 /**
+ * Decoded event parameters from the contract event. Keys correspond to the named arguments in the event signature (e.g., `from`, `to`, `value` for an ERC-20 `Transfer`). Values are returned as strings to preserve precision for large integers and to avoid loss for address types. The exact set of keys depends on the contract event.
+ */
+export interface OnchainActivityEventParameters {
+  [key: string]: string;
+}
+
+/**
+ * The payload delivered when onchain activity matching your subscription filters is detected. Each event corresponds to a single decoded contract log emitted onchain. The set of keys in `parameters` varies by the contract event being decoded (e.g., `Transfer(address,address,uint256)`).
+ */
+export interface OnchainActivityDetectedEvent {
+  /** The block number containing the transaction that emitted the event. */
+  block_number: number;
+  /** The contract address that emitted the event. */
+  contract_address: string;
+  /** The name of the decoded contract event. */
+  event_name: string;
+  /** The canonical event signature used to decode the log, including parameter types (e.g., `Transfer(address,address,uint256)`). */
+  event_signature: string;
+  /** The zero-based index of the log within the transaction. */
+  log_index: number;
+  /** The blockchain network where the activity was detected. */
+  network: string;
+  parameters: OnchainActivityEventParameters;
+  /** The block timestamp of the transaction (ISO 8601 format). */
+  timestamp: string;
+  /** The address that initiated the transaction (the transaction sender). */
+  transaction_from: string;
+  /** The hash of the transaction that emitted the event. */
+  transaction_hash: string;
+  /** The address the transaction was sent to (typically a contract address). */
+  transaction_to: string;
+}
+
+/**
+ * Decoded blockchain event data for the wallet activity webhook. The exact fields depend on the type of onchain activity detected. Common fields include network, block info, and transaction hash. Additional fields are event-specific (e.g., `from`, `to`, `value` for transfers).
+ */
+export interface OnchainActivityEventData {
+  /** The blockchain network where the activity was detected. */
+  network: string;
+  /** The block number containing the transaction. */
+  blockNumber?: string;
+  /** The timestamp of the block. */
+  blockTimestamp?: string;
+  /** The transaction hash of the detected activity. */
+  transactionHash: string;
+  /** The log index within the transaction. */
+  logIndex?: string;
+  /** The contract address that emitted the event. */
+  contractAddress?: string;
+  /** The name of the decoded contract event. */
+  eventName?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Common fields included in every wallet activity webhook event payload.
+ */
+export interface WalletActivityEventBase {
+  /** Unique identifier for this webhook event. Use this for idempotency. */
+  eventId: string;
+  /** When this event occurred (ISO 8601 format). */
+  timestamp: string;
+  data: OnchainActivityEventData;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type WalletActivityDetectedEventAllOfEventType =
+  (typeof WalletActivityDetectedEventAllOfEventType)[keyof typeof WalletActivityDetectedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const WalletActivityDetectedEventAllOfEventType = {
+  walletactivitydetected: "wallet.activity.detected",
+} as const;
+
+export type WalletActivityDetectedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: WalletActivityDetectedEventAllOfEventType;
+};
+
+export type WalletActivityDetectedEvent = WalletActivityEventBase &
+  WalletActivityDetectedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type WalletActivityMultiEventAllOfEventType =
+  (typeof WalletActivityMultiEventAllOfEventType)[keyof typeof WalletActivityMultiEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const WalletActivityMultiEventAllOfEventType = {
+  walletactivitymulti: "wallet.activity.multi",
+} as const;
+
+export type WalletActivityMultiEventAllOf = {
+  /** The type of webhook event. */
+  eventType: WalletActivityMultiEventAllOfEventType;
+};
+
+export type WalletActivityMultiEvent = WalletActivityEventBase & WalletActivityMultiEventAllOf;
+
+/**
+ * Payload for `wallet.transaction.created` on EVM networks. Includes the originating `address`.
+ */
+export interface WalletEvmTransactionCreatedPayload {
+  /**
+   * The EVM wallet address that created the transaction.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was created (ISO 8601 format). */
+  created_at: string;
+}
+
+/**
+ * Payload for API Key Wallet events. These events carry no end-user payload fields, so neither `user_id` nor `delegation_id` is present.
+ */
+export interface WalletApiKeyEventPayload {
+  [key: string]: unknown;
+}
+
+/**
+ * Payload for `wallet.transaction.created` on Solana. Solana transaction events do not include an `address`.
+ */
+export interface WalletSolanaTransactionCreatedPayload {
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was created (ISO 8601 format). */
+  created_at: string;
+}
+
+/**
+ * Payload for User Wallet events. The wallet is owned by an end user, identified by `user_id`. User Wallet actions do not include `delegation_id`.
+ */
+export interface WalletUserEventPayload {
+  /** The user ID that owns the User Wallet. */
+  user_id: string;
+}
+
+/**
+ * Payload for delegated User Wallet events, where a User Wallet action was authorized via a delegation grant. Includes `user_id` and the `delegation_id` of the active grant.
+ */
+export interface WalletDelegatedEventPayload {
+  /** The user ID that owns the User Wallet. */
+  user_id: string;
+  /** The delegation grant ID used to authorize the action. */
+  delegation_id: string;
+}
+
+export type WalletTransactionCreatedEventOneOf = WalletEvmTransactionCreatedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionCreatedEventOneOfTwo = WalletSolanaTransactionCreatedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionCreatedEventOneOfThree = WalletEvmTransactionCreatedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionCreatedEventOneOfFour = WalletSolanaTransactionCreatedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionCreatedEventOneOfFive = WalletEvmTransactionCreatedPayload &
+  WalletDelegatedEventPayload;
+
+export type WalletTransactionCreatedEventOneOfSix = WalletSolanaTransactionCreatedPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a transaction is created. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletTransactionCreatedEvent =
+  | WalletTransactionCreatedEventOneOf
+  | WalletTransactionCreatedEventOneOfTwo
+  | WalletTransactionCreatedEventOneOfThree
+  | WalletTransactionCreatedEventOneOfFour
+  | WalletTransactionCreatedEventOneOfFive
+  | WalletTransactionCreatedEventOneOfSix;
+
+/**
+ * Payload for EVM wallet signing events. Carries the EVM signing `address` and timestamp; no network or transaction identifier.
+ */
+export interface WalletEvmSigningPayload {
+  /**
+   * The EVM wallet address that performed the signing.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** When the signing occurred (ISO 8601 format). */
+  signed_at: string;
+}
+
+/**
+ * Payload for Solana wallet signing events. Carries the Solana signing `address` and timestamp; no network or transaction identifier.
+ */
+export interface WalletSolanaSigningPayload {
+  /**
+   * The Solana wallet address that performed the signing.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  address: BlockchainAddress;
+  /** When the signing occurred (ISO 8601 format). */
+  signed_at: string;
+}
+
+export type WalletTransactionSignedEventOneOf = WalletEvmSigningPayload & WalletApiKeyEventPayload;
+
+export type WalletTransactionSignedEventOneOfTwo = WalletSolanaSigningPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionSignedEventOneOfThree = WalletEvmSigningPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionSignedEventOneOfFour = WalletSolanaSigningPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionSignedEventOneOfFive = WalletEvmSigningPayload &
+  WalletDelegatedEventPayload;
+
+export type WalletTransactionSignedEventOneOfSix = WalletSolanaSigningPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a transaction is signed. Emitted for both EVM and Solana wallets. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletTransactionSignedEvent =
+  | WalletTransactionSignedEventOneOf
+  | WalletTransactionSignedEventOneOfTwo
+  | WalletTransactionSignedEventOneOfThree
+  | WalletTransactionSignedEventOneOfFour
+  | WalletTransactionSignedEventOneOfFive
+  | WalletTransactionSignedEventOneOfSix;
+
+/**
+ * Payload for `wallet.transaction.broadcast` on EVM networks. Includes `transaction_hash` and `address`.
+ */
+export interface WalletEvmTransactionBroadcastPayload {
+  /** The onchain transaction hash. */
+  transaction_hash: string;
+  /**
+   * The EVM wallet address that broadcast the transaction.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was broadcast (ISO 8601 format). */
+  broadcast_at: string;
+}
+
+/**
+ * Payload for `wallet.transaction.broadcast` on Solana. Includes `transaction_signature` and omits `address`.
+ */
+export interface WalletSolanaTransactionBroadcastPayload {
+  /** The Solana transaction signature. */
+  transaction_signature: string;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was broadcast (ISO 8601 format). */
+  broadcast_at: string;
+}
+
+export type WalletTransactionBroadcastEventOneOf = WalletEvmTransactionBroadcastPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionBroadcastEventOneOfTwo = WalletSolanaTransactionBroadcastPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionBroadcastEventOneOfThree = WalletEvmTransactionBroadcastPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionBroadcastEventOneOfFour = WalletSolanaTransactionBroadcastPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionBroadcastEventOneOfFive = WalletEvmTransactionBroadcastPayload &
+  WalletDelegatedEventPayload;
+
+export type WalletTransactionBroadcastEventOneOfSix = WalletSolanaTransactionBroadcastPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a transaction is broadcast to the network. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletTransactionBroadcastEvent =
+  | WalletTransactionBroadcastEventOneOf
+  | WalletTransactionBroadcastEventOneOfTwo
+  | WalletTransactionBroadcastEventOneOfThree
+  | WalletTransactionBroadcastEventOneOfFour
+  | WalletTransactionBroadcastEventOneOfFive
+  | WalletTransactionBroadcastEventOneOfSix;
+
+/**
+ * Payload for `wallet.transaction.replaced`. EVM-only; Solana transactions are not replaceable.
+ */
+export interface WalletTransactionReplacedPayload {
+  /** The onchain transaction hash of the replaced transaction. */
+  transaction_hash: string;
+  /**
+   * The EVM wallet address whose transaction was replaced.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was replaced (ISO 8601 format). */
+  replaced_at: string;
+}
+
+export type WalletTransactionReplacedEventOneOf = WalletTransactionReplacedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionReplacedEventOneOfTwo = WalletTransactionReplacedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionReplacedEventOneOfThree = WalletTransactionReplacedPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a pending transaction is replaced (e.g. a fee bump). EVM-only. The payload is one of three EVM wallet-type variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing).
+ */
+export type WalletTransactionReplacedEvent =
+  | WalletTransactionReplacedEventOneOf
+  | WalletTransactionReplacedEventOneOfTwo
+  | WalletTransactionReplacedEventOneOfThree;
+
+/**
+ * Payload for `wallet.transaction.pending`. EVM-only. EIP-1559 fee fields are included.
+ */
+export interface WalletTransactionPendingPayload {
+  /** The onchain transaction hash. */
+  transaction_hash: string;
+  /**
+   * The EVM wallet address whose transaction is pending.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction entered the pending state (ISO 8601 format). */
+  pending_since: string;
+  /** EIP-1559 max fee per gas in wei. */
+  max_fee_per_gas: string;
+  /** EIP-1559 max priority fee per gas in wei. */
+  max_priority_fee_per_gas: string;
+}
+
+export type WalletTransactionPendingEventOneOf = WalletTransactionPendingPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionPendingEventOneOfTwo = WalletTransactionPendingPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionPendingEventOneOfThree = WalletTransactionPendingPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a transaction enters the pending state. EVM-only. The payload is one of three EVM wallet-type variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing).
+ */
+export type WalletTransactionPendingEvent =
+  | WalletTransactionPendingEventOneOf
+  | WalletTransactionPendingEventOneOfTwo
+  | WalletTransactionPendingEventOneOfThree;
+
+/**
+ * Payload for `wallet.transaction.confirmed` on EVM networks. Includes `transaction_hash` and `address`.
+ */
+export interface WalletEvmTransactionConfirmedPayload {
+  /** The onchain transaction hash. */
+  transaction_hash: string;
+  /**
+   * The EVM wallet address that submitted the transaction.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was confirmed (ISO 8601 format). */
+  confirmed_at: string;
+}
+
+/**
+ * Payload for `wallet.transaction.confirmed` on Solana. Includes `transaction_signature` and omits `address`.
+ */
+export interface WalletSolanaTransactionConfirmedPayload {
+  /** The Solana transaction signature. */
+  transaction_signature: string;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction was confirmed (ISO 8601 format). */
+  confirmed_at: string;
+}
+
+export type WalletTransactionConfirmedEventOneOf = WalletEvmTransactionConfirmedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionConfirmedEventOneOfTwo = WalletSolanaTransactionConfirmedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionConfirmedEventOneOfThree = WalletEvmTransactionConfirmedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionConfirmedEventOneOfFour = WalletSolanaTransactionConfirmedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionConfirmedEventOneOfFive = WalletEvmTransactionConfirmedPayload &
+  WalletDelegatedEventPayload;
+
+export type WalletTransactionConfirmedEventOneOfSix = WalletSolanaTransactionConfirmedPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a transaction is confirmed onchain. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletTransactionConfirmedEvent =
+  | WalletTransactionConfirmedEventOneOf
+  | WalletTransactionConfirmedEventOneOfTwo
+  | WalletTransactionConfirmedEventOneOfThree
+  | WalletTransactionConfirmedEventOneOfFour
+  | WalletTransactionConfirmedEventOneOfFive
+  | WalletTransactionConfirmedEventOneOfSix;
+
+/**
+ * Payload for `wallet.transaction.failed` on EVM networks. Includes `transaction_hash` and `address`.
+ */
+export interface WalletEvmTransactionFailedPayload {
+  /** The onchain transaction hash. */
+  transaction_hash: string;
+  /**
+   * The EVM wallet address that submitted the transaction.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: BlockchainAddress;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction failed (ISO 8601 format). */
+  failed_at: string;
+}
+
+/**
+ * Payload for `wallet.transaction.failed` on Solana. Includes `transaction_signature` and omits `address`.
+ */
+export interface WalletSolanaTransactionFailedPayload {
+  /** The Solana transaction signature. */
+  transaction_signature: string;
+  /** The blockchain network identifier. */
+  network: Network;
+  /** When the transaction failed (ISO 8601 format). */
+  failed_at: string;
+}
+
+export type WalletTransactionFailedEventOneOf = WalletEvmTransactionFailedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionFailedEventOneOfTwo = WalletSolanaTransactionFailedPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletTransactionFailedEventOneOfThree = WalletEvmTransactionFailedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionFailedEventOneOfFour = WalletSolanaTransactionFailedPayload &
+  WalletUserEventPayload;
+
+export type WalletTransactionFailedEventOneOfFive = WalletEvmTransactionFailedPayload &
+  WalletDelegatedEventPayload;
+
+export type WalletTransactionFailedEventOneOfSix = WalletSolanaTransactionFailedPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a transaction fails. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletTransactionFailedEvent =
+  | WalletTransactionFailedEventOneOf
+  | WalletTransactionFailedEventOneOfTwo
+  | WalletTransactionFailedEventOneOfThree
+  | WalletTransactionFailedEventOneOfFour
+  | WalletTransactionFailedEventOneOfFive
+  | WalletTransactionFailedEventOneOfSix;
+
+/**
+ * Delivered when a delegation grant is created for a User Wallet.
+ */
+export interface WalletDelegationCreatedEvent {
+  /** The unique identifier for the delegation grant. */
+  delegation_id: string;
+  /** The user ID that owns the delegation. */
+  user_id: string;
+  /** When the delegation expires (ISO 8601 format). */
+  expires_at: string;
+  /** When the delegation was created (ISO 8601 format). */
+  created_at: string;
+}
+
+/**
+ * Delivered when a delegation grant is revoked.
+ */
+export interface WalletDelegationRevokedEvent {
+  /** The unique identifier for the delegation grant. */
+  delegation_id: string;
+  /** The user ID that owns the delegation. */
+  user_id: string;
+  /** When the delegation was revoked (ISO 8601 format). */
+  revoked_at: string;
+}
+
+export type WalletTypedDataSignedEventOneOf = WalletEvmSigningPayload & WalletApiKeyEventPayload;
+
+export type WalletTypedDataSignedEventOneOfTwo = WalletEvmSigningPayload & WalletUserEventPayload;
+
+export type WalletTypedDataSignedEventOneOfThree = WalletEvmSigningPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when EIP-712 typed data is signed. EVM-only. Uses the EVM signing payload. The payload is one of three EVM wallet-type variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing).
+ */
+export type WalletTypedDataSignedEvent =
+  | WalletTypedDataSignedEventOneOf
+  | WalletTypedDataSignedEventOneOfTwo
+  | WalletTypedDataSignedEventOneOfThree;
+
+export type WalletMessageSignedEventOneOf = WalletEvmSigningPayload & WalletApiKeyEventPayload;
+
+export type WalletMessageSignedEventOneOfTwo = WalletSolanaSigningPayload &
+  WalletApiKeyEventPayload;
+
+export type WalletMessageSignedEventOneOfThree = WalletEvmSigningPayload & WalletUserEventPayload;
+
+export type WalletMessageSignedEventOneOfFour = WalletSolanaSigningPayload & WalletUserEventPayload;
+
+export type WalletMessageSignedEventOneOfFive = WalletEvmSigningPayload &
+  WalletDelegatedEventPayload;
+
+export type WalletMessageSignedEventOneOfSix = WalletSolanaSigningPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a message is signed. Emitted for both EVM and Solana wallets. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletMessageSignedEvent =
+  | WalletMessageSignedEventOneOf
+  | WalletMessageSignedEventOneOfTwo
+  | WalletMessageSignedEventOneOfThree
+  | WalletMessageSignedEventOneOfFour
+  | WalletMessageSignedEventOneOfFive
+  | WalletMessageSignedEventOneOfSix;
+
+export type WalletHashSignedEventOneOf = WalletEvmSigningPayload & WalletApiKeyEventPayload;
+
+export type WalletHashSignedEventOneOfTwo = WalletSolanaSigningPayload & WalletApiKeyEventPayload;
+
+export type WalletHashSignedEventOneOfThree = WalletEvmSigningPayload & WalletUserEventPayload;
+
+export type WalletHashSignedEventOneOfFour = WalletSolanaSigningPayload & WalletUserEventPayload;
+
+export type WalletHashSignedEventOneOfFive = WalletEvmSigningPayload & WalletDelegatedEventPayload;
+
+export type WalletHashSignedEventOneOfSix = WalletSolanaSigningPayload &
+  WalletDelegatedEventPayload;
+
+/**
+ * Delivered when a raw hash is signed. Emitted for both EVM and Solana wallets. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
+ */
+export type WalletHashSignedEvent =
+  | WalletHashSignedEventOneOf
+  | WalletHashSignedEventOneOfTwo
+  | WalletHashSignedEventOneOfThree
+  | WalletHashSignedEventOneOfFour
+  | WalletHashSignedEventOneOfFive
+  | WalletHashSignedEventOneOfSix;
+
+/**
+ * A monetary amount with currency.
+ */
+export interface MoneyAmount {
+  /** Currency code (e.g., "USD", "USDC", "ETH"). */
+  currency: string;
+  /** The amount as a string. */
+  value: string;
+}
+
+/**
+ * Current status of the transaction.
+ */
+export type OnrampTransactionPayloadStatus =
+  (typeof OnrampTransactionPayloadStatus)[keyof typeof OnrampTransactionPayloadStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampTransactionPayloadStatus = {
+  ONRAMP_TRANSACTION_STATUS_UNSPECIFIED: "ONRAMP_TRANSACTION_STATUS_UNSPECIFIED",
+  ONRAMP_TRANSACTION_STATUS_CREATED: "ONRAMP_TRANSACTION_STATUS_CREATED",
+  ONRAMP_TRANSACTION_STATUS_IN_PROGRESS: "ONRAMP_TRANSACTION_STATUS_IN_PROGRESS",
+  ONRAMP_TRANSACTION_STATUS_SUCCESS: "ONRAMP_TRANSACTION_STATUS_SUCCESS",
+  ONRAMP_TRANSACTION_STATUS_FAILED: "ONRAMP_TRANSACTION_STATUS_FAILED",
+  ONRAMP_TRANSACTION_STATUS_AWAITING_AUTH: "ONRAMP_TRANSACTION_STATUS_AWAITING_AUTH",
+  ONRAMP_TRANSACTION_STATUS_AWAITING_PAYMENT: "ONRAMP_TRANSACTION_STATUS_AWAITING_PAYMENT",
+} as const;
+
+/**
+ * The payment method used.
+ */
+export type OnrampTransactionPayloadPaymentMethod =
+  (typeof OnrampTransactionPayloadPaymentMethod)[keyof typeof OnrampTransactionPayloadPaymentMethod];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampTransactionPayloadPaymentMethod = {
+  UNSPECIFIED: "UNSPECIFIED",
+  CARD: "CARD",
+  ACH_BANK_ACCOUNT: "ACH_BANK_ACCOUNT",
+  APPLE_PAY: "APPLE_PAY",
+  FIAT_WALLET: "FIAT_WALLET",
+  CRYPTO_ACCOUNT: "CRYPTO_ACCOUNT",
+  GUEST_CHECKOUT_CARD: "GUEST_CHECKOUT_CARD",
+  PAYPAL: "PAYPAL",
+  RTP: "RTP",
+  GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+  GUEST_CHECKOUT_GOOGLE_PAY: "GUEST_CHECKOUT_GOOGLE_PAY",
+} as const;
+
+/**
+ * The type of onramp transaction.
+ */
+export type OnrampTransactionPayloadType =
+  (typeof OnrampTransactionPayloadType)[keyof typeof OnrampTransactionPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampTransactionPayloadType = {
+  ONRAMP_TRANSACTION_TYPE_UNSPECIFIED: "ONRAMP_TRANSACTION_TYPE_UNSPECIFIED",
+  ONRAMP_TRANSACTION_TYPE_BUY_AND_SEND: "ONRAMP_TRANSACTION_TYPE_BUY_AND_SEND",
+  ONRAMP_TRANSACTION_TYPE_SEND: "ONRAMP_TRANSACTION_TYPE_SEND",
+} as const;
+
+/**
+ * Whether the user is authed or guest.
+ */
+export type OnrampTransactionPayloadUserType =
+  (typeof OnrampTransactionPayloadUserType)[keyof typeof OnrampTransactionPayloadUserType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampTransactionPayloadUserType = {
+  USER_TYPE_UNSPECIFIED: "USER_TYPE_UNSPECIFIED",
+  USER_TYPE_AUTHED: "USER_TYPE_AUTHED",
+  USER_TYPE_GUEST: "USER_TYPE_GUEST",
+} as const;
+
+/**
+ * The reason for failure (if applicable).
+ */
+export type OnrampTransactionPayloadFailureReason =
+  (typeof OnrampTransactionPayloadFailureReason)[keyof typeof OnrampTransactionPayloadFailureReason];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampTransactionPayloadFailureReason = {
+  FAILURE_REASON_UNSPECIFIED: "FAILURE_REASON_UNSPECIFIED",
+  FAILURE_REASON_BUY_FAILED: "FAILURE_REASON_BUY_FAILED",
+  FAILURE_REASON_SEND_FAILED: "FAILURE_REASON_SEND_FAILED",
+} as const;
+
+/**
+ * Webhook payload for standard onramp transactions (guest checkout and authed flow). Serialized from the OnrampTransaction proto via protojson with eventType appended.
+ */
+export interface OnrampTransactionPayload {
+  /** The webhook event type. */
+  eventType: string;
+  /** Unique transaction identifier. */
+  transactionId: string;
+  /** Current status of the transaction. */
+  status: OnrampTransactionPayloadStatus;
+  /** The crypto currency purchased (e.g., "USDC", "ETH"). */
+  purchaseCurrency?: string;
+  /** The blockchain network for the purchase (e.g., "ethereum", "base"). */
+  purchaseNetwork?: string;
+  purchaseAmount?: MoneyAmount;
+  paymentTotal?: MoneyAmount;
+  paymentTotalUsd?: MoneyAmount;
+  paymentSubtotal?: MoneyAmount;
+  coinbaseFee?: MoneyAmount;
+  networkFee?: MoneyAmount;
+  exchangeRate?: MoneyAmount;
+  /** The onchain transaction hash of the send (0x-prefixed for EVM). */
+  txHash?: string;
+  /** When the transaction was created. */
+  createdAt?: string;
+  /** When the transaction completed (uses send_started_at for early success). */
+  completedAt?: string;
+  /** The user's country code. */
+  country?: string;
+  /** Hashed user identifier (entity hash for guest, user ID for authed). */
+  userId?: string;
+  /** The payment method used. */
+  paymentMethod?: OnrampTransactionPayloadPaymentMethod;
+  /** The destination wallet address. */
+  walletAddress?: string;
+  /** The type of onramp transaction. */
+  type?: OnrampTransactionPayloadType;
+  /** Whether the user is authed or guest. */
+  userType?: OnrampTransactionPayloadUserType;
+  /** The partnerUserId provided when initializing the onramp session. */
+  partnerUserRef?: string;
+  /** The token contract address (populated when asset metadata is available). */
+  contractAddress?: string;
+  /** The reason for failure (if applicable). */
+  failureReason?: OnrampTransactionPayloadFailureReason;
+  /** The name of the developer app. */
+  endPartnerName?: string;
+  /** Error code for the transaction failure (if applicable). */
+  errorCode?: string;
+}
+
+/**
+ * The type of fee.
+ */
+export type OrderFeeFeeType = (typeof OrderFeeFeeType)[keyof typeof OrderFeeFeeType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OrderFeeFeeType = {
+  FEE_TYPE_UNSPECIFIED: "FEE_TYPE_UNSPECIFIED",
+  FEE_TYPE_NETWORK: "FEE_TYPE_NETWORK",
+  FEE_TYPE_EXCHANGE: "FEE_TYPE_EXCHANGE",
+} as const;
+
+/**
+ * A fee associated with a Headless Onramp API order.
+ */
+export interface OrderFee {
+  /** The type of fee. */
+  feeType?: OrderFeeFeeType;
+  /** The amount of the fee. */
+  feeAmount?: string;
+  /** The currency of the fee. */
+  feeCurrency?: string;
+}
+
+/**
+ * The payment method used.
+ */
+export type OnrampOrderPayloadPaymentMethod =
+  (typeof OnrampOrderPayloadPaymentMethod)[keyof typeof OnrampOrderPayloadPaymentMethod];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderPayloadPaymentMethod = {
+  UNSPECIFIED: "UNSPECIFIED",
+  CARD: "CARD",
+  ACH_BANK_ACCOUNT: "ACH_BANK_ACCOUNT",
+  APPLE_PAY: "APPLE_PAY",
+  FIAT_WALLET: "FIAT_WALLET",
+  CRYPTO_ACCOUNT: "CRYPTO_ACCOUNT",
+  GUEST_CHECKOUT_CARD: "GUEST_CHECKOUT_CARD",
+  PAYPAL: "PAYPAL",
+  RTP: "RTP",
+  GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+  GUEST_CHECKOUT_GOOGLE_PAY: "GUEST_CHECKOUT_GOOGLE_PAY",
+} as const;
+
+/**
+ * The status of the order.
+ */
+export type OnrampOrderPayloadStatus =
+  (typeof OnrampOrderPayloadStatus)[keyof typeof OnrampOrderPayloadStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderPayloadStatus = {
+  ONRAMP_ORDER_STATUS_UNSPECIFIED: "ONRAMP_ORDER_STATUS_UNSPECIFIED",
+  ONRAMP_ORDER_STATUS_PENDING_AUTH: "ONRAMP_ORDER_STATUS_PENDING_AUTH",
+  ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "ONRAMP_ORDER_STATUS_PENDING_PAYMENT",
+  ONRAMP_ORDER_STATUS_PROCESSING: "ONRAMP_ORDER_STATUS_PROCESSING",
+  ONRAMP_ORDER_STATUS_COMPLETED: "ONRAMP_ORDER_STATUS_COMPLETED",
+  ONRAMP_ORDER_STATUS_FAILED: "ONRAMP_ORDER_STATUS_FAILED",
+} as const;
+
+/**
+ * Webhook payload for Headless Onramp API orders (Apple Pay / Google Pay). Serialized from the OnrampOrder proto via protojson with eventType appended.
+ */
+export interface OnrampOrderPayload {
+  /** The webhook event type. */
+  eventType: string;
+  /** Unique order identifier. */
+  orderId: string;
+  /** The total fiat amount paid. */
+  paymentTotal?: string;
+  /** The fiat amount converted to crypto (excluding fees). */
+  paymentSubtotal?: string;
+  /** The fiat currency used for payment. */
+  paymentCurrency?: string;
+  /** The payment method used. */
+  paymentMethod?: OnrampOrderPayloadPaymentMethod;
+  /** The amount of crypto purchased. */
+  purchaseAmount?: string;
+  /** The crypto currency purchased. */
+  purchaseCurrency?: string;
+  /** Breakdown of fees for the order. */
+  fees?: OrderFee[];
+  /** The exchange rate used for conversion. */
+  exchangeRate?: string;
+  /** The destination wallet address. */
+  destinationAddress?: string;
+  /** The blockchain network for delivery. */
+  destinationNetwork?: string;
+  /** The status of the order. */
+  status: OnrampOrderPayloadStatus;
+  /** The onchain transaction hash (available once crypto is sent). */
+  txHash?: string;
+  /** When the order was created. */
+  createdAt?: string;
+  /** When the order was last updated. */
+  updatedAt?: string;
+  /** The partner user reference ID. */
+  partnerUserRef?: string;
+}
+
+/**
+ * Webhook payload for all onramp transaction events (created, updated, success, failed). Shape depends on transaction type — standard flow (guest checkout / authorized) uses OnrampTransactionPayload, Headless API (Apple Pay / Google Pay) uses OnrampOrderPayload. Distinguish by presence of `orderId` (Headless) vs `transactionId` (standard).
+ */
+export type OnrampTransactionEvent = OnrampTransactionPayload | OnrampOrderPayload;
+
+export type OnrampTransactionCreatedEvent = OnrampTransactionEvent;
+
+export type OnrampTransactionUpdatedEvent = OnrampTransactionEvent;
+
+export type OnrampTransactionSuccessEvent = OnrampTransactionEvent;
+
+export type OnrampTransactionFailedEvent = OnrampTransactionEvent;
+
+/**
+ * Current status of the offramp transaction.
+ */
+export type OfframpTransactionPayloadStatus =
+  (typeof OfframpTransactionPayloadStatus)[keyof typeof OfframpTransactionPayloadStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OfframpTransactionPayloadStatus = {
+  TRANSACTION_STATUS_UNSPECIFIED: "TRANSACTION_STATUS_UNSPECIFIED",
+  TRANSACTION_STATUS_CREATED: "TRANSACTION_STATUS_CREATED",
+  TRANSACTION_STATUS_EXPIRED: "TRANSACTION_STATUS_EXPIRED",
+  TRANSACTION_STATUS_STARTED: "TRANSACTION_STATUS_STARTED",
+  TRANSACTION_STATUS_SUCCESS: "TRANSACTION_STATUS_SUCCESS",
+  TRANSACTION_STATUS_FAILED: "TRANSACTION_STATUS_FAILED",
+} as const;
+
+/**
+ * The payment method type used for cashout.
+ */
+export type OfframpTransactionPayloadPaymentMethod =
+  (typeof OfframpTransactionPayloadPaymentMethod)[keyof typeof OfframpTransactionPayloadPaymentMethod];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OfframpTransactionPayloadPaymentMethod = {
+  UNSPECIFIED: "UNSPECIFIED",
+  CARD: "CARD",
+  ACH_BANK_ACCOUNT: "ACH_BANK_ACCOUNT",
+  APPLE_PAY: "APPLE_PAY",
+  FIAT_WALLET: "FIAT_WALLET",
+  CRYPTO_ACCOUNT: "CRYPTO_ACCOUNT",
+  GUEST_CHECKOUT_CARD: "GUEST_CHECKOUT_CARD",
+  PAYPAL: "PAYPAL",
+  RTP: "RTP",
+  GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+  GUEST_CHECKOUT_GOOGLE_PAY: "GUEST_CHECKOUT_GOOGLE_PAY",
+} as const;
+
+/**
+ * Webhook payload for offramp transactions. Serialized from the OfframpTransaction proto via protojson with eventType appended.
+ */
+export interface OfframpTransactionPayload {
+  /** The webhook event type. */
+  eventType: string;
+  /** Unique transaction identifier. */
+  transactionId: string;
+  /** Current status of the offramp transaction. */
+  status: OfframpTransactionPayloadStatus;
+  /** The crypto currency being sold (e.g., "ETH", "USDC"). */
+  asset?: string;
+  /** The blockchain network (e.g., "ethereum", "base"). */
+  network?: string;
+  sellAmount?: MoneyAmount;
+  total?: MoneyAmount;
+  minimumTotal?: MoneyAmount;
+  subtotal?: MoneyAmount;
+  coinbaseFee?: MoneyAmount;
+  exchangeRate?: MoneyAmount;
+  unitPrice?: MoneyAmount;
+  /** The address crypto was received from. */
+  fromAddress?: string;
+  /** The address crypto was sent to (Coinbase deposit address). */
+  toAddress?: string;
+  /** When the transaction was created. */
+  createdAt?: string;
+  /** When the transaction was last updated. */
+  updatedAt?: string;
+  /** The onchain transaction hash of the crypto send. */
+  txHash?: string;
+  /** The URL the user was redirected to after confirming the offramp. */
+  redirectUrl?: string;
+  /** The payment method type used for cashout. */
+  paymentMethod?: OfframpTransactionPayloadPaymentMethod;
+}
+
+export type OfframpTransactionCreatedEvent = OfframpTransactionPayload;
+
+export type OfframpTransactionUpdatedEvent = OfframpTransactionPayload;
+
+export type OfframpTransactionSuccessEvent = OfframpTransactionPayload;
+
+export type OfframpTransactionFailedEvent = OfframpTransactionPayload;
+
+/**
  * Idempotency key conflict.
  */
 export type IdempotencyErrorResponse = Error;
@@ -6467,6 +7738,11 @@ export type X402SupportedPaymentKindsResponseResponse = {
   /** A map of CAIP-2 network or protocol family patterns to their supported signer addresses. */
   signers: X402SupportedPaymentKindsResponseResponseSigners;
 };
+
+/**
+ * User forbidden from performing the action.
+ */
+export type ForbiddenErrorResponse = Error;
 
 /**
  * Rate limit exceeded.
@@ -6754,6 +8030,10 @@ export type LookupEndUserParams = {
    * The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
    */
   phoneNumber?: PhoneNumber;
+  /**
+   * The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).
+   */
+  siweAddress?: BlockchainAddress;
 };
 
 export type LookupEndUser200 = {
@@ -6933,6 +8213,7 @@ export type SendEvmAssetWithEndUserAccountBody = {
   useCdpPaymaster?: boolean;
   /** Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`. */
   paymasterUrl?: Url;
+  paymasterContext?: PaymasterContext;
   /**
    * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$
@@ -7134,6 +8415,7 @@ export type SendUserOperationWithEndUserAccountBody = {
   useCdpPaymaster: boolean;
   /** The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option. */
   paymasterUrl?: Url;
+  paymasterContext?: PaymasterContext;
   /**
    * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$
@@ -7506,6 +8788,7 @@ export type PrepareUserOperationBody = {
   calls: EvmCall[];
   /** The URL of the paymaster to use for the user operation. */
   paymasterUrl?: Url;
+  paymasterContext?: PaymasterContext;
   /**
    * The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
    * @pattern ^0x[0-9a-fA-F]+$
@@ -7519,6 +8802,7 @@ export type PrepareAndSendUserOperationBody = {
   calls: EvmCall[];
   /** The URL of the paymaster to use for the user operation. */
   paymasterUrl?: Url;
+  paymasterContext?: PaymasterContext;
 };
 
 export type SendUserOperationBody = {
@@ -7912,6 +9196,8 @@ export type GetSQLSchemaDatabase = (typeof GetSQLSchemaDatabase)[keyof typeof Ge
 export const GetSQLSchemaDatabase = {
   base: "base",
   base_sepolia: "base_sepolia",
+  solana: "solana",
+  hyperevm: "hyperevm",
 } as const;
 
 export type ListDataTokenBalancesParams = {
@@ -8089,6 +9375,10 @@ Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp
   phoneNumber: string;
   /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
   phoneNumberVerifiedAt: string;
+  /** The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user's phone number. When provided, Onramp validates the server-side verification record instead of trusting `phoneNumberVerifiedAt`. */
+  smsVerificationId?: OnrampVerificationId;
+  /** The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user's email address. */
+  emailVerificationId?: OnrampVerificationId;
   /** A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency. */
   purchaseAmount?: string;
   /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
@@ -8108,38 +9398,6 @@ export type CreateOnrampOrder201 = {
 
 export type GetOnrampOrderById200 = {
   order: OnrampOrder;
-};
-
-export type CreateOnrampSessionBody = {
-  /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
-
-Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
-  purchaseCurrency: string;
-  /** The name of the crypto network the purchased currency will be sent on.
-
-Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
-  destinationNetwork: string;
-  /** The address the purchased crypto will be sent to. */
-  destinationAddress: BlockchainAddress;
-  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency. */
-  paymentAmount?: string;
-  /** A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency. */
-  purchaseAmount?: string;
-  /** The fiat currency to be converted to crypto. */
-  paymentCurrency?: string;
-  paymentMethod?: OnrampQuotePaymentMethodTypeId;
-  /** The ISO 3166-1 two letter country code (e.g. US). */
-  country?: string;
-  /** The ISO 3166-2 two letter state code (e.g. NY). Only required for US. */
-  subdivision?: string;
-  /** URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter. */
-  redirectUrl?: Uri;
-  /** The IP address of the end user requesting the onramp transaction. */
-  clientIp?: string;
-  /** A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
-
-This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
-  partnerUserRef?: string;
 };
 
 export type CreateOnrampSession201 = {

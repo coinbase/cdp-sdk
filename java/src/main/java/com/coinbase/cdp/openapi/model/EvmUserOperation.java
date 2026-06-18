@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   EvmUserOperation.JSON_PROPERTY_CALLS,
   EvmUserOperation.JSON_PROPERTY_STATUS,
   EvmUserOperation.JSON_PROPERTY_TRANSACTION_HASH,
-  EvmUserOperation.JSON_PROPERTY_RECEIPTS
+  EvmUserOperation.JSON_PROPERTY_RECEIPTS,
+  EvmUserOperation.JSON_PROPERTY_EXPIRES_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class EvmUserOperation {
@@ -113,6 +115,10 @@ public class EvmUserOperation {
   public static final String JSON_PROPERTY_RECEIPTS = "receipts";
   @jakarta.annotation.Nullable
   private List<UserOperationReceipt> receipts = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_EXPIRES_AT = "expiresAt";
+  @jakarta.annotation.Nullable
+  private OffsetDateTime expiresAt;
 
   public EvmUserOperation() { 
   }
@@ -277,6 +283,30 @@ public class EvmUserOperation {
   }
 
 
+  public EvmUserOperation expiresAt(@jakarta.annotation.Nullable OffsetDateTime expiresAt) {
+    this.expiresAt = expiresAt;
+    return this;
+  }
+
+  /**
+   * The timestamp at which the prepared user operation expires.
+   * @return expiresAt
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OffsetDateTime getExpiresAt() {
+    return expiresAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExpiresAt(@jakarta.annotation.Nullable OffsetDateTime expiresAt) {
+    this.expiresAt = expiresAt;
+  }
+
+
   /**
    * Return true if this EvmUserOperation object is equal to o.
    */
@@ -294,12 +324,13 @@ public class EvmUserOperation {
         Objects.equals(this.calls, evmUserOperation.calls) &&
         Objects.equals(this.status, evmUserOperation.status) &&
         Objects.equals(this.transactionHash, evmUserOperation.transactionHash) &&
-        Objects.equals(this.receipts, evmUserOperation.receipts);
+        Objects.equals(this.receipts, evmUserOperation.receipts) &&
+        Objects.equals(this.expiresAt, evmUserOperation.expiresAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(network, userOpHash, calls, status, transactionHash, receipts);
+    return Objects.hash(network, userOpHash, calls, status, transactionHash, receipts, expiresAt);
   }
 
   @Override
@@ -312,6 +343,7 @@ public class EvmUserOperation {
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    transactionHash: ").append(toIndentedString(transactionHash)).append("\n");
     sb.append("    receipts: ").append(toIndentedString(receipts)).append("\n");
+    sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -399,6 +431,11 @@ public class EvmUserOperation {
       }
     }
 
+    // add `expiresAt` to the URL query string
+    if (getExpiresAt() != null) {
+      joiner.add(String.format("%sexpiresAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExpiresAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -436,6 +473,10 @@ public class EvmUserOperation {
     }
     public EvmUserOperation.Builder receipts(List<UserOperationReceipt> receipts) {
       this.instance.receipts = receipts;
+      return this;
+    }
+    public EvmUserOperation.Builder expiresAt(OffsetDateTime expiresAt) {
+      this.instance.expiresAt = expiresAt;
       return this;
     }
 
@@ -477,7 +518,8 @@ public class EvmUserOperation {
       .calls(getCalls())
       .status(getStatus())
       .transactionHash(getTransactionHash())
-      .receipts(getReceipts());
+      .receipts(getReceipts())
+      .expiresAt(getExpiresAt());
   }
 
 }

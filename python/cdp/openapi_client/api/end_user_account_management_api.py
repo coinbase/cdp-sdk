@@ -2313,6 +2313,7 @@ class EndUserAccountManagementApi:
         oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
         oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
         phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
+        siwe_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2328,7 +2329,7 @@ class EndUserAccountManagementApi:
     ) -> LookupEndUser200Response:
         """Look up end users by identity
 
-        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number. - **siweAddress**: looks up a user by the Ethereum address they authenticated   with via Sign In With Ethereum (EIP-4361).   Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param email: The email address to search for across all email-based authentication methods.
         :type email: str
@@ -2338,6 +2339,8 @@ class EndUserAccountManagementApi:
         :type oauth_subject: str
         :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
         :type phone_number: str
+        :param siwe_address: The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).
+        :type siwe_address: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2365,6 +2368,7 @@ class EndUserAccountManagementApi:
             oauth_provider=oauth_provider,
             oauth_subject=oauth_subject,
             phone_number=phone_number,
+            siwe_address=siwe_address,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2395,6 +2399,7 @@ class EndUserAccountManagementApi:
         oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
         oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
         phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
+        siwe_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2410,7 +2415,7 @@ class EndUserAccountManagementApi:
     ) -> ApiResponse[LookupEndUser200Response]:
         """Look up end users by identity
 
-        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number. - **siweAddress**: looks up a user by the Ethereum address they authenticated   with via Sign In With Ethereum (EIP-4361).   Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param email: The email address to search for across all email-based authentication methods.
         :type email: str
@@ -2420,6 +2425,8 @@ class EndUserAccountManagementApi:
         :type oauth_subject: str
         :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
         :type phone_number: str
+        :param siwe_address: The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).
+        :type siwe_address: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2447,6 +2454,7 @@ class EndUserAccountManagementApi:
             oauth_provider=oauth_provider,
             oauth_subject=oauth_subject,
             phone_number=phone_number,
+            siwe_address=siwe_address,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2477,6 +2485,7 @@ class EndUserAccountManagementApi:
         oauth_provider: Annotated[Optional[OAuth2ProviderType], Field(description="The OAuth provider to search by. Must be provided together with oauthSubject.")] = None,
         oauth_subject: Annotated[Optional[StrictStr], Field(description="The OAuth subject (the `sub` claim from the provider's ID token). Must be provided together with oauthProvider.")] = None,
         phone_number: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).")] = None,
+        siwe_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2492,7 +2501,7 @@ class EndUserAccountManagementApi:
     ) -> RESTResponseType:
         """Look up end users by identity
 
-        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+        Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the `sub` claim from the provider's ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number. - **siweAddress**: looks up a user by the Ethereum address they authenticated   with via Sign In With Ethereum (EIP-4361).   Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
 
         :param email: The email address to search for across all email-based authentication methods.
         :type email: str
@@ -2502,6 +2511,8 @@ class EndUserAccountManagementApi:
         :type oauth_subject: str
         :param phone_number: The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
         :type phone_number: str
+        :param siwe_address: The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).
+        :type siwe_address: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2529,6 +2540,7 @@ class EndUserAccountManagementApi:
             oauth_provider=oauth_provider,
             oauth_subject=oauth_subject,
             phone_number=phone_number,
+            siwe_address=siwe_address,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2554,6 +2566,7 @@ class EndUserAccountManagementApi:
         oauth_provider,
         oauth_subject,
         phone_number,
+        siwe_address,
         _request_auth,
         _content_type,
         _headers,
@@ -2591,6 +2604,10 @@ class EndUserAccountManagementApi:
         if phone_number is not None:
             
             _query_params.append(('phoneNumber', phone_number))
+            
+        if siwe_address is not None:
+            
+            _query_params.append(('siweAddress', siwe_address))
             
         # process the header parameters
         # process the form parameters

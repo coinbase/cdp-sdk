@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
@@ -42,11 +42,33 @@ class CreateOnrampOrderRequest(BaseModel):
     payment_method: OnrampOrderPaymentMethodTypeId = Field(alias="paymentMethod")
     phone_number: StrictStr = Field(description="The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.  Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.", alias="phoneNumber")
     phone_number_verified_at: datetime = Field(description="Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.", alias="phoneNumberVerifiedAt")
+    sms_verification_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user's phone number. When provided, Onramp validates the server-side verification record instead of trusting `phoneNumberVerifiedAt`.", alias="smsVerificationId")
+    email_verification_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user's email address.", alias="emailVerificationId")
     purchase_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.", alias="purchaseAmount")
     purchase_currency: StrictStr = Field(description="The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.", alias="purchaseCurrency")
     client_ip: Optional[StrictStr] = Field(default=None, description="The IP address of the end user requesting the onramp transaction.", alias="clientIp")
     domain: Optional[StrictStr] = Field(default=None, description="The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.")
-    __properties: ClassVar[List[str]] = ["agreementAcceptedAt", "destinationAddress", "destinationNetwork", "email", "isQuote", "partnerOrderRef", "partnerUserRef", "paymentAmount", "paymentCurrency", "paymentMethod", "phoneNumber", "phoneNumberVerifiedAt", "purchaseAmount", "purchaseCurrency", "clientIp", "domain"]
+    __properties: ClassVar[List[str]] = ["agreementAcceptedAt", "destinationAddress", "destinationNetwork", "email", "isQuote", "partnerOrderRef", "partnerUserRef", "paymentAmount", "paymentCurrency", "paymentMethod", "phoneNumber", "phoneNumberVerifiedAt", "smsVerificationId", "emailVerificationId", "purchaseAmount", "purchaseCurrency", "clientIp", "domain"]
+
+    @field_validator('sms_verification_id')
+    def sms_verification_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", value):
+            raise ValueError(r"must validate the regular expression /^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/")
+        return value
+
+    @field_validator('email_verification_id')
+    def email_verification_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", value):
+            raise ValueError(r"must validate the regular expression /^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -111,6 +133,8 @@ class CreateOnrampOrderRequest(BaseModel):
             "paymentMethod": obj.get("paymentMethod"),
             "phoneNumber": obj.get("phoneNumber"),
             "phoneNumberVerifiedAt": obj.get("phoneNumberVerifiedAt"),
+            "smsVerificationId": obj.get("smsVerificationId"),
+            "emailVerificationId": obj.get("emailVerificationId"),
             "purchaseAmount": obj.get("purchaseAmount"),
             "purchaseCurrency": obj.get("purchaseCurrency"),
             "clientIp": obj.get("clientIp"),

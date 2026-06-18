@@ -31,6 +31,7 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
+  PaymasterContext,
   UpdateEvmAccountBody as UpdateEvmAccount,
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
   UserOperationReceipt,
@@ -313,6 +314,8 @@ export interface PrepareUserOperationOptions {
   calls: Calls<EvmCall[]>;
   /** The paymaster URL. */
   paymasterUrl?: string;
+  /** Optional ERC-7677 `context` object forwarded to the paymaster service. Only valid when a paymaster is configured. */
+  paymasterContext?: PaymasterContext;
   /** Optional data suffix (EIP-8021) to enable transaction attribution. */
   dataSuffix?: string;
 }
@@ -373,6 +376,10 @@ export interface UserOperation {
    * The receipts associated with the broadcasted user operation.
    */
   receipts?: UserOperationReceipt[];
+  /**
+   * The timestamp at which the prepared user operation expires, as an ISO 8601 string.
+   */
+  expiresAt?: string;
 }
 
 /**

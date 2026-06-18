@@ -40,5 +40,6 @@ export async function getUserOperation(
     transactionHash: userOp.transactionHash as Hex | undefined,
     userOpHash: userOp.userOpHash as Hex,
     receipts: userOp.receipts,
+    expiresAt: userOp.expiresAt,
   };
 }

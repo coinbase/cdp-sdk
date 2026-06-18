@@ -33,8 +33,9 @@ class SendEvmAssetWithEndUserAccountRequest(BaseModel):
     network: StrictStr = Field(description="The EVM network to send USDC on.")
     use_cdp_paymaster: Optional[StrictBool] = Field(default=None, description="Whether to use CDP Paymaster to sponsor gas fees. Only applicable for EVM Smart Accounts. When true, the transaction gas will be paid by the Paymaster, allowing users to send USDC without holding native gas tokens. Ignored for EOA accounts. Cannot be used together with `paymasterUrl`.", alias="useCdpPaymaster")
     paymaster_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.", alias="paymasterUrl")
+    paymaster_context: Optional[Dict[str, Any]] = Field(default=None, description="The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.", alias="paymasterContext")
     wallet_secret_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.", alias="walletSecretId")
-    __properties: ClassVar[List[str]] = ["to", "amount", "network", "useCdpPaymaster", "paymasterUrl", "walletSecretId"]
+    __properties: ClassVar[List[str]] = ["to", "amount", "network", "useCdpPaymaster", "paymasterUrl", "paymasterContext", "walletSecretId"]
 
     @field_validator('network')
     def network_validate_enum(cls, value):
@@ -119,6 +120,7 @@ class SendEvmAssetWithEndUserAccountRequest(BaseModel):
             "network": obj.get("network"),
             "useCdpPaymaster": obj.get("useCdpPaymaster"),
             "paymasterUrl": obj.get("paymasterUrl"),
+            "paymasterContext": obj.get("paymasterContext"),
             "walletSecretId": obj.get("walletSecretId")
         })
         return _obj

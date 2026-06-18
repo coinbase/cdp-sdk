@@ -47,6 +47,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   CreateOnrampOrderRequest.JSON_PROPERTY_PAYMENT_METHOD,
   CreateOnrampOrderRequest.JSON_PROPERTY_PHONE_NUMBER,
   CreateOnrampOrderRequest.JSON_PROPERTY_PHONE_NUMBER_VERIFIED_AT,
+  CreateOnrampOrderRequest.JSON_PROPERTY_SMS_VERIFICATION_ID,
+  CreateOnrampOrderRequest.JSON_PROPERTY_EMAIL_VERIFICATION_ID,
   CreateOnrampOrderRequest.JSON_PROPERTY_PURCHASE_AMOUNT,
   CreateOnrampOrderRequest.JSON_PROPERTY_PURCHASE_CURRENCY,
   CreateOnrampOrderRequest.JSON_PROPERTY_CLIENT_IP,
@@ -101,6 +103,14 @@ public class CreateOnrampOrderRequest {
   public static final String JSON_PROPERTY_PHONE_NUMBER_VERIFIED_AT = "phoneNumberVerifiedAt";
   @jakarta.annotation.Nonnull
   private OffsetDateTime phoneNumberVerifiedAt;
+
+  public static final String JSON_PROPERTY_SMS_VERIFICATION_ID = "smsVerificationId";
+  @jakarta.annotation.Nullable
+  private String smsVerificationId;
+
+  public static final String JSON_PROPERTY_EMAIL_VERIFICATION_ID = "emailVerificationId";
+  @jakarta.annotation.Nullable
+  private String emailVerificationId;
 
   public static final String JSON_PROPERTY_PURCHASE_AMOUNT = "purchaseAmount";
   @jakarta.annotation.Nullable
@@ -409,6 +419,54 @@ public class CreateOnrampOrderRequest {
   }
 
 
+  public CreateOnrampOrderRequest smsVerificationId(@jakarta.annotation.Nullable String smsVerificationId) {
+    this.smsVerificationId = smsVerificationId;
+    return this;
+  }
+
+  /**
+   * The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user&#39;s phone number. When provided, Onramp validates the server-side verification record instead of trusting &#x60;phoneNumberVerifiedAt&#x60;.
+   * @return smsVerificationId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SMS_VERIFICATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getSmsVerificationId() {
+    return smsVerificationId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SMS_VERIFICATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSmsVerificationId(@jakarta.annotation.Nullable String smsVerificationId) {
+    this.smsVerificationId = smsVerificationId;
+  }
+
+
+  public CreateOnrampOrderRequest emailVerificationId(@jakarta.annotation.Nullable String emailVerificationId) {
+    this.emailVerificationId = emailVerificationId;
+    return this;
+  }
+
+  /**
+   * The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user&#39;s email address.
+   * @return emailVerificationId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EMAIL_VERIFICATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getEmailVerificationId() {
+    return emailVerificationId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EMAIL_VERIFICATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEmailVerificationId(@jakarta.annotation.Nullable String emailVerificationId) {
+    this.emailVerificationId = emailVerificationId;
+  }
+
+
   public CreateOnrampOrderRequest purchaseAmount(@jakarta.annotation.Nullable String purchaseAmount) {
     this.purchaseAmount = purchaseAmount;
     return this;
@@ -529,6 +587,8 @@ public class CreateOnrampOrderRequest {
         Objects.equals(this.paymentMethod, createOnrampOrderRequest.paymentMethod) &&
         Objects.equals(this.phoneNumber, createOnrampOrderRequest.phoneNumber) &&
         Objects.equals(this.phoneNumberVerifiedAt, createOnrampOrderRequest.phoneNumberVerifiedAt) &&
+        Objects.equals(this.smsVerificationId, createOnrampOrderRequest.smsVerificationId) &&
+        Objects.equals(this.emailVerificationId, createOnrampOrderRequest.emailVerificationId) &&
         Objects.equals(this.purchaseAmount, createOnrampOrderRequest.purchaseAmount) &&
         Objects.equals(this.purchaseCurrency, createOnrampOrderRequest.purchaseCurrency) &&
         Objects.equals(this.clientIp, createOnrampOrderRequest.clientIp) &&
@@ -537,7 +597,7 @@ public class CreateOnrampOrderRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(agreementAcceptedAt, destinationAddress, destinationNetwork, email, isQuote, partnerOrderRef, partnerUserRef, paymentAmount, paymentCurrency, paymentMethod, phoneNumber, phoneNumberVerifiedAt, purchaseAmount, purchaseCurrency, clientIp, domain);
+    return Objects.hash(agreementAcceptedAt, destinationAddress, destinationNetwork, email, isQuote, partnerOrderRef, partnerUserRef, paymentAmount, paymentCurrency, paymentMethod, phoneNumber, phoneNumberVerifiedAt, smsVerificationId, emailVerificationId, purchaseAmount, purchaseCurrency, clientIp, domain);
   }
 
   @Override
@@ -556,6 +616,8 @@ public class CreateOnrampOrderRequest {
     sb.append("    paymentMethod: ").append(toIndentedString(paymentMethod)).append("\n");
     sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
     sb.append("    phoneNumberVerifiedAt: ").append(toIndentedString(phoneNumberVerifiedAt)).append("\n");
+    sb.append("    smsVerificationId: ").append(toIndentedString(smsVerificationId)).append("\n");
+    sb.append("    emailVerificationId: ").append(toIndentedString(emailVerificationId)).append("\n");
     sb.append("    purchaseAmount: ").append(toIndentedString(purchaseAmount)).append("\n");
     sb.append("    purchaseCurrency: ").append(toIndentedString(purchaseCurrency)).append("\n");
     sb.append("    clientIp: ").append(toIndentedString(clientIp)).append("\n");
@@ -667,6 +729,16 @@ public class CreateOnrampOrderRequest {
       joiner.add(String.format("%sphoneNumberVerifiedAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPhoneNumberVerifiedAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `smsVerificationId` to the URL query string
+    if (getSmsVerificationId() != null) {
+      joiner.add(String.format("%ssmsVerificationId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSmsVerificationId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `emailVerificationId` to the URL query string
+    if (getEmailVerificationId() != null) {
+      joiner.add(String.format("%semailVerificationId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getEmailVerificationId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `purchaseAmount` to the URL query string
     if (getPurchaseAmount() != null) {
       joiner.add(String.format("%spurchaseAmount%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPurchaseAmount()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -750,6 +822,14 @@ public class CreateOnrampOrderRequest {
       this.instance.phoneNumberVerifiedAt = phoneNumberVerifiedAt;
       return this;
     }
+    public CreateOnrampOrderRequest.Builder smsVerificationId(String smsVerificationId) {
+      this.instance.smsVerificationId = smsVerificationId;
+      return this;
+    }
+    public CreateOnrampOrderRequest.Builder emailVerificationId(String emailVerificationId) {
+      this.instance.emailVerificationId = emailVerificationId;
+      return this;
+    }
     public CreateOnrampOrderRequest.Builder purchaseAmount(String purchaseAmount) {
       this.instance.purchaseAmount = purchaseAmount;
       return this;
@@ -812,6 +892,8 @@ public class CreateOnrampOrderRequest {
       .paymentMethod(getPaymentMethod())
       .phoneNumber(getPhoneNumber())
       .phoneNumberVerifiedAt(getPhoneNumberVerifiedAt())
+      .smsVerificationId(getSmsVerificationId())
+      .emailVerificationId(getEmailVerificationId())
       .purchaseAmount(getPurchaseAmount())
       .purchaseCurrency(getPurchaseCurrency())
       .clientIp(getClientIp())

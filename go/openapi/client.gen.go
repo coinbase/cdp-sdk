@@ -128,81 +128,98 @@ const (
 
 // Defines values for ErrorType.
 const (
-	ErrorTypeAccountLimitExceeded           ErrorType = "account_limit_exceeded"
-	ErrorTypeAccountNotReady                ErrorType = "account_not_ready"
-	ErrorTypeAlreadyEnabled                 ErrorType = "already_enabled"
-	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
-	ErrorTypeAssetMismatch                  ErrorType = "asset_mismatch"
-	ErrorTypeAuthorizationExpired           ErrorType = "authorization_expired"
-	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
-	ErrorTypeCaptureExpired                 ErrorType = "capture_expired"
-	ErrorTypeClientClosedRequest            ErrorType = "client_closed_request"
-	ErrorTypeCustomerNotAuthorized          ErrorType = "customer_not_authorized"
-	ErrorTypeDelegationExpired              ErrorType = "delegation_expired"
-	ErrorTypeDelegationNotAuthorized        ErrorType = "delegation_not_authorized"
-	ErrorTypeDelegationNotEnabled           ErrorType = "delegation_not_enabled"
-	ErrorTypeDelegationNotFound             ErrorType = "delegation_not_found"
-	ErrorTypeDelegationRevoked              ErrorType = "delegation_revoked"
-	ErrorTypeDocumentVerificationFailed     ErrorType = "document_verification_failed"
-	ErrorTypeEndpointUnavailable            ErrorType = "endpoint_unavailable"
-	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
-	ErrorTypeForbidden                      ErrorType = "forbidden"
-	ErrorTypeGuestPermissionDenied          ErrorType = "guest_permission_denied"
-	ErrorTypeGuestRegionForbidden           ErrorType = "guest_region_forbidden"
-	ErrorTypeGuestTransactionCount          ErrorType = "guest_transaction_count"
-	ErrorTypeGuestTransactionLimit          ErrorType = "guest_transaction_limit"
-	ErrorTypeIdempotencyError               ErrorType = "idempotency_error"
-	ErrorTypeInsufficientAllowance          ErrorType = "insufficient_allowance"
-	ErrorTypeInsufficientBalance            ErrorType = "insufficient_balance"
-	ErrorTypeInsufficientLiquidity          ErrorType = "insufficient_liquidity"
-	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
-	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
-	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
-	ErrorTypeInvalidSqlQuery                ErrorType = "invalid_sql_query"
-	ErrorTypeMalformedTransaction           ErrorType = "malformed_transaction"
-	ErrorTypeMetadataKeyTooLong             ErrorType = "metadata_key_too_long"
-	ErrorTypeMetadataTooManyEntries         ErrorType = "metadata_too_many_entries"
-	ErrorTypeMetadataValueTooLong           ErrorType = "metadata_value_too_long"
-	ErrorTypeMfaAlreadyEnrolled             ErrorType = "mfa_already_enrolled"
-	ErrorTypeMfaFlowExpired                 ErrorType = "mfa_flow_expired"
-	ErrorTypeMfaInvalidCode                 ErrorType = "mfa_invalid_code"
-	ErrorTypeMfaNotEnrolled                 ErrorType = "mfa_not_enrolled"
-	ErrorTypeMfaRequired                    ErrorType = "mfa_required"
-	ErrorTypeNetworkMismatch                ErrorType = "network_mismatch"
-	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
-	ErrorTypeNotFound                       ErrorType = "not_found"
-	ErrorTypeOrderAlreadyCanceled           ErrorType = "order_already_canceled"
-	ErrorTypeOrderAlreadyFilled             ErrorType = "order_already_filled"
-	ErrorTypeOrderQuoteExpired              ErrorType = "order_quote_expired"
-	ErrorTypePaymentMethodRequired          ErrorType = "payment_method_required"
-	ErrorTypePaymentRequired                ErrorType = "payment_required"
-	ErrorTypePhoneNumberVerificationExpired ErrorType = "phone_number_verification_expired"
-	ErrorTypePolicyInUse                    ErrorType = "policy_in_use"
-	ErrorTypePolicyViolation                ErrorType = "policy_violation"
-	ErrorTypeRateLimitExceeded              ErrorType = "rate_limit_exceeded"
-	ErrorTypeRecipientAllowlistPending      ErrorType = "recipient_allowlist_pending"
-	ErrorTypeRecipientAllowlistViolation    ErrorType = "recipient_allowlist_violation"
-	ErrorTypeRefundExpired                  ErrorType = "refund_expired"
-	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
-	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
-	ErrorTypeSettlementFailed               ErrorType = "settlement_failed"
-	ErrorTypeSourceAccountInvalid           ErrorType = "source_account_invalid"
-	ErrorTypeSourceAccountNotFound          ErrorType = "source_account_not_found"
-	ErrorTypeSourceAssetNotSupported        ErrorType = "source_asset_not_supported"
-	ErrorTypeTargetAccountInvalid           ErrorType = "target_account_invalid"
-	ErrorTypeTargetAccountNotFound          ErrorType = "target_account_not_found"
-	ErrorTypeTargetAssetNotSupported        ErrorType = "target_asset_not_supported"
-	ErrorTypeTargetEmailInvalid             ErrorType = "target_email_invalid"
-	ErrorTypeTargetOnchainAddressInvalid    ErrorType = "target_onchain_address_invalid"
-	ErrorTypeTimedOut                       ErrorType = "timed_out"
-	ErrorTypeTransactionSimulationFailed    ErrorType = "transaction_simulation_failed"
-	ErrorTypeTransferAmountInvalid          ErrorType = "transfer_amount_invalid"
-	ErrorTypeTransferAssetNotSupported      ErrorType = "transfer_asset_not_supported"
-	ErrorTypeTransferQuoteExpired           ErrorType = "transfer_quote_expired"
-	ErrorTypeTravelRulesFieldMissing        ErrorType = "travel_rules_field_missing"
-	ErrorTypeTravelRulesRecipientViolation  ErrorType = "travel_rules_recipient_violation"
-	ErrorTypeUnauthorized                   ErrorType = "unauthorized"
-	ErrorTypeUnsupportedTosLanguage         ErrorType = "unsupported_tos_language"
+	ErrorTypeAccountLimitExceeded                    ErrorType = "account_limit_exceeded"
+	ErrorTypeAccountNotReady                         ErrorType = "account_not_ready"
+	ErrorTypeAlreadyEnabled                          ErrorType = "already_enabled"
+	ErrorTypeAlreadyExists                           ErrorType = "already_exists"
+	ErrorTypeAssetMismatch                           ErrorType = "asset_mismatch"
+	ErrorTypeAuthorizationExpired                    ErrorType = "authorization_expired"
+	ErrorTypeBadGateway                              ErrorType = "bad_gateway"
+	ErrorTypeCaptureExpired                          ErrorType = "capture_expired"
+	ErrorTypeClientClosedRequest                     ErrorType = "client_closed_request"
+	ErrorTypeCustomerNotAuthorized                   ErrorType = "customer_not_authorized"
+	ErrorTypeDailyAmountLimitExceeded                ErrorType = "daily_amount_limit_exceeded"
+	ErrorTypeDailyTransactionLimitExceeded           ErrorType = "daily_transaction_limit_exceeded"
+	ErrorTypeDelegationExpired                       ErrorType = "delegation_expired"
+	ErrorTypeDelegationNotAuthorized                 ErrorType = "delegation_not_authorized"
+	ErrorTypeDelegationNotEnabled                    ErrorType = "delegation_not_enabled"
+	ErrorTypeDelegationNotFound                      ErrorType = "delegation_not_found"
+	ErrorTypeDelegationRevoked                       ErrorType = "delegation_revoked"
+	ErrorTypeDocumentVerificationFailed              ErrorType = "document_verification_failed"
+	ErrorTypeEndpointUnavailable                     ErrorType = "endpoint_unavailable"
+	ErrorTypeEntityNotConfiguredForPaymentAcceptance ErrorType = "entity_not_configured_for_payment_acceptance"
+	ErrorTypeFaucetLimitExceeded                     ErrorType = "faucet_limit_exceeded"
+	ErrorTypeForbidden                               ErrorType = "forbidden"
+	ErrorTypeGuestPermissionDenied                   ErrorType = "guest_permission_denied"
+	ErrorTypeGuestRegionForbidden                    ErrorType = "guest_region_forbidden"
+	ErrorTypeGuestTransactionCount                   ErrorType = "guest_transaction_count"
+	ErrorTypeGuestTransactionLimit                   ErrorType = "guest_transaction_limit"
+	ErrorTypeIdempotencyError                        ErrorType = "idempotency_error"
+	ErrorTypeInsufficientAllowance                   ErrorType = "insufficient_allowance"
+	ErrorTypeInsufficientBalance                     ErrorType = "insufficient_balance"
+	ErrorTypeInsufficientLiquidity                   ErrorType = "insufficient_liquidity"
+	ErrorTypeInternalServerError                     ErrorType = "internal_server_error"
+	ErrorTypeInvalidRequest                          ErrorType = "invalid_request"
+	ErrorTypeInvalidSignature                        ErrorType = "invalid_signature"
+	ErrorTypeInvalidSqlQuery                         ErrorType = "invalid_sql_query"
+	ErrorTypeMalformedTransaction                    ErrorType = "malformed_transaction"
+	ErrorTypeMetadataKeyTooLong                      ErrorType = "metadata_key_too_long"
+	ErrorTypeMetadataTooManyEntries                  ErrorType = "metadata_too_many_entries"
+	ErrorTypeMetadataValueTooLong                    ErrorType = "metadata_value_too_long"
+	ErrorTypeMfaAlreadyEnrolled                      ErrorType = "mfa_already_enrolled"
+	ErrorTypeMfaFlowExpired                          ErrorType = "mfa_flow_expired"
+	ErrorTypeMfaInvalidCode                          ErrorType = "mfa_invalid_code"
+	ErrorTypeMfaNotEnrolled                          ErrorType = "mfa_not_enrolled"
+	ErrorTypeMfaRequired                             ErrorType = "mfa_required"
+	ErrorTypeModerationRejected                      ErrorType = "moderation_rejected"
+	ErrorTypeNetworkMismatch                         ErrorType = "network_mismatch"
+	ErrorTypeNetworkNotTradable                      ErrorType = "network_not_tradable"
+	ErrorTypeNoCapturableBalance                     ErrorType = "no_capturable_balance"
+	ErrorTypeNoRefundableBalance                     ErrorType = "no_refundable_balance"
+	ErrorTypeNoVoidableBalance                       ErrorType = "no_voidable_balance"
+	ErrorTypeNotFound                                ErrorType = "not_found"
+	ErrorTypeOrderAlreadyCanceled                    ErrorType = "order_already_canceled"
+	ErrorTypeOrderAlreadyFilled                      ErrorType = "order_already_filled"
+	ErrorTypeOrderQuoteExpired                       ErrorType = "order_quote_expired"
+	ErrorTypeOtpVerificationCodeInvalid              ErrorType = "otp_verification_code_invalid"
+	ErrorTypeOtpVerificationDestinationMismatch      ErrorType = "otp_verification_destination_mismatch"
+	ErrorTypeOtpVerificationExpired                  ErrorType = "otp_verification_expired"
+	ErrorTypeOtpVerificationInvalid                  ErrorType = "otp_verification_invalid"
+	ErrorTypeOtpVerificationNotFound                 ErrorType = "otp_verification_not_found"
+	ErrorTypeOtpVerificationRequired                 ErrorType = "otp_verification_required"
+	ErrorTypePaymentMethodRequired                   ErrorType = "payment_method_required"
+	ErrorTypePaymentRequired                         ErrorType = "payment_required"
+	ErrorTypePaymentSessionActionPending             ErrorType = "payment_session_action_pending"
+	ErrorTypePaymentSessionAlreadyAuthorized         ErrorType = "payment_session_already_authorized"
+	ErrorTypePaymentSessionAlreadyCanceled           ErrorType = "payment_session_already_canceled"
+	ErrorTypePhoneNumberVerificationExpired          ErrorType = "phone_number_verification_expired"
+	ErrorTypePolicyInUse                             ErrorType = "policy_in_use"
+	ErrorTypePolicyViolation                         ErrorType = "policy_violation"
+	ErrorTypeRateLimitExceeded                       ErrorType = "rate_limit_exceeded"
+	ErrorTypeRecipientAllowlistPending               ErrorType = "recipient_allowlist_pending"
+	ErrorTypeRecipientAllowlistViolation             ErrorType = "recipient_allowlist_violation"
+	ErrorTypeRefundExpired                           ErrorType = "refund_expired"
+	ErrorTypeRequestCanceled                         ErrorType = "request_canceled"
+	ErrorTypeServiceUnavailable                      ErrorType = "service_unavailable"
+	ErrorTypeSettlementFailed                        ErrorType = "settlement_failed"
+	ErrorTypeSourceAccountInvalid                    ErrorType = "source_account_invalid"
+	ErrorTypeSourceAccountNotFound                   ErrorType = "source_account_not_found"
+	ErrorTypeSourceAssetNotSupported                 ErrorType = "source_asset_not_supported"
+	ErrorTypeStaleAttestation                        ErrorType = "stale_attestation"
+	ErrorTypeTargetAccountInvalid                    ErrorType = "target_account_invalid"
+	ErrorTypeTargetAccountNotFound                   ErrorType = "target_account_not_found"
+	ErrorTypeTargetAssetNotSupported                 ErrorType = "target_asset_not_supported"
+	ErrorTypeTargetEmailInvalid                      ErrorType = "target_email_invalid"
+	ErrorTypeTargetOnchainAddressInvalid             ErrorType = "target_onchain_address_invalid"
+	ErrorTypeTimedOut                                ErrorType = "timed_out"
+	ErrorTypeTransactionSimulationFailed             ErrorType = "transaction_simulation_failed"
+	ErrorTypeTransferAmountInvalid                   ErrorType = "transfer_amount_invalid"
+	ErrorTypeTransferAssetNotSupported               ErrorType = "transfer_asset_not_supported"
+	ErrorTypeTransferQuoteExpired                    ErrorType = "transfer_quote_expired"
+	ErrorTypeTravelRulesFieldMissing                 ErrorType = "travel_rules_field_missing"
+	ErrorTypeTravelRulesRecipientViolation           ErrorType = "travel_rules_recipient_violation"
+	ErrorTypeUnauthorized                            ErrorType = "unauthorized"
+	ErrorTypeUnsupportedTosLanguage                  ErrorType = "unsupported_tos_language"
 )
 
 // Defines values for EthValueCriterionOperator.
@@ -217,6 +234,33 @@ const (
 // Defines values for EthValueCriterionType.
 const (
 	EthValue EthValueCriterionType = "ethValue"
+)
+
+// Defines values for EventType.
+const (
+	OfframpTransactionCreated  EventType = "offramp.transaction.created"
+	OfframpTransactionFailed   EventType = "offramp.transaction.failed"
+	OfframpTransactionSuccess  EventType = "offramp.transaction.success"
+	OfframpTransactionUpdated  EventType = "offramp.transaction.updated"
+	OnchainActivityDetected    EventType = "onchain.activity.detected"
+	OnrampTransactionCreated   EventType = "onramp.transaction.created"
+	OnrampTransactionFailed    EventType = "onramp.transaction.failed"
+	OnrampTransactionSuccess   EventType = "onramp.transaction.success"
+	OnrampTransactionUpdated   EventType = "onramp.transaction.updated"
+	WalletActivityDetected     EventType = "wallet.activity.detected"
+	WalletActivityMulti        EventType = "wallet.activity.multi"
+	WalletDelegationCreated    EventType = "wallet.delegation.created"
+	WalletDelegationRevoked    EventType = "wallet.delegation.revoked"
+	WalletHashSigned           EventType = "wallet.hash.signed"
+	WalletMessageSigned        EventType = "wallet.message.signed"
+	WalletTransactionBroadcast EventType = "wallet.transaction.broadcast"
+	WalletTransactionConfirmed EventType = "wallet.transaction.confirmed"
+	WalletTransactionCreated   EventType = "wallet.transaction.created"
+	WalletTransactionFailed    EventType = "wallet.transaction.failed"
+	WalletTransactionPending   EventType = "wallet.transaction.pending"
+	WalletTransactionReplaced  EventType = "wallet.transaction.replaced"
+	WalletTransactionSigned    EventType = "wallet.transaction.signed"
+	WalletTypedDataSigned      EventType = "wallet.typed_data.signed"
 )
 
 // Defines values for EvmAddressCriterionOperator.
@@ -359,6 +403,12 @@ const (
 // Defines values for GetSwapPriceResponseLiquidityAvailable.
 const (
 	True GetSwapPriceResponseLiquidityAvailable = true
+)
+
+// Defines values for InitiateOnrampVerificationRequestChannel.
+const (
+	InitiateOnrampVerificationRequestChannelEmail InitiateOnrampVerificationRequestChannel = "email"
+	InitiateOnrampVerificationRequestChannelSms   InitiateOnrampVerificationRequestChannel = "sms"
 )
 
 // Defines values for KnownAbiType.
@@ -1275,6 +1325,32 @@ const (
 	X402V2PaymentRequirementsSchemeUpto            X402V2PaymentRequirementsScheme = "upto"
 )
 
+// Defines values for X402ValidateCheckCheck.
+const (
+	HasBazaarExtension X402ValidateCheckCheck = "has_bazaar_extension"
+	Parse              X402ValidateCheckCheck = "parse"
+	Reachable          X402ValidateCheckCheck = "reachable"
+	Returns402         X402ValidateCheckCheck = "returns_402"
+)
+
+// Defines values for X402ValidateCheckSeverity.
+const (
+	Advisory X402ValidateCheckSeverity = "advisory"
+	Required X402ValidateCheckSeverity = "required"
+)
+
+// Defines values for X402ValidateRequestMethod.
+const (
+	GET  X402ValidateRequestMethod = "GET"
+	POST X402ValidateRequestMethod = "POST"
+)
+
+// Defines values for X402ValidateSimulationOutcome.
+const (
+	Accepted X402ValidateSimulationOutcome = "accepted"
+	Rejected X402ValidateSimulationOutcome = "rejected"
+)
+
 // Defines values for X402VerifyInvalidReason.
 const (
 	X402VerifyInvalidReasonAmountTooLow                                                                   X402VerifyInvalidReason = "amount_too_low"
@@ -1484,6 +1560,8 @@ const (
 const (
 	GetSQLSchemaParamsDatabaseBase        GetSQLSchemaParamsDatabase = "base"
 	GetSQLSchemaParamsDatabaseBaseSepolia GetSQLSchemaParamsDatabase = "base_sepolia"
+	GetSQLSchemaParamsDatabaseHyperevm    GetSQLSchemaParamsDatabase = "hyperevm"
+	GetSQLSchemaParamsDatabaseSolana      GetSQLSchemaParamsDatabase = "solana"
 )
 
 // Defines values for SendEvmTransactionWithEndUserAccountJSONBodyNetwork.
@@ -2127,13 +2205,13 @@ type DepositTravelRuleOriginator struct {
 	// Address A physical address with standard address components including street, city, state/province, postal code, and country.
 	Address *PhysicalAddress `json:"address,omitempty"`
 
-	// DateOfBirth Date of birth.
+	// DateOfBirth Date of birth of the originator.
 	DateOfBirth *DateOfBirth `json:"dateOfBirth,omitempty"`
 
 	// Name Full name of the originator.
 	Name *string `json:"name,omitempty"`
 
-	// PersonalId Government-issued personal identification number for the originator.
+	// PersonalId Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier).
 	PersonalId *string `json:"personalId,omitempty"`
 
 	// VirtualAssetServiceProvider Information about the Virtual Asset Service Provider (VASP) for a deposit travel rule submission.
@@ -2148,13 +2226,13 @@ type DepositTravelRuleOriginatorWalletType string
 
 // DepositTravelRuleRequest Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
 type DepositTravelRuleRequest struct {
-	// Beneficiary Beneficiary information for a deposit travel rule submission.
+	// Beneficiary Beneficiary information for the travel rule submission.
 	Beneficiary *DepositTravelRuleBeneficiary `json:"beneficiary,omitempty"`
 
 	// IsSelf Indicates whether the user attests that the originating wallet belongs to them.
 	IsSelf *bool `json:"isSelf,omitempty"`
 
-	// Originator Originator information for a deposit travel rule submission.
+	// Originator Originator information for the travel rule submission.
 	Originator *DepositTravelRuleOriginator `json:"originator,omitempty"`
 }
 
@@ -2376,6 +2454,10 @@ type EthValueCriterionOperator string
 
 // EthValueCriterionType The type of criterion to use. This should be `ethValue`.
 type EthValueCriterionType string
+
+// EventType A webhook event type identifier following dot-separated format:
+// `<domain>.<entity>.<verb>` (e.g., "onchain.activity.detected").
+type EventType string
 
 // EvmAccount defines model for EvmAccount.
 type EvmAccount struct {
@@ -2623,6 +2705,9 @@ type EvmUserOperation struct {
 	// Calls The list of calls in the user operation.
 	Calls []EvmCall `json:"calls"`
 
+	// ExpiresAt The timestamp at which the prepared user operation expires.
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+
 	// Network The network the user operation is for.
 	Network EvmUserOperationNetwork `json:"network"`
 
@@ -2758,6 +2843,9 @@ type GetSwapPriceResponseWrapper struct {
 	union json.RawMessage
 }
 
+// HttpsUrl A valid HTTPS URL.
+type HttpsUrl = string
+
 // Idl IDL Specification following Anchor's IDL format v0.30+.
 type Idl struct {
 	// Address The program address.
@@ -2807,6 +2895,23 @@ type Idl struct {
 
 	// Types Optional type definitions for custom data structures used in the program.
 	Types *[]map[string]interface{} `json:"types,omitempty"`
+}
+
+// InitiateOnrampVerificationRequest Request body for initiating an onramp OTP verification.
+type InitiateOnrampVerificationRequest struct {
+	// Channel The OTP delivery channel.
+	Channel InitiateOnrampVerificationRequestChannel `json:"channel"`
+
+	// Destination The phone number or email address to send the OTP to.
+	Destination InitiateOnrampVerificationRequest_Destination `json:"destination"`
+}
+
+// InitiateOnrampVerificationRequestChannel The OTP delivery channel.
+type InitiateOnrampVerificationRequestChannel string
+
+// InitiateOnrampVerificationRequest_Destination The phone number or email address to send the OTP to.
+type InitiateOnrampVerificationRequest_Destination struct {
+	union json.RawMessage
 }
 
 // KnownAbiType A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
@@ -3049,7 +3154,7 @@ type OnrampLimitUpgradeIdentityFields struct {
 // OnrampLimitUpgradeRequest Request to request a limits upgrade for a user.
 type OnrampLimitUpgradeRequest struct {
 	// Fields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
-	Fields OnrampLimitUpgradeIdentityFields `json:"fields"`
+	Fields *OnrampLimitUpgradeIdentityFields `json:"fields,omitempty"`
 
 	// UserId The user identifier value. For `phone_number` type, this must be in E.164 format.
 	UserId string `json:"userId"`
@@ -3181,6 +3286,51 @@ type OnrampSession struct {
 	OnrampUrl Url `json:"onrampUrl"`
 }
 
+// OnrampSessionRequest Common request parameters shared by [Create Onramp Session](#operation/createOnrampSession) and [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge).
+type OnrampSessionRequest struct {
+	// ClientIp The IP address of the end user requesting the onramp transaction.
+	ClientIp *string `json:"clientIp,omitempty"`
+
+	// Country The ISO 3166-1 two letter country code (e.g. US).
+	Country *string `json:"country,omitempty"`
+
+	// DestinationAddress The address the purchased crypto will be sent to.
+	DestinationAddress BlockchainAddress `json:"destinationAddress"`
+
+	// DestinationNetwork The name of the crypto network the purchased currency will be sent on.
+	//
+	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+	DestinationNetwork string `json:"destinationNetwork"`
+
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
+	//
+	// This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
+
+	// PaymentAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount of the payment currency.
+	PaymentAmount *string `json:"paymentAmount,omitempty"`
+
+	// PaymentCurrency The fiat currency to be converted to crypto.
+	PaymentCurrency *string `json:"paymentCurrency,omitempty"`
+
+	// PaymentMethod The type of payment method used to generate the onramp quote.
+	PaymentMethod *OnrampQuotePaymentMethodTypeId `json:"paymentMethod,omitempty"`
+
+	// PurchaseAmount A string representing the amount of crypto the user wishes to purchase. When using this parameter, the returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase currency.
+	PurchaseAmount *string `json:"purchaseAmount,omitempty"`
+
+	// PurchaseCurrency The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of the crypto asset to be purchased.
+	//
+	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+	PurchaseCurrency string `json:"purchaseCurrency"`
+
+	// RedirectUrl URI to redirect the user to after they complete or dismiss the transaction. Embedded in the returned onramp URL as a query parameter.
+	RedirectUrl *Uri `json:"redirectUrl,omitempty"`
+
+	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
+	Subdivision *string `json:"subdivision,omitempty"`
+}
+
 // OnrampUserIdType The type of user identifier:
 // - `phone_number`: A phone number in E.164 format associated with an onramp user.
 type OnrampUserIdType string
@@ -3206,6 +3356,27 @@ type OnrampUserLimit struct {
 	Remaining string `json:"remaining"`
 }
 
+// OnrampVerificationConfirmation The result of successfully submitting an onramp OTP verification.
+type OnrampVerificationConfirmation struct {
+	// VerificationExpiresAt The date and time when this verification expires for order placement.
+	VerificationExpiresAt time.Time `json:"verificationExpiresAt"`
+
+	// VerificationId The same verification ID. Store on the user's device and pass to the Create Onramp Order endpoint. Valid for 60 days.
+	VerificationId OnrampVerificationId `json:"verificationId"`
+}
+
+// OnrampVerificationId A unique identifier for an onramp verification record, in the format `onramp_verification_<uuid>`.
+type OnrampVerificationId = string
+
+// OnrampVerificationInitiation The result of initiating an onramp OTP verification.
+type OnrampVerificationInitiation struct {
+	// OtpExpiresAt The deadline for submitting the OTP code (10 minutes from now).
+	OtpExpiresAt time.Time `json:"otpExpiresAt"`
+
+	// VerificationId Identifier returned by this endpoint. Pass to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.
+	VerificationId OnrampVerificationId `json:"verificationId"`
+}
+
 // OriginatingBankAccountUS The originating US bank account details for the transfer source. Present when funds were deposited from an external bank account into a deposit destination. Only the last 4 digits of the account number are exposed.
 type OriginatingBankAccountUS struct {
 	// AccountLast4 The last 4 digits of the originating bank account number.
@@ -3223,6 +3394,9 @@ type OriginatingBankAccountUS struct {
 // * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
 // Support for Customer-owned accounts (`customer_` prefix) is in development.
 type Owner = string
+
+// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+type PaymasterContext map[string]interface{}
 
 // PaymentMethod The Payment Method specific details for the transfer.
 type PaymentMethod struct {
@@ -4253,6 +4427,12 @@ type SplValueCriterionOperator string
 // SplValueCriterionType The type of criterion to use. This should be `splValue`.
 type SplValueCriterionType string
 
+// SubmitOnrampVerificationRequest Request body for submitting an OTP code to complete an onramp verification.
+type SubmitOnrampVerificationRequest struct {
+	// OtpCode The 6-digit OTP code the user received.
+	OtpCode string `json:"otpCode"`
+}
+
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
 type SwapUnavailableResponse struct {
 	// LiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
@@ -4394,14 +4574,11 @@ type Transfer struct {
 	// Details Additional details about the transfer. For example, if the transfer was sent to a deposit destination, the information about that destination will be included in this field.
 	Details *TransferDetails `json:"details,omitempty"`
 
-	// Estimate A point-in-time snapshot of estimated values for a transfer where exact amounts cannot be locked in at quote time (e.g., when the executed rate is determined at execution time and moves with the market).
+	// Estimate Captures estimated values for transfers where amounts can't be guaranteed (e.g., USDC -> EURC).
 	//
-	// Present in both pre-execution and post-execution states:
-	// * **Quoted state:** top-level fields whose values cannot be guaranteed are absent;
-	//   `estimate` holds their estimated values.
+	// The values in `estimate` are not modified after a transfer is executed. They are preserved as an immutable record of the original pre-execution snapshot.
 	//
-	// * **Completed state:** top-level fields contain the actual executed values;
-	//   `estimate` is retained as an immutable audit snapshot of the pre-execution estimate.
+	// The actual executed values are populated in the `transfer` resource post-execution.
 	Estimate *TransferEstimate `json:"estimate,omitempty"`
 
 	// ExchangeRate Exchange rate information for currency conversion. The rate indicates how much of the target asset is equivalent to one unit of the source asset.
@@ -4445,7 +4622,7 @@ type Transfer struct {
 	// Target The target of the transfer.
 	Target TransferTarget `json:"target"`
 
-	// TargetAmount The amount of the target asset that will be received, as a decimal string in standard unit denomination.
+	// TargetAmount The amount of the target asset received, as a decimal string in standard unit denomination. May be omitted in the `quoted` state if the value cannot be guaranteed; see `estimate.targetAmount` for the expected value. Populated with the actual executed amount once the transfer completes.
 	TargetAmount *string `json:"targetAmount,omitempty"`
 
 	// TargetAsset The asset symbol of the target amount.
@@ -4482,15 +4659,11 @@ type TransferDetails struct {
 	} `json:"travelRule,omitempty"`
 }
 
-// TransferEstimate A point-in-time snapshot of estimated values for a transfer where exact amounts cannot be locked in at quote time (e.g., when the executed rate is determined at execution time and moves with the market).
+// TransferEstimate Captures estimated values for transfers where amounts can't be guaranteed (e.g., USDC -> EURC).
 //
-// Present in both pre-execution and post-execution states:
+// The values in `estimate` are not modified after a transfer is executed. They are preserved as an immutable record of the original pre-execution snapshot.
 //
-//   - **Quoted state:** top-level fields whose values cannot be guaranteed are absent;
-//     `estimate` holds their estimated values.
-//
-//   - **Completed state:** top-level fields contain the actual executed values;
-//     `estimate` is retained as an immutable audit snapshot of the pre-execution estimate.
+// The actual executed values are populated in the `transfer` resource post-execution.
 type TransferEstimate struct {
 	// EstimatedAt The date and time when this estimate was captured.
 	EstimatedAt time.Time `json:"estimatedAt"`
@@ -4580,7 +4753,7 @@ type TransferRequest struct {
 	// Target The target of the transfer.
 	Target TransferTarget `json:"target"`
 
-	// TravelRule Required Travel Rule fields differ by region. These requirements are determined based on which Coinbase entity the customer has signed the service agreement for.
+	// TravelRule Travel Rule compliance information for this transfer. Required for transfers to external wallets above regulatory thresholds. Fields required differ by region and Coinbase contracting entity.
 	TravelRule *TravelRule `json:"travelRule,omitempty"`
 
 	// ValidateOnly If true, validates the transfer without initiating it.  If the request is valid, a 2xx will be returned. If the request is invalid, a 4xx error will be returned. The response will include an errorType, for e.g. invalid_target if the specified target cannot receive funds.
@@ -4628,10 +4801,12 @@ type TravelRule struct {
 	//
 	// **Impact on required fields:**
 	//
-	// When `isIntermediary` is `true`, you must provide the `originator` object with details about the original sender, including:
+	// When `isIntermediary` is `true`, you must provide the `originator` object with details about the **original sender**, including:
 	// - Originator name
 	// - Originator address
 	// - Your VASP information (`virtualAssetServiceProvider` object with `name`, `address`, and `identifier`)
+	//
+	// For jurisdictions that require them (such as Coinbase Luxembourg), `personalIdentification` and `dateOfBirth` must also reflect the **original sender's** identity — not the intermediary's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
 	IsIntermediary *bool `json:"isIntermediary,omitempty"`
 
 	// IsSelf Indicates whether the user attests that the receiving wallet belongs to them.
@@ -4664,11 +4839,17 @@ type TravelRuleOriginator struct {
 	// Address A physical address with standard address components including street, city, state/province, postal code, and country.
 	Address *PhysicalAddress `json:"address,omitempty"`
 
+	// DateOfBirth Date of birth of the originator. Required by certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.
+	DateOfBirth *DateOfBirth `json:"dateOfBirth,omitempty"`
+
 	// FinancialInstitution Name of the financial institution.
 	FinancialInstitution *string `json:"financialInstitution,omitempty"`
 
 	// Name Full name of the party.
 	Name *string `json:"name,omitempty"`
+
+	// PersonalId Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier).
+	PersonalId *string `json:"personalId,omitempty"`
 
 	// VirtualAssetServiceProvider Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers.
 	VirtualAssetServiceProvider *struct {
@@ -4797,7 +4978,7 @@ type WebhookSubscriptionRequest struct {
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 	// "acceptance.payment_session.authorization_succeeded").
 	// The subscription will only receive events matching these types AND the label filter(s).
-	EventTypes []string `json:"eventTypes"`
+	EventTypes []EventType `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
@@ -4806,9 +4987,16 @@ type WebhookSubscriptionRequest struct {
 	// an event contains ALL the key-value pairs specified here. Additional labels on
 	// the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 	//
-	// **Note:** Currently, labels are supported for onchain webhooks only.
+	// **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
 	//
-	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+	// **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+	// - `network` (required) — Blockchain network
+	// - `contract_address` — Smart contract address
+	// - `event_name` — Event name (e.g., "Transfer", "Burn")
+	// - `event_signature` — Event signature hash
+	// - `transaction_from` — Transaction sender address
+	// - `transaction_to` — Transaction recipient address
+	// - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
 	Labels *map[string]string `json:"labels,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -4830,7 +5018,7 @@ type WebhookSubscriptionResponse struct {
 	// EventTypes Types of events to subscribe to. Event types follow a dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 	// "acceptance.payment_session.authorization_succeeded").
-	EventTypes []string `json:"eventTypes"`
+	EventTypes []EventType `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
@@ -4871,17 +5059,24 @@ type WebhookSubscriptionUpdateRequest struct {
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
-	EventTypes []string `json:"eventTypes"`
+	EventTypes []EventType `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
 
 	// Labels Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-	//
-	// **Note:** Currently, labels are supported for onchain webhooks only.
-	//
-	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 	// Omit to receive all events for the selected event types.
+	//
+	// **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+	//
+	// **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
+	// - `network` (required) — Blockchain network
+	// - `contract_address` — Smart contract address
+	// - `event_name` — Event name (e.g., "Transfer", "Burn")
+	// - `event_signature` — Event signature hash
+	// - `transaction_from` — Transaction sender address
+	// - `transaction_to` — Transaction recipient address
+	// - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
 	Labels *map[string]string `json:"labels,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -5145,7 +5340,7 @@ type X402BatchSettlementVoucherPayload struct {
 // X402BatchSettlementVoucherPayloadType The payload-type discriminator. Must be `"voucher"` for a voucher-only payment against an already-funded channel.
 type X402BatchSettlementVoucherPayloadType string
 
-// X402DiscoveryMerchantResponse Response containing x402 resources associated with a merchant payment address.
+// X402DiscoveryMerchantResponse Response containing x402 resources associated with a merchant payment address. The resources list is empty when no active resources are found.
 type X402DiscoveryMerchantResponse struct {
 	// Pagination Pagination information for the response.
 	Pagination struct {
@@ -5162,7 +5357,7 @@ type X402DiscoveryMerchantResponse struct {
 	// PayTo A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
 	PayTo BlockchainAddress `json:"payTo"`
 
-	// Resources List of discovered x402 resources associated with the merchant's payTo address.
+	// Resources List of discovered x402 resources associated with the merchant's payTo address. This list is empty when no active resources are found.
 	Resources []X402DiscoveryResource `json:"resources"`
 
 	// X402Version The version of the x402 protocol.
@@ -5661,6 +5856,96 @@ type X402V2PaymentRequirements struct {
 // X402V2PaymentRequirementsScheme The scheme of the payment protocol to use. Supported schemes are `exact`, `upto`, and `batch-settlement`.
 type X402V2PaymentRequirementsScheme string
 
+// X402ValidateCheck The result of a single preflight check performed against the x402 endpoint.
+type X402ValidateCheck struct {
+	// Actual The value the check observed, when applicable.
+	Actual *string `json:"actual,omitempty"`
+
+	// Check The name of the preflight check. New values may be added in future versions; clients should handle unknown values gracefully.
+	Check X402ValidateCheckCheck `json:"check"`
+
+	// Detail A human-readable explanation of the check result.
+	Detail string `json:"detail"`
+
+	// Expected The value the check expected, when applicable.
+	Expected *string `json:"expected,omitempty"`
+
+	// Passed Whether the check passed.
+	Passed bool `json:"passed"`
+
+	// Severity Whether this check is a hard indexing requirement or a quality recommendation. A `required` check affects validity when it fails. An `advisory` check (for example, a missing output schema) is a suggestion to improve discoverability and does not make the endpoint invalid.
+	Severity X402ValidateCheckSeverity `json:"severity"`
+}
+
+// X402ValidateCheckCheck The name of the preflight check. New values may be added in future versions; clients should handle unknown values gracefully.
+type X402ValidateCheckCheck string
+
+// X402ValidateCheckSeverity Whether this check is a hard indexing requirement or a quality recommendation. A `required` check affects validity when it fails. An `advisory` check (for example, a missing output schema) is a suggestion to improve discoverability and does not make the endpoint invalid.
+type X402ValidateCheckSeverity string
+
+// X402ValidateIndex Bazaar index status for a validated x402 endpoint.
+type X402ValidateIndex struct {
+	// Active Whether the indexed resource is active and served in discovery results.
+	Active bool `json:"active"`
+
+	// LastCrawledAt When the endpoint was last crawled, or `null` if it has been indexed but not yet crawled.
+	LastCrawledAt *time.Time `json:"lastCrawledAt"`
+
+	// Quality Quality metrics for the indexed resource, present only when the endpoint has call history.
+	Quality *X402ResourceQuality `json:"quality,omitempty"`
+}
+
+// X402ValidateRequest Request to validate an x402 endpoint's bazaar-discovery configuration.
+type X402ValidateRequest struct {
+	// Method The HTTP method used to probe the endpoint. Only GET and POST are supported; other verbs are intentionally rejected because x402 resources are expected to respond to these methods.
+	Method *X402ValidateRequestMethod `json:"method,omitempty"`
+
+	// Resource HTTPS URL of the x402 endpoint to validate. Must use the `https://` scheme.
+	Resource HttpsUrl `json:"resource"`
+}
+
+// X402ValidateRequestMethod The HTTP method used to probe the endpoint. Only GET and POST are supported; other verbs are intentionally rejected because x402 resources are expected to respond to these methods.
+type X402ValidateRequestMethod string
+
+// X402ValidateResponse Response from validating an x402 endpoint's bazaar-discovery configuration.
+type X402ValidateResponse struct {
+	// BazaarExtension The `extensions.bazaar` block from the endpoint's discovery metadata, or `null` if the bazaar extension was absent or the endpoint was not reachable. Lets sellers verify the discovery configuration their endpoint is advertising.
+	BazaarExtension *map[string]interface{} `json:"bazaarExtension"`
+
+	// Index Bazaar index status for the endpoint, or `null` if the endpoint is not yet indexed. Present on every response regardless of simulation outcome.
+	Index *X402ValidateIndex `json:"index"`
+
+	// PaymentRequirements The raw decoded payment requirements returned by the endpoint, or `null` if the endpoint was not reachable or did not return a parseable 402 payload. Lets sellers inspect exactly what their endpoint is advertising.
+	PaymentRequirements *X402PaymentRequirements `json:"paymentRequirements"`
+
+	// Preflight All check results in run order. Well-known check names are `reachable`, `returns_402`, `has_bazaar_extension`, and `parse`. Additional checks may be added in future versions.
+	Preflight []X402ValidateCheck `json:"preflight"`
+
+	// Simulation The simulated facilitator decision for the x402 endpoint.
+	Simulation X402ValidateSimulation `json:"simulation"`
+
+	// StatusCode The HTTP status code returned by the endpoint, or `null` if the endpoint was not reachable.
+	StatusCode *int `json:"statusCode"`
+
+	// Valid Whether the endpoint is valid: all preflight checks passed and the facilitator would index the resource.
+	Valid bool `json:"valid"`
+
+	// X402Version The x402 protocol version advertised by the endpoint, or `null` if it could not be determined. Intentionally a bare integer rather than the `X402Version` enum so the validator can surface unsupported or malformed version values returned by non-conforming endpoints.
+	X402Version *int `json:"x402Version"`
+}
+
+// X402ValidateSimulation The simulated facilitator decision for the x402 endpoint.
+type X402ValidateSimulation struct {
+	// Outcome The simulated facilitator outcome: `accepted` if the facilitator would index the resource, or `rejected` if it would reject it.
+	Outcome X402ValidateSimulationOutcome `json:"outcome"`
+
+	// RejectionReason The reason the resource would be rejected, present only when `outcome` is `rejected`.
+	RejectionReason *string `json:"rejectionReason,omitempty"`
+}
+
+// X402ValidateSimulationOutcome The simulated facilitator outcome: `accepted` if the facilitator would index the resource, or `rejected` if it would reject it.
+type X402ValidateSimulationOutcome string
+
 // X402VerifyInvalidReason The reason the payment is invalid on the x402 protocol.
 type X402VerifyInvalidReason string
 
@@ -5718,6 +6003,9 @@ type DelegationForbiddenError = Error
 
 // EndpointUnavailableError An error response including the code for the type of error and a human-readable message describing the error.
 type EndpointUnavailableError = Error
+
+// ForbiddenError An error response including the code for the type of error and a human-readable message describing the error.
+type ForbiddenError = Error
 
 // IdempotencyError An error response including the code for the type of error and a human-readable message describing the error.
 type IdempotencyError = Error
@@ -6198,6 +6486,9 @@ type SendUserOperationWithEndUserAccountJSONBody struct {
 	// Network The network the user operation is for.
 	Network EvmUserOperationNetwork `json:"network"`
 
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
 	// PaymasterUrl The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the `useCdpPaymaster` option.
 	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
 
@@ -6236,6 +6527,9 @@ type SendEvmAssetWithEndUserAccountJSONBody struct {
 
 	// Network The EVM network to send USDC on.
 	Network SendEvmAssetWithEndUserAccountJSONBodyNetwork `json:"network"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
 
 	// PaymasterUrl Optional custom Paymaster URL to use for gas sponsorship. Only applicable for EVM Smart Accounts. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
 	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
@@ -6531,6 +6825,9 @@ type LookupEndUserParams struct {
 
 	// PhoneNumber The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. `+14155552671` → `%2B14155552671`).
 	PhoneNumber *PhoneNumber `form:"phoneNumber,omitempty" json:"phoneNumber,omitempty"`
+
+	// SiweAddress The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361).
+	SiweAddress *BlockchainAddress `form:"siweAddress,omitempty" json:"siweAddress,omitempty"`
 }
 
 // AddEndUserEvmAccountJSONBody defines parameters for AddEndUserEvmAccount.
@@ -6918,6 +7215,9 @@ type PrepareUserOperationJSONBody struct {
 	// Network The network the user operation is for.
 	Network EvmUserOperationNetwork `json:"network"`
 
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
 	// PaymasterUrl The URL of the paymaster to use for the user operation.
 	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
 }
@@ -6929,6 +7229,9 @@ type PrepareAndSendUserOperationJSONBody struct {
 
 	// Network The network the user operation is for.
 	Network EvmUserOperationNetwork `json:"network"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
 
 	// PaymasterUrl The URL of the paymaster to use for the user operation.
 	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
@@ -7044,6 +7347,9 @@ type CreateOnrampOrderJSONBody struct {
 	// Email The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
 	Email string `json:"email"`
 
+	// EmailVerificationId The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user's email address.
+	EmailVerificationId *OnrampVerificationId `json:"emailVerificationId,omitempty"`
+
 	// IsQuote If true, this API will return a quote without creating any transaction.
 	IsQuote *bool `json:"isQuote,omitempty"`
 
@@ -7079,51 +7385,25 @@ type CreateOnrampOrderJSONBody struct {
 	//
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
 	PurchaseCurrency string `json:"purchaseCurrency"`
+
+	// SmsVerificationId The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user's phone number. When provided, Onramp validates the server-side verification record instead of trusting `phoneNumberVerifiedAt`.
+	SmsVerificationId *OnrampVerificationId `json:"smsVerificationId,omitempty"`
 }
 
-// CreateOnrampSessionJSONBody defines parameters for CreateOnrampSession.
-type CreateOnrampSessionJSONBody struct {
-	// ClientIp The IP address of the end user requesting the onramp transaction.
-	ClientIp *string `json:"clientIp,omitempty"`
+// InitiateOnrampVerificationParams defines parameters for InitiateOnrampVerification.
+type InitiateOnrampVerificationParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
 
-	// Country The ISO 3166-1 two letter country code (e.g. US).
-	Country *string `json:"country,omitempty"`
-
-	// DestinationAddress The address the purchased crypto will be sent to.
-	DestinationAddress BlockchainAddress `json:"destinationAddress"`
-
-	// DestinationNetwork The name of the crypto network the purchased currency will be sent on.
-	//
-	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
-	DestinationNetwork string `json:"destinationNetwork"`
-
-	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
-	//
-	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
-	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
-
-	// PaymentAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.
-	PaymentAmount *string `json:"paymentAmount,omitempty"`
-
-	// PaymentCurrency The fiat currency to be converted to crypto.
-	PaymentCurrency *string `json:"paymentCurrency,omitempty"`
-
-	// PaymentMethod The type of payment method used to generate the onramp quote.
-	PaymentMethod *OnrampQuotePaymentMethodTypeId `json:"paymentMethod,omitempty"`
-
-	// PurchaseAmount A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.
-	PurchaseAmount *string `json:"purchaseAmount,omitempty"`
-
-	// PurchaseCurrency The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
-	//
-	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
-	PurchaseCurrency string `json:"purchaseCurrency"`
-
-	// RedirectUrl URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.
-	RedirectUrl *Uri `json:"redirectUrl,omitempty"`
-
-	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
-	Subdivision *string `json:"subdivision,omitempty"`
+// SubmitOnrampVerificationParams defines parameters for SubmitOnrampVerification.
+type SubmitOnrampVerificationParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
 // ListPaymentMethodsParams defines parameters for ListPaymentMethods.
@@ -7709,7 +7989,13 @@ type RequestLimitsUpgradeJSONRequestBody = OnrampLimitUpgradeRequest
 type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
 
 // CreateOnrampSessionJSONRequestBody defines body for CreateOnrampSession for application/json ContentType.
-type CreateOnrampSessionJSONRequestBody CreateOnrampSessionJSONBody
+type CreateOnrampSessionJSONRequestBody = OnrampSessionRequest
+
+// InitiateOnrampVerificationJSONRequestBody defines body for InitiateOnrampVerification for application/json ContentType.
+type InitiateOnrampVerificationJSONRequestBody = InitiateOnrampVerificationRequest
+
+// SubmitOnrampVerificationJSONRequestBody defines body for SubmitOnrampVerification for application/json ContentType.
+type SubmitOnrampVerificationJSONRequestBody = SubmitOnrampVerificationRequest
 
 // CreatePolicyJSONRequestBody defines body for CreatePolicy for application/json ContentType.
 type CreatePolicyJSONRequestBody CreatePolicyJSONBody
@@ -7755,6 +8041,9 @@ type PostX402DiscoveryMcpJSONRequestBody = X402McpRequest
 
 // SettleX402PaymentJSONRequestBody defines body for SettleX402Payment for application/json ContentType.
 type SettleX402PaymentJSONRequestBody SettleX402PaymentJSONBody
+
+// ValidateX402ResourceJSONRequestBody defines body for ValidateX402Resource for application/json ContentType.
+type ValidateX402ResourceJSONRequestBody = X402ValidateRequest
 
 // VerifyX402PaymentJSONRequestBody defines body for VerifyX402Payment for application/json ContentType.
 type VerifyX402PaymentJSONRequestBody VerifyX402PaymentJSONBody
@@ -8603,6 +8892,68 @@ func (t GetSwapPriceResponseWrapper) MarshalJSON() ([]byte, error) {
 }
 
 func (t *GetSwapPriceResponseWrapper) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsPhoneNumber returns the union data inside the InitiateOnrampVerificationRequest_Destination as a PhoneNumber
+func (t InitiateOnrampVerificationRequest_Destination) AsPhoneNumber() (PhoneNumber, error) {
+	var body PhoneNumber
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPhoneNumber overwrites any union data inside the InitiateOnrampVerificationRequest_Destination as the provided PhoneNumber
+func (t *InitiateOnrampVerificationRequest_Destination) FromPhoneNumber(v PhoneNumber) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePhoneNumber performs a merge with any union data inside the InitiateOnrampVerificationRequest_Destination, using the provided PhoneNumber
+func (t *InitiateOnrampVerificationRequest_Destination) MergePhoneNumber(v PhoneNumber) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEmail returns the union data inside the InitiateOnrampVerificationRequest_Destination as a Email
+func (t InitiateOnrampVerificationRequest_Destination) AsEmail() (Email, error) {
+	var body Email
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEmail overwrites any union data inside the InitiateOnrampVerificationRequest_Destination as the provided Email
+func (t *InitiateOnrampVerificationRequest_Destination) FromEmail(v Email) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEmail performs a merge with any union data inside the InitiateOnrampVerificationRequest_Destination, using the provided Email
+func (t *InitiateOnrampVerificationRequest_Destination) MergeEmail(v Email) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t InitiateOnrampVerificationRequest_Destination) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *InitiateOnrampVerificationRequest_Destination) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -13032,6 +13383,16 @@ type ClientInterface interface {
 
 	CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// InitiateOnrampVerificationWithBody request with any body
+	InitiateOnrampVerificationWithBody(ctx context.Context, params *InitiateOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	InitiateOnrampVerification(ctx context.Context, params *InitiateOnrampVerificationParams, body InitiateOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SubmitOnrampVerificationWithBody request with any body
+	SubmitOnrampVerificationWithBody(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SubmitOnrampVerification(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, body SubmitOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPaymentMethods request
 	ListPaymentMethods(ctx context.Context, params *ListPaymentMethodsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -13154,6 +13515,11 @@ type ClientInterface interface {
 
 	// SupportedX402PaymentKinds request
 	SupportedX402PaymentKinds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ValidateX402ResourceWithBody request with any body
+	ValidateX402ResourceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ValidateX402Resource(ctx context.Context, body ValidateX402ResourceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// VerifyX402PaymentWithBody request with any body
 	VerifyX402PaymentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -14709,6 +15075,54 @@ func (c *CDPClient) CreateOnrampSession(ctx context.Context, body CreateOnrampSe
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) InitiateOnrampVerificationWithBody(ctx context.Context, params *InitiateOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInitiateOnrampVerificationRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) InitiateOnrampVerification(ctx context.Context, params *InitiateOnrampVerificationParams, body InitiateOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInitiateOnrampVerificationRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SubmitOnrampVerificationWithBody(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitOnrampVerificationRequestWithBody(c.Server, verificationId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SubmitOnrampVerification(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, body SubmitOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitOnrampVerificationRequest(c.Server, verificationId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) ListPaymentMethods(ctx context.Context, params *ListPaymentMethodsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPaymentMethodsRequest(c.Server, params)
 	if err != nil {
@@ -15251,6 +15665,30 @@ func (c *CDPClient) SettleX402Payment(ctx context.Context, body SettleX402Paymen
 
 func (c *CDPClient) SupportedX402PaymentKinds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSupportedX402PaymentKindsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ValidateX402ResourceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewValidateX402ResourceRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ValidateX402Resource(ctx context.Context, body ValidateX402ResourceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewValidateX402ResourceRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -18342,6 +18780,22 @@ func NewLookupEndUserRequest(server string, params *LookupEndUserParams) (*http.
 
 		}
 
+		if params.SiweAddress != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "siweAddress", runtime.ParamLocationQuery, *params.SiweAddress); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
@@ -20728,6 +21182,123 @@ func NewCreateOnrampSessionRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
+// NewInitiateOnrampVerificationRequest calls the generic InitiateOnrampVerification builder with application/json body
+func NewInitiateOnrampVerificationRequest(server string, params *InitiateOnrampVerificationParams, body InitiateOnrampVerificationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewInitiateOnrampVerificationRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewInitiateOnrampVerificationRequestWithBody generates requests for InitiateOnrampVerification with any type of body
+func NewInitiateOnrampVerificationRequestWithBody(server string, params *InitiateOnrampVerificationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/verifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSubmitOnrampVerificationRequest calls the generic SubmitOnrampVerification builder with application/json body
+func NewSubmitOnrampVerificationRequest(server string, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, body SubmitOnrampVerificationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSubmitOnrampVerificationRequestWithBody(server, verificationId, params, "application/json", bodyReader)
+}
+
+// NewSubmitOnrampVerificationRequestWithBody generates requests for SubmitOnrampVerification with any type of body
+func NewSubmitOnrampVerificationRequestWithBody(server string, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "verificationId", runtime.ParamLocationPath, verificationId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/verifications/%s/submit", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewListPaymentMethodsRequest generates requests for ListPaymentMethods
 func NewListPaymentMethodsRequest(server string, params *ListPaymentMethodsParams) (*http.Request, error) {
 	var err error
@@ -22843,6 +23414,46 @@ func NewSupportedX402PaymentKindsRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewValidateX402ResourceRequest calls the generic ValidateX402Resource builder with application/json body
+func NewValidateX402ResourceRequest(server string, body ValidateX402ResourceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewValidateX402ResourceRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewValidateX402ResourceRequestWithBody generates requests for ValidateX402Resource with any type of body
+func NewValidateX402ResourceRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/validate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewVerifyX402PaymentRequest calls the generic VerifyX402Payment builder with application/json body
 func NewVerifyX402PaymentRequest(server string, body VerifyX402PaymentJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -23264,6 +23875,16 @@ type ClientWithResponsesInterface interface {
 
 	CreateOnrampSessionWithResponse(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
 
+	// InitiateOnrampVerificationWithBodyWithResponse request with any body
+	InitiateOnrampVerificationWithBodyWithResponse(ctx context.Context, params *InitiateOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InitiateOnrampVerificationResponse, error)
+
+	InitiateOnrampVerificationWithResponse(ctx context.Context, params *InitiateOnrampVerificationParams, body InitiateOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*InitiateOnrampVerificationResponse, error)
+
+	// SubmitOnrampVerificationWithBodyWithResponse request with any body
+	SubmitOnrampVerificationWithBodyWithResponse(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitOnrampVerificationResponse, error)
+
+	SubmitOnrampVerificationWithResponse(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, body SubmitOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitOnrampVerificationResponse, error)
+
 	// ListPaymentMethodsWithResponse request
 	ListPaymentMethodsWithResponse(ctx context.Context, params *ListPaymentMethodsParams, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error)
 
@@ -23387,6 +24008,11 @@ type ClientWithResponsesInterface interface {
 	// SupportedX402PaymentKindsWithResponse request
 	SupportedX402PaymentKindsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SupportedX402PaymentKindsResponse, error)
 
+	// ValidateX402ResourceWithBodyWithResponse request with any body
+	ValidateX402ResourceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ValidateX402ResourceResponse, error)
+
+	ValidateX402ResourceWithResponse(ctx context.Context, body ValidateX402ResourceJSONRequestBody, reqEditors ...RequestEditorFn) (*ValidateX402ResourceResponse, error)
+
 	// VerifyX402PaymentWithBodyWithResponse request with any body
 	VerifyX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyX402PaymentResponse, error)
 
@@ -23427,7 +24053,6 @@ type CreateFoundationAccountResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *Account
 	JSON400      *Error
-	JSON403      *Error
 	JSON422      *IdempotencyError
 	JSON503      *EndpointUnavailableError
 }
@@ -23865,7 +24490,6 @@ type CreateDepositDestinationResponse struct {
 	JSON201      *DepositDestination
 	JSON400      *Error
 	JSON401      *Error
-	JSON403      *Error
 	JSON404      *Error
 	JSON422      *IdempotencyError
 	JSON500      *Error
@@ -25712,7 +26336,8 @@ type CreateOnrampOrderResponse struct {
 	}
 	JSON400 *Error
 	JSON401 *UnauthorizedError
-	JSON429 *RateLimitExceeded
+	JSON404 *Error
+	JSON429 *Error
 	JSON500 *InternalServerError
 }
 
@@ -25786,6 +26411,63 @@ func (r CreateOnrampSessionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateOnrampSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type InitiateOnrampVerificationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *OnrampVerificationInitiation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON403      *ForbiddenError
+	JSON422      *IdempotencyError
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r InitiateOnrampVerificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r InitiateOnrampVerificationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SubmitOnrampVerificationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OnrampVerificationConfirmation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON403      *ForbiddenError
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r SubmitOnrampVerificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SubmitOnrampVerificationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -26560,7 +27242,6 @@ type ListX402DiscoveryMerchantResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *X402DiscoveryMerchantResponse
 	JSON400      *Error
-	JSON404      *Error
 	JSON500      *InternalServerError
 	JSON502      *BadGatewayError
 	JSON503      *ServiceUnavailableError
@@ -26680,6 +27361,32 @@ func (r SupportedX402PaymentKindsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SupportedX402PaymentKindsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ValidateX402ResourceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402ValidateResponse
+	JSON400      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ValidateX402ResourceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ValidateX402ResourceResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27824,6 +28531,40 @@ func (c *ClientWithResponses) CreateOnrampSessionWithResponse(ctx context.Contex
 	return ParseCreateOnrampSessionResponse(rsp)
 }
 
+// InitiateOnrampVerificationWithBodyWithResponse request with arbitrary body returning *InitiateOnrampVerificationResponse
+func (c *ClientWithResponses) InitiateOnrampVerificationWithBodyWithResponse(ctx context.Context, params *InitiateOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InitiateOnrampVerificationResponse, error) {
+	rsp, err := c.InitiateOnrampVerificationWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInitiateOnrampVerificationResponse(rsp)
+}
+
+func (c *ClientWithResponses) InitiateOnrampVerificationWithResponse(ctx context.Context, params *InitiateOnrampVerificationParams, body InitiateOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*InitiateOnrampVerificationResponse, error) {
+	rsp, err := c.InitiateOnrampVerification(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInitiateOnrampVerificationResponse(rsp)
+}
+
+// SubmitOnrampVerificationWithBodyWithResponse request with arbitrary body returning *SubmitOnrampVerificationResponse
+func (c *ClientWithResponses) SubmitOnrampVerificationWithBodyWithResponse(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitOnrampVerificationResponse, error) {
+	rsp, err := c.SubmitOnrampVerificationWithBody(ctx, verificationId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitOnrampVerificationResponse(rsp)
+}
+
+func (c *ClientWithResponses) SubmitOnrampVerificationWithResponse(ctx context.Context, verificationId OnrampVerificationId, params *SubmitOnrampVerificationParams, body SubmitOnrampVerificationJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitOnrampVerificationResponse, error) {
+	rsp, err := c.SubmitOnrampVerification(ctx, verificationId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitOnrampVerificationResponse(rsp)
+}
+
 // ListPaymentMethodsWithResponse request returning *ListPaymentMethodsResponse
 func (c *ClientWithResponses) ListPaymentMethodsWithResponse(ctx context.Context, params *ListPaymentMethodsParams, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error) {
 	rsp, err := c.ListPaymentMethods(ctx, params, reqEditors...)
@@ -28223,6 +28964,23 @@ func (c *ClientWithResponses) SupportedX402PaymentKindsWithResponse(ctx context.
 	return ParseSupportedX402PaymentKindsResponse(rsp)
 }
 
+// ValidateX402ResourceWithBodyWithResponse request with arbitrary body returning *ValidateX402ResourceResponse
+func (c *ClientWithResponses) ValidateX402ResourceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ValidateX402ResourceResponse, error) {
+	rsp, err := c.ValidateX402ResourceWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseValidateX402ResourceResponse(rsp)
+}
+
+func (c *ClientWithResponses) ValidateX402ResourceWithResponse(ctx context.Context, body ValidateX402ResourceJSONRequestBody, reqEditors ...RequestEditorFn) (*ValidateX402ResourceResponse, error) {
+	rsp, err := c.ValidateX402Resource(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseValidateX402ResourceResponse(rsp)
+}
+
 // VerifyX402PaymentWithBodyWithResponse request with arbitrary body returning *VerifyX402PaymentResponse
 func (c *ClientWithResponses) VerifyX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyX402PaymentResponse, error) {
 	rsp, err := c.VerifyX402PaymentWithBody(ctx, contentType, body, reqEditors...)
@@ -28306,13 +29064,6 @@ func ParseCreateFoundationAccountResponse(rsp *http.Response) (*CreateFoundation
 			return nil, err
 		}
 		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
@@ -29216,13 +29967,6 @@ func ParseCreateDepositDestinationResponse(rsp *http.Response) (*CreateDepositDe
 			return nil, err
 		}
 		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest Error
@@ -33728,8 +34472,15 @@ func ParseCreateOnrampOrderResponse(rsp *http.Response) (*CreateOnrampOrderRespo
 		}
 		response.JSON401 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
-		var dest RateLimitExceeded
+		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -33837,6 +34588,149 @@ func ParseCreateOnrampSessionResponse(rsp *http.Response) (*CreateOnrampSessionR
 			return nil, err
 		}
 		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseInitiateOnrampVerificationResponse parses an HTTP response from a InitiateOnrampVerificationWithResponse call
+func ParseInitiateOnrampVerificationResponse(rsp *http.Response) (*InitiateOnrampVerificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &InitiateOnrampVerificationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest OnrampVerificationInitiation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSubmitOnrampVerificationResponse parses an HTTP response from a SubmitOnrampVerificationWithResponse call
+func ParseSubmitOnrampVerificationResponse(rsp *http.Response) (*SubmitOnrampVerificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SubmitOnrampVerificationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OnrampVerificationConfirmation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
 		var dest RateLimitExceeded
@@ -35610,13 +36504,6 @@ func ParseListX402DiscoveryMerchantResponse(rsp *http.Response) (*ListX402Discov
 		}
 		response.JSON400 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -35832,6 +36719,60 @@ func ParseSupportedX402PaymentKindsResponse(rsp *http.Response) (*SupportedX402P
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseValidateX402ResourceResponse parses an HTTP response from a ValidateX402ResourceWithResponse call
+func ParseValidateX402ResourceResponse(rsp *http.Response) (*ValidateX402ResourceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ValidateX402ResourceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402ValidateResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

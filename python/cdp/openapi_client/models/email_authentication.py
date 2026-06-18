@@ -39,6 +39,13 @@ class EmailAuthentication(BaseModel):
             raise ValueError("must be one of enum values ('email')")
         return value
 
+    @field_validator('email')
+    def email_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}\/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}\/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/")
+        return value
+
     model_config = ConfigDict(
         populate_by_name=True,
         validate_assignment=True,

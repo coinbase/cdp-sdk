@@ -21,6 +21,20 @@ def update_xwalletauth_parameter(input_file, output_file):
             data["components"]["parameters"]["XWalletAuth"]["required"] = False
             print("Updated XWalletAuth parameter (required: True → False)")
 
+    # Remove the OpenAPI 3.1 top-level `webhooks` block.
+    #
+    # These describe inbound webhook payloads the CDP server POSTs to a
+    # customer-hosted URL; they are not callable client operations. The Python
+    # generator (openapi-generator 7.11.0) mishandles them: it emits webhook
+    # "operations" with empty parameter type annotations (e.g.
+    # `onchain_activity_detected_event: ,`) which is a SyntaxError that makes the
+    # whole package un-importable, and it clobbers same-tag path operations
+    # (e.g. `listDataTokenBalances` under the "Onchain Data" tag). Stripping the
+    # block keeps generation limited to real client endpoints.
+    if "webhooks" in data:
+        del data["webhooks"]
+        print("Removed top-level webhooks block (not client-callable operations)")
+
     # Save the modified YAML to the output file
     with open(output_file, "w") as file:
         yaml.dump(data, file, sort_keys=False)

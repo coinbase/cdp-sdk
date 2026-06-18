@@ -776,31 +776,33 @@ public class EndUserAccountManagementApi {
 
   /**
    * Look up end users by identity
-   * Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the &#x60;sub&#x60; claim from the provider&#39;s ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the &#x60;sub&#x60; claim from the provider&#39;s ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number. - **siweAddress**: looks up a user by the Ethereum address they authenticated   with via Sign In With Ethereum (EIP-4361).   Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param email The email address to search for across all email-based authentication methods. (optional)
    * @param oauthProvider The OAuth provider to search by. Must be provided together with oauthSubject. (optional)
    * @param oauthSubject The OAuth subject (the &#x60;sub&#x60; claim from the provider&#39;s ID token). Must be provided together with oauthProvider. (optional)
    * @param phoneNumber The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. &#x60;+14155552671&#x60; → &#x60;%2B14155552671&#x60;). (optional)
+   * @param siweAddress The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361). (optional)
    * @return LookupEndUser200Response
    * @throws ApiException if fails to make API call
    */
-  public LookupEndUser200Response lookupEndUser(String email, OAuth2ProviderType oauthProvider, String oauthSubject, String phoneNumber) throws ApiException {
-    ApiResponse<LookupEndUser200Response> localVarResponse = lookupEndUserWithHttpInfo(email, oauthProvider, oauthSubject, phoneNumber);
+  public LookupEndUser200Response lookupEndUser(String email, OAuth2ProviderType oauthProvider, String oauthSubject, String phoneNumber, String siweAddress) throws ApiException {
+    ApiResponse<LookupEndUser200Response> localVarResponse = lookupEndUserWithHttpInfo(email, oauthProvider, oauthSubject, phoneNumber, siweAddress);
     return localVarResponse.getData();
   }
 
   /**
    * Look up end users by identity
-   * Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the &#x60;sub&#x60; claim from the provider&#39;s ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number.  Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * Looks up end users. Exactly one lookup type must be provided per request:  - **email**: searches across all email-based authentication methods   (email, Google, Apple, GitHub). May return multiple end users if the   same email address appears across different auth methods.  - **oauthProvider + oauthSubject**: looks up a user by their OAuth   provider and subject (the &#x60;sub&#x60; claim from the provider&#39;s ID token).   Both params must be provided together.  - **phoneNumber**: looks up a user by their SMS-verified phone number. - **siweAddress**: looks up a user by the Ethereum address they authenticated   with via Sign In With Ethereum (EIP-4361).   Returns all matching end users. If no end users match, an empty array is returned.  This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
    * @param email The email address to search for across all email-based authentication methods. (optional)
    * @param oauthProvider The OAuth provider to search by. Must be provided together with oauthSubject. (optional)
    * @param oauthSubject The OAuth subject (the &#x60;sub&#x60; claim from the provider&#39;s ID token). Must be provided together with oauthProvider. (optional)
    * @param phoneNumber The E.164-formatted phone number to search for. Must be URL-encoded when passed as a query parameter (e.g. &#x60;+14155552671&#x60; → &#x60;%2B14155552671&#x60;). (optional)
+   * @param siweAddress The ERC-55 checksummed Ethereum address to search for. Looks up a user by the address they authenticated with via Sign In With Ethereum (EIP-4361). (optional)
    * @return ApiResponse&lt;LookupEndUser200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<LookupEndUser200Response> lookupEndUserWithHttpInfo(String email, OAuth2ProviderType oauthProvider, String oauthSubject, String phoneNumber) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = lookupEndUserRequestBuilder(email, oauthProvider, oauthSubject, phoneNumber);
+  public ApiResponse<LookupEndUser200Response> lookupEndUserWithHttpInfo(String email, OAuth2ProviderType oauthProvider, String oauthSubject, String phoneNumber, String siweAddress) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = lookupEndUserRequestBuilder(email, oauthProvider, oauthSubject, phoneNumber, siweAddress);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -839,7 +841,7 @@ public class EndUserAccountManagementApi {
     }
   }
 
-  private HttpRequest.Builder lookupEndUserRequestBuilder(String email, OAuth2ProviderType oauthProvider, String oauthSubject, String phoneNumber) throws ApiException {
+  private HttpRequest.Builder lookupEndUserRequestBuilder(String email, OAuth2ProviderType oauthProvider, String oauthSubject, String phoneNumber, String siweAddress) throws ApiException {
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
@@ -856,6 +858,8 @@ public class EndUserAccountManagementApi {
     localVarQueryParams.addAll(ApiClient.parameterToPairs("oauthSubject", oauthSubject));
     localVarQueryParameterBaseName = "phoneNumber";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("phoneNumber", phoneNumber));
+    localVarQueryParameterBaseName = "siweAddress";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("siweAddress", siweAddress));
 
     if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
       StringJoiner queryJoiner = new StringJoiner("&");

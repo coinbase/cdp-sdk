@@ -69,6 +69,13 @@ class TestX402FacilitatorApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_validate_x402_resource(self) -> None:
+        """Test case for validate_x402_resource
+
+        Validate x402 endpoint
+        """
+        pass
+
     async def test_verify_x402_payment(self) -> None:
         """Test case for verify_x402_payment
 

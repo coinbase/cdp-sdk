@@ -655,6 +655,7 @@ class EvmClient:
         calls: list[EncodedCall],
         network: str,
         paymaster_url: str | None = None,
+        paymaster_context: dict[str, Any] | None = None,
         data_suffix: str | None = None,
     ) -> EvmUserOperationModel:
         """Prepare a user operation for a smart account.
@@ -664,6 +665,7 @@ class EvmClient:
             calls (list[EncodedCall]): The calls to prepare the user operation for.
             network (str): The network.
             paymaster_url (str, optional): The paymaster URL. Defaults to None.
+            paymaster_context (dict[str, Any], optional): The ERC-7677 paymaster context forwarded to the paymaster service. Only valid when a paymaster is configured. Defaults to None.
             data_suffix (str, optional): Optional data suffix (EIP-8021) to enable transaction attribution. Defaults to None.
 
         Returns:
@@ -688,6 +690,7 @@ class EvmClient:
                     calls=evm_calls,
                     network=network,
                     paymaster_url=paymaster_url,
+                    paymaster_context=paymaster_context,
                     data_suffix=data_suffix,
                 ),
             )
@@ -929,6 +932,7 @@ class EvmClient:
         calls: list[ContractCall],
         network: str,
         paymaster_url: str | None = None,
+        paymaster_context: dict[str, Any] | None = None,
     ) -> EvmUserOperationModel:
         """Send a user operation for a smart account.
 
@@ -937,6 +941,7 @@ class EvmClient:
             calls (List[ContractCall]): The calls to send.
             network (str): The network.
             paymaster_url (str): The paymaster URL.
+            paymaster_context (dict[str, Any], optional): The ERC-7677 paymaster context forwarded to the paymaster service. Only valid when a paymaster is configured. Defaults to None.
 
         Returns:
             EvmUserOperationModel: The user operation model.
@@ -951,6 +956,7 @@ class EvmClient:
                 calls,
                 network,
                 paymaster_url,
+                paymaster_context=paymaster_context,
             )
         except Exception as error:
             track_error(error, "send_user_operation")

@@ -38,51 +38,13 @@ class TestListTransfers200Response(unittest.TestCase):
             return ListTransfers200Response(
                 next_page_token = 'eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==',
                 transfers = [
-                    cdp.openapi_client.models.transfer.Transfer(
-                        transfer_id = 'transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114', 
-                        status = 'quoted', 
-                        source = {}, 
-                        target = {}, 
-                        source_amount = '103.50', 
-                        source_asset = usd, 
-                        target_amount = '100.00', 
-                        target_asset = usdc, 
-                        exchange_rate = {sourceAsset=usd, targetAsset=usdc, rate=1}, 
-                        fees = [{type=bank, amount=20, asset=usd}, {type=conversion, amount=1.00, asset=usdc}, {type=network, amount=0.01, asset=usdc}], 
-                        estimate = {exchangeRate={sourceAsset=usdc, targetAsset=eur, rate=0.85}, targetAmount=85.00, targetAsset=eur, fees=[{type=conversion, amount=0.01, asset=usdc}], estimatedAt=2023-10-08T14:30:00Z}, 
-                        completed_at = '2025-01-01T00:05:00Z', 
-                        failure_reason = 'Insufficient balance to complete this transfer.', 
-                        expires_at = '2025-01-01T00:15:00Z', 
-                        executed_at = '2025-01-01T00:01:30Z', 
-                        created_at = '2025-01-01T00:00:00Z', 
-                        updated_at = '2025-01-01T00:00:00Z', 
-                        metadata = {customer_id=cust_12345, order_reference=order-67890}, 
-                        details = {depositDestination={id=depositDestination_af2937b0-9846-4fe7-bfe9-ccc22d935114}, onchainTransactions=[{transactionHash=0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb, network=base}]}, )
+                    {transferId=transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114, status=completed, source={accountId=account_af2937b0-9846-4fe7-bfe9-ccc22d935114, asset=usd}, target={address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913, network=base, asset=usdc}, sourceAmount=103.50, sourceAsset=usd, targetAmount=100.00, targetAsset=usdc, completedAt=2025-01-01T00:05:00Z, createdAt=2025-01-01T00:00:00Z, updatedAt=2025-01-01T00:05:00Z}
                     ]
             )
         else:
             return ListTransfers200Response(
                 transfers = [
-                    cdp.openapi_client.models.transfer.Transfer(
-                        transfer_id = 'transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114', 
-                        status = 'quoted', 
-                        source = {}, 
-                        target = {}, 
-                        source_amount = '103.50', 
-                        source_asset = usd, 
-                        target_amount = '100.00', 
-                        target_asset = usdc, 
-                        exchange_rate = {sourceAsset=usd, targetAsset=usdc, rate=1}, 
-                        fees = [{type=bank, amount=20, asset=usd}, {type=conversion, amount=1.00, asset=usdc}, {type=network, amount=0.01, asset=usdc}], 
-                        estimate = {exchangeRate={sourceAsset=usdc, targetAsset=eur, rate=0.85}, targetAmount=85.00, targetAsset=eur, fees=[{type=conversion, amount=0.01, asset=usdc}], estimatedAt=2023-10-08T14:30:00Z}, 
-                        completed_at = '2025-01-01T00:05:00Z', 
-                        failure_reason = 'Insufficient balance to complete this transfer.', 
-                        expires_at = '2025-01-01T00:15:00Z', 
-                        executed_at = '2025-01-01T00:01:30Z', 
-                        created_at = '2025-01-01T00:00:00Z', 
-                        updated_at = '2025-01-01T00:00:00Z', 
-                        metadata = {customer_id=cust_12345, order_reference=order-67890}, 
-                        details = {depositDestination={id=depositDestination_af2937b0-9846-4fe7-bfe9-ccc22d935114}, onchainTransactions=[{transactionHash=0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb, network=base}]}, )
+                    {transferId=transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114, status=completed, source={accountId=account_af2937b0-9846-4fe7-bfe9-ccc22d935114, asset=usd}, target={address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913, network=base, asset=usdc}, sourceAmount=103.50, sourceAsset=usd, targetAmount=100.00, targetAsset=usdc, completedAt=2025-01-01T00:05:00Z, createdAt=2025-01-01T00:00:00Z, updatedAt=2025-01-01T00:05:00Z}
                     ],
         )
         """

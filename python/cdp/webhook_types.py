@@ -10,8 +10,13 @@ WebhookEventType = Literal[
     "wallet.transaction.confirmed",
     "wallet.transaction.failed",
     "wallet.transaction.signed",
+    "wallet.typed_data.signed",
+    "wallet.message.signed",
+    "wallet.hash.signed",
+    "wallet.delegation.created",
+    "wallet.delegation.revoked",
 ]
-"""The supported wallet transaction webhook event types."""
+"""The supported wallet webhook event types."""
 
 
 class CreateWebhookSubscriptionOptions(BaseModel):

@@ -62,7 +62,7 @@ public class DepositTravelRuleRequest {
   }
 
   /**
-   * Get originator
+   * Originator information for the travel rule submission.
    * @return originator
    */
   @jakarta.annotation.Nullable
@@ -86,7 +86,7 @@ public class DepositTravelRuleRequest {
   }
 
   /**
-   * Get beneficiary
+   * Beneficiary information for the travel rule submission.
    * @return beneficiary
    */
   @jakarta.annotation.Nullable

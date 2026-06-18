@@ -18,6 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
@@ -37,7 +38,8 @@ class EvmUserOperation(BaseModel):
     status: StrictStr = Field(description="The status of the user operation.")
     transaction_hash: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.", alias="transactionHash")
     receipts: Optional[List[UserOperationReceipt]] = Field(default=None, description="The list of receipts associated with the user operation.")
-    __properties: ClassVar[List[str]] = ["network", "userOpHash", "calls", "status", "transactionHash", "receipts"]
+    expires_at: Optional[datetime] = Field(default=None, description="The timestamp at which the prepared user operation expires.", alias="expiresAt")
+    __properties: ClassVar[List[str]] = ["network", "userOpHash", "calls", "status", "transactionHash", "receipts", "expiresAt"]
 
     @field_validator('user_op_hash')
     def user_op_hash_validate_regular_expression(cls, value):
@@ -133,7 +135,8 @@ class EvmUserOperation(BaseModel):
             "calls": [EvmCall.from_dict(_item) for _item in obj["calls"]] if obj.get("calls") is not None else None,
             "status": obj.get("status"),
             "transactionHash": obj.get("transactionHash"),
-            "receipts": [UserOperationReceipt.from_dict(_item) for _item in obj["receipts"]] if obj.get("receipts") is not None else None
+            "receipts": [UserOperationReceipt.from_dict(_item) for _item in obj["receipts"]] if obj.get("receipts") is not None else None,
+            "expiresAt": obj.get("expiresAt")
         })
         return _obj
 

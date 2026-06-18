@@ -23,11 +23,15 @@ from typing_extensions import Annotated
 from cdp.openapi_client.models.create_onramp_order201_response import CreateOnrampOrder201Response
 from cdp.openapi_client.models.create_onramp_order_request import CreateOnrampOrderRequest
 from cdp.openapi_client.models.create_onramp_session201_response import CreateOnrampSession201Response
-from cdp.openapi_client.models.create_onramp_session_request import CreateOnrampSessionRequest
 from cdp.openapi_client.models.get_onramp_order_by_id200_response import GetOnrampOrderById200Response
 from cdp.openapi_client.models.get_onramp_user_limits200_response import GetOnrampUserLimits200Response
 from cdp.openapi_client.models.get_onramp_user_limits_request import GetOnrampUserLimitsRequest
+from cdp.openapi_client.models.initiate_onramp_verification_request import InitiateOnrampVerificationRequest
 from cdp.openapi_client.models.onramp_limit_upgrade_request import OnrampLimitUpgradeRequest
+from cdp.openapi_client.models.onramp_session_request import OnrampSessionRequest
+from cdp.openapi_client.models.onramp_verification_confirmation import OnrampVerificationConfirmation
+from cdp.openapi_client.models.onramp_verification_initiation import OnrampVerificationInitiation
+from cdp.openapi_client.models.submit_onramp_verification_request import SubmitOnrampVerificationRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -104,6 +108,7 @@ class OnrampApi:
             '201': "CreateOnrampOrder201Response",
             '400': "Error",
             '401': "Error",
+            '404': "Error",
             '429': "Error",
             '500': "Error",
         }
@@ -175,6 +180,7 @@ class OnrampApi:
             '201': "CreateOnrampOrder201Response",
             '400': "Error",
             '401': "Error",
+            '404': "Error",
             '429': "Error",
             '500': "Error",
         }
@@ -246,6 +252,7 @@ class OnrampApi:
             '201': "CreateOnrampOrder201Response",
             '400': "Error",
             '401': "Error",
+            '404': "Error",
             '429': "Error",
             '500': "Error",
         }
@@ -336,7 +343,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_session(
         self,
-        create_onramp_session_request: Optional[CreateOnrampSessionRequest] = None,
+        onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -354,8 +361,8 @@ class OnrampApi:
 
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
-        :param create_onramp_session_request:
-        :type create_onramp_session_request: CreateOnrampSessionRequest
+        :param onramp_session_request:
+        :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -379,7 +386,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_session_serialize(
-            create_onramp_session_request=create_onramp_session_request,
+            onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -407,7 +414,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_session_with_http_info(
         self,
-        create_onramp_session_request: Optional[CreateOnrampSessionRequest] = None,
+        onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -425,8 +432,8 @@ class OnrampApi:
 
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
-        :param create_onramp_session_request:
-        :type create_onramp_session_request: CreateOnrampSessionRequest
+        :param onramp_session_request:
+        :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -450,7 +457,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_session_serialize(
-            create_onramp_session_request=create_onramp_session_request,
+            onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -478,7 +485,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_session_without_preload_content(
         self,
-        create_onramp_session_request: Optional[CreateOnrampSessionRequest] = None,
+        onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -496,8 +503,8 @@ class OnrampApi:
 
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
-        :param create_onramp_session_request:
-        :type create_onramp_session_request: CreateOnrampSessionRequest
+        :param onramp_session_request:
+        :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -521,7 +528,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_session_serialize(
-            create_onramp_session_request=create_onramp_session_request,
+            onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -544,7 +551,7 @@ class OnrampApi:
 
     def _create_onramp_session_serialize(
         self,
-        create_onramp_session_request,
+        onramp_session_request,
         _request_auth,
         _content_type,
         _headers,
@@ -570,8 +577,8 @@ class OnrampApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if create_onramp_session_request is not None:
-            _body_params = create_onramp_session_request
+        if onramp_session_request is not None:
+            _body_params = onramp_session_request
 
 
         # set the HTTP header `Accept`
@@ -1176,6 +1183,313 @@ class OnrampApi:
 
 
     @validate_call
+    async def initiate_onramp_verification(
+        self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        initiate_onramp_verification_request: Optional[InitiateOnrampVerificationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> OnrampVerificationInitiation:
+        """Initiate onramp verification
+
+        Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param initiate_onramp_verification_request:
+        :type initiate_onramp_verification_request: InitiateOnrampVerificationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._initiate_onramp_verification_serialize(
+            x_idempotency_key=x_idempotency_key,
+            initiate_onramp_verification_request=initiate_onramp_verification_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "OnrampVerificationInitiation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def initiate_onramp_verification_with_http_info(
+        self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        initiate_onramp_verification_request: Optional[InitiateOnrampVerificationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[OnrampVerificationInitiation]:
+        """Initiate onramp verification
+
+        Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param initiate_onramp_verification_request:
+        :type initiate_onramp_verification_request: InitiateOnrampVerificationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._initiate_onramp_verification_serialize(
+            x_idempotency_key=x_idempotency_key,
+            initiate_onramp_verification_request=initiate_onramp_verification_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "OnrampVerificationInitiation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def initiate_onramp_verification_without_preload_content(
+        self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        initiate_onramp_verification_request: Optional[InitiateOnrampVerificationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Initiate onramp verification
+
+        Initiates OTP verification by sending a 6-digit code to the user via the specified channel (SMS or email). Returns a `verificationId` that must be passed to the Submit Onramp Verification endpoint along with the OTP code within 10 minutes.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param initiate_onramp_verification_request:
+        :type initiate_onramp_verification_request: InitiateOnrampVerificationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._initiate_onramp_verification_serialize(
+            x_idempotency_key=x_idempotency_key,
+            initiate_onramp_verification_request=initiate_onramp_verification_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "OnrampVerificationInitiation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _initiate_onramp_verification_serialize(
+        self,
+        x_idempotency_key,
+        initiate_onramp_verification_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if initiate_onramp_verification_request is not None:
+            _body_params = initiate_onramp_verification_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/onramp/verifications',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     async def request_limits_upgrade(
         self,
         onramp_limit_upgrade_request: Optional[OnrampLimitUpgradeRequest] = None,
@@ -1446,6 +1760,331 @@ class OnrampApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/onramp/limits/upgrade',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def submit_onramp_verification(
+        self,
+        verification_id: Annotated[str, Field(strict=True, description="The verification ID returned by the Initiate Onramp Verification endpoint.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        submit_onramp_verification_request: Optional[SubmitOnrampVerificationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> OnrampVerificationConfirmation:
+        """Submit onramp verification
+
+        Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+
+        :param verification_id: The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+        :type verification_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param submit_onramp_verification_request:
+        :type submit_onramp_verification_request: SubmitOnrampVerificationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._submit_onramp_verification_serialize(
+            verification_id=verification_id,
+            x_idempotency_key=x_idempotency_key,
+            submit_onramp_verification_request=submit_onramp_verification_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "OnrampVerificationConfirmation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def submit_onramp_verification_with_http_info(
+        self,
+        verification_id: Annotated[str, Field(strict=True, description="The verification ID returned by the Initiate Onramp Verification endpoint.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        submit_onramp_verification_request: Optional[SubmitOnrampVerificationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[OnrampVerificationConfirmation]:
+        """Submit onramp verification
+
+        Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+
+        :param verification_id: The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+        :type verification_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param submit_onramp_verification_request:
+        :type submit_onramp_verification_request: SubmitOnrampVerificationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._submit_onramp_verification_serialize(
+            verification_id=verification_id,
+            x_idempotency_key=x_idempotency_key,
+            submit_onramp_verification_request=submit_onramp_verification_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "OnrampVerificationConfirmation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def submit_onramp_verification_without_preload_content(
+        self,
+        verification_id: Annotated[str, Field(strict=True, description="The verification ID returned by the Initiate Onramp Verification endpoint.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        submit_onramp_verification_request: Optional[SubmitOnrampVerificationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Submit onramp verification
+
+        Submits the OTP code to complete verification. On success, marks the verification as verified and returns the same `verificationId`. The destination does not need to be re-sent. Onramp uses the value captured at initiation time.  The returned `verificationId` should be stored on the user's device and passed to the Create Onramp Order endpoint. It is valid for 60 days.  **Access to this API requires allowlisting.** During Onramp Headless API onboarding, contact the Onramp team to enable Onramp-managed verification for your application.
+
+        :param verification_id: The verification ID returned by the Initiate Onramp Verification endpoint. (required)
+        :type verification_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param submit_onramp_verification_request:
+        :type submit_onramp_verification_request: SubmitOnrampVerificationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._submit_onramp_verification_serialize(
+            verification_id=verification_id,
+            x_idempotency_key=x_idempotency_key,
+            submit_onramp_verification_request=submit_onramp_verification_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "OnrampVerificationConfirmation",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _submit_onramp_verification_serialize(
+        self,
+        verification_id,
+        x_idempotency_key,
+        submit_onramp_verification_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if verification_id is not None:
+            _path_params['verificationId'] = verification_id
+        # process the query parameters
+        # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if submit_onramp_verification_request is not None:
+            _body_params = submit_onramp_verification_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/onramp/verifications/{verificationId}/submit',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

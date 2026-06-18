@@ -215,7 +215,7 @@ public class DepositTravelRuleOriginator {
   }
 
   /**
-   * Government-issued personal identification number for the originator.
+   * Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver&#39;s license. For institutions: LEI (Legal Entity Identifier).
    * @return personalId
    */
   @jakarta.annotation.Nullable
@@ -239,7 +239,7 @@ public class DepositTravelRuleOriginator {
   }
 
   /**
-   * Get dateOfBirth
+   * Date of birth of the originator.
    * @return dateOfBirth
    */
   @jakarta.annotation.Nullable

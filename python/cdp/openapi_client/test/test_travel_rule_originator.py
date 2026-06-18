@@ -54,7 +54,9 @@ class TestTravelRuleOriginator(unittest.TestCase):
                         state = 'CA', 
                         post_code = '94105', 
                         country_code = 'US', ), 
-                    identifier = '5493001KJTIIGC8Y1R17', )
+                    identifier = '5493001KJTIIGC8Y1R17', ),
+                personal_id = '123-45-6789',
+                date_of_birth = {day=15, month=08, year=1990}
             )
         else:
             return TravelRuleOriginator(

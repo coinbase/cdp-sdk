@@ -53,6 +53,7 @@ done
 # List of types that extend HashMap and need fixing
 HASHMAP_TYPES=(
     "Metadata"
+    "OnchainActivityEventParameters"
 )
 
 for TYPE in "${HASHMAP_TYPES[@]}"; do

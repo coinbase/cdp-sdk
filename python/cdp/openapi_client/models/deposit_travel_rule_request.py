@@ -29,8 +29,8 @@ class DepositTravelRuleRequest(BaseModel):
     """
     Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
     """ # noqa: E501
-    originator: Optional[DepositTravelRuleOriginator] = None
-    beneficiary: Optional[DepositTravelRuleBeneficiary] = None
+    originator: Optional[DepositTravelRuleOriginator] = Field(default=None, description="Originator information for the travel rule submission.")
+    beneficiary: Optional[DepositTravelRuleBeneficiary] = Field(default=None, description="Beneficiary information for the travel rule submission.")
     is_self: Optional[StrictBool] = Field(default=None, description="Indicates whether the user attests that the originating wallet belongs to them.", alias="isSelf")
     __properties: ClassVar[List[str]] = ["originator", "beneficiary", "isSelf"]
 
