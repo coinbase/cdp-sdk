@@ -17,9 +17,10 @@ import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
-import com.coinbase.cdp.openapi.model.OnchainActivityDetectedEvent;
-import com.coinbase.cdp.openapi.model.WalletActivityDetectedEvent;
-import com.coinbase.cdp.openapi.model.WalletActivityMultiEvent;
+import com.coinbase.cdp.openapi.model.AccountTokenAddressesResponse;
+import com.coinbase.cdp.openapi.model.Error;
+import com.coinbase.cdp.openapi.model.ListEvmTokenBalances200Response;
+import com.coinbase.cdp.openapi.model.ListEvmTokenBalancesNetwork;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -84,24 +85,32 @@ public class OnchainDataApi {
   }
 
   /**
-   * Onchain activity detected
-   * Triggered when onchain activity matching your subscription filters is detected. Your API will receive a POST request at the webhook URL you configured. Use &#x60;labels&#x60; on your webhook subscription to filter which onchain events are delivered (see the Create Webhook Subscription endpoint for allowed labels).
-   * @param onchainActivityDetectedEvent The decoded blockchain event data. Payload shape varies by the type of onchain activity detected (token transfer, contract interaction, etc.). (required)
+   * List EVM token balances
+   * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides &lt;1 second freshness from chain tip, &lt;500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+   * @param address The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
+   * @param network The human-readable network name to get the balances for. (required)
+   * @param pageSize The number of resources to return per page. (optional, default to 20)
+   * @param pageToken The token for the next page of resources, if any. (optional)
+   * @return ListEvmTokenBalances200Response
    * @throws ApiException if fails to make API call
    */
-  public void onchainActivityDetectedWebhook(OnchainActivityDetectedEvent onchainActivityDetectedEvent) throws ApiException {
-    onchainActivityDetectedWebhookWithHttpInfo(onchainActivityDetectedEvent);
+  public ListEvmTokenBalances200Response listDataTokenBalances(String address, ListEvmTokenBalancesNetwork network, Integer pageSize, String pageToken) throws ApiException {
+    ApiResponse<ListEvmTokenBalances200Response> localVarResponse = listDataTokenBalancesWithHttpInfo(address, network, pageSize, pageToken);
+    return localVarResponse.getData();
   }
 
   /**
-   * Onchain activity detected
-   * Triggered when onchain activity matching your subscription filters is detected. Your API will receive a POST request at the webhook URL you configured. Use &#x60;labels&#x60; on your webhook subscription to filter which onchain events are delivered (see the Create Webhook Subscription endpoint for allowed labels).
-   * @param onchainActivityDetectedEvent The decoded blockchain event data. Payload shape varies by the type of onchain activity detected (token transfer, contract interaction, etc.). (required)
-   * @return ApiResponse&lt;Void&gt;
+   * List EVM token balances
+   * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides &lt;1 second freshness from chain tip, &lt;500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+   * @param address The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
+   * @param network The human-readable network name to get the balances for. (required)
+   * @param pageSize The number of resources to return per page. (optional, default to 20)
+   * @param pageToken The token for the next page of resources, if any. (optional)
+   * @return ApiResponse&lt;ListEvmTokenBalances200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> onchainActivityDetectedWebhookWithHttpInfo(OnchainActivityDetectedEvent onchainActivityDetectedEvent) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = onchainActivityDetectedWebhookRequestBuilder(onchainActivityDetectedEvent);
+  public ApiResponse<ListEvmTokenBalances200Response> listDataTokenBalancesWithHttpInfo(String address, ListEvmTokenBalancesNetwork network, Integer pageSize, String pageToken) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listDataTokenBalancesRequestBuilder(address, network, pageSize, pageToken);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -111,19 +120,25 @@ public class OnchainDataApi {
       }
       try {
         if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("onchainActivityDetectedWebhook", localVarResponse);
+          throw getApiException("listDataTokenBalances", localVarResponse);
         }
-        return new ApiResponse<>(
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<ListEvmTokenBalances200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<ListEvmTokenBalances200Response>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            null
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<ListEvmTokenBalances200Response>() {})
         );
       } finally {
-        // Drain the InputStream
-        while (localVarResponse.body().read() != -1) {
-          // Ignore
-        }
-        localVarResponse.body().close();
       }
     } catch (IOException e) {
       throw new ApiException(e);
@@ -134,27 +149,44 @@ public class OnchainDataApi {
     }
   }
 
-  private HttpRequest.Builder onchainActivityDetectedWebhookRequestBuilder(OnchainActivityDetectedEvent onchainActivityDetectedEvent) throws ApiException {
-    // verify the required parameter 'onchainActivityDetectedEvent' is set
-    if (onchainActivityDetectedEvent == null) {
-      throw new ApiException(400, "Missing the required parameter 'onchainActivityDetectedEvent' when calling onchainActivityDetectedWebhook");
+  private HttpRequest.Builder listDataTokenBalancesRequestBuilder(String address, ListEvmTokenBalancesNetwork network, Integer pageSize, String pageToken) throws ApiException {
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling listDataTokenBalances");
+    }
+    // verify the required parameter 'network' is set
+    if (network == null) {
+      throw new ApiException(400, "Missing the required parameter 'network' when calling listDataTokenBalances");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
-    String localVarPath = "/onchainActivityDetected";
+    String localVarPath = "/v2/data/evm/token-balances/{network}/{address}"
+        .replace("{address}", ApiClient.urlEncode(address.toString()))
+        .replace("{network}", ApiClient.urlEncode(network.toString()));
 
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "pageSize";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("pageSize", pageSize));
+    localVarQueryParameterBaseName = "pageToken";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("pageToken", pageToken));
 
-    localVarRequestBuilder.header("Content-Type", "application/json");
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
     localVarRequestBuilder.header("Accept", "application/json");
 
-    try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(onchainActivityDetectedEvent);
-      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
@@ -165,24 +197,28 @@ public class OnchainDataApi {
   }
 
   /**
-   * Wallet activity detected
-   * Triggered when the &#x60;wallet.activity.detected&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-   * @param walletActivityDetectedEvent The &#x60;wallet.activity.detected&#x60; webhook event payload. (required)
+   * List token addresses for account
+   * Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
+   * @param network The blockchain network to query. (required)
+   * @param address The account address to analyze for token interactions. (required)
+   * @return AccountTokenAddressesResponse
    * @throws ApiException if fails to make API call
    */
-  public void walletActivityDetectedWebhook(WalletActivityDetectedEvent walletActivityDetectedEvent) throws ApiException {
-    walletActivityDetectedWebhookWithHttpInfo(walletActivityDetectedEvent);
+  public AccountTokenAddressesResponse listTokensForAccount(String network, String address) throws ApiException {
+    ApiResponse<AccountTokenAddressesResponse> localVarResponse = listTokensForAccountWithHttpInfo(network, address);
+    return localVarResponse.getData();
   }
 
   /**
-   * Wallet activity detected
-   * Triggered when the &#x60;wallet.activity.detected&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-   * @param walletActivityDetectedEvent The &#x60;wallet.activity.detected&#x60; webhook event payload. (required)
-   * @return ApiResponse&lt;Void&gt;
+   * List token addresses for account
+   * Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
+   * @param network The blockchain network to query. (required)
+   * @param address The account address to analyze for token interactions. (required)
+   * @return ApiResponse&lt;AccountTokenAddressesResponse&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> walletActivityDetectedWebhookWithHttpInfo(WalletActivityDetectedEvent walletActivityDetectedEvent) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = walletActivityDetectedWebhookRequestBuilder(walletActivityDetectedEvent);
+  public ApiResponse<AccountTokenAddressesResponse> listTokensForAccountWithHttpInfo(String network, String address) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listTokensForAccountRequestBuilder(network, address);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -192,19 +228,25 @@ public class OnchainDataApi {
       }
       try {
         if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("walletActivityDetectedWebhook", localVarResponse);
+          throw getApiException("listTokensForAccount", localVarResponse);
         }
-        return new ApiResponse<>(
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<AccountTokenAddressesResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<AccountTokenAddressesResponse>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            null
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AccountTokenAddressesResponse>() {})
         );
       } finally {
-        // Drain the InputStream
-        while (localVarResponse.body().read() != -1) {
-          // Ignore
-        }
-        localVarResponse.body().close();
       }
     } catch (IOException e) {
       throw new ApiException(e);
@@ -215,108 +257,27 @@ public class OnchainDataApi {
     }
   }
 
-  private HttpRequest.Builder walletActivityDetectedWebhookRequestBuilder(WalletActivityDetectedEvent walletActivityDetectedEvent) throws ApiException {
-    // verify the required parameter 'walletActivityDetectedEvent' is set
-    if (walletActivityDetectedEvent == null) {
-      throw new ApiException(400, "Missing the required parameter 'walletActivityDetectedEvent' when calling walletActivityDetectedWebhook");
+  private HttpRequest.Builder listTokensForAccountRequestBuilder(String network, String address) throws ApiException {
+    // verify the required parameter 'network' is set
+    if (network == null) {
+      throw new ApiException(400, "Missing the required parameter 'network' when calling listTokensForAccount");
+    }
+    // verify the required parameter 'address' is set
+    if (address == null) {
+      throw new ApiException(400, "Missing the required parameter 'address' when calling listTokensForAccount");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
-    String localVarPath = "/walletActivityDetected";
+    String localVarPath = "/v2/data/evm/token-ownership/{network}/{address}"
+        .replace("{network}", ApiClient.urlEncode(network.toString()))
+        .replace("{address}", ApiClient.urlEncode(address.toString()));
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 
-    localVarRequestBuilder.header("Content-Type", "application/json");
     localVarRequestBuilder.header("Accept", "application/json");
 
-    try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(walletActivityDetectedEvent);
-      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    if (memberVarReadTimeout != null) {
-      localVarRequestBuilder.timeout(memberVarReadTimeout);
-    }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
-    }
-    return localVarRequestBuilder;
-  }
-
-  /**
-   * Wallet activity multi
-   * Triggered when the &#x60;wallet.activity.multi&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-   * @param walletActivityMultiEvent The &#x60;wallet.activity.multi&#x60; webhook event payload. (required)
-   * @throws ApiException if fails to make API call
-   */
-  public void walletActivityMultiWebhook(WalletActivityMultiEvent walletActivityMultiEvent) throws ApiException {
-    walletActivityMultiWebhookWithHttpInfo(walletActivityMultiEvent);
-  }
-
-  /**
-   * Wallet activity multi
-   * Triggered when the &#x60;wallet.activity.multi&#x60; webhook event is emitted. Your API will receive a POST request at the webhook URL you configured.
-   * @param walletActivityMultiEvent The &#x60;wallet.activity.multi&#x60; webhook event payload. (required)
-   * @return ApiResponse&lt;Void&gt;
-   * @throws ApiException if fails to make API call
-   */
-  public ApiResponse<Void> walletActivityMultiWebhookWithHttpInfo(WalletActivityMultiEvent walletActivityMultiEvent) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = walletActivityMultiWebhookRequestBuilder(walletActivityMultiEvent);
-    try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofInputStream());
-      if (memberVarResponseInterceptor != null) {
-        memberVarResponseInterceptor.accept(localVarResponse);
-      }
-      try {
-        if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("walletActivityMultiWebhook", localVarResponse);
-        }
-        return new ApiResponse<>(
-            localVarResponse.statusCode(),
-            localVarResponse.headers().map(),
-            null
-        );
-      } finally {
-        // Drain the InputStream
-        while (localVarResponse.body().read() != -1) {
-          // Ignore
-        }
-        localVarResponse.body().close();
-      }
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new ApiException(e);
-    }
-  }
-
-  private HttpRequest.Builder walletActivityMultiWebhookRequestBuilder(WalletActivityMultiEvent walletActivityMultiEvent) throws ApiException {
-    // verify the required parameter 'walletActivityMultiEvent' is set
-    if (walletActivityMultiEvent == null) {
-      throw new ApiException(400, "Missing the required parameter 'walletActivityMultiEvent' when calling walletActivityMultiWebhook");
-    }
-
-    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
-
-    String localVarPath = "/walletActivityMulti";
-
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
-
-    localVarRequestBuilder.header("Content-Type", "application/json");
-    localVarRequestBuilder.header("Accept", "application/json");
-
-    try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(walletActivityMultiEvent);
-      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
