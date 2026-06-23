@@ -38,6 +38,10 @@ importers:
       viem:
         specifier: 2.47.0
         version: 2.47.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+    devDependencies:
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   ../../typescript/packages/cdp-sdk:
     dependencies:
@@ -1662,8 +1666,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  typescript@5.8.3:
-    optional: true
+  typescript@5.8.3: {}
 
   uncrypto@0.1.3: {}
 
