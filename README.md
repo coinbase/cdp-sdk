@@ -47,6 +47,7 @@ CDP SDK has auto-generated SDK docs for each of the full-featured client librari
 - [TypeScript](https://coinbase.github.io/cdp-sdk/typescript)
 - [Python](https://coinbase.github.io/cdp-sdk/python)
 - [Go](https://coinbase.github.io/cdp-sdk/go)
+- [Rust](https://docs.rs/cdp-sdk/latest/cdp_sdk/)
 
 Further documentation is also available on the CDP docs website:
 
