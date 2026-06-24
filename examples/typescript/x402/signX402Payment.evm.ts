@@ -1,7 +1,7 @@
 // Usage: pnpm tsx x402/signX402Payment.evm.ts
 
 import "dotenv/config";
-import { CdpClient } from "@coinbase/cdp-sdk";
+import { CdpClient, selectPaymentRequirements } from "@coinbase/cdp-sdk";
 
 const cdp = new CdpClient();
 const account = await cdp.evm.getOrCreateAccount({
@@ -9,7 +9,7 @@ const account = await cdp.evm.getOrCreateAccount({
 });
 
 const paymentRequired = readPaymentRequired<Parameters<typeof account.signX402Payment>[0]>();
-const acceptedIndex = readAcceptedIndex();
+const acceptedIndex = readAcceptedIndex() ?? selectPaymentRequirements(paymentRequired);
 
 const payment = await account.signX402Payment(paymentRequired, acceptedIndex);
 

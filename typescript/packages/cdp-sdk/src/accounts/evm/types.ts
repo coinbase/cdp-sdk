@@ -121,12 +121,12 @@ export type EvmServerAccount = Prettify<
        * Signs an x402 payment payload for direct use with any transport.
        *
        * @param paymentRequired - The payment requirements returned by a resource server.
-       * @param acceptedIndex - Optional index into `paymentRequired.accepts`.
+       * @param acceptedIndex - Index into `paymentRequired.accepts`.
        * @returns The signed x402 payment payload.
        */
       signX402Payment: (
         paymentRequired: SignX402PaymentOptions["paymentRequired"],
-        acceptedIndex?: number,
+        acceptedIndex: number,
       ) => Promise<PaymentPayload>;
       /** Optional name for the server account. */
       name?: string;
@@ -167,12 +167,12 @@ export type EvmSmartAccountProperties = {
    * Signs an x402 payment payload for direct use with any transport.
    *
    * @param paymentRequired - The payment requirements returned by a resource server.
-   * @param acceptedIndex - Optional index into `paymentRequired.accepts`.
+   * @param acceptedIndex - Index into `paymentRequired.accepts`.
    * @returns The signed x402 payment payload.
    */
   signX402Payment: (
     paymentRequired: SignX402PaymentOptions["paymentRequired"],
-    acceptedIndex?: number,
+    acceptedIndex: number,
   ) => Promise<PaymentPayload>;
   /**
    * A function that returns a network-scoped smart account.

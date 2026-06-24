@@ -32,15 +32,12 @@ export interface SignX402PaymentOptions {
   /** The x402 payment requirements returned by a resource server. */
   paymentRequired: PaymentRequired;
   /**
-   * Optional index into `paymentRequired.accepts` selecting which requirement
-   * to sign. When omitted, signing uses the first network-compatible entry for
-   * the account type (EVM or Solana).
+   * Index into `paymentRequired.accepts` selecting which requirement to sign.
    */
-  acceptedIndex?: number;
+  acceptedIndex: number;
 }
 
 type RpcUrlsByCaip2 = Record<string, { rpcUrl: string }>;
-type PaymentRequirementMatcher = (accept: PaymentRequired["accepts"][number]) => boolean;
 
 /**
  * Parses JSON from CDP_X402_RPC_URLS and converts it into CAIP-2 keyed RPC config.
@@ -139,37 +136,16 @@ function buildEvmRpcUrlsByChainId(
  *
  * @param paymentRequired - Original payment requirements from a resource server.
  * @param acceptedIndex - Index into the original `paymentRequired.accepts`.
- * @param options - Optional compatibility matcher used when no acceptedIndex is provided.
- * @param options.matcher - Determines whether a payment requirement is compatible with the account type.
- * @param options.compatibilityDescription - Human-readable compatibility label for error messages.
  * @returns A PaymentRequired with exactly one accepted requirement.
  */
 function selectAcceptedPaymentRequired(
   paymentRequired: PaymentRequired,
-  acceptedIndex: number | undefined,
-  options?: {
-    matcher?: PaymentRequirementMatcher;
-    compatibilityDescription?: string;
-  },
+  acceptedIndex: number,
 ): PaymentRequired {
-  if (acceptedIndex === undefined && options?.matcher) {
-    const selected = paymentRequired.accepts.find(options.matcher);
-    if (!selected) {
-      throw new Error(
-        `No ${options.compatibilityDescription ?? "compatible"} payment requirement found in paymentRequired.accepts.`,
-      );
-    }
-    return {
-      ...paymentRequired,
-      accepts: [selected],
-    };
-  }
-
-  const idx = acceptedIndex ?? 0;
-  const selected = paymentRequired.accepts[idx];
+  const selected = paymentRequired.accepts[acceptedIndex];
   if (!selected) {
     throw new Error(
-      `acceptedIndex ${idx} is out of range — paymentRequired.accepts has ` +
+      `acceptedIndex ${acceptedIndex} is out of range — paymentRequired.accepts has ` +
         `${paymentRequired.accepts.length} entr${paymentRequired.accepts.length === 1 ? "y" : "ies"}.`,
     );
   }
@@ -186,7 +162,7 @@ function selectAcceptedPaymentRequired(
  * calls `x402Client.createPaymentPayload`. No CDP signing endpoint is used.
  *
  * @param account - The CDP EVM server account.
- * @param options - The x402 payment requirements and optional accepted index.
+ * @param options - The x402 payment requirements and selected accepted index.
  * @returns The signed x402 payment payload.
  */
 export async function signEvmX402Payment(
@@ -197,10 +173,6 @@ export async function signEvmX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
-    {
-      matcher: accept => accept.network.startsWith("eip155:"),
-      compatibilityDescription: "EVM",
-    },
   );
   const signer = fromCdpEvmAccount(account);
   const client = new x402Client();
@@ -216,7 +188,7 @@ export async function signEvmX402Payment(
  * `chainId`, so no explicit network parameter is needed on the call site.
  *
  * @param account - The CDP EVM smart account.
- * @param options - The x402 payment requirements and optional accepted index.
+ * @param options - The x402 payment requirements and selected accepted index.
  * @returns The signed x402 payment payload.
  */
 export async function signEvmSmartAccountX402Payment(
@@ -227,10 +199,6 @@ export async function signEvmSmartAccountX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
-    {
-      matcher: accept => accept.network.startsWith("eip155:"),
-      compatibilityDescription: "EVM",
-    },
   );
   const signer = fromCdpSmartWallet(account);
   const client = new x402Client();
@@ -243,7 +211,7 @@ export async function signEvmSmartAccountX402Payment(
  * Signs an x402 payment payload with a Solana account.
  *
  * @param account - The CDP Solana account.
- * @param options - The x402 payment requirements and optional accepted index.
+ * @param options - The x402 payment requirements and selected accepted index.
  * @returns The signed x402 payment payload.
  */
 export async function signSolanaX402Payment(
@@ -253,10 +221,6 @@ export async function signSolanaX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
-    {
-      matcher: accept => accept.network.startsWith("solana:"),
-      compatibilityDescription: "Solana",
-    },
   );
   const signer = cdpSolanaAccountToSvmSigner(account);
   const client = new x402Client();

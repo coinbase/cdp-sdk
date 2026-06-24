@@ -128,18 +128,18 @@ export type AccountActions = {
    * Signs an x402 payment payload for direct use with any transport.
    *
    * @param paymentRequired - The payment requirements returned by a resource server.
-   * @param acceptedIndex - Optional index into `paymentRequired.accepts`.
+   * @param acceptedIndex - Index into `paymentRequired.accepts`.
    *
    * @returns The signed x402 payment payload.
    *
    * @example
    * ```ts
-   * const payment = await account.signX402Payment(paymentRequired);
+   * const payment = await account.signX402Payment(paymentRequired, acceptedIndex);
    * ```
    */
   signX402Payment: (
     paymentRequired: SignX402PaymentOptions["paymentRequired"],
-    acceptedIndex?: number,
+    acceptedIndex: number,
   ) => Promise<PaymentPayload>;
 
   /**

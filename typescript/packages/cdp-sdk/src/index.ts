@@ -1,5 +1,6 @@
 export { CdpClient } from "./client/cdp.js";
 export { toEvmDelegatedAccount } from "./accounts/evm/toEvmDelegatedAccount.js";
+export { selectPaymentRequirements } from "./actions/x402/selectPaymentRequirements.js";
 export type { EvmServerAccount, EvmSmartAccount } from "./accounts/evm/types.js";
 export type { SolanaAccount } from "./accounts/solana/types.js";
 export type { SignX402PaymentOptions } from "./actions/x402/signX402Payment.js";
