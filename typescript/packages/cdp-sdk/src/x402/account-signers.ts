@@ -46,6 +46,8 @@ const CHAIN_ID_TO_CDP_NETWORK: Record<number, string> = {
   56: "bnb",
   43114: "avalanche",
   11155111: "ethereum-sepolia",
+  480: "world",
+  4801: "world-sepolia",
 };
 
 /**

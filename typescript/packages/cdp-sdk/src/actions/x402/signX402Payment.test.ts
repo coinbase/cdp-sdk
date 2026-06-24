@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PaymentPayload, PaymentRequired } from "@x402/core/types";
 
@@ -56,9 +56,10 @@ import {
   cdpSolanaAccountToSvmSigner,
 } from "../../x402/account-signers.js";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
+import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { registerExactSvmScheme } from "@x402/svm/exact/client";
 
-const paymentRequired: PaymentRequired = {
+const evmPaymentRequired: PaymentRequired = {
   x402Version: 2,
   resource: { url: "https://example.com/report" },
   accepts: [
@@ -68,6 +69,22 @@ const paymentRequired: PaymentRequired = {
       asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
       amount: "1000",
       payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+const solanaPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      asset: "11111111111111111111111111111111",
+      amount: "1000",
+      payTo: "11111111111111111111111111111111",
       maxTimeoutSeconds: 60,
       extra: {},
     },
@@ -99,30 +116,51 @@ const mixedPaymentRequired: PaymentRequired = {
   ],
 };
 
+const mixedPaymentRequiredEvmFirst: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [mixedPaymentRequired.accepts[1]!, mixedPaymentRequired.accepts[0]!],
+};
+
+const originalCdpX402RpcUrls = process.env.CDP_X402_RPC_URLS;
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  delete process.env.CDP_X402_RPC_URLS;
+});
+
+afterAll(() => {
+  if (originalCdpX402RpcUrls === undefined) {
+    delete process.env.CDP_X402_RPC_URLS;
+  } else {
+    process.env.CDP_X402_RPC_URLS = originalCdpX402RpcUrls;
+  }
+});
+
 describe("signEvmX402Payment", () => {
   it("creates an EVM signer from the account", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
-    await signEvmX402Payment(account, { paymentRequired });
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired });
     expect(fromCdpEvmAccount).toHaveBeenCalledWith(account);
   });
 
   it("registers the exact EVM scheme", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
-    await signEvmX402Payment(account, { paymentRequired });
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired });
     expect(registerExactEvmScheme).toHaveBeenCalled();
   });
 
   it("returns the payment payload from x402Client", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
-    const result = await signEvmX402Payment(account, { paymentRequired });
+    const result = await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired });
     expect(result).toBe(mockPayload);
-    expect(mockCreatePaymentPayload).toHaveBeenCalledWith(paymentRequired);
+    expect(mockCreatePaymentPayload).toHaveBeenCalledWith(evmPaymentRequired);
   });
 
   it("constructs an x402Client instance", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
     const { x402Client } = await import("@x402/core/client");
-    await signEvmX402Payment(account, { paymentRequired, acceptedIndex: 0 });
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 });
     expect(x402Client).toHaveBeenCalled();
   });
 
@@ -138,19 +176,74 @@ describe("signEvmX402Payment", () => {
       accepts: [mixedPaymentRequired.accepts[1]],
     });
   });
+
+  it("selects the first EVM-compatible requirement when acceptedIndex is omitted", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, { paymentRequired: mixedPaymentRequired });
+
+    expect(mockCreatePaymentPayload).toHaveBeenLastCalledWith({
+      ...mixedPaymentRequired,
+      accepts: [mixedPaymentRequired.accepts[1]],
+    });
+  });
+
+  it("applies CDP_X402_RPC_URLS overrides to exact and upto EVM schemes", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({
+      "eip155:84532": "https://custom.base-sepolia.example",
+      "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "https://ignored.solana.example",
+    });
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired });
+
+    const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
+      | { schemeOptions?: Record<number, { rpcUrl: string }> }
+      | undefined;
+
+    expect(exactConfig?.schemeOptions?.[84532]?.rpcUrl).toBe("https://custom.base-sepolia.example");
+    expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://mainnet.base.org");
+
+    const uptoSchemeOptions = vi.mocked(UptoEvmScheme).mock.calls.at(-1)?.[1] as
+      | Record<number, { rpcUrl: string }>
+      | undefined;
+    expect(uptoSchemeOptions?.[84532]?.rpcUrl).toBe("https://custom.base-sepolia.example");
+    expect(uptoSchemeOptions?.[8453]?.rpcUrl).toBe("https://mainnet.base.org");
+    expect(uptoSchemeOptions?.[480]).toBeDefined();
+  });
+
+  it("throws a clear error when CDP_X402_RPC_URLS is invalid JSON", async () => {
+    process.env.CDP_X402_RPC_URLS = "{not-valid-json";
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: evmPaymentRequired }),
+    ).rejects.toThrow("Invalid CDP_X402_RPC_URLS");
+  });
 });
 
 describe("signEvmSmartAccountX402Payment", () => {
   it("creates an EVM signer from the smart account using fromCdpSmartWallet", async () => {
     const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
-    await signEvmSmartAccountX402Payment(account, { paymentRequired });
+    await signEvmSmartAccountX402Payment(account, { paymentRequired: evmPaymentRequired });
     expect(fromCdpSmartWallet).toHaveBeenCalledWith(account);
   });
 
   it("returns the payment payload from x402Client", async () => {
     const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
-    const result = await signEvmSmartAccountX402Payment(account, { paymentRequired });
+    const result = await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: evmPaymentRequired,
+    });
     expect(result).toBe(mockPayload);
+  });
+
+  it("selects the first EVM-compatible requirement when acceptedIndex is omitted", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmSmartAccountX402Payment(account, { paymentRequired: mixedPaymentRequired });
+
+    expect(mockCreatePaymentPayload).toHaveBeenLastCalledWith({
+      ...mixedPaymentRequired,
+      accepts: [mixedPaymentRequired.accepts[1]],
+    });
   });
 });
 
@@ -160,7 +253,7 @@ describe("signSolanaX402Payment", () => {
       address: "SolanaAddress",
       signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
     };
-    await signSolanaX402Payment(account, { paymentRequired });
+    await signSolanaX402Payment(account, { paymentRequired: solanaPaymentRequired });
     expect(cdpSolanaAccountToSvmSigner).toHaveBeenCalledWith(account);
   });
 
@@ -169,7 +262,7 @@ describe("signSolanaX402Payment", () => {
       address: "SolanaAddress",
       signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
     };
-    await signSolanaX402Payment(account, { paymentRequired });
+    await signSolanaX402Payment(account, { paymentRequired: solanaPaymentRequired });
     expect(registerExactSvmScheme).toHaveBeenCalled();
   });
 
@@ -178,7 +271,20 @@ describe("signSolanaX402Payment", () => {
       address: "SolanaAddress",
       signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
     };
-    const result = await signSolanaX402Payment(account, { paymentRequired });
+    const result = await signSolanaX402Payment(account, { paymentRequired: solanaPaymentRequired });
     expect(result).toBe(mockPayload);
+  });
+
+  it("selects the first Solana-compatible requirement when acceptedIndex is omitted", async () => {
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+    await signSolanaX402Payment(account, { paymentRequired: mixedPaymentRequiredEvmFirst });
+
+    expect(mockCreatePaymentPayload).toHaveBeenLastCalledWith({
+      ...mixedPaymentRequiredEvmFirst,
+      accepts: [mixedPaymentRequiredEvmFirst.accepts[1]],
+    });
   });
 });

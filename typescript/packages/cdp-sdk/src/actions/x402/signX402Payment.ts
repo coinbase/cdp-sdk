@@ -32,22 +32,99 @@ export interface SignX402PaymentOptions {
   /** The x402 payment requirements returned by a resource server. */
   paymentRequired: PaymentRequired;
   /**
-   * Optional index into `paymentRequired.accepts` selecting which requirements
-   * to sign. Defaults to `0` (the first entry).
+   * Optional index into `paymentRequired.accepts` selecting which requirement
+   * to sign. When omitted, signing uses the first network-compatible entry for
+   * the account type (EVM or Solana).
    */
   acceptedIndex?: number;
 }
 
+type RpcUrlsByCaip2 = Record<string, { rpcUrl: string }>;
+type PaymentRequirementMatcher = (accept: PaymentRequired["accepts"][number]) => boolean;
+
 /**
- * Converts CDP_EVM_RPC_URLS (CAIP-2 keys) to the numeric-chain-ID map that UptoEvmScheme expects.
+ * Parses JSON from CDP_X402_RPC_URLS and converts it into CAIP-2 keyed RPC config.
  *
+ * Supports either of these value formats:
+ * - { "eip155:8453": "https://..." }
+ * - { "eip155:8453": { "rpcUrl": "https://..." } }
+ *
+ * @returns Parsed CAIP-2 keyed EVM/Solana RPC URL overrides.
+ */
+function parseRpcUrlsFromEnv(): RpcUrlsByCaip2 {
+  const raw = process.env.CDP_X402_RPC_URLS;
+  if (!raw) return {};
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error(
+      "Invalid CDP_X402_RPC_URLS: expected JSON object mapping CAIP-2 network IDs to RPC URL strings.",
+    );
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(
+      "Invalid CDP_X402_RPC_URLS: expected JSON object mapping CAIP-2 network IDs to RPC URL strings.",
+    );
+  }
+
+  const rpcUrlsByCaip2: RpcUrlsByCaip2 = {};
+  for (const [network, value] of Object.entries(parsed)) {
+    if (typeof value === "string") {
+      rpcUrlsByCaip2[network] = { rpcUrl: value };
+      continue;
+    }
+
+    if (value && typeof value === "object" && "rpcUrl" in value) {
+      const rpcUrl = (value as { rpcUrl?: unknown }).rpcUrl;
+      if (typeof rpcUrl === "string") {
+        rpcUrlsByCaip2[network] = { rpcUrl };
+        continue;
+      }
+    }
+
+    throw new Error(
+      `Invalid CDP_X402_RPC_URLS entry for "${network}": expected string URL or { rpcUrl: string }.`,
+    );
+  }
+
+  return rpcUrlsByCaip2;
+}
+
+/**
+ * Resolves the final CAIP-2 keyed EVM RPC configuration used for x402 signing.
+ *
+ * Defaults come from CDP_EVM_RPC_URLS, with CDP_X402_RPC_URLS env values taking precedence.
+ *
+ * @returns CAIP-2 keyed RPC configuration map.
+ */
+function resolveEvmRpcUrlsByCaip2(): RpcUrlsByCaip2 {
+  return {
+    ...CDP_EVM_RPC_URLS,
+    ...parseRpcUrlsFromEnv(),
+  };
+}
+
+/**
+ * Converts CAIP-2 keyed RPC config to the numeric-chain-ID map expected by
+ * Exact/Upto EVM schemes.
+ *
+ * @param rpcUrlsByCaip2 - CAIP-2 keyed RPC configuration map.
  * @returns Record of numeric EIP-155 chain IDs to RPC URL objects.
  */
-function buildUptoRpcUrls(): Record<number, { rpcUrl: string }> {
+function buildEvmRpcUrlsByChainId(
+  rpcUrlsByCaip2: RpcUrlsByCaip2,
+): Record<number, { rpcUrl: string }> {
   const result: Record<number, { rpcUrl: string }> = {};
-  for (const [caip2, cfg] of Object.entries(CDP_EVM_RPC_URLS)) {
+  for (const [caip2, cfg] of Object.entries(rpcUrlsByCaip2)) {
     const [namespace, chainId] = caip2.split(":");
-    if (namespace === "eip155" && chainId) result[Number(chainId)] = cfg;
+    if (namespace !== "eip155" || !chainId) continue;
+    const numericChainId = Number(chainId);
+    if (!Number.isNaN(numericChainId)) {
+      result[numericChainId] = cfg;
+    }
   }
   return result;
 }
@@ -62,12 +139,32 @@ function buildUptoRpcUrls(): Record<number, { rpcUrl: string }> {
  *
  * @param paymentRequired - Original payment requirements from a resource server.
  * @param acceptedIndex - Index into the original `paymentRequired.accepts`.
+ * @param options - Optional compatibility matcher used when no acceptedIndex is provided.
+ * @param options.matcher - Determines whether a payment requirement is compatible with the account type.
+ * @param options.compatibilityDescription - Human-readable compatibility label for error messages.
  * @returns A PaymentRequired with exactly one accepted requirement.
  */
 function selectAcceptedPaymentRequired(
   paymentRequired: PaymentRequired,
   acceptedIndex: number | undefined,
+  options?: {
+    matcher?: PaymentRequirementMatcher;
+    compatibilityDescription?: string;
+  },
 ): PaymentRequired {
+  if (acceptedIndex === undefined && options?.matcher) {
+    const selected = paymentRequired.accepts.find(options.matcher);
+    if (!selected) {
+      throw new Error(
+        `No ${options.compatibilityDescription ?? "compatible"} payment requirement found in paymentRequired.accepts.`,
+      );
+    }
+    return {
+      ...paymentRequired,
+      accepts: [selected],
+    };
+  }
+
   const idx = acceptedIndex ?? 0;
   const selected = paymentRequired.accepts[idx];
   if (!selected) {
@@ -96,14 +193,19 @@ export async function signEvmX402Payment(
   account: CdpEvmAccount,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
+  const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(resolveEvmRpcUrlsByCaip2());
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
+    {
+      matcher: accept => accept.network.startsWith("eip155:"),
+      compatibilityDescription: "EVM",
+    },
   );
   const signer = fromCdpEvmAccount(account);
   const client = new x402Client();
-  registerExactEvmScheme(client, { signer });
-  client.register("eip155:*" as Network, new UptoEvmScheme(signer, buildUptoRpcUrls()));
+  registerExactEvmScheme(client, { signer, schemeOptions: rpcUrlsByChainId });
+  client.register("eip155:*" as Network, new UptoEvmScheme(signer, rpcUrlsByChainId));
   return client.createPaymentPayload(selectedPaymentRequired);
 }
 
@@ -121,14 +223,19 @@ export async function signEvmSmartAccountX402Payment(
   account: CdpSmartAccount,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
+  const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(resolveEvmRpcUrlsByCaip2());
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
+    {
+      matcher: accept => accept.network.startsWith("eip155:"),
+      compatibilityDescription: "EVM",
+    },
   );
   const signer = fromCdpSmartWallet(account);
   const client = new x402Client();
-  registerExactEvmScheme(client, { signer });
-  client.register("eip155:*" as Network, new UptoEvmScheme(signer, buildUptoRpcUrls()));
+  registerExactEvmScheme(client, { signer, schemeOptions: rpcUrlsByChainId });
+  client.register("eip155:*" as Network, new UptoEvmScheme(signer, rpcUrlsByChainId));
   return client.createPaymentPayload(selectedPaymentRequired);
 }
 
@@ -146,6 +253,10 @@ export async function signSolanaX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
+    {
+      matcher: accept => accept.network.startsWith("solana:"),
+      compatibilityDescription: "Solana",
+    },
   );
   const signer = cdpSolanaAccountToSvmSigner(account);
   const client = new x402Client();
