@@ -74,6 +74,31 @@ const paymentRequired: PaymentRequired = {
   ],
 };
 
+const mixedPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      asset: "11111111111111111111111111111111",
+      amount: "1000",
+      payTo: "11111111111111111111111111111111",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+    {
+      scheme: "exact",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
 describe("signEvmX402Payment", () => {
   it("creates an EVM signer from the account", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
@@ -94,12 +119,24 @@ describe("signEvmX402Payment", () => {
     expect(mockCreatePaymentPayload).toHaveBeenCalledWith(paymentRequired);
   });
 
-  it("forwards acceptedIndex to the payment requirements selector", async () => {
+  it("constructs an x402Client instance", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
     const { x402Client } = await import("@x402/core/client");
     await signEvmX402Payment(account, { paymentRequired, acceptedIndex: 0 });
-    // Selector is passed to the x402Client constructor; verify it was called with an index
     expect(x402Client).toHaveBeenCalled();
+  });
+
+  it("selects acceptedIndex from original paymentRequired.accepts before x402 filtering", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, {
+      paymentRequired: mixedPaymentRequired,
+      acceptedIndex: 1,
+    });
+
+    expect(mockCreatePaymentPayload).toHaveBeenLastCalledWith({
+      ...mixedPaymentRequired,
+      accepts: [mixedPaymentRequired.accepts[1]],
+    });
   });
 });
 

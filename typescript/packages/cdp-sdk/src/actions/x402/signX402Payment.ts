@@ -23,12 +23,7 @@ import type {
   CdpSmartAccount,
   CdpSolanaAccount,
 } from "../../x402/account-signers.js";
-import type {
-  Network,
-  PaymentPayload,
-  PaymentRequired,
-  PaymentRequirements,
-} from "@x402/core/types";
+import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
 
 /**
  * Options for signing an x402 payment payload.
@@ -58,24 +53,32 @@ function buildUptoRpcUrls(): Record<number, { rpcUrl: string }> {
 }
 
 /**
- * Returns an x402Client payment-requirements selector that picks by index.
+ * Selects a payment requirement by original `paymentRequired.accepts` index and
+ * returns a normalized PaymentRequired containing only that entry.
  *
- * @param acceptedIndex - Index into the `accepts` array. Defaults to `0`.
- * @returns A selector function for `x402Client`.
+ * This preserves the documented semantics of `acceptedIndex` even though
+ * `x402Client` internally filters accepts by registered scheme/network before
+ * invoking selectors.
+ *
+ * @param paymentRequired - Original payment requirements from a resource server.
+ * @param acceptedIndex - Index into the original `paymentRequired.accepts`.
+ * @returns A PaymentRequired with exactly one accepted requirement.
  */
-function makeSelector(
+function selectAcceptedPaymentRequired(
+  paymentRequired: PaymentRequired,
   acceptedIndex: number | undefined,
-): (x402Version: number, accepts: PaymentRequirements[]) => PaymentRequirements {
-  return (_version, accepts) => {
-    const idx = acceptedIndex ?? 0;
-    const req = accepts[idx];
-    if (!req) {
-      throw new Error(
-        `acceptedIndex ${idx} is out of range — paymentRequired.accepts has ` +
-          `${accepts.length} entr${accepts.length === 1 ? "y" : "ies"}.`,
-      );
-    }
-    return req;
+): PaymentRequired {
+  const idx = acceptedIndex ?? 0;
+  const selected = paymentRequired.accepts[idx];
+  if (!selected) {
+    throw new Error(
+      `acceptedIndex ${idx} is out of range — paymentRequired.accepts has ` +
+        `${paymentRequired.accepts.length} entr${paymentRequired.accepts.length === 1 ? "y" : "ies"}.`,
+    );
+  }
+  return {
+    ...paymentRequired,
+    accepts: [selected],
   };
 }
 
@@ -93,11 +96,15 @@ export async function signEvmX402Payment(
   account: CdpEvmAccount,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
+  const selectedPaymentRequired = selectAcceptedPaymentRequired(
+    options.paymentRequired,
+    options.acceptedIndex,
+  );
   const signer = fromCdpEvmAccount(account);
-  const client = new x402Client(makeSelector(options.acceptedIndex));
+  const client = new x402Client();
   registerExactEvmScheme(client, { signer });
   client.register("eip155:*" as Network, new UptoEvmScheme(signer, buildUptoRpcUrls()));
-  return client.createPaymentPayload(options.paymentRequired);
+  return client.createPaymentPayload(selectedPaymentRequired);
 }
 
 /**
@@ -114,11 +121,15 @@ export async function signEvmSmartAccountX402Payment(
   account: CdpSmartAccount,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
+  const selectedPaymentRequired = selectAcceptedPaymentRequired(
+    options.paymentRequired,
+    options.acceptedIndex,
+  );
   const signer = fromCdpSmartWallet(account);
-  const client = new x402Client(makeSelector(options.acceptedIndex));
+  const client = new x402Client();
   registerExactEvmScheme(client, { signer });
   client.register("eip155:*" as Network, new UptoEvmScheme(signer, buildUptoRpcUrls()));
-  return client.createPaymentPayload(options.paymentRequired);
+  return client.createPaymentPayload(selectedPaymentRequired);
 }
 
 /**
@@ -132,8 +143,12 @@ export async function signSolanaX402Payment(
   account: CdpSolanaAccount,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
+  const selectedPaymentRequired = selectAcceptedPaymentRequired(
+    options.paymentRequired,
+    options.acceptedIndex,
+  );
   const signer = cdpSolanaAccountToSvmSigner(account);
-  const client = new x402Client(makeSelector(options.acceptedIndex));
+  const client = new x402Client();
   registerExactSvmScheme(client, { signer });
-  return client.createPaymentPayload(options.paymentRequired);
+  return client.createPaymentPayload(selectedPaymentRequired);
 }
