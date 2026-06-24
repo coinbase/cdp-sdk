@@ -35,6 +35,11 @@
   - [Solana Sending](#solana-sending)
 - [Webhooks](#webhooks)
   - [Create Subscription](#create-subscription)
+- [x402 Payment Protocol](#x402-payment-protocol)
+  - [CDP Dev: Pay for an x402-protected API](#cdp-dev-pay-for-an-x402-protected-api)
+  - [x402 Dev: Swap a self-managed signer for a CDP-managed wallet](#x402-dev-swap-a-self-managed-signer-for-a-cdp-managed-wallet)
+  - [x402 Dev: Source a CDP signer inside an existing x402Client](#x402-dev-source-a-cdp-signer-inside-an-existing-x402client)
+  - [Eager wallet initialization with createCdpX402Client](#eager-wallet-initialization-with-createcdpx402client)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1625,6 +1630,144 @@ const result = await endUser.sendSolanaAsset({
   network: "solana-devnet",
 });
 console.log(result.transactionSignature);
+```
+
+## x402 Payment Protocol
+
+The x402 client lets you pay for x402-protected APIs using CDP-managed wallets. Import from `@coinbase/cdp-sdk/x402`.
+
+**Prerequisites:** install the x402 peer dependency.
+
+```bash
+npm install @x402/fetch
+```
+
+### CDP Dev: Pay for an x402-protected API
+
+`CdpX402Client` extends `x402Client` and initializes lazily — CDP accounts are provisioned on the first payment call, keeping the constructor synchronous.
+
+```typescript
+// Set: CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
+
+const client = new CdpX402Client();
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+const response = await fetchWithPayment("https://api.example.com/paid-endpoint");
+```
+
+**Configuration options:**
+
+| Option | Environment variable | Description |
+| --- | --- | --- |
+| `apiKeyId` | `CDP_API_KEY_ID` | CDP API key ID |
+| `apiKeySecret` | `CDP_API_KEY_SECRET` | CDP API key secret |
+| `walletSecret` | `CDP_WALLET_SECRET` | CDP wallet secret |
+| `rpcUrls` | `CDP_X402_RPC_URLS` (JSON) | Custom RPC endpoints keyed by CAIP-2 network ID |
+| `disablePreflightBalanceCheck` | `CDP_DISABLE_PREFLIGHT_BALANCE_CHECK=true` | Skip pre-payment balance check |
+
+**Smart Contract Wallet:**
+
+```typescript
+const client = new CdpX402Client({
+  walletConfig: {
+    type: "smart",
+    accountName: "my-scw",
+    ownerAccountName: "my-owner",
+  },
+});
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+```
+
+**Custom RPC endpoints:**
+
+```typescript
+const client = new CdpX402Client({
+  rpcUrls: {
+    "eip155:8453": { rpcUrl: "https://base-mainnet.g.alchemy.com/v2/YOUR_KEY" },
+  },
+});
+```
+
+Or via environment variable:
+
+```bash
+CDP_X402_RPC_URLS='{"eip155:8453":"https://base-mainnet.g.alchemy.com/v2/KEY"}'
+```
+
+### x402 Dev: Swap a self-managed signer for a CDP-managed wallet
+
+`CdpX402Client` extends `x402Client` — it's a drop-in replacement. Existing `wrapFetchWithPayment` calls from `@x402/fetch` work unchanged.
+
+```typescript
+// Before — self-managed key
+import { x402Client } from "@x402/core/client";
+import { registerExactEvmScheme } from "@x402/evm/exact/client";
+import { wrapFetchWithPayment } from "@x402/fetch";
+
+const client = new x402Client();
+registerExactEvmScheme(client, { signer: yourOwnSigner });
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+
+// After — CDP-managed wallet (same wrapFetchWithPayment call, unchanged)
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
+
+const client = new CdpX402Client(); // extends x402Client, auto-provisions wallet
+const fetchWithPayment = wrapFetchWithPayment(fetch, client); // unchanged
+```
+
+### x402 Dev: Source a CDP signer inside an existing x402Client
+
+When you want to keep your own `x402Client` instance and only source the signer from CDP:
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { fromCdpEvmAccount } from "@coinbase/cdp-sdk/x402";
+import { x402Client } from "@x402/core/client";
+import { registerExactEvmScheme } from "@x402/evm/exact/client";
+
+const cdp = new CdpClient();
+const account = await cdp.evm.getOrCreateAccount({ name: "my-signer" });
+const signer = fromCdpEvmAccount(account); // bridges EvmServerAccount → x402 ClientEvmSigner
+
+const client = new x402Client();
+registerExactEvmScheme(client, { signer });
+// ... rest of existing setup unchanged
+```
+
+### Eager wallet initialization with createCdpX402Client
+
+Use `createCdpX402Client()` when you need the wallet address before making any payments (e.g. to fund the wallet first):
+
+```typescript
+import { createCdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
+
+const { client, evmAddress, svmAddress } = await createCdpX402Client();
+console.log("Fund this address before making payments:", evmAddress);
+
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+```
+
+**Pre-flight balance check:**
+
+By default, `CdpX402Client` queries the CDP balance API before each payment and throws `InsufficientFundsError` when the wallet lacks sufficient funds:
+
+```typescript
+import { InsufficientFundsError } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
+
+const client = new CdpX402Client();
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+
+try {
+  const response = await fetchWithPayment("https://api.example.com/paid");
+} catch (err) {
+  if (err instanceof InsufficientFundsError) {
+    console.log(`Need ${err.required} but have ${err.available} of ${err.asset}`);
+  }
+}
 ```
 
 ## Webhooks

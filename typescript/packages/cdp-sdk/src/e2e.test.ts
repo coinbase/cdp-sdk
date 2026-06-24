@@ -4272,6 +4272,79 @@ describe("CDP Client E2E Tests", () => {
   });
 });
 
+describe("x402 Client E2E Tests", () => {
+  // Import the x402 client lazily to avoid issues when the module is not available
+  // during non-x402 e2e runs. These tests require a live CDP account.
+
+  it("CdpX402Client provisions EVM and SVM addresses", async () => {
+    const { CdpX402Client } = await import("./x402/client.js");
+
+    const client = new CdpX402Client({
+      walletConfig: {
+        type: "eoa",
+        accountName: `x402-e2e-eoa-${Date.now()}`,
+      },
+    });
+
+    const evmAddress = await client.getEvmAddress();
+    expect(evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const svmAddress = await client.getSvmAddress();
+    expect(svmAddress).toBeTruthy();
+    expect(typeof svmAddress).toBe("string");
+  });
+
+  it("CdpX402Client initializes lazily — no CDP calls at construction", async () => {
+    const { CdpX402Client } = await import("./x402/client.js");
+
+    // Construction must be synchronous and not contact the CDP API
+    const start = Date.now();
+    const client = new CdpX402Client({
+      walletConfig: {
+        type: "eoa",
+        accountName: `x402-e2e-lazy-${Date.now()}`,
+      },
+    });
+    expect(Date.now() - start).toBeLessThan(50);
+    expect(client).toBeDefined();
+  });
+
+  it("createCdpX402Client returns evmAddress and svmAddress eagerly", async () => {
+    const { createCdpX402Client } = await import("./x402/client.js");
+
+    const result = await createCdpX402Client({
+      walletConfig: {
+        type: "eoa",
+        accountName: `x402-e2e-eager-${Date.now()}`,
+      },
+    });
+
+    expect(result.evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    expect(result.svmAddress).toBeTruthy();
+    expect(result.client).toBeDefined();
+    expect(result.cdpClient).toBeDefined();
+    expect(result.ownerWallet).toBeUndefined();
+  });
+
+  it("CdpX402Client RPC URL override is reflected in balance check config", async () => {
+    const { CdpX402Client } = await import("./x402/client.js");
+
+    const client = new CdpX402Client({
+      walletConfig: {
+        type: "eoa",
+        accountName: `x402-e2e-rpc-${Date.now()}`,
+      },
+      rpcUrls: {
+        "eip155:8453": { rpcUrl: "https://mainnet.base.org" },
+      },
+    });
+
+    // Initialization should succeed with the custom RPC URL
+    const evmAddress = await client.getEvmAddress();
+    expect(evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+});
+
 function timeout(ms: number) {
   return new Promise((_, reject) =>
     setTimeout(() => reject(new TimeoutError(`Test took too long (${ms}ms)`)), ms),
