@@ -1,9 +1,5 @@
 /*
  * Pure CDP-account-to-x402-signer adapters.
- *
- * Intentionally free of any CdpClient import so this module can be safely
- * imported from deep inside the account factory chain without creating a
- * circular dependency through client/cdp.ts.
  */
 import { address as toSolanaAddress, getTransactionEncoder } from "@solana/kit";
 import { toClientEvmSigner } from "@x402/evm";
