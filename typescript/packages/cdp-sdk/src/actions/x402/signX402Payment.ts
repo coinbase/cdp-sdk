@@ -1,15 +1,10 @@
 /*
  * Account-level x402 payment signing.
- *
- * Signs x402 payment payloads locally using the x402 SDK — no CDP signing
- * API endpoint required. Importable from deep inside the account factory chain
- * without creating a circular dependency because this module imports only from
- * x402/account-signers.ts (no CdpClient).
  */
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { registerExactSvmScheme } from "@x402/svm/exact/client";
+import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
 import { CDP_EVM_RPC_URLS } from "../../x402/constants.js";
@@ -33,11 +28,36 @@ export interface SignX402PaymentOptions {
 type RpcUrlsByCaip2 = Record<string, { rpcUrl: string }>;
 
 /**
+ * Describes which networks and schemes a given CDP account type can sign for.
+ * Used to produce actionable errors when an `acceptedIndex` selects a payment
+ * requirement the account cannot fulfill.
+ */
+interface SigningCapability {
+  /** CAIP-2 namespace this account type can sign for (e.g. `"eip155"`). */
+  networkNamespace: string;
+  /** x402 schemes this account type can produce payloads for. */
+  supportedSchemes: readonly string[];
+  /** Human-readable account type label used in error messages. */
+  label: string;
+}
+
+const EVM_SIGNING_CAPABILITY: SigningCapability = {
+  networkNamespace: "eip155",
+  supportedSchemes: ["exact", "upto"],
+  label: "EVM",
+};
+
+const SVM_SIGNING_CAPABILITY: SigningCapability = {
+  networkNamespace: "solana",
+  supportedSchemes: ["exact"],
+  label: "Solana",
+};
+
+/**
  * Parses JSON from CDP_X402_RPC_URLS and converts it into CAIP-2 keyed RPC config.
  *
- * Supports either of these value formats:
+ * Supports this value format:
  * - { "eip155:8453": "https://..." }
- * - { "eip155:8453": { "rpcUrl": "https://..." } }
  *
  * @returns Parsed CAIP-2 keyed EVM/Solana RPC URL overrides.
  */
@@ -67,17 +87,7 @@ function parseRpcUrlsFromEnv(): RpcUrlsByCaip2 {
       continue;
     }
 
-    if (value && typeof value === "object" && "rpcUrl" in value) {
-      const rpcUrl = (value as { rpcUrl?: unknown }).rpcUrl;
-      if (typeof rpcUrl === "string") {
-        rpcUrlsByCaip2[network] = { rpcUrl };
-        continue;
-      }
-    }
-
-    throw new Error(
-      `Invalid CDP_X402_RPC_URLS entry for "${network}": expected string URL or { rpcUrl: string }.`,
-    );
+    throw new Error(`Invalid CDP_X402_RPC_URLS entry for "${network}": expected string URL.`);
   }
 
   return rpcUrlsByCaip2;
@@ -129,11 +139,13 @@ function buildEvmRpcUrlsByChainId(
  *
  * @param paymentRequired - Original payment requirements from a resource server.
  * @param acceptedIndex - Index into the original `paymentRequired.accepts`.
+ * @param capability - The signing networks/schemes the account type supports.
  * @returns A PaymentRequired with exactly one accepted requirement.
  */
 function selectAcceptedPaymentRequired(
   paymentRequired: PaymentRequired,
   acceptedIndex: number,
+  capability: SigningCapability,
 ): PaymentRequired {
   const selected = paymentRequired.accepts[acceptedIndex];
   if (!selected) {
@@ -142,10 +154,38 @@ function selectAcceptedPaymentRequired(
         `${paymentRequired.accepts.length} entr${paymentRequired.accepts.length === 1 ? "y" : "ies"}.`,
     );
   }
+  if (!selected.network.startsWith(`${capability.networkNamespace}:`)) {
+    throw new Error(
+      `acceptedIndex ${acceptedIndex} targets network "${selected.network}", which a ` +
+        `${capability.label} account cannot sign. Choose an index whose network uses the ` +
+        `"${capability.networkNamespace}:" namespace.`,
+    );
+  }
+  if (!capability.supportedSchemes.includes(selected.scheme)) {
+    throw new Error(
+      `acceptedIndex ${acceptedIndex} uses the "${selected.scheme}" scheme, which is not ` +
+        `supported for ${capability.label} accounts. Supported schemes: ` +
+        `${capability.supportedSchemes.join(", ")}.`,
+    );
+  }
   return {
     ...paymentRequired,
     accepts: [selected],
   };
+}
+
+/**
+ * Resolves a per-network RPC URL override for SVM signing from
+ * `CDP_X402_RPC_URLS`, keyed by the selected requirement's CAIP-2 network.
+ *
+ * The SVM exact scheme provides its own public RPC defaults, so only an
+ * explicit override needs to be wired through.
+ *
+ * @param network - CAIP-2 network identifier of the selected requirement.
+ * @returns The override RPC URL, or undefined when none is configured.
+ */
+function resolveSvmRpcUrlOverride(network: string): string | undefined {
+  return parseRpcUrlsFromEnv()[network]?.rpcUrl;
 }
 
 /**
@@ -166,6 +206,7 @@ export async function signEvmX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
+    EVM_SIGNING_CAPABILITY,
   );
   const client = new x402Client();
   registerExactEvmScheme(client, { signer: account, schemeOptions: rpcUrlsByChainId });
@@ -191,6 +232,7 @@ export async function signEvmSmartAccountX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
+    EVM_SIGNING_CAPABILITY,
   );
   const signer = fromCdpSmartWallet(account);
   const client = new x402Client();
@@ -213,9 +255,21 @@ export async function signSolanaX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
+    SVM_SIGNING_CAPABILITY,
   );
+  const [selected] = selectedPaymentRequired.accepts;
   const signer = cdpSolanaAccountToSvmSigner(account);
   const client = new x402Client();
-  registerExactSvmScheme(client, { signer });
+  const rpcUrl = resolveSvmRpcUrlOverride(selected.network);
+  if (rpcUrl) {
+    /*
+     * registerExactSvmScheme ignores RPC overrides, so register the selected
+     * network directly with the override. An exact-network registration takes
+     * precedence over the "solana:*" wildcard during scheme selection.
+     */
+    client.register(selected.network as Network, new ExactSvmScheme(signer, { rpcUrl }));
+  } else {
+    registerExactSvmScheme(client, { signer });
+  }
   return client.createPaymentPayload(selectedPaymentRequired);
 }

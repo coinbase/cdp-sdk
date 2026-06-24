@@ -36,6 +36,7 @@ vi.mock("@x402/evm/upto/client", () => ({
 
 vi.mock("@x402/svm/exact/client", () => ({
   registerExactSvmScheme: vi.fn(),
+  ExactSvmScheme: vi.fn().mockImplementation(() => ({})),
 }));
 
 vi.mock("../../x402/account-signers.js", () => ({
@@ -52,7 +53,7 @@ import {
 import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { registerExactSvmScheme } from "@x402/svm/exact/client";
+import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 const evmPaymentRequired: PaymentRequired = {
   x402Version: 2,
@@ -212,6 +213,17 @@ describe("signEvmX402Payment", () => {
       signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 }),
     ).rejects.toThrow("Invalid CDP_X402_RPC_URLS");
   });
+
+  it("throws when CDP_X402_RPC_URLS uses object values instead of strings", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({
+      "eip155:84532": { rpcUrl: "https://custom.base-sepolia.example" },
+    });
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow('Invalid CDP_X402_RPC_URLS entry for "eip155:84532": expected string URL.');
+  });
 });
 
 describe("signEvmSmartAccountX402Payment", () => {
@@ -269,5 +281,47 @@ describe("signSolanaX402Payment", () => {
       acceptedIndex: 0,
     });
     expect(result).toBe(mockPayload);
+  });
+
+  it("applies a CDP_X402_RPC_URLS override for the selected Solana network", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({
+      "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "https://custom.solana.example",
+    });
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+
+    await signSolanaX402Payment(account, {
+      paymentRequired: solanaPaymentRequired,
+      acceptedIndex: 0,
+    });
+
+    expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), {
+      rpcUrl: "https://custom.solana.example",
+    });
+    expect(registerExactSvmScheme).not.toHaveBeenCalled();
+  });
+
+  it("rejects an acceptedIndex that targets a non-Solana network", async () => {
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+
+    await expect(
+      signSolanaX402Payment(account, { paymentRequired: mixedPaymentRequired, acceptedIndex: 1 }),
+    ).rejects.toThrow('targets network "eip155:84532", which a Solana account cannot sign');
+  });
+});
+
+describe("signEvmX402Payment scheme/network validation", () => {
+  it("rejects an acceptedIndex that targets a non-EVM network", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: mixedPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow(
+      'targets network "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", which a EVM account cannot sign',
+    );
   });
 });
