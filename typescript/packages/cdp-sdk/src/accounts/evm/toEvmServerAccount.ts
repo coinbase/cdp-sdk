@@ -42,7 +42,6 @@ import type {
 } from "../../actions/evm/swap/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, EIP712Domain, Hash, Hex } from "../../types/misc.js";
-import type { CdpEvmAccount } from "../../x402/account-signers.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -157,7 +156,7 @@ export function toEvmServerAccount(
         accountType: "evm_server",
       });
       try {
-        return await signEvmX402Payment(account as unknown as CdpEvmAccount, {
+        return await signEvmX402Payment(account, {
           paymentRequired,
           acceptedIndex,
         });

@@ -39,7 +39,6 @@ vi.mock("@x402/svm/exact/client", () => ({
 }));
 
 vi.mock("../../x402/account-signers.js", () => ({
-  fromCdpEvmAccount: vi.fn().mockReturnValue({ address: "0xmock", signTypedData: vi.fn() }),
   fromCdpSmartWallet: vi.fn().mockReturnValue({ address: "0xmock", signTypedData: vi.fn() }),
   cdpSolanaAccountToSvmSigner: vi.fn().mockReturnValue({ address: "SolMock" }),
 }));
@@ -50,11 +49,7 @@ import {
   signSolanaX402Payment,
 } from "./signX402Payment.js";
 
-import {
-  fromCdpEvmAccount,
-  fromCdpSmartWallet,
-  cdpSolanaAccountToSvmSigner,
-} from "../../x402/account-signers.js";
+import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { registerExactSvmScheme } from "@x402/svm/exact/client";
@@ -132,10 +127,14 @@ afterAll(() => {
 });
 
 describe("signEvmX402Payment", () => {
-  it("creates an EVM signer from the account", async () => {
+  it("uses the EVM account directly as the signer", async () => {
     const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
     await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 });
-    expect(fromCdpEvmAccount).toHaveBeenCalledWith(account);
+    expect(registerExactEvmScheme).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ signer: account }),
+    );
+    expect(UptoEvmScheme).toHaveBeenCalledWith(account, expect.any(Object));
   });
 
   it("registers the exact EVM scheme", async () => {

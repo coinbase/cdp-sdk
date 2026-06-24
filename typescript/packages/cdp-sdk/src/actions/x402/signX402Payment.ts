@@ -11,19 +11,12 @@ import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { registerExactSvmScheme } from "@x402/svm/exact/client";
 
-import {
-  fromCdpEvmAccount,
-  fromCdpSmartWallet,
-  cdpSolanaAccountToSvmSigner,
-} from "../../x402/account-signers.js";
+import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
 import { CDP_EVM_RPC_URLS } from "../../x402/constants.js";
 
-import type {
-  CdpEvmAccount,
-  CdpSmartAccount,
-  CdpSolanaAccount,
-} from "../../x402/account-signers.js";
+import type { CdpSmartAccount, CdpSolanaAccount } from "../../x402/account-signers.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
+import type { ClientEvmSigner } from "@x402/evm";
 
 /**
  * Options for signing an x402 payment payload.
@@ -166,7 +159,7 @@ function selectAcceptedPaymentRequired(
  * @returns The signed x402 payment payload.
  */
 export async function signEvmX402Payment(
-  account: CdpEvmAccount,
+  account: ClientEvmSigner,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
   const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(resolveEvmRpcUrlsByCaip2());
@@ -174,10 +167,9 @@ export async function signEvmX402Payment(
     options.paymentRequired,
     options.acceptedIndex,
   );
-  const signer = fromCdpEvmAccount(account);
   const client = new x402Client();
-  registerExactEvmScheme(client, { signer, schemeOptions: rpcUrlsByChainId });
-  client.register("eip155:*" as Network, new UptoEvmScheme(signer, rpcUrlsByChainId));
+  registerExactEvmScheme(client, { signer: account, schemeOptions: rpcUrlsByChainId });
+  client.register("eip155:*" as Network, new UptoEvmScheme(account, rpcUrlsByChainId));
   return client.createPaymentPayload(selectedPaymentRequired);
 }
 

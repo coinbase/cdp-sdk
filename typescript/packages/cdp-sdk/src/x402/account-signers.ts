@@ -8,47 +8,12 @@
 import { address as toSolanaAddress, getTransactionEncoder } from "@solana/kit";
 import { toClientEvmSigner } from "@x402/evm";
 
+import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
+
 import type { TransactionSigner } from "@solana/kit";
 import type { ClientEvmSigner } from "@x402/evm";
 
-// ─── EVM Server Account Adapter ───────────────────────────────────────────────
-
-/**
- * Minimal interface for a CDP EVM account (EOA).
- * Matches the relevant methods from CdpClient's EvmServerAccount.
- */
-export interface CdpEvmAccount {
-  address: `0x${string}`;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signTypedData(params: any): Promise<`0x${string}`>;
-}
-
-/**
- * Converts a CDP EVM server account (EOA) into an x402-compatible signer.
- *
- * @param account - A CDP EVM account from `cdpClient.evm.getOrCreateAccount()`
- * @returns A `ClientEvmSigner` compatible with `@x402/evm`'s `registerExactEvmScheme`
- */
-export function fromCdpEvmAccount(account: CdpEvmAccount): ClientEvmSigner {
-  return toClientEvmSigner(account);
-}
-
 // ─── Smart Contract Wallet Adapter ────────────────────────────────────────────
-
-/** Maps EIP-155 chain IDs to CDP SDK network names for SCW typed-data signing. */
-const CHAIN_ID_TO_CDP_NETWORK: Record<number, string> = {
-  8453: "base",
-  84532: "base-sepolia",
-  42161: "arbitrum",
-  10: "optimism",
-  7777777: "zora",
-  137: "polygon",
-  56: "bnb",
-  43114: "avalanche",
-  11155111: "ethereum-sepolia",
-  480: "world",
-  4801: "world-sepolia",
-};
 
 /**
  * Minimal interface for a CDP Smart Account (EvmSmartAccount).
