@@ -1635,15 +1635,15 @@ CDP accounts can sign x402 payment payloads directly. Direct signing is useful w
 
 ### CDP Dev: Sign an x402 payment payload directly
 
-Use `signX402Payment(paymentRequired, acceptedIndex)` on any CDP-managed EVM account, EVM smart account, or Solana account. `paymentRequired` is the x402 payment requirement object returned by a resource server. `acceptedIndex` selects which entry in `paymentRequired.accepts` to sign. Use `selectPaymentRequirements(paymentRequired)` to apply x402's default selection behavior and get the index.
+Use `signX402Payment(paymentRequired, acceptedIndex)` on any CDP-managed EVM account, EVM smart account, or Solana account. `paymentRequired` is the x402 payment requirement object returned by a resource server. `acceptedIndex` selects which entry in `paymentRequired.accepts` to sign.
 
 ```typescript
-import { CdpClient, selectPaymentRequirements } from "@coinbase/cdp-sdk";
+import { CdpClient } from "@coinbase/cdp-sdk";
 
 const cdp = new CdpClient();
 const account = await cdp.evm.getOrCreateAccount({ name: "agent" });
 
-const acceptedIndex = selectPaymentRequirements(paymentRequired);
+const acceptedIndex = 0;
 const payment = await account.signX402Payment(paymentRequired, acceptedIndex);
 
 // gRPC metadata example
@@ -1668,7 +1668,7 @@ const smartAccount = await cdp.evm.getOrCreateSmartAccount({
   owner,
 });
 
-const acceptedIndex = selectPaymentRequirements(paymentRequired);
+const acceptedIndex = 0;
 const payment = await smartAccount.signX402Payment(paymentRequired, acceptedIndex);
 ```
 
@@ -1676,7 +1676,7 @@ For Solana accounts, the same surface produces an exact SVM payment payload:
 
 ```typescript
 const solanaAccount = await cdp.solana.getOrCreateAccount({ name: "solana-agent" });
-const acceptedIndex = selectPaymentRequirements(paymentRequired);
+const acceptedIndex = 0;
 const payment = await solanaAccount.signX402Payment(paymentRequired, acceptedIndex);
 ```
 

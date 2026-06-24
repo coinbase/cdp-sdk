@@ -49,7 +49,6 @@ import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
-import { selectPaymentRequirements } from "./actions/x402/selectPaymentRequirements.js";
 import type { PaymentRequired } from "@x402/core/types";
 
 dotenv.config();
@@ -4303,8 +4302,7 @@ describe("x402 signing E2E Tests", () => {
       ],
     };
 
-    const acceptedIndex = selectPaymentRequirements(paymentRequired);
-    const payment = await account.signX402Payment(paymentRequired, acceptedIndex);
+    const payment = await account.signX402Payment(paymentRequired, 0);
 
     expect(payment.x402Version).toBe(2);
     expect(payment.accepted).toEqual(paymentRequired.accepts[0]);
