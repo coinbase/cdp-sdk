@@ -26,6 +26,7 @@ import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
+import { signEvmX402Payment } from "../../actions/x402/signX402Payment.js";
 import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
@@ -41,6 +42,7 @@ import type {
 } from "../../actions/evm/swap/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, EIP712Domain, Hash, Hex } from "../../types/misc.js";
+import type { CdpEvmAccount } from "../../x402/account-signers.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -146,6 +148,21 @@ export function toEvmServerAccount(
         return result.signature as Hex;
       } catch (error) {
         Analytics.trackError(error, "signTypedData");
+        throw error;
+      }
+    },
+    async signX402Payment(paymentRequired, acceptedIndex) {
+      Analytics.trackAction({
+        action: "sign_x402_payment",
+        accountType: "evm_server",
+      });
+      try {
+        return await signEvmX402Payment(account as unknown as CdpEvmAccount, {
+          paymentRequired,
+          acceptedIndex,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "signX402Payment");
         throw error;
       }
     },

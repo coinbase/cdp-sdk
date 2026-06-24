@@ -477,7 +477,7 @@ export interface ListServerAccountsOptions {
  */
 export interface ReadonlySmartAccount extends Omit<
   SmartAccount,
-  "owners" | keyof SmartAccountActions | "useNetwork"
+  "owners" | keyof SmartAccountActions | "useNetwork" | "signX402Payment"
 > {
   /** The owners of the smart account. */
   owners: Address[];

@@ -46,8 +46,10 @@ import type {
   TransferOptions,
 } from "../../actions/evm/transfer/types.js";
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
+import type { SignX402PaymentOptions } from "../../actions/x402/signX402Payment.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
 import type { Prettify } from "../../types/utils.js";
+import type { PaymentPayload } from "@x402/core/types";
 import type {
   SignableMessage,
   TransactionReceipt,
@@ -115,6 +117,17 @@ export type NetworkOrRpcUrl = KnownEvmNetworks | (string & {});
 export type EvmServerAccount = Prettify<
   EvmAccount &
     AccountActions & {
+      /**
+       * Signs an x402 payment payload for direct use with any transport.
+       *
+       * @param paymentRequired - The payment requirements returned by a resource server.
+       * @param acceptedIndex - Optional index into `paymentRequired.accepts`.
+       * @returns The signed x402 payment payload.
+       */
+      signX402Payment: (
+        paymentRequired: SignX402PaymentOptions["paymentRequired"],
+        acceptedIndex?: number,
+      ) => Promise<PaymentPayload>;
       /** Optional name for the server account. */
       name?: string;
       /** Indicates this is a server-managed account. */
@@ -150,6 +163,17 @@ export type EvmSmartAccountProperties = {
   type: "evm-smart";
   /** The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists. */
   policies: string[] | undefined;
+  /**
+   * Signs an x402 payment payload for direct use with any transport.
+   *
+   * @param paymentRequired - The payment requirements returned by a resource server.
+   * @param acceptedIndex - Optional index into `paymentRequired.accepts`.
+   * @returns The signed x402 payment payload.
+   */
+  signX402Payment: (
+    paymentRequired: SignX402PaymentOptions["paymentRequired"],
+    acceptedIndex?: number,
+  ) => Promise<PaymentPayload>;
   /**
    * A function that returns a network-scoped smart account.
    *

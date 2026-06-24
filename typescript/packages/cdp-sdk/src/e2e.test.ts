@@ -49,6 +49,7 @@ import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
+import type { PaymentRequired } from "@x402/core/types";
 
 dotenv.config();
 
@@ -4272,6 +4273,43 @@ describe("CDP Client E2E Tests", () => {
   });
 });
 
+describe("x402 signing E2E Tests", () => {
+  it("EVM account signs an x402 payment payload directly", async () => {
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const account = await cdp.evm.getOrCreateAccount({
+      name: `x402-direct-sign-${Date.now()}`,
+    });
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: {
+        url: "https://example.com/report",
+        description: "x402 direct signing e2e",
+        mimeType: "application/json",
+      },
+      accepts: [
+        {
+          scheme: "exact",
+          network: "eip155:84532",
+          asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          amount: "1000",
+          payTo: account.address,
+          maxTimeoutSeconds: 60,
+          // EIP-712 domain parameters for USDC on Base Sepolia (required by EIP-3009 signing)
+          extra: { name: "USD Coin", version: "2" },
+        },
+      ],
+    };
+
+    const payment = await account.signX402Payment(paymentRequired);
+
+    expect(payment.x402Version).toBe(2);
+    expect(payment.accepted).toEqual(paymentRequired.accepts[0]);
+    expect(payment.resource).toEqual(paymentRequired.resource);
+    expect(payment.payload).toBeDefined();
+  });
+});
 function timeout(ms: number) {
   return new Promise((_, reject) =>
     setTimeout(() => reject(new TimeoutError(`Test took too long (${ms}ms)`)), ms),
