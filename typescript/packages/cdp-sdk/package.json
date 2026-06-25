@@ -16,6 +16,11 @@
       "types": "./_types/auth/index.d.ts",
       "import": "./_esm/auth/index.js",
       "default": "./_cjs/auth/index.js"
+    },
+    "./x402": {
+      "types": "./_types/x402/index.d.ts",
+      "import": "./_esm/x402/index.js",
+      "default": "./_cjs/x402/index.js"
     }
   },
   "scripts": {

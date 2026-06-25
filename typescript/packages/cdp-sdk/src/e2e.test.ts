@@ -52,6 +52,7 @@ import { SpendPermission } from "./spend-permissions/types.js";
 import { generateJwt } from "./auth/index.js";
 import { HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired } from "@x402/core/types";
+import { CdpX402Client } from "./x402/client.js";
 
 dotenv.config();
 
@@ -4505,6 +4506,88 @@ describe("x402 signing E2E Tests", () => {
     expect(result.isValid).toBe(true);
   }, 180_000);
 });
+
+describe("CdpX402Client E2E Tests", () => {
+  it("CdpX402Client creates a payment payload that the CDP facilitator verifies", async () => {
+    const client = new CdpX402Client(
+      process.env.E2E_BASE_PATH
+        ? {
+            // When using a custom base path the CDP client may need adjusting, but
+            // CdpX402Client reads credentials from env vars — just verify it works.
+          }
+        : undefined,
+    );
+    const facilitator = createCdpFacilitatorClientForE2e();
+
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await client.createPaymentPayload(paymentRequired);
+    const result = await facilitator.verify(payment, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+
+  it("CdpX402Client with spend controls creates a payment payload the CDP facilitator verifies", async () => {
+    const USDC_BASE_SEPOLIA = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    const client = new CdpX402Client({
+      spendControls: {
+        maxAmountPerPayment: { atomic: 100_000n, asset: USDC_BASE_SEPOLIA },
+        maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC_BASE_SEPOLIA },
+        maxCumulativeSpendWindow: "24h",
+        allowedNetworks: [X402_BASE_SEPOLIA_CAIP2],
+      },
+    });
+    const facilitator = createCdpFacilitatorClientForE2e();
+
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await client.createPaymentPayload(paymentRequired);
+    const result = await facilitator.verify(payment, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+});
+
 function timeout(ms: number) {
   return new Promise((_, reject) =>
     setTimeout(() => reject(new TimeoutError(`Test took too long (${ms}ms)`)), ms),

@@ -4,6 +4,26 @@
 import { address as toSolanaAddress, getTransactionEncoder } from "@solana/kit";
 import { toClientEvmSigner } from "@x402/evm";
 
+/**
+ * Minimal interface for a CDP EVM server account (EOA).
+ * Matches the relevant methods from CdpClient's EvmServerAccount.
+ */
+export interface CdpEvmAccount {
+  address: `0x${string}`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  signTypedData(params: any): Promise<`0x${string}`>;
+}
+
+/**
+ * Converts a CDP EVM server account (EOA) into an x402-compatible signer.
+ *
+ * @param account - A CDP EVM account from `cdpClient.evm.getOrCreateAccount()`
+ * @returns A `ClientEvmSigner` compatible with `@x402/evm`'s `registerExactEvmScheme`
+ */
+export function fromCdpEvmAccount(account: CdpEvmAccount): ClientEvmSigner {
+  return toClientEvmSigner(account);
+}
+
 import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
 
 import type { TransactionSigner } from "@solana/kit";
