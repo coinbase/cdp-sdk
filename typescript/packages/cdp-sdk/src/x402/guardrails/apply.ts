@@ -98,6 +98,13 @@ const pinGuardrailsBeforeHookLast = (
   client: x402Client,
   guardrailsHook: BeforePaymentCreationHook,
 ): void => {
+  /*
+   * Access the internal hooks array to keep the spend-controls hook last so that
+   * any subsequently registered hooks (e.g. balance check) run before our cap check.
+   * This relies on x402Client's private `beforePaymentCreationHooks` array name.
+   * If @x402/core renames that field the splice is silently skipped — hooks will
+   * still fire but potentially out of order.
+   */
   type WithHookArray = { beforePaymentCreationHooks?: BeforePaymentCreationHook[] };
   const hooks = (client as unknown as WithHookArray).beforePaymentCreationHooks;
   if (!Array.isArray(hooks)) return;
@@ -587,7 +594,11 @@ export function applySpendControls(
     maxCumulativeSpendWindowMs,
     allowedNetworks,
     allowedAssets,
-    allowedPayees: new Set(rawAllowedPayees.map(p => normalizeAsset(p))),
+    /*
+     * The snapshot returns trimmed raw payee strings. Actual enforcement uses
+     * normalizePayee() per-network at check time (see the filterRules payee check above).
+     */
+    allowedPayees: new Set(rawAllowedPayees.map(p => p.trim())),
     approachingLimitThresholds: thresholds,
     onApproachingLimit: controls.onApproachingLimit,
     tracker,

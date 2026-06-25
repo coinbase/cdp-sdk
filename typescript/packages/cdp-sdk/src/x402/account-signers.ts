@@ -4,6 +4,11 @@
 import { address as toSolanaAddress, getTransactionEncoder } from "@solana/kit";
 import { toClientEvmSigner } from "@x402/evm";
 
+import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
+
+import type { TransactionSigner } from "@solana/kit";
+import type { ClientEvmSigner } from "@x402/evm";
+
 /**
  * Minimal interface for a CDP EVM server account (EOA).
  * Matches the relevant methods from CdpClient's EvmServerAccount.
@@ -23,11 +28,6 @@ export interface CdpEvmAccount {
 export function fromCdpEvmAccount(account: CdpEvmAccount): ClientEvmSigner {
   return toClientEvmSigner(account);
 }
-
-import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
-
-import type { TransactionSigner } from "@solana/kit";
-import type { ClientEvmSigner } from "@x402/evm";
 
 // ─── Smart Contract Wallet Adapter ────────────────────────────────────────────
 

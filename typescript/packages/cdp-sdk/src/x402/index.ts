@@ -23,14 +23,14 @@
  * ```typescript
  * import { CdpClient } from "@coinbase/cdp-sdk";
  * import { x402Client } from "@x402/core/client";
- * import { ExactEvmScheme } from "@x402/evm/exact/client";
+ * import { registerExactEvmScheme } from "@x402/evm/exact/client";
  * import { fromCdpEvmAccount } from "@coinbase/cdp-sdk/x402";
  *
  * const cdp = new CdpClient();
  * const account = await cdp.evm.getOrCreateAccount({ name: "my-signer" });
  *
  * const client = new x402Client();
- * client.register("eip155:*", new ExactEvmScheme(fromCdpEvmAccount(account)));
+ * registerExactEvmScheme(client, { signer: fromCdpEvmAccount(account) });
  * ```
  *
  * @module

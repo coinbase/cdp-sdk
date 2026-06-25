@@ -145,10 +145,6 @@ export function wrapFetchWithPayment(
       for (const [key, value] of Object.entries(paymentHeaders)) {
         clonedRequest.headers.set(key, value);
       }
-      clonedRequest.headers.set(
-        "Access-Control-Expose-Headers",
-        `${PAYMENT_RESPONSE_HEADER},${X_PAYMENT_RESPONSE_HEADER}`,
-      );
     } catch (e) {
       if (registry) {
         try {

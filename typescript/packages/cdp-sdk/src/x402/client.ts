@@ -3,8 +3,8 @@
  *
  * CdpX402Client is a drop-in extension of x402Client that auto-provisions
  * CDP-managed wallets (EVM EOA or Smart Contract Wallet + Solana), registers
- * payment schemes, and optionally wires spend controls and a pre-flight balance
- * check. All configuration is read from environment variables by default.
+ * payment schemes, and wires spend controls and a pre-flight balance check.
+ * All configuration is read from environment variables by default.
  */
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
@@ -75,11 +75,6 @@ export interface CdpX402ClientConfig {
    * Optional SDK-managed spend controls.
    */
   spendControls?: SpendControls;
-  /**
-   * Disable the client-side pre-flight balance check. Defaults to `false`.
-   * Falls back to `CDP_DISABLE_PREFLIGHT_BALANCE_CHECK=true` env var.
-   */
-  disablePreflightBalanceCheck?: boolean;
   /**
    * Override the public JSON-RPC endpoints used for on-chain balance lookups
    * and payment signing, keyed by CAIP-2 network identifier.
@@ -262,20 +257,14 @@ const setupCdpSigners = async (
   registerExactSvmScheme(client, { signer: cdpSolanaAccountToSvmSigner(svmAccount) });
   client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, uptoRpcUrls));
 
-  const disablePreflightBalanceCheck =
-    config?.disablePreflightBalanceCheck ??
-    process.env.CDP_DISABLE_PREFLIGHT_BALANCE_CHECK === "true";
-
-  if (!disablePreflightBalanceCheck) {
-    client.onBeforePaymentCreation(
-      createBalanceCheckHook({
-        cdpClient,
-        evmAddress,
-        svmAddress: svmAccount.address,
-        rpcUrls: Object.keys(resolvedRpcUrls).length > 0 ? resolvedRpcUrls : undefined,
-      }),
-    );
-  }
+  client.onBeforePaymentCreation(
+    createBalanceCheckHook({
+      cdpClient,
+      evmAddress,
+      svmAddress: svmAccount.address,
+      rpcUrls: Object.keys(resolvedRpcUrls).length > 0 ? resolvedRpcUrls : undefined,
+    }),
+  );
 
   if (config?.spendControls) {
     applySpendControls(client, config.spendControls);

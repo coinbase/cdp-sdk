@@ -210,7 +210,6 @@ describe("CdpX402Client", () => {
       "CDP_WALLET_TYPE",
       "CDP_ACCOUNT_NAME",
       "CDP_X402_RPC_URLS",
-      "CDP_DISABLE_PREFLIGHT_BALANCE_CHECK",
       "CDP_OWNER_ACCOUNT_NAME",
     ]);
   });
@@ -287,27 +286,12 @@ describe("CdpX402Client", () => {
       expect(mockRegister).toHaveBeenCalledWith("eip155:*", expect.any(Object));
     });
 
-    it("registers balance check hook by default", async () => {
+    it("registers balance check hook", async () => {
       const client = new CdpX402Client();
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(createBalanceCheckHook).toHaveBeenCalledTimes(1);
       expect(mockOnBeforePaymentCreation).toHaveBeenCalled();
-    });
-
-    it("skips balance check when disablePreflightBalanceCheck is true", async () => {
-      const client = new CdpX402Client({ disablePreflightBalanceCheck: true });
-      await client.createPaymentPayload(mockPaymentRequired);
-
-      expect(createBalanceCheckHook).not.toHaveBeenCalled();
-    });
-
-    it("skips balance check when CDP_DISABLE_PREFLIGHT_BALANCE_CHECK=true", async () => {
-      process.env.CDP_DISABLE_PREFLIGHT_BALANCE_CHECK = "true";
-      const client = new CdpX402Client();
-      await client.createPaymentPayload(mockPaymentRequired);
-
-      expect(createBalanceCheckHook).not.toHaveBeenCalled();
     });
   });
 
