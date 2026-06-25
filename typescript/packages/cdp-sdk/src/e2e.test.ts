@@ -49,7 +49,9 @@ import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
-import type { PaymentRequired } from "@x402/core/types";
+import { generateJwt } from "./auth/index.js";
+import { HTTPFacilitatorClient } from "@x402/core/http";
+import type { PaymentPayload, PaymentRequired } from "@x402/core/types";
 
 dotenv.config();
 
@@ -4273,42 +4275,283 @@ describe("CDP Client E2E Tests", () => {
   });
 });
 
+const X402_BASE_SEPOLIA_CAIP2 = "eip155:84532";
+const X402_BASE_SEPOLIA_USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+const X402_SOLANA_DEVNET_CAIP2 = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+const X402_SOLANA_DEVNET_USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
+
+// Payment recipient (payTo) for the x402 facilitator tests. Must differ from the payer — the
+// CDP facilitator rejects self-sends. Override via env; the EVM default is a burn address, which
+// is a valid transferWithAuthorization recipient. Solana requires an env value because the
+// destination must already have a USDC token account on devnet.
+const X402_EVM_PAY_TO = (process.env.CDP_E2E_X402_EVM_PAY_TO ??
+  "0x000000000000000000000000000000000000dEaD") as Address;
+const X402_SOLANA_PAY_TO = process.env.CDP_E2E_X402_SOLANA_PAY_TO ?? "";
+
+const X402_CDP_FACILITATOR_HOST = "api.cdp.coinbase.com";
+const X402_CDP_FACILITATOR_URL = "https://api.cdp.coinbase.com/platform/v2/x402";
+const X402_CDP_FACILITATOR_PATHS = {
+  verify: "/platform/v2/x402/verify",
+  settle: "/platform/v2/x402/settle",
+  supported: "/platform/v2/x402/supported",
+} as const;
+
+const x402Erc20DomainAbi = [
+  {
+    type: "function",
+    name: "name",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    name: "version",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ type: "uint256" }],
+  },
+] as const;
+
+// Builds an HTTPFacilitatorClient pointed at the CDP hosted facilitator, authenticated with
+// per-endpoint CDP JWTs derived from the e2e API key credentials.
+function createCdpFacilitatorClientForE2e(): HTTPFacilitatorClient {
+  const apiKeyId = process.env.CDP_API_KEY_ID;
+  const apiKeySecret = process.env.CDP_API_KEY_SECRET;
+  if (!apiKeyId || !apiKeySecret) {
+    throw new Error(
+      "CDP_API_KEY_ID and CDP_API_KEY_SECRET are required for the x402 facilitator e2e tests.",
+    );
+  }
+
+  const authHeader = async (method: "GET" | "POST", requestPath: string) => {
+    const jwt = await generateJwt({
+      apiKeyId,
+      apiKeySecret,
+      requestMethod: method,
+      requestHost: X402_CDP_FACILITATOR_HOST,
+      requestPath,
+    });
+    return { Authorization: `Bearer ${jwt}` };
+  };
+
+  return new HTTPFacilitatorClient({
+    url: X402_CDP_FACILITATOR_URL,
+    createAuthHeaders: async () => {
+      const [verify, settle, supported] = await Promise.all([
+        authHeader("POST", X402_CDP_FACILITATOR_PATHS.verify),
+        authHeader("POST", X402_CDP_FACILITATOR_PATHS.settle),
+        authHeader("GET", X402_CDP_FACILITATOR_PATHS.supported),
+      ]);
+      return { verify, settle, supported };
+    },
+  });
+}
+
+// Reads the EIP-712 domain (name, version) for an EIP-3009 token directly from chain so the
+// signed authorization matches what the facilitator recovers on-chain.
+async function readEvmTokenDomain(
+  publicClient: PublicClient,
+  asset: Address,
+): Promise<{ name: string; version: string }> {
+  const name = (await publicClient.readContract({
+    address: asset,
+    abi: x402Erc20DomainAbi,
+    functionName: "name",
+  })) as string;
+  let version = "2";
+  try {
+    version = (await publicClient.readContract({
+      address: asset,
+      abi: x402Erc20DomainAbi,
+      functionName: "version",
+    })) as string;
+  } catch {
+    // Some tokens omit version(); default to "2" (USDC).
+  }
+  return { name, version };
+}
+
+// Faucets Base Sepolia USDC to `address` and waits until the balance is observable on-chain.
+async function ensureBaseSepoliaUsdcFunded(
+  cdp: CdpClient,
+  address: Address,
+  publicClient: PublicClient,
+): Promise<void> {
+  const balanceOf = () =>
+    publicClient.readContract({
+      address: X402_BASE_SEPOLIA_USDC as Address,
+      abi: x402Erc20DomainAbi,
+      functionName: "balanceOf",
+      args: [address],
+    }) as Promise<bigint>;
+
+  if ((await balanceOf()) > 0n) {
+    return;
+  }
+
+  const { transactionHash } = await cdp.evm.requestFaucet({
+    address,
+    network: "base-sepolia",
+    token: "usdc",
+  });
+  await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+
+  for (let attempt = 0; attempt < 30 && (await balanceOf()) === 0n; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+}
+
+// Resolves the CDP facilitator's Solana fee payer from the /supported signers map.
+async function getCdpSolanaFeePayer(
+  facilitator: HTTPFacilitatorClient,
+  network: string,
+): Promise<string> {
+  const supported = await facilitator.getSupported();
+  const signers = supported.signers ?? {};
+  for (const [pattern, addresses] of Object.entries(signers)) {
+    const matchesNetwork =
+      pattern === network ||
+      (pattern.endsWith(":*") && network.startsWith(pattern.slice(0, -1))) ||
+      pattern.startsWith("solana");
+    if (matchesNetwork && addresses && addresses.length > 0) {
+      return addresses[0];
+    }
+  }
+  throw new Error(`CDP facilitator did not advertise a Solana fee payer for ${network}.`);
+}
+
 describe("x402 signing E2E Tests", () => {
-  it("EVM account signs an x402 payment payload directly", async () => {
+  it("EVM EOA account signs an x402 payment the CDP facilitator verifies", async () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const account = await cdp.evm.getOrCreateAccount({
-      name: `x402-direct-sign-${Date.now()}`,
-    });
+    const account = await cdp.evm.getOrCreateAccount({ name: `x402-eoa-${Date.now()}` });
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+
+    await ensureBaseSepoliaUsdcFunded(cdp, account.address as Address, publicClient);
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
     const paymentRequired: PaymentRequired = {
       x402Version: 2,
-      resource: {
-        url: "https://example.com/report",
-        description: "x402 direct signing e2e",
-        mimeType: "application/json",
-      },
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
       accepts: [
         {
           scheme: "exact",
-          network: "eip155:84532",
-          asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-          amount: "1000",
-          payTo: account.address,
-          maxTimeoutSeconds: 60,
-          // EIP-712 domain parameters for USDC on Base Sepolia (required by EIP-3009 signing)
-          extra: { name: "USD Coin", version: "2" },
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
         },
       ],
     };
 
     const payment = await account.signX402Payment(paymentRequired, 0);
+    const facilitator = createCdpFacilitatorClientForE2e();
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
 
-    expect(payment.x402Version).toBe(2);
-    expect(payment.accepted).toEqual(paymentRequired.accepts[0]);
-    expect(payment.resource).toEqual(paymentRequired.resource);
-    expect(payment.payload).toBeDefined();
-  });
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+
+  it("EVM smart account signs an x402 payment the CDP facilitator verifies", async () => {
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const owner = await cdp.evm.getOrCreateAccount({ name: `x402-scw-owner-${Date.now()}` });
+    const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+      name: `x402-scw-${Date.now()}`,
+      owner,
+    });
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+
+    await ensureBaseSepoliaUsdcFunded(cdp, smartAccount.address as Address, publicClient);
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await smartAccount.signX402Payment(paymentRequired, 0);
+    const facilitator = createCdpFacilitatorClientForE2e();
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+
+  it("Solana account signs an x402 payment the CDP facilitator verifies", async () => {
+    if (!X402_SOLANA_PAY_TO) {
+      throw new Error(
+        "CDP_E2E_X402_SOLANA_PAY_TO must be set to a Solana devnet address that already has a " +
+          "USDC token account so the facilitator can verify the transfer.",
+      );
+    }
+
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const account = await cdp.solana.getOrCreateAccount({ name: `x402-sol-${Date.now()}` });
+
+    const rpc = createSolanaRpc(
+      process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+    );
+    if (Number((await rpc.getBalance(solanaAddress(account.address)).send()).value) < 1_000_000) {
+      const { signature } = await account.requestFaucet({ token: "sol" });
+      await confirmTransaction(rpc, signature as Signature);
+    }
+    const { signature: usdcFaucetSignature } = await account.requestFaucet({ token: "usdc" });
+    await confirmTransaction(rpc, usdcFaucetSignature as Signature);
+
+    const facilitator = createCdpFacilitatorClientForE2e();
+    const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_SOLANA_DEVNET_CAIP2,
+          asset: X402_SOLANA_DEVNET_USDC,
+          amount: "10000",
+          payTo: X402_SOLANA_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { feePayer },
+        },
+      ],
+    };
+
+    const payment = await account.signX402Payment(paymentRequired, 0);
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
 });
 function timeout(ms: number) {
   return new Promise((_, reject) =>

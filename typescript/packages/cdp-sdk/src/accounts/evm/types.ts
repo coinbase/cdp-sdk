@@ -166,6 +166,11 @@ export type EvmSmartAccountProperties = {
   /**
    * Signs an x402 payment payload for direct use with any transport.
    *
+   * Smart accounts support the EIP-3009 `exact` flow only. Smart accounts sign
+   * with an ERC-1271/ERC-6492 contract signature, so the Permit2-based `upto`
+   * scheme and `exact` requirements that use the Permit2 transfer method are
+   * rejected.
+   *
    * @param paymentRequired - The payment requirements returned by a resource server.
    * @param acceptedIndex - Index into `paymentRequired.accepts`.
    * @returns The signed x402 payment payload.

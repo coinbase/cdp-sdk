@@ -47,6 +47,18 @@ const EVM_SIGNING_CAPABILITY: SigningCapability = {
   label: "EVM",
 };
 
+/*
+ * Smart accounts sign with an ERC-1271/ERC-6492 contract signature, which only
+ * settles via the EIP-3009 `exact` flow. The `upto` scheme and the Permit2
+ * transfer method both require an on-chain Permit2 allowance owned by an EOA,
+ * so they are intentionally unsupported for smart accounts.
+ */
+const EVM_SMART_ACCOUNT_SIGNING_CAPABILITY: SigningCapability = {
+  networkNamespace: "eip155",
+  supportedSchemes: ["exact"],
+  label: "EVM smart",
+};
+
 const SVM_SIGNING_CAPABILITY: SigningCapability = {
   networkNamespace: "solana",
   supportedSchemes: ["exact"],
@@ -220,6 +232,11 @@ export async function signEvmX402Payment(
  * The smart-account adapter derives the CDP network from the EIP-712 domain's
  * `chainId`, so no explicit network parameter is needed on the call site.
  *
+ * Smart accounts produce an ERC-1271/ERC-6492 contract signature, which only
+ * settles via the EIP-3009 `exact` flow. The `upto` scheme and the Permit2
+ * transfer method are rejected because they require an on-chain Permit2
+ * allowance owned by an EOA.
+ *
  * @param account - The CDP EVM smart account.
  * @param options - The x402 payment requirements and selected accepted index.
  * @returns The signed x402 payment payload.
@@ -232,12 +249,19 @@ export async function signEvmSmartAccountX402Payment(
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
-    EVM_SIGNING_CAPABILITY,
+    EVM_SMART_ACCOUNT_SIGNING_CAPABILITY,
   );
+  const [selected] = selectedPaymentRequired.accepts;
+  if (selected.extra?.assetTransferMethod === "permit2") {
+    throw new Error(
+      `acceptedIndex ${options.acceptedIndex} requires the Permit2 transfer method, which is ` +
+        `not supported for EVM smart accounts. Choose a requirement that uses EIP-3009 ` +
+        `(transferWithAuthorization).`,
+    );
+  }
   const signer = fromCdpSmartWallet(account);
   const client = new x402Client();
   registerExactEvmScheme(client, { signer, schemeOptions: rpcUrlsByChainId });
-  client.register("eip155:*" as Network, new UptoEvmScheme(signer, rpcUrlsByChainId));
   return client.createPaymentPayload(selectedPaymentRequired);
 }
 

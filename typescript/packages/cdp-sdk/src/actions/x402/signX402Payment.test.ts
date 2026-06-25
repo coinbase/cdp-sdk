@@ -87,6 +87,38 @@ const solanaPaymentRequired: PaymentRequired = {
   ],
 };
 
+const uptoEvmPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "upto",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+const permit2EvmPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: { assetTransferMethod: "permit2" },
+    },
+  ],
+};
+
 const mixedPaymentRequired: PaymentRequired = {
   x402Version: 2,
   resource: { url: "https://example.com/report" },
@@ -243,6 +275,38 @@ describe("signEvmSmartAccountX402Payment", () => {
       acceptedIndex: 0,
     });
     expect(result).toBe(mockPayload);
+  });
+
+  it("registers only the exact EVM scheme and not the Permit2-based upto scheme", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: evmPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(registerExactEvmScheme).toHaveBeenCalled();
+    expect(UptoEvmScheme).not.toHaveBeenCalled();
+  });
+
+  it("rejects the upto scheme, which Permit2-only and unsupported for smart accounts", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmSmartAccountX402Payment(account, {
+        paymentRequired: uptoEvmPaymentRequired,
+        acceptedIndex: 0,
+      }),
+    ).rejects.toThrow('uses the "upto" scheme, which is not supported for EVM smart accounts');
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+
+  it("rejects an exact requirement that uses the Permit2 transfer method", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmSmartAccountX402Payment(account, {
+        paymentRequired: permit2EvmPaymentRequired,
+        acceptedIndex: 0,
+      }),
+    ).rejects.toThrow("requires the Permit2 transfer method, which is not supported");
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
   });
 });
 

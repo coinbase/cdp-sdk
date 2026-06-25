@@ -1659,7 +1659,7 @@ return {
 await queue.publish("paid-job", { payment, jobId });
 ```
 
-For smart accounts:
+For smart accounts (supports the EIP-3009 `exact` flow only — smart accounts sign with an ERC-1271/ERC-6492 contract signature, so the Permit2-based `upto` scheme and `exact` requirements that use the Permit2 transfer method are not supported):
 
 ```typescript
 const owner = await cdp.evm.getOrCreateAccount({ name: "agent-owner" });
