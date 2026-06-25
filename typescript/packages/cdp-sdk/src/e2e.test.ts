@@ -4282,11 +4282,12 @@ const X402_SOLANA_DEVNET_USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 
 // Payment recipient (payTo) for the x402 facilitator tests. Must differ from the payer — the
 // CDP facilitator rejects self-sends. Override via env; the EVM default is a burn address, which
-// is a valid transferWithAuthorization recipient. Solana requires an env value because the
-// destination must already have a USDC token account on devnet.
+// is a valid transferWithAuthorization recipient. The Solana default reuses the same devnet address
+// used for Solana transfer tests, which already has a USDC token account on devnet.
 const X402_EVM_PAY_TO = (process.env.CDP_E2E_X402_EVM_PAY_TO ??
   "0x000000000000000000000000000000000000dEaD") as Address;
-const X402_SOLANA_PAY_TO = process.env.CDP_E2E_X402_SOLANA_PAY_TO ?? "";
+const X402_SOLANA_PAY_TO =
+  process.env.CDP_E2E_X402_SOLANA_PAY_TO ?? "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
 
 const X402_CDP_FACILITATOR_HOST = "api.cdp.coinbase.com";
 const X402_CDP_FACILITATOR_URL = "https://api.cdp.coinbase.com/platform/v2/x402";
@@ -4474,13 +4475,6 @@ describe("x402 signing E2E Tests", () => {
   }, 180_000);
 
   it("Solana account signs an x402 payment the CDP facilitator verifies", async () => {
-    if (!X402_SOLANA_PAY_TO) {
-      throw new Error(
-        "CDP_E2E_X402_SOLANA_PAY_TO must be set to a Solana devnet address that already has a " +
-          "USDC token account so the facilitator can verify the transfer.",
-      );
-    }
-
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
