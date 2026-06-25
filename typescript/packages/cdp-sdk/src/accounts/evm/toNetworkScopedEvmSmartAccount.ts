@@ -14,6 +14,7 @@ import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAc
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
+import { CDP_NETWORK_TO_CAIP2 } from "../../x402/constants.js";
 
 import type {
   EvmAccount,
@@ -82,6 +83,18 @@ export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRp
     owners: [options.owner],
     name: options.smartAccount.name,
     type: "evm-smart",
+    signX402Payment: async (paymentRequired, acceptedIndex) => {
+      const selected = paymentRequired.accepts[acceptedIndex];
+      const scopedCaip2 = CDP_NETWORK_TO_CAIP2[options.network];
+      if (selected && scopedCaip2 && selected.network !== scopedCaip2) {
+        throw new Error(
+          `acceptedIndex ${acceptedIndex} targets network "${selected.network}" but this account ` +
+            `is scoped to "${options.network}" (${scopedCaip2}). Choose an acceptedIndex whose ` +
+            `network matches the scoped network, or call signX402Payment on the unscoped account.`,
+        );
+      }
+      return options.smartAccount.signX402Payment(paymentRequired, acceptedIndex);
+    },
     sendUserOperation: async (
       userOpOptions: Omit<SendUserOperationOptions<unknown[]>, "smartAccount" | "network">,
     ) => {

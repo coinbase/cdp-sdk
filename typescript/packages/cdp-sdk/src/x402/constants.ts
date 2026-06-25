@@ -58,6 +58,20 @@ function toEip155Caip2<const ChainId extends number>(chainId: ChainId): `eip155:
 }
 
 /**
+ * Maps CDP SDK network names to their EIP-155 CAIP-2 identifiers.
+ *
+ * Derived by inverting CHAIN_ID_TO_CDP_NETWORK. Used by network-scoped account
+ * builders to validate that an accepted x402 requirement targets the scoped network.
+ * Networks not present here (e.g. raw RPC URLs) cause the scoped check to be skipped.
+ */
+export const CDP_NETWORK_TO_CAIP2: Record<string, string> = Object.fromEntries(
+  Object.entries(CHAIN_ID_TO_CDP_NETWORK).map(([chainId, networkName]) => [
+    networkName,
+    `eip155:${chainId}`,
+  ]),
+);
+
+/**
  * Public JSON-RPC endpoints for CDP-supported EVM networks, keyed by CAIP-2
  * network identifier.
  *

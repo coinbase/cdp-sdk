@@ -97,6 +97,12 @@ describe("toNetworkScopedEvmServerAccount", () => {
       signMessage: vi.fn().mockResolvedValue("0xsignature"),
       signTypedData: vi.fn().mockResolvedValue("0xsignature"),
       signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+      signX402Payment: vi.fn().mockResolvedValue({
+        x402Version: 2,
+        resource: { url: "https://example.com" },
+        accepted: {},
+        payload: {},
+      }),
       sendTransaction: vi.fn().mockResolvedValue({ transactionHash: "0xhash" }),
       waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
       export: vi.fn().mockResolvedValue("exported-key"),
@@ -129,6 +135,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect(networkAccount.signMessage).toBeDefined();
       expect(networkAccount.signTypedData).toBeDefined();
       expect(networkAccount.signTransaction).toBeDefined();
+      expect(networkAccount.signX402Payment).toBeDefined();
 
       // requestFaucet should NOT be available for base
       expect("requestFaucet" in networkAccount).toBe(false);
@@ -161,6 +168,68 @@ describe("toNetworkScopedEvmServerAccount", () => {
         transaction: { to: "0xaddress", value: 100n },
         network: "base",
       });
+
+      const paymentRequired = {
+        x402Version: 2,
+        resource: { url: "https://example.com" },
+        accepts: [],
+      };
+      await networkAccount.signX402Payment(paymentRequired as never, 0);
+      expect(mockAccount.signX402Payment).toHaveBeenCalledWith(paymentRequired, 0);
+    });
+
+    it("throws when acceptedIndex targets a network that does not match the scoped network", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
+        account: mockAccount,
+        network: "base",
+      });
+
+      const wrongNetworkPayment = {
+        x402Version: 2,
+        resource: { url: "https://example.com" },
+        accepts: [
+          {
+            scheme: "exact",
+            network: "eip155:137", // polygon, not base (eip155:8453)
+            asset: "0xasset",
+            amount: "1000",
+            payTo: "0xpayto",
+            maxTimeoutSeconds: 60,
+            extra: {},
+          },
+        ],
+      };
+
+      await expect(networkAccount.signX402Payment(wrongNetworkPayment as never, 0)).rejects.toThrow(
+        'targets network "eip155:137" but this account is scoped to "base" (eip155:8453)',
+      );
+      expect(mockAccount.signX402Payment).not.toHaveBeenCalled();
+    });
+
+    it("delegates when acceptedIndex targets the scoped network", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
+        account: mockAccount,
+        network: "base",
+      });
+
+      const matchingPayment = {
+        x402Version: 2,
+        resource: { url: "https://example.com" },
+        accepts: [
+          {
+            scheme: "exact",
+            network: "eip155:8453",
+            asset: "0xasset",
+            amount: "1000",
+            payTo: "0xpayto",
+            maxTimeoutSeconds: 60,
+            extra: {},
+          },
+        ],
+      };
+
+      await networkAccount.signX402Payment(matchingPayment as never, 0);
+      expect(mockAccount.signX402Payment).toHaveBeenCalledWith(matchingPayment, 0);
     });
   });
 

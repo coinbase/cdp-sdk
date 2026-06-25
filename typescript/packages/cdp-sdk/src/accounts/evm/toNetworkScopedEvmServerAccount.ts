@@ -71,6 +71,18 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     sign: options.account.sign,
     signTransaction: options.account.signTransaction,
     signTypedData: options.account.signTypedData,
+    signX402Payment: async (paymentRequired, acceptedIndex) => {
+      const selected = paymentRequired.accepts[acceptedIndex];
+      const scopedCaip2 = `eip155:${chain.id}`;
+      if (selected && selected.network !== scopedCaip2) {
+        throw new Error(
+          `acceptedIndex ${acceptedIndex} targets network "${selected.network}" but this account ` +
+            `is scoped to "${options.network}" (${scopedCaip2}). Choose an acceptedIndex whose ` +
+            `network matches the scoped network, or call signX402Payment on the unscoped account.`,
+        );
+      }
+      return options.account.signX402Payment(paymentRequired, acceptedIndex);
+    },
     name: options.account.name,
     type: "evm-server",
     policies: options.account.policies,

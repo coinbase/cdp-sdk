@@ -4379,36 +4379,6 @@ async function readEvmTokenDomain(
   return { name, version };
 }
 
-// Faucets Base Sepolia USDC to `address` and waits until the balance is observable on-chain.
-async function ensureBaseSepoliaUsdcFunded(
-  cdp: CdpClient,
-  address: Address,
-  publicClient: PublicClient,
-): Promise<void> {
-  const balanceOf = () =>
-    publicClient.readContract({
-      address: X402_BASE_SEPOLIA_USDC as Address,
-      abi: x402Erc20DomainAbi,
-      functionName: "balanceOf",
-      args: [address],
-    }) as Promise<bigint>;
-
-  if ((await balanceOf()) > 0n) {
-    return;
-  }
-
-  const { transactionHash } = await cdp.evm.requestFaucet({
-    address,
-    network: "base-sepolia",
-    token: "usdc",
-  });
-  await publicClient.waitForTransactionReceipt({ hash: transactionHash });
-
-  for (let attempt = 0; attempt < 30 && (await balanceOf()) === 0n; attempt++) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-}
-
 // Resolves the CDP facilitator's Solana fee payer from the /supported signers map.
 async function getCdpSolanaFeePayer(
   facilitator: HTTPFacilitatorClient,
@@ -4433,10 +4403,9 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const account = await cdp.evm.getOrCreateAccount({ name: `x402-eoa-${Date.now()}` });
+    const account = await cdp.evm.getOrCreateAccount({ name: "x402-e2e-test" });
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
-    await ensureBaseSepoliaUsdcFunded(cdp, account.address as Address, publicClient);
     const { name, version } = await readEvmTokenDomain(
       publicClient,
       X402_BASE_SEPOLIA_USDC as Address,
@@ -4469,14 +4438,13 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const owner = await cdp.evm.getOrCreateAccount({ name: `x402-scw-owner-${Date.now()}` });
+    const owner = await cdp.evm.getOrCreateAccount({ name: "x402-e2e-scw-owner" });
     const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-      name: `x402-scw-${Date.now()}`,
+      name: "x402-e2e-scw",
       owner,
     });
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
-    await ensureBaseSepoliaUsdcFunded(cdp, smartAccount.address as Address, publicClient);
     const { name, version } = await readEvmTokenDomain(
       publicClient,
       X402_BASE_SEPOLIA_USDC as Address,
@@ -4516,17 +4484,7 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const account = await cdp.solana.getOrCreateAccount({ name: `x402-sol-${Date.now()}` });
-
-    const rpc = createSolanaRpc(
-      process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
-    );
-    if (Number((await rpc.getBalance(solanaAddress(account.address)).send()).value) < 1_000_000) {
-      const { signature } = await account.requestFaucet({ token: "sol" });
-      await confirmTransaction(rpc, signature as Signature);
-    }
-    const { signature: usdcFaucetSignature } = await account.requestFaucet({ token: "usdc" });
-    await confirmTransaction(rpc, usdcFaucetSignature as Signature);
+    const account = await cdp.solana.getOrCreateAccount({ name: "x402-e2e-test" });
 
     const facilitator = createCdpFacilitatorClientForE2e();
     const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
