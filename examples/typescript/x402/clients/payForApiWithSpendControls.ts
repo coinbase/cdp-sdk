@@ -1,7 +1,7 @@
 // Usage: pnpm tsx x402/clients/payForApiWithSpendControls.ts
 
 /**
- * CDP Dev — Pay for an x402-protected API with per-payment and cumulative spend caps.
+ * Pay for an x402-protected API with per-payment and cumulative spend caps.
  *
  * `CdpX402Client` accepts a `spendControls` option that wires SDK-managed
  * spend guardrails on top of the CDP-managed wallet:
@@ -15,7 +15,13 @@
  *
  * Setup:
  *   Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your .env
- *   Fund the wallet with USDC on Base Sepolia before running.
+ *
+ * Funding the wallet (Base Sepolia USDC):
+ *   This client initializes lazily, so run `payForApi.ts` first to print and
+ *   fund the wallet address (it shares the default account name). Fund via:
+ *   - CDP Faucet (portal):  https://portal.cdp.coinbase.com -> "Onchain Tools" -> "Faucet"
+ *   - Programmatically:     cdp.evm.requestFaucet({ address, network: "base-sepolia", token: "usdc" })
+ *   The CDP faucet funds the same wallets the CDP x402 facilitator settles against.
  */
 import "dotenv/config";
 
@@ -54,8 +60,15 @@ async function main() {
     if (!response.ok) {
       throw new Error(`Request failed: ${response.status} ${response.statusText}`);
     }
-    const body = await response.json();
-    console.log("Response:", JSON.stringify(body, null, 2));
+    console.log(`Payment succeeded — HTTP ${response.status}`);
+    // Parse defensively: the protected resource decides its own content type.
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      console.log("Response:", JSON.stringify(await response.json(), null, 2));
+    } else {
+      const text = await response.text();
+      console.log("Response:", text.length > 500 ? `${text.slice(0, 500)}… (${text.length} bytes)` : text);
+    }
   } catch (err) {
     // Spend controls reject a payment by throwing a SpendControlError with a
     // machine-readable `code` — switch on that rather than matching message text.
