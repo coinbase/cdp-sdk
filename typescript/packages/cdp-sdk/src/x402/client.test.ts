@@ -193,15 +193,12 @@ describe("CdpX402Client", () => {
       "CDP_API_KEY_ID",
       "CDP_API_KEY_SECRET",
       "CDP_WALLET_SECRET",
-      "CDP_WALLET_TYPE",
-      "CDP_ACCOUNT_NAME",
       "CDP_X402_RPC_URLS",
-      "CDP_OWNER_ACCOUNT_NAME",
     ]);
   });
 
   describe("constructor", () => {
-    it("accepts no arguments — reads all config from env vars", () => {
+    it("accepts no arguments — reads credentials from env vars", () => {
       expect(() => new CdpX402Client()).not.toThrow();
     });
 
@@ -297,14 +294,6 @@ describe("CdpX402Client", () => {
       expect(mockGetOrCreateAccount).toHaveBeenCalledWith({ name: "my-agent-wallet" });
       expect(mockSolanaGetOrCreateAccount).toHaveBeenCalledWith({ name: "my-agent-wallet" });
     });
-
-    it("uses CDP_ACCOUNT_NAME env var", async () => {
-      process.env.CDP_ACCOUNT_NAME = "env-wallet";
-      const client = new CdpX402Client();
-      await client.createPaymentPayload(mockPaymentRequired);
-
-      expect(mockGetOrCreateAccount).toHaveBeenCalledWith({ name: "env-wallet" });
-    });
   });
 
   describe("smart wallet provisioning", () => {
@@ -327,18 +316,7 @@ describe("CdpX402Client", () => {
       });
     });
 
-    it("uses CDP_WALLET_TYPE=smart env var", async () => {
-      process.env.CDP_WALLET_TYPE = "smart";
-      process.env.CDP_OWNER_ACCOUNT_NAME = "env-owner";
-
-      const client = new CdpX402Client();
-      await client.createPaymentPayload(mockPaymentRequired);
-
-      expect(mockGetOrCreateSmartAccount).toHaveBeenCalledTimes(1);
-    });
-
     it("throws if smart wallet type is set but ownerAccountName is missing", async () => {
-      delete process.env.CDP_OWNER_ACCOUNT_NAME;
       const client = new CdpX402Client({
         walletConfig: { type: "smart", ownerAccountName: "" },
       });
@@ -485,7 +463,7 @@ describe("createCdpX402Client", () => {
   });
 
   afterEach(() => {
-    clearEnv(["CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET", "CDP_WALLET_TYPE"]);
+    clearEnv(["CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET"]);
   });
 
   it("returns client, cdpClient, evmAddress, and svmAddress", async () => {

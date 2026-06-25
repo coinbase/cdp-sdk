@@ -4,7 +4,8 @@
  * CdpX402Client is a drop-in extension of x402Client that auto-provisions
  * CDP-managed wallets (EVM EOA or Smart Contract Wallet + Solana), registers
  * payment schemes and wires spend controls.
- * All configuration is read from environment variables by default.
+ * Credentials and RPC URLs fall back to environment variables; wallet
+ * configuration is supplied explicitly via config.
  */
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
@@ -35,8 +36,7 @@ export type WalletConfig =
       /** CDP Server Wallet (EOA). Default when `type` is omitted. */
       type: "eoa";
       /**
-       * Named CDP account. Falls back to `CDP_ACCOUNT_NAME` env var.
-       * Defaults to `"x402-client-wallet-1"`.
+       * Named CDP account. Defaults to `"x402-client-wallet-1"`.
        */
       accountName?: string;
     }
@@ -44,13 +44,11 @@ export type WalletConfig =
       /** CDP Smart Contract Wallet. */
       type: "smart";
       /**
-       * Named CDP smart account. Falls back to `CDP_ACCOUNT_NAME` env var.
-       * Defaults to `"x402-client-wallet-1"`.
+       * Named CDP smart account. Defaults to `"x402-client-wallet-1"`.
        */
       accountName?: string;
       /**
-       * Owner EOA account name. Falls back to `CDP_OWNER_ACCOUNT_NAME` env var.
-       * Required for `"smart"` type.
+       * Owner EOA account name. Required for `"smart"` type.
        */
       ownerAccountName: string;
     };
@@ -107,7 +105,7 @@ const resolveWalletType = (type: string | undefined): WalletType => {
 };
 
 const resolveAccountName = (config?: WalletConfig): string =>
-  config?.accountName ?? process.env.CDP_ACCOUNT_NAME ?? DEFAULT_ACCOUNT_NAME;
+  config?.accountName ?? DEFAULT_ACCOUNT_NAME;
 
 const parseRpcUrlsFromEnv = (): Partial<Record<string, { rpcUrl: string }>> | undefined => {
   const raw = process.env.CDP_X402_RPC_URLS;
@@ -216,7 +214,7 @@ const setupCdpSigners = async (
   });
 
   const walletConfigInput = config?.walletConfig;
-  const walletType = resolveWalletType(walletConfigInput?.type ?? process.env.CDP_WALLET_TYPE);
+  const walletType = resolveWalletType(walletConfigInput?.type);
   const accountName = resolveAccountName(walletConfigInput);
 
   const svmAccount = await cdpClient.solana.getOrCreateAccount({ name: accountName });
@@ -227,13 +225,12 @@ const setupCdpSigners = async (
 
   if (walletType === "smart") {
     const ownerAccountName =
-      (walletConfigInput?.type === "smart" ? walletConfigInput.ownerAccountName : undefined) ??
-      process.env.CDP_OWNER_ACCOUNT_NAME;
+      walletConfigInput?.type === "smart" ? walletConfigInput.ownerAccountName : undefined;
 
     if (!ownerAccountName) {
       throw new Error(
         'Missing required owner account name for wallet type "smart". ' +
-          "Provide it via walletConfig.ownerAccountName or set the CDP_OWNER_ACCOUNT_NAME environment variable.",
+          "Provide it via walletConfig.ownerAccountName.",
       );
     }
 
@@ -298,8 +295,8 @@ const setupCdpSigners = async (
  * A Coinbase CDP-powered x402 client that initializes lazily on first payment.
  *
  * Extends `x402Client` with automatic wallet provisioning and scheme registration.
- * Configuration is read from environment variables by default and can be
- * overridden via explicit config.
+ * Credentials and RPC URLs fall back to environment variables; wallet
+ * configuration is supplied explicitly via config.
  *
  * @example
  * ```typescript
@@ -331,7 +328,7 @@ export class CdpX402Client extends x402Client {
   /**
    * Creates a CdpX402Client that initializes lazily on first payment.
    *
-   * @param config - Optional configuration. All fields fall back to environment variables.
+   * @param config - Optional configuration. Credentials and RPC URLs fall back to environment variables.
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
@@ -400,7 +397,7 @@ export class CdpX402Client extends x402Client {
  * Use this when you need the wallet address(es) before making any payments.
  * For most use cases, prefer `CdpX402Client` which defers initialization.
  *
- * @param config - Optional configuration. All fields fall back to env vars.
+ * @param config - Optional configuration. Credentials and RPC URLs fall back to env vars.
  * @returns A configured client plus resolved wallet addresses.
  *
  * @example
