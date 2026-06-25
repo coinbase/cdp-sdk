@@ -22,19 +22,19 @@ import "dotenv/config";
 import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
 import { wrapFetchWithPayment } from "@x402/fetch";
 
-const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
+const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
 const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.org/protected";
 
 async function main() {
   const client = new CdpX402Client({
     spendControls: {
       // Hard cap: each payment must not exceed $0.01 USDC
-      maxAmountPerPayment: { atomic: 10_000n, asset: USDC_BASE },
+      maxAmountPerPayment: { atomic: 10_000n, asset: USDC_BASE_SEPOLIA },
       // Rolling cap: $0.05 USDC total per 24 hours
-      maxCumulativeSpend: { atomic: 50_000n, asset: USDC_BASE },
+      maxCumulativeSpend: { atomic: 50_000n, asset: USDC_BASE_SEPOLIA },
       maxCumulativeSpendWindow: "24h",
-      // Only pay on Base mainnet
-      allowedNetworks: ["eip155:8453"],
+      // Only pay on Base Sepolia
+      allowedNetworks: ["eip155:84532"],
       // Notify when 80% or 95% of the rolling cap is consumed
       onApproachingLimit: (spent, limit) => {
         const pct = (Number(spent.atomic) / Number(limit.atomic)) * 100;

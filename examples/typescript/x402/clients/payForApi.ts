@@ -9,7 +9,7 @@
  *
  * Setup:
  *   Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your .env
- *   Fund the printed EVM address with USDC on Base before running.
+ *   Fund the printed EVM address with USDC on Base Sepolia before running.
  *
  * Optional overrides:
  *   CDP_WALLET_TYPE         - "eoa" (default) or "smart"
@@ -32,7 +32,7 @@ async function main() {
   console.log("CDP-managed x402 client ready");
   console.log("  EVM address:", evmAddress);
   console.log("  Solana address:", svmAddress);
-  console.log("  Fund the EVM address with USDC on Base before making payments.\n");
+  console.log("  Fund the EVM address with USDC on Base Sepolia before making payments.\n");
 
   // Wrap fetch with the x402 client — handles 402 responses automatically.
   const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
