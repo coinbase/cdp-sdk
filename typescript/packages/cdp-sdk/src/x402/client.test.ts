@@ -189,12 +189,7 @@ describe("CdpX402Client", () => {
   });
 
   afterEach(() => {
-    clearEnv([
-      "CDP_API_KEY_ID",
-      "CDP_API_KEY_SECRET",
-      "CDP_WALLET_SECRET",
-      "CDP_X402_RPC_URLS",
-    ]);
+    clearEnv(["CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET", "CDP_X402_RPC_URLS"]);
   });
 
   describe("constructor", () => {
