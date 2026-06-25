@@ -43,7 +43,7 @@ function reportStatus(response: Response) {
   if (response.status === 402) {
     console.log(
       "  402 → fund the signing account with USDC on Base Sepolia: " +
-        "https://portal.cdp.coinbase.com/products/faucet",
+        "https://portal.cdp.coinbase.com -> \"Onchain Tools\" -> \"Faucet\"",
     );
   }
 }

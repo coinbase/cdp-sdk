@@ -38,7 +38,7 @@ async function main() {
   console.log("  EVM address:", evmAddress);
   console.log("  Solana address:", svmAddress);
   console.log("  Fund the EVM address with USDC on Base Sepolia before making payments:");
-  console.log("    CDP Faucet: https://portal.cdp.coinbase.com/products/faucet\n");
+  console.log("    CDP Faucet: https://portal.cdp.coinbase.com -> \"Onchain Tools\" -> \"Faucet\"\n");
 
   // Optional: top up the wallet straight from the CDP faucet. The same CDP
   // credentials power both the faucet and the x402 facilitator.
@@ -56,7 +56,7 @@ async function main() {
     } catch {
       // The wallet may already be funded, or the project faucet limit was hit.
       console.warn("  Faucet request failed — you may already be funded, or hit the project limit.");
-      console.warn("  Fund manually if needed: https://portal.cdp.coinbase.com/products/faucet\n");
+      console.warn("  Fund manually if needed: https://portal.cdp.coinbase.com -> \"Onchain Tools\" -> \"Faucet\"\n");
       // Fall through and attempt the payment anyway.
     }
   }
