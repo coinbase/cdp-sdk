@@ -4439,7 +4439,7 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const owner = await cdp.evm.getOrCreateAccount({ name: "x402-e2e-scw-owner" });
+    const owner = await cdp.evm.getOrCreateAccount({ name: "x402-scw-owner" });
     const smartAccount = await cdp.evm.getOrCreateSmartAccount({
       name: "x402-e2e-scw",
       owner,
