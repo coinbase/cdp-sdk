@@ -16,7 +16,6 @@ const {
   mockListSmartAccounts,
   mockGetSmartAccount,
   mockSolanaGetOrCreateAccount,
-  mockCreateBalanceCheckHook,
   MockCdpClient,
 } = vi.hoisted(() => {
   const mockCreatePaymentPayload = vi.fn();
@@ -30,7 +29,6 @@ const {
   const mockListSmartAccounts = vi.fn();
   const mockGetSmartAccount = vi.fn();
   const mockSolanaGetOrCreateAccount = vi.fn();
-  const mockCreateBalanceCheckHook = vi.fn().mockReturnValue(vi.fn());
 
   const mockCdpClientInstance = {
     evm: {
@@ -59,7 +57,6 @@ const {
     mockListSmartAccounts,
     mockGetSmartAccount,
     mockSolanaGetOrCreateAccount,
-    mockCreateBalanceCheckHook,
     MockCdpClient,
   };
 });
@@ -102,7 +99,10 @@ vi.mock("@x402/evm/exact/client", () => ({ registerExactEvmScheme: vi.fn() }));
 vi.mock("@x402/evm/upto/client", () => ({
   UptoEvmScheme: vi.fn().mockImplementation(() => ({})),
 }));
-vi.mock("@x402/svm/exact/client", () => ({ registerExactSvmScheme: vi.fn() }));
+vi.mock("@x402/svm/exact/client", () => ({
+  ExactSvmScheme: vi.fn().mockImplementation(() => ({})),
+  registerExactSvmScheme: vi.fn(),
+}));
 
 vi.mock("../client/cdp.js", () => ({ CdpClient: MockCdpClient }));
 
@@ -112,25 +112,12 @@ vi.mock("./account-signers.js", () => ({
   cdpSolanaAccountToSvmSigner: vi.fn().mockReturnValue({ address: "SolMock" }),
 }));
 
-vi.mock("./balance-check.js", () => ({
-  createBalanceCheckHook: mockCreateBalanceCheckHook,
-  InsufficientFundsError: class InsufficientFundsError extends Error {
-    code = "insufficient_funds" as const;
-    required = 0n;
-    available = 0n;
-    asset = "";
-    network = "";
-    address = "";
-  },
-}));
-
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
 import { CdpX402Client, createCdpX402Client } from "./client.js";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { registerExactSvmScheme } from "@x402/svm/exact/client";
-import { createBalanceCheckHook } from "./balance-check.js";
+import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -199,7 +186,6 @@ describe("CdpX402Client", () => {
     mockGetOrCreateAccount.mockResolvedValue(mockEvmAccount);
     mockSolanaGetOrCreateAccount.mockResolvedValue(mockSvmAccount);
     mockCreatePaymentPayload.mockResolvedValue(mockPayload);
-    mockCreateBalanceCheckHook.mockReturnValue(vi.fn());
   });
 
   afterEach(() => {
@@ -280,18 +266,16 @@ describe("CdpX402Client", () => {
       const client = new CdpX402Client();
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(registerExactEvmScheme).toHaveBeenCalledTimes(1);
+      expect(registerExactEvmScheme).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          signer: expect.anything(),
+          schemeOptions: expect.any(Object),
+        }),
+      );
       expect(registerExactSvmScheme).toHaveBeenCalledTimes(1);
       expect(UptoEvmScheme).toHaveBeenCalledTimes(1);
       expect(mockRegister).toHaveBeenCalledWith("eip155:*", expect.any(Object));
-    });
-
-    it("registers balance check hook", async () => {
-      const client = new CdpX402Client();
-      await client.createPaymentPayload(mockPaymentRequired);
-
-      expect(createBalanceCheckHook).toHaveBeenCalledTimes(1);
-      expect(mockOnBeforePaymentCreation).toHaveBeenCalled();
     });
   });
 
@@ -362,6 +346,15 @@ describe("CdpX402Client", () => {
         /Missing required owner account name/,
       );
     });
+
+    it("does not register upto EVM scheme for smart wallets", async () => {
+      const client = new CdpX402Client({
+        walletConfig: { type: "smart", ownerAccountName: "my-owner" },
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(UptoEvmScheme).not.toHaveBeenCalled();
+    });
   });
 
   describe("credential validation", () => {
@@ -398,12 +391,20 @@ describe("CdpX402Client", () => {
   });
 
   describe("RPC URL override behavior", () => {
-    it("passes RPC URL overrides from config to balance check hook", async () => {
+    it("passes EVM RPC URL overrides from config to exact and upto schemes", async () => {
       const rpcUrls = { "eip155:8453": { rpcUrl: "https://my-rpc.example.com" } };
       const client = new CdpX402Client({ rpcUrls });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(createBalanceCheckHook).toHaveBeenCalledWith(expect.objectContaining({ rpcUrls }));
+      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
+        | { schemeOptions?: Record<number, { rpcUrl: string }> }
+        | undefined;
+      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://my-rpc.example.com");
+
+      const uptoConfig = vi.mocked(UptoEvmScheme).mock.calls.at(-1)?.[1] as
+        | Record<number, { rpcUrl: string }>
+        | undefined;
+      expect(uptoConfig?.[8453]?.rpcUrl).toBe("https://my-rpc.example.com");
     });
 
     it("parses CDP_X402_RPC_URLS env var", async () => {
@@ -411,13 +412,10 @@ describe("CdpX402Client", () => {
       const client = new CdpX402Client();
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(createBalanceCheckHook).toHaveBeenCalledWith(
-        expect.objectContaining({
-          rpcUrls: expect.objectContaining({
-            "eip155:8453": { rpcUrl: "https://custom-rpc.example.com" },
-          }),
-        }),
-      );
+      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
+        | { schemeOptions?: Record<number, { rpcUrl: string }> }
+        | undefined;
+      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://custom-rpc.example.com");
     });
 
     it("throws on invalid CDP_X402_RPC_URLS JSON", async () => {
@@ -434,12 +432,27 @@ describe("CdpX402Client", () => {
       const client = new CdpX402Client({ rpcUrls });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(createBalanceCheckHook).toHaveBeenCalledWith(
-        expect.objectContaining({
-          rpcUrls: expect.objectContaining({
-            "eip155:8453": { rpcUrl: "https://config-rpc.example.com" },
-          }),
-        }),
+      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
+        | { schemeOptions?: Record<number, { rpcUrl: string }> }
+        | undefined;
+      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://config-rpc.example.com");
+    });
+
+    it("registers an explicit Solana scheme when an SVM RPC override is provided", async () => {
+      const rpcUrls = {
+        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": {
+          rpcUrl: "https://solana-devnet-rpc.example.com",
+        },
+      };
+      const client = new CdpX402Client({ rpcUrls });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), {
+        rpcUrl: "https://solana-devnet-rpc.example.com",
+      });
+      expect(mockRegister).toHaveBeenCalledWith(
+        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+        expect.anything(),
       );
     });
   });
@@ -469,7 +482,6 @@ describe("createCdpX402Client", () => {
     mockGetOrCreateAccount.mockResolvedValue(mockEvmAccount);
     mockSolanaGetOrCreateAccount.mockResolvedValue(mockSvmAccount);
     mockCreatePaymentPayload.mockResolvedValue(mockPayload);
-    mockCreateBalanceCheckHook.mockReturnValue(vi.fn());
   });
 
   afterEach(() => {

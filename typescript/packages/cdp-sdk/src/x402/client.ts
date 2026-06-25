@@ -3,21 +3,20 @@
  *
  * CdpX402Client is a drop-in extension of x402Client that auto-provisions
  * CDP-managed wallets (EVM EOA or Smart Contract Wallet + Solana), registers
- * payment schemes, and wires spend controls and a pre-flight balance check.
+ * payment schemes and wires spend controls.
  * All configuration is read from environment variables by default.
  */
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { wrapFetchWithPayment } from "@x402/fetch";
-import { registerExactSvmScheme } from "@x402/svm/exact/client";
+import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import {
   cdpSolanaAccountToSvmSigner,
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
-import { createBalanceCheckHook } from "./balance-check.js";
 import { CDP_EVM_RPC_URLS } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -76,8 +75,8 @@ export interface CdpX402ClientConfig {
    */
   spendControls?: SpendControls;
   /**
-   * Override the public JSON-RPC endpoints used for on-chain balance lookups
-   * and payment signing, keyed by CAIP-2 network identifier.
+   * Override the public JSON-RPC endpoints used for payment signing, keyed by
+   * CAIP-2 network identifier.
    *
    * Falls back to `CDP_X402_RPC_URLS` env var (JSON object mapping CAIP-2 IDs to URL strings).
    */
@@ -154,6 +153,34 @@ const findSmartAccountByOwner = async (
     pageToken = result.nextPageToken;
   } while (pageToken);
   return undefined;
+};
+
+const buildEvmRpcUrlsByChainId = (
+  rpcUrlsByCaip2: Record<string, { rpcUrl: string }>,
+): Record<number, { rpcUrl: string }> => {
+  const result: Record<number, { rpcUrl: string }> = {};
+  for (const [caip2, cfg] of Object.entries(rpcUrlsByCaip2)) {
+    const [namespace, chainId] = caip2.split(":");
+    if (namespace !== "eip155" || !chainId) continue;
+    const numericChainId = Number(chainId);
+    if (!Number.isNaN(numericChainId)) {
+      result[numericChainId] = cfg;
+    }
+  }
+  return result;
+};
+
+const buildSvmRpcOverrides = (
+  rpcUrlsByCaip2: Record<string, { rpcUrl: string }>,
+): Record<string, string> => {
+  const result: Record<string, string> = {};
+  for (const [caip2, cfg] of Object.entries(rpcUrlsByCaip2)) {
+    const [namespace] = caip2.split(":");
+    if (namespace === "solana") {
+      result[caip2] = cfg.rpcUrl;
+    }
+  }
+  return result;
 };
 
 type SignerSetup = {
@@ -246,25 +273,20 @@ const setupCdpSigners = async (
     ...CDP_EVM_RPC_URLS,
     ...resolvedRpcUrls,
   } as Record<string, { rpcUrl: string }>;
-
-  const uptoRpcUrls: Record<number, { rpcUrl: string }> = {};
-  for (const [caip2, cfg] of Object.entries(mergedRpcUrls)) {
-    const [namespace, chainId] = caip2.split(":");
-    if (namespace === "eip155" && chainId) uptoRpcUrls[Number(chainId)] = cfg;
-  }
-
-  registerExactEvmScheme(client, { signer: evmSigner });
-  registerExactSvmScheme(client, { signer: cdpSolanaAccountToSvmSigner(svmAccount) });
-  client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, uptoRpcUrls));
-
-  client.onBeforePaymentCreation(
-    createBalanceCheckHook({
-      cdpClient,
-      evmAddress,
-      svmAddress: svmAccount.address,
-      rpcUrls: Object.keys(resolvedRpcUrls).length > 0 ? resolvedRpcUrls : undefined,
-    }),
+  const evmRpcUrlsByChainId = buildEvmRpcUrlsByChainId(mergedRpcUrls);
+  const svmRpcOverrides = buildSvmRpcOverrides(
+    (resolvedRpcUrls ?? {}) as Record<string, { rpcUrl: string }>,
   );
+  const svmSigner = cdpSolanaAccountToSvmSigner(svmAccount);
+
+  registerExactEvmScheme(client, { signer: evmSigner, schemeOptions: evmRpcUrlsByChainId });
+  registerExactSvmScheme(client, { signer: svmSigner });
+  for (const [network, rpcUrl] of Object.entries(svmRpcOverrides)) {
+    client.register(network as Network, new ExactSvmScheme(svmSigner, { rpcUrl }));
+  }
+  if (walletType !== "smart") {
+    client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
+  }
 
   if (config?.spendControls) {
     applySpendControls(client, config.spendControls);
