@@ -4823,8 +4823,8 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
     });
 
     // 99_999 is under the cap of 100_000 — should succeed in reaching the signing step.
-    // We expect it to fail at signing (e.g. InsufficientFundsError or a real network error),
-    // not at the cumulative_cap guardrail.
+    // We expect it to fail at signing (e.g. an on-chain/balance error or a real
+    // network error), not at the cumulative_cap guardrail.
     const bigPayment = await buildSepoliaPaymentRequired("99999");
     const error = await client2.createPaymentPayload(bigPayment).then(
       () => null,

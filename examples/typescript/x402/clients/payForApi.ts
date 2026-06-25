@@ -12,7 +12,6 @@
  *   Fund the printed EVM address with USDC on Base Sepolia before running.
  *
  * Optional overrides:
- *   CDP_WALLET_TYPE         - "eoa" (default) or "smart"
  *   CDP_ACCOUNT_NAME        - wallet name (default: "x402-client-wallet-1")
  *   CDP_X402_RPC_URLS       - JSON map of CAIP-2 IDs to RPC URLs
  */

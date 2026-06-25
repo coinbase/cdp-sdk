@@ -19,7 +19,7 @@
  */
 import "dotenv/config";
 
-import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { CdpX402Client, SpendControlError } from "@coinbase/cdp-sdk/x402";
 import { wrapFetchWithPayment } from "@x402/fetch";
 
 const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
@@ -57,12 +57,22 @@ async function main() {
     const body = await response.json();
     console.log("Response:", JSON.stringify(body, null, 2));
   } catch (err) {
-    if (err instanceof Error && err.message.includes("per_payment_cap")) {
-      console.error("Payment blocked: exceeds per-payment cap.");
-    } else if (err instanceof Error && err.message.includes("cumulative_cap")) {
-      console.error("Payment blocked: cumulative spend cap reached.");
-    } else if (err instanceof Error && err.message.includes("network_not_allowed")) {
-      console.error("Payment blocked: network not in allowedNetworks.");
+    // Spend controls reject a payment by throwing a SpendControlError with a
+    // machine-readable `code` — switch on that rather than matching message text.
+    if (err instanceof SpendControlError) {
+      switch (err.code) {
+        case "per_payment_cap":
+          console.error("Payment blocked: exceeds per-payment cap.");
+          break;
+        case "cumulative_cap":
+          console.error("Payment blocked: cumulative spend cap reached.");
+          break;
+        case "network_not_allowed":
+          console.error("Payment blocked: network not in allowedNetworks.");
+          break;
+        default:
+          console.error(`Payment blocked by spend controls: ${err.code}`);
+      }
     } else {
       throw err;
     }

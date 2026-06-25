@@ -72,9 +72,6 @@ export type {
 } from "./guardrails/spend-tracker.js";
 export { normalizeAsset, normalizeNetwork, normalizePayee } from "./guardrails/normalize.js";
 
-// Balance check
-export { InsufficientFundsError, createBalanceCheckHook } from "./balance-check.js";
-
 // Signer adapters (for x402 Dev migration)
 export {
   fromCdpEvmAccount,

@@ -151,7 +151,18 @@ export interface SpendStore {
  * ```
  */
 export type SpendControls = {
+  /**
+   * Hard per-payment cap. If `asset` is set the cap only applies to payments in
+   * that asset — payments in any other asset are left uncapped by this field
+   * (atomic units are not comparable across assets with different decimals).
+   * Omit `asset` to cap every payment by raw atomic amount.
+   */
   maxAmountPerPayment?: Amount;
+  /**
+   * Rolling cumulative cap. Unlike `maxAmountPerPayment`, `asset` is required
+   * (enforced when spend controls are applied) because cross-asset atomic units
+   * cannot be summed.
+   */
   maxCumulativeSpend?: Amount;
   maxCumulativeSpendWindow?: Duration;
   allowedNetworks?: Network[];

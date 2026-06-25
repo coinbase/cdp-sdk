@@ -150,29 +150,6 @@ const getStoreMutex = (store: object): Map<string, Promise<unknown>> => {
   return created;
 };
 
-/**
- * Reads the payment amount from a `PaymentRequirements` as a `bigint`.
- *
- * Returns `undefined` when neither field is present or parseable, allowing
- * callers to degrade gracefully instead of hard-failing on edge cases.
- *
- * @param req - The payment requirements to read the amount from.
- * @returns The payment amount as a bigint, or undefined if not parseable.
- */
-export function tryParseAtomicFromRequirement(req: PaymentRequirements): bigint | undefined {
-  const raw =
-    "amount" in req && req.amount !== undefined
-      ? req.amount
-      : (req as unknown as { maxAmountRequired?: string }).maxAmountRequired;
-  if (raw === undefined || raw === null) return undefined;
-  try {
-    const parsed = BigInt(raw as string);
-    return parsed < 0n ? undefined : parsed;
-  } catch {
-    return undefined;
-  }
-}
-
 const parseAtomicFromRequirement = (req: PaymentRequirements): bigint => {
   const raw =
     "amount" in req && req.amount !== undefined
@@ -594,11 +571,16 @@ export function applySpendControls(
    * provisional spend entries — no SDK-owned fetch wrapper required.
    *
    * Settlement decision:
-   *   - settleResponse.success === true  → confirmed on-chain, record spend
+   *   - settleResponse.success === true  → confirmed on-chain, keep the spend
    *   - settleResponse.success === false → settlement failed, roll back
    *   - paymentRequired present          → verify failed (got 402 back), roll back
-   *   - neither                          → server returned success but sent no
-   *     settlement header; treat as confirmed (optimistic)
+   *   - otherwise (ambiguous)            → no settlement header and no follow-up
+   *     402, OR a transport/parse error (ctx.error) after the payment header was
+   *     sent. The on-chain outcome is unknown, so we KEEP the spend (fail-closed
+   *     for the budget): we would rather over-count and block a future payment
+   *     than risk under-counting and exceeding the configured cap. Callers that
+   *     need stronger guarantees should enforce caps with an authoritative,
+   *     durable backend (see SpendControls.store) or a server-side policy.
    */
   const paymentResponseHook: OnPaymentResponseHook = async ctx => {
     if (ctx.settleResponse?.success === true) {
@@ -606,6 +588,7 @@ export function applySpendControls(
     } else if (ctx.settleResponse !== undefined || ctx.paymentRequired !== undefined) {
       await registry.rollback(ctx.paymentPayload);
     } else {
+      // Ambiguous settlement (including ctx.error): keep the spend (fail-closed).
       await registry.confirm(ctx.paymentPayload);
     }
   };

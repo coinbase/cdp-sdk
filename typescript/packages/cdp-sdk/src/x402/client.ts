@@ -67,7 +67,6 @@ export interface CdpX402ClientConfig {
   walletSecret?: string;
   /**
    * Wallet configuration. Defaults to `{ type: "eoa" }`.
-   * Wallet type falls back to `CDP_WALLET_TYPE` env var (`"eoa"` or `"smart"`).
    */
   walletConfig?: WalletConfig;
   /**
