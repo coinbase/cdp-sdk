@@ -419,9 +419,7 @@ describe("CdpX402Client", () => {
       const client = new CdpX402Client({ rpcUrls });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(createBalanceCheckHook).toHaveBeenCalledWith(
-        expect.objectContaining({ rpcUrls }),
-      );
+      expect(createBalanceCheckHook).toHaveBeenCalledWith(expect.objectContaining({ rpcUrls }));
     });
 
     it("parses CDP_X402_RPC_URLS env var", async () => {
