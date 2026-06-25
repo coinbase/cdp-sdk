@@ -16,6 +16,7 @@
       "@x402/evm": ["node_modules/@x402/evm/dist/cjs/index.d.ts"],
       "@x402/evm/exact/client": ["node_modules/@x402/evm/dist/cjs/exact/client/index.d.ts"],
       "@x402/evm/upto/client": ["node_modules/@x402/evm/dist/cjs/upto/client/index.d.ts"],
+      "@x402/fetch": ["node_modules/@x402/fetch/dist/cjs/index.d.ts"],
       "@x402/svm/exact/client": ["node_modules/@x402/svm/dist/cjs/exact/client/index.d.ts"]
     }
   }

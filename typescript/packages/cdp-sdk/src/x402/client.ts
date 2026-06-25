@@ -9,6 +9,7 @@
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
+import { wrapFetchWithPayment } from "@x402/fetch";
 import { registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import {
@@ -20,7 +21,6 @@ import { createBalanceCheckHook } from "./balance-check.js";
 import { CDP_EVM_RPC_URLS } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
-import { wrapFetchWithPayment } from "./guardrails/wrap-fetch.js";
 
 import type { SpendControls } from "./guardrails/types.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
@@ -329,7 +329,10 @@ export class CdpX402Client extends x402Client {
   }
 
   /**
-   * Returns a settlement-aware fetch function for making paid HTTP requests.
+   * Returns a fetch function that automatically handles 402 responses.
+   *
+   * Delegates to `wrapFetchWithPayment` from `@x402/fetch`. You can also
+   * call that directly: `wrapFetchWithPayment(fetch, client)`.
    *
    * @param fetchFn - The fetch implementation to wrap. Defaults to `globalThis.fetch`.
    * @returns A wrapped fetch function that handles 402 responses automatically.

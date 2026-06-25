@@ -20,6 +20,7 @@ import type {
   AfterPaymentCreationHook,
   BeforePaymentCreationHook,
   OnPaymentCreationFailureHook,
+  OnPaymentResponseHook,
   PaymentPolicy,
   x402Client,
 } from "@x402/core/client";
@@ -586,6 +587,30 @@ export function applySpendControls(
     },
   };
   (taggedClient as Record<symbol, unknown>)[SPEND_CONTROLS_REGISTRY] = registry;
+
+  /*
+   * Wire settlement finalization into the standard onPaymentResponse hook so
+   * upstream wrappers like @x402/fetch automatically confirm or roll back
+   * provisional spend entries — no SDK-owned fetch wrapper required.
+   *
+   * Settlement decision:
+   *   - settleResponse.success === true  → confirmed on-chain, record spend
+   *   - settleResponse.success === false → settlement failed, roll back
+   *   - paymentRequired present          → verify failed (got 402 back), roll back
+   *   - neither                          → server returned success but sent no
+   *     settlement header; treat as confirmed (optimistic)
+   */
+  const paymentResponseHook: OnPaymentResponseHook = async ctx => {
+    if (ctx.settleResponse?.success === true) {
+      await registry.confirm(ctx.paymentPayload);
+    } else if (ctx.settleResponse !== undefined || ctx.paymentRequired !== undefined) {
+      await registry.rollback(ctx.paymentPayload);
+    } else {
+      await registry.confirm(ctx.paymentPayload);
+    }
+  };
+  client.onPaymentResponse(paymentResponseHook);
+
   taggedClient[APPLIED_MARKER] = true;
 
   return Object.freeze({

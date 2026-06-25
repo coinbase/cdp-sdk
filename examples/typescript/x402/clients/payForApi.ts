@@ -18,7 +18,8 @@
  */
 import "dotenv/config";
 
-import { createCdpX402Client, wrapFetchWithPayment } from "@coinbase/cdp-sdk/x402";
+import { createCdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
 
 const X402_PAID_API_URL =
   process.env.X402_API_URL ?? "https://x402.org/protected";

@@ -47,7 +47,6 @@ export type { CdpFacilitatorClientArgs } from "./facilitator.js";
 // Spend controls
 export { applySpendControls, getSpendControlsRegistry } from "./guardrails/apply.js";
 export type { SpendControlsRegistry, ResolvedSpendControls } from "./guardrails/apply.js";
-export { wrapFetchWithPayment } from "./guardrails/wrap-fetch.js";
 export {
   SpendControlError,
   SpendControlErrorCodes,

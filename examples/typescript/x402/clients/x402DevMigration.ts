@@ -18,7 +18,8 @@
 import "dotenv/config";
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { CdpX402Client, fromCdpEvmAccount, wrapFetchWithPayment } from "@coinbase/cdp-sdk/x402";
+import { CdpX402Client, fromCdpEvmAccount } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 
