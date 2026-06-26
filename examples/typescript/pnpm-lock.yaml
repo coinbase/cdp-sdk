@@ -23,6 +23,15 @@ importers:
       '@types/node':
         specifier: 22.19.15
         version: 22.19.15
+      '@x402/core':
+        specifier: ^2.16.0
+        version: 2.16.0
+      '@x402/evm':
+        specifier: ^2.16.0
+        version: 2.16.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/fetch':
+        specifier: ^2.16.0
+        version: 2.16.0
       bs58:
         specifier: 6.0.0
         version: 6.0.0
@@ -60,6 +69,9 @@ importers:
       '@x402/evm':
         specifier: ^2.16.0
         version: 2.16.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/fetch':
+        specifier: ^2.16.0
+        version: 2.16.0
       '@x402/svm':
         specifier: ^2.16.0
         version: 2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
@@ -662,6 +674,9 @@ packages:
   '@x402/evm@2.16.0':
     resolution: {integrity: sha512-DGcwATWosIb3hmO/CfWASrn+xbxp7KQyzmMPcIW23XuDjo9YPVRElZWtHBur3euakdM021Hl8SPF1zR0G+W4hw==}
 
+  '@x402/fetch@2.16.0':
+    resolution: {integrity: sha512-skW0XsWzi4NIfqCrY6KxhO3UEJ8qh4nBIKIgwWFCXFHNqRKYWZ7qcCI/DHy7cy3jdYs1MV4PoXX24rP3Umca1Q==}
+
   '@x402/svm@2.16.0':
     resolution: {integrity: sha512-hxggK4PYjfI5CdsbDeVe9JDS70uPMlfFrpOaEPBo5aQ/wtFq/7ydkiUxKXozlhRw9KFqOue9zUGrPsHLCokTTw==}
     peerDependencies:
@@ -926,18 +941,6 @@ packages:
 
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
-  ws@8.19.0:
-    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -1339,7 +1342,7 @@ snapshots:
       '@solana/functional': 5.5.1(typescript@5.8.3)
       '@solana/rpc-subscriptions-spec': 5.5.1(typescript@5.8.3)
       '@solana/subscribable': 5.5.1(typescript@5.8.3)
-      ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.20.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -1529,6 +1532,10 @@ snapshots:
       - bufferutil
       - typescript
       - utf-8-validate
+
+  '@x402/fetch@2.16.0':
+    dependencies:
+      '@x402/core': 2.16.0
 
   '@x402/svm@2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))':
     dependencies:
@@ -1825,11 +1832,6 @@ snapshots:
       - zod
 
   ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 6.0.6
-
-  ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 6.0.6

@@ -112,6 +112,9 @@ importers:
       '@x402/evm':
         specifier: ^2.16.0
         version: 2.16.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      '@x402/fetch':
+        specifier: ^2.16.0
+        version: 2.16.0
       '@x402/svm':
         specifier: ^2.16.0
         version: 2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
@@ -1763,6 +1766,9 @@ packages:
 
   '@x402/evm@2.16.0':
     resolution: {integrity: sha512-DGcwATWosIb3hmO/CfWASrn+xbxp7KQyzmMPcIW23XuDjo9YPVRElZWtHBur3euakdM021Hl8SPF1zR0G+W4hw==}
+
+  '@x402/fetch@2.16.0':
+    resolution: {integrity: sha512-skW0XsWzi4NIfqCrY6KxhO3UEJ8qh4nBIKIgwWFCXFHNqRKYWZ7qcCI/DHy7cy3jdYs1MV4PoXX24rP3Umca1Q==}
 
   '@x402/svm@2.16.0':
     resolution: {integrity: sha512-hxggK4PYjfI5CdsbDeVe9JDS70uPMlfFrpOaEPBo5aQ/wtFq/7ydkiUxKXozlhRw9KFqOue9zUGrPsHLCokTTw==}
@@ -5723,6 +5729,10 @@ snapshots:
       - bufferutil
       - typescript
       - utf-8-validate
+
+  '@x402/fetch@2.16.0':
+    dependencies:
+      '@x402/core': 2.16.0
 
   '@x402/svm@2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))':
     dependencies:
