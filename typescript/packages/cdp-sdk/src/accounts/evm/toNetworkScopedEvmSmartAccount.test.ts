@@ -4,6 +4,7 @@ import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { EvmAccount, EvmSmartAccount } from "./types.js";
 import type { Address, Hex } from "../../types/misc.js";
+import type { PaymentRequired } from "@x402/core/types";
 
 const ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492";
 
@@ -46,6 +47,12 @@ describe("toNetworkScopedEvmSmartAccount", () => {
     name: "test",
     owners: [{ address: mockOwnerAddress }],
     type: "evm-smart",
+    signX402Payment: vi.fn().mockResolvedValue({
+      x402Version: 2,
+      resource: { url: "https://example.com" },
+      accepted: {},
+      payload: {},
+    }),
   } as unknown as EvmSmartAccount;
 
   const mockOwner = {
@@ -108,6 +115,117 @@ describe("toNetworkScopedEvmSmartAccount", () => {
   });
 
   describe("always available methods", () => {
+    it("should always include signX402Payment", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "polygon",
+        owner: mockOwner,
+      });
+
+      expect(account.signX402Payment).toBeDefined();
+      expect(typeof account.signX402Payment).toBe("function");
+    });
+
+    it("should delegate signX402Payment to the base smart account", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "polygon",
+        owner: mockOwner,
+      });
+      const paymentRequired: PaymentRequired = {
+        x402Version: 2,
+        resource: { url: "https://example.com/report" },
+        accepts: [],
+      };
+
+      await account.signX402Payment(paymentRequired, 3);
+
+      expect(mockSmartAccount.signX402Payment).toHaveBeenCalledWith(paymentRequired, 3);
+    });
+
+    it("throws when acceptedIndex targets a network that does not match the scoped network", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base",
+        owner: mockOwner,
+      });
+
+      const wrongNetworkPayment: PaymentRequired = {
+        x402Version: 2,
+        resource: { url: "https://example.com/report" },
+        accepts: [
+          {
+            scheme: "exact",
+            network: "eip155:137", // polygon, not base (eip155:8453)
+            asset: "0xasset" as `0x${string}`,
+            amount: "1000",
+            payTo: "0xpayto" as `0x${string}`,
+            maxTimeoutSeconds: 60,
+            extra: {},
+          },
+        ],
+      };
+
+      await expect(account.signX402Payment(wrongNetworkPayment, 0)).rejects.toThrow(
+        'targets network "eip155:137" but this account is scoped to "base" (eip155:8453)',
+      );
+      expect(mockSmartAccount.signX402Payment).not.toHaveBeenCalled();
+    });
+
+    it("delegates when acceptedIndex targets the scoped network", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "base",
+        owner: mockOwner,
+      });
+
+      const matchingPayment: PaymentRequired = {
+        x402Version: 2,
+        resource: { url: "https://example.com/report" },
+        accepts: [
+          {
+            scheme: "exact",
+            network: "eip155:8453",
+            asset: "0xasset" as `0x${string}`,
+            amount: "1000",
+            payTo: "0xpayto" as `0x${string}`,
+            maxTimeoutSeconds: 60,
+            extra: {},
+          },
+        ],
+      };
+
+      await account.signX402Payment(matchingPayment, 0);
+      expect(mockSmartAccount.signX402Payment).toHaveBeenCalledWith(matchingPayment, 0);
+    });
+
+    it("skips the network check when the scoped network is an RPC URL", async () => {
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "https://custom-rpc.example.com",
+        owner: mockOwner,
+      });
+
+      const anyNetworkPayment: PaymentRequired = {
+        x402Version: 2,
+        resource: { url: "https://example.com/report" },
+        accepts: [
+          {
+            scheme: "exact",
+            network: "eip155:8453",
+            asset: "0xasset" as `0x${string}`,
+            amount: "1000",
+            payTo: "0xpayto" as `0x${string}`,
+            maxTimeoutSeconds: 60,
+            extra: {},
+          },
+        ],
+      };
+
+      await account.signX402Payment(anyNetworkPayment, 0);
+      expect(mockSmartAccount.signX402Payment).toHaveBeenCalledWith(anyNetworkPayment, 0);
+    });
+
     it("should always include sendUserOperation", async () => {
       const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
         smartAccount: mockSmartAccount,

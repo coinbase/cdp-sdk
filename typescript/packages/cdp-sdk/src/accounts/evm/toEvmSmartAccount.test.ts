@@ -13,6 +13,8 @@ import { UserOperation } from "../../client/evm/evm.types.js";
 import { parseUnits } from "viem";
 import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
+import { signEvmSmartAccountX402Payment } from "../../actions/x402/signX402Payment.js";
+import type { PaymentRequired } from "@x402/core/types";
 
 const ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492";
 
@@ -39,6 +41,14 @@ vi.mock("../../actions/evm/signAndWrapTypedDataForSmartAccount.js", () => ({
 
 vi.mock("../../actions/evm/spend-permissions/smartAccount.use.js", () => ({
   useSpendPermission: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
+}));
+
+vi.mock("../../actions/x402/signX402Payment.js", () => ({
+  signEvmX402Payment: vi.fn().mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
+  signEvmSmartAccountX402Payment: vi
+    .fn()
+    .mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
+  signSolanaX402Payment: vi.fn().mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
 }));
 
 describe("toEvmSmartAccount", () => {
@@ -112,6 +122,7 @@ describe("toEvmSmartAccount", () => {
       quoteSwap: expect.any(Function),
       swap: expect.any(Function),
       signTypedData: expect.any(Function),
+      signX402Payment: expect.any(Function),
       useNetwork: expect.any(Function),
       useSpendPermission: expect.any(Function),
     });
@@ -155,6 +166,25 @@ describe("toEvmSmartAccount", () => {
     });
 
     expect(result.type).toBe("evm-smart");
+  });
+
+  it("should call signEvmSmartAccountX402Payment when signX402Payment is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report" },
+      accepts: [],
+    };
+
+    await smartAccount.signX402Payment(paymentRequired, 2);
+
+    expect(signEvmSmartAccountX402Payment).toHaveBeenCalledWith(
+      expect.objectContaining({ address: mockAddress }),
+      { paymentRequired, acceptedIndex: 2 },
+    );
   });
 
   it("should call transfer action when transfer is called", async () => {

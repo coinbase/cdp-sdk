@@ -2,7 +2,7 @@
  * @module Types
  */
 
-import { Account, SolanaAccount } from "../../accounts/solana/types.js";
+import { SolanaAccount } from "../../accounts/solana/types.js";
 import {
   ListSolanaTokenBalancesNetwork,
   OpenApiSolanaMethods,
@@ -31,12 +31,12 @@ export type SolanaClientInterface = Omit<
   | "listSolanaTokenBalances" // mapped to listTokenBalances
   | "sendSolanaTransaction" // mapped to sendTransaction
 > & {
-  createAccount: (options: CreateAccountOptions) => Promise<Account>;
+  createAccount: (options: CreateAccountOptions) => Promise<SolanaAccount>;
   exportAccount: (options: ExportAccountOptions) => Promise<string>;
   importAccount: (options: ImportAccountOptions) => Promise<SolanaAccount>;
-  getAccount: (options: GetAccountOptions) => Promise<Account>;
-  getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<Account>;
-  updateAccount: (options: UpdateSolanaAccountOptions) => Promise<Account>;
+  getAccount: (options: GetAccountOptions) => Promise<SolanaAccount>;
+  getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<SolanaAccount>;
+  updateAccount: (options: UpdateSolanaAccountOptions) => Promise<SolanaAccount>;
   listAccounts: (options: ListAccountsOptions) => Promise<ListAccountsResult>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
