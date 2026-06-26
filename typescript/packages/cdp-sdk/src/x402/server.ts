@@ -237,7 +237,9 @@ export type PayToConfig =
   | {
       /**
        * Use provided addresses directly.
-       * No wallet provisioning is performed — CDP credentials are not required.
+       * No wallet provisioning is performed — `CDP_WALLET_SECRET` is not required.
+       * API key credentials (`CDP_API_KEY_ID` / `CDP_API_KEY_SECRET`) are still
+       * needed for the CDP facilitator.
        * At least one of `evm` or `solana` should be provided, or all routes
        * must supply explicit `payTo` values in the full x402 `RouteConfig` format.
        */
@@ -260,7 +262,7 @@ export type PayToConfig =
  * Pass `configPath` to load routes (and optionally credentials) from a JSON
  * file instead of specifying them inline.
  */
-export interface CdpServerConfig {
+export interface CdpX402ServerConfig {
   /**
    * CDP API key ID.
    * Falls back to `CDP_SERVER_API_KEY_ID`, then `CDP_API_KEY_ID` env var.
@@ -338,7 +340,7 @@ interface ProvisionedAddresses {
  * @returns Resolved credential strings and environment (any credential may be `undefined` if not found).
  */
 function resolveServerCredentials(
-  config: Pick<CdpServerConfig, "apiKeyId" | "apiKeySecret" | "walletSecret" | "environment">,
+  config: Pick<CdpX402ServerConfig, "apiKeyId" | "apiKeySecret" | "walletSecret" | "environment">,
 ): {
   apiKeyId: string | undefined;
   apiKeySecret: string | undefined;
@@ -705,11 +707,11 @@ function resolveRoutes(
  * @param filePath - Absolute or relative path to the JSON config file.
  * @returns Parsed config with `configPath` removed.
  */
-async function loadConfigFile(filePath: string): Promise<Omit<CdpServerConfig, "configPath">> {
+async function loadConfigFile(filePath: string): Promise<Omit<CdpX402ServerConfig, "configPath">> {
   const content = await readFile(filePath, "utf-8");
-  const parsed = JSON.parse(content) as CdpServerConfig;
-  const result: Omit<CdpServerConfig, "configPath"> = { ...parsed };
-  delete (result as CdpServerConfig).configPath;
+  const parsed = JSON.parse(content) as CdpX402ServerConfig;
+  const result: Omit<CdpX402ServerConfig, "configPath"> = { ...parsed };
+  delete (result as CdpX402ServerConfig).configPath;
   return result;
 }
 
@@ -735,8 +737,11 @@ async function loadConfigFile(filePath: string): Promise<Omit<CdpServerConfig, "
  * provisioned receiver wallets.
  */
 export class X402Server extends x402HTTPResourceServer {
-  /** EVM address of the provisioned receiver wallet (EOA or SCW per `payToConfig`). */
-  readonly payToEvmAddress: `0x${string}`;
+  /**
+   * EVM address of the receiver wallet. Empty string `""` when `payToConfig` is
+   * `{ type: "address" }` and no `evm` field was provided.
+   */
+  readonly payToEvmAddress: `0x${string}` | "";
   /** Solana address of the provisioned receiver wallet. */
   readonly payToSvmAddress: string;
   /**
@@ -760,7 +765,7 @@ export class X402Server extends x402HTTPResourceServer {
   private constructor(
     resourceServer: x402ResourceServer,
     routes: RoutesConfig,
-    payToEvmAddress: `0x${string}`,
+    payToEvmAddress: `0x${string}` | "",
     payToSvmAddress: string,
     ownerWallet?: string,
   ) {
@@ -805,7 +810,7 @@ export class X402Server extends x402HTTPResourceServer {
    * @returns A fully initialized `X402Server` instance ready to be passed to
    *   any framework middleware.
    */
-  static async create(config: CdpServerConfig): Promise<X402Server> {
+  static async create(config: CdpX402ServerConfig): Promise<X402Server> {
     /*
      * 1. Merge file config (if any) with inline config; inline takes precedence.
      *    Routes are deep-merged so both file and inline routes are preserved;
@@ -883,18 +888,29 @@ export class X402Server extends x402HTTPResourceServer {
       ownerWallet = provisioned.ownerWallet;
     }
 
-    /*
-     * 5b. Register batch-settlement scheme now that we have the receiver address.
-     *     Unlike exact/upto, BatchSettlementEvmScheme requires the receiver address
-     *     at construction time so it must be registered after wallet provisioning.
-     */
-    if (evmAddress) {
-      const batchScheme = getCdpBatchSettlementScheme(evmAddress);
-      resourceServer.register(batchScheme.network as Network, batchScheme.server);
-    }
-
     // 6. Resolve routes (simplified CDP format or full x402 format).
     const resolvedRoutes = resolveRoutes(routes, evmAddress, svmAddress, environment);
+
+    /*
+     * 5b. Register batch-settlement scheme for all EVM receiver addresses used in
+     *     resolved routes. BatchSettlementEvmScheme requires the receiver address at
+     *     construction time. Scanning resolved routes ensures full x402 RouteConfigs
+     *     with an explicit payTo (and no provisioned evmAddress) are also covered.
+     */
+    const batchAddresses = new Set<`0x${string}`>();
+    if (evmAddress) batchAddresses.add(evmAddress);
+    for (const route of Object.values(resolvedRoutes)) {
+      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
+      for (const opt of accepts) {
+        if ((opt.scheme as string) === "batch-settlement" && opt.payTo) {
+          batchAddresses.add(opt.payTo as `0x${string}`);
+        }
+      }
+    }
+    for (const addr of batchAddresses) {
+      const reg = getCdpBatchSettlementScheme(addr);
+      resourceServer.register(reg.network as Network, reg.server);
+    }
 
     // 7. Construct and initialize — syncs supported schemes with the facilitator.
     const instance = new X402Server(
@@ -973,7 +989,7 @@ export class X402Server extends x402HTTPResourceServer {
  * const server = await createX402Server({ configPath: "./x402.config.json" });
  * ```
  */
-export async function createX402Server(config: CdpServerConfig): Promise<X402Server> {
+export async function createX402Server(config: CdpX402ServerConfig): Promise<X402Server> {
   return X402Server.create(config);
 }
 

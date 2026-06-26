@@ -66,7 +66,7 @@ export {
   CDP_SERVER_DEVELOPMENT_NETWORKS,
 } from "./server.js";
 export type {
-  CdpServerConfig,
+  CdpX402ServerConfig,
   CdpRouteConfig,
   CdpPaymentScheme,
   PayToConfig,
@@ -86,8 +86,8 @@ export {
 export type { CdpSchemeRegistration } from "./server-extensions.js";
 
 // Main client
-export { CdpX402Client, createCdpX402Client } from "./client.js";
-export type { CdpX402ClientConfig, CdpX402ClientResult, WalletConfig } from "./client.js";
+export { CdpX402Client } from "./client.js";
+export type { CdpX402ClientConfig, WalletConfig } from "./client.js";
 
 // Facilitator
 export { createCdpFacilitatorClient, CDP_FACILITATOR_URL } from "./facilitator.js";

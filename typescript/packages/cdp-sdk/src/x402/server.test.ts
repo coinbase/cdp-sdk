@@ -9,7 +9,7 @@ import {
   CDP_SERVER_DEVELOPMENT_SVM_NETWORKS,
   CDP_SERVER_DEVELOPMENT_NETWORKS,
 } from "./server.js";
-import type { CdpServerConfig, CdpPaymentScheme } from "./server.js";
+import type { CdpX402ServerConfig, CdpPaymentScheme } from "./server.js";
 import {
   CDP_EXTENSION_GAS_SPONSORING_EIP2612,
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
@@ -109,7 +109,7 @@ vi.mock("node:fs/promises", () => ({
 // Helpers
 // ---------------------------------------------------------------------------
 
-const SIMPLE_ROUTES: CdpServerConfig["routes"] = {
+const SIMPLE_ROUTES: CdpX402ServerConfig["routes"] = {
   "GET /report": { price: "$0.01", description: "test route" },
 };
 
@@ -1284,6 +1284,32 @@ describe("createX402Server — batch-settlement scheme", () => {
       Record<string, { accepts: { payTo: string } }>,
     ];
     expect(passedRoutes["GET /channel"].accepts.payTo).toBe(MOCK_EVM_ADDRESS);
+  });
+
+  it("batch-settlement is registered when full x402 route has explicit payTo and no evm in address payToConfig", async () => {
+    const EXPLICIT_EVM = "0xdeadbeef00000000000000000000000000000000" as `0x${string}`;
+
+    await createX402Server({
+      routes: {
+        "GET /channel": {
+          accepts: {
+            scheme: "batch-settlement" as const,
+            price: "$0.01",
+            network: "eip155:8453" as `${string}:${string}`,
+            payTo: EXPLICIT_EVM,
+            maxTimeoutSeconds: 300,
+          },
+        },
+      },
+      payToConfig: { type: "address", solana: "MySolanaAddress" }, // no evm — evmAddress resolves to ""
+    });
+
+    const registerCalls = vi.mocked(mockResourceServer.register).mock.calls;
+    const batchCall = registerCalls.find(
+      ([, scheme]) => (scheme as { scheme: string }).scheme === "batch-settlement",
+    );
+    expect(batchCall).toBeDefined();
+    expect(batchCall![0]).toBe("eip155:*");
   });
 });
 

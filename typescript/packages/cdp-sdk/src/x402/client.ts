@@ -10,7 +10,6 @@
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { wrapFetchWithPayment } from "@x402/fetch";
 import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import {
@@ -78,22 +77,6 @@ export interface CdpX402ClientConfig {
    * Falls back to `CDP_X402_RPC_URLS` env var (JSON object mapping CAIP-2 IDs to URL strings).
    */
   rpcUrls?: Partial<Record<string, { rpcUrl: string }>>;
-}
-
-/**
- * Result from eagerly creating a CDP x402 client via {@link createCdpX402Client}.
- */
-export interface CdpX402ClientResult {
-  /** - Configured x402Client with EVM and SVM schemes registered. */
-  client: x402Client;
-  /** - The underlying CdpClient instance for direct CDP API access. */
-  cdpClient: CdpClient;
-  /** - The EVM address used for payments. */
-  evmAddress: `0x${string}`;
-  /** - The Solana account address. */
-  svmAddress: string;
-  /** - Owner account name. Only set when `walletConfig.type` is `"smart"`. */
-  ownerWallet?: string;
 }
 
 const DEFAULT_ACCOUNT_NAME = "x402-client-wallet-1";
@@ -347,28 +330,6 @@ export class CdpX402Client extends x402Client {
   }
 
   /**
-   * Returns a fetch function that automatically handles 402 responses.
-   *
-   * Delegates to `wrapFetchWithPayment` from `@x402/fetch`. You can also
-   * call that directly: `wrapFetchWithPayment(fetch, client)`.
-   *
-   * @param fetchFn - The fetch implementation to wrap. Defaults to `globalThis.fetch`.
-   * @returns A wrapped fetch function that handles 402 responses automatically.
-   *
-   * @example
-   * ```typescript
-   * const client = new CdpX402Client();
-   * const fetchWithPayment = client.wrapFetch();
-   * const response = await fetchWithPayment("https://api.example.com/paid");
-   * ```
-   */
-  wrapFetch(
-    fetchFn: typeof globalThis.fetch = globalThis.fetch,
-  ): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> {
-    return wrapFetchWithPayment(fetchFn, this);
-  }
-
-  /**
    * Provisions CDP accounts and registers payment schemes.
    */
   private async _initialize(): Promise<void> {
@@ -389,27 +350,4 @@ export class CdpX402Client extends x402Client {
     }
     return this._initPromise;
   }
-}
-
-/**
- * Creates a fully configured CDP x402 client, eagerly provisioning wallets.
- *
- * Use this when you need the wallet address(es) before making any payments.
- * For most use cases, prefer `CdpX402Client` which defers initialization.
- *
- * @param config - Optional configuration. Credentials and RPC URLs fall back to env vars.
- * @returns A configured client plus resolved wallet addresses.
- *
- * @example
- * ```typescript
- * const { client, evmAddress } = await createCdpX402Client();
- * console.log("Paying from:", evmAddress);
- * ```
- */
-export async function createCdpX402Client(
-  config?: CdpX402ClientConfig,
-): Promise<CdpX402ClientResult> {
-  const client = new x402Client();
-  const { cdpClient, evmAddress, svmAddress, ownerWallet } = await setupCdpSigners(client, config);
-  return { client, cdpClient, evmAddress, svmAddress, ownerWallet };
 }

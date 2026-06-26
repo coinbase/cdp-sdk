@@ -55,7 +55,7 @@ import { HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { VerifyError } from "@x402/core/types";
 import { wrapFetchWithPayment } from "@x402/fetch";
-import { CdpX402Client, createCdpX402Client } from "./x402/client.js";
+import { CdpX402Client } from "./x402/client.js";
 import { createCdpFacilitatorClient } from "./x402/facilitator.js";
 import { createX402Server } from "./x402/server.js";
 import { SpendControlError } from "./x402/guardrails/types.js";
@@ -4628,24 +4628,8 @@ describe("CdpX402Client E2E Tests", () => {
 const X402_PAID_API_URL = process.env.CDP_E2E_X402_PAID_API_URL ?? "https://x402.org/protected";
 
 describe("CdpX402Client full payment flow E2E Tests", () => {
-  it("CdpX402Client.wrapFetch() pays for a protected resource and returns a 200 response", async () => {
-    const client = new CdpX402Client();
-    const fetchWithPayment = client.wrapFetch();
-    const response = await fetchWithPayment(X402_PAID_API_URL);
-    expect(response.status).toBe(200);
-  }, 180_000);
-
   it("wrapFetchWithPayment from @x402/fetch works identically with CdpX402Client", async () => {
     const client = new CdpX402Client();
-    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-    const response = await fetchWithPayment(X402_PAID_API_URL);
-    expect(response.status).toBe(200);
-  }, 180_000);
-
-  it("createCdpX402Client (eager) + wrapFetchWithPayment makes a successful payment", async () => {
-    const { client, evmAddress } = await createCdpX402Client();
-    expect(evmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
-
     const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
     const response = await fetchWithPayment(X402_PAID_API_URL);
     expect(response.status).toBe(200);
@@ -4783,8 +4767,8 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
       X402_BASE_SEPOLIA_USDC as Address,
     );
 
-    // Make a real payment via wrapFetch so the onPaymentResponse hook fires and confirms spend.
-    const fetchWithPayment = client.wrapFetch();
+    // Make a real payment so the onPaymentResponse hook fires and confirms spend.
+    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
     await fetchWithPayment(X402_PAID_API_URL);
 
     // onApproachingLimit is fired on confirmation (onPaymentResponse hook). Check it ran.
@@ -4802,7 +4786,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
 // ─── Settlement-aware spend tracking ─────────────────────────────────────────
 
 describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
-  it("spend tracker records confirmed spend after a successful wrapFetch payment", async () => {
+  it("spend tracker records confirmed spend after a successful payment", async () => {
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const client = new CdpX402Client({
       spendControls: {
@@ -4810,7 +4794,7 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
       },
     });
 
-    const fetchWithPayment = client.wrapFetch();
+    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
     await fetchWithPayment(X402_PAID_API_URL);
 
     // After the onPaymentResponse hook fires, the registry confirms the spend
@@ -5118,9 +5102,8 @@ describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
 
         try {
           // 2. Pay with CdpX402Client — auto-provisions a separate payer wallet.
-          //    wrapFetch handles the 402 → sign → retry cycle automatically.
           const client = new CdpX402Client();
-          const fetchWithPayment = client.wrapFetch();
+          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
           const response = await fetchWithPayment(url);
 
           // 3. Assert the full flow succeeded.
