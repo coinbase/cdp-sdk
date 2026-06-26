@@ -19,6 +19,7 @@
 import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { UptoEvmScheme } from "@x402/evm/upto/server";
+import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
@@ -223,6 +224,12 @@ export function getCdpBatchSettlementScheme(evmAddress: `0x${string}`): CdpSchem
  * whose `extensions` include a CDP extension key get the correct
  * `PaymentRequired.extensions[key]` value.
  *
+ * The Bazaar entry uses the official `bazaarResourceServerExtension` from
+ * `@x402/extensions/bazaar`, which enriches the Bazaar declaration at request
+ * time with the actual HTTP method and any dynamic path parameters extracted
+ * from the live URL. This ensures routes with dynamic segments (`:param`, `[param]`,
+ * `*`) produce correct discovery metadata.
+ *
  * `createX402Server()` calls this automatically. Call it manually only when
  * building a resource server without `createX402Server`:
  *
@@ -248,9 +255,6 @@ export function getCdpExtensionRegistrations(): ResourceServerExtension[] {
       key: CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
       enrichPaymentRequiredResponse: async declaration => declaration ?? {},
     },
-    {
-      key: CDP_EXTENSION_BAZAAR,
-      enrichPaymentRequiredResponse: async declaration => declaration ?? {},
-    },
+    bazaarResourceServerExtension,
   ];
 }

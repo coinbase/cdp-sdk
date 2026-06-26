@@ -892,6 +892,31 @@ export class X402Server extends x402HTTPResourceServer {
     const resolvedRoutes = resolveRoutes(routes, evmAddress, svmAddress, environment);
 
     /*
+     * 6b. Guard: batch-settlement stores per-channel state keyed to the receiver address,
+     *     so only one receiver address is valid per server instance.
+     *     Collect all distinct payTo values used in batch-settlement routes (scanning
+     *     both simplified and full x402 RouteConfig formats), then reject the config
+     *     if more than one distinct address is found.
+     */
+    const batchPayTos = new Set<string>();
+    for (const route of Object.values(resolvedRoutes)) {
+      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
+      for (const opt of accepts) {
+        if ((opt.scheme as string) === "batch-settlement" && opt.payTo) {
+          batchPayTos.add((opt.payTo as string).toLowerCase());
+        }
+      }
+    }
+    if (batchPayTos.size > 1) {
+      throw new Error(
+        `batch-settlement routes must all share the same EVM receiver address within one ` +
+          `X402Server instance. ${batchPayTos.size} distinct addresses found: ` +
+          `${[...batchPayTos].join(", ")}. ` +
+          `Create separate X402Server instances for routes with different receivers.`,
+      );
+    }
+
+    /*
      * 5b. Register batch-settlement scheme for all EVM receiver addresses used in
      *     resolved routes. BatchSettlementEvmScheme requires the receiver address at
      *     construction time. Scanning resolved routes ensures full x402 RouteConfigs

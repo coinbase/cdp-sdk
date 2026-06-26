@@ -55,11 +55,16 @@ import { HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { VerifyError } from "@x402/core/types";
 import { wrapFetchWithPayment } from "@x402/fetch";
+import { BatchSettlementEvmScheme as BatchSettlementEvmClientScheme } from "@x402/evm/batch-settlement/client";
+import { x402Client } from "@x402/core/client";
+import type { Network } from "@x402/core/types";
 import { CdpX402Client } from "./x402/client.js";
 import { createCdpFacilitatorClient } from "./x402/facilitator.js";
 import { createX402Server } from "./x402/server.js";
 import { SpendControlError } from "./x402/guardrails/types.js";
 import { getSpendControlsRegistry } from "./x402/guardrails/apply.js";
+import { fromCdpEvmAccount } from "./x402/account-signers.js";
+import { CDP_EVM_RPC_URLS } from "./x402/constants.js";
 
 dotenv.config();
 
@@ -5191,4 +5196,116 @@ describe("createX402Server E2E Tests", () => {
     expect(routeConfig.extensions!["eip2612GasSponsoring"]).toBeDefined();
     expect(routeConfig.extensions!["bazaar"]).toBeDefined();
   }, 180_000);
+});
+
+// ─── upto round-trip E2E Tests ─────────────────────────────────────────────
+
+describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
+  it("CdpX402Client pays X402Server (upto), server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    // Server: X402Server with a upto route (max $0.001, settle full amount).
+    const x402Server = await createX402Server({
+      routes: {
+        "GET /ping": {
+          price: "$0.001",
+          scheme: "upto",
+          description: "upto round-trip e2e test",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
+        },
+      },
+    });
+
+    expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const httpServer = createX402HttpTestServer(x402Server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await new Promise<void>((resolve, reject) => {
+      httpServer.listen(0, async () => {
+        const addr = httpServer.address() as { port: number };
+        const url = `http://localhost:${addr.port}/ping`;
+
+        try {
+          // Client: CdpX402Client auto-registers UptoEvmScheme for EOA wallets.
+          const client = new CdpX402Client();
+          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+          const response = await fetchWithPayment(url);
+
+          expect(response.status).toBe(200);
+          expect(response.headers.get("payment-response")).toBeTruthy();
+          const body = (await response.json()) as { pong: boolean };
+          expect(body.pong).toBe(true);
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          httpServer.close();
+        }
+      });
+    });
+  }, 300_000);
+});
+
+// ─── batch-settlement round-trip E2E Tests ─────────────────────────────────
+
+describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", () => {
+  it("x402Client (batch-settlement) pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    // Server: X402Server with a batch-settlement route on Base Sepolia.
+    const x402Server = await createX402Server({
+      routes: {
+        "GET /ping": {
+          price: "$0.001",
+          scheme: "batch-settlement",
+          description: "batch-settlement round-trip e2e test",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
+        },
+      },
+    });
+
+    expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const httpServer = createX402HttpTestServer(x402Server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await new Promise<void>((resolve, reject) => {
+      httpServer.listen(0, async () => {
+        const addr = httpServer.address() as { port: number };
+        const url = `http://localhost:${addr.port}/ping`;
+
+        try {
+          // Client: raw x402Client with a CDP-backed BatchSettlementEvmScheme.
+          const cdpClientForPayer = new CdpClient();
+          const payerEvmAccount = await cdpClientForPayer.evm.getOrCreateAccount({
+            name: "x402-batch-payer-1",
+          });
+          const signer = fromCdpEvmAccount(payerEvmAccount);
+
+          // Chain ID 84532 = Base Sepolia.
+          const rpcUrl = CDP_EVM_RPC_URLS[X402_BASE_SEPOLIA_CAIP2]?.rpcUrl;
+          const batchClientScheme = new BatchSettlementEvmClientScheme(signer, {
+            extensionRpcOptions: rpcUrl ? { 84532: { rpcUrl } } : undefined,
+          });
+
+          const client = new x402Client();
+          client.register(X402_BASE_SEPOLIA_CAIP2 as Network, batchClientScheme);
+
+          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+          const response = await fetchWithPayment(url);
+
+          expect(response.status).toBe(200);
+          expect(response.headers.get("payment-response")).toBeTruthy();
+          const body = (await response.json()) as { pong: boolean };
+          expect(body.pong).toBe(true);
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          httpServer.close();
+        }
+      });
+    });
+  }, 300_000);
 });

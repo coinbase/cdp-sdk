@@ -20,6 +20,10 @@ import {
   getCdpBatchSettlementScheme,
   getCdpExtensionRegistrations,
 } from "./server-extensions.js";
+import {
+  validateDiscoveryExtension,
+  validateDiscoveryExtensionSpec,
+} from "@x402/extensions/bazaar";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -1657,5 +1661,160 @@ describe("buildBazaarDeclaration — auto-injected in POST route via createX402S
     const input = (bazaar!.info as { input: Record<string, unknown> }).input;
     expect(input.body).toBeDefined();
     expect(input.bodyType).toBe("json");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// buildBazaarDeclaration — x402 SDK validation
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("buildBazaarDeclaration — x402 SDK validation", () => {
+  it("GET route produces a valid DiscoveryExtension (schema validates info)", () => {
+    const decl = buildBazaarDeclaration("GET", "/report");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = validateDiscoveryExtension(decl as any);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("POST route with body produces a valid DiscoveryExtension", () => {
+    const decl = buildBazaarDeclaration("POST", "/submit");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = validateDiscoveryExtension(decl as any);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("PUT route with body produces a valid DiscoveryExtension", () => {
+    const decl = buildBazaarDeclaration("PUT", "/resource");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = validateDiscoveryExtension(decl as any);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("DELETE route produces a valid DiscoveryExtension", () => {
+    const decl = buildBazaarDeclaration("DELETE", "/resource");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = validateDiscoveryExtension(decl as any);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("GET route passes protocol-level spec validation", () => {
+    const decl = buildBazaarDeclaration("GET", "/report");
+    const result = validateDiscoveryExtensionSpec(decl);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("POST route passes protocol-level spec validation", () => {
+    const decl = buildBazaarDeclaration("POST", "/orders");
+    const result = validateDiscoveryExtensionSpec(decl);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("GET route with path params passes spec validation", () => {
+    const decl = buildBazaarDeclaration("GET", "/users/:id");
+    const result = validateDiscoveryExtensionSpec(decl);
+    expect(result.valid, result.errors?.join(", ")).toBe(true);
+  });
+
+  it("getCdpExtensionRegistrations bazaar entry uses bazaarResourceServerExtension (has enrichDeclaration)", () => {
+    const registrations = getCdpExtensionRegistrations();
+    const bazaarReg = registrations.find(r => r.key === CDP_EXTENSION_BAZAAR);
+    expect(bazaarReg).toBeDefined();
+    expect(typeof bazaarReg!.enrichDeclaration).toBe("function");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// createX402Server — batch-settlement multiple receiver guard
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("createX402Server — batch-settlement multiple receiver guard", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("throws when two batch-settlement routes use different explicit payTo addresses", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /channel1": {
+            accepts: {
+              scheme: "batch-settlement" as const,
+              price: "$0.01",
+              network: "eip155:8453" as `${string}:${string}`,
+              payTo: "0x1111111111111111111111111111111111111111" as `0x${string}`,
+              maxTimeoutSeconds: 300,
+            },
+          },
+          "GET /channel2": {
+            accepts: {
+              scheme: "batch-settlement" as const,
+              price: "$0.01",
+              network: "eip155:8453" as `${string}:${string}`,
+              payTo: "0x2222222222222222222222222222222222222222" as `0x${string}`,
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+        payToConfig: {
+          type: "address",
+          evm: "0x1111111111111111111111111111111111111111",
+        },
+      }),
+    ).rejects.toThrow("batch-settlement routes must all share the same EVM receiver address");
+  });
+
+  it("does NOT throw when all batch-settlement routes share the same payTo", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /channel1": {
+            accepts: {
+              scheme: "batch-settlement" as const,
+              price: "$0.01",
+              network: "eip155:8453" as `${string}:${string}`,
+              payTo: "0x1111111111111111111111111111111111111111" as `0x${string}`,
+              maxTimeoutSeconds: 300,
+            },
+          },
+          "GET /channel2": {
+            accepts: {
+              scheme: "batch-settlement" as const,
+              price: "$0.02",
+              network: "eip155:84532" as `${string}:${string}`,
+              payTo: "0x1111111111111111111111111111111111111111" as `0x${string}`,
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+        payToConfig: {
+          type: "address",
+          evm: "0x1111111111111111111111111111111111111111",
+        },
+      }),
+    ).resolves.toBeInstanceOf(X402Server);
+  });
+
+  it("does NOT throw for a single batch-settlement route using the provisioned address", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /channel": {
+            price: "$0.01",
+            scheme: "batch-settlement" as CdpPaymentScheme,
+            networks: ["eip155:8453"],
+          },
+        },
+      }),
+    ).resolves.toBeInstanceOf(X402Server);
   });
 });
