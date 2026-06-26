@@ -4476,9 +4476,10 @@ async function getCdpSolanaFeePayer(
 
 describe("x402 signing E2E Tests", () => {
   it("EVM EOA account signs an x402 payment the CDP facilitator verifies", async () => {
-    const client = new CdpX402Client({
-      walletConfig: { type: "eoa", accountName: "X402-E2E-EVM-Account" },
-    });
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const account = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-EVM-Account" });
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
     const { name, version } = await readEvmTokenDomain(
@@ -4502,20 +4503,21 @@ describe("x402 signing E2E Tests", () => {
       ],
     };
 
-    const payment = await client.createPaymentPayload(paymentRequired);
+    const payment = await account.signX402Payment(paymentRequired, 0);
     const facilitator = createCdpFacilitatorClient();
-    const result = await facilitator.verify(payment, payment.accepted);
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
 
     expect(result.isValid).toBe(true);
   }, 180_000);
 
   it("EVM smart account signs an x402 payment the CDP facilitator verifies", async () => {
-    const client = new CdpX402Client({
-      walletConfig: {
-        type: "smart",
-        accountName: "X402-E2E-Smart-Account",
-        ownerAccountName: "X402-E2E-Smart-Account-Owner",
-      },
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const owner = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-Smart-Account-Owner" });
+    const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+      name: "X402-E2E-Smart-Account",
+      owner,
     });
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
@@ -4540,17 +4542,18 @@ describe("x402 signing E2E Tests", () => {
       ],
     };
 
-    const payment = await client.createPaymentPayload(paymentRequired);
+    const payment = await smartAccount.signX402Payment(paymentRequired, 0);
     const facilitator = createCdpFacilitatorClient();
-    const result = await facilitator.verify(payment, payment.accepted);
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
 
     expect(result.isValid).toBe(true);
   }, 180_000);
 
   it("Solana account signs an x402 payment the CDP facilitator verifies", async () => {
-    const client = new CdpX402Client({
-      walletConfig: { type: "eoa", accountName: "X402-E2E-Solana-Account" },
-    });
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const account = await cdp.solana.getOrCreateAccount({ name: "X402-E2E-Solana-Account" });
 
     const facilitator = createCdpFacilitatorClient();
     const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
@@ -4571,8 +4574,8 @@ describe("x402 signing E2E Tests", () => {
       ],
     };
 
-    const payment = await client.createPaymentPayload(paymentRequired);
-    const result = await facilitator.verify(payment, payment.accepted);
+    const payment = await account.signX402Payment(paymentRequired, 0);
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
 
     expect(result.isValid).toBe(true);
   }, 180_000);

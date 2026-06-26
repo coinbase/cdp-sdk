@@ -3,7 +3,7 @@
 /**
  * Express resource server protected by x402 using the CDP hosted facilitator.
  *
- * This example demonstrates the x402 Dev journey: drop in the CDP hosted
+ * This example demonstrates drop-in functionality of the CDP hosted
  * facilitator as a replacement for a self-hosted one, with no other changes
  * to your existing x402 setup.
  *
