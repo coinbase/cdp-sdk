@@ -4325,17 +4325,26 @@ describe("CDP Client E2E Tests", () => {
         },
       };
 
-      // The facilitator responds with isValid: false for an invalid payment
-      // (rather than an auth error), confirming CDP JWT auth is accepted.
+      // The facilitator rejects the invalid payment (rather than returning an auth
+      // error), confirming that CDP JWT authentication is working. The rejection
+      // may come as a successful 2xx with isValid:false, a VerifyError (non-2xx
+      // with an isValid body), or a generic Error with a non-401/403 status —
+      // all of which confirm auth was accepted.
       try {
         const result = await facilitator.verify(paymentPayload, paymentRequirements);
         expect(result.isValid).toBe(false);
       } catch (err) {
-        // VerifyError is thrown when the facilitator returns a non-2xx with
-        // an isValid: false body — this still confirms auth succeeded.
-        expect(err).toBeInstanceOf(VerifyError);
-        const verifyErr = err as VerifyError;
-        expect(verifyErr.response.isValid).toBe(false);
+        if (err instanceof VerifyError) {
+          expect(err.response.isValid).toBe(false);
+        } else {
+          // Generic Error from the facilitator (non-2xx without an isValid body).
+          // Confirm it is a payment rejection, not an auth failure.
+          expect(err).toBeInstanceOf(Error);
+          const message = (err as Error).message;
+          expect(message).toMatch(/Facilitator verify failed \(4/);
+          expect(message).not.toMatch(/Facilitator verify failed \(401/);
+          expect(message).not.toMatch(/Facilitator verify failed \(403/);
+        }
       }
     });
   });

@@ -16,7 +16,7 @@
  *   Set PAY_TO to the EVM address that should receive payments.
  *
  * Run:
- *   pnpm install (from this directory or the typescript/examples root)
+ *   pnpm install (from this directory or the examples/typescript root)
  *   PAY_TO=0x... pnpm start
  */
 import "dotenv/config";
