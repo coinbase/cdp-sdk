@@ -114,7 +114,7 @@ vi.mock("./account-signers.js", () => ({
 
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
-import { CdpX402Client, createCdpX402Client } from "./client.js";
+import { CdpX402Client } from "./client.js";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
@@ -428,55 +428,5 @@ describe("CdpX402Client", () => {
         expect.anything(),
       );
     });
-  });
-
-  describe("wrapFetch", () => {
-    it("returns a function", () => {
-      const client = new CdpX402Client();
-      const wrapped = client.wrapFetch();
-      expect(typeof wrapped).toBe("function");
-    });
-
-    it("accepts a custom fetch function", () => {
-      const customFetch = vi.fn() as unknown as typeof fetch;
-      const client = new CdpX402Client();
-      const wrapped = client.wrapFetch(customFetch);
-      expect(typeof wrapped).toBe("function");
-    });
-  });
-});
-
-// ─── createCdpX402Client ──────────────────────────────────────────────────────
-
-describe("createCdpX402Client", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    setEnv(ENV_VARS);
-    mockGetOrCreateAccount.mockResolvedValue(mockEvmAccount);
-    mockSolanaGetOrCreateAccount.mockResolvedValue(mockSvmAccount);
-    mockCreatePaymentPayload.mockResolvedValue(mockPayload);
-  });
-
-  afterEach(() => {
-    clearEnv(["CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET"]);
-  });
-
-  it("returns client, cdpClient, evmAddress, and svmAddress", async () => {
-    const result = await createCdpX402Client();
-
-    expect(result).toMatchObject({
-      client: expect.any(Object),
-      cdpClient: expect.any(Object),
-      evmAddress: MOCK_EVM_ADDRESS,
-      svmAddress: MOCK_SVM_ADDRESS,
-    });
-    expect(result.ownerWallet).toBeUndefined();
-  });
-
-  it("registers EVM and Solana schemes eagerly", async () => {
-    await createCdpX402Client();
-
-    expect(registerExactEvmScheme).toHaveBeenCalledTimes(1);
-    expect(registerExactSvmScheme).toHaveBeenCalledTimes(1);
   });
 });
