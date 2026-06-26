@@ -49,11 +49,12 @@ import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
-import { generateJwt } from "./auth/index.js";
 import { HTTPFacilitatorClient } from "@x402/core/http";
-import type { PaymentPayload, PaymentRequired } from "@x402/core/types";
+import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
+import { VerifyError } from "@x402/core/types";
 import { wrapFetchWithPayment } from "@x402/fetch";
 import { CdpX402Client, createCdpX402Client } from "./x402/client.js";
+import { createCdpFacilitatorClient } from "./x402/facilitator.js";
 import { SpendControlError } from "./x402/guardrails/types.js";
 import { getSpendControlsRegistry } from "./x402/guardrails/apply.js";
 
@@ -4277,6 +4278,75 @@ describe("CDP Client E2E Tests", () => {
       }
     });
   });
+
+  describe("x402 facilitator", () => {
+    it("gets supported payment kinds from the CDP hosted facilitator", async () => {
+      const facilitator = createCdpFacilitatorClient();
+      const supported = await facilitator.getSupported();
+
+      expect(supported).toBeDefined();
+      expect(Array.isArray(supported.kinds)).toBe(true);
+      expect(supported.kinds.length).toBeGreaterThan(0);
+
+      // Every kind must have the required fields.
+      for (const kind of supported.kinds) {
+        expect(typeof kind.x402Version).toBe("number");
+        expect(typeof kind.scheme).toBe("string");
+        expect(typeof kind.network).toBe("string");
+      }
+
+      logger.log("Supported x402 payment kinds:", JSON.stringify(supported, null, 2));
+    });
+
+    it("rejects an invalid payment payload when verifying", async () => {
+      const facilitator = createCdpFacilitatorClient();
+
+      // Construct a minimal but invalid payment — zero signature, zero address.
+      // The facilitator should reject this as invalid rather than erroring with
+      // an auth failure, confirming that CDP JWT authentication is working.
+      const paymentRequirements: PaymentRequirements = {
+        scheme: "exact",
+        network: "eip155:84532",
+        asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        amount: "100",
+        payTo: "0x0000000000000000000000000000000000000000",
+        maxTimeoutSeconds: 300,
+        extra: {},
+      };
+
+      const paymentPayload: PaymentPayload = {
+        x402Version: 1,
+        accepted: paymentRequirements,
+        payload: {
+          signature:
+            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          from: "0x0000000000000000000000000000000000000000",
+        },
+      };
+
+      // The facilitator rejects the invalid payment (rather than returning an auth
+      // error), confirming that CDP JWT authentication is working. The rejection
+      // may come as a successful 2xx with isValid:false, a VerifyError (non-2xx
+      // with an isValid body), or a generic Error with a non-401/403 status —
+      // all of which confirm auth was accepted.
+      try {
+        const result = await facilitator.verify(paymentPayload, paymentRequirements);
+        expect(result.isValid).toBe(false);
+      } catch (err) {
+        if (err instanceof VerifyError) {
+          expect(err.response.isValid).toBe(false);
+        } else {
+          // Generic Error from the facilitator (non-2xx without an isValid body).
+          // Confirm it is a payment rejection, not an auth failure.
+          expect(err).toBeInstanceOf(Error);
+          const message = (err as Error).message;
+          expect(message).toMatch(/Facilitator verify failed \(4/);
+          expect(message).not.toMatch(/Facilitator verify failed \(401/);
+          expect(message).not.toMatch(/Facilitator verify failed \(403/);
+        }
+      }
+    });
+  });
 });
 
 const X402_BASE_SEPOLIA_CAIP2 = "eip155:84532";
@@ -4292,14 +4362,6 @@ const X402_EVM_PAY_TO = (process.env.CDP_E2E_X402_EVM_PAY_TO ??
   "0x000000000000000000000000000000000000dEaD") as Address;
 const X402_SOLANA_PAY_TO =
   process.env.CDP_E2E_X402_SOLANA_PAY_TO ?? "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
-
-const X402_CDP_FACILITATOR_HOST = "api.cdp.coinbase.com";
-const X402_CDP_FACILITATOR_URL = "https://api.cdp.coinbase.com/platform/v2/x402";
-const X402_CDP_FACILITATOR_PATHS = {
-  verify: "/platform/v2/x402/verify",
-  settle: "/platform/v2/x402/settle",
-  supported: "/platform/v2/x402/supported",
-} as const;
 
 const x402Erc20DomainAbi = [
   {
@@ -4324,41 +4386,6 @@ const x402Erc20DomainAbi = [
     outputs: [{ type: "uint256" }],
   },
 ] as const;
-
-// Builds an HTTPFacilitatorClient pointed at the CDP hosted facilitator, authenticated with
-// per-endpoint CDP JWTs derived from the e2e API key credentials.
-function createCdpFacilitatorClientForE2e(): HTTPFacilitatorClient {
-  const apiKeyId = process.env.CDP_API_KEY_ID;
-  const apiKeySecret = process.env.CDP_API_KEY_SECRET;
-  if (!apiKeyId || !apiKeySecret) {
-    throw new Error(
-      "CDP_API_KEY_ID and CDP_API_KEY_SECRET are required for the x402 facilitator e2e tests.",
-    );
-  }
-
-  const authHeader = async (method: "GET" | "POST", requestPath: string) => {
-    const jwt = await generateJwt({
-      apiKeyId,
-      apiKeySecret,
-      requestMethod: method,
-      requestHost: X402_CDP_FACILITATOR_HOST,
-      requestPath,
-    });
-    return { Authorization: `Bearer ${jwt}` };
-  };
-
-  return new HTTPFacilitatorClient({
-    url: X402_CDP_FACILITATOR_URL,
-    createAuthHeaders: async () => {
-      const [verify, settle, supported] = await Promise.all([
-        authHeader("POST", X402_CDP_FACILITATOR_PATHS.verify),
-        authHeader("POST", X402_CDP_FACILITATOR_PATHS.settle),
-        authHeader("GET", X402_CDP_FACILITATOR_PATHS.supported),
-      ]);
-      return { verify, settle, supported };
-    },
-  });
-}
 
 // Reads the EIP-712 domain (name, version) for an EIP-3009 token directly from chain so the
 // signed authorization matches what the facilitator recovers on-chain.
@@ -4433,7 +4460,7 @@ describe("x402 signing E2E Tests", () => {
     };
 
     const payment = await account.signX402Payment(paymentRequired, 0);
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
     const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
 
     expect(result.isValid).toBe(true);
@@ -4472,7 +4499,7 @@ describe("x402 signing E2E Tests", () => {
     };
 
     const payment = await smartAccount.signX402Payment(paymentRequired, 0);
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
     const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
 
     expect(result.isValid).toBe(true);
@@ -4484,7 +4511,7 @@ describe("x402 signing E2E Tests", () => {
     );
     const account = await cdp.solana.getOrCreateAccount({ name: "X402-E2E-Solana-Account" });
 
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
     const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
 
     const paymentRequired: PaymentRequired = {
@@ -4520,7 +4547,7 @@ describe("CdpX402Client E2E Tests", () => {
           }
         : undefined,
     );
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
 
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
     const { name, version } = await readEvmTokenDomain(
@@ -4560,7 +4587,7 @@ describe("CdpX402Client E2E Tests", () => {
         allowedNetworks: [X402_BASE_SEPOLIA_CAIP2],
       },
     });
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
 
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
     const { name, version } = await readEvmTokenDomain(
