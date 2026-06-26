@@ -49,7 +49,6 @@ import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
-import { generateJwt } from "./auth/index.js";
 import { HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { VerifyError } from "@x402/core/types";
@@ -4364,14 +4363,6 @@ const X402_EVM_PAY_TO = (process.env.CDP_E2E_X402_EVM_PAY_TO ??
 const X402_SOLANA_PAY_TO =
   process.env.CDP_E2E_X402_SOLANA_PAY_TO ?? "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
 
-const X402_CDP_FACILITATOR_HOST = "api.cdp.coinbase.com";
-const X402_CDP_FACILITATOR_URL = "https://api.cdp.coinbase.com/platform/v2/x402";
-const X402_CDP_FACILITATOR_PATHS = {
-  verify: "/platform/v2/x402/verify",
-  settle: "/platform/v2/x402/settle",
-  supported: "/platform/v2/x402/supported",
-} as const;
-
 const x402Erc20DomainAbi = [
   {
     type: "function",
@@ -4395,41 +4386,6 @@ const x402Erc20DomainAbi = [
     outputs: [{ type: "uint256" }],
   },
 ] as const;
-
-// Builds an HTTPFacilitatorClient pointed at the CDP hosted facilitator, authenticated with
-// per-endpoint CDP JWTs derived from the e2e API key credentials.
-function createCdpFacilitatorClientForE2e(): HTTPFacilitatorClient {
-  const apiKeyId = process.env.CDP_API_KEY_ID;
-  const apiKeySecret = process.env.CDP_API_KEY_SECRET;
-  if (!apiKeyId || !apiKeySecret) {
-    throw new Error(
-      "CDP_API_KEY_ID and CDP_API_KEY_SECRET are required for the x402 facilitator e2e tests.",
-    );
-  }
-
-  const authHeader = async (method: "GET" | "POST", requestPath: string) => {
-    const jwt = await generateJwt({
-      apiKeyId,
-      apiKeySecret,
-      requestMethod: method,
-      requestHost: X402_CDP_FACILITATOR_HOST,
-      requestPath,
-    });
-    return { Authorization: `Bearer ${jwt}` };
-  };
-
-  return new HTTPFacilitatorClient({
-    url: X402_CDP_FACILITATOR_URL,
-    createAuthHeaders: async () => {
-      const [verify, settle, supported] = await Promise.all([
-        authHeader("POST", X402_CDP_FACILITATOR_PATHS.verify),
-        authHeader("POST", X402_CDP_FACILITATOR_PATHS.settle),
-        authHeader("GET", X402_CDP_FACILITATOR_PATHS.supported),
-      ]);
-      return { verify, settle, supported };
-    },
-  });
-}
 
 // Reads the EIP-712 domain (name, version) for an EIP-3009 token directly from chain so the
 // signed authorization matches what the facilitator recovers on-chain.
@@ -4591,7 +4547,7 @@ describe("CdpX402Client E2E Tests", () => {
           }
         : undefined,
     );
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
 
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
     const { name, version } = await readEvmTokenDomain(
@@ -4631,7 +4587,7 @@ describe("CdpX402Client E2E Tests", () => {
         allowedNetworks: [X402_BASE_SEPOLIA_CAIP2],
       },
     });
-    const facilitator = createCdpFacilitatorClientForE2e();
+    const facilitator = createCdpFacilitatorClient();
 
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
     const { name, version } = await readEvmTokenDomain(
