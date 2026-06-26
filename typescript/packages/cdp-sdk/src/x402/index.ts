@@ -61,6 +61,9 @@ export {
   CDP_SERVER_DEFAULT_EVM_NETWORKS,
   CDP_SERVER_DEFAULT_SVM_NETWORKS,
   CDP_SERVER_DEFAULT_NETWORKS,
+  CDP_SERVER_DEVELOPMENT_EVM_NETWORKS,
+  CDP_SERVER_DEVELOPMENT_SVM_NETWORKS,
+  CDP_SERVER_DEVELOPMENT_NETWORKS,
 } from "./server.js";
 export type {
   CdpServerConfig,
@@ -72,6 +75,7 @@ export type {
 } from "./server.js";
 export {
   getCdpDefaultSchemes,
+  getCdpBatchSettlementScheme,
   getCdpExtensionRegistrations,
   CDP_EXTENSION_GAS_SPONSORING_EIP2612,
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,

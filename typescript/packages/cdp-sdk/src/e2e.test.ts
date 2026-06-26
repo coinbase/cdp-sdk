@@ -5004,149 +5004,145 @@ function generateRandomAddress() {
  */
 function createX402HttpTestServer(
   x402Server: import("./x402/server.js").X402Server,
-  handler: (req: IncomingMessage) => Promise<{ status: number; body: unknown; headers?: Record<string, string> }>,
+  handler: (
+    req: IncomingMessage,
+  ) => Promise<{ status: number; body: unknown; headers?: Record<string, string> }>,
 ): Server {
   return createHttpServer(async (req: IncomingMessage, res: ServerResponse) => {
-      const url = new URL(req.url ?? "/", "http://localhost");
-      const path = url.pathname;
-      const method = req.method ?? "GET";
+    const url = new URL(req.url ?? "/", "http://localhost");
+    const path = url.pathname;
+    const method = req.method ?? "GET";
 
-      const adapter = {
-        getHeader: (name: string) =>
-          req.headers[name.toLowerCase()] as string | undefined,
-        getMethod: () => method,
-        getPath: () => path,
-        getUrl: () => (req.url ?? "/"),
-        getAcceptHeader: () => (req.headers.accept as string) ?? "",
-        getUserAgent: () => (req.headers["user-agent"] as string) ?? "",
-      };
+    const adapter = {
+      getHeader: (name: string) => req.headers[name.toLowerCase()] as string | undefined,
+      getMethod: () => method,
+      getPath: () => path,
+      getUrl: () => req.url ?? "/",
+      getAcceptHeader: () => (req.headers.accept as string) ?? "",
+      getUserAgent: () => (req.headers["user-agent"] as string) ?? "",
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const context: any = { adapter, path, method };
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: any = await (x402Server as any).processHTTPRequest(context);
+
+      if (result.type === "no-payment-required") {
+        const { status, body, headers: extraHeaders } = await handler(req);
+        res.writeHead(status, {
+          "Content-Type": "application/json",
+          ...extraHeaders,
+        });
+        res.end(JSON.stringify(body));
+        return;
+      }
+
+      if (result.type === "payment-error") {
+        const { status, headers, body } = result.response;
+        res.writeHead(status, headers);
+        res.end(JSON.stringify(body ?? {}));
+        return;
+      }
+
+      // payment-verified: run the handler, then settle.
+      const { paymentPayload, paymentRequirements, declaredExtensions, cancellationDispatcher } =
+        result;
+      const transportContext = { request: context };
+
+      let handlerResult: { status: number; body: unknown; headers?: Record<string, string> };
+      try {
+        handlerResult = await handler(req);
+      } catch (err) {
+        await cancellationDispatcher.cancel({ reason: "handler_threw", error: err });
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Handler error" }));
+        return;
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const context: any = { adapter, path, method };
+      const settle: any = await (x402Server as any).processSettlement(
+        paymentPayload,
+        paymentRequirements,
+        declaredExtensions,
+        transportContext,
+      );
 
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result: any = await (x402Server as any).processHTTPRequest(context);
-
-        if (result.type === "no-payment-required") {
-          const { status, body, headers: extraHeaders } = await handler(req);
-          res.writeHead(status, {
-            "Content-Type": "application/json",
-            ...extraHeaders,
-          });
-          res.end(JSON.stringify(body));
-          return;
-        }
-
-        if (result.type === "payment-error") {
-          const { status, headers, body } = result.response;
-          res.writeHead(status, headers);
-          res.end(JSON.stringify(body ?? {}));
-          return;
-        }
-
-        // payment-verified: run the handler, then settle.
-        const { paymentPayload, paymentRequirements, declaredExtensions, cancellationDispatcher } =
-          result;
-        const transportContext = { request: context };
-
-        let handlerResult: { status: number; body: unknown; headers?: Record<string, string> };
-        try {
-          handlerResult = await handler(req);
-        } catch (err) {
-          await cancellationDispatcher.cancel({ reason: "handler_threw", error: err });
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Handler error" }));
-          return;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const settle: any = await (x402Server as any).processSettlement(
-          paymentPayload,
-          paymentRequirements,
-          declaredExtensions,
-          transportContext,
-        );
-
-        if (!settle.success) {
-          const failureResponse = settle.response;
-          res.writeHead(failureResponse.status, failureResponse.headers);
-          res.end(JSON.stringify(failureResponse.body ?? {}));
-          return;
-        }
-
-        res.writeHead(handlerResult.status, {
-          "Content-Type": "application/json",
-          ...(handlerResult.headers ?? {}),
-          ...settle.headers,
-        });
-        res.end(JSON.stringify(handlerResult.body));
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(err) }));
+      if (!settle.success) {
+        const failureResponse = settle.response;
+        res.writeHead(failureResponse.status, failureResponse.headers);
+        res.end(JSON.stringify(failureResponse.body ?? {}));
+        return;
       }
-    },
-  );
+
+      res.writeHead(handlerResult.status, {
+        "Content-Type": "application/json",
+        ...(handlerResult.headers ?? {}),
+        ...settle.headers,
+      });
+      res.end(JSON.stringify(handlerResult.body));
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err) }));
+    }
+  });
 }
 
 describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
-  it(
-    "CdpX402Client pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE",
-    async () => {
-      // 1. Spin up an X402Server — auto-provisions receiver wallet on Base Sepolia.
-      const x402Server = await createX402Server({
-        routes: {
-          "GET /ping": {
-            price: "$0.001",
-            description: "Round-trip e2e test",
-            networks: [X402_BASE_SEPOLIA_CAIP2],
-          },
+  it("CdpX402Client pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    // 1. Spin up an X402Server — auto-provisions receiver wallet on Base Sepolia.
+    const x402Server = await createX402Server({
+      routes: {
+        "GET /ping": {
+          price: "$0.001",
+          description: "Round-trip e2e test",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
         },
+      },
+    });
+
+    // Receiver must differ from payer — CDP facilitator rejects self-sends.
+    // The provisioned receiver is a separate CDP wallet from the payer wallet.
+    expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const httpServer = createX402HttpTestServer(x402Server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await new Promise<void>((resolve, reject) => {
+      httpServer.listen(0, async () => {
+        const addr = httpServer.address() as { port: number };
+        const url = `http://localhost:${addr.port}/ping`;
+
+        try {
+          // 2. Pay with CdpX402Client — auto-provisions a separate payer wallet.
+          //    wrapFetch handles the 402 → sign → retry cycle automatically.
+          const client = new CdpX402Client();
+          const fetchWithPayment = client.wrapFetch();
+          const response = await fetchWithPayment(url);
+
+          // 3. Assert the full flow succeeded.
+          expect(response.status).toBe(200);
+
+          // PAYMENT-RESPONSE header is set by processSettlement on success,
+          // confirming the CDP facilitator verified and settled the payment.
+          const paymentResponse = response.headers.get("payment-response");
+          expect(paymentResponse).toBeTruthy();
+
+          const body = (await response.json()) as { pong: boolean };
+          expect(body.pong).toBe(true);
+
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          httpServer.close();
+        }
       });
-
-      // Receiver must differ from payer — CDP facilitator rejects self-sends.
-      // The provisioned receiver is a separate CDP wallet from the payer wallet.
-      expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
-
-      const httpServer = createX402HttpTestServer(x402Server, async () => ({
-        status: 200,
-        body: { pong: true },
-      }));
-
-      await new Promise<void>((resolve, reject) => {
-        httpServer.listen(0, async () => {
-          const addr = httpServer.address() as { port: number };
-          const url = `http://localhost:${addr.port}/ping`;
-
-          try {
-            // 2. Pay with CdpX402Client — auto-provisions a separate payer wallet.
-            //    wrapFetch handles the 402 → sign → retry cycle automatically.
-            const client = new CdpX402Client();
-            const fetchWithPayment = client.wrapFetch();
-            const response = await fetchWithPayment(url);
-
-            // 3. Assert the full flow succeeded.
-            expect(response.status).toBe(200);
-
-            // PAYMENT-RESPONSE header is set by processSettlement on success,
-            // confirming the CDP facilitator verified and settled the payment.
-            const paymentResponse = response.headers.get("payment-response");
-            expect(paymentResponse).toBeTruthy();
-
-            const body = (await response.json()) as { pong: boolean };
-            expect(body.pong).toBe(true);
-
-            resolve();
-          } catch (err) {
-            reject(err);
-          } finally {
-            httpServer.close();
-          }
-        });
-      });
-    },
-    300_000,
-  );
+    });
+  }, 300_000);
 });
 
 describe("createX402Server E2E Tests", () => {

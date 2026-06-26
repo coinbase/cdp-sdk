@@ -5,6 +5,9 @@ import {
   CDP_SERVER_DEFAULT_EVM_NETWORKS,
   CDP_SERVER_DEFAULT_SVM_NETWORKS,
   CDP_SERVER_DEFAULT_NETWORKS,
+  CDP_SERVER_DEVELOPMENT_EVM_NETWORKS,
+  CDP_SERVER_DEVELOPMENT_SVM_NETWORKS,
+  CDP_SERVER_DEVELOPMENT_NETWORKS,
 } from "./server.js";
 import type { CdpServerConfig, CdpPaymentScheme } from "./server.js";
 import {
@@ -13,6 +16,7 @@ import {
   CDP_EXTENSION_BAZAAR,
   CDP_SUPPORTED_EXTENSIONS,
   getCdpDefaultSchemes,
+  getCdpBatchSettlementScheme,
   getCdpExtensionRegistrations,
 } from "./server-extensions.js";
 
@@ -58,6 +62,14 @@ vi.mock("@x402/evm/exact/server", () => ({
 
 vi.mock("@x402/evm/upto/server", () => ({
   UptoEvmScheme: vi.fn().mockImplementation(() => ({ scheme: "upto", network: "eip155:*" })),
+}));
+
+vi.mock("@x402/evm/batch-settlement/server", () => ({
+  BatchSettlementEvmScheme: vi.fn().mockImplementation((receiverAddress: string) => ({
+    scheme: "batch-settlement",
+    network: "eip155:*",
+    receiverAddress,
+  })),
 }));
 
 vi.mock("@x402/svm/exact/server", () => ({
@@ -687,7 +699,7 @@ describe("createX402Server", () => {
       expect(passedRoutes["GET /from-file"]).toBeDefined();
     });
 
-    it("inline routes take precedence over file routes", async () => {
+    it("inline routes are merged with file routes; inline wins on conflicting keys", async () => {
       const { readFile } = await import("node:fs/promises");
       vi.mocked(readFile).mockResolvedValueOnce(
         JSON.stringify({ routes: { "GET /file-route": { price: "$0.99" } } }) as never,
@@ -704,8 +716,9 @@ describe("createX402Server", () => {
         unknown,
         Record<string, unknown>,
       ];
+      // Both routes are present — deep merge preserves non-conflicting file routes
       expect(passedRoutes["GET /inline-route"]).toBeDefined();
-      expect(passedRoutes["GET /file-route"]).toBeUndefined();
+      expect(passedRoutes["GET /file-route"]).toBeDefined();
     });
 
     it("ignores configPath inside the JSON file to prevent circular references", async () => {
@@ -985,5 +998,502 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
     const ext = passedRoutes["GET /explicit"].extensions;
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_EIP2612]).toBeDefined();
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL]).toBeDefined();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fix 1: CDP_X402_SERVER_ENVIRONMENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("CDP_SERVER_DEVELOPMENT_NETWORKS constants", () => {
+  it("development EVM networks contains Base Sepolia", () => {
+    expect(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS).toContain("eip155:84532");
+  });
+
+  it("development SVM networks starts with solana:", () => {
+    expect(CDP_SERVER_DEVELOPMENT_SVM_NETWORKS[0]).toMatch(/^solana:/);
+  });
+
+  it("development networks list contains one EVM and one Solana entry", () => {
+    const evmNets = CDP_SERVER_DEVELOPMENT_NETWORKS.filter(n => n.startsWith("eip155:"));
+    const svmNets = CDP_SERVER_DEVELOPMENT_NETWORKS.filter(n => n.startsWith("solana:"));
+    expect(evmNets.length).toBeGreaterThan(0);
+    expect(svmNets.length).toBeGreaterThan(0);
+  });
+
+  it("development and production EVM networks are distinct", () => {
+    const devSet = new Set(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS);
+    const prodSet = new Set(CDP_SERVER_DEFAULT_EVM_NETWORKS);
+    for (const n of devSet) {
+      expect(prodSet.has(n)).toBe(false);
+    }
+  });
+});
+
+describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("defaults to production networks (Base mainnet + Solana mainnet) when environment is not set", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+    delete process.env.CDP_X402_SERVER_ENVIRONMENT;
+
+    await createX402Server({ routes: { "GET /paid": { price: "$0.01" } } });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> }>,
+    ];
+    const networks = passedRoutes["GET /paid"].accepts.map(a => a.network);
+    expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]); // Base mainnet
+    expect(networks).toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]); // Solana mainnet
+  });
+
+  it("uses development networks when environment: 'development' is passed in config", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: { "GET /paid": { price: "$0.01" } },
+      environment: "development",
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> }>,
+    ];
+    const networks = passedRoutes["GET /paid"].accepts.map(a => a.network);
+    expect(networks).toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]); // Base Sepolia
+    expect(networks).toContain(CDP_SERVER_DEVELOPMENT_SVM_NETWORKS[0]); // Solana Devnet
+    expect(networks).not.toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]); // not Base mainnet
+  });
+
+  it("reads development networks from CDP_X402_SERVER_ENVIRONMENT=development env var", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+    process.env.CDP_X402_SERVER_ENVIRONMENT = "development";
+
+    await createX402Server({ routes: { "GET /paid": { price: "$0.01" } } });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> }>,
+    ];
+    const networks = passedRoutes["GET /paid"].accepts.map(a => a.network);
+    expect(networks).toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
+    expect(networks).not.toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]);
+  });
+
+  it("explicit config.environment beats the env var", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+    process.env.CDP_X402_SERVER_ENVIRONMENT = "development";
+
+    await createX402Server({
+      routes: { "GET /paid": { price: "$0.01" } },
+      environment: "production",
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> }>,
+    ];
+    const networks = passedRoutes["GET /paid"].accepts.map(a => a.network);
+    expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]); // production (mainnet)
+    expect(networks).not.toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
+  });
+
+  it("upto with development environment defaults to development EVM networks only", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: { "GET /metered": { price: "$0.01", scheme: "upto" as CdpPaymentScheme } },
+      environment: "development",
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> | { network: string } }>,
+    ];
+    const accepts = passedRoutes["GET /metered"].accepts;
+    const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
+    expect(networks.every(n => n.startsWith("eip155:"))).toBe(true);
+    expect(networks).toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
+  });
+
+  it("unknown CDP_X402_SERVER_ENVIRONMENT value falls back to production", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+    process.env.CDP_X402_SERVER_ENVIRONMENT = "staging"; // unrecognised
+
+    await createX402Server({ routes: { "GET /paid": { price: "$0.01" } } });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> }>,
+    ];
+    const networks = passedRoutes["GET /paid"].accepts.map(a => a.network);
+    expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fix 2: batch-settlement scheme support
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("getCdpBatchSettlementScheme", () => {
+  it("returns an eip155:* registration with scheme batch-settlement and the given address", () => {
+    const addr = "0xdeadbeef00000000000000000000000000000000" as `0x${string}`;
+    const reg = getCdpBatchSettlementScheme(addr);
+    expect(reg.network).toBe("eip155:*");
+    expect(reg.server.scheme).toBe("batch-settlement");
+    expect((reg.server as { receiverAddress: string }).receiverAddress).toBe(addr);
+  });
+
+  it("creates independent instances for different addresses", () => {
+    const a = getCdpBatchSettlementScheme("0x1111111111111111111111111111111111111111");
+    const b = getCdpBatchSettlementScheme("0x2222222222222222222222222222222222222222");
+    expect(a.server).not.toBe(b.server);
+  });
+});
+
+describe("createX402Server — batch-settlement scheme", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("registers batch-settlement scheme on x402ResourceServer after wallet provisioning", async () => {
+    await createX402Server({ routes: SIMPLE_ROUTES });
+
+    const registerCalls = vi.mocked(mockResourceServer.register).mock.calls;
+    const batchCall = registerCalls.find(
+      ([, scheme]) => (scheme as { scheme: string }).scheme === "batch-settlement",
+    );
+    expect(batchCall).toBeDefined();
+    expect(batchCall![0]).toBe("eip155:*");
+  });
+
+  it("batch-settlement scheme is constructed with the provisioned EVM address", async () => {
+    const { BatchSettlementEvmScheme } = await import("@x402/evm/batch-settlement/server");
+
+    await createX402Server({ routes: SIMPLE_ROUTES });
+
+    expect(BatchSettlementEvmScheme).toHaveBeenCalledWith(MOCK_EVM_ADDRESS);
+  });
+
+  it("batch-settlement scheme is registered even when payToConfig.type is 'address'", async () => {
+    const EVM_ADDR = "0x0000000000000000000000000000000000000001" as `0x${string}`;
+
+    await createX402Server({
+      routes: { "GET /r": { price: "$0.01", networks: ["eip155:8453"] } },
+      payToConfig: { type: "address", evm: EVM_ADDR },
+    });
+
+    const registerCalls = vi.mocked(mockResourceServer.register).mock.calls;
+    const batchCall = registerCalls.find(
+      ([, scheme]) => (scheme as { scheme: string }).scheme === "batch-settlement",
+    );
+    expect(batchCall).toBeDefined();
+  });
+
+  it("batch-settlement is accepted as a scheme in a simplified CDP route", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: {
+        "GET /channel": {
+          price: "$0.01",
+          scheme: "batch-settlement" as CdpPaymentScheme,
+          networks: ["eip155:8453"],
+        },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: { scheme: string } }>,
+    ];
+    expect(passedRoutes["GET /channel"].accepts.scheme).toBe("batch-settlement");
+  });
+
+  it("batch-settlement defaults to EVM-only networks when networks is not specified", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: {
+        "GET /channel": { price: "$0.01", scheme: "batch-settlement" as CdpPaymentScheme },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: Array<{ network: string }> | { network: string } }>,
+    ];
+    const accepts = passedRoutes["GET /channel"].accepts;
+    const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
+    expect(networks.every(n => n.startsWith("eip155:"))).toBe(true);
+    expect(networks).not.toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
+  });
+
+  it("throws when batch-settlement is combined with a Solana network", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /bad": {
+            price: "$0.01",
+            scheme: "batch-settlement" as CdpPaymentScheme,
+            networks: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+          },
+        },
+      }),
+    ).rejects.toThrow('Scheme "batch-settlement" only supports EVM (eip155:*) networks');
+  });
+
+  it("payTo in batch-settlement route uses the provisioned EVM address", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: {
+        "GET /channel": {
+          price: "$0.01",
+          scheme: "batch-settlement" as CdpPaymentScheme,
+          networks: ["eip155:8453"],
+        },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: { payTo: string } }>,
+    ];
+    expect(passedRoutes["GET /channel"].accepts.payTo).toBe(MOCK_EVM_ADDRESS);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fix 3: empty payTo guard for address payToConfig
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("createX402Server — empty payTo guard", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("throws when address payToConfig has no evm but the route includes an EVM network", async () => {
+    await expect(
+      createX402Server({
+        routes: { "GET /r": { price: "$0.01", networks: ["eip155:8453"] } },
+        payToConfig: { type: "address", solana: "MySolanaAddress" }, // no evm
+      }),
+    ).rejects.toThrow(/No receiver address for EVM/);
+  });
+
+  it("throws when address payToConfig has no solana but the route includes a Solana network", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /r": {
+            price: "$0.01",
+            networks: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+          },
+        },
+        payToConfig: { type: "address", evm: "0x1234567890123456789012345678901234567890" },
+      }),
+    ).rejects.toThrow(/No receiver address for Solana/);
+  });
+
+  it("throws when address payToConfig has no evm and default networks include EVM", async () => {
+    // Default networks = Base mainnet + Solana mainnet. If only solana is provided
+    // and no networks override, the EVM accept fails.
+    await expect(
+      createX402Server({
+        routes: { "GET /r": { price: "$0.01" } }, // uses default networks (EVM + SVM)
+        payToConfig: { type: "address", solana: "MySolanaAddress" },
+      }),
+    ).rejects.toThrow(/No receiver address for EVM/);
+  });
+
+  it("throws when a full x402 route has vacant payTo and address payToConfig has no evm", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /r": {
+            accepts: {
+              scheme: "exact" as const,
+              price: "$0.01",
+              network: "eip155:8453" as `${string}:${string}`,
+              payTo: "",
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+        payToConfig: { type: "address", solana: "MySolanaAddress" },
+      }),
+    ).rejects.toThrow(/No receiver address for EVM/);
+  });
+
+  it("does NOT throw when only EVM network is used and only evm address is provided", async () => {
+    await expect(
+      createX402Server({
+        routes: { "GET /r": { price: "$0.01", networks: ["eip155:8453"] } },
+        payToConfig: { type: "address", evm: "0x1234567890123456789012345678901234567890" },
+      }),
+    ).resolves.toBeInstanceOf(X402Server);
+  });
+
+  it("does NOT throw when only Solana network is used and only solana address is provided", async () => {
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /r": {
+            price: "$0.01",
+            networks: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+          },
+        },
+        payToConfig: {
+          type: "address",
+          solana: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+        },
+      }),
+    ).resolves.toBeInstanceOf(X402Server);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fix 4: configPath route deep-merge
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("createX402Server — configPath deep route merge", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("preserves both file routes and inline routes when keys do not overlap", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValueOnce(
+      JSON.stringify({ routes: { "GET /from-file": { price: "$0.05" } } }) as never,
+    );
+
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      configPath: "./x402.config.json",
+      routes: { "GET /from-inline": { price: "$0.01" } },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    // Both routes must be present
+    expect(passedRoutes["GET /from-file"]).toBeDefined();
+    expect(passedRoutes["GET /from-inline"]).toBeDefined();
+  });
+
+  it("inline route wins over file route when both share the same key", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValueOnce(
+      JSON.stringify({ routes: { "GET /shared": { price: "$0.99" } } }) as never,
+    );
+
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      configPath: "./x402.config.json",
+      routes: { "GET /shared": { price: "$0.01" } },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: { price: string } | Array<{ price: string }> }>,
+    ];
+    const accepts = passedRoutes["GET /shared"].accepts;
+    const price = Array.isArray(accepts) ? accepts[0]!.price : accepts.price;
+    expect(price).toBe("$0.01");
+  });
+
+  it("file-only routes are preserved when inline config has no routes", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValueOnce(
+      JSON.stringify({ routes: { "GET /file-only": { price: "$0.05" } } }) as never,
+    );
+
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({ configPath: "./x402.config.json" });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(passedRoutes["GET /file-only"]).toBeDefined();
+  });
+
+  it("merges file and inline routes across multiple keys each side", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValueOnce(
+      JSON.stringify({
+        routes: {
+          "GET /a": { price: "$0.01" },
+          "GET /b": { price: "$0.02" },
+        },
+      }) as never,
+    );
+
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      configPath: "./x402.config.json",
+      routes: {
+        "GET /c": { price: "$0.03" },
+        "GET /d": { price: "$0.04" },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(passedRoutes["GET /a"]).toBeDefined();
+    expect(passedRoutes["GET /b"]).toBeDefined();
+    expect(passedRoutes["GET /c"]).toBeDefined();
+    expect(passedRoutes["GET /d"]).toBeDefined();
   });
 });
