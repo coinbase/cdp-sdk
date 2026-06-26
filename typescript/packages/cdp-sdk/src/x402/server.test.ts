@@ -15,6 +15,7 @@ import {
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
   CDP_EXTENSION_BAZAAR,
   CDP_SUPPORTED_EXTENSIONS,
+  buildBazaarDeclaration,
   getCdpDefaultSchemes,
   getCdpBatchSettlementScheme,
   getCdpExtensionRegistrations,
@@ -1521,5 +1522,140 @@ describe("createX402Server — configPath deep route merge", () => {
     expect(passedRoutes["GET /b"]).toBeDefined();
     expect(passedRoutes["GET /c"]).toBeDefined();
     expect(passedRoutes["GET /d"]).toBeDefined();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// buildBazaarDeclaration — body method declarations
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("buildBazaarDeclaration — query methods (GET / HEAD / DELETE)", () => {
+  it.each(["GET", "HEAD", "DELETE"])("%s: info.input has type and method only", method => {
+    const decl = buildBazaarDeclaration(method, "/resource");
+    const input = (decl.info as { input: Record<string, unknown> }).input;
+    expect(input.type).toBe("http");
+    expect(input.method).toBe(method);
+    expect(input.body).toBeUndefined();
+    expect(input.bodyType).toBeUndefined();
+  });
+
+  it.each(["GET", "HEAD", "DELETE"])("%s: schema does not require body", method => {
+    const decl = buildBazaarDeclaration(method, "/resource");
+    const required = (decl.schema as { properties: { input: { required: string[] } } }).properties
+      .input.required;
+    expect(required).not.toContain("body");
+    expect(required).not.toContain("bodyType");
+  });
+
+  it("GET: schema additionalProperties: false does not include body property", () => {
+    const decl = buildBazaarDeclaration("GET", "/resource");
+    const props = (
+      decl.schema as { properties: { input: { properties: Record<string, unknown> } } }
+    ).properties.input.properties;
+    expect(props.body).toBeUndefined();
+  });
+});
+
+describe("buildBazaarDeclaration — body methods (POST / PUT / PATCH)", () => {
+  it.each(["POST", "PUT", "PATCH"])("%s: info.input includes body and bodyType", method => {
+    const decl = buildBazaarDeclaration(method, "/submit");
+    const input = (decl.info as { input: Record<string, unknown> }).input;
+    expect(input.type).toBe("http");
+    expect(input.method).toBe(method);
+    expect(input.bodyType).toBe("json");
+    expect(input.body).toBeDefined();
+    expect(typeof input.body).toBe("object");
+  });
+
+  it.each(["POST", "PUT", "PATCH"])("%s: schema requires body and bodyType", method => {
+    const decl = buildBazaarDeclaration(method, "/submit");
+    const required = (decl.schema as { properties: { input: { required: string[] } } }).properties
+      .input.required;
+    expect(required).toContain("bodyType");
+    expect(required).toContain("body");
+  });
+
+  it.each(["POST", "PUT", "PATCH"])("%s: schema defines body property", method => {
+    const decl = buildBazaarDeclaration(method, "/submit");
+    const props = (
+      decl.schema as { properties: { input: { properties: Record<string, unknown> } } }
+    ).properties.input.properties;
+    expect(props.body).toBeDefined();
+  });
+
+  it("schema validates info (body present in both info and schema)", () => {
+    // Structural self-consistency: body listed in required must also exist in
+    // info.input; if schema has additionalProperties:false and lists body as
+    // required, info.input.body being present is the only way AJV would pass.
+    const decl = buildBazaarDeclaration("POST", "/submit");
+    const input = (decl.info as { input: Record<string, unknown> }).input;
+    const required = (
+      decl.schema as {
+        properties: { input: { required: string[]; additionalProperties: boolean } };
+      }
+    ).properties.input.required;
+
+    // Every field listed as required must be present in info.input
+    for (const field of required) {
+      expect(Object.prototype.hasOwnProperty.call(input, field)).toBe(true);
+    }
+  });
+
+  it("routeTemplate is set to the path", () => {
+    const decl = buildBazaarDeclaration("POST", "/orders/:id");
+    expect(decl.routeTemplate).toBe("/orders/:id");
+  });
+});
+
+describe("buildBazaarDeclaration — auto-injected in POST route via createX402Server", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("POST route Bazaar declaration carries body field in info.input", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: { "POST /submit": { price: "$0.01", networks: ["eip155:8453"] } },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { extensions: Record<string, Record<string, unknown>> }>,
+    ];
+    const bazaar = passedRoutes["POST /submit"].extensions[CDP_EXTENSION_BAZAAR];
+    expect(bazaar).toBeDefined();
+    const input = (bazaar!.info as { input: Record<string, unknown> }).input;
+    expect(input.method).toBe("POST");
+    expect(input.bodyType).toBe("json");
+    expect(input.body).toBeDefined();
+    expect(bazaar!.routeTemplate).toBe("/submit");
+  });
+
+  it("PUT route Bazaar declaration carries body field in info.input", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: { "PUT /resource": { price: "$0.01", networks: ["eip155:8453"] } },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { extensions: Record<string, Record<string, unknown>> }>,
+    ];
+    const bazaar = passedRoutes["PUT /resource"].extensions[CDP_EXTENSION_BAZAAR];
+    const input = (bazaar!.info as { input: Record<string, unknown> }).input;
+    expect(input.body).toBeDefined();
+    expect(input.bodyType).toBe("json");
   });
 });

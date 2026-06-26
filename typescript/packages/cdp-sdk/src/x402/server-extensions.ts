@@ -98,8 +98,13 @@ const BODY_METHODS = new Set(["POST", "PUT", "PATCH"]);
  * should override by setting `extensions.bazaar` explicitly in their route config.
  *
  * Wire shape follows `github.com/x402-foundation/x402/go/extensions/bazaar`:
- * - GET/HEAD/DELETE → `QueryInput` (`{ type, method }`)
- * - POST/PUT/PATCH  → `BodyInput`  (`{ type, method, bodyType: "json" }`)
+ * - GET/HEAD/DELETE → `QueryInput`  (`{ type, method }`)
+ * - POST/PUT/PATCH  → `BodyInput`   (`{ type, method, bodyType: "json", body: {} }`)
+ *
+ * For body methods `body` is required by the Bazaar `BodyDiscoveryInfo` contract
+ * (`body: Record<string, unknown>`). An empty object is used since the route's
+ * body shape is not known at declaration time; users who need a richer schema
+ * should override `extensions.bazaar` in their route config.
  *
  * @param method - Uppercase HTTP verb, e.g. `"GET"` or `"POST"`.
  * @param path   - Path template, e.g. `"/report"` or `"/users/:id"`.
@@ -110,6 +115,7 @@ export function buildBazaarDeclaration(method: string, path: string): Record<str
   const input: Record<string, unknown> = { type: "http", method };
   if (isBodyMethod) {
     input.bodyType = "json";
+    input.body = {};
   }
 
   const inputSchemaProperties: Record<string, unknown> = {
@@ -120,7 +126,9 @@ export function buildBazaarDeclaration(method: string, path: string): Record<str
 
   if (isBodyMethod) {
     inputSchemaProperties.bodyType = { type: "string", enum: ["json"] };
+    inputSchemaProperties.body = { type: "object" };
     inputSchemaRequired.push("bodyType");
+    inputSchemaRequired.push("body");
   }
 
   const schema: Record<string, unknown> = {
