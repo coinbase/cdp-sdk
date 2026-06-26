@@ -16,6 +16,11 @@
       "types": "./_types/auth/index.d.ts",
       "import": "./_esm/auth/index.js",
       "default": "./_cjs/auth/index.js"
+    },
+    "./x402": {
+      "types": "./_types/x402/index.d.ts",
+      "import": "./_esm/x402/index.js",
+      "default": "./_cjs/x402/index.js"
     }
   },
   "scripts": {
@@ -37,6 +42,7 @@
     "test:watch": "vitest --config=./vitest.config.ts"
   },
   "dependencies": {
+    "@x402/core": "^2.16.0",
     "@solana-program/system": "^0.10.0",
     "@solana-program/token": "^0.9.0",
     "@solana/kit": "^5.5.1",

@@ -49,6 +49,9 @@ import { APIError } from "./openapi-client/errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
+import type { PaymentPayload, PaymentRequirements } from "@x402/core/types";
+import { VerifyError } from "@x402/core/types";
+import { createCdpFacilitatorClient } from "./x402/facilitator.js";
 
 dotenv.config();
 
@@ -4267,6 +4270,65 @@ describe("CDP Client E2E Tests", () => {
         logger.log(`Token endpoint called ${tokenCalls.length} times`);
       } finally {
         fetchSpy.mockRestore();
+      }
+    });
+  });
+
+  describe("x402 facilitator", () => {
+    it("gets supported payment kinds from the CDP hosted facilitator", async () => {
+      const facilitator = createCdpFacilitatorClient();
+      const supported = await facilitator.getSupported();
+
+      expect(supported).toBeDefined();
+      expect(Array.isArray(supported.kinds)).toBe(true);
+      expect(supported.kinds.length).toBeGreaterThan(0);
+
+      // Every kind must have the required fields.
+      for (const kind of supported.kinds) {
+        expect(typeof kind.x402Version).toBe("number");
+        expect(typeof kind.scheme).toBe("string");
+        expect(typeof kind.network).toBe("string");
+      }
+
+      logger.log("Supported x402 payment kinds:", JSON.stringify(supported, null, 2));
+    });
+
+    it("rejects an invalid payment payload when verifying", async () => {
+      const facilitator = createCdpFacilitatorClient();
+
+      // Construct a minimal but invalid payment — zero signature, zero address.
+      // The facilitator should reject this as invalid rather than erroring with
+      // an auth failure, confirming that CDP JWT authentication is working.
+      const paymentRequirements: PaymentRequirements = {
+        scheme: "exact",
+        network: "eip155:84532",
+        asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        amount: "100",
+        payTo: "0x0000000000000000000000000000000000000000",
+        maxTimeoutSeconds: 300,
+        extra: {},
+      };
+
+      const paymentPayload: PaymentPayload = {
+        x402Version: 1,
+        accepted: paymentRequirements,
+        payload: {
+          signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          from: "0x0000000000000000000000000000000000000000",
+        },
+      };
+
+      // The facilitator responds with isValid: false for an invalid payment
+      // (rather than an auth error), confirming CDP JWT auth is accepted.
+      try {
+        const result = await facilitator.verify(paymentPayload, paymentRequirements);
+        expect(result.isValid).toBe(false);
+      } catch (err) {
+        // VerifyError is thrown when the facilitator returns a non-2xx with
+        // an isValid: false body — this still confirms auth succeeded.
+        expect(err).toBeInstanceOf(VerifyError);
+        const verifyErr = err as VerifyError;
+        expect(verifyErr.response.isValid).toBe(false);
       }
     });
   });

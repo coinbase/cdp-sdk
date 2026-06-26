@@ -6,6 +6,9 @@
     "outDir": "./_cjs",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "paths": {
+      "@x402/core/server": ["./node_modules/@x402/core/dist/cjs/server/index.d.ts"]
+    },
     "sourceMap": true
   }
 }
