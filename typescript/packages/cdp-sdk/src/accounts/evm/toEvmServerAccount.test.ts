@@ -11,6 +11,8 @@ import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import { useSpendPermission } from "../../actions/evm/spend-permissions/account.use.js";
+import { signEvmX402Payment } from "../../actions/x402/signX402Payment.js";
+import type { PaymentRequired } from "@x402/core/types";
 
 vi.mock("viem", async () => {
   const actual = await vi.importActual("viem");
@@ -63,6 +65,14 @@ vi.mock("../../actions/evm/swap/createSwapQuote.js", () => ({
 
 vi.mock("../../actions/evm/spend-permissions/account.use.js", () => ({
   useSpendPermission: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
+}));
+
+vi.mock("../../actions/x402/signX402Payment.js", () => ({
+  signEvmX402Payment: vi.fn().mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
+  signEvmSmartAccountX402Payment: vi
+    .fn()
+    .mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
+  signSolanaX402Payment: vi.fn().mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
 }));
 
 vi.mock("./resolveViemClients.js", () => ({
@@ -134,6 +144,7 @@ describe("toEvmServerAccount", () => {
       signMessage: expect.any(Function),
       signTransaction: expect.any(Function),
       signTypedData: expect.any(Function),
+      signX402Payment: expect.any(Function),
       swap: expect.any(Function),
       quoteSwap: expect.any(Function),
       transfer: expect.any(Function),
@@ -236,6 +247,21 @@ describe("toEvmServerAccount", () => {
     expect(mockApiClient.signEvmTransaction).toHaveBeenCalledWith(mockAddress, {
       transaction: "0xserializedtx",
     });
+  });
+
+  it("should call signEvmX402Payment when signX402Payment is called", async () => {
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report" },
+      accepts: [],
+    };
+
+    await serverAccount.signX402Payment(paymentRequired, 1);
+
+    expect(signEvmX402Payment).toHaveBeenCalledWith(
+      expect.objectContaining({ address: mockAddress }),
+      { paymentRequired, acceptedIndex: 1 },
+    );
   });
 
   describe("signTypedData", () => {

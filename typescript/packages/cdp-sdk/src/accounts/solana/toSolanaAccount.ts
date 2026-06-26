@@ -4,6 +4,7 @@ import { sendTransaction, SendTransactionResult } from "../../actions/solana/sen
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction, SignTransactionResult } from "../../actions/solana/signTransaction.js";
 import { transfer, type TransferOptions } from "../../actions/solana/transfer.js";
+import { signSolanaX402Payment } from "../../actions/x402/signX402Payment.js";
 import { Analytics } from "../../analytics.js";
 import {
   RequestFaucetOptions,
@@ -82,6 +83,21 @@ export function toSolanaAccount(
         });
       } catch (error) {
         Analytics.trackError(error, "signTransaction");
+        throw error;
+      }
+    },
+    async signX402Payment(paymentRequired, acceptedIndex) {
+      Analytics.trackAction({
+        action: "sign_x402_payment",
+        accountType: "solana",
+      });
+      try {
+        return await signSolanaX402Payment(account, {
+          paymentRequired,
+          acceptedIndex,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "signX402Payment");
         throw error;
       }
     },

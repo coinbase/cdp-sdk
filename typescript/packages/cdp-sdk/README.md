@@ -35,6 +35,8 @@
   - [Solana Sending](#solana-sending)
 - [Webhooks](#webhooks)
   - [Create Subscription](#create-subscription)
+- [x402 Payment Protocol](#x402-payment-protocol)
+  - [CDP Dev: Sign an x402 payment payload directly](#cdp-dev-sign-an-x402-payment-payload-directly)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1625,6 +1627,57 @@ const result = await endUser.sendSolanaAsset({
   network: "solana-devnet",
 });
 console.log(result.transactionSignature);
+```
+
+## x402 Payment Protocol
+
+CDP accounts can sign x402 payment payloads directly. Direct signing is useful when the payment payload needs to travel over non-HTTP transports such as gRPC metadata, MCP tool results, queues, or batch jobs.
+
+### CDP Dev: Sign an x402 payment payload directly
+
+Use `signX402Payment(paymentRequired, acceptedIndex)` on any CDP-managed EVM account, EVM smart account, or Solana account. `paymentRequired` is the x402 payment requirement object returned by a resource server. `acceptedIndex` selects which entry in `paymentRequired.accepts` to sign.
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+
+const cdp = new CdpClient();
+const account = await cdp.evm.getOrCreateAccount({ name: "agent" });
+
+const acceptedIndex = 0;
+const payment = await account.signX402Payment(paymentRequired, acceptedIndex);
+
+// gRPC metadata example
+metadata.set("x402-payment", Buffer.from(JSON.stringify(payment)).toString("base64"));
+
+// MCP tool result example
+return {
+  content: [{ type: "text", text: "paid result" }],
+  _meta: { x402Payment: payment },
+};
+
+// Queue or batch job example
+await queue.publish("paid-job", { payment, jobId });
+```
+
+For smart accounts (supports the EIP-3009 `exact` flow only — smart accounts sign with an ERC-1271/ERC-6492 contract signature, so the Permit2-based `upto` scheme and `exact` requirements that use the Permit2 transfer method are not supported):
+
+```typescript
+const owner = await cdp.evm.getOrCreateAccount({ name: "agent-owner" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+  name: "agent-smart-account",
+  owner,
+});
+
+const acceptedIndex = 0;
+const payment = await smartAccount.signX402Payment(paymentRequired, acceptedIndex);
+```
+
+For Solana accounts, the same surface produces an exact SVM payment payload:
+
+```typescript
+const solanaAccount = await cdp.solana.getOrCreateAccount({ name: "solana-agent" });
+const acceptedIndex = 0;
+const payment = await solanaAccount.signX402Payment(paymentRequired, acceptedIndex);
 ```
 
 ## Webhooks

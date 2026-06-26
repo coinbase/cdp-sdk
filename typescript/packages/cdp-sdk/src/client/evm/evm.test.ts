@@ -145,6 +145,7 @@ describe("EvmClient", () => {
         useSpendPermission: vi.fn(),
         useNetwork: vi.fn(),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        signX402Payment: vi.fn(),
         type: "evm-server" as const,
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
@@ -195,6 +196,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn().mockResolvedValue("0xsignature"),
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        signX402Payment: vi.fn(),
         type: "evm-server" as const,
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
@@ -267,6 +269,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -330,6 +333,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -424,6 +428,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn().mockResolvedValue("0xsignature"),
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        signX402Payment: vi.fn(),
         type: "evm-server",
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
@@ -465,6 +470,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn().mockResolvedValue("0xsignature"),
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        signX402Payment: vi.fn(),
         type: "evm-server",
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
@@ -533,6 +539,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -566,6 +573,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn().mockResolvedValue("0xsignature"),
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        signX402Payment: vi.fn(),
         type: "evm-server",
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
@@ -640,6 +648,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
         useNetwork: vi.fn(),
       };
@@ -711,6 +720,7 @@ describe("EvmClient", () => {
         useNetwork: vi.fn(),
         useSpendPermission: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         quoteSwap: vi.fn(),
         swap: vi.fn(),
       };
@@ -759,6 +769,7 @@ describe("EvmClient", () => {
         useNetwork: vi.fn(),
         useSpendPermission: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         quoteSwap: vi.fn(),
         swap: vi.fn(),
       };
@@ -807,6 +818,7 @@ describe("EvmClient", () => {
           signMessage: vi.fn().mockResolvedValue("0xsignature"),
           signTransaction: vi.fn().mockResolvedValue("0xsignature"),
           signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+          signX402Payment: vi.fn(),
           type: "evm-server",
           transfer: vi.fn(),
           requestFaucet: vi.fn(),
@@ -823,6 +835,7 @@ describe("EvmClient", () => {
           signMessage: vi.fn().mockResolvedValue("0xsignature"),
           signTransaction: vi.fn().mockResolvedValue("0xsignature"),
           signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+          signX402Payment: vi.fn(),
           type: "evm-server",
           transfer: vi.fn(),
           requestFaucet: vi.fn(),
@@ -935,6 +948,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -1049,6 +1063,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -1112,6 +1127,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -1410,6 +1426,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn(),
         signTransaction: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         transfer: vi.fn(),
         listTokenBalances: vi.fn(),
         requestFaucet: vi.fn(),
@@ -1467,6 +1484,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn(),
         signTransaction: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         transfer: vi.fn(),
         listTokenBalances: vi.fn(),
         requestFaucet: vi.fn(),
@@ -1590,6 +1608,7 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         useSpendPermission: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
         useNetwork: vi.fn(),
         quoteSwap: vi.fn(),
@@ -1658,6 +1677,7 @@ describe("EvmClient", () => {
         quoteSwap: vi.fn(),
         swap: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         policies: [],
       };
 
@@ -1704,6 +1724,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn().mockResolvedValue("0xsignature"),
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        signX402Payment: vi.fn(),
         type: "evm-server" as const,
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
@@ -1768,6 +1789,7 @@ describe("EvmClient", () => {
         signMessage: vi.fn(),
         signTransaction: vi.fn(),
         signTypedData: vi.fn(),
+        signX402Payment: vi.fn(),
         type: "evm-server" as const,
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
