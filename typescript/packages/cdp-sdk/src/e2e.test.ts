@@ -4408,7 +4408,7 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const account = await cdp.evm.getOrCreateAccount({ name: "x402-e2e-test" });
+    const account = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-EVM-Account" });
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
     const { name, version } = await readEvmTokenDomain(
@@ -4443,9 +4443,9 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const owner = await cdp.evm.getOrCreateAccount({ name: "x402-e2e-scw-owner" });
+    const owner = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-Smart-Account-Owner" });
     const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-      name: "x402-e2e-scw",
+      name: "X402-E2E-Smart-Account",
       owner,
     });
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
@@ -4482,7 +4482,7 @@ describe("x402 signing E2E Tests", () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
-    const account = await cdp.solana.getOrCreateAccount({ name: "x402-e2e-test" });
+    const account = await cdp.solana.getOrCreateAccount({ name: "X402-E2E-Solana-Account" });
 
     const facilitator = createCdpFacilitatorClientForE2e();
     const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
