@@ -1,0 +1,9 @@
+data/
+.venv/
+__pycache__/
+*.pyc
+.env
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
