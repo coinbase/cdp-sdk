@@ -1,0 +1,9 @@
+[submodule "desktop-agent/contracts/lib/forge-std"]
+	path = desktop-agent/contracts/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "desktop-agent/contracts/lib/openzeppelin-contracts"]
+	path = desktop-agent/contracts/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "desktop-agent/contracts/lib/aave-v3-core"]
+	path = desktop-agent/contracts/lib/aave-v3-core
+	url = https://github.com/aave/aave-v3-core
