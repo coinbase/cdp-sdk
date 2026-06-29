@@ -53,11 +53,12 @@ class FlashLiquidationExecutor:
             target.swap_fee,
             target.debt_to_cover,
         )
-        return contract.functions.liquidate(
+        fn = contract.functions.liquidate(
             Web3.to_checksum_address(target.debt_asset),
             target.flash_amount,
             params,
-        ).encode_abi()
+        )
+        return fn._encode_transaction_data()
 
     async def execute(self, target: LiquidationTarget) -> ExecutionResult:
         try:
