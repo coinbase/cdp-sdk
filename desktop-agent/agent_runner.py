@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT))
 from agent.ai_engine import LiquidationAIEngine
 from agent.cdp_wallet import CdpWalletManager
 from agent.executor import FlashLiquidationExecutor
-from agent.scanner import AaveLiquidationScanner
+from agent.scanner import MultiProtocolScanner
 from config.settings import load_settings
 from ui.dashboard import app, push_log, update_state
 
@@ -34,21 +34,23 @@ class FlashLiquidationAgent:
         if scan_only:
             object.__setattr__(self.settings, "execute_enabled", False)
         self.wallet = CdpWalletManager(self.settings)
-        self.scanner: AaveLiquidationScanner | None = None
+        self.scanner: MultiProtocolScanner | None = None
         self.executor: FlashLiquidationExecutor | None = None
         self.ai = LiquidationAIEngine(self.settings)
         self._running = False
 
     async def setup(self) -> None:
         bundle = await self.wallet.initialize()
-        self.scanner = AaveLiquidationScanner(self.settings, bundle.w3)
+        self.scanner = MultiProtocolScanner(self.settings, bundle.w3)
         self.executor = FlashLiquidationExecutor(self.settings, self.wallet)
         update_state(
             status="ready",
             network=self.settings.network,
             smart_account=bundle.smart_account.address,
+            enabled_protocols=self.scanner.protocol_names,
         )
         push_log(f"Agent ready on {self.settings.network}")
+        push_log(f"Protocols: {', '.join(self.scanner.protocol_names)}")
         push_log(f"Smart account: {bundle.smart_account.address}")
         if self.settings.flash_liquidator_address:
             push_log(f"FlashLiquidator: {self.settings.flash_liquidator_address}")
@@ -63,9 +65,12 @@ class FlashLiquidationAgent:
 
         while self._running:
             try:
-                borrowers = await self.scanner.discover_borrowers()
-                push_log(f"Tracking {len(borrowers)} borrowers")
-                targets = await self.scanner.scan(borrowers)
+                borrowers_by_protocol = await self.scanner.discover_borrowers()
+                total_borrowers = sum(len(v) for v in borrowers_by_protocol.values())
+                push_log(
+                    f"Tracking {total_borrowers} borrowers ({self.scanner.borrower_stats(borrowers_by_protocol)})"
+                )
+                targets = await self.scanner.scan(borrowers_by_protocol)
                 decision = await self.ai.decide(targets)
 
                 update_state(
@@ -84,9 +89,18 @@ class FlashLiquidationAgent:
                     self.settings.execute_enabled
                     and decision.action == "execute"
                     and decision.target_user
+                    and decision.protocol_id == "aave-v3"
                     and self.settings.flash_liquidator_address
                 ):
-                    match = next((t for t in targets if t.user.lower() == decision.target_user.lower()), None)
+                    match = next(
+                        (
+                            t
+                            for t in targets
+                            if t.user.lower() == decision.target_user.lower()
+                            and t.protocol_id == decision.protocol_id
+                        ),
+                        None,
+                    )
                     if match:
                         push_log(f"Executing liquidation for {match.user}")
                         result = await self.executor.execute(match)

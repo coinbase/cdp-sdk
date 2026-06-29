@@ -40,7 +40,8 @@ class AgentSettings:
     execute_enabled: bool
     openai_api_key: str | None
     anthropic_api_key: str | None
-    borrower_cache_path: Path
+    borrower_cache_dir: Path
+    enabled_protocols: tuple[str, ...]
     agent_name: str
 
 
@@ -99,6 +100,11 @@ def load_settings(network_override: str | None = None) -> AgentSettings:
         execute_enabled=os.getenv("EXECUTE_ENABLED", "false").lower() == "true",
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
-        borrower_cache_path=ROOT_DIR / "data" / "borrowers.json",
+        borrower_cache_dir=ROOT_DIR / "data" / "borrowers",
+        enabled_protocols=_parse_protocols(os.getenv("AGENT_PROTOCOLS", "aave-v3,moonwell,compound-v3")),
         agent_name=os.getenv("AGENT_NAME", "cdp-flash-liquidator"),
     )
+
+
+def _parse_protocols(value: str) -> tuple[str, ...]:
+    return tuple(p.strip() for p in value.split(",") if p.strip())

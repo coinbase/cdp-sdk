@@ -1,6 +1,16 @@
 # CDP Flash Liquidation Desktop Agent
 
-Production-grade desktop AI agent for **Aave V3 flash-loan liquidations on Base mainnet**, powered by the [Coinbase CDP SDK](https://github.com/coinbase/cdp-sdk) with **paymaster gas sponsorship** and **developer-custodied MPC Smart Accounts**.
+Production-grade desktop AI agent for **multi-protocol DeFi liquidations on Base mainnet** (Aave V3, Moonwell, Compound V3), powered by the [Coinbase CDP SDK](https://github.com/coinbase/cdp-sdk) with **paymaster gas sponsorship** and **developer-custodied MPC Smart Accounts**.
+
+## Supported Protocols (Base)
+
+| Protocol | Scan | Auto-execute |
+|----------|------|----------------|
+| **Aave V3** | ✅ | ✅ via FlashLiquidator + paymaster |
+| **Moonwell** | ✅ | Monitor only (executor TBD) |
+| **Compound V3** | ✅ | Monitor only (executor TBD) |
+
+Configure with `AGENT_PROTOCOLS=aave-v3,moonwell,compound-v3` (default).
 
 ## Architecture
 

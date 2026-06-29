@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from agent.ai_engine import AgentDecision
-from agent.scanner import LiquidationTarget
+from agent.models import LiquidationTarget
 
 app = FastAPI(title="CDP Flash Liquidation Agent", version="1.0.0")
 
@@ -18,6 +18,7 @@ _state: dict[str, Any] = {
     "status": "initializing",
     "network": "",
     "smart_account": "",
+    "enabled_protocols": [],
     "targets": [],
     "decision": None,
     "last_execution": None,
@@ -96,7 +97,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       background: #0a1018; padding: 0.75rem; border-radius: 8px;
       overflow: auto; max-height: 220px; font-size: 0.78rem; color: #b8c7da;
     }
-    .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    .meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
     .meta div { background: #0a1018; border-radius: 8px; padding: 0.75rem; }
     .meta label { display: block; color: var(--muted); font-size: 0.72rem; margin-bottom: 0.25rem; }
     .meta span { font-family: monospace; font-size: 0.8rem; word-break: break-all; }
@@ -104,7 +105,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 </head>
 <body>
   <header>
-    <h1>CDP Flash Liquidation Agent — Base Mainnet</h1>
+    <h1>CDP Flash Liquidation Agent — Multi-Protocol Base</h1>
     <div class="badge" id="status">initializing</div>
   </header>
   <main>
@@ -114,6 +115,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <div><label>Network</label><span id="network">—</span></div>
         <div><label>Smart Account</label><span id="smart_account">—</span></div>
         <div><label>Scans</label><span id="scan_count">0</span></div>
+        <div><label>Protocols</label><span id="protocols">—</span></div>
       </div>
     </section>
     <section class="panel">
@@ -129,7 +131,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       <table>
         <thead>
           <tr>
-            <th>User</th><th>HF</th><th>Pair</th><th>Debt</th><th>Est. Profit</th>
+            <th>Protocol</th><th>User</th><th>HF</th><th>Pair</th><th>Debt</th><th>Est. Profit</th>
           </tr>
         </thead>
         <tbody id="targets"></tbody>
@@ -148,6 +150,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       document.getElementById('network').textContent = data.network || '—';
       document.getElementById('smart_account').textContent = data.smart_account || '—';
       document.getElementById('scan_count').textContent = data.scan_count || 0;
+      document.getElementById('protocols').textContent = (data.enabled_protocols || []).join(', ') || '—';
       document.getElementById('decision').textContent = JSON.stringify(data.decision, null, 2);
       document.getElementById('execution').textContent = JSON.stringify(data.last_execution, null, 2);
       document.getElementById('logs').textContent = (data.logs || []).join('\\n');
@@ -156,11 +159,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       (data.targets || []).forEach(t => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+          <td>${t.protocol_name || t.protocol_id}</td>
           <td>${t.user.slice(0,10)}…</td>
           <td class="hf-bad">${Number(t.health_factor).toFixed(4)}</td>
           <td>${t.collateral_symbol}/${t.debt_symbol}</td>
           <td>${Number(t.debt_to_cover_human).toFixed(4)}</td>
-          <td class="profit">$${Number(t.estimated_profit_usd).toFixed(2)}</td>`;
+          <td class="profit">$${Number(t.estimated_profit_usd).toFixed(2)}${t.executable ? '' : ' ⓘ'}</td>`;
         tbody.appendChild(tr);
       });
     }

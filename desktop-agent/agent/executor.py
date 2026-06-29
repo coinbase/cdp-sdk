@@ -10,7 +10,7 @@ from web3 import Web3
 
 from agent.cdp_wallet import CdpWalletManager
 from agent.protocols.aave_v3_base import FLASH_LIQUIDATOR_ABI, UNISWAP_V3_SWAP_ROUTER_BASE, get_aave_addresses
-from agent.scanner import LiquidationTarget
+from agent.models import LiquidationTarget
 from config.settings import AgentSettings
 
 logger = logging.getLogger(__name__)

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from agent.cdp_wallet import CdpWalletManager
-from agent.scanner import AaveLiquidationScanner
+from agent.scanner import MultiProtocolScanner
 from config.settings import load_settings
 
 
@@ -28,11 +28,14 @@ async def main() -> None:
     block = bundle.w3.eth.block_number
     print("✓ Latest block:", block)
 
-    scanner = AaveLiquidationScanner(settings, bundle.w3)
-    borrowers = await scanner.discover_borrowers(limit=50)
-    print(f"✓ Discovered {len(borrowers)} borrowers")
+    scanner = MultiProtocolScanner(settings, bundle.w3)
+    print("✓ Protocols:", ", ".join(scanner.protocol_names))
 
-    targets = await scanner.scan(borrowers[:20])
+    borrowers_by_protocol = await scanner.discover_borrowers(limit=50)
+    total = sum(len(v) for v in borrowers_by_protocol.values())
+    print(f"✓ Discovered {total} borrowers ({scanner.borrower_stats(borrowers_by_protocol)})")
+
+    targets = await scanner.scan(borrowers_by_protocol)
     print(f"✓ Liquidation targets (HF < {settings.health_factor_threshold}): {len(targets)}")
     for target in targets[:5]:
         print(

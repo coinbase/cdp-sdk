@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from agent.scanner import AaveLiquidationScanner
+from agent.scanner import MultiProtocolScanner
 from config.settings import load_settings
 from web3 import Web3
 
@@ -56,15 +56,18 @@ async def main() -> None:
 
         print("✓ Anvil connected, block:", w3.eth.block_number)
 
-        scanner = AaveLiquidationScanner(fork_settings, w3)
-        borrowers = await scanner.discover_borrowers(limit=100)
-        print(f"✓ Borrowers on fork: {len(borrowers)}")
+        scanner = MultiProtocolScanner(fork_settings, w3)
+        print("✓ Protocols:", ", ".join(scanner.protocol_names))
 
-        targets = await scanner.scan(borrowers[:50])
+        borrowers_by_protocol = await scanner.discover_borrowers(limit=100)
+        total = sum(len(v) for v in borrowers_by_protocol.values())
+        print(f"✓ Borrowers on fork: {total} ({scanner.borrower_stats(borrowers_by_protocol)})")
+
+        targets = await scanner.scan(borrowers_by_protocol)
         print(f"✓ Liquidatable targets on fork: {len(targets)}")
         for t in targets[:10]:
             print(
-                f"  {t.user[:12]}… HF={t.health_factor:.4f} "
+                f"  [{t.protocol_name}] {t.user[:12]}… HF={t.health_factor:.4f} "
                 f"{t.collateral_symbol}/{t.debt_symbol} profit≈${t.estimated_profit_usd:.2f}"
             )
 
