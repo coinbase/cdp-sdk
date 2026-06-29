@@ -7,9 +7,11 @@ import logging
 
 from web3 import Web3
 
-from agent.models import LiquidationTarget
+from agent.models import LiquidationTarget, WatchTarget
+from agent.profit_engine import apply_urgency, split_watch_targets
 from agent.protocols.aave_v3_scanner import AaveV3Scanner
 from agent.protocols.base import ProtocolScanner
+from agent.protocols.morpho_scanner import MorphoScanner
 from agent.protocols.registry import build_scanners
 from config.settings import AgentSettings
 
@@ -67,8 +69,23 @@ class MultiProtocolScanner:
         targets: list[LiquidationTarget] = []
         for batch in results:
             targets.extend(batch)
-        targets.sort(key=lambda t: t.estimated_profit_usd, reverse=True)
-        return targets
+        return apply_urgency(targets)
+
+    async def fetch_watch_list(self) -> list[WatchTarget]:
+        """Near-liquidation positions (HF 1.0–watch threshold) for oracle prep."""
+        watches: list[WatchTarget] = []
+        for scanner in self.scanners:
+            if isinstance(scanner, MorphoScanner):
+                try:
+                    positions = await scanner.fetch_watch_positions()
+                    batch, _ = split_watch_targets(
+                        positions, watch_hf_max=self.settings.watch_hf_threshold
+                    )
+                    watches.extend(batch)
+                except Exception as exc:
+                    logger.warning("Morpho watch fetch failed: %s", exc)
+        watches.sort(key=lambda w: w.health_factor)
+        return watches[:50]
 
     def borrower_stats(self, by_protocol: dict[str, list[str]]) -> str:
         parts = [f"{pid}:{len(addrs)}" for pid, addrs in by_protocol.items()]

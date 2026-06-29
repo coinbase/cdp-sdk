@@ -8,16 +8,25 @@ Production-grade desktop AI agent for **multi-protocol DeFi liquidations on Base
 |----------|------|----------------|
 | **Aave V3** | ✅ | ✅ via FlashLiquidator + paymaster |
 | **Moonwell** | ✅ | Monitor only (executor TBD) |
-| **Compound V3** | ✅ | Monitor only (executor TBD) |
+| **Morpho Blue** | ✅ | Monitor only (executor TBD) |
 
-Configure with `AGENT_PROTOCOLS=aave-v3,moonwell,compound-v3` (default).
+Configure with `AGENT_PROTOCOLS=aave-v3,moonwell,compound-v3,morpho` (default).
+
+### Profit optimizations (research-backed)
+
+- **Morpho GraphQL API** — fast position discovery with live `healthFactor`
+- **Urgency scoring** — lowest HF positions prioritized (competitive edge per MEV research)
+- **Watch list** — HF 1.0–1.05 positions prepped for Chainlink oracle triggers
+- **Oracle monitor** — ETH/BTC/USDC Chainlink feed polling; rescan on price updates
+- **Slippage-aware profit** — configurable `SLIPPAGE_BPS` buffer before execution
+- **Simulation gate** — `eth_call` dry-run before paymaster user-op (`SIMULATE_BEFORE_EXECUTE`)
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     Dashboard[Desktop Dashboard :8787] --> AgentRunner
-    AgentRunner --> Scanner[Aave HF Scanner]
+    AgentRunner --> Scanner[Multi-Protocol Scanner]
     AgentRunner --> AI[AI Decision Engine]
     AgentRunner --> Executor[Flash Executor]
     Scanner --> RPC[CDP Base RPC]

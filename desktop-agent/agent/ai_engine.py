@@ -86,9 +86,11 @@ class LiquidationAIEngine:
         return self._rules_decide(targets)
 
     def _rules_decide(self, targets: list[LiquidationTarget]) -> AgentDecision:
-        # Prefer executable targets (Aave V3), then highest profit
-        executable = [t for t in targets if t.executable]
-        best = executable[0] if executable else targets[0]
+        from agent.profit_engine import apply_urgency
+
+        ranked = apply_urgency(targets)
+        executable = [t for t in ranked if t.executable]
+        best = executable[0] if executable else ranked[0]
         risk_flags: list[str] = []
 
         if not best.executable:
