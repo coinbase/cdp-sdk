@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT))
 from agent.ai_engine import LiquidationAIEngine
 from agent.cdp_wallet import CdpWalletManager
 from agent.executor import FlashLiquidationExecutor
+from agent.oracle_monitor import OracleMonitor
 from agent.scanner import MultiProtocolScanner
 from config.settings import load_settings
 from ui.dashboard import app, push_log, update_state
@@ -37,12 +38,14 @@ class FlashLiquidationAgent:
         self.scanner: MultiProtocolScanner | None = None
         self.executor: FlashLiquidationExecutor | None = None
         self.ai = LiquidationAIEngine(self.settings)
+        self.oracle_monitor: OracleMonitor | None = None
         self._running = False
 
     async def setup(self) -> None:
         bundle = await self.wallet.initialize()
         self.scanner = MultiProtocolScanner(self.settings, bundle.w3)
         self.executor = FlashLiquidationExecutor(self.settings, self.wallet)
+        self.oracle_monitor = OracleMonitor(bundle.w3)
         update_state(
             status="ready",
             network=self.settings.network,
@@ -65,16 +68,23 @@ class FlashLiquidationAgent:
 
         while self._running:
             try:
+                if self.oracle_monitor is not None:
+                    oracle_updates = self.oracle_monitor.poll_feeds()
+                    if oracle_updates:
+                        push_log(f"Oracle updates: {', '.join(oracle_updates)} — rescanning")
+
                 borrowers_by_protocol = await self.scanner.discover_borrowers()
                 total_borrowers = sum(len(v) for v in borrowers_by_protocol.values())
                 push_log(
                     f"Tracking {total_borrowers} borrowers ({self.scanner.borrower_stats(borrowers_by_protocol)})"
                 )
                 targets = await self.scanner.scan(borrowers_by_protocol)
+                watch_list = await self.scanner.fetch_watch_list()
                 decision = await self.ai.decide(targets)
 
                 update_state(
                     targets=[t.to_dict() for t in targets[:25]],
+                    watch_targets=[w.to_dict() for w in watch_list[:15]],
                     decision=decision.to_dict(),
                 )
                 from ui.dashboard import _state
@@ -82,7 +92,7 @@ class FlashLiquidationAgent:
                 _state["scan_count"] = _state.get("scan_count", 0) + 1
 
                 push_log(
-                    f"Scan complete: {len(targets)} targets | decision={decision.action}"
+                    f"Scan: {len(targets)} liquidatable, {len(watch_list)} watch | decision={decision.action}"
                 )
 
                 if (

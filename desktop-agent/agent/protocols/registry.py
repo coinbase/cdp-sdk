@@ -8,15 +8,17 @@ from agent.protocols.aave_v3_scanner import AaveV3Scanner
 from agent.protocols.base import ProtocolScanner
 from agent.protocols.compound_v3_scanner import CompoundV3Scanner
 from agent.protocols.moonwell_scanner import MoonwellScanner
+from agent.protocols.morpho_scanner import MorphoScanner
 from config.settings import AgentSettings
 
 SCANNER_REGISTRY: dict[str, type[ProtocolScanner]] = {
     "aave-v3": AaveV3Scanner,
     "moonwell": MoonwellScanner,
     "compound-v3": CompoundV3Scanner,
+    "morpho": MorphoScanner,
 }
 
-DEFAULT_PROTOCOLS = ("aave-v3", "moonwell", "compound-v3")
+DEFAULT_PROTOCOLS = ("aave-v3", "moonwell", "compound-v3", "morpho")
 
 
 def build_scanners(settings: AgentSettings, w3: Web3) -> list[ProtocolScanner]:

@@ -63,8 +63,28 @@ class FlashLiquidationExecutor:
     async def execute(self, target: LiquidationTarget) -> ExecutionResult:
         try:
             data = self.encode_liquidate_call(target)
+            contract = self._require_contract()
+            smart_account = self.wallet.bundle.smart_account.address
+
+            if self.settings.simulate_before_execute:
+                try:
+                    self.wallet.bundle.w3.eth.call(
+                        {
+                            "from": smart_account,
+                            "to": contract,
+                            "data": data,
+                        }
+                    )
+                except Exception as sim_exc:
+                    return ExecutionResult(
+                        target=target,
+                        user_op_hash=None,
+                        status="simulation_failed",
+                        message=f"Simulation reverted: {sim_exc}",
+                    )
+
             user_op = await self.wallet.send_contract_call(
-                to=self._require_contract(),
+                to=contract,
                 data=data,
             )
             receipt = await self.wallet.bundle.network_account.wait_for_user_operation(

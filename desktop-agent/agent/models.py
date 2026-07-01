@@ -7,6 +7,25 @@ from typing import Any
 
 
 @dataclass
+class WatchTarget:
+    """Position near liquidation threshold — prep for oracle-triggered execution."""
+
+    protocol_id: str
+    protocol_name: str
+    user: str
+    health_factor: float
+    collateral_symbol: str
+    debt_symbol: str
+    debt_usd: float
+    collateral_usd: float
+    price_to_liquidation_pct: float
+    market_id: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class LiquidationTarget:
     protocol_id: str
     protocol_name: str
@@ -25,6 +44,8 @@ class LiquidationTarget:
     flash_amount: int
     liquidation_bonus_bps: int
     executable: bool = False
+    urgency: float = 0.0
+    market_id: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

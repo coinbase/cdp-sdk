@@ -20,6 +20,7 @@ _state: dict[str, Any] = {
     "smart_account": "",
     "enabled_protocols": [],
     "targets": [],
+    "watch_targets": [],
     "decision": None,
     "last_execution": None,
     "logs": [],
@@ -127,11 +128,22 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       <pre id="execution">None</pre>
     </section>
     <section class="panel full">
+      <h2>Watch List (HF 1.0–1.05)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Protocol</th><th>User</th><th>HF</th><th>Pair</th><th>Debt USD</th>
+          </tr>
+        </thead>
+        <tbody id="watch_targets"></tbody>
+      </table>
+    </section>
+    <section class="panel full">
       <h2>Liquidation Targets</h2>
       <table>
         <thead>
           <tr>
-            <th>Protocol</th><th>User</th><th>HF</th><th>Pair</th><th>Debt</th><th>Est. Profit</th>
+            <th>Protocol</th><th>User</th><th>HF</th><th>Pair</th><th>Debt</th><th>Est. Profit</th><th>Urgency</th>
           </tr>
         </thead>
         <tbody id="targets"></tbody>
@@ -164,8 +176,21 @@ DASHBOARD_HTML = """<!DOCTYPE html>
           <td class="hf-bad">${Number(t.health_factor).toFixed(4)}</td>
           <td>${t.collateral_symbol}/${t.debt_symbol}</td>
           <td>${Number(t.debt_to_cover_human).toFixed(4)}</td>
-          <td class="profit">$${Number(t.estimated_profit_usd).toFixed(2)}${t.executable ? '' : ' ⓘ'}</td>`;
+          <td class="profit">$${Number(t.estimated_profit_usd).toFixed(2)}${t.executable ? '' : ' ⓘ'}</td>
+          <td>${Number(t.urgency || 0).toFixed(1)}</td>`;
         tbody.appendChild(tr);
+      });
+      const wtbody = document.getElementById('watch_targets');
+      wtbody.innerHTML = '';
+      (data.watch_targets || []).forEach(w => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${w.protocol_name || w.protocol_id}</td>
+          <td>${w.user.slice(0,10)}…</td>
+          <td>${Number(w.health_factor).toFixed(4)}</td>
+          <td>${w.collateral_symbol}/${w.debt_symbol}</td>
+          <td>$${Number(w.debt_usd).toFixed(2)}</td>`;
+        wtbody.appendChild(tr);
       });
     }
     setInterval(refresh, 2000);
