@@ -49,6 +49,7 @@ class AgentSettings:
     oneinch_api_key: str | None
     swap_quote_provider: str
     agent_name: str
+    smart_account_address: str | None
 
 
 BASE_MAINNET = {
@@ -117,6 +118,7 @@ def load_settings(network_override: str | None = None) -> AgentSettings:
         oneinch_api_key=os.getenv("ONEINCH_API_KEY"),
         swap_quote_provider=os.getenv("SWAP_QUOTE_PROVIDER", "auto"),
         agent_name=os.getenv("AGENT_NAME", "cdp-flash-liquidator"),
+        smart_account_address=os.getenv("SMART_ACCOUNT_ADDRESS") or os.getenv("CDP_SMART_ACCOUNT_ADDRESS"),
     )
 
 
