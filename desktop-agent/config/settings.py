@@ -43,6 +43,7 @@ class AgentSettings:
     borrower_cache_dir: Path
     enabled_protocols: tuple[str, ...]
     agent_name: str
+    smart_account_address: str | None
 
 
 BASE_MAINNET = {
@@ -103,6 +104,7 @@ def load_settings(network_override: str | None = None) -> AgentSettings:
         borrower_cache_dir=ROOT_DIR / "data" / "borrowers",
         enabled_protocols=_parse_protocols(os.getenv("AGENT_PROTOCOLS", "aave-v3,moonwell,compound-v3")),
         agent_name=os.getenv("AGENT_NAME", "cdp-flash-liquidator"),
+        smart_account_address=os.getenv("SMART_ACCOUNT_ADDRESS") or os.getenv("CDP_SMART_ACCOUNT_ADDRESS"),
     )
 
 

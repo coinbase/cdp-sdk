@@ -41,10 +41,17 @@ class CdpWalletManager:
             wallet_secret=self.settings.cdp_wallet_secret,
         )
 
-        smart_account = await cdp.evm.get_or_create_smart_account(
-            name=self.settings.agent_name,
-            owner=owner,
-        )
+        # Use the existing legacy smart account only — never create new wallets.
+        if self.settings.smart_account_address:
+            smart_account = await cdp.evm.get_smart_account(
+                address=self.settings.smart_account_address,
+                owner=owner,
+            )
+        else:
+            smart_account = await cdp.evm.get_smart_account(
+                name=self.settings.agent_name,
+                owner=owner,
+            )
         network_account = await smart_account.__experimental_use_network__(
             self.settings.network,
             rpc_url=self.settings.rpc_url,
