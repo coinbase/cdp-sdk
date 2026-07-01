@@ -53,6 +53,7 @@ def settings() -> AgentSettings:
         oneinch_api_key=None,
         swap_quote_provider="kyber",
         agent_name="test-agent",
+        smart_account_address=TEST_USER,
     )
 
 
