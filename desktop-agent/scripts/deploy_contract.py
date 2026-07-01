@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Deploy FlashLiquidator to Base mainnet.
+"""Deploy FlashLiquidator (Aave) or MorphoFlashLiquidator to Base mainnet.
+
+Usage:
+  python scripts/deploy_contract.py          # Aave FlashLiquidator
+  python scripts/deploy_contract.py --morpho # Morpho FlashLiquidator
 
 Primary path: fund `PRIVATE_KEY_2` (or `DEPLOYER_PRIVATE_KEY`) with a small ETH
 balance on Base, then deploy via raw transaction.
-
-Fallback path: CDP Smart Account + paymaster via CREATE2 deployer (requires
-paymaster allowlist for 0x4e59b44847b379578588920cA78FbF26c0B4956C).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import subprocess
@@ -27,24 +29,40 @@ from web3 import Web3
 
 from agent.cdp_wallet import CdpWalletManager
 from agent.protocols.aave_v3_base import UNISWAP_V3_SWAP_ROUTER_BASE, get_aave_addresses
+from agent.protocols.morpho_base import MORPHO_BLUE_BASE
 from config.settings import load_settings
 
 CONTRACTS_DIR = ROOT / "contracts"
-CREATE2_DEPLOYER = "0x4e59b44847b379578588920cA78FbF26c0B4956C"
+
+DEPLOY_TARGETS = {
+    "aave": {
+        "contract": "FlashLiquidator.sol",
+        "artifact": "FlashLiquidator",
+        "env_key": "FLASH_LIQUIDATOR_ADDRESS",
+    },
+    "morpho": {
+        "contract": "MorphoFlashLiquidator.sol",
+        "artifact": "MorphoFlashLiquidator",
+        "env_key": "MORPHO_FLASH_LIQUIDATOR_ADDRESS",
+    },
+}
 
 
-def compile_contract() -> dict:
+def compile_contracts() -> None:
     subprocess.run(["forge", "build"], cwd=CONTRACTS_DIR, check=True)
-    artifact_path = CONTRACTS_DIR / "out" / "FlashLiquidator.sol" / "FlashLiquidator.json"
+
+
+def load_artifact(name: str) -> dict:
+    artifact_path = CONTRACTS_DIR / "out" / f"{name}.sol" / f"{name}.json"
     return json.loads(artifact_path.read_text())
 
 
-def _write_env(contract_address: str) -> None:
+def _write_env(env_key: str, contract_address: str) -> None:
     env_path = ROOT / ".env"
-    line = f"FLASH_LIQUIDATOR_ADDRESS={contract_address}\n"
-    if env_path.exists() and "FLASH_LIQUIDATOR_ADDRESS" in env_path.read_text():
+    line = f"{env_key}={contract_address}\n"
+    if env_path.exists() and env_key in env_path.read_text():
         lines = [
-            line.strip() if l.startswith("FLASH_LIQUIDATOR_ADDRESS") else l
+            line.strip() if l.startswith(env_key) else l
             for l in env_path.read_text().splitlines()
         ]
         env_path.write_text("\n".join(lines) + "\n")
@@ -52,7 +70,7 @@ def _write_env(contract_address: str) -> None:
         env_path.write_text((env_path.read_text() if env_path.exists() else "") + line)
 
 
-def deploy_with_funded_eoa(settings, artifact: dict, owner: str) -> str:
+def deploy_with_funded_eoa(settings, artifact: dict, owner: str, target: str) -> str:
     pk = os.getenv("DEPLOYER_PRIVATE_KEY") or os.getenv("PRIVATE_KEY_2")
     if not pk:
         raise ValueError("Set DEPLOYER_PRIVATE_KEY or PRIVATE_KEY_2 with Base ETH for deployment.")
@@ -62,30 +80,35 @@ def deploy_with_funded_eoa(settings, artifact: dict, owner: str) -> str:
 
     acct = Account.from_key(pk)
     w3 = Web3(Web3.HTTPProvider(settings.rpc_url))
-    addresses = get_aave_addresses(settings.network)
+
+    if target == "morpho":
+        constructor_args = [
+            Web3.to_checksum_address(MORPHO_BLUE_BASE),
+            Web3.to_checksum_address(UNISWAP_V3_SWAP_ROUTER_BASE),
+            Web3.to_checksum_address(owner),
+        ]
+    else:
+        addresses = get_aave_addresses(settings.network)
+        constructor_args = [
+            Web3.to_checksum_address(addresses["pool_addresses_provider"]),
+            Web3.to_checksum_address(UNISWAP_V3_SWAP_ROUTER_BASE),
+            Web3.to_checksum_address(owner),
+        ]
 
     contract = w3.eth.contract(abi=artifact["abi"], bytecode=artifact["bytecode"]["object"])
-    built = contract.constructor(
-        Web3.to_checksum_address(addresses["pool_addresses_provider"]),
-        Web3.to_checksum_address(UNISWAP_V3_SWAP_ROUTER_BASE),
-        Web3.to_checksum_address(owner),
-    ).build_transaction({"from": acct.address, "value": 0})
+    built = contract.constructor(*constructor_args).build_transaction({"from": acct.address, "value": 0})
 
     gas = w3.eth.estimate_gas({"from": acct.address, "data": built["data"]})
     block = w3.eth.get_block("latest")
     max_fee = block["baseFeePerGas"] + w3.to_wei(0.001, "gwei")
-    cost = gas * max_fee
     balance = w3.eth.get_balance(acct.address)
+    cost = gas * max_fee
     if balance < cost:
         raise ValueError(
             f"Deployer {acct.address} needs ~{cost / 1e18:.6f} ETH, has {balance / 1e18:.6f} ETH"
         )
 
-    tx = contract.constructor(
-        Web3.to_checksum_address(addresses["pool_addresses_provider"]),
-        Web3.to_checksum_address(UNISWAP_V3_SWAP_ROUTER_BASE),
-        Web3.to_checksum_address(owner),
-    ).build_transaction(
+    tx = contract.constructor(*constructor_args).build_transaction(
         {
             "from": acct.address,
             "nonce": w3.eth.get_transaction_count(acct.address),
@@ -110,9 +133,11 @@ def deploy_with_funded_eoa(settings, artifact: dict, owner: str) -> str:
     raise RuntimeError("Deployment transaction sent but contract address not found.")
 
 
-async def deploy(network: str | None = None) -> str:
+async def deploy(network: str | None = None, target: str = "aave") -> str:
     settings = load_settings(network)
-    artifact = compile_contract()
+    meta = DEPLOY_TARGETS[target]
+    compile_contracts()
+    artifact = load_artifact(meta["artifact"])
 
     wallet = CdpWalletManager(settings)
     bundle = await wallet.initialize()
@@ -120,17 +145,22 @@ async def deploy(network: str | None = None) -> str:
 
     print(f"Smart Account owner: {owner}")
     print(f"Network: {settings.network}")
+    print(f"Deploying: {meta['artifact']}")
 
-    contract_address = deploy_with_funded_eoa(settings, artifact, owner)
-    print(f"\nDeployed FlashLiquidator: {contract_address}")
+    contract_address = deploy_with_funded_eoa(settings, artifact, owner, target)
+    print(f"\nDeployed {meta['artifact']}: {contract_address}")
     print(f"https://basescan.org/address/{contract_address}")
-    print("\nAdd FlashLiquidator + liquidate() to CDP Paymaster allowlist for execution.")
+    print(f"\nAdd {meta['artifact']} + liquidate() to CDP Paymaster allowlist for execution.")
 
-    _write_env(contract_address)
+    _write_env(meta["env_key"], contract_address)
     await wallet.close()
     return contract_address
 
 
 if __name__ == "__main__":
-    net = sys.argv[1] if len(sys.argv) > 1 else None
-    asyncio.run(deploy(net))
+    parser = argparse.ArgumentParser(description="Deploy liquidation contracts")
+    parser.add_argument("--network", choices=["base", "base-sepolia"], default=None)
+    parser.add_argument("--morpho", action="store_true", help="Deploy MorphoFlashLiquidator")
+    args = parser.parse_args()
+    target = "morpho" if args.morpho else "aave"
+    asyncio.run(deploy(args.network, target))

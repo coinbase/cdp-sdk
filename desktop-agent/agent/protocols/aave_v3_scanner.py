@@ -13,6 +13,7 @@ from web3 import Web3
 from web3.contract import Contract
 
 from agent.models import LiquidationTarget
+from agent.profit_engine import estimate_profit_with_swap_quote
 from agent.protocols.aave_v3_base import (
     AAVE_BASE_SUBGRAPH,
     ERC20_ABI,
@@ -203,16 +204,29 @@ class AaveV3Scanner(ProtocolScanner):
 
         collateral_usd = total_collateral_base / 1e8
         debt_usd = total_debt_base / 1e8
-        bonus_multiplier = 1 + (bonus_bps / 10_000)
-        gross_profit_usd = (debt_to_cover / (10**debt_decimals)) * bonus_multiplier * 0.15
-        flash_fee_usd = flash_fee / (10**debt_decimals)
-        estimated_profit = gross_profit_usd - flash_fee_usd - 0.5
-
-        if estimated_profit < self.settings.min_profit_usd:
-            return None
 
         collateral_meta = self._reserve_meta.get(collateral_asset.lower(), {})
         debt_meta = self._reserve_meta.get(debt_asset.lower(), {})
+        coll_decimals = int(collateral_meta.get("decimals", 18))
+        debt_decimals = int(debt_meta.get("decimals", 18))
+
+        # Estimate collateral seized from close-factor liquidation
+        lif_mult = 1 + bonus_bps / 10_000
+        est_collateral = int((debt_to_cover * lif_mult * (10**coll_decimals)) / (10**debt_decimals))
+
+        estimated_profit, _ = await estimate_profit_with_swap_quote(
+            self.settings,
+            collateral_asset=collateral_asset,
+            debt_asset=debt_asset,
+            collateral_amount=est_collateral,
+            debt_to_cover_human=debt_to_cover / (10**debt_decimals),
+            liquidation_bonus_bps=bonus_bps,
+            debt_decimals=debt_decimals,
+            flash_fee_bps=FLASH_LOAN_PREMIUM_BPS,
+        )
+
+        if estimated_profit < self.settings.min_profit_usd:
+            return None
 
         return LiquidationTarget(
             protocol_id=self.protocol_id,
@@ -232,6 +246,9 @@ class AaveV3Scanner(ProtocolScanner):
             flash_amount=flash_amount,
             liquidation_bonus_bps=bonus_bps,
             executable=self.executable and bool(self.settings.flash_liquidator_address),
+            debt_decimals=debt_decimals,
+            collateral_decimals=coll_decimals,
+            estimated_collateral_amount=est_collateral,
         )
 
     async def _best_liquidation_pair(

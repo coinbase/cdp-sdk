@@ -46,6 +46,13 @@ class LiquidationTarget:
     executable: bool = False
     urgency: float = 0.0
     market_id: str = ""
+    oracle_address: str = ""
+    irm_address: str = ""
+    lltv_wad: int = 0
+    repaid_shares: int = 0
+    estimated_collateral_amount: int = 0
+    debt_decimals: int = 18
+    collateral_decimals: int = 18
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

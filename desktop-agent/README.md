@@ -1,19 +1,21 @@
 # CDP Flash Liquidation Desktop Agent
 
-Production-grade desktop AI agent for **multi-protocol DeFi liquidations on Base mainnet** (Aave V3, Moonwell, Compound V3), powered by the [Coinbase CDP SDK](https://github.com/coinbase/cdp-sdk) with **paymaster gas sponsorship** and **developer-custodied MPC Smart Accounts**.
+Production-grade desktop AI agent for **multi-protocol DeFi liquidations on Base mainnet** (Aave V3, Moonwell, Compound V3, Morpho Blue), powered by the [Coinbase CDP SDK](https://github.com/coinbase/cdp-sdk) with **paymaster gas sponsorship** and **developer-custodied MPC Smart Accounts**.
 
 ## Supported Protocols (Base)
 
 | Protocol | Scan | Auto-execute |
 |----------|------|----------------|
-| **Aave V3** | ✅ | ✅ via FlashLiquidator + paymaster |
+| **Aave V3** | ✅ | ✅ via `FlashLiquidator.sol` + paymaster |
+| **Morpho Blue** | ✅ | ✅ via `MorphoFlashLiquidator.sol` (zero-fee flash loan) |
 | **Moonwell** | ✅ | Monitor only (executor TBD) |
-| **Morpho Blue** | ✅ | Monitor only (executor TBD) |
+| **Compound V3** | ✅ | Monitor only (executor TBD) |
 
 Configure with `AGENT_PROTOCOLS=aave-v3,moonwell,compound-v3,morpho` (default).
 
 ### Profit optimizations (research-backed)
 
+- **Live swap quotes** — KyberSwap aggregator (default) + optional 1inch API (`ONEINCH_API_KEY`)
 - **Morpho GraphQL API** — fast position discovery with live `healthFactor`
 - **Urgency scoring** — lowest HF positions prioritized (competitive edge per MEV research)
 - **Watch list** — HF 1.0–1.05 positions prepped for Chainlink oracle triggers

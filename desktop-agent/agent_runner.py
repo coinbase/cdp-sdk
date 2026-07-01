@@ -56,9 +56,13 @@ class FlashLiquidationAgent:
         push_log(f"Protocols: {', '.join(self.scanner.protocol_names)}")
         push_log(f"Smart account: {bundle.smart_account.address}")
         if self.settings.flash_liquidator_address:
-            push_log(f"FlashLiquidator: {self.settings.flash_liquidator_address}")
+            push_log(f"FlashLiquidator (Aave): {self.settings.flash_liquidator_address}")
         else:
-            push_log("FLASH_LIQUIDATOR_ADDRESS not set — scan-only until deployed")
+            push_log("FLASH_LIQUIDATOR_ADDRESS not set — Aave execution disabled")
+        if self.settings.morpho_flash_liquidator_address:
+            push_log(f"MorphoFlashLiquidator: {self.settings.morpho_flash_liquidator_address}")
+        else:
+            push_log("MORPHO_FLASH_LIQUIDATOR_ADDRESS not set — Morpho execution disabled")
 
     async def run_loop(self) -> None:
         assert self.scanner is not None
@@ -99,8 +103,7 @@ class FlashLiquidationAgent:
                     self.settings.execute_enabled
                     and decision.action == "execute"
                     and decision.target_user
-                    and decision.protocol_id == "aave-v3"
-                    and self.settings.flash_liquidator_address
+                    and decision.protocol_id in ("aave-v3", "morpho")
                 ):
                     match = next(
                         (
@@ -108,14 +111,23 @@ class FlashLiquidationAgent:
                             for t in targets
                             if t.user.lower() == decision.target_user.lower()
                             and t.protocol_id == decision.protocol_id
+                            and t.executable
                         ),
                         None,
                     )
                     if match:
-                        push_log(f"Executing liquidation for {match.user}")
-                        result = await self.executor.execute(match)
-                        update_state(last_execution=result.__dict__)
-                        push_log(result.message)
+                        contract_ok = (
+                            (match.protocol_id == "aave-v3" and self.settings.flash_liquidator_address)
+                            or (
+                                match.protocol_id == "morpho"
+                                and self.settings.morpho_flash_liquidator_address
+                            )
+                        )
+                        if contract_ok:
+                            push_log(f"Executing {match.protocol_name} liquidation for {match.user}")
+                            result = await self.executor.execute(match)
+                            update_state(last_execution=result.__dict__)
+                            push_log(result.message)
 
             except Exception as exc:
                 logger.exception("Agent loop error")

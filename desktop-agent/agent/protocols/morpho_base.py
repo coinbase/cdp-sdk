@@ -60,3 +60,69 @@ LIQUIDATION_CURSOR = 0.3
 MAX_LIF = 1.15
 WAD = 10**18
 ORACLE_PRICE_SCALE = 10**36
+
+MORPHO_FLASH_LIQUIDATOR_ABI = [
+    {
+        "inputs": [
+            {"internalType": "address", "name": "loanToken", "type": "address"},
+            {"internalType": "uint256", "name": "flashAmount", "type": "uint256"},
+            {
+                "components": [
+                    {
+                        "components": [
+                            {"internalType": "address", "name": "loanToken", "type": "address"},
+                            {"internalType": "address", "name": "collateralToken", "type": "address"},
+                            {"internalType": "address", "name": "oracle", "type": "address"},
+                            {"internalType": "address", "name": "irm", "type": "address"},
+                            {"internalType": "uint256", "name": "lltv", "type": "uint256"},
+                        ],
+                        "internalType": "struct IMorpho.MarketParams",
+                        "name": "market",
+                        "type": "tuple",
+                    },
+                    {"internalType": "address", "name": "borrower", "type": "address"},
+                    {"internalType": "uint256", "name": "repaidShares", "type": "uint256"},
+                    {"internalType": "uint24", "name": "swapFee", "type": "uint24"},
+                    {"internalType": "uint256", "name": "minAmountOut", "type": "uint256"},
+                ],
+                "internalType": "struct MorphoFlashLiquidator.LiquidationParams",
+                "name": "params",
+                "type": "tuple",
+            },
+        ],
+        "name": "liquidate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+]
+
+MORPHO_LIQUIDATE_ABI = [
+    {
+        "inputs": [
+            {
+                "components": [
+                    {"internalType": "address", "name": "loanToken", "type": "address"},
+                    {"internalType": "address", "name": "collateralToken", "type": "address"},
+                    {"internalType": "address", "name": "oracle", "type": "address"},
+                    {"internalType": "address", "name": "irm", "type": "address"},
+                    {"internalType": "uint256", "name": "lltv", "type": "uint256"},
+                ],
+                "internalType": "struct MarketParams",
+                "name": "marketParams",
+                "type": "tuple",
+            },
+            {"internalType": "address", "name": "borrower", "type": "address"},
+            {"internalType": "uint256", "name": "seizedAssets", "type": "uint256"},
+            {"internalType": "uint256", "name": "repaidShares", "type": "uint256"},
+            {"internalType": "bytes", "name": "data", "type": "bytes"},
+        ],
+        "name": "liquidate",
+        "outputs": [
+            {"internalType": "uint256", "name": "", "type": "uint256"},
+            {"internalType": "uint256", "name": "", "type": "uint256"},
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+]

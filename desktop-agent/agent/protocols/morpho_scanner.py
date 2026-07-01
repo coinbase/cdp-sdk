@@ -12,7 +12,11 @@ import aiohttp
 from web3 import Web3
 
 from agent.models import LiquidationTarget
-from agent.profit_engine import estimate_profit_usd, morpho_liquidation_incentive_factor, urgency_score
+from agent.profit_engine import (
+    estimate_profit_with_swap_quote,
+    morpho_liquidation_incentive_factor,
+    urgency_score,
+)
 from agent.protocols.base import ProtocolScanner
 from agent.protocols.morpho_base import (
     BLUE_CHIP_SYMBOLS,
@@ -36,7 +40,7 @@ query Borrowers($first: Int!, $skip: Int!) {
       user { address }
       healthFactor
       priceVariationToLiquidationPrice
-      state { borrowAssets borrowAssetsUsd collateral collateralUsd }
+      state { borrowAssets borrowShares borrowAssetsUsd collateral collateralUsd }
       market {
         marketId lltv oracleAddress irmAddress
         loanAsset { address symbol decimals }
@@ -74,7 +78,7 @@ query Watch($hf: Float!) {
 class MorphoScanner(ProtocolScanner):
     protocol_id = "morpho"
     display_name = "Morpho Blue"
-    executable = False
+    executable = True
 
     def __init__(self, settings: AgentSettings, w3: Web3) -> None:
         super().__init__(settings, w3)
@@ -167,7 +171,7 @@ class MorphoScanner(ProtocolScanner):
                     items {
                       user { address }
                       healthFactor
-                      state { borrowAssets borrowAssetsUsd collateral collateralUsd }
+                      state { borrowAssets borrowShares borrowAssetsUsd collateral collateralUsd }
                       market {
                         marketId lltv oracleAddress irmAddress
                         loanAsset { address symbol decimals }
@@ -188,14 +192,14 @@ class MorphoScanner(ProtocolScanner):
         for pos in items:
             if not self._is_blue_chip(pos):
                 continue
-            target = self._to_target(pos)
+            target = await self._to_target(pos)
             if target is not None:
                 targets.append(target)
 
         targets.sort(key=lambda t: (t.urgency, t.estimated_profit_usd), reverse=True)
         return targets
 
-    def _to_target(self, pos: dict[str, Any]) -> LiquidationTarget | None:
+    async def _to_target(self, pos: dict[str, Any]) -> LiquidationTarget | None:
         market = pos.get("market", {})
         state = pos.get("state", {})
         user = pos.get("user", {}).get("address")
@@ -217,19 +221,32 @@ class MorphoScanner(ProtocolScanner):
         bonus_bps = int((lif - 1) * 10_000)
 
         debt_decimals = int(loan.get("decimals") or 6)
+        coll_decimals = int(coll.get("decimals") or 18)
         borrow_assets = int(state.get("borrowAssets") or 0)
-        debt_to_cover = borrow_assets  # Morpho allows full liquidation
+        borrow_shares = int(state.get("borrowShares") or 0)
+        collateral_amount = int(state.get("collateral") or 0)
+        debt_to_cover = borrow_assets
         debt_human = debt_to_cover / (10**debt_decimals)
 
-        profit = estimate_profit_usd(
-            debt_human,
-            bonus_bps,
-            slippage_bps=self.settings.slippage_bps,
-            gas_usd=0.5,
-            flash_fee_bps=0,  # Morpho flash loans are free on mainnet
+        # Estimate seized collateral for swap quote (conservative: full collateral balance)
+        est_collateral = collateral_amount if collateral_amount > 0 else int(borrow_assets * lif)
+
+        profit, _quote_source = await estimate_profit_with_swap_quote(
+            self.settings,
+            collateral_asset=Web3.to_checksum_address(coll.get("address", "0x" + "0" * 40)),
+            debt_asset=Web3.to_checksum_address(loan.get("address", "0x" + "0" * 40)),
+            collateral_amount=est_collateral,
+            debt_to_cover_human=debt_human,
+            liquidation_bonus_bps=bonus_bps,
+            debt_decimals=debt_decimals,
+            flash_fee_bps=0,
         )
         if profit < self.settings.min_profit_usd:
             return None
+
+        morpho_contract = bool(self.settings.morpho_flash_liquidator_address)
+        oracle = market.get("oracleAddress", "")
+        irm = market.get("irmAddress", "")
 
         return LiquidationTarget(
             protocol_id=self.protocol_id,
@@ -248,7 +265,14 @@ class MorphoScanner(ProtocolScanner):
             swap_fee=500,
             flash_amount=debt_to_cover,
             liquidation_bonus_bps=bonus_bps,
-            executable=False,
+            executable=self.executable and morpho_contract and borrow_shares > 0 and bool(oracle and irm),
             urgency=urgency_score(hf),
             market_id=market.get("marketId", ""),
+            oracle_address=Web3.to_checksum_address(oracle) if oracle else "",
+            irm_address=Web3.to_checksum_address(irm) if irm else "",
+            lltv_wad=lltv,
+            repaid_shares=borrow_shares,
+            estimated_collateral_amount=est_collateral,
+            debt_decimals=debt_decimals,
+            collateral_decimals=coll_decimals,
         )
