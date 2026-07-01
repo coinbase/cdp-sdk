@@ -61,7 +61,14 @@ Cloud secrets are auto-injected in Cursor Desktop:
 | `EOA_PRIVATE_KEY` | Smart account owner EOA |
 | `BASE_RPC_ENDPOINT` | CDP ultra-low-latency Base RPC + paymaster |
 
-### 3. Safe test (Base Sepolia / fork)
+### 3. Run unit tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest -v
+```
+
+### 4. Safe integration test (Base Sepolia / fork)
 
 ```bash
 # CDP + scanner smoke test (testnet, read-only)
@@ -71,15 +78,19 @@ python scripts/test_base_sepolia.py
 python scripts/fork_liquidation_test.py
 ```
 
-### 4. Deploy FlashLiquidator (mainnet)
+### 5. Deploy liquidator contracts (mainnet)
 
-Add your contract to the **CDP Paymaster allowlist** in [CDP Portal](https://portal.cdp.coinbase.com) before deploying.
+Add your contracts to the **CDP Paymaster allowlist** in [CDP Portal](https://portal.cdp.coinbase.com) before deploying.
 
 ```bash
-python scripts/deploy_contract.py base
+# Aave V3 FlashLiquidator
+python scripts/deploy_contract.py
+
+# Morpho Blue MorphoFlashLiquidator (zero-fee flash loan)
+python scripts/deploy_contract.py --morpho
 ```
 
-### 5. Launch desktop agent
+### 6. Launch desktop agent
 
 Open the **Desktop** tab in Cursor — the dashboard binds to port `8787`:
 
@@ -96,10 +107,15 @@ Dashboard: `http://localhost:8787`
 |------|---------|
 | `agent_runner.py` | Main orchestrator + dashboard server |
 | `contracts/src/FlashLiquidator.sol` | Atomic Aave flash-loan liquidation contract |
-| `agent/scanner.py` | On-chain HF scanner + subgraph borrower discovery |
-| `agent/executor.py` | CDP Smart Account user-op execution |
+| `contracts/src/MorphoFlashLiquidator.sol` | Morpho Blue zero-fee flash-loan liquidation |
+| `agent/scanner.py` | Multi-protocol scanner aggregator |
+| `agent/swap_quotes.py` | KyberSwap / 1inch live swap quotes |
+| `agent/profit_engine.py` | Profit estimation + urgency scoring |
+| `agent/executor.py` | CDP Smart Account user-op execution (Aave + Morpho) |
 | `agent/cdp_wallet.py` | MPC wallet + paymaster integration |
 | `agent/ai_engine.py` | Web3 expert AI decision layer |
+| `CHANGELOG.md` | Desktop agent release notes |
+| `tests/` | Unit tests (profit engine, swap quotes, executor encoding) |
 
 ## Paymaster
 
@@ -109,23 +125,32 @@ On Base, the agent passes `BASE_RPC_ENDPOINT` (CDP RPC URL) as `paymaster_url` t
 
 ```bash
 export EXECUTE_ENABLED=true
-export FLASH_LIQUIDATOR_ADDRESS=0xYourDeployedContract
+export FLASH_LIQUIDATOR_ADDRESS=0xYourAaveContract
+export MORPHO_FLASH_LIQUIDATOR_ADDRESS=0xYourMorphoContract
 python agent_runner.py
 ```
 
 The agent will:
 
-1. Discover borrowers (Aave subgraph + on-chain Borrow events)
-2. Batch-evaluate health factors via `Pool.getUserAccountData`
-3. AI/rules engine selects profitable targets
-4. Submit atomic `liquidate()` user operation via CDP Smart Account
+1. Discover borrowers across enabled protocols (Aave subgraph, Morpho GraphQL, on-chain events)
+2. Evaluate health factors and live swap quotes for profit estimation
+3. AI/rules engine selects profitable executable targets (Aave V3 + Morpho Blue)
+4. Submit atomic `liquidate()` user operations via CDP Smart Account
 
-## Contract
+## Contracts
 
-`FlashLiquidator.sol` executes in one transaction:
+### FlashLiquidator.sol (Aave V3)
 
 1. `flashLoanSimple` debt asset from Aave V3
 2. `liquidationCall` on underwater position
 3. Uniswap V3 swap collateral → debt (if needed)
 4. Repay flash loan + premium
+5. Transfer profit to Smart Account owner
+
+### MorphoFlashLiquidator.sol (Morpho Blue)
+
+1. Zero-fee `flashLoan` from Morpho Blue
+2. `liquidate()` unhealthy position (repay by borrow shares)
+3. Uniswap V3 swap seized collateral → loan token
+4. Repay flash loan (no premium)
 5. Transfer profit to Smart Account owner
