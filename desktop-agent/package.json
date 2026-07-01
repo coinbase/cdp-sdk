@@ -1,0 +1,14 @@
+{
+  "name": "cdp-flash-liquidation-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Desktop AI agent for Aave V3 flash-loan liquidations on Base via Coinbase CDP",
+  "scripts": {
+    "agent": "python agent_runner.py",
+    "agent:sepolia": "python agent_runner.py --network base-sepolia --scan-only",
+    "test:cdp": "python scripts/test_base_sepolia.py",
+    "test:fork": "python scripts/fork_liquidation_test.py",
+    "deploy": "python scripts/deploy_contract.py",
+    "compile": "cd contracts && forge build"
+  }
+}

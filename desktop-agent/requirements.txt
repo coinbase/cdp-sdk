@@ -1,0 +1,13 @@
+# CDP Flash Liquidation Desktop Agent dependencies
+cdp-sdk>=1.47.0
+web3>=7.6.0
+eth-account>=0.13.0
+eth-abi>=5.0.0
+python-dotenv>=1.0.0
+aiohttp>=3.11.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+
+# Optional AgentKit integration for extended wallet tooling
+coinbase-agentkit>=0.7.0
