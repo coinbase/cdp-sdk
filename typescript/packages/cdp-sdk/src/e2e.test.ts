@@ -5333,9 +5333,7 @@ describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", 
 
           // Chain ID 84532 = Base Sepolia.
           const rpcUrl = CDP_EVM_RPC_URLS[X402_BASE_SEPOLIA_CAIP2]?.rpcUrl;
-          const batchClientScheme = new BatchSettlementEvmClientScheme(signer, {
-            extensionRpcOptions: rpcUrl ? { 84532: { rpcUrl } } : undefined,
-          });
+          const batchClientScheme = new BatchSettlementEvmClientScheme(signer, { rpcUrl });
 
           const client = new x402Client();
           client.register(X402_BASE_SEPOLIA_CAIP2 as Network, batchClientScheme);

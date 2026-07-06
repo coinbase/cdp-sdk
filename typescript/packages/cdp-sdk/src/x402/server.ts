@@ -256,9 +256,6 @@ export type PayToConfig =
  *
  * All credential fields fall back to environment variables, so an empty
  * object `{}` with a `routes` map is sufficient in most environments.
- * Server-specific env vars (`CDP_SERVER_API_KEY_ID`, etc.) take precedence
- * over generic vars (`CDP_API_KEY_ID`, etc.) so a single process can act as
- * both payer and receiver without variable collisions.
  *
  * Pass `configPath` to load routes (and optionally credentials) from a JSON
  * file instead of specifying them inline.
@@ -266,17 +263,17 @@ export type PayToConfig =
 export interface CdpX402ServerConfig {
   /**
    * CDP API key ID.
-   * Falls back to `CDP_SERVER_API_KEY_ID`, then `CDP_API_KEY_ID` env var.
+   * Falls back to `CDP_API_KEY_ID` env var.
    */
   apiKeyId?: string;
   /**
    * CDP API key secret.
-   * Falls back to `CDP_SERVER_API_KEY_SECRET`, then `CDP_API_KEY_SECRET` env var.
+   * Falls back to `CDP_API_KEY_SECRET` env var.
    */
   apiKeySecret?: string;
   /**
    * CDP wallet secret used to provision the receiver wallet.
-   * Falls back to `CDP_SERVER_WALLET_SECRET`, then `CDP_WALLET_SECRET` env var.
+   * Falls back to `CDP_WALLET_SECRET` env var.
    * Not required when `payToConfig.type` is `"address"`.
    */
   walletSecret?: string;
@@ -341,7 +338,7 @@ interface NetworkFamilies {
 
 /**
  * Resolves server-scoped CDP credentials and environment, falling back from
- * explicit config → `CDP_SERVER_*` env vars → generic `CDP_*` env vars.
+ * explicit config to `CDP_*` env vars
  *
  * @param config - Optional explicit credential overrides.
  * @returns Resolved credential strings and environment (any credential may be `undefined` if not found).
@@ -361,13 +358,9 @@ function resolveServerCredentials(
     rawEnv === "development" ? "development" : "production";
 
   return {
-    apiKeyId: config.apiKeyId ?? process.env.CDP_SERVER_API_KEY_ID ?? process.env.CDP_API_KEY_ID,
-    apiKeySecret:
-      config.apiKeySecret ??
-      process.env.CDP_SERVER_API_KEY_SECRET ??
-      process.env.CDP_API_KEY_SECRET,
-    walletSecret:
-      config.walletSecret ?? process.env.CDP_SERVER_WALLET_SECRET ?? process.env.CDP_WALLET_SECRET,
+    apiKeyId: config.apiKeyId ?? process.env.CDP_API_KEY_ID,
+    apiKeySecret: config.apiKeySecret ?? process.env.CDP_API_KEY_SECRET,
+    walletSecret: config.walletSecret ?? process.env.CDP_WALLET_SECRET,
     environment,
   };
 }
@@ -919,7 +912,7 @@ export class X402Server extends x402HTTPResourceServer {
       throw new Error("createX402Server requires at least one payment route.");
     }
 
-    // 3. Resolve credentials and environment (server-scoped → generic fallbacks).
+    // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).
     const credentials = resolveServerCredentials(merged);
     const { environment } = credentials;
 
@@ -955,8 +948,7 @@ export class X402Server extends x402HTTPResourceServer {
         throw new Error(
           `Missing required CDP credentials: ${missing.join(", ")}. ` +
             "Provide them via config options or set the corresponding environment variables " +
-            "(server-scoped: CDP_SERVER_API_KEY_ID / CDP_SERVER_API_KEY_SECRET / CDP_SERVER_WALLET_SECRET; " +
-            "generic: CDP_API_KEY_ID / CDP_API_KEY_SECRET / CDP_WALLET_SECRET). " +
+            "(CDP_API_KEY_ID / CDP_API_KEY_SECRET / CDP_WALLET_SECRET). " +
             "Alternatively, pass payToConfig: { type: 'address', evm: '0x...', solana: '...' } to skip wallet provisioning.",
         );
       }
@@ -1080,11 +1072,7 @@ export class X402Server extends x402HTTPResourceServer {
  * framework adapter.
  *
  * All credential fields fall back to environment variables; an empty `{}`
- * with a `routes` map is sufficient in most environments. Server-specific
- * env vars (`CDP_SERVER_API_KEY_ID`, `CDP_SERVER_API_KEY_SECRET`,
- * `CDP_SERVER_WALLET_SECRET`) take precedence over the generic payer-side
- * vars (`CDP_API_KEY_ID`, etc.) so a single process can act as both payer
- * and receiver without variable collisions.
+ * with a `routes` map is sufficient in most environments.
  *
  * Pass `payToConfig: { type: "address", evm: "0x...", solana: "..." }` to
  * provide your own receiver addresses without provisioning a CDP wallet.

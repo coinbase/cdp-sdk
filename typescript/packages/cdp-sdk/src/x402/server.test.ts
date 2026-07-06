@@ -244,9 +244,7 @@ describe("createX402Server", () => {
   });
 
   describe("credential resolution", () => {
-    it("uses explicit args over server-scoped env over generic env", async () => {
-      process.env.CDP_SERVER_API_KEY_ID = "server-key-id";
-      process.env.CDP_SERVER_API_KEY_SECRET = "server-key-secret";
+    it("uses explicit args over env vars", async () => {
       const { createCdpFacilitatorClient } = await import("./facilitator.js");
 
       await createX402Server({
@@ -261,22 +259,7 @@ describe("createX402Server", () => {
       });
     });
 
-    it("uses CDP_SERVER_* env vars when set, over generic CDP_* vars", async () => {
-      process.env.CDP_SERVER_API_KEY_ID = "server-key-id";
-      process.env.CDP_SERVER_API_KEY_SECRET = "server-key-secret";
-      const { createCdpFacilitatorClient } = await import("./facilitator.js");
-
-      await createX402Server({ routes: SIMPLE_ROUTES });
-
-      expect(createCdpFacilitatorClient).toHaveBeenCalledWith({
-        apiKeyId: "server-key-id",
-        apiKeySecret: "server-key-secret",
-      });
-    });
-
-    it("falls back to generic CDP_API_KEY_* env vars when server-scoped vars are absent", async () => {
-      delete process.env.CDP_SERVER_API_KEY_ID;
-      delete process.env.CDP_SERVER_API_KEY_SECRET;
+    it("uses the generic CDP_API_KEY_* env vars", async () => {
       const { createCdpFacilitatorClient } = await import("./facilitator.js");
 
       await createX402Server({ routes: SIMPLE_ROUTES });
@@ -308,7 +291,6 @@ describe("createX402Server", () => {
 
     it("does not require wallet credentials when payToConfig.type is 'address'", async () => {
       delete process.env.CDP_WALLET_SECRET;
-      delete process.env.CDP_SERVER_WALLET_SECRET;
 
       await expect(
         createX402Server({
@@ -843,11 +825,8 @@ describe("createX402Server", () => {
 
     it("throws when wallet credentials are missing and payToConfig is not 'address'", async () => {
       delete process.env.CDP_API_KEY_ID;
-      delete process.env.CDP_SERVER_API_KEY_ID;
       delete process.env.CDP_API_KEY_SECRET;
-      delete process.env.CDP_SERVER_API_KEY_SECRET;
       delete process.env.CDP_WALLET_SECRET;
-      delete process.env.CDP_SERVER_WALLET_SECRET;
 
       await expect(createX402Server({ routes: SIMPLE_ROUTES })).rejects.toThrow(
         "Missing required CDP credentials",
