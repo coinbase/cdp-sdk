@@ -146,6 +146,49 @@ async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
   }
 }
 
+async function ensureSufficientBaseSepoliaUsdcBalance(cdp: CdpClient, account: Account) {
+  const publicClient = createPublicClient<Transport, Chain>({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const minRequiredBalance = 10_000n;
+  const readUsdcBalance = () =>
+    publicClient.readContract({
+      address: X402_BASE_SEPOLIA_USDC as Address,
+      abi: x402Erc20DomainAbi,
+      functionName: "balanceOf",
+      args: [account.address],
+    }) as Promise<bigint>;
+
+  let usdcBalance = await readUsdcBalance();
+  if (usdcBalance >= minRequiredBalance) {
+    return;
+  }
+
+  logger.log(`USDC balance (${usdcBalance}) too low for ${account.address}. Requesting funds...`);
+  const { transactionHash } = await cdp.evm.requestFaucet({
+    address: account.address,
+    network: "base-sepolia",
+    token: "usdc",
+  });
+
+  await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    usdcBalance = await readUsdcBalance();
+    if (usdcBalance >= minRequiredBalance) {
+      logger.log(`Funds requested. New USDC balance: ${usdcBalance}`);
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  throw new Error(
+    `USDC balance (${usdcBalance}) still below required ${minRequiredBalance} for ${account.address}`,
+  );
+}
+
 async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount) {
   function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -5208,7 +5251,7 @@ describe("createX402Server E2E Tests", () => {
     expect(server.payToSvmAddress).toBe(SOL_ADDR);
   }, 60_000);
 
-  it("resolvedRoutes are populated with payTo addresses and CDP extensions after create()", async () => {
+  it("routes are populated with payTo addresses and CDP extensions after create()", async () => {
     const server = await createX402Server({
       routes: {
         "GET /report": {
@@ -5219,7 +5262,7 @@ describe("createX402Server E2E Tests", () => {
       },
     });
 
-    const routes = server.resolvedRoutes as Record<
+    const routes = server.routes as Record<
       string,
       {
         accepts:
@@ -5299,8 +5342,13 @@ describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
 
 describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", () => {
   it("x402Client (batch-settlement) pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    const runSuffix = `${Date.now()}`;
+    const receiverAccountName = `x402-batch-receiver-${runSuffix}`;
+    const payerAccountName = `x402-batch-payer-${runSuffix}`;
+
     // Server: X402Server with a batch-settlement route on Base Sepolia.
     const x402Server = await createX402Server({
+      payToConfig: { type: "eoa", accountName: receiverAccountName },
       routes: {
         "GET /ping": {
           price: "$0.001",
@@ -5327,8 +5375,9 @@ describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", 
           // Client: raw x402Client with a CDP-backed BatchSettlementEvmScheme.
           const cdpClientForPayer = new CdpClient();
           const payerEvmAccount = await cdpClientForPayer.evm.getOrCreateAccount({
-            name: "x402-batch-payer-1",
+            name: payerAccountName,
           });
+          await ensureSufficientBaseSepoliaUsdcBalance(cdpClientForPayer, payerEvmAccount);
           const signer = fromCdpEvmAccount(payerEvmAccount);
 
           // Chain ID 84532 = Base Sepolia.

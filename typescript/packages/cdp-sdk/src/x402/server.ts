@@ -314,6 +314,10 @@ export interface CdpX402ServerConfig {
    * Path to a JSON file whose fields are merged with this inline config.
    * Inline config takes precedence over file config when both specify the
    * same field.
+   *
+   * Security: this file may carry credentials (`apiKeySecret` / `walletSecret`).
+   * Prefer environment variables for credentials and use the file for `routes`;
+   * if secrets are stored here, keep the file out of version control.
    */
   configPath?: string;
 }
@@ -727,9 +731,23 @@ function parseRouteKeyForBazaar(pattern: string): { method: string; path: string
 }
 
 /**
+ * Returns `true` when any payment option on a resolved route targets an EVM
+ * (`eip155:*`) network. Used to gate EVM-specific extensions so a Solana-only
+ * route doesn't advertise EVM gas-sponsoring keys.
+ *
+ * @param route - Resolved x402 `RouteConfig` to inspect.
+ * @returns `true` if at least one accept option is on an EVM network.
+ */
+function routeHasEvmAccept(route: RouteConfig): boolean {
+  const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
+  return accepts.some(option => (option.network as string).startsWith("eip155:"));
+}
+
+/**
  * Merges CDP auto-injected extensions into a resolved route config. Gas-sponsoring
- * extensions are added to every route; the Bazaar declaration is built from the
- * route pattern. User-provided `route.extensions` always win.
+ * extensions are added only to routes with an EVM (`eip155:*`) payment option
+ * (they are meaningless for Solana-only routes); the Bazaar declaration is built
+ * from the route pattern for all routes. User-provided `route.extensions` always win.
  *
  * @param pattern - Route key (e.g. `"GET /report"`) used to derive Bazaar metadata.
  * @param route - Resolved x402 `RouteConfig` to augment with CDP extensions.
@@ -741,7 +759,7 @@ function withAutoInjectedExtensions(pattern: string, route: RouteConfig): RouteC
   return {
     ...route,
     extensions: {
-      ...CDP_SUPPORTED_EXTENSIONS,
+      ...(routeHasEvmAccept(route) && CDP_SUPPORTED_EXTENSIONS),
       ...(bazaar && { [CDP_EXTENSION_BAZAAR]: buildBazaarDeclaration(bazaar.method, bazaar.path) }),
       ...route.extensions,
     },
@@ -782,6 +800,11 @@ function resolveRoutes(
 /**
  * Loads and parses a JSON config file, stripping `configPath` from the result
  * to prevent circular references when the field is present in the file itself.
+ *
+ * Security: this file may carry credentials (`apiKeySecret` / `walletSecret`).
+ * Prefer supplying credentials via environment variables and reserving the
+ * config file for `routes`; if secrets are stored here, keep the file out of
+ * version control (e.g. add it to `.gitignore`).
  *
  * @param filePath - Absolute or relative path to the JSON config file.
  * @returns Parsed config with `configPath` removed.
@@ -829,7 +852,6 @@ export class X402Server extends x402HTTPResourceServer {
    */
   readonly ownerWallet: string | undefined;
 
-  private readonly _resolvedRoutes: RoutesConfig;
   private _initPromise: Promise<void> | null = null;
 
   /**
@@ -850,7 +872,6 @@ export class X402Server extends x402HTTPResourceServer {
     ownerWallet?: string,
   ) {
     super(resourceServer, routes);
-    this._resolvedRoutes = routes;
     this.payToEvmAddress = payToEvmAddress;
     this.payToSvmAddress = payToSvmAddress;
     this.ownerWallet = ownerWallet;
@@ -863,19 +884,6 @@ export class X402Server extends x402HTTPResourceServer {
    */
   get resourceServer(): x402ResourceServer {
     return this.server;
-  }
-
-  /**
-   * Resolved route config map with `payTo` and extensions filled in.
-   *
-   * Useful when bridging to framework middleware that requires a separate
-   * `routes` argument, for example when wiring a sync-style middleware that
-   * accepts routes and a server independently.
-   *
-   * @returns The `RoutesConfig` passed to the underlying HTTP resource server.
-   */
-  get resolvedRoutes(): RoutesConfig {
-    return this._resolvedRoutes;
   }
 
   /**

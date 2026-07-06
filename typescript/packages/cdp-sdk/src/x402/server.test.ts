@@ -57,8 +57,11 @@ vi.mock("@x402/core/server", () => {
   const x402HTTPResourceServer = vi.fn().mockImplementation(function (
     this: Record<string, unknown>,
     resourceServer: unknown,
+    routes: unknown,
   ) {
     this.server = resourceServer;
+    // Mirror the real base class, which exposes the passed routes via `get routes()`.
+    this.routes = routes;
   });
   x402HTTPResourceServer.prototype.initialize = mockHttpInitialize;
   return {
@@ -233,11 +236,11 @@ describe("createX402Server", () => {
       expect(server.resourceServer).toBe(mockResourceServer);
     });
 
-    it("exposes resolvedRoutes with resolved payTo and extensions", async () => {
+    it("exposes routes with resolved payTo and extensions", async () => {
       const server = await createX402Server({ routes: SIMPLE_ROUTES });
-      expect(server.resolvedRoutes).toBeDefined();
-      expect(typeof server.resolvedRoutes).toBe("object");
-      expect(Object.keys(server.resolvedRoutes as Record<string, unknown>)).toEqual(
+      expect(server.routes).toBeDefined();
+      expect(typeof server.routes).toBe("object");
+      expect(Object.keys(server.routes as Record<string, unknown>)).toEqual(
         Object.keys(SIMPLE_ROUTES),
       );
     });
@@ -953,6 +956,29 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
     const ext = passedRoutes["GET /report"].extensions;
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_EIP2612]).toBeDefined();
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL]).toBeDefined();
+  });
+
+  it("does NOT inject EVM gas-sponsoring extensions on a Solana-only route", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: {
+        "GET /svm": {
+          price: "$0.01",
+          networks: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+        },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { extensions: Record<string, unknown> }>,
+    ];
+    const ext = passedRoutes["GET /svm"].extensions;
+    expect(ext[CDP_EXTENSION_GAS_SPONSORING_EIP2612]).toBeUndefined();
+    expect(ext[CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL]).toBeUndefined();
+    // Bazaar discovery is still injected for non-EVM routes.
+    expect(ext[CDP_EXTENSION_BAZAAR]).toBeDefined();
   });
 
   it("all keys from CDP_SUPPORTED_EXTENSIONS are present in every route", async () => {
