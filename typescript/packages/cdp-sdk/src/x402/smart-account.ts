@@ -1,10 +1,5 @@
 /**
  * Shared helpers for recovering CDP smart accounts.
- *
- * Both the x402 client (`CdpX402Client`) and the x402 resource server
- * (`X402Server`) provision smart wallets the same way, so the recovery logic
- * that runs when an owner EOA already has a smart wallet registered under a
- * different name lives here to avoid drift between the two call sites.
  */
 
 import type { CdpClient } from "../client/cdp.js";

@@ -91,12 +91,10 @@ const BODY_METHODS = new Set(["POST", "PUT", "PATCH"]);
 
 /**
  * Builds a minimal Bazaar `DiscoveryExtension` declaration from an HTTP method
- * and path template.
- *
- * The resulting declaration is what `createX402Server` injects automatically.
- * It carries enough information for Bazaar to index the route; users who need
- * richer metadata (queryParams, body example, output schema, path-param types)
- * should override by setting `extensions.bazaar` explicitly in their route config.
+ * and path template. It carries enough information for Bazaar to index the route;
+ * users who need richer metadata (queryParams, body example, output schema, path-param
+ * types) should override by setting `extensions.bazaar` explicitly in their route
+ * config.
  *
  * Wire shape follows `github.com/x402-foundation/x402/go/extensions/bazaar`:
  * - GET/HEAD/DELETE → `QueryInput`  (`{ type, method }`)
@@ -223,12 +221,6 @@ export function getCdpBatchSettlementScheme(evmAddress: `0x${string}`): CdpSchem
  * These register enrichment handlers on `x402ResourceServer` so that routes
  * whose `extensions` include a CDP extension key get the correct
  * `PaymentRequired.extensions[key]` value.
- *
- * The Bazaar entry uses the official `bazaarResourceServerExtension` from
- * `@x402/extensions/bazaar`, which enriches the Bazaar declaration at request
- * time with the actual HTTP method and any dynamic path parameters extracted
- * from the live URL. This ensures routes with dynamic segments (`:param`, `[param]`,
- * `*`) produce correct discovery metadata.
  *
  * `createX402Server()` calls this automatically. Call it manually only when
  * building a resource server without `createX402Server`:

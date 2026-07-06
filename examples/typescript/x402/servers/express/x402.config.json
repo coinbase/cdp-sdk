@@ -1,0 +1,9 @@
+{
+  "$schema": "./x402.config.schema.json",
+  "routes": {
+    "GET /report": {
+      "price": "$0.01",
+      "description": "AI-generated report"
+    }
+  }
+}

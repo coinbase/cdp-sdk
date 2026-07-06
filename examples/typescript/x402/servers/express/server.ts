@@ -31,7 +31,8 @@
  * JSON file. Inline config always wins when both are provided.
  *
  * Requires: CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET
- *   + x402.config.json with { "routes": { "GET /report": { "price": "$0.01" } } }
+ *   + x402.config.json (see the file in this directory; x402.config.schema.json
+ *     documents every supported field)
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * Run:
@@ -114,12 +115,10 @@ if (APPROACH === "1") {
   // Routes (and optionally credentials) live in a JSON config file.
   // Inline config always takes precedence when both are provided.
   //
-  // x402.config.json:
-  // {
-  //   "routes": {
-  //     "GET /report": { "price": "$0.01", "description": "AI-generated report" }
-  //   }
-  // }
+  // See ./x402.config.json for the config loaded here, and
+  // ./x402.config.schema.json for the full documented schema (all fields:
+  // routes, payToConfig, environment, credentials). Tip: prefer env vars for
+  // credentials and keep this file to `routes` — don't commit secrets.
   const server = await createX402Server({
     configPath: "./x402.config.json",
     // Inline routes here would override the file's routes for matched keys.

@@ -10,7 +10,7 @@
  *
  * ## Quick start
  *
- * ### Gate an endpoint (CDP Dev — resource server)
+ * ### Gate an endpoint
  *
  * ```typescript
  * import { createX402Server } from "@coinbase/cdp-sdk/x402";
@@ -24,7 +24,7 @@
  * console.log("Receiving EVM payments at", server.payToEvmAddress);
  * ```
  *
- * ### Pay for an x402-protected API (CDP Dev — client)
+ * ### Pay for an x402-protected API
  *
  * ```typescript
  * import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
@@ -36,7 +36,7 @@
  * const response = await fetchWithPayment("https://api.example.com/report");
  * ```
  *
- * ### Use a CDP-managed wallet with an existing x402Client (x402 Dev)
+ * ### Use a CDP-managed wallet with an existing x402Client
  *
  * ```typescript
  * import { CdpClient } from "@coinbase/cdp-sdk";

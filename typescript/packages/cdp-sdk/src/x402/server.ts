@@ -313,7 +313,19 @@ export interface CdpX402ServerConfig {
   /**
    * Path to a JSON file whose fields are merged with this inline config.
    * Inline config takes precedence over file config when both specify the
-   * same field.
+   * same field. The file mirrors {@link CdpX402ServerConfig} (minus `configPath`).
+   *
+   * @example
+   * ```json
+   * {
+   *   "routes": {
+   *     "GET /report": { "price": "$0.01", "description": "AI-generated report" }
+   *   }
+   * }
+   * ```
+   *
+   * A full JSON Schema for the file lives at
+   * `examples/typescript/x402/servers/express/x402.config.schema.json`.
    *
    * Security: this file may carry credentials (`apiKeySecret` / `walletSecret`).
    * Prefer environment variables for credentials and use the file for `routes`;
@@ -446,17 +458,6 @@ async function provisionServerAccounts(
  * Route resolution helpers
  * ---------------------------------------------------------------------------
  */
-
-/**
- * Returns `true` when a `payTo` string should be treated as vacant (empty or
- * whitespace-only) and eligible to be filled by the server.
- *
- * @param payTo - The `payTo` string to test.
- * @returns `true` if the string is blank.
- */
-function isVacantPayTo(payTo: string): boolean {
-  return payTo.trim() === "";
-}
 
 /**
  * Returns `true` when the given payment scheme only supports EVM networks.
@@ -612,7 +613,7 @@ function fillX402RoutePayTo(
     const network = option.network as string;
     assertSchemeSupportsNetwork(option.scheme as string, network);
 
-    if (typeof option.payTo !== "string" || !isVacantPayTo(option.payTo)) {
+    if (typeof option.payTo !== "string" || option.payTo.trim() !== "") {
       return option;
     }
     if (network.startsWith("eip155:")) {
