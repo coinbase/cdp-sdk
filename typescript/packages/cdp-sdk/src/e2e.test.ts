@@ -5235,7 +5235,7 @@ describe("createX402Server E2E Tests", () => {
     expect(server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
     expect(server.payToSvmAddress).toBeTruthy();
     expect(typeof server.payToSvmAddress).toBe("string");
-    expect(server.payToSvmAddress.length).toBeGreaterThan(0);
+    expect(server.payToSvmAddress?.length).toBeGreaterThan(0);
   }, 180_000);
 
   it("accepts payToConfig: { type: 'address' } without wallet provisioning", async () => {

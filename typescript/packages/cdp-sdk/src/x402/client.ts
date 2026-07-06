@@ -246,6 +246,12 @@ const setupCdpSigners = async (
   for (const [network, rpcUrl] of Object.entries(svmRpcOverrides)) {
     client.register(network as Network, new ExactSvmScheme(svmSigner, { rpcUrl }));
   }
+  /*
+   * `upto` is registered only for EOA wallets. Smart accounts sign with an
+   * ERC-1271/ERC-6492 contract signature, which only settles via the EIP-3009
+   * `exact` flow; `upto`'s Permit2 transfer method requires an on-chain Permit2
+   * allowance owned by an EOA, so it's intentionally unsupported for smart accounts.
+   */
   if (walletType !== "smart") {
     client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
   }

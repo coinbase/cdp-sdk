@@ -111,7 +111,7 @@ export const CDP_SERVER_DEFAULT_SVM_NETWORKS = [solanaMainnetCaip2] as const;
 /**
  * Default networks for production: Base mainnet + Solana mainnet.
  */
-export const CDP_SERVER_DEFAULT_NETWORKS: string[] = [
+export const CDP_SERVER_DEFAULT_NETWORKS: readonly string[] = [
   ...CDP_SERVER_DEFAULT_EVM_NETWORKS,
   ...CDP_SERVER_DEFAULT_SVM_NETWORKS,
 ];
@@ -129,7 +129,7 @@ export const CDP_SERVER_DEVELOPMENT_SVM_NETWORKS = [solanaDevnetCaip2] as const;
 /**
  * Default networks for development: Base Sepolia + Solana Devnet.
  */
-export const CDP_SERVER_DEVELOPMENT_NETWORKS: string[] = [
+export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
   ...CDP_SERVER_DEVELOPMENT_EVM_NETWORKS,
   ...CDP_SERVER_DEVELOPMENT_SVM_NETWORKS,
 ];
@@ -841,12 +841,17 @@ async function loadConfigFile(filePath: string): Promise<Omit<CdpX402ServerConfi
  */
 export class X402Server extends x402HTTPResourceServer {
   /**
-   * EVM address of the receiver wallet. Empty string `""` when `payToConfig` is
-   * `{ type: "address" }` and no `evm` field was provided.
+   * EVM address of the receiver wallet. `undefined` when no EVM wallet was
+   * provisioned (no `eip155:*` route, and `payToConfig` did not supply an
+   * `evm` address).
    */
-  readonly payToEvmAddress: `0x${string}` | "";
-  /** Solana address of the provisioned receiver wallet. */
-  readonly payToSvmAddress: string;
+  readonly payToEvmAddress: `0x${string}` | undefined;
+  /**
+   * Solana address of the provisioned receiver wallet. `undefined` when no
+   * Solana wallet was provisioned (no `solana:*` route, and `payToConfig` did
+   * not supply a `solana` address).
+   */
+  readonly payToSvmAddress: string | undefined;
   /**
    * Owner account name for `"smart"` receiver wallets, otherwise `undefined`.
    * Only set when `payToConfig.type` is `"smart"`.
@@ -860,16 +865,18 @@ export class X402Server extends x402HTTPResourceServer {
    *
    * @param resourceServer - Initialized `x402ResourceServer` with schemes registered.
    * @param routes - Resolved `RoutesConfig` with `payTo` and extensions filled in.
-   * @param payToEvmAddress - EVM address of the provisioned receiver wallet.
-   * @param payToSvmAddress - Solana address of the provisioned receiver wallet.
+   * @param payToEvmAddress - EVM address of the provisioned receiver wallet,
+   *   or `undefined` if none was provisioned.
+   * @param payToSvmAddress - Solana address of the provisioned receiver wallet,
+   *   or `undefined` if none was provisioned.
    * @param ownerWallet - Owner account name for smart wallets, otherwise `undefined`.
    * @internal
    */
   private constructor(
     resourceServer: x402ResourceServer,
     routes: RoutesConfig,
-    payToEvmAddress: `0x${string}` | "",
-    payToSvmAddress: string,
+    payToEvmAddress: `0x${string}` | undefined,
+    payToSvmAddress: string | undefined,
     ownerWallet?: string,
   ) {
     super(resourceServer, routes);
@@ -1011,13 +1018,14 @@ export class X402Server extends x402HTTPResourceServer {
     }
 
     /*
-     * 8. Register batch-settlement scheme for all EVM receiver addresses used in
-     *    resolved routes. BatchSettlementEvmScheme requires the receiver address at
-     *    construction time. Scanning resolved routes ensures full x402 RouteConfigs
-     *    with an explicit payTo (and no provisioned evmAddress) are also covered.
+     * 8. Register batch-settlement scheme only for EVM receiver addresses actually
+     *    used by a batch-settlement route. BatchSettlementEvmScheme requires the
+     *    receiver address at construction time; scanning resolved routes (rather
+     *    than unconditionally registering for `evmAddress`) ensures exact/upto-only
+     *    servers never speculatively register a scheme they'll never use, while
+     *    still covering full x402 RouteConfigs with an explicit payTo.
      */
     const batchAddresses = new Set<`0x${string}`>();
-    if (evmAddress) batchAddresses.add(evmAddress);
     for (const route of Object.values(resolvedRoutes)) {
       const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
       for (const opt of accepts) {
@@ -1035,8 +1043,8 @@ export class X402Server extends x402HTTPResourceServer {
     const instance = new X402Server(
       resourceServer,
       resolvedRoutes,
-      evmAddress,
-      svmAddress,
+      evmAddress === "" ? undefined : evmAddress,
+      svmAddress === "" ? undefined : svmAddress,
       ownerWallet,
     );
     await instance.initialize();

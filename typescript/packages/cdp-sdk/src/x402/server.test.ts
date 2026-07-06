@@ -94,12 +94,6 @@ vi.mock("./facilitator.js", () => ({
   createCdpFacilitatorClient: vi.fn().mockReturnValue(mockFacilitatorClient),
 }));
 
-const mockProvisionServerAccounts = vi.fn().mockResolvedValue({
-  evmAddress: "0xabcdef1234567890abcdef1234567890abcdef12",
-  svmAddress: "7nYT1Dv9QfMsQHcZJbNyA9JkHqoVrpLmkCFfBjDqkbu",
-  ownerWallet: undefined,
-});
-
 // Mock the CdpClient used for wallet provisioning
 vi.mock("../client/cdp.js", () => ({
   CdpClient: vi.fn().mockImplementation(() => ({
@@ -303,7 +297,7 @@ describe("createX402Server", () => {
       ).resolves.toBeInstanceOf(X402Server);
     });
 
-    it("falls through to empty string when type is address and no evm provided", async () => {
+    it("exposes payToEvmAddress as undefined when type is address and no evm provided", async () => {
       const server = await createX402Server({
         routes: {
           "GET /svm-only": {
@@ -313,8 +307,17 @@ describe("createX402Server", () => {
         },
         payToConfig: { type: "address", solana: "MySolanaAddress" },
       });
-      expect(server.payToEvmAddress).toBe("");
+      expect(server.payToEvmAddress).toBeUndefined();
       expect(server.payToSvmAddress).toBe("MySolanaAddress");
+    });
+
+    it("exposes payToSvmAddress as undefined when type is address and no solana provided", async () => {
+      const server = await createX402Server({
+        routes: { "GET /evm-only": { price: "$0.01", networks: ["eip155:8453"] } },
+        payToConfig: { type: "address", evm: "0x1234567890123456789012345678901234567890" },
+      });
+      expect(server.payToEvmAddress).toBe("0x1234567890123456789012345678901234567890");
+      expect(server.payToSvmAddress).toBeUndefined();
     });
   });
 
@@ -376,7 +379,7 @@ describe("createX402Server", () => {
       expect(evmGetOrCreate).toHaveBeenCalledOnce();
       expect(solanaGetOrCreate).not.toHaveBeenCalled();
       expect(server.payToEvmAddress).toBe(MOCK_EVM_ADDRESS);
-      expect(server.payToSvmAddress).toBe("");
+      expect(server.payToSvmAddress).toBeUndefined();
     });
 
     it("does not provision an EVM account for a Solana-only route", async () => {
@@ -394,7 +397,7 @@ describe("createX402Server", () => {
 
       expect(solanaGetOrCreate).toHaveBeenCalledOnce();
       expect(evmGetOrCreate).not.toHaveBeenCalled();
-      expect(server.payToEvmAddress).toBe("");
+      expect(server.payToEvmAddress).toBeUndefined();
       expect(server.payToSvmAddress).toBe(MOCK_SVM_ADDRESS);
     });
 
@@ -1271,8 +1274,16 @@ describe("createX402Server — batch-settlement scheme", () => {
     process.env = { ...savedEnv };
   });
 
-  it("registers batch-settlement scheme on x402ResourceServer after wallet provisioning", async () => {
-    await createX402Server({ routes: SIMPLE_ROUTES });
+  it("registers batch-settlement scheme on x402ResourceServer when a route uses it", async () => {
+    await createX402Server({
+      routes: {
+        "GET /channel": {
+          price: "$0.01",
+          scheme: "batch-settlement" as CdpPaymentScheme,
+          networks: ["eip155:8453"],
+        },
+      },
+    });
 
     const registerCalls = vi.mocked(mockResourceServer.register).mock.calls;
     const batchCall = registerCalls.find(
@@ -1282,15 +1293,41 @@ describe("createX402Server — batch-settlement scheme", () => {
     expect(batchCall![0]).toBe("eip155:*");
   });
 
+  it("does not register batch-settlement scheme when no route uses it (exact-only routes)", async () => {
+    await createX402Server({ routes: SIMPLE_ROUTES });
+
+    const registerCalls = vi.mocked(mockResourceServer.register).mock.calls;
+    const batchCall = registerCalls.find(
+      ([, scheme]) => (scheme as { scheme: string }).scheme === "batch-settlement",
+    );
+    expect(batchCall).toBeUndefined();
+  });
+
   it("batch-settlement scheme is constructed with the provisioned EVM address", async () => {
     const { BatchSettlementEvmScheme } = await import("@x402/evm/batch-settlement/server");
 
-    await createX402Server({ routes: SIMPLE_ROUTES });
+    await createX402Server({
+      routes: {
+        "GET /channel": {
+          price: "$0.01",
+          scheme: "batch-settlement" as CdpPaymentScheme,
+          networks: ["eip155:8453"],
+        },
+      },
+    });
 
     expect(BatchSettlementEvmScheme).toHaveBeenCalledWith(MOCK_EVM_ADDRESS);
   });
 
-  it("batch-settlement scheme is registered even when payToConfig.type is 'address'", async () => {
+  it("does not construct BatchSettlementEvmScheme for exact-only routes", async () => {
+    const { BatchSettlementEvmScheme } = await import("@x402/evm/batch-settlement/server");
+
+    await createX402Server({ routes: SIMPLE_ROUTES });
+
+    expect(BatchSettlementEvmScheme).not.toHaveBeenCalled();
+  });
+
+  it("does not register batch-settlement scheme when payToConfig.type is 'address' and no route uses it", async () => {
     const EVM_ADDR = "0x0000000000000000000000000000000000000001" as `0x${string}`;
 
     await createX402Server({
@@ -1302,7 +1339,7 @@ describe("createX402Server — batch-settlement scheme", () => {
     const batchCall = registerCalls.find(
       ([, scheme]) => (scheme as { scheme: string }).scheme === "batch-settlement",
     );
-    expect(batchCall).toBeDefined();
+    expect(batchCall).toBeUndefined();
   });
 
   it("batch-settlement is accepted as a scheme in a simplified CDP route", async () => {
@@ -1458,7 +1495,7 @@ describe("createX402Server — empty payTo guard", () => {
       payToConfig: { type: "address", solana: "MySolanaAddress" },
     });
 
-    expect(server.payToEvmAddress).toBe("");
+    expect(server.payToEvmAddress).toBeUndefined();
     expect(server.payToSvmAddress).toBe("MySolanaAddress");
 
     const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
