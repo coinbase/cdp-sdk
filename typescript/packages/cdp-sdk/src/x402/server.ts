@@ -84,6 +84,7 @@ import {
   CDP_EXTENSION_BAZAAR,
   buildBazaarDeclaration,
 } from "./server-extensions.js";
+import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 import { CdpClient } from "../client/cdp.js";
 
 import type { RoutesConfig, RouteConfig } from "@x402/core/server";
@@ -327,9 +328,15 @@ export interface CdpX402ServerConfig {
  */
 
 interface ProvisionedAddresses {
-  evmAddress: `0x${string}`;
+  evmAddress: `0x${string}` | "";
   svmAddress: string;
   ownerWallet?: string;
+}
+
+/** Network families referenced by a route set, controlling which wallets to provision. */
+interface NetworkFamilies {
+  evm: boolean;
+  svm: boolean;
 }
 
 /**
@@ -366,43 +373,6 @@ function resolveServerCredentials(
 }
 
 /**
- * Returns `true` when the CDP API rejected a smart account creation because the
- * owner EOA already has a smart wallet registered under a different name.
- *
- * @param error - The caught error value to inspect.
- * @returns `true` if the error indicates an owner already has a smart wallet.
- */
-function isOwnerAlreadyHasSmartWalletError(error: unknown): boolean {
-  return (
-    error instanceof Error && error.message.includes("Multiple smart wallets with the same owner")
-  );
-}
-
-/**
- * Paginates through all smart accounts in the CDP project to find one owned by
- * the given address. Used as a recovery path when `getOrCreateSmartAccount`
- * fails because the owner already has a smart wallet under a different name.
- *
- * @param cdpClient - The CDP client to use for listing accounts.
- * @param ownerAddress - Owner EOA address to match (case-insensitive).
- * @returns The first matching smart account address, or `undefined` if none found.
- */
-async function findSmartAccountByOwner(
-  cdpClient: CdpClient,
-  ownerAddress: string,
-): Promise<string | undefined> {
-  const normalizedOwner = ownerAddress.toLowerCase();
-  let pageToken: string | undefined;
-  do {
-    const result = await cdpClient.evm.listSmartAccounts({ pageToken });
-    const match = result.accounts.find(a => a.owners[0]?.toLowerCase() === normalizedOwner);
-    if (match) return match.address;
-    pageToken = result.nextPageToken;
-  } while (pageToken);
-  return undefined;
-}
-
-/**
  * Provisions CDP EVM and Solana receiver accounts for use as `payTo` addresses.
  *
  * @param credentials - CDP API credentials for wallet operations.
@@ -410,11 +380,15 @@ async function findSmartAccountByOwner(
  * @param credentials.apiKeySecret - CDP API key secret.
  * @param credentials.walletSecret - CDP wallet secret for signing.
  * @param payToConfig - Resolved wallet type (`"eoa"` or `"smart"`) and account names.
+ * @param need - Which network families the routes actually reference. Only the
+ *   referenced families are provisioned, so an EVM-only server never creates a
+ *   Solana account (and vice versa).
  * @returns Provisioned EVM address, Solana address, and optional owner wallet name.
  */
 async function provisionServerAccounts(
   credentials: { apiKeyId: string; apiKeySecret: string; walletSecret: string },
   payToConfig: Exclude<PayToConfig, { type: "address" }>,
+  need: NetworkFamilies,
 ): Promise<ProvisionedAddresses> {
   const cdpClient = new CdpClient({
     apiKeyId: credentials.apiKeyId,
@@ -423,7 +397,14 @@ async function provisionServerAccounts(
   });
 
   const accountName = payToConfig.accountName ?? DEFAULT_SERVER_ACCOUNT_NAME;
-  const svmAccount = await cdpClient.solana.getOrCreateAccount({ name: accountName });
+
+  const svmAddress = need.svm
+    ? (await cdpClient.solana.getOrCreateAccount({ name: accountName })).address
+    : "";
+
+  if (!need.evm) {
+    return { evmAddress: "", svmAddress };
+  }
 
   if (payToConfig.type === "smart") {
     const ownerAccount = await cdpClient.evm.getOrCreateAccount({
@@ -451,7 +432,7 @@ async function provisionServerAccounts(
 
     return {
       evmAddress: smartAccount.address as `0x${string}`,
-      svmAddress: svmAccount.address,
+      svmAddress,
       ownerWallet: payToConfig.ownerAccountName,
     };
   }
@@ -459,7 +440,7 @@ async function provisionServerAccounts(
   const evmAccount = await cdpClient.evm.getOrCreateAccount({ name: accountName });
   return {
     evmAddress: evmAccount.address as `0x${string}`,
-    svmAddress: svmAccount.address,
+    svmAddress,
   };
 }
 
@@ -488,6 +469,90 @@ function isVacantPayTo(payTo: string): boolean {
  */
 function isEvmOnlyScheme(scheme: CdpPaymentScheme): boolean {
   return scheme === "upto" || scheme === "batch-settlement";
+}
+
+/**
+ * Classifies a CAIP-2 network identifier into a receiver-wallet family.
+ *
+ * @param network - CAIP-2 network identifier, e.g. `"eip155:8453"`.
+ * @returns `"evm"` for `eip155:*`, `"svm"` for `solana:*`, otherwise `"other"`.
+ */
+function networkFamily(network: string): "evm" | "svm" | "other" {
+  if (network.startsWith("eip155:")) return "evm";
+  if (network.startsWith("solana:")) return "svm";
+  return "other";
+}
+
+/**
+ * Returns the default networks for a simplified route given its scheme and the
+ * deployment environment. EVM-only schemes (`"upto"`, `"batch-settlement"`)
+ * default to EVM networks only.
+ *
+ * @param scheme - Payment scheme for the route.
+ * @param environment - Deployment environment controlling mainnet vs testnet defaults.
+ * @returns The default CAIP-2 networks for the scheme.
+ */
+function getDefaultNetworksForScheme(
+  scheme: CdpPaymentScheme,
+  environment: "production" | "development",
+): readonly string[] {
+  if (isEvmOnlyScheme(scheme)) {
+    return environment === "development"
+      ? CDP_SERVER_DEVELOPMENT_EVM_NETWORKS
+      : CDP_SERVER_DEFAULT_EVM_NETWORKS;
+  }
+  return environment === "development"
+    ? CDP_SERVER_DEVELOPMENT_NETWORKS
+    : CDP_SERVER_DEFAULT_NETWORKS;
+}
+
+/**
+ * Determines which network families (EVM / Solana) a single route references,
+ * resolving simplified routes against their scheme defaults so the answer
+ * reflects the networks that will actually be served.
+ *
+ * @param route - Simplified CDP route config or full x402 `RouteConfig`.
+ * @param environment - Deployment environment controlling default network selection.
+ * @returns The network families referenced by the route.
+ */
+function routeNetworkFamilies(
+  route: CdpRouteConfig | RouteConfig,
+  environment: "production" | "development",
+): NetworkFamilies {
+  const networks: string[] = [];
+  if ("accepts" in route) {
+    const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
+    for (const option of accepts) networks.push(option.network as string);
+  } else {
+    const scheme = route.scheme ?? "exact";
+    networks.push(...(route.networks ?? getDefaultNetworksForScheme(scheme, environment)));
+  }
+  return {
+    evm: networks.some(network => networkFamily(network) === "evm"),
+    svm: networks.some(network => networkFamily(network) === "svm"),
+  };
+}
+
+/**
+ * Aggregates the network families referenced across all routes. Used to decide
+ * which receiver wallets to provision so an EVM-only server never creates a
+ * Solana account (and vice versa).
+ *
+ * @param routes - Map of route patterns to simplified or full x402 route configs.
+ * @param environment - Deployment environment controlling default network selection.
+ * @returns The union of network families referenced by the route set.
+ */
+function requiredNetworkFamilies(
+  routes: Record<string, CdpRouteConfig | RouteConfig>,
+  environment: "production" | "development",
+): NetworkFamilies {
+  const result: NetworkFamilies = { evm: false, svm: false };
+  for (const route of Object.values(routes)) {
+    const families = routeNetworkFamilies(route, environment);
+    result.evm ||= families.evm;
+    result.svm ||= families.svm;
+  }
+  return result;
 }
 
 /**
@@ -541,7 +606,7 @@ function assertNonEmptyPayTo(payTo: string, network: string): void {
  */
 function fillX402RoutePayTo(
   route: RouteConfig,
-  evmAddress: `0x${string}`,
+  evmAddress: `0x${string}` | "",
   svmAddress: string,
 ): RouteConfig {
   const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
@@ -578,26 +643,46 @@ function fillX402RoutePayTo(
  * the provisioned receiver addresses into each payment option's `payTo`.
  *
  * @param route - Simplified CDP route config with `price` and optional fields.
- * @param evmAddress - EVM receiver address for `eip155:*` networks.
- * @param svmAddress - Solana receiver address for `solana:*` networks.
+ * @param evmAddress - EVM receiver address for `eip155:*` networks (`""` when none).
+ * @param svmAddress - Solana receiver address for `solana:*` networks (`""` when none).
  * @param environment - Deployment environment controlling default network selection.
+ * @param available - Which receiver families have an address. When the route
+ *   relies on default networks, families without a receiver address are dropped
+ *   so e.g. an EVM-only `payToConfig` works without listing `networks` explicitly.
  * @returns A full x402 `RouteConfig` with `accepts`, `payTo`, and `scheme` resolved.
  */
 function convertCdpRoute(
   route: CdpRouteConfig,
-  evmAddress: `0x${string}`,
+  evmAddress: `0x${string}` | "",
   svmAddress: string,
   environment: "production" | "development",
+  available: NetworkFamilies,
 ): RouteConfig {
   const scheme = route.scheme ?? "exact";
-  const defaultEvmNetworks =
-    environment === "development"
-      ? CDP_SERVER_DEVELOPMENT_EVM_NETWORKS
-      : CDP_SERVER_DEFAULT_EVM_NETWORKS;
-  const defaultNetworks =
-    environment === "development" ? CDP_SERVER_DEVELOPMENT_NETWORKS : CDP_SERVER_DEFAULT_NETWORKS;
-  const defaultNetworksForScheme = isEvmOnlyScheme(scheme) ? defaultEvmNetworks : defaultNetworks;
-  const networks = route.networks ?? defaultNetworksForScheme;
+  const usingDefaultNetworks = route.networks === undefined;
+  const defaultNetworks = getDefaultNetworksForScheme(scheme, environment);
+  /*
+   * For default networks, drop families that have no receiver address so a
+   * partial payToConfig (e.g. EVM-only) doesn't fail on an unused default
+   * network. Explicit `networks` are always honored (and validated) as-is.
+   */
+  const networks = usingDefaultNetworks
+    ? defaultNetworks.filter(network => {
+        const family = networkFamily(network);
+        if (family === "evm") return available.evm;
+        if (family === "svm") return available.svm;
+        return true;
+      })
+    : route.networks!;
+
+  if (networks.length === 0) {
+    throw new Error(
+      `No receiver address available for any default network of scheme "${scheme}". ` +
+        `Provide a receiver address via payToConfig (e.g. { type: "address", evm: "0x...", solana: "..." }), ` +
+        `set explicit \`networks\` on the route, or use payToConfig: { type: "eoa" } to auto-provision a CDP wallet.`,
+    );
+  }
+
   const maxTimeoutSeconds = route.maxTimeoutSeconds ?? 300;
 
   const accepts = networks.map(network => {
@@ -676,24 +761,25 @@ function withAutoInjectedExtensions(pattern: string, route: RouteConfig): RouteC
  * vacant `payTo` fields filled. All CDP extensions are injected into every route.
  *
  * @param routes - Map of route patterns to simplified or full x402 route configs.
- * @param evmAddress - EVM receiver address for `eip155:*` payment options.
- * @param svmAddress - Solana receiver address for `solana:*` payment options.
+ * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
+ * @param svmAddress - Solana receiver address for `solana:*` payment options (`""` when none).
  * @param environment - Deployment environment controlling default network selection.
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
   routes: Record<string, CdpRouteConfig | RouteConfig>,
-  evmAddress: `0x${string}`,
+  evmAddress: `0x${string}` | "",
   svmAddress: string,
   environment: "production" | "development",
 ): RoutesConfig {
   const result: Record<string, RouteConfig> = {};
+  const available: NetworkFamilies = { evm: evmAddress !== "", svm: svmAddress !== "" };
 
   for (const [pattern, route] of Object.entries(routes)) {
     const resolved =
       "accepts" in route
         ? fillX402RoutePayTo(route, evmAddress, svmAddress)
-        : convertCdpRoute(route, evmAddress, svmAddress, environment);
+        : convertCdpRoute(route, evmAddress, svmAddress, environment, available);
     result[pattern] = withAutoInjectedExtensions(pattern, resolved);
   }
 
@@ -751,6 +837,7 @@ export class X402Server extends x402HTTPResourceServer {
   readonly ownerWallet: string | undefined;
 
   private readonly _resolvedRoutes: RoutesConfig;
+  private _initPromise: Promise<void> | null = null;
 
   /**
    * Private constructor — use `createX402Server()` or `X402Server.create()` instead.
@@ -852,12 +939,12 @@ export class X402Server extends x402HTTPResourceServer {
 
     // 5. Resolve payTo addresses — provision wallets or use provided addresses.
     const payToConfig = merged.payToConfig;
-    let evmAddress: `0x${string}`;
+    let evmAddress: `0x${string}` | "";
     let svmAddress: string;
     let ownerWallet: string | undefined;
 
     if (payToConfig?.type === "address") {
-      evmAddress = payToConfig.evm ?? ("" as `0x${string}`);
+      evmAddress = payToConfig.evm ?? "";
       svmAddress = payToConfig.solana ?? "";
     } else {
       const missing: string[] = [];
@@ -874,6 +961,11 @@ export class X402Server extends x402HTTPResourceServer {
         );
       }
 
+      /*
+       * Only provision the wallet families the routes actually reference, so an
+       * EVM-only server never creates a Solana account (and vice versa).
+       */
+      const need = requiredNetworkFamilies(routes, environment);
       const provisioned = await provisionServerAccounts(
         {
           apiKeyId: credentials.apiKeyId!,
@@ -881,6 +973,7 @@ export class X402Server extends x402HTTPResourceServer {
           walletSecret: credentials.walletSecret!,
         },
         (payToConfig ?? { type: "eoa" }) as Exclude<PayToConfig, { type: "address" }>,
+        need,
       );
 
       evmAddress = provisioned.evmAddress;
@@ -892,11 +985,11 @@ export class X402Server extends x402HTTPResourceServer {
     const resolvedRoutes = resolveRoutes(routes, evmAddress, svmAddress, environment);
 
     /*
-     * 6b. Guard: batch-settlement stores per-channel state keyed to the receiver address,
-     *     so only one receiver address is valid per server instance.
-     *     Collect all distinct payTo values used in batch-settlement routes (scanning
-     *     both simplified and full x402 RouteConfig formats), then reject the config
-     *     if more than one distinct address is found.
+     * 7. Guard: batch-settlement stores per-channel state keyed to the receiver address,
+     *    so only one receiver address is valid per server instance.
+     *    Collect all distinct payTo values used in batch-settlement routes (scanning
+     *    both simplified and full x402 RouteConfig formats), then reject the config
+     *    if more than one distinct address is found.
      */
     const batchPayTos = new Set<string>();
     for (const route of Object.values(resolvedRoutes)) {
@@ -917,10 +1010,10 @@ export class X402Server extends x402HTTPResourceServer {
     }
 
     /*
-     * 5b. Register batch-settlement scheme for all EVM receiver addresses used in
-     *     resolved routes. BatchSettlementEvmScheme requires the receiver address at
-     *     construction time. Scanning resolved routes ensures full x402 RouteConfigs
-     *     with an explicit payTo (and no provisioned evmAddress) are also covered.
+     * 8. Register batch-settlement scheme for all EVM receiver addresses used in
+     *    resolved routes. BatchSettlementEvmScheme requires the receiver address at
+     *    construction time. Scanning resolved routes ensures full x402 RouteConfigs
+     *    with an explicit payTo (and no provisioned evmAddress) are also covered.
      */
     const batchAddresses = new Set<`0x${string}`>();
     if (evmAddress) batchAddresses.add(evmAddress);
@@ -937,7 +1030,7 @@ export class X402Server extends x402HTTPResourceServer {
       resourceServer.register(reg.network as Network, reg.server);
     }
 
-    // 7. Construct and initialize — syncs supported schemes with the facilitator.
+    // 9. Construct and initialize — syncs supported schemes with the facilitator.
     const instance = new X402Server(
       resourceServer,
       resolvedRoutes,
@@ -947,6 +1040,29 @@ export class X402Server extends x402HTTPResourceServer {
     );
     await instance.initialize();
     return instance;
+  }
+
+  /**
+   * Initializes the underlying resource server (facilitator support sync +
+   * route validation) exactly once.
+   *
+   * `createX402Server()` already calls this before returning, and framework
+   * adapters such as `paymentMiddlewareFromHTTPServer` call `initialize()`
+   * again on startup. The base implementation re-fetches facilitator support
+   * on every call, so this override memoizes the first run to avoid a redundant
+   * facilitator round-trip. The promise is cleared on failure so a later call
+   * can retry.
+   *
+   * @returns A promise that resolves once initialization has completed.
+   */
+  override async initialize(): Promise<void> {
+    if (!this._initPromise) {
+      this._initPromise = super.initialize().catch(error => {
+        this._initPromise = null;
+        throw error;
+      });
+    }
+    return this._initPromise;
   }
 }
 

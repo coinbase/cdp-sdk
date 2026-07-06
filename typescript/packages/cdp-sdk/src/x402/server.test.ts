@@ -50,16 +50,22 @@ const {
   MOCK_SVM_ADDRESS: "7nYT1Dv9QfMsQHcZJbNyA9JkHqoVrpLmkCFfBjDqkbu",
 }));
 
-vi.mock("@x402/core/server", () => ({
-  x402ResourceServer: vi.fn().mockImplementation(() => mockResourceServer),
-  x402HTTPResourceServer: vi.fn().mockImplementation(function (
+vi.mock("@x402/core/server", () => {
+  // `initialize` lives on the prototype (not as an own property) so that
+  // `X402Server`'s `override initialize()` can reach it via `super.initialize()`,
+  // mirroring the real base class where `initialize` is a prototype method.
+  const x402HTTPResourceServer = vi.fn().mockImplementation(function (
     this: Record<string, unknown>,
     resourceServer: unknown,
   ) {
-    this.initialize = mockHttpInitialize;
     this.server = resourceServer;
-  }),
-}));
+  });
+  x402HTTPResourceServer.prototype.initialize = mockHttpInitialize;
+  return {
+    x402ResourceServer: vi.fn().mockImplementation(() => mockResourceServer),
+    x402HTTPResourceServer,
+  };
+});
 
 vi.mock("@x402/evm/exact/server", () => ({
   ExactEvmScheme: vi.fn().mockImplementation(() => ({ scheme: "exact", network: "eip155:*" })),
@@ -194,6 +200,16 @@ describe("createX402Server", () => {
 
     it("calls initialize() during create()", async () => {
       await createX402Server({ routes: SIMPLE_ROUTES });
+      expect(mockHttpInitialize).toHaveBeenCalledOnce();
+    });
+
+    it("initialize() is idempotent — a second call does not re-sync the facilitator", async () => {
+      const server = await createX402Server({ routes: SIMPLE_ROUTES });
+      expect(mockHttpInitialize).toHaveBeenCalledOnce();
+
+      // e.g. paymentMiddlewareFromHTTPServer calls initialize() again on startup.
+      await server.initialize();
+      await server.initialize();
       expect(mockHttpInitialize).toHaveBeenCalledOnce();
     });
 
@@ -342,6 +358,72 @@ describe("createX402Server", () => {
 
       expect(server.ownerWallet).toBe("my-owner-account");
       expect(server.payToEvmAddress).toBe(MOCK_EVM_ADDRESS);
+    });
+  });
+
+  describe("wallet provisioning — only needed families", () => {
+    const makeCdpMock = () => {
+      const evmGetOrCreate = vi.fn().mockResolvedValue({ address: MOCK_EVM_ADDRESS });
+      const solanaGetOrCreate = vi.fn().mockResolvedValue({ address: MOCK_SVM_ADDRESS });
+      const instance = {
+        evm: {
+          getOrCreateAccount: evmGetOrCreate,
+          getOrCreateSmartAccount: vi.fn(),
+          getSmartAccount: vi.fn(),
+          listSmartAccounts: vi.fn(),
+        },
+        solana: { getOrCreateAccount: solanaGetOrCreate },
+      };
+      return { instance, evmGetOrCreate, solanaGetOrCreate };
+    };
+
+    it("does not provision a Solana account for an EVM-only route", async () => {
+      const { CdpClient } = await import("../client/cdp.js");
+      const { instance, evmGetOrCreate, solanaGetOrCreate } = makeCdpMock();
+      vi.mocked(CdpClient).mockImplementationOnce(
+        () => instance as unknown as ReturnType<typeof CdpClient>,
+      );
+
+      const server = await createX402Server({
+        routes: { "GET /evm": { price: "$0.01", networks: ["eip155:8453"] } },
+      });
+
+      expect(evmGetOrCreate).toHaveBeenCalledOnce();
+      expect(solanaGetOrCreate).not.toHaveBeenCalled();
+      expect(server.payToEvmAddress).toBe(MOCK_EVM_ADDRESS);
+      expect(server.payToSvmAddress).toBe("");
+    });
+
+    it("does not provision an EVM account for a Solana-only route", async () => {
+      const { CdpClient } = await import("../client/cdp.js");
+      const { instance, evmGetOrCreate, solanaGetOrCreate } = makeCdpMock();
+      vi.mocked(CdpClient).mockImplementationOnce(
+        () => instance as unknown as ReturnType<typeof CdpClient>,
+      );
+
+      const server = await createX402Server({
+        routes: {
+          "GET /svm": { price: "$0.01", networks: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"] },
+        },
+      });
+
+      expect(solanaGetOrCreate).toHaveBeenCalledOnce();
+      expect(evmGetOrCreate).not.toHaveBeenCalled();
+      expect(server.payToEvmAddress).toBe("");
+      expect(server.payToSvmAddress).toBe(MOCK_SVM_ADDRESS);
+    });
+
+    it("provisions both families for a default (exact) route", async () => {
+      const { CdpClient } = await import("../client/cdp.js");
+      const { instance, evmGetOrCreate, solanaGetOrCreate } = makeCdpMock();
+      vi.mocked(CdpClient).mockImplementationOnce(
+        () => instance as unknown as ReturnType<typeof CdpClient>,
+      );
+
+      await createX402Server({ routes: { "GET /r": { price: "$0.01" } } });
+
+      expect(evmGetOrCreate).toHaveBeenCalledOnce();
+      expect(solanaGetOrCreate).toHaveBeenCalledOnce();
     });
   });
 
@@ -1360,15 +1442,39 @@ describe("createX402Server — empty payTo guard", () => {
     ).rejects.toThrow(/No receiver address for Solana/);
   });
 
-  it("throws when address payToConfig has no evm and default networks include EVM", async () => {
-    // Default networks = Base mainnet + Solana mainnet. If only solana is provided
-    // and no networks override, the EVM accept fails.
+  it("drops unavailable default-network families when address payToConfig is partial", async () => {
+    // Default networks = Base mainnet + Solana mainnet. With only a Solana
+    // address and no explicit `networks`, the EVM default is dropped rather than
+    // failing, so a Solana-only server is produced.
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    const server = await createX402Server({
+      routes: { "GET /r": { price: "$0.01" } }, // uses default networks (EVM + SVM)
+      payToConfig: { type: "address", solana: "MySolanaAddress" },
+    });
+
+    expect(server.payToEvmAddress).toBe("");
+    expect(server.payToSvmAddress).toBe("MySolanaAddress");
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: { network: string; payTo: string } | Array<{ network: string }> }>,
+    ];
+    const accepts = passedRoutes["GET /r"].accepts;
+    expect(Array.isArray(accepts)).toBe(false);
+    expect((accepts as { network: string; payTo: string }).network).toBe(
+      CDP_SERVER_DEFAULT_SVM_NETWORKS[0],
+    );
+    expect((accepts as { network: string; payTo: string }).payTo).toBe("MySolanaAddress");
+  });
+
+  it("throws when address payToConfig provides no addresses for any default network", async () => {
     await expect(
       createX402Server({
-        routes: { "GET /r": { price: "$0.01" } }, // uses default networks (EVM + SVM)
-        payToConfig: { type: "address", solana: "MySolanaAddress" },
+        routes: { "GET /r": { price: "$0.01" } }, // default networks, no addresses available
+        payToConfig: { type: "address" },
       }),
-    ).rejects.toThrow(/No receiver address for EVM/);
+    ).rejects.toThrow(/No receiver address available for any default network/);
   });
 
   it("throws when a full x402 route has vacant payTo and address payToConfig has no evm", async () => {

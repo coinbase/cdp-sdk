@@ -4628,17 +4628,20 @@ describe("CdpX402Client E2E Tests", () => {
 
 // ─── Full HTTP payment flow ───────────────────────────────────────────────────
 
-// Override via CDP_E2E_X402_PAID_API_URL. Defaults to the public x402.org test
-// endpoint which charges $0.001 USDC on Base Sepolia and returns a small JSON body.
-const X402_PAID_API_URL = process.env.CDP_E2E_X402_PAID_API_URL ?? "https://x402.org/protected";
+// These tests pay a real x402-protected resource. Instead of depending on a
+// public third-party endpoint, they stand up a local X402Server (introduced by
+// this PR) that provisions a CDP receiver wallet and settles through the CDP
+// facilitator — see `withLocalX402PaidResource` below.
 
 describe("CdpX402Client full payment flow E2E Tests", () => {
   it("wrapFetchWithPayment from @x402/fetch works identically with CdpX402Client", async () => {
-    const client = new CdpX402Client();
-    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-    const response = await fetchWithPayment(X402_PAID_API_URL);
-    expect(response.status).toBe(200);
-  }, 180_000);
+    await withLocalX402PaidResource(async url => {
+      const client = new CdpX402Client();
+      const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+      const response = await fetchWithPayment(url);
+      expect(response.status).toBe(200);
+    });
+  }, 300_000);
 });
 
 // ─── Spend control enforcement ────────────────────────────────────────────────
@@ -4753,9 +4756,10 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
 
   it("onApproachingLimit fires when spend crosses configured thresholds", async () => {
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
-    const notifications: Array<{ spent: bigint; limit: bigint; threshold?: number }> = [];
+    const notifications: Array<{ spent: bigint; limit: bigint }> = [];
 
-    // Cap: 20_000. Threshold: 50% (10_000). Payment: 12_000 — crosses the threshold.
+    // Cap: 20_000 atomic. Threshold: 50% (10_000). The local route charges $0.015
+    // (15_000 atomic USDC), so a single confirmed payment crosses the threshold.
     const client = new CdpX402Client({
       spendControls: {
         maxCumulativeSpend: { atomic: 20_000n, asset: USDC },
@@ -4766,26 +4770,23 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
       },
     });
 
-    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
-    const { name, version } = await readEvmTokenDomain(
-      publicClient,
-      X402_BASE_SEPOLIA_USDC as Address,
+    // Make a real payment so the onPaymentResponse hook fires and confirms spend.
+    await withLocalX402PaidResource(
+      async url => {
+        const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+        const response = await fetchWithPayment(url);
+        expect(response.status).toBe(200);
+      },
+      { price: "$0.015" },
     );
 
-    // Make a real payment so the onPaymentResponse hook fires and confirms spend.
-    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-    await fetchWithPayment(X402_PAID_API_URL);
-
-    // onApproachingLimit is fired on confirmation (onPaymentResponse hook). Check it ran.
-    // The exact threshold crossing depends on the actual payment amount returned by the endpoint.
-    // We just assert the callback fired at least once and received sane values.
-    // If the endpoint amount is < 10_000, no threshold is crossed; skip assertion gracefully.
-    if (notifications.length > 0) {
-      const [first] = notifications;
-      expect(first.limit).toBe(20_000n);
-      expect(first.spent).toBeGreaterThan(0n);
-    }
-  }, 180_000);
+    // onApproachingLimit fires on confirmation (onPaymentResponse hook). The
+    // $0.015 payment (15_000) crosses the 50% threshold (10_000) of the cap.
+    expect(notifications.length).toBeGreaterThan(0);
+    const [first] = notifications;
+    expect(first.limit).toBe(20_000n);
+    expect(first.spent).toBeGreaterThan(0n);
+  }, 300_000);
 });
 
 // ─── Settlement-aware spend tracking ─────────────────────────────────────────
@@ -4799,20 +4800,17 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
       },
     });
 
-    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-    await fetchWithPayment(X402_PAID_API_URL);
+    await withLocalX402PaidResource(async url => {
+      const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+      const response = await fetchWithPayment(url);
+      expect(response.status).toBe(200);
+    });
 
     // After the onPaymentResponse hook fires, the registry confirms the spend
     // and the tracker should have at least one entry.
     const registry = getSpendControlsRegistry(client);
     expect(registry).toBeDefined();
-
-    // Re-use the client for a second payment — the cumulative tracker must have
-    // recorded the first, otherwise the second provisional total would be wrong.
-    // We verify this indirectly: set a cap just above one payment and make two payments.
-    // If tracking didn't work, the second payment would be allowed. If it did, it's blocked.
-    // (This is a soft check — the payment amount from the endpoint must be known.)
-  }, 180_000);
+  }, 300_000);
 
   it("a payment blocked by a guardrail does not permanently consume cumulative budget", async () => {
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
@@ -5076,6 +5074,56 @@ function createX402HttpTestServer(
       res.end(JSON.stringify({ error: String(err) }));
     }
   });
+}
+
+/**
+ * Spins up a local `X402Server`-backed HTTP resource on an ephemeral port,
+ * invokes `run` with its URL, and always tears the server down afterward.
+ *
+ * The server provisions a CDP receiver wallet and settles through the CDP
+ * facilitator, so this exercises the full pay → verify → settle round-trip on
+ * Base Sepolia without depending on any third-party endpoint.
+ *
+ * @param run - Callback invoked with the paid resource URL.
+ * @param options - Optional overrides.
+ * @param options.price - Route price, defaults to `"$0.001"`.
+ * @returns The value returned by `run`.
+ */
+async function withLocalX402PaidResource<T>(
+  run: (url: string) => Promise<T>,
+  options?: { price?: string },
+): Promise<T> {
+  const x402Server = await createX402Server({
+    routes: {
+      "GET /ping": {
+        price: options?.price ?? "$0.001",
+        description: "Local e2e paid resource",
+        networks: [X402_BASE_SEPOLIA_CAIP2],
+      },
+    },
+  });
+
+  const httpServer = createX402HttpTestServer(x402Server, async () => ({
+    status: 200,
+    body: { pong: true },
+  }));
+
+  try {
+    const url = await new Promise<string>((resolve, reject) => {
+      httpServer.on("error", reject);
+      httpServer.listen(0, () => {
+        const addr = httpServer.address() as { port: number } | null;
+        if (!addr) {
+          reject(new Error("failed to bind local X402 test server"));
+          return;
+        }
+        resolve(`http://localhost:${addr.port}/ping`);
+      });
+    });
+    return await run(url);
+  } finally {
+    httpServer.close();
+  }
 }
 
 describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {

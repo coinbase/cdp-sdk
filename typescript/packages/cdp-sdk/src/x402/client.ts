@@ -20,6 +20,7 @@ import {
 import { CDP_EVM_RPC_URLS } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
+import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 
 import type { SpendControls } from "./guardrails/types.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
@@ -115,24 +116,6 @@ const parseRpcUrlsFromEnv = (): Partial<Record<string, { rpcUrl: string }>> | un
       return [network, { rpcUrl: url }];
     }),
   );
-};
-
-const isOwnerAlreadyHasSmartWalletError = (error: unknown): boolean =>
-  error instanceof Error && error.message.includes("Multiple smart wallets with the same owner");
-
-const findSmartAccountByOwner = async (
-  cdpClient: CdpClient,
-  ownerAddress: string,
-): Promise<string | undefined> => {
-  const normalizedOwner = ownerAddress.toLowerCase();
-  let pageToken: string | undefined;
-  do {
-    const result = await cdpClient.evm.listSmartAccounts({ pageToken });
-    const match = result.accounts.find(a => a.owners[0]?.toLowerCase() === normalizedOwner);
-    if (match) return match.address;
-    pageToken = result.nextPageToken;
-  } while (pageToken);
-  return undefined;
 };
 
 const buildEvmRpcUrlsByChainId = (
