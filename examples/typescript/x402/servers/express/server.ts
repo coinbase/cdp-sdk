@@ -64,13 +64,13 @@ if (APPROACH === "1") {
   const facilitator = createCdpFacilitatorClient();
 
   // Wire into your existing x402 server exactly as before — nothing else changes.
-  const server = new x402ResourceServer(facilitator).register("eip155:8453", new ExactEvmScheme());
+  const server = new x402ResourceServer(facilitator).register("eip155:84532", new ExactEvmScheme());
 
   app.use(
     paymentMiddleware(
       {
         "GET /report": {
-          accepts: [{ scheme: "exact", price: "$0.01", network: "eip155:8453", payTo: PAY_TO }],
+          accepts: [{ scheme: "exact", price: "$0.01", network: "eip155:84532", payTo: PAY_TO }],
           description: "AI-generated report",
         },
       },

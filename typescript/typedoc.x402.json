@@ -1,7 +1,6 @@
 {
   "entryPoints": [
-    "./packages/cdp-sdk/src/x402/index.ts",
-    "./packages/cdp-sdk/src/x402/facilitator.ts"
+    "./packages/cdp-sdk/src/x402/index.ts"
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/x402",
