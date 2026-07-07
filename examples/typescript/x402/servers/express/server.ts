@@ -34,7 +34,7 @@ if (!PAY_TO) throw new Error("PAY_TO env var required (an EVM address to receive
 const facilitator = createCdpFacilitatorClient();
 
 // Wire into your existing x402 resource server exactly as before.
-const server = new x402ResourceServer(facilitator).register("eip155:8453", new ExactEvmScheme());
+const server = new x402ResourceServer(facilitator).register("eip155:84532", new ExactEvmScheme());
 
 const app = express();
 
@@ -46,7 +46,7 @@ app.use(
           {
             scheme: "exact",
             price: "$0.01",
-            network: "eip155:8453",
+            network: "eip155:84532",
             payTo: PAY_TO,
           },
         ],
