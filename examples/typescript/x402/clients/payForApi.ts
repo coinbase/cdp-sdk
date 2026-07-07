@@ -23,20 +23,25 @@
  */
 import "dotenv/config";
 
-import { createCdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
 import { wrapFetchWithPayment } from "@x402/fetch";
 
 const X402_PAID_API_URL =
   process.env.X402_API_URL ?? "https://x402.org/protected";
 
+const ACCOUNT_NAME = "x402-client-wallet-1";
+
 async function main() {
-  // Eagerly provision the wallet so we can print the EVM address before
-  // making any payments (useful for funding the wallet first).
-  const { client, cdpClient, evmAddress, svmAddress } = await createCdpX402Client();
+  // Use CdpClient directly to resolve wallet addresses upfront (useful for
+  // funding the wallet before making any payments).
+  const cdpClient = new CdpClient();
+  const evmAccount = await cdpClient.evm.getOrCreateAccount({ name: ACCOUNT_NAME });
+  const svmAccount = await cdpClient.solana.getOrCreateAccount({ name: ACCOUNT_NAME });
 
   console.log("CDP-managed x402 client ready");
-  console.log("  EVM address:", evmAddress);
-  console.log("  Solana address:", svmAddress);
+  console.log("  EVM address:", evmAccount.address);
+  console.log("  Solana address:", svmAccount.address);
   console.log("  Fund the EVM address with USDC on Base Sepolia before making payments:");
   console.log("    CDP Faucet: https://portal.cdp.coinbase.com -> \"Onchain Tools\" -> \"Faucet\"\n");
 
@@ -46,7 +51,7 @@ async function main() {
     console.log("Requesting USDC from the CDP faucet...");
     try {
       const { transactionHash } = await cdpClient.evm.requestFaucet({
-        address: evmAddress,
+        address: evmAccount.address,
         network: "base-sepolia",
         token: "usdc",
       });
@@ -61,7 +66,9 @@ async function main() {
     }
   }
 
-  // Wrap fetch with the x402 client — handles 402 responses automatically.
+  // CdpX402Client lazily provisions the same wallet on first payment and
+  // handles 402 responses automatically.
+  const client = new CdpX402Client();
   const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
 
   console.log(`Requesting: ${X402_PAID_API_URL}`);

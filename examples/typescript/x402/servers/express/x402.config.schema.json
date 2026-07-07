@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://coinbase.github.io/cdp-sdk/x402/x402.config.schema.json",
+  "title": "CDP x402 server config",
+  "description": "JSON config file loaded by `createX402Server({ configPath })` from @coinbase/cdp-sdk/x402. Mirrors CdpX402ServerConfig (minus `configPath`). Inline config passed to createX402Server() always wins over values in this file. Security: this file may carry credentials — prefer environment variables for CDP_API_KEY_ID / CDP_API_KEY_SECRET / CDP_WALLET_SECRET and reserve this file for `routes`; if secrets are stored here, keep the file out of version control.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional JSON Schema reference for editor validation."
+    },
+    "apiKeyId": {
+      "type": "string",
+      "description": "CDP API key ID. Falls back to the CDP_API_KEY_ID env var. Prefer the env var over committing this."
+    },
+    "apiKeySecret": {
+      "type": "string",
+      "description": "CDP API key secret. Falls back to the CDP_API_KEY_SECRET env var. Do not commit this — prefer the env var."
+    },
+    "walletSecret": {
+      "type": "string",
+      "description": "CDP wallet secret used to provision the receiver wallet. Falls back to the CDP_WALLET_SECRET env var. Not required when payToConfig.type is \"address\". Do not commit this — prefer the env var."
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["production", "development"],
+      "description": "Deployment environment controlling default networks. `production` (default) → Base mainnet + Solana mainnet; `development` → Base Sepolia + Solana Devnet. Falls back to the CDP_X402_SERVER_ENVIRONMENT env var."
+    },
+    "payToConfig": {
+      "description": "How receiver payTo addresses are resolved. Defaults to { \"type\": \"eoa\" }.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Provision a CDP Server Wallet (EOA).",
+          "properties": {
+            "type": { "const": "eoa" },
+            "accountName": {
+              "type": "string",
+              "description": "Named CDP account to use. Defaults to \"x402-receiver-wallet-1\"."
+            }
+          },
+          "required": ["type"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Provision a CDP Smart Contract Wallet.",
+          "properties": {
+            "type": { "const": "smart" },
+            "accountName": {
+              "type": "string",
+              "description": "Named CDP smart account. Defaults to \"x402-receiver-wallet-1\"."
+            },
+            "ownerAccountName": {
+              "type": "string",
+              "description": "Owner EOA account name. Required for the \"smart\" type."
+            }
+          },
+          "required": ["type", "ownerAccountName"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Use provided addresses directly — no wallet provisioning (CDP_WALLET_SECRET not required).",
+          "properties": {
+            "type": { "const": "address" },
+            "evm": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{40}$",
+              "description": "EVM address to receive payments."
+            },
+            "solana": {
+              "type": "string",
+              "description": "Solana address to receive payments."
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "routes": {
+      "type": "object",
+      "description": "Map of \"METHOD /path\" → route config, e.g. \"GET /report\". Each value is either the simplified CDP route format or a full x402 RouteConfig; the two may be mixed.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/definitions/cdpRouteConfig" },
+          { "$ref": "#/definitions/x402RouteConfig" }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "caip2Network": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+:.+$",
+      "description": "CAIP-2 network identifier, e.g. \"eip155:8453\" (Base) or \"solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp\"."
+    },
+    "cdpRouteConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Simplified CDP route format. `price` is the only required field.",
+      "properties": {
+        "price": {
+          "type": "string",
+          "description": "Payment amount required to access this route, e.g. \"$0.01\"."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this route provides."
+        },
+        "scheme": {
+          "type": "string",
+          "enum": ["exact", "upto", "batch-settlement"],
+          "description": "Payment scheme. Defaults to \"exact\". \"upto\" and \"batch-settlement\" are EVM-only."
+        },
+        "networks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/caip2Network" },
+          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet for \"exact\" (or the environment's testnet equivalents), and EVM-only for \"upto\" / \"batch-settlement\"."
+        },
+        "maxTimeoutSeconds": {
+          "type": "number",
+          "description": "Seconds a payment token is valid before expiry. Defaults to 300.",
+          "minimum": 1
+        },
+        "extensions": {
+          "type": "object",
+          "description": "Extension overrides. CDP extensions are auto-injected; use this to override the auto-generated Bazaar declaration with richer discovery metadata."
+        }
+      },
+      "required": ["price"]
+    },
+    "x402PaymentOption": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "A single x402 payment option.",
+      "properties": {
+        "scheme": {
+          "type": "string",
+          "enum": ["exact", "upto", "batch-settlement"]
+        },
+        "price": { "type": "string" },
+        "network": { "$ref": "#/definitions/caip2Network" },
+        "payTo": {
+          "type": "string",
+          "description": "Receiver address. Leave as \"\" (empty) to have createX402Server fill in the provisioned/configured address for the option's network family."
+        },
+        "maxTimeoutSeconds": { "type": "number", "minimum": 1 }
+      },
+      "required": ["scheme", "price", "network", "payTo"]
+    },
+    "x402RouteConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Full x402 RouteConfig format. Use an `accepts` array (or single object) of payment options.",
+      "properties": {
+        "accepts": {
+          "oneOf": [
+            { "$ref": "#/definitions/x402PaymentOption" },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/definitions/x402PaymentOption" }
+            }
+          ]
+        },
+        "description": { "type": "string" },
+        "extensions": { "type": "object" }
+      },
+      "required": ["accepts"]
+    }
+  }
+}

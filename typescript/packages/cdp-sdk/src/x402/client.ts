@@ -10,7 +10,6 @@
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { wrapFetchWithPayment } from "@x402/fetch";
 import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import {
@@ -21,6 +20,7 @@ import {
 import { CDP_EVM_RPC_URLS } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
+import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 
 import type { SpendControls } from "./guardrails/types.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
@@ -80,22 +80,6 @@ export interface CdpX402ClientConfig {
   rpcUrls?: Partial<Record<string, { rpcUrl: string }>>;
 }
 
-/**
- * Result from eagerly creating a CDP x402 client via {@link createCdpX402Client}.
- */
-export interface CdpX402ClientResult {
-  /** - Configured x402Client with EVM and SVM schemes registered. */
-  client: x402Client;
-  /** - The underlying CdpClient instance for direct CDP API access. */
-  cdpClient: CdpClient;
-  /** - The EVM address used for payments. */
-  evmAddress: `0x${string}`;
-  /** - The Solana account address. */
-  svmAddress: string;
-  /** - Owner account name. Only set when `walletConfig.type` is `"smart"`. */
-  ownerWallet?: string;
-}
-
 const DEFAULT_ACCOUNT_NAME = "x402-client-wallet-1";
 
 const resolveWalletType = (type: string | undefined): WalletType => {
@@ -132,24 +116,6 @@ const parseRpcUrlsFromEnv = (): Partial<Record<string, { rpcUrl: string }>> | un
       return [network, { rpcUrl: url }];
     }),
   );
-};
-
-const isOwnerAlreadyHasSmartWalletError = (error: unknown): boolean =>
-  error instanceof Error && error.message.includes("Multiple smart wallets with the same owner");
-
-const findSmartAccountByOwner = async (
-  cdpClient: CdpClient,
-  ownerAddress: string,
-): Promise<string | undefined> => {
-  const normalizedOwner = ownerAddress.toLowerCase();
-  let pageToken: string | undefined;
-  do {
-    const result = await cdpClient.evm.listSmartAccounts({ pageToken });
-    const match = result.accounts.find(a => a.owners[0]?.toLowerCase() === normalizedOwner);
-    if (match) return match.address;
-    pageToken = result.nextPageToken;
-  } while (pageToken);
-  return undefined;
 };
 
 const buildEvmRpcUrlsByChainId = (
@@ -280,6 +246,12 @@ const setupCdpSigners = async (
   for (const [network, rpcUrl] of Object.entries(svmRpcOverrides)) {
     client.register(network as Network, new ExactSvmScheme(svmSigner, { rpcUrl }));
   }
+  /*
+   * `upto` is registered only for EOA wallets. Smart accounts sign with an
+   * ERC-1271/ERC-6492 contract signature, which only settles via the EIP-3009
+   * `exact` flow; `upto`'s Permit2 transfer method requires an on-chain Permit2
+   * allowance owned by an EOA, so it's intentionally unsupported for smart accounts.
+   */
   if (walletType !== "smart") {
     client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
   }
@@ -347,28 +319,6 @@ export class CdpX402Client extends x402Client {
   }
 
   /**
-   * Returns a fetch function that automatically handles 402 responses.
-   *
-   * Delegates to `wrapFetchWithPayment` from `@x402/fetch`. You can also
-   * call that directly: `wrapFetchWithPayment(fetch, client)`.
-   *
-   * @param fetchFn - The fetch implementation to wrap. Defaults to `globalThis.fetch`.
-   * @returns A wrapped fetch function that handles 402 responses automatically.
-   *
-   * @example
-   * ```typescript
-   * const client = new CdpX402Client();
-   * const fetchWithPayment = client.wrapFetch();
-   * const response = await fetchWithPayment("https://api.example.com/paid");
-   * ```
-   */
-  wrapFetch(
-    fetchFn: typeof globalThis.fetch = globalThis.fetch,
-  ): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> {
-    return wrapFetchWithPayment(fetchFn, this);
-  }
-
-  /**
    * Provisions CDP accounts and registers payment schemes.
    */
   private async _initialize(): Promise<void> {
@@ -389,27 +339,4 @@ export class CdpX402Client extends x402Client {
     }
     return this._initPromise;
   }
-}
-
-/**
- * Creates a fully configured CDP x402 client, eagerly provisioning wallets.
- *
- * Use this when you need the wallet address(es) before making any payments.
- * For most use cases, prefer `CdpX402Client` which defers initialization.
- *
- * @param config - Optional configuration. Credentials and RPC URLs fall back to env vars.
- * @returns A configured client plus resolved wallet addresses.
- *
- * @example
- * ```typescript
- * const { client, evmAddress } = await createCdpX402Client();
- * console.log("Paying from:", evmAddress);
- * ```
- */
-export async function createCdpX402Client(
-  config?: CdpX402ClientConfig,
-): Promise<CdpX402ClientResult> {
-  const client = new x402Client();
-  const { cdpClient, evmAddress, svmAddress, ownerWallet } = await setupCdpSigners(client, config);
-  return { client, cdpClient, evmAddress, svmAddress, ownerWallet };
 }
