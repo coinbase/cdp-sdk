@@ -75,11 +75,11 @@ const createCdpAuthHeaders = (
  */
 export interface CdpFacilitatorClientArgs {
   /**
-   * CDP API key ID. Falls back to `CDP_API_KEY_ID` env var.
+   * CDP API key ID. Falls back to the `CDP_API_KEY_ID` environment variable.
    */
   apiKeyId?: string;
   /**
-   * CDP API key secret. Falls back to `CDP_API_KEY_SECRET` env var.
+   * CDP API key secret. Falls back to the `CDP_API_KEY_SECRET` environment variable.
    */
   apiKeySecret?: string;
 }
@@ -90,16 +90,36 @@ export interface CdpFacilitatorClientArgs {
  * The returned client is pre-configured with the CDP hosted facilitator URL
  * and CDP JWT-based authentication. It implements the `HTTPFacilitatorClient`
  * interface from `@x402/core/server` and can be passed directly to
- * `x402ResourceServer`.
+ * `x402ResourceServer` as a drop-in replacement for a self-hosted facilitator.
+ *
+ * Credentials are resolved in order: explicit args → `CDP_API_KEY_ID` /
+ * `CDP_API_KEY_SECRET` environment variables.
  *
  * @param args - Optional credential overrides.
- * @returns A configured `HTTPFacilitatorClient` ready for use with x402ResourceServer.
+ * @returns A configured `HTTPFacilitatorClient` ready for use with `x402ResourceServer`.
+ * @throws {Error} If neither explicit args nor environment variables provide credentials.
  *
  * @example
+ * Drop-in replacement for a self-hosted facilitator:
  * ```typescript
  * import { createCdpFacilitatorClient } from "@coinbase/cdp-sdk/x402";
+ * import { x402ResourceServer } from "@x402/core/server";
+ * import { ExactEvmScheme } from "@x402/evm/exact/server";
  *
+ * // Set CDP_API_KEY_ID and CDP_API_KEY_SECRET in your environment
  * const facilitator = createCdpFacilitatorClient();
+ *
+ * const server = new x402ResourceServer(facilitator)
+ *   .register("eip155:8453", new ExactEvmScheme());
+ * ```
+ *
+ * @example
+ * Explicit credentials:
+ * ```typescript
+ * const facilitator = createCdpFacilitatorClient({
+ *   apiKeyId: "my-key-id",
+ *   apiKeySecret: "my-key-secret",
+ * });
  * ```
  */
 export function createCdpFacilitatorClient(args?: CdpFacilitatorClientArgs): HTTPFacilitatorClient {

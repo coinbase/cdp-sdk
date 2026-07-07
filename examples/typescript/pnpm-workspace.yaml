@@ -1,2 +1,3 @@
 packages:
   - "../../typescript/packages/cdp-sdk"
+  - "./x402/servers/express"
