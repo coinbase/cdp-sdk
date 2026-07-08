@@ -234,7 +234,7 @@ describe("createCdpFacilitatorClient", () => {
   // ─── Custom baseUrl ─────────────────────────────────────────────────────────
 
   describe("custom baseUrl", () => {
-    const STAGING_URL = "https://api.staging.cdp.coinbase.com/platform/v2/x402";
+    const STAGING_URL = "https://mock-staging-facilitator.example.com/platform/v2/x402";
 
     it("configures the client with the custom base URL", () => {
       createCdpFacilitatorClient({ baseUrl: STAGING_URL });
@@ -249,7 +249,7 @@ describe("createCdpFacilitatorClient", () => {
 
       expect(mockGenerateJwt).toHaveBeenCalledWith(
         expect.objectContaining({
-          requestHost: "api.staging.cdp.coinbase.com",
+          requestHost: "mock-staging-facilitator.example.com",
         }),
       );
     });
@@ -262,19 +262,19 @@ describe("createCdpFacilitatorClient", () => {
       expect(mockGenerateJwt).toHaveBeenCalledWith(
         expect.objectContaining({
           requestPath: "/platform/v2/x402/verify",
-          requestHost: "api.staging.cdp.coinbase.com",
+          requestHost: "mock-staging-facilitator.example.com",
         }),
       );
       expect(mockGenerateJwt).toHaveBeenCalledWith(
         expect.objectContaining({
           requestPath: "/platform/v2/x402/settle",
-          requestHost: "api.staging.cdp.coinbase.com",
+          requestHost: "mock-staging-facilitator.example.com",
         }),
       );
       expect(mockGenerateJwt).toHaveBeenCalledWith(
         expect.objectContaining({
           requestPath: "/platform/v2/x402/supported",
-          requestHost: "api.staging.cdp.coinbase.com",
+          requestHost: "mock-staging-facilitator.example.com",
         }),
       );
     });
@@ -295,7 +295,7 @@ describe("createCdpFacilitatorClient", () => {
 
     it("strips a trailing slash from the base URL pathname before appending operation suffixes", async () => {
       createCdpFacilitatorClient({
-        baseUrl: "https://api.staging.cdp.coinbase.com/platform/v2/x402/",
+        baseUrl: "https://mock-staging-facilitator.example.com/platform/v2/x402/",
       });
       const config = getConstructorConfig();
       await config.createAuthHeaders();
