@@ -389,3 +389,84 @@ describe("signEvmX402Payment scheme/network validation", () => {
     );
   });
 });
+
+// ─── RPC URL gap detection ────────────────────────────────────────────────────
+
+// Optimism (eip155:10) is in CHAIN_ID_TO_CDP_NETWORK (smart wallet signing
+// supported) but has no entry in CDP_EVM_RPC_URLS (no bundled public RPC).
+const optimismPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "eip155:10",
+      asset: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+describe("signEvmX402Payment RPC URL gap detection", () => {
+  it("throws a clear error when the selected chain has no configured RPC URL", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: optimismPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow(/No RPC URL configured for eip155:10/);
+
+    // Signing must not be attempted when the RPC is missing.
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+
+  it("error message includes actionable CDP_X402_RPC_URLS guidance", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: optimismPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow(/CDP_X402_RPC_URLS/);
+  });
+
+  it("succeeds when CDP_X402_RPC_URLS supplies an RPC for the chain", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({ "eip155:10": "https://mainnet.optimism.io" });
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    const result = await signEvmX402Payment(account, {
+      paymentRequired: optimismPaymentRequired,
+      acceptedIndex: 0,
+    });
+
+    expect(result).toBe(mockPayload);
+    expect(mockCreatePaymentPayload).toHaveBeenCalledOnce();
+  });
+});
+
+describe("signEvmSmartAccountX402Payment RPC URL gap detection", () => {
+  it("throws a clear error when the selected chain has no configured RPC URL", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+
+    await expect(
+      signEvmSmartAccountX402Payment(account, {
+        paymentRequired: optimismPaymentRequired,
+        acceptedIndex: 0,
+      }),
+    ).rejects.toThrow(/No RPC URL configured for eip155:10/);
+
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+
+  it("succeeds when CDP_X402_RPC_URLS supplies an RPC for the chain", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({ "eip155:10": "https://mainnet.optimism.io" });
+
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    const result = await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: optimismPaymentRequired,
+      acceptedIndex: 0,
+    });
+
+    expect(result).toBe(mockPayload);
+  });
+});

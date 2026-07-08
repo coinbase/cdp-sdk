@@ -429,4 +429,74 @@ describe("CdpX402Client", () => {
       );
     });
   });
+
+  // ─── RPC URL gap detection ─────────────────────────────────────────────────
+
+  describe("RPC URL gap detection", () => {
+    /*
+     * setupCdpSigners registers a `beforePaymentCreation` hook that validates
+     * the selected requirement's chain against the resolved RPC map. The mock
+     * captures the hook function via mockOnBeforePaymentCreation so we can
+     * invoke it directly and assert the error behaviour without needing a live
+     * x402 payment flow.
+     */
+    type BeforeCtx = { selectedRequirements: { network: string } };
+
+    async function getRegisteredRpcHook(): Promise<(ctx: BeforeCtx) => Promise<undefined>> {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired); // triggers init
+      // The RPC check hook is the last onBeforePaymentCreation registration.
+      const calls = mockOnBeforePaymentCreation.mock.calls;
+      return calls[calls.length - 1][0] as (ctx: BeforeCtx) => Promise<undefined>;
+    }
+
+    it("registers a beforePaymentCreation hook that enforces RPC URL presence", async () => {
+      const hook = await getRegisteredRpcHook();
+
+      // eip155:10 (Optimism) is not in CDP_EVM_RPC_URLS — must throw.
+      await expect(
+        hook({ selectedRequirements: { network: "eip155:10" } }),
+      ).rejects.toThrow(/No RPC URL configured for eip155:10/);
+    });
+
+    it("error message includes actionable guidance for CDP_X402_RPC_URLS", async () => {
+      const hook = await getRegisteredRpcHook();
+
+      await expect(
+        hook({ selectedRequirements: { network: "eip155:10" } }),
+      ).rejects.toThrow(/CDP_X402_RPC_URLS/);
+    });
+
+    it("hook does not throw for chains that have a default RPC URL", async () => {
+      const hook = await getRegisteredRpcHook();
+
+      // eip155:84532 (Base Sepolia) is in CDP_EVM_RPC_URLS — must not throw.
+      await expect(
+        hook({ selectedRequirements: { network: "eip155:84532" } }),
+      ).resolves.toBeUndefined();
+    });
+
+    it("hook does not throw for Solana networks (SVM has built-in public RPCs)", async () => {
+      const hook = await getRegisteredRpcHook();
+
+      await expect(
+        hook({ selectedRequirements: { network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" } }),
+      ).resolves.toBeUndefined();
+    });
+
+    it("hook does not throw when a custom rpcUrls entry covers the chain", async () => {
+      const client = new CdpX402Client({
+        rpcUrls: { "eip155:10": { rpcUrl: "https://mainnet.optimism.io" } },
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      const calls = mockOnBeforePaymentCreation.mock.calls;
+      const hook = calls[calls.length - 1][0] as (ctx: BeforeCtx) => Promise<undefined>;
+
+      // Optimism now has a user-supplied RPC — must not throw.
+      await expect(
+        hook({ selectedRequirements: { network: "eip155:10" } }),
+      ).resolves.toBeUndefined();
+    });
+  });
 });
