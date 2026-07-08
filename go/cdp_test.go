@@ -8,7 +8,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"net/http"
+	"regexp"
 	"testing"
+
+	"github.com/coinbase/cdp-sdk/go/openapi"
 )
 
 func generateTestECKeyForCdpTest(t *testing.T) string {
@@ -248,5 +251,34 @@ func TestApiKeyHeaderFnStillAuthenticatesPublicOperationsWhenCredentialsPresent(
 	// Public operations skip JWT generation entirely, even when credentials are configured.
 	if got := req.Header.Get("Authorization"); got != "" {
 		t.Errorf("expected no Authorization header for a public operation, got %q", got)
+	}
+}
+
+func TestWalletHeaderFnSkipsPublicOperations(t *testing.T) {
+	// Add a synthetic public operation that overlaps a wallet-auth route to prove
+	// walletHeaderFn checks the public-operation gate before wallet auth matching.
+	original := openapi.PublicOperations
+	openapi.PublicOperations = append(openapi.PublicOperations, openapi.PublicOperation{
+		Method:      http.MethodPost,
+		PathPattern: regexp.MustCompile(`/v2/accounts$`),
+	})
+	defer func() {
+		openapi.PublicOperations = original
+	}()
+
+	req, err := http.NewRequest(http.MethodPost, "https://api.cdp.coinbase.com/platform/v2/accounts", nil)
+	if err != nil {
+		t.Fatalf("failed to build request: %v", err)
+	}
+
+	fn := walletHeaderFn(ClientOptions{
+		WalletSecret: "invalid-wallet-secret",
+	})
+	if err := fn(context.Background(), req); err != nil {
+		t.Fatalf("walletHeaderFn returned an unexpected error for a public operation: %v", err)
+	}
+
+	if got := req.Header.Get("X-Wallet-Auth"); got != "" {
+		t.Errorf("expected no X-Wallet-Auth header for a public operation, got %q", got)
 	}
 }

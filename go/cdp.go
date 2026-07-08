@@ -153,6 +153,17 @@ func walletHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 			return nil
 		}
 
+		method := strings.ToUpper(req.Method)
+		if method == "" {
+			method = http.MethodGet
+		}
+
+		// Public (unauthenticated) operations skip all CDP auth headers, including
+		// wallet auth, to stay consistent with the API-key auth editor behavior.
+		if openapi.IsPublicOperation(method, req.URL.Path) {
+			return nil
+		}
+
 		if !requiresWalletAuth(req.Method, req.URL.Path) {
 			return nil
 		}
