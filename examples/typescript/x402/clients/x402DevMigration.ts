@@ -58,7 +58,7 @@ async function dropInReplacement() {
 
   // After (CDP-managed wallet):
   const client = new CdpX402Client();
-  const fetchWithPayment = client.wrapFetch();
+  const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
 
   const response = await fetchWithPayment(X402_PAID_API_URL);
   reportStatus(response);
@@ -77,8 +77,6 @@ async function slotInCdpSigner() {
   const client = new x402Client();
   registerExactEvmScheme(client, { signer: fromCdpEvmAccount(account) });
 
-  // This is a bare x402Client (not a CdpX402Client), so it has no wrapFetch()
-  // helper — use wrapFetchWithPayment from @x402/fetch directly.
   const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
   const response = await fetchWithPayment(X402_PAID_API_URL);
   reportStatus(response);

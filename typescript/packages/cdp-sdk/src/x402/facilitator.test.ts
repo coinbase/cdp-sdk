@@ -294,7 +294,9 @@ describe("createCdpFacilitatorClient", () => {
     });
 
     it("strips a trailing slash from the base URL pathname before appending operation suffixes", async () => {
-      createCdpFacilitatorClient({ baseUrl: "https://api.staging.cdp.coinbase.com/platform/v2/x402/" });
+      createCdpFacilitatorClient({
+        baseUrl: "https://api.staging.cdp.coinbase.com/platform/v2/x402/",
+      });
       const config = getConstructorConfig();
       await config.createAuthHeaders();
 
@@ -304,9 +306,9 @@ describe("createCdpFacilitatorClient", () => {
     });
 
     it("throws a clear error when baseUrl is not a valid URL", () => {
-      expect(() =>
-        createCdpFacilitatorClient({ baseUrl: "not-a-valid-url" }),
-      ).toThrow(/Invalid facilitator baseUrl/);
+      expect(() => createCdpFacilitatorClient({ baseUrl: "not-a-valid-url" })).toThrow(
+        /Invalid facilitator baseUrl/,
+      );
     });
   });
 });

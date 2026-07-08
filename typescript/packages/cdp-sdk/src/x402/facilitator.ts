@@ -44,6 +44,8 @@ interface ResolvedFacilitatorEndpoints {
  * signing. Strips any trailing slash from the pathname before appending
  * operation suffixes so the paths are always well-formed.
  *
+ * @param baseUrl - The facilitator base URL to parse.
+ * @returns The resolved URL, JWT signing host, and per-operation paths.
  * @throws {Error} If `baseUrl` is not a valid URL.
  */
 const resolveFacilitatorEndpoints = (baseUrl: string): ResolvedFacilitatorEndpoints => {

@@ -454,17 +454,17 @@ describe("CdpX402Client", () => {
       const hook = await getRegisteredRpcHook();
 
       // eip155:10 (Optimism) is not in CDP_EVM_RPC_URLS — must throw.
-      await expect(
-        hook({ selectedRequirements: { network: "eip155:10" } }),
-      ).rejects.toThrow(/No RPC URL configured for eip155:10/);
+      await expect(hook({ selectedRequirements: { network: "eip155:10" } })).rejects.toThrow(
+        /No RPC URL configured for eip155:10/,
+      );
     });
 
     it("error message includes actionable guidance for CDP_X402_RPC_URLS", async () => {
       const hook = await getRegisteredRpcHook();
 
-      await expect(
-        hook({ selectedRequirements: { network: "eip155:10" } }),
-      ).rejects.toThrow(/CDP_X402_RPC_URLS/);
+      await expect(hook({ selectedRequirements: { network: "eip155:10" } })).rejects.toThrow(
+        /CDP_X402_RPC_URLS/,
+      );
     });
 
     it("hook does not throw for chains that have a default RPC URL", async () => {

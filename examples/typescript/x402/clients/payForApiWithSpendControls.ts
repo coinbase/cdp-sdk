@@ -17,16 +17,22 @@
  *   Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your .env
  *
  * Funding the wallet (Base Sepolia USDC):
- *   This example prints its own wallet address via `getAddresses()` on startup.
- *   Fund that address with USDC on Base Sepolia before paying. See the x402
- *   examples README for funding options.
+ *   This example prints its wallet address on startup. Fund that address with
+ *   USDC on Base Sepolia before paying. See the x402 examples README for
+ *   funding options.
  */
 import "dotenv/config";
 
+import { CdpClient } from "@coinbase/cdp-sdk";
 import { CdpX402Client, SpendControlError } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
 
 const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
 const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.org/protected";
+
+// Matches CdpX402Client's default account name, so the address resolved here is
+// the same wallet the client provisions on first payment.
+const ACCOUNT_NAME = "x402-client-wallet-1";
 
 async function main() {
   const client = new CdpX402Client({
@@ -48,11 +54,12 @@ async function main() {
     },
   });
 
-  // Eagerly provision the wallet so we can print (and fund) its address.
-  const { evmAddress } = await client.getAddresses();
-  console.log("Paying from:", evmAddress, "(fund with USDC on Base Sepolia first)");
+  // Resolve the wallet address upfront via CdpClient (useful for funding).
+  const cdpClient = new CdpClient();
+  const evmAccount = await cdpClient.evm.getOrCreateAccount({ name: ACCOUNT_NAME });
+  console.log("Paying from:", evmAccount.address, "(fund with USDC on Base Sepolia first)");
 
-  const fetchWithPayment = client.wrapFetch();
+  const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
 
   console.log(`Requesting (with spend controls): ${X402_PAID_API_URL}`);
   try {
