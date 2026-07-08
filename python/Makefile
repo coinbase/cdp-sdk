@@ -87,5 +87,5 @@ python-client: check-openapi preprocess-openapi
 	@ if [ -d "cdp/openapi_client/cdp/openapi_client" ]; then cp -R cdp/openapi_client/cdp/openapi_client/* cdp/openapi_client/ && rm -rf cdp/openapi_client/cdp; fi
 	@ rm -rf cdp/openapi_client/docs
 	@ echo "Generating public operations lookup table..."
-	@ python3 ../scripts/generate_public_operations.py ../openapi.yaml
+	@ python3 ../scripts/generate_public_operations.py ../openapi.yaml --language python
 	@ echo "OpenAPI client generation completed"

@@ -4,6 +4,8 @@ import re
 import textwrap
 from pathlib import Path
 
+import pytest
+
 from generate_public_operations import (
     PublicOperation,
     is_public_security,
@@ -87,6 +89,77 @@ def test_load_public_operations_resolves_operation_and_default_security(tmp_path
     # Operations that default to (or explicitly require) an authenticated scheme are excluded.
     assert ("GET", "/v1/authed-by-default") not in operation_keys
     assert ("GET", "/v1/still-authed-override") not in operation_keys
+
+
+def test_load_public_operations_fails_closed_without_default_security(tmp_path: Path):
+    """A spec with no top-level `security` is rejected rather than marking everything public."""
+    spec_path = tmp_path / "openapi.yaml"
+    spec_path.write_text(
+        textwrap.dedent(
+            """
+            openapi: 3.1.0
+            info:
+              title: No Default Security
+              version: 1.0.0
+            paths:
+              /v1/thing:
+                get:
+                  operationId: getThing
+            """
+        )
+    )
+
+    with pytest.raises(ValueError, match="no top-level `security`"):
+        load_public_operations(spec_path)
+
+
+def test_load_public_operations_fails_closed_with_empty_default_security(tmp_path: Path):
+    """An explicit but empty top-level `security: []` is also treated as fail-closed."""
+    spec_path = tmp_path / "openapi.yaml"
+    spec_path.write_text(
+        textwrap.dedent(
+            """
+            openapi: 3.1.0
+            info:
+              title: Empty Default Security
+              version: 1.0.0
+            security: []
+            paths:
+              /v1/thing:
+                get:
+                  operationId: getThing
+            """
+        )
+    )
+
+    with pytest.raises(ValueError, match="no top-level `security`"):
+        load_public_operations(spec_path)
+
+
+def test_load_public_operations_treats_null_operation_security_as_authenticated(tmp_path: Path):
+    """A malformed null operation-level `security` falls back to the authenticated default."""
+    spec_path = tmp_path / "openapi.yaml"
+    spec_path.write_text(
+        textwrap.dedent(
+            """
+            openapi: 3.1.0
+            info:
+              title: Null Operation Security
+              version: 1.0.0
+            security:
+              - apiKeyAuth: []
+            paths:
+              /v1/null-security:
+                get:
+                  operationId: nullSecurity
+                  security:
+            """
+        )
+    )
+
+    operations = load_public_operations(spec_path)
+
+    assert ("GET", "/v1/null-security") not in {(op.method, op.path) for op in operations}
 
 
 def test_path_regex_source_matches_templated_path_params():

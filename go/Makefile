@@ -80,5 +80,5 @@ client:
 	@ python ../scripts/preprocess_openapi.py ../openapi.yaml ../openapi-preprocessed.yaml
 	@ oapi-codegen --config=client-config.yaml -o ./openapi/client.gen.go ../openapi-preprocessed.yaml
 	@ printf "\nGenerating public operations lookup table...\n"
-	@ python3 ../scripts/generate_public_operations.py ../openapi.yaml
+	@ python3 ../scripts/generate_public_operations.py ../openapi.yaml --language go
 	@ printf "\nClient generated successfully!\n"

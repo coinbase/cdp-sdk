@@ -12,14 +12,17 @@ CDP API credentials -- driven entirely by openapi.yaml, so any future unauthenti
 works automatically the next time the client is regenerated, without further SDK code changes.
 
 Usage:
-    python3 scripts/generate_public_operations.py [path/to/openapi.yaml]
+    python3 scripts/generate_public_operations.py [path/to/openapi.yaml] [--language LANG]
+
+Where LANG is one of: typescript, python, go, all (default: all). Each SDK's client-generation
+command targets only its own language so it doesn't rewrite the other languages' outputs.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -97,7 +100,20 @@ def load_public_operations(spec_path: Path) -> list[PublicOperation]:
     with open(spec_path) as f:
         spec = yaml.safe_load(f)
 
-    default_security = spec.get("security", [])
+    # Fail closed: this table gates whether SDKs attach credentials, so an empty or missing
+    # document-level `security` (which would cascade to every operation lacking its own
+    # override and mark the entire API public) is treated as an error rather than silently
+    # disabling auth everywhere. A spec that genuinely needs no default auth is not something
+    # this generator should quietly accept.
+    default_security = spec.get("security")
+    if not default_security:
+        raise ValueError(
+            f"{spec_path} has no top-level `security` requirement. Refusing to generate "
+            "public-operation tables, because every operation without its own `security` "
+            "override would be treated as public and the SDKs would stop sending credentials. "
+            "Ensure the spec declares a default `security` scheme."
+        )
+
     public_operations: list[PublicOperation] = []
 
     for path, path_item in (spec.get("paths") or {}).items():
@@ -106,7 +122,13 @@ def load_public_operations(spec_path: Path) -> list[PublicOperation]:
         for method, operation in path_item.items():
             if method not in HTTP_METHODS or not isinstance(operation, dict):
                 continue
-            effective_security = operation.get("security", default_security)
+            # An operation is only public when it explicitly overrides `security` (including an
+            # explicit empty `[]`). A missing key, or a malformed null value, falls back to the
+            # authenticated document default -- fail closed rather than open.
+            operation_security = operation.get("security")
+            effective_security = (
+                default_security if operation_security is None else operation_security
+            )
             if is_public_security(effective_security):
                 public_operations.append(PublicOperation(method=method.upper(), path=path))
 
@@ -249,18 +271,41 @@ def write_file(path: Path, contents: str) -> None:
     print(f"Wrote {path.relative_to(REPO_ROOT)}")
 
 
+RENDERERS = {
+    "typescript": (TS_OUTPUT_PATH, render_typescript),
+    "python": (PYTHON_OUTPUT_PATH, render_python),
+    "go": (GO_OUTPUT_PATH, render_go),
+}
+
+
 def main() -> None:
-    """Load public operations from the OpenAPI spec and regenerate all per-language outputs."""
-    spec_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_SPEC_PATH
+    """Load public operations from the OpenAPI spec and regenerate the requested outputs."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "spec",
+        nargs="?",
+        default=str(DEFAULT_SPEC_PATH),
+        help="Path to the OpenAPI spec (defaults to the repo-root openapi.yaml).",
+    )
+    parser.add_argument(
+        "--language",
+        choices=[*RENDERERS, "all"],
+        default="all",
+        help="Which language's lookup table to regenerate (defaults to all).",
+    )
+    args = parser.parse_args()
+
+    spec_path = Path(args.spec)
     operations = load_public_operations(spec_path)
 
     print(f"Found {len(operations)} public operation(s) in {spec_path.name}:")
     for op in operations:
         print(f"  {op.method} {op.path}")
 
-    write_file(TS_OUTPUT_PATH, render_typescript(operations))
-    write_file(PYTHON_OUTPUT_PATH, render_python(operations))
-    write_file(GO_OUTPUT_PATH, render_go(operations))
+    languages = list(RENDERERS) if args.language == "all" else [args.language]
+    for language in languages:
+        output_path, render = RENDERERS[language]
+        write_file(output_path, render(operations))
 
 
 if __name__ == "__main__":
