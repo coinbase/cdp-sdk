@@ -12,7 +12,7 @@ export * from "./generated/onchain-data/onchain-data.js";
 export * from "./generated/end-user-accounts/end-user-accounts.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
 
-import { configure } from "./cdpApiClient.js";
+import { configure, getAxiosInstance } from "./cdpApiClient.js";
 import * as endUserAccountManagement from "./generated/end-user-account-management/end-user-account-management.js";
 import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
@@ -40,6 +40,7 @@ export const CdpOpenApiClient = {
   ...endUserAccounts,
   ...endUserAccountManagement,
   configure,
+  getAxiosInstance,
 };
 
 export const OpenApiEvmMethods = {
