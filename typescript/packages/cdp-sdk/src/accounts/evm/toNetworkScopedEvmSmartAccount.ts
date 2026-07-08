@@ -14,7 +14,6 @@ import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAc
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
-import { CDP_NETWORK_TO_CAIP2 } from "../../x402/constants.js";
 
 import type {
   EvmAccount,
@@ -77,6 +76,19 @@ export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRp
     return undefined;
   })();
 
+  /*
+   * Resolve the chain once at scoping time so `signX402Payment` can enforce the
+   * network guard unconditionally — for both named networks ("base") and RPC URLs
+   * ("https://mainnet.base.org"). Without this, `CDP_NETWORK_TO_CAIP2` would
+   * return `undefined` for RPC URL scopes, causing the `&& scopedCaip2` condition
+   * to silently skip validation and allow signing for a different chain.
+   */
+  const { chain: scopedChain } = await resolveViemClients({
+    networkOrNodeUrl: options.network,
+    account: options.owner,
+  });
+  const scopedCaip2 = `eip155:${scopedChain.id}`;
+
   const account = {
     address: options.smartAccount.address,
     network: options.network,
@@ -85,8 +97,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRp
     type: "evm-smart",
     signX402Payment: async (paymentRequired, acceptedIndex) => {
       const selected = paymentRequired.accepts[acceptedIndex];
-      const scopedCaip2 = CDP_NETWORK_TO_CAIP2[options.network];
-      if (selected && scopedCaip2 && selected.network !== scopedCaip2) {
+      if (selected && selected.network !== scopedCaip2) {
         throw new Error(
           `acceptedIndex ${acceptedIndex} targets network "${selected.network}" but this account ` +
             `is scoped to "${options.network}" (${scopedCaip2}). Choose an acceptedIndex whose ` +
