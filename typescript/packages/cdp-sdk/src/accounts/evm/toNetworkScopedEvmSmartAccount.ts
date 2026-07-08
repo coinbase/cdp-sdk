@@ -76,13 +76,6 @@ export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRp
     return undefined;
   })();
 
-  /*
-   * Resolve the chain once at scoping time so `signX402Payment` can enforce the
-   * network guard unconditionally — for both named networks ("base") and RPC URLs
-   * ("https://mainnet.base.org"). Without this, `CDP_NETWORK_TO_CAIP2` would
-   * return `undefined` for RPC URL scopes, causing the `&& scopedCaip2` condition
-   * to silently skip validation and allow signing for a different chain.
-   */
   const { chain: scopedChain } = await resolveViemClients({
     networkOrNodeUrl: options.network,
     account: options.owner,

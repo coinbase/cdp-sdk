@@ -76,6 +76,9 @@ export interface CdpX402ClientConfig {
    * CAIP-2 network identifier.
    *
    * Falls back to `CDP_X402_RPC_URLS` env var (JSON object mapping CAIP-2 IDs to URL strings).
+   * RPC URLs are optional for core payload signing and are primarily used to
+   * backfill optional EVM extension capabilities (for example, gas sponsoring
+   * enrichment) and to override default network endpoints.
    */
   rpcUrls?: Partial<Record<string, { rpcUrl: string }>>;
 }
@@ -255,27 +258,6 @@ const setupCdpSigners = async (
   if (walletType !== "smart") {
     client.register("eip155:*" as Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
   }
-
-  /*
-   * Fail fast when a payment requirement targets an EVM chain with no configured
-   * RPC URL. Without one, the ExactEvmScheme cannot sign or submit the transaction
-   * and the error surface from the x402 library would be a cryptic transport failure.
-   * Raising here gives the caller an actionable message before signing is attempted.
-   * Solana networks are skipped — the SVM scheme ships its own public RPC defaults.
-   */
-  client.onBeforePaymentCreation(async context => {
-    const { network } = context.selectedRequirements;
-    if (!network.startsWith("eip155:")) return undefined;
-    const chainId = Number(network.split(":")[1]);
-    if (!Number.isNaN(chainId) && evmRpcUrlsByChainId[chainId] === undefined) {
-      throw new Error(
-        `No RPC URL configured for ${network}. ` +
-          `Provide one via CDP_X402_RPC_URLS='{"${network}":"https://your-rpc-url"}' ` +
-          `or rpcUrls: { "${network}": { rpcUrl: "https://your-rpc-url" } } in the client configuration.`,
-      );
-    }
-    return undefined;
-  });
 
   if (config?.spendControls) {
     applySpendControls(client, config.spendControls);
