@@ -95,6 +95,10 @@ export async function getAuthHeaders(
 ): Promise<Record<string, string>> {
   const headers: Record<string, string> = {};
 
+  // Content-Type describes the request body, not authentication, so set it for all requests
+  // (including public/unauthenticated operations).
+  headers["Content-Type"] = "application/json";
+
   if (!options.skipAuth) {
     if (!options.apiKeyId || !options.apiKeySecret) {
       throw new UserInputValidationError(
@@ -113,7 +117,6 @@ export async function getAuthHeaders(
       audience: options.audience,
     });
     headers["Authorization"] = `Bearer ${jwt}`;
-    headers["Content-Type"] = "application/json";
 
     // Add wallet auth if needed
     if (requiresWalletAuth(options.requestMethod, options.requestPath)) {

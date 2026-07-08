@@ -56,6 +56,10 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
     """
     headers = {}
 
+    # Content-Type describes the request body, not authentication, so set it for all requests
+    # (including public/unauthenticated operations).
+    headers["Content-Type"] = "application/json"
+
     if not options.skip_auth:
         if not options.api_key_id or not options.api_key_secret:
             raise ValueError(
@@ -78,7 +82,6 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
         # Generate and add JWT token
         jwt_token = generate_jwt(jwt_options)
         headers["Authorization"] = f"Bearer {jwt_token}"
-        headers["Content-Type"] = "application/json"
 
         # Add wallet auth if needed
         if _requires_wallet_auth(options.request_method, options.request_path):
