@@ -70,6 +70,8 @@ npm install @coinbase/cdp-sdk
 
 To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Save the `API Key ID` and `API Key Secret` for use in the SDK. You will also need to create a wallet secret in the Portal to sign transactions.
 
+Most CDP API endpoints require API key credentials. Public (unauthenticated) endpoints can be called without credentials, and authenticated endpoints will raise a clear request-time error if credentials are missing.
+
 ## Usage
 
 ### Initialization
@@ -85,6 +87,14 @@ export CDP_WALLET_SECRET="YOUR_WALLET_SECRET"
 ```
 
 Then, initialize the client:
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+
+const cdp = new CdpClient();
+```
+
+If you are only calling public (unauthenticated) endpoints, constructing `CdpClient` without credentials is supported:
 
 ```typescript
 import { CdpClient } from "@coinbase/cdp-sdk";

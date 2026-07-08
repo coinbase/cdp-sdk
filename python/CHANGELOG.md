@@ -2,6 +2,12 @@
 
 <!-- towncrier release notes start -->
 
+## [Unreleased]
+
+### Features
+
+- Added support for calling public (unauthenticated) OpenAPI endpoints without configuring API credentials. Missing credential errors are now raised at request time only for authenticated endpoints.
+
 ## [1.47.1] - 2026-06-18
 
 ### Bugfixes
