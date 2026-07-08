@@ -22,7 +22,7 @@ import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
 import { wrapFetchWithPayment } from "@x402/fetch";
 
 const X402_PAID_API_URL =
-  process.env.X402_API_URL ?? "https://x402.org/protected";
+  process.env.X402_API_URL ?? "https://x402.vercel.app/protected";
 
 const ACCOUNT_NAME = "x402-client-wallet-1";
 

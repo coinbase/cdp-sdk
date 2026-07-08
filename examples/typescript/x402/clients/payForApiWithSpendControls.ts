@@ -27,7 +27,7 @@ import { CdpX402Client, SpendControlError } from "@coinbase/cdp-sdk/x402";
 import { wrapFetchWithPayment } from "@x402/fetch";
 
 const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
-const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.org/protected";
+const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.vercel.app/protected";
 
 async function main() {
   const client = new CdpX402Client({

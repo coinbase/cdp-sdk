@@ -62,7 +62,7 @@ listens on http://localhost:8402 with a paid `GET /report` route.
 
 - `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, `CDP_WALLET_SECRET` — CDP credentials (see Prerequisites).
 - `X402_API_URL` — override the x402-protected URL the clients call. Defaults to
-  `https://x402.org/protected`.
+  `https://x402.vercel.app/protected`.
 - `X402_FUND_FROM_FAUCET` — set to `true` in `payForApi.ts` to auto-request USDC on startup.
 - `CDP_X402_RPC_URLS` — JSON object mapping CAIP-2 network IDs to RPC URLs, e.g.
   `{"eip155:8453":"https://base-mainnet.g.alchemy.com/v2/KEY"}`. Required for chains without a
