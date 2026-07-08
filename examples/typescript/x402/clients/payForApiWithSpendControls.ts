@@ -4,7 +4,7 @@
  * Pay for an x402-protected API with per-payment and cumulative spend caps.
  *
  * `CdpX402Client` accepts a `spendControls` option that wires SDK-managed
- * spend guardrails on top of the CDP-managed wallet:
+ * spend controls on top of the CDP-managed wallet:
  *
  * - `maxAmountPerPayment`   — hard per-payment cap
  * - `maxCumulativeSpend`    — rolling spend cap
@@ -17,16 +17,13 @@
  *   Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your .env
  *
  * Funding the wallet (Base Sepolia USDC):
- *   This client initializes lazily, so run `payForApi.ts` first to print and
- *   fund the wallet address (it shares the default account name). Fund via:
- *   - CDP Faucet (portal):  https://portal.cdp.coinbase.com -> "Onchain Tools" -> "Faucet"
- *   - Programmatically:     cdp.evm.requestFaucet({ address, network: "base-sepolia", token: "usdc" })
- *   The CDP faucet funds the same wallets the CDP x402 facilitator settles against.
+ *   This example prints its own wallet address via `getAddresses()` on startup.
+ *   Fund that address with USDC on Base Sepolia before paying. See the x402
+ *   examples README for funding options.
  */
 import "dotenv/config";
 
 import { CdpX402Client, SpendControlError } from "@coinbase/cdp-sdk/x402";
-import { wrapFetchWithPayment } from "@x402/fetch";
 
 const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
 const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.org/protected";
@@ -51,8 +48,11 @@ async function main() {
     },
   });
 
-  // Initialization is lazy — wallet provisioned on first payment.
-  const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+  // Eagerly provision the wallet so we can print (and fund) its address.
+  const { evmAddress } = await client.getAddresses();
+  console.log("Paying from:", evmAddress, "(fund with USDC on Base Sepolia first)");
+
+  const fetchWithPayment = client.wrapFetch();
 
   console.log(`Requesting (with spend controls): ${X402_PAID_API_URL}`);
   try {
