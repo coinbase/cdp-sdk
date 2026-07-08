@@ -95,8 +95,10 @@ export async function getAuthHeaders(
 ): Promise<Record<string, string>> {
   const headers: Record<string, string> = {};
 
-  // Content-Type describes the request body, not authentication, so set it for all requests
-  // (including public/unauthenticated operations).
+  /*
+   * Content-Type describes the request body, not authentication, so set it for all requests
+   * (including public/unauthenticated operations).
+   */
   headers["Content-Type"] = "application/json";
 
   if (!options.skipAuth) {
