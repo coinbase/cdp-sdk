@@ -156,7 +156,7 @@ describe("applySpendControls settlement reconciliation", () => {
     expect(await totalFor(resolved)).toBe(10_000n);
   });
 
-  it("does not reconcile a payload that did not originate from this client (identity-keyed)", async () => {
+  it("reconciles spend when the payload object is cloned before the response hook fires", async () => {
     const client = makeClient();
     const resolved = applySpendControls(client, {
       maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
@@ -165,12 +165,44 @@ describe("applySpendControls settlement reconciliation", () => {
     const payload = await client.createPaymentPayload(makeRequired("10000"));
     expect(await totalFor(resolved)).toBe(10_000n);
 
-    // A structurally-identical but distinct object is not the tracked payload, so
-    // rollback is a no-op — confirming reconciliation is keyed on object identity.
+    // Some transports (JSON round-trip, shallow spread, MCP tool wrappers) clone
+    // the payload object before passing it back through onPaymentResponse.
+    // The fingerprint fallback must still correctly reconcile the spend.
     await client.handlePaymentResponse({
       paymentPayload: { ...payload },
       requirements: payload.accepted as PaymentRequirements,
       settleResponse: { success: false } as never,
+    });
+
+    expect(await totalFor(resolved)).toBe(0n);
+  });
+
+  it("does not cross-reconcile two independent payments with different amounts", async () => {
+    const client = makeClient();
+    const resolved = applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
+    });
+
+    // Two separate payments — different amounts produce different fingerprints,
+    // so reconciling one must not accidentally affect the other.
+    const payload1 = await client.createPaymentPayload(makeRequired("10000"));
+    const payload2 = await client.createPaymentPayload(makeRequired("20000"));
+    expect(await totalFor(resolved)).toBe(30_000n);
+
+    // Roll back payment2 (via its clone). Payment1 must remain tracked.
+    await client.handlePaymentResponse({
+      paymentPayload: { ...payload2 },
+      requirements: payload2.accepted as PaymentRequirements,
+      settleResponse: { success: false } as never,
+    });
+
+    expect(await totalFor(resolved)).toBe(10_000n);
+
+    // Confirm payment1. Final total should remain 10_000.
+    await client.handlePaymentResponse({
+      paymentPayload: payload1,
+      requirements: payload1.accepted as PaymentRequirements,
+      settleResponse: { success: true } as never,
     });
 
     expect(await totalFor(resolved)).toBe(10_000n);

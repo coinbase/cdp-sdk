@@ -250,7 +250,65 @@ export function applySpendControls(
     return set;
   };
 
+  /*
+   * Dual-lookup structure for pending payments.
+   *
+   * `pendingByPayload` is the primary fast path keyed on object identity.
+   * `pendingByFingerprint` is the fallback keyed on payload content — it
+   * handles the case where a transport or wrapper clones the payload object
+   * before passing it back through `onPaymentResponse` (e.g. JSON round-trip,
+   * shallow spread). Without this, rollback/confirm would silently no-op on
+   * a cloned payload, leaving provisional spend permanently over-counted.
+   *
+   * A fingerprint is built from the canonically serialized `accepted`
+   * requirements and `payload` content. In production, x402 signatures always
+   * include a nonce (EIP-3009 nonce / Solana blockhash), so two independent
+   * payment operations for the same amount will produce distinct fingerprints.
+   * The queue handles the rare edge case of identical fingerprints gracefully
+   * by popping the oldest entry first.
+   */
   const pendingByPayload = new WeakMap<PaymentPayload, PendingPayment>();
+  const pendingByFingerprint = new Map<string, PendingPayment[]>();
+
+  const buildPayloadFingerprint = (p: PaymentPayload): string | null => {
+    try {
+      return JSON.stringify({ accepted: p.accepted, payload: p.payload });
+    } catch {
+      return null;
+    }
+  };
+
+  const registerPending = (paymentPayload: PaymentPayload, pending: PendingPayment): void => {
+    pendingByPayload.set(paymentPayload, pending);
+    const fp = buildPayloadFingerprint(paymentPayload);
+    if (fp === null) return;
+    const queue = pendingByFingerprint.get(fp);
+    if (queue) {
+      queue.push(pending);
+    } else {
+      pendingByFingerprint.set(fp, [pending]);
+    }
+  };
+
+  const lookupPending = (paymentPayload: PaymentPayload): PendingPayment | undefined => {
+    const byIdentity = pendingByPayload.get(paymentPayload);
+    if (byIdentity !== undefined) return byIdentity;
+    const fp = buildPayloadFingerprint(paymentPayload);
+    if (fp === null) return undefined;
+    return pendingByFingerprint.get(fp)?.[0];
+  };
+
+  const unregisterPending = (paymentPayload: PaymentPayload, pending: PendingPayment): void => {
+    pendingByPayload.delete(paymentPayload);
+    const fp = buildPayloadFingerprint(paymentPayload);
+    if (fp === null) return;
+    const queue = pendingByFingerprint.get(fp);
+    if (!queue) return;
+    const idx = queue.indexOf(pending);
+    if (idx >= 0) queue.splice(idx, 1);
+    if (queue.length === 0) pendingByFingerprint.delete(fp);
+  };
+
   const localAssetMutex = new Map<string, Promise<unknown>>();
   const sharedStoreKey = controls.store as object | undefined;
   const localProvisionalAtomicByAsset = new Map<string, bigint>();
@@ -509,7 +567,7 @@ export function applySpendControls(
     const recordedEntry = readRecordedEntry(context as unknown as object);
     clearRecordedEntry(context as unknown as object);
     if (!recordedEntry) return;
-    pendingByPayload.set(context.paymentPayload, {
+    registerPending(context.paymentPayload, {
       entry: recordedEntry,
       notifyKey: normalizeAsset(context.selectedRequirements.asset),
       reqAsset: context.selectedRequirements.asset,
@@ -543,9 +601,9 @@ export function applySpendControls(
 
   const registry: SpendControlsRegistry = {
     async confirm(paymentPayload) {
-      const pending = pendingByPayload.get(paymentPayload);
+      const pending = lookupPending(paymentPayload);
       if (!pending) return;
-      pendingByPayload.delete(paymentPayload);
+      unregisterPending(paymentPayload, pending);
       const fired = await fireThresholdsForPayment(
         {
           asset: pending.reqAsset,
@@ -557,9 +615,9 @@ export function applySpendControls(
       pending.notifiedThresholds = fired;
     },
     async rollback(paymentPayload) {
-      const pending = pendingByPayload.get(paymentPayload);
+      const pending = lookupPending(paymentPayload);
       if (!pending) return;
-      pendingByPayload.delete(paymentPayload);
+      unregisterPending(paymentPayload, pending);
       await rollbackEntry(pending);
     },
   };
