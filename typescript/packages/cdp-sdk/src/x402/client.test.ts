@@ -429,5 +429,4 @@ describe("CdpX402Client", () => {
       );
     });
   });
-
 });
