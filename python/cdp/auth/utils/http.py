@@ -14,8 +14,8 @@ class GetAuthHeadersOptions(BaseModel):
     """Options for generating authentication headers.
 
     Attributes:
-        api_key_id - The API key ID
-        api_key_secret - The API key secret
+        api_key_id - The API key ID. Not required when skip_auth is True.
+        api_key_secret - The API key secret. Not required when skip_auth is True.
         request_method - The HTTP method
         request_host - The request host
         request_path - The request path
@@ -25,11 +25,13 @@ class GetAuthHeadersOptions(BaseModel):
         [source_version] - Optional source version
         [expires_in] - Optional JWT expiration time in seconds
         [audience] - Optional audience claim for the JWT
+        [skip_auth] - When True, skips the JWT Authorization and X-Wallet-Auth headers entirely.
+            Used for public (unauthenticated) operations.
 
     """
 
-    api_key_id: str = Field(..., description="The API key ID")
-    api_key_secret: str = Field(..., description="The API key secret")
+    api_key_id: str | None = Field(None, description="The API key ID")
+    api_key_secret: str | None = Field(None, description="The API key secret")
     request_method: str = Field(..., description="The HTTP method")
     request_host: str = Field(..., description="The request host")
     request_path: str = Field(..., description="The request path")
@@ -39,6 +41,7 @@ class GetAuthHeadersOptions(BaseModel):
     source_version: str | None = Field(None, description="Optional source version")
     expires_in: int | None = Field(None, description="Optional JWT expiration time in seconds")
     audience: list[str] | None = Field(None, description="Optional audience claim for the JWT")
+    skip_auth: bool = Field(False, description="Skip JWT/wallet auth headers for public endpoints")
 
 
 def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
@@ -53,39 +56,47 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
     """
     headers = {}
 
-    # Create JWT options
-    jwt_options = JwtOptions(
-        api_key_id=options.api_key_id,
-        api_key_secret=options.api_key_secret,
-        request_method=options.request_method,
-        request_host=options.request_host,
-        request_path=options.request_path,
-        expires_in=options.expires_in,
-        audience=options.audience,
-    )
-
-    # Generate and add JWT token
-    jwt_token = generate_jwt(jwt_options)
-    headers["Authorization"] = f"Bearer {jwt_token}"
-    headers["Content-Type"] = "application/json"
-
-    # Add wallet auth if needed
-    if _requires_wallet_auth(options.request_method, options.request_path):
-        if not options.wallet_secret:
+    if not options.skip_auth:
+        if not options.api_key_id or not options.api_key_secret:
             raise ValueError(
-                "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+                "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and "
+                "CDP_API_KEY_SECRET environment variables, or pass them as options to the "
+                "CdpClient constructor.",
             )
 
-        wallet_auth_token = generate_wallet_jwt(
-            WalletJwtOptions(
-                wallet_auth_key=options.wallet_secret,
-                request_method=options.request_method,
-                request_host=options.request_host,
-                request_path=options.request_path,
-                request_data=options.request_body or {},
-            )
+        # Create JWT options
+        jwt_options = JwtOptions(
+            api_key_id=options.api_key_id,
+            api_key_secret=options.api_key_secret,
+            request_method=options.request_method,
+            request_host=options.request_host,
+            request_path=options.request_path,
+            expires_in=options.expires_in,
+            audience=options.audience,
         )
-        headers["X-Wallet-Auth"] = wallet_auth_token
+
+        # Generate and add JWT token
+        jwt_token = generate_jwt(jwt_options)
+        headers["Authorization"] = f"Bearer {jwt_token}"
+        headers["Content-Type"] = "application/json"
+
+        # Add wallet auth if needed
+        if _requires_wallet_auth(options.request_method, options.request_path):
+            if not options.wallet_secret:
+                raise ValueError(
+                    "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+                )
+
+            wallet_auth_token = generate_wallet_jwt(
+                WalletJwtOptions(
+                    wallet_auth_key=options.wallet_secret,
+                    request_method=options.request_method,
+                    request_host=options.request_host,
+                    request_path=options.request_path,
+                    request_data=options.request_body or {},
+                )
+            )
+            headers["X-Wallet-Auth"] = wallet_auth_token
 
     # Add correlation data
     headers["Correlation-Context"] = _get_correlation_data(

@@ -126,4 +126,45 @@ describe("http utils", () => {
     expect(generateWalletJwt).not.toHaveBeenCalled();
     expect(headers["X-Wallet-Auth"]).toBeUndefined();
   });
+
+  it("should throw a clear error when credentials are missing and skipAuth is not set", async () => {
+    await expect(
+      getAuthHeaders({
+        ...defaultOptions,
+        apiKeyId: undefined,
+        apiKeySecret: undefined,
+      }),
+    ).rejects.toThrow("Missing required CDP API Key configuration");
+
+    expect(generateJwt).not.toHaveBeenCalled();
+  });
+
+  it("should skip JWT and wallet auth headers when skipAuth is true, even without credentials", async () => {
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      apiKeyId: undefined,
+      apiKeySecret: undefined,
+      requestMethod: "POST",
+      requestPath: "/v2/x402/discovery/mcp",
+      skipAuth: true,
+    });
+
+    expect(generateJwt).not.toHaveBeenCalled();
+    expect(generateWalletJwt).not.toHaveBeenCalled();
+    expect(headers["Authorization"]).toBeUndefined();
+    expect(headers["X-Wallet-Auth"]).toBeUndefined();
+    expect(headers["Correlation-Context"]).toBe(
+      `sdk_version=${version},sdk_language=typescript,source=sdk-auth`,
+    );
+  });
+
+  it("should skip auth even when credentials are present if skipAuth is true", async () => {
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      skipAuth: true,
+    });
+
+    expect(generateJwt).not.toHaveBeenCalled();
+    expect(headers["Authorization"]).toBeUndefined();
+  });
 });

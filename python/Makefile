@@ -86,4 +86,6 @@ python-client: check-openapi preprocess-openapi
 	@ openapi-generator generate -i ../openapi_preprocessed.yaml -g python -o cdp/openapi_client -c client_config.yaml -t templates --legacy-discriminator-behavior
 	@ if [ -d "cdp/openapi_client/cdp/openapi_client" ]; then cp -R cdp/openapi_client/cdp/openapi_client/* cdp/openapi_client/ && rm -rf cdp/openapi_client/cdp; fi
 	@ rm -rf cdp/openapi_client/docs
+	@ echo "Generating public operations lookup table..."
+	@ python3 ../scripts/generate_public_operations.py ../openapi.yaml
 	@ echo "OpenAPI client generation completed"

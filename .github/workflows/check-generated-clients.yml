@@ -6,11 +6,13 @@ on:
     paths:
       - "openapi.yaml"
       - "typescript/packages/cdp-sdk/src/openapi-client/generated/**"
+      - "typescript/packages/cdp-sdk/src/openapi-client/publicOperations.gen.ts"
       - "python/cdp/openapi_client/**"
       - "go/openapi/**"
       - "java/src/main/java/com/coinbase/cdp/openapi/**"
       - ".github/workflows/check-generated-clients.yml"
       - "scripts/preprocess_openapi.py" # Python preprocessing script
+      - "scripts/generate_public_operations.py" # Public (unauthenticated) operations lookup table generator
 
 permissions:
   contents: read
@@ -56,7 +58,8 @@ jobs:
       - name: Install Python dependencies for preprocessing
         run: |
           pip install --upgrade pip
-          # Install any dependencies needed for the preprocessing script
+          # Install any dependencies needed for the preprocessing and public-operations
+          # generator scripts (scripts/preprocess_openapi.py, scripts/generate_public_operations.py)
           pip install pyyaml || true
 
       # Go setup
@@ -139,7 +142,7 @@ jobs:
 
             # Show modified files with better formatting
             git diff --name-only | while read -r file; do
-              if [[ $file == typescript/packages/cdp-sdk/src/openapi-client/generated/* ]]; then
+              if [[ $file == typescript/packages/cdp-sdk/src/openapi-client/generated/* || $file == typescript/packages/cdp-sdk/src/openapi-client/publicOperations.gen.ts ]]; then
                 echo "  📝 TypeScript: $file"
               elif [[ $file == python/cdp/openapi_client/* ]]; then
                 echo "  🐍 Python: $file"
@@ -187,7 +190,7 @@ jobs:
           echo "## Detailed diff of changes:"
           echo ""
           echo "### TypeScript Changes:"
-          git diff --color=always -- 'typescript/packages/cdp-sdk/src/openapi-client/generated/**' || echo "No TypeScript changes"
+          git diff --color=always -- 'typescript/packages/cdp-sdk/src/openapi-client/generated/**' 'typescript/packages/cdp-sdk/src/openapi-client/publicOperations.gen.ts' || echo "No TypeScript changes"
           echo ""
           echo "### Python Changes:"
           git diff --color=always -- 'python/cdp/openapi_client/**' || echo "No Python changes"
@@ -243,6 +246,7 @@ jobs:
             To fix this issue:
             1. Revert any manual changes to files in:
                - \`typescript/packages/cdp-sdk/src/openapi-client/generated/\`
+               - \`typescript/packages/cdp-sdk/src/openapi-client/publicOperations.gen.ts\`
                - \`python/cdp/openapi_client/\`
                - \`go/openapi/\`
                - \`java/src/main/java/com/coinbase/cdp/openapi/\`

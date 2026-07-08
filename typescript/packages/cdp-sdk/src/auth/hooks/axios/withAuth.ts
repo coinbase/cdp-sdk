@@ -4,6 +4,7 @@
 
 import { AxiosInstance, AxiosHeaders } from "axios";
 
+import { isPublicOperation } from "../../../openapi-client/publicOperations.gen.js";
 import { convertBigIntsToStrings } from "../../../utils/bigint.js";
 import { getAuthHeaders } from "../../utils/http.js";
 
@@ -14,8 +15,10 @@ export interface AuthInterceptorOptions {
    * Examples:
    *  'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *  'organizations/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/apiKeys/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+   *
+   * Not required to call public (unauthenticated) endpoints.
    */
-  apiKeyId: string;
+  apiKeyId?: string;
 
   /**
    * The API key secret
@@ -23,8 +26,10 @@ export interface AuthInterceptorOptions {
    * Examples:
    *  'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==' (Edwards key (Ed25519))
    *  '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n' (EC key (ES256))
+   *
+   * Not required to call public (unauthenticated) endpoints.
    */
-  apiKeySecret: string;
+  apiKeySecret?: string;
 
   /** The Wallet Secret */
   walletSecret?: string;
@@ -67,7 +72,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
       axiosConfig.data = convertBigIntsToStrings(axiosConfig.data);
     }
 
-    // Get authentication headers
+    // Get authentication headers, skipping credential requirements for public endpoints
     const headers = await getAuthHeaders({
       apiKeyId: options.apiKeyId,
       apiKeySecret: options.apiKeySecret,
@@ -79,6 +84,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
       source: options.source,
       sourceVersion: options.sourceVersion,
       expiresIn: options.expiresIn,
+      skipAuth: isPublicOperation(method, url.pathname),
     });
 
     // Add headers to request config

@@ -72,6 +72,10 @@ export class CdpClient {
    *
    * To create a new Solana account, use `cdp.solana.createAccount()`.
    *
+   * The CDP Secret API Key is not required to call public (unauthenticated) endpoints, such as
+   * the x402 Bazaar discovery endpoints. A `CdpClient` may be constructed without credentials for
+   * this purpose; calling an authenticated endpoint without credentials will raise a clear error.
+   *
    * @param {CdpClientOptions} [options] - Configuration options for the CdpClient.
    */
   constructor(options: CdpClientOptions = {}) {
@@ -88,38 +92,11 @@ We recommend using https://github.com/Schniz/fnm for managing your Node.js versi
     const apiKeySecret = options.apiKeySecret ?? process.env.CDP_API_KEY_SECRET;
     const walletSecret = options.walletSecret ?? process.env.CDP_WALLET_SECRET;
 
-    if (!apiKeyId || !apiKeySecret) {
-      throw new Error(`
-\nMissing required CDP Secret API Key configuration parameters.
-
-You can set them as environment variables:
-
-CDP_API_KEY_ID=your-api-key-id
-CDP_API_KEY_SECRET=your-api-key-secret
-
-You can also pass them as options to the constructor:
-
-const cdp = new CdpClient({
-  apiKeyId: "your-api-key-id",
-  apiKeySecret: "your-api-key-secret",
-});
-
-If you're performing write operations, make sure to also set your wallet secret:
-
-CDP_WALLET_SECRET=your-wallet-secret
-
-This is also available as an option to the constructor:
-
-const cdp = new CdpClient({
-  apiKeyId: "your-api-key-id",
-  apiKeySecret: "your-api-key-secret",
-  walletSecret: "your-wallet-secret",
-});
-
-For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescript/README.md#api-keys.
-`);
-    }
-
+    /*
+     * apiKeyId/apiKeySecret are intentionally not required here: a CdpClient with no credentials
+     * can still call public (unauthenticated) endpoints. Authenticated endpoints will raise a
+     * clear error at request time if credentials are missing.
+     */
     CdpOpenApiClient.configure({
       ...options,
       apiKeyId,
@@ -130,8 +107,9 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
     });
 
     if (
-      process.env.DISABLE_CDP_ERROR_REPORTING !== "true" ||
-      process.env.DISABLE_CDP_USAGE_TRACKING !== "true"
+      apiKeyId &&
+      (process.env.DISABLE_CDP_ERROR_REPORTING !== "true" ||
+        process.env.DISABLE_CDP_USAGE_TRACKING !== "true")
     ) {
       Analytics.identifier = apiKeyId;
     }

@@ -107,6 +107,18 @@ describe("cdpApiClient", () => {
       );
     });
 
+    it("should allow configuring without credentials for public-only usage", () => {
+      configure({});
+
+      expect(withAuth).toHaveBeenCalledWith(
+        mockAxiosInstance,
+        expect.objectContaining({
+          apiKeyId: undefined,
+          apiKeySecret: undefined,
+        }),
+      );
+    });
+
     it("should use provided expiresIn value", () => {
       const options = {
         ...defaultOptions,
@@ -614,6 +626,25 @@ describe("cdpApiClient", () => {
         errorType: "unauthorized",
         errorMessage: "Forbidden. You don't have permission to access this resource.",
       });
+    });
+
+    it("should call a public endpoint successfully without ever calling configure()", async () => {
+      vi.resetModules();
+      const freshModule = await import("./cdpApiClient.js");
+
+      const responseData = { resources: [] };
+      (mockAxiosInstance as any).mockResolvedValueOnce({ data: responseData });
+
+      const result = await freshModule.cdpApiClient({
+        url: "/v2/x402/discovery/search",
+        method: "GET",
+      });
+
+      // A default (unauthenticated) axios instance is created lazily on first use.
+      expect(Axios.create).toHaveBeenCalledWith({
+        baseURL: "https://api.cdp.coinbase.com/platform",
+      });
+      expect(result).toEqual(responseData);
     });
 
     it("should handle network error with no message or code", async () => {

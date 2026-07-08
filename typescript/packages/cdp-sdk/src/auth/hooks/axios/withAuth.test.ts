@@ -215,6 +215,64 @@ describe("withAuth", () => {
     ).rejects.toThrow("URL is required for authentication");
   });
 
+  describe("public operations", () => {
+    it("should skip JWT generation for a public operation even without credentials", async () => {
+      const instance = withAuth(axiosInstance, {});
+
+      const response = await instance.request({
+        url: "https://api.example.com/v2/x402/discovery/search",
+        method: "GET",
+        headers: new AxiosHeaders(),
+      });
+
+      expect(generateJwt).not.toHaveBeenCalled();
+      const processedConfig = response.config;
+      expect(processedConfig.headers.get("Authorization")).toBeUndefined();
+      expect(processedConfig.headers.get("Correlation-Context")).toBeDefined();
+    });
+
+    it("should still authenticate a non-public operation when credentials are present", async () => {
+      const instance = withAuth(axiosInstance, options);
+
+      const response = await instance.request({
+        url: "https://api.example.com/v2/evm/accounts",
+        method: "GET",
+        headers: new AxiosHeaders(),
+      });
+
+      expect(generateJwt).toHaveBeenCalled();
+      expect(response.config.headers.get("Authorization")).toBe(`Bearer ${mockJWT}`);
+    });
+
+    it("should throw a clear error for a non-public operation without credentials", async () => {
+      const instance = withAuth(axiosInstance, {});
+
+      await expect(
+        instance.request({
+          url: "https://api.example.com/v2/evm/accounts",
+          method: "POST",
+          headers: new AxiosHeaders(),
+        }),
+      ).rejects.toThrow("Missing required CDP API Key configuration");
+    });
+
+    it("should skip auth for a public operation even when the base path includes a mount prefix like /platform", async () => {
+      // Mirrors real CdpOpenApiClient usage, where baseURL is "https://api.cdp.coinbase.com/platform"
+      // and generated functions pass a relative url like "/v2/x402/discovery/search".
+      axiosInstance.getUri = vi.fn(() => "https://api.cdp.coinbase.com/platform");
+      const instance = withAuth(axiosInstance, {});
+
+      const response = await instance.request({
+        url: "/v2/x402/discovery/search",
+        method: "GET",
+        headers: new AxiosHeaders(),
+      });
+
+      expect(generateJwt).not.toHaveBeenCalled();
+      expect(response.config.headers.get("Authorization")).toBeUndefined();
+    });
+  });
+
   describe("debug mode", () => {
     let requestInterceptor: any;
     let responseInterceptor: any;

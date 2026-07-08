@@ -38,42 +38,20 @@ class CdpClient:
             source (str, optional): The source. Defaults to SDK_DEFAULT_SOURCE.
             source_version (str, optional): The source version. Defaults to __version__.
 
+        Note:
+            The CDP Secret API Key is not required to call public (unauthenticated) endpoints,
+            such as the x402 Bazaar discovery endpoints. A CdpClient may be constructed without
+            credentials for this purpose; calling an authenticated endpoint without credentials
+            will raise a clear error.
+
         """
         api_key_id = api_key_id or os.getenv("CDP_API_KEY_ID") or os.getenv("CDP_API_KEY_NAME")
         api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
         wallet_secret = wallet_secret or os.getenv("CDP_WALLET_SECRET")
 
-        if not api_key_id or not api_key_secret:
-            raise ValueError("""
-\nMissing required CDP Secret API Key configuration parameters.
-
-You can set them as environment variables:
-
-CDP_API_KEY_ID=your-api-key-id
-CDP_API_KEY_SECRET=your-api-key-secret
-
-You can also pass them as options to the constructor:
-
-cdp = CdpClient(
-  api_key_id="your-api-key-id",
-  api_key_secret="your-api-key-secret",
-)
-
-If you're performing write operations, make sure to also set your wallet secret:
-
-CDP_WALLET_SECRET=your-wallet-secret
-
-This is also available as an option to the constructor:
-
-cdp = CdpClient(
-  api_key_id="your-api-key-id",
-  api_key_secret="your-api-key-secret",
-  wallet_secret="your-wallet-secret",
-)
-
-For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/README.md#api-keys.
-""")
-
+        # api_key_id/api_key_secret are intentionally not required here: a CdpClient with no
+        # credentials can still call public (unauthenticated) endpoints. Authenticated endpoints
+        # will raise a clear error at request time if credentials are missing.
         self.api_key_id = api_key_id
         self.api_key_secret = api_key_secret
         self.wallet_secret = wallet_secret
@@ -97,7 +75,7 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         self._webhooks = WebhooksClient(self.api_clients)
         self._closed = False
 
-        if (
+        if api_key_id and (
             os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true"
             or os.getenv("DISABLE_CDP_USAGE_TRACKING") != "true"
         ):

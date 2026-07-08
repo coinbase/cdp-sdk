@@ -10,7 +10,7 @@ import { config } from "../../openapi-client/cdpApiClient.js";
 export async function getBaseNodeRpcUrl(
   network: "base" | "base-sepolia",
 ): Promise<string | undefined> {
-  if (!config) {
+  if (!config || !config.apiKeyId || !config.apiKeySecret) {
     return;
   }
 

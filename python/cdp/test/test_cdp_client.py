@@ -5,6 +5,20 @@ import pytest
 from cdp import CdpClient
 
 
+def test_init_without_credentials_for_public_endpoint_only_usage(monkeypatch):
+    """Test that a CdpClient can be constructed without credentials."""
+    monkeypatch.delenv("CDP_API_KEY_ID", raising=False)
+    monkeypatch.delenv("CDP_API_KEY_NAME", raising=False)
+    monkeypatch.delenv("CDP_API_KEY_SECRET", raising=False)
+
+    client = CdpClient()
+
+    assert client.api_key_id is None
+    assert client.api_key_secret is None
+    assert client.cdp_api_client.api_key_id is None
+    assert client.cdp_api_client.api_key_secret is None
+
+
 def test_init_with_default_params():
     """Test initializing the client with default parameters."""
     api_key_id = "test_api_key_id"

@@ -16,8 +16,10 @@ export interface GetAuthHeadersOptions {
    * Examples:
    *  'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *  'organizations/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/apiKeys/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+   *
+   * Not required when `skipAuth` is true.
    */
-  apiKeyId: string;
+  apiKeyId?: string;
 
   /**
    * The API key secret
@@ -25,8 +27,10 @@ export interface GetAuthHeadersOptions {
    * Examples:
    *  'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==' (Edwards key (Ed25519))
    *  '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n' (EC key (ES256))
+   *
+   * Not required when `skipAuth` is true.
    */
-  apiKeySecret: string;
+  apiKeySecret?: string;
 
   /**
    * The HTTP method for the request (e.g. 'GET', 'POST')
@@ -72,6 +76,12 @@ export interface GetAuthHeadersOptions {
    * Optional audience claim for the JWT
    */
   audience?: string[];
+
+  /**
+   * When true, skips generating the JWT `Authorization` and `X-Wallet-Auth` headers entirely.
+   * Used for public (unauthenticated) operations, where credentials are not required.
+   */
+  skipAuth?: boolean;
 }
 
 /**
@@ -85,35 +95,43 @@ export async function getAuthHeaders(
 ): Promise<Record<string, string>> {
   const headers: Record<string, string> = {};
 
-  // Generate and add JWT token
-  const jwt = await generateJwt({
-    apiKeyId: options.apiKeyId,
-    apiKeySecret: options.apiKeySecret,
-    requestMethod: options.requestMethod,
-    requestHost: options.requestHost,
-    requestPath: options.requestPath,
-    expiresIn: options.expiresIn,
-    audience: options.audience,
-  });
-  headers["Authorization"] = `Bearer ${jwt}`;
-  headers["Content-Type"] = "application/json";
-
-  // Add wallet auth if needed
-  if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
-    if (!options.walletSecret) {
+  if (!options.skipAuth) {
+    if (!options.apiKeyId || !options.apiKeySecret) {
       throw new UserInputValidationError(
-        "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+        "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and CDP_API_KEY_SECRET environment variables, or pass them as options to the CdpClient constructor.",
       );
     }
 
-    const walletAuthToken = await generateWalletJwt({
-      walletSecret: options.walletSecret,
+    // Generate and add JWT token
+    const jwt = await generateJwt({
+      apiKeyId: options.apiKeyId,
+      apiKeySecret: options.apiKeySecret,
       requestMethod: options.requestMethod,
       requestHost: options.requestHost,
       requestPath: options.requestPath,
-      requestData: options.requestBody || {},
+      expiresIn: options.expiresIn,
+      audience: options.audience,
     });
-    headers["X-Wallet-Auth"] = walletAuthToken;
+    headers["Authorization"] = `Bearer ${jwt}`;
+    headers["Content-Type"] = "application/json";
+
+    // Add wallet auth if needed
+    if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
+      if (!options.walletSecret) {
+        throw new UserInputValidationError(
+          "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+        );
+      }
+
+      const walletAuthToken = await generateWalletJwt({
+        walletSecret: options.walletSecret,
+        requestMethod: options.requestMethod,
+        requestHost: options.requestHost,
+        requestPath: options.requestPath,
+        requestData: options.requestBody || {},
+      });
+      headers["X-Wallet-Auth"] = walletAuthToken;
+    }
   }
 
   // Add correlation data

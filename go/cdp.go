@@ -22,9 +22,9 @@ var (
 
 // ClientOptions contains configuration options for the CDP client.
 type ClientOptions struct {
-	// APIKeyID is the API key ID.
+	// APIKeyID is the API key ID. Not required to call public (unauthenticated) endpoints.
 	APIKeyID string
-	// APIKeySecret is the API key secret.
+	// APIKeySecret is the API key secret. Not required to call public (unauthenticated) endpoints.
 	APIKeySecret string
 	// WalletSecret is the wallet secret.
 	WalletSecret string
@@ -113,6 +113,16 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 		method := strings.ToUpper(req.Method)
 		if method == "" {
 			method = "GET"
+		}
+
+		// Public (unauthenticated) operations, as declared by the `security` field in
+		// openapi.yaml, don't require credentials and skip JWT generation entirely.
+		if openapi.IsPublicOperation(method, req.URL.Path) {
+			return nil
+		}
+
+		if options.APIKeyID == "" || options.APIKeySecret == "" {
+			return fmt.Errorf("missing required CDP API Key configuration: APIKeyID and APIKeySecret must both be set")
 		}
 
 		jwtOptions := auth.JwtOptions{

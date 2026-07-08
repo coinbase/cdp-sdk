@@ -44,6 +44,24 @@ describe("CdpClient", () => {
     expect(client.solana).toBeInstanceOf(SolanaClient);
   });
 
+  it("should allow construction without credentials for public-endpoint-only usage", () => {
+    const originalApiKeyId = process.env.CDP_API_KEY_ID;
+    const originalApiKeySecret = process.env.CDP_API_KEY_SECRET;
+    delete process.env.CDP_API_KEY_ID;
+    delete process.env.CDP_API_KEY_SECRET;
+
+    expect(() => new CdpClient()).not.toThrow();
+    expect(CdpOpenApiClient.configure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        apiKeyId: undefined,
+        apiKeySecret: undefined,
+      }),
+    );
+
+    if (originalApiKeyId !== undefined) process.env.CDP_API_KEY_ID = originalApiKeyId;
+    if (originalApiKeySecret !== undefined) process.env.CDP_API_KEY_SECRET = originalApiKeySecret;
+  });
+
   describe("Node.js version check", () => {
     it("should throw an error if the Node.js version is less than 19", () => {
       const originalNodeVersion = process.versions.node;
