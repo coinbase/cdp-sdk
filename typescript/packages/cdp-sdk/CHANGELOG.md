@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.52.0
+
+### Minor Changes
+
+- [#744](https://github.com/coinbase/cdp-sdk/pull/744) [`26e9e07`](https://github.com/coinbase/cdp-sdk/commit/26e9e0727b1f9ec26894b1a6a4d49f28c5bb5378) Thanks [@0xRAG](https://github.com/0xRAG)! - Added custodial account support.
+
+  `CdpClient` exposes four new namespaces:
+  - **`client.accounts`** — create, get, and list custodial accounts and their balances
+  - **`client.depositDestinations`** — create, get, and list deposit destinations for an account
+  - **`client.paymentMethods`** — get and list payment methods for an account
+  - **`client.transfers`** — create, get, and list transfers; execute fund transfers and submit deposit travel-rule data
+
 ## 1.51.2
 
 ### Patch Changes
