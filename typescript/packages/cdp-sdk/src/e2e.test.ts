@@ -5204,6 +5204,10 @@ async function withLocalX402PaidResource<T>(
         price: options?.price ?? "$0.001",
         description: "Local e2e paid resource",
         networks: [X402_BASE_SEPOLIA_CAIP2],
+        // Suppress the auto-injected Bazaar extension: local test servers use
+        // http://localhost URLs which fail the extension's https:// requirement,
+        // causing a noisy-but-harmless "rejected" log from the facilitator.
+        extensions: { bazaar: null },
       },
     },
   });
@@ -5241,6 +5245,7 @@ describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
           price: "$0.001",
           description: "Round-trip e2e test",
           networks: [X402_BASE_SEPOLIA_CAIP2],
+          extensions: { bazaar: null },
         },
       },
     });
@@ -5365,6 +5370,7 @@ describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
           scheme: "upto",
           description: "upto round-trip e2e test",
           networks: [X402_BASE_SEPOLIA_CAIP2],
+          extensions: { bazaar: null },
         },
       },
     });
@@ -5406,19 +5412,22 @@ describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
 
 describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", () => {
   it("x402Client (batch-settlement) pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
-    const runSuffix = `${Date.now()}`;
-    const receiverAccountName = `x402-batch-receiver-${runSuffix}`;
-    const payerAccountName = `x402-batch-payer-${runSuffix}`;
+    // Reuse the shared funded payer so this test never needs its own faucet
+    // call — ensureX402DefaultEvmPayerFunded() tops it up along with all other
+    // CdpX402Client e2e tests. The receiver is a dedicated stable wallet that
+    // only receives payments and is never fauceted.
+    await ensureX402DefaultEvmPayerFunded();
 
     // Server: X402Server with a batch-settlement route on Base Sepolia.
     const x402Server = await createX402Server({
-      payToConfig: { type: "eoa", accountName: receiverAccountName },
+      payToConfig: { type: "eoa", accountName: "x402-batch-receiver" },
       routes: {
         "GET /ping": {
           price: "$0.001",
           scheme: "batch-settlement",
           description: "batch-settlement round-trip e2e test",
           networks: [X402_BASE_SEPOLIA_CAIP2],
+          extensions: { bazaar: null }, // Suppress the auto-injected Bazaar extension - facilitator rejects non-https URLs.
         },
       },
     });
@@ -5439,9 +5448,8 @@ describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", 
           // Client: raw x402Client with a CDP-backed BatchSettlementEvmScheme.
           const cdpClientForPayer = new CdpClient();
           const payerEvmAccount = await cdpClientForPayer.evm.getOrCreateAccount({
-            name: payerAccountName,
+            name: X402_CLIENT_DEFAULT_ACCOUNT_NAME,
           });
-          await ensureSufficientBaseSepoliaUsdcBalance(cdpClientForPayer, payerEvmAccount);
           const signer = fromCdpEvmAccount(payerEvmAccount);
 
           // Chain ID 84532 = Base Sepolia.
