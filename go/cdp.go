@@ -115,16 +115,20 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 			method = "GET"
 		}
 
-		// Public (unauthenticated) operations, as declared by the `security` field in
-		// openapi.yaml, don't require credentials and skip JWT generation entirely.
-		if openapi.IsPublicOperation(method, req.URL.Path) {
-			return nil
-		}
+		req.Header.Set("Content-Type", "application/json")
 
-		if options.APIKeyID == "" || options.APIKeySecret == "" {
+		hasCredentials := options.APIKeyID != "" && options.APIKeySecret != ""
+
+		if !hasCredentials {
+			if openapi.IsPublicOperation(method, req.URL.Path) {
+				return nil
+			}
 			return fmt.Errorf("missing required CDP API Key configuration: APIKeyID and APIKeySecret must both be set")
 		}
 
+		// Send the bearer token whenever credentials are available, even for public
+		// operations. This lets the server distinguish an authenticated caller from an
+		// anonymous one.
 		jwtOptions := auth.JwtOptions{
 			KeyID:         options.APIKeyID,
 			KeySecret:     options.APIKeySecret,
@@ -140,7 +144,6 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 		}
 
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwt))
-		req.Header.Set("Content-Type", "application/json")
 
 		return nil
 	}

@@ -31,7 +31,7 @@ async def test_calls_public_endpoint_without_credentials(mock_super_call_api):
 
 @pytest.mark.asyncio
 async def test_calls_public_endpoint_successfully_even_with_credentials(mock_super_call_api):
-    """A public operation should still work normally when credentials are configured."""
+    """A public operation should still send a bearer token when credentials are configured."""
     api_client = CdpApiClient(
         api_key_id="test-key-id",
         api_key_secret="test-key-secret",
@@ -39,13 +39,13 @@ async def test_calls_public_endpoint_successfully_even_with_credentials(mock_sup
     )
 
     with patch("cdp.openapi_client.cdp_api_client.get_auth_headers") as mock_get_headers:
-        mock_get_headers.return_value = {"Correlation-Context": "sdk_language=python"}
+        mock_get_headers.return_value = {"Authorization": "Bearer test-token"}
 
         await api_client.call_api(method="POST", url="/v2/x402/validate")
 
-        _, kwargs = mock_get_headers.call_args
         options = mock_get_headers.call_args.args[0]
-        assert options.skip_auth is True
+        assert options.api_key_id == "test-key-id"
+        assert options.api_key_secret == "test-key-secret"
 
 
 @pytest.mark.asyncio
@@ -72,4 +72,5 @@ async def test_still_authenticates_non_public_endpoint_with_credentials(mock_sup
         await api_client.call_api(method="GET", url="/v2/evm/accounts")
 
         options = mock_get_headers.call_args.args[0]
-        assert options.skip_auth is False
+        assert options.api_key_id == "test-key-id"
+        assert options.api_key_secret == "test-key-secret"

@@ -248,9 +248,8 @@ func TestApiKeyHeaderFnStillAuthenticatesPublicOperationsWhenCredentialsPresent(
 		t.Fatalf("apiKeyHeaderFn returned an unexpected error: %v", err)
 	}
 
-	// Public operations skip JWT generation entirely, even when credentials are configured.
-	if got := req.Header.Get("Authorization"); got != "" {
-		t.Errorf("expected no Authorization header for a public operation, got %q", got)
+	if got := req.Header.Get("Authorization"); got == "" {
+		t.Error("expected an Authorization header to be set for a public operation when credentials are present")
 	}
 }
 

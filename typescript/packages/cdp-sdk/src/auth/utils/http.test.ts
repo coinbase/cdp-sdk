@@ -155,7 +155,7 @@ describe("http utils", () => {
     expect(headers["X-Wallet-Auth"]).toBeUndefined();
   });
 
-  it("should throw a clear error when credentials are missing and skipAuth is not set", async () => {
+  it("should throw a clear error when credentials are missing for a non-public operation", async () => {
     await expect(
       getAuthHeaders({
         ...defaultOptions,
@@ -167,14 +167,13 @@ describe("http utils", () => {
     expect(generateJwt).not.toHaveBeenCalled();
   });
 
-  it("should skip JWT and wallet auth headers when skipAuth is true, even without credentials", async () => {
+  it("should skip JWT and wallet auth headers for a public operation when credentials are missing", async () => {
     const headers = await getAuthHeaders({
       ...defaultOptions,
       apiKeyId: undefined,
       apiKeySecret: undefined,
       requestMethod: "POST",
       requestPath: "/v2/x402/discovery/mcp",
-      skipAuth: true,
     });
 
     expect(generateJwt).not.toHaveBeenCalled();
@@ -186,13 +185,16 @@ describe("http utils", () => {
     );
   });
 
-  it("should skip auth even when credentials are present if skipAuth is true", async () => {
+  it("should still send a bearer token for a public operation when credentials are present", async () => {
+    // Sending the token even when it's not required lets the server distinguish an
+    // authenticated caller from an anonymous one.
     const headers = await getAuthHeaders({
       ...defaultOptions,
-      skipAuth: true,
+      requestMethod: "POST",
+      requestPath: "/v2/x402/discovery/mcp",
     });
 
-    expect(generateJwt).not.toHaveBeenCalled();
-    expect(headers["Authorization"]).toBeUndefined();
+    expect(generateJwt).toHaveBeenCalled();
+    expect(headers["Authorization"]).toBe(`Bearer ${mockJWT}`);
   });
 });

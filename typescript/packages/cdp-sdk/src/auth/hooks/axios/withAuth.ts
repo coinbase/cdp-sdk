@@ -4,7 +4,6 @@
 
 import { AxiosInstance, AxiosHeaders } from "axios";
 
-import { isPublicOperation } from "../../../openapi-client/publicOperations.gen.js";
 import { convertBigIntsToStrings } from "../../../utils/bigint.js";
 import { getAuthHeaders } from "../../utils/http.js";
 
@@ -72,7 +71,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
       axiosConfig.data = convertBigIntsToStrings(axiosConfig.data);
     }
 
-    // Get authentication headers, skipping credential requirements for public endpoints
+    // Get authentication headers
     const headers = await getAuthHeaders({
       apiKeyId: options.apiKeyId,
       apiKeySecret: options.apiKeySecret,
@@ -84,7 +83,6 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
       source: options.source,
       sourceVersion: options.sourceVersion,
       expiresIn: options.expiresIn,
-      skipAuth: isPublicOperation(method, url.pathname),
     });
 
     // Add headers to request config

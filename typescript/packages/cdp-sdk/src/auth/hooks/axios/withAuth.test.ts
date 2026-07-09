@@ -231,6 +231,21 @@ describe("withAuth", () => {
       expect(processedConfig.headers.get("Correlation-Context")).toBeDefined();
     });
 
+    it("should still send a bearer token for a public operation when credentials are present", async () => {
+      // Sending the token even when it's not required lets the server distinguish an
+      // authenticated caller from an anonymous one.
+      const instance = withAuth(axiosInstance, options);
+
+      const response = await instance.request({
+        url: "https://api.example.com/v2/x402/discovery/search",
+        method: "GET",
+        headers: new AxiosHeaders(),
+      });
+
+      expect(generateJwt).toHaveBeenCalled();
+      expect(response.config.headers.get("Authorization")).toBe(`Bearer ${mockJWT}`);
+    });
+
     it("should still authenticate a non-public operation when credentials are present", async () => {
       const instance = withAuth(axiosInstance, options);
 

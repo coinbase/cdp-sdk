@@ -8,14 +8,16 @@ from cdp.auth.utils.jwt import (
     generate_jwt,
     generate_wallet_jwt,
 )
+from cdp.openapi_client.public_operations import is_public_operation
 
 
 class GetAuthHeadersOptions(BaseModel):
     """Options for generating authentication headers.
 
     Attributes:
-        api_key_id - The API key ID. Not required when skip_auth is True.
-        api_key_secret - The API key secret. Not required when skip_auth is True.
+        api_key_id - The API key ID. Not required to call public (unauthenticated) endpoints.
+        api_key_secret - The API key secret. Not required to call public (unauthenticated)
+            endpoints.
         request_method - The HTTP method
         request_host - The request host
         request_path - The request path
@@ -25,8 +27,6 @@ class GetAuthHeadersOptions(BaseModel):
         [source_version] - Optional source version
         [expires_in] - Optional JWT expiration time in seconds
         [audience] - Optional audience claim for the JWT
-        [skip_auth] - When True, skips the JWT Authorization and X-Wallet-Auth headers entirely.
-            Used for public (unauthenticated) operations.
 
     """
 
@@ -41,7 +41,6 @@ class GetAuthHeadersOptions(BaseModel):
     source_version: str | None = Field(None, description="Optional source version")
     expires_in: int | None = Field(None, description="Optional JWT expiration time in seconds")
     audience: list[str] | None = Field(None, description="Optional audience claim for the JWT")
-    skip_auth: bool = Field(False, description="Skip JWT/wallet auth headers for public endpoints")
 
 
 def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
@@ -60,15 +59,20 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
     # (including public/unauthenticated operations).
     headers["Content-Type"] = "application/json"
 
-    if not options.skip_auth:
-        if not options.api_key_id or not options.api_key_secret:
-            raise ValueError(
-                "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and "
-                "CDP_API_KEY_SECRET environment variables, or pass them as options to the "
-                "CdpClient constructor.",
-            )
+    has_credentials = bool(options.api_key_id and options.api_key_secret)
 
-        # Create JWT options
+    if not has_credentials and not is_public_operation(
+        options.request_method, options.request_path
+    ):
+        raise ValueError(
+            "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and "
+            "CDP_API_KEY_SECRET environment variables, or pass them as options to the "
+            "CdpClient constructor.",
+        )
+
+    # Send the bearer token whenever credentials are available, even for public operations.
+    # This lets the server distinguish an authenticated caller from an anonymous one.
+    if has_credentials:
         jwt_options = JwtOptions(
             api_key_id=options.api_key_id,
             api_key_secret=options.api_key_secret,

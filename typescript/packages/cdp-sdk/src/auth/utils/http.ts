@@ -4,6 +4,7 @@
 
 import { generateWalletJwt, generateJwt } from "./jwt.js";
 import { UserInputValidationError } from "../../errors.js";
+import { isPublicOperation } from "../../openapi-client/publicOperations.gen.js";
 import { version } from "../../version.js";
 
 /**
@@ -17,7 +18,7 @@ export interface GetAuthHeadersOptions {
    *  'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *  'organizations/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/apiKeys/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *
-   * Not required when `skipAuth` is true.
+   * Not required to call public (unauthenticated) endpoints. See `isPublicOperation`.
    */
   apiKeyId?: string;
 
@@ -28,7 +29,7 @@ export interface GetAuthHeadersOptions {
    *  'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==' (Edwards key (Ed25519))
    *  '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n' (EC key (ES256))
    *
-   * Not required when `skipAuth` is true.
+   * Not required to call public (unauthenticated) endpoints. See `isPublicOperation`.
    */
   apiKeySecret?: string;
 
@@ -76,12 +77,6 @@ export interface GetAuthHeadersOptions {
    * Optional audience claim for the JWT
    */
   audience?: string[];
-
-  /**
-   * When true, skips generating the JWT `Authorization` and `X-Wallet-Auth` headers entirely.
-   * Used for public (unauthenticated) operations, where credentials are not required.
-   */
-  skipAuth?: boolean;
 }
 
 /**
@@ -101,17 +96,22 @@ export async function getAuthHeaders(
    */
   headers["Content-Type"] = "application/json";
 
-  if (!options.skipAuth) {
-    if (!options.apiKeyId || !options.apiKeySecret) {
-      throw new UserInputValidationError(
-        "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and CDP_API_KEY_SECRET environment variables, or pass them as options to the CdpClient constructor.",
-      );
-    }
+  const hasCredentials = Boolean(options.apiKeyId && options.apiKeySecret);
 
-    // Generate and add JWT token
+  if (!hasCredentials && !isPublicOperation(options.requestMethod, options.requestPath)) {
+    throw new UserInputValidationError(
+      "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and CDP_API_KEY_SECRET environment variables, or pass them as options to the CdpClient constructor.",
+    );
+  }
+
+  /*
+   * Send the bearer token whenever credentials are available, even for public operations.
+   * This lets the server distinguish an authenticated caller from an anonymous one.
+   */
+  if (hasCredentials) {
     const jwt = await generateJwt({
-      apiKeyId: options.apiKeyId,
-      apiKeySecret: options.apiKeySecret,
+      apiKeyId: options.apiKeyId!,
+      apiKeySecret: options.apiKeySecret!,
       requestMethod: options.requestMethod,
       requestHost: options.requestHost,
       requestPath: options.requestPath,

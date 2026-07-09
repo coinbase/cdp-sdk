@@ -8,9 +8,8 @@ from cdp.openapi_client.api_client import ApiClient
 from cdp.openapi_client.api_response import ApiResponse, T as ApiResponseT
 from cdp.openapi_client.configuration import Configuration
 from cdp.openapi_client.constants import ERROR_DOCS_PAGE_URL, SDK_DEFAULT_SOURCE
-from cdp.openapi_client.errors import ApiError, NetworkError, HttpErrorType, is_openapi_error
+from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError, is_openapi_error
 from cdp.openapi_client.exceptions import ApiException
-from cdp.openapi_client.public_operations import is_public_operation
 
 
 class CdpApiClient(ApiClient):
@@ -70,10 +69,6 @@ class CdpApiClient(ApiClient):
             url if url.startswith("http") else self.configuration.host + url
         )
 
-        # Public (unauthenticated) operations, as declared by openapi.yaml, don't require
-        # credentials and skip JWT/wallet auth entirely.
-        is_public = is_public_operation(method, parsed_url.path)
-
         # Get auth headers
         auth_headers = get_auth_headers(
             GetAuthHeadersOptions(
@@ -86,7 +81,6 @@ class CdpApiClient(ApiClient):
                 wallet_secret=self.wallet_secret,
                 source=self.source,
                 source_version=self.source_version,
-                skip_auth=is_public,
             )
         )
 
