@@ -46,6 +46,11 @@ import type {
 import type { ImportAccountOptions } from "./client/solana/solana.types.js";
 import { TimeoutError } from "./errors.js";
 import { APIError } from "./openapi-client/errors.js";
+import {
+  listX402DiscoveryResources,
+  searchX402Resources,
+  validateX402Resource,
+} from "./openapi-client/index.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
@@ -4269,6 +4274,73 @@ describe("CDP Client E2E Tests", () => {
         fetchSpy.mockRestore();
       }
     });
+  });
+});
+
+/*
+ * These tests construct their own CdpClient instances (rather than reusing `cdp` from the
+ * describe block above) because they need explicit control over whether CDP API credentials
+ * are configured. Since CdpClient configures a process-wide HTTP client singleton, each test
+ * (re-)configures it as needed, and the suite restores an authenticated configuration at the
+ * end so it doesn't leak into any other test file sharing the same worker process.
+ */
+describe("Unauthenticated (public) endpoint access", () => {
+  const basePathOptions: CdpClientOptions = process.env.E2E_BASE_PATH
+    ? { basePath: process.env.E2E_BASE_PATH }
+    : {};
+  const authenticatedOptions: CdpClientOptions = { ...basePathOptions };
+  // Explicit empty strings (rather than omitting the fields) prevent falling back to
+  // CDP_API_KEY_ID / CDP_API_KEY_SECRET environment variables that may be set for other e2e tests.
+  const unauthenticatedOptions: CdpClientOptions = {
+    ...basePathOptions,
+    apiKeyId: "",
+    apiKeySecret: "",
+  };
+
+  afterAll(() => {
+    new CdpClient(authenticatedOptions);
+  });
+
+  it("should call public x402 discovery endpoints (GET) with no CDP API credentials configured", async () => {
+    new CdpClient(unauthenticatedOptions);
+
+    const listResult = await listX402DiscoveryResources();
+    expect(listResult).toBeDefined();
+    expect(Array.isArray(listResult.items)).toBe(true);
+    expect(listResult.pagination).toBeDefined();
+
+    const searchResult = await searchX402Resources();
+    expect(searchResult).toBeDefined();
+    expect(Array.isArray(searchResult.resources)).toBe(true);
+  });
+
+  it("should call the public x402 validate endpoint (POST) with no CDP API credentials configured", async () => {
+    new CdpClient(unauthenticatedOptions);
+
+    const result = await validateX402Resource({ resource: "https://example.com" });
+
+    expect(result).toBeDefined();
+    expect(typeof result.valid).toBe("boolean");
+    expect(Array.isArray(result.preflight)).toBe(true);
+  });
+
+  it("should continue to allow public endpoint calls when CDP API credentials are configured", async () => {
+    new CdpClient(authenticatedOptions);
+
+    const listResult = await listX402DiscoveryResources();
+    expect(listResult).toBeDefined();
+    expect(Array.isArray(listResult.items)).toBe(true);
+  });
+
+  it("should raise a clear, actionable error when calling an authenticated endpoint with no CDP API credentials configured", async () => {
+    const unauthenticatedClient = new CdpClient(unauthenticatedOptions);
+
+    await expect(unauthenticatedClient.evm.listAccounts()).rejects.toThrowError(
+      expect.objectContaining({
+        name: "UserInputValidationError",
+        message: expect.stringContaining("Missing required CDP API Key configuration"),
+      }),
+    );
   });
 });
 
