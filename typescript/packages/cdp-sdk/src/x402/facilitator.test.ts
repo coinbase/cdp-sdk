@@ -230,4 +230,85 @@ describe("createCdpFacilitatorClient", () => {
       }
     });
   });
+
+  // ─── Custom baseUrl ─────────────────────────────────────────────────────────
+
+  describe("custom baseUrl", () => {
+    const STAGING_URL = "https://mock-staging-facilitator.example.com/platform/v2/x402";
+
+    it("configures the client with the custom base URL", () => {
+      createCdpFacilitatorClient({ baseUrl: STAGING_URL });
+      const config = getConstructorConfig();
+      expect(config.url).toBe(STAGING_URL);
+    });
+
+    it("derives the JWT host from the custom base URL", async () => {
+      createCdpFacilitatorClient({ baseUrl: STAGING_URL });
+      const config = getConstructorConfig();
+      await config.createAuthHeaders();
+
+      expect(mockGenerateJwt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestHost: "mock-staging-facilitator.example.com",
+        }),
+      );
+    });
+
+    it("derives JWT paths from the custom base URL pathname", async () => {
+      createCdpFacilitatorClient({ baseUrl: STAGING_URL });
+      const config = getConstructorConfig();
+      await config.createAuthHeaders();
+
+      expect(mockGenerateJwt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestPath: "/platform/v2/x402/verify",
+          requestHost: "mock-staging-facilitator.example.com",
+        }),
+      );
+      expect(mockGenerateJwt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestPath: "/platform/v2/x402/settle",
+          requestHost: "mock-staging-facilitator.example.com",
+        }),
+      );
+      expect(mockGenerateJwt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestPath: "/platform/v2/x402/supported",
+          requestHost: "mock-staging-facilitator.example.com",
+        }),
+      );
+    });
+
+    it("handles a base URL with a non-standard pathname", async () => {
+      createCdpFacilitatorClient({ baseUrl: "https://localhost:8080/x402" });
+      const config = getConstructorConfig();
+      expect(config.url).toBe("https://localhost:8080/x402");
+      await config.createAuthHeaders();
+
+      expect(mockGenerateJwt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestHost: "localhost:8080",
+          requestPath: "/x402/verify",
+        }),
+      );
+    });
+
+    it("strips a trailing slash from the base URL pathname before appending operation suffixes", async () => {
+      createCdpFacilitatorClient({
+        baseUrl: "https://mock-staging-facilitator.example.com/platform/v2/x402/",
+      });
+      const config = getConstructorConfig();
+      await config.createAuthHeaders();
+
+      expect(mockGenerateJwt).toHaveBeenCalledWith(
+        expect.objectContaining({ requestPath: "/platform/v2/x402/verify" }),
+      );
+    });
+
+    it("throws a clear error when baseUrl is not a valid URL", () => {
+      expect(() => createCdpFacilitatorClient({ baseUrl: "not-a-valid-url" })).toThrow(
+        /Invalid facilitator baseUrl/,
+      );
+    });
+  });
 });

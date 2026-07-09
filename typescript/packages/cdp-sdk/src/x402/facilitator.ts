@@ -9,14 +9,6 @@ import { version } from "../version.js";
 /** CDP facilitator base URL. */
 export const CDP_FACILITATOR_URL = "https://api.cdp.coinbase.com/platform/v2/x402";
 
-const CDP_API_HOST = "api.cdp.coinbase.com";
-
-const FACILITATOR_PATHS = {
-  verify: "/platform/v2/x402/verify",
-  settle: "/platform/v2/x402/settle",
-  supported: "/platform/v2/x402/supported",
-} as const;
-
 const SDK_METADATA = {
   sdkLanguage: "typescript",
   source: "cdp-sdk",
@@ -34,8 +26,52 @@ interface FacilitatorAuthHeaders {
   supported: Record<string, string>;
 }
 
+interface ResolvedFacilitatorEndpoints {
+  /** The URL passed to HTTPFacilitatorClient. */
+  url: string;
+  /** The hostname used for JWT audience binding. */
+  host: string;
+  /** Fully-qualified paths for each x402 operation. */
+  paths: {
+    verify: string;
+    settle: string;
+    supported: string;
+  };
+}
+
+/**
+ * Parses a base URL into the host and per-operation paths needed for JWT
+ * signing. Strips any trailing slash from the pathname before appending
+ * operation suffixes so the paths are always well-formed.
+ *
+ * @param baseUrl - The facilitator base URL to parse.
+ * @returns The resolved URL, JWT signing host, and per-operation paths.
+ * @throws {Error} If `baseUrl` is not a valid URL.
+ */
+const resolveFacilitatorEndpoints = (baseUrl: string): ResolvedFacilitatorEndpoints => {
+  let parsed: URL;
+  try {
+    parsed = new URL(baseUrl);
+  } catch {
+    throw new Error(
+      `Invalid facilitator baseUrl "${baseUrl}": must be a valid URL (e.g. "https://api.cdp.coinbase.com/platform/v2/x402").`,
+    );
+  }
+  const basePath = parsed.pathname.replace(/\/$/, "");
+  return {
+    url: baseUrl,
+    host: parsed.host,
+    paths: {
+      verify: `${basePath}/verify`,
+      settle: `${basePath}/settle`,
+      supported: `${basePath}/supported`,
+    },
+  };
+};
+
 const getEndpointAuthHeaders = async (
   credentials: FacilitatorCredentials,
+  host: string,
   path: string,
   method: "GET" | "POST" = "POST",
 ): Promise<Record<string, string>> => {
@@ -43,7 +79,7 @@ const getEndpointAuthHeaders = async (
     apiKeyId: credentials.apiKeyId,
     apiKeySecret: credentials.apiKeySecret,
     requestMethod: method,
-    requestHost: CDP_API_HOST,
+    requestHost: host,
     requestPath: path,
   });
 
@@ -59,12 +95,14 @@ const getEndpointAuthHeaders = async (
 
 const createCdpAuthHeaders = (
   credentials: FacilitatorCredentials,
+  host: string,
+  paths: ResolvedFacilitatorEndpoints["paths"],
 ): (() => Promise<FacilitatorAuthHeaders>) => {
   return async (): Promise<FacilitatorAuthHeaders> => {
     const [verify, settle, supported] = await Promise.all([
-      getEndpointAuthHeaders(credentials, FACILITATOR_PATHS.verify),
-      getEndpointAuthHeaders(credentials, FACILITATOR_PATHS.settle),
-      getEndpointAuthHeaders(credentials, FACILITATOR_PATHS.supported, "GET"),
+      getEndpointAuthHeaders(credentials, host, paths.verify),
+      getEndpointAuthHeaders(credentials, host, paths.settle),
+      getEndpointAuthHeaders(credentials, host, paths.supported, "GET"),
     ]);
     return { verify, settle, supported };
   };
@@ -82,6 +120,23 @@ export interface CdpFacilitatorClientArgs {
    * CDP API key secret. Falls back to the `CDP_API_KEY_SECRET` environment variable.
    */
   apiKeySecret?: string;
+  /**
+   * Override the facilitator base URL. Defaults to the CDP production endpoint
+   * (`https://api.cdp.coinbase.com/platform/v2/x402`).
+   *
+   * The hostname and per-operation paths are derived from this URL, so JWT
+   * signing is automatically bound to the correct host and paths. Use this
+   * to point at a staging, canary, or local facilitator without changing
+   * any other configuration.
+   *
+   * @example
+   * ```typescript
+   * const facilitator = createCdpFacilitatorClient({
+   *   baseUrl: "https://api.staging.cdp.coinbase.com/platform/v2/x402",
+   * });
+   * ```
+   */
+  baseUrl?: string;
 }
 
 /**
@@ -139,8 +194,10 @@ export function createCdpFacilitatorClient(args?: CdpFacilitatorClientArgs): HTT
 
   const credentials: FacilitatorCredentials = { apiKeyId: apiKeyId!, apiKeySecret: apiKeySecret! };
 
+  const { url, host, paths } = resolveFacilitatorEndpoints(args?.baseUrl ?? CDP_FACILITATOR_URL);
+
   return new HTTPFacilitatorClient({
-    url: CDP_FACILITATOR_URL,
-    createAuthHeaders: createCdpAuthHeaders(credentials),
+    url,
+    createAuthHeaders: createCdpAuthHeaders(credentials, host, paths),
   });
 }

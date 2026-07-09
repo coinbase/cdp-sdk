@@ -187,6 +187,31 @@ function selectAcceptedPaymentRequired(
 }
 
 /**
+ * Throws with an actionable message when an EVM payment requirement targets a
+ * chain that has no configured RPC URL in the resolved map.
+ *
+ * Without an RPC, the x402 EVM scheme cannot sign or submit the payment
+ * transaction. The CDP defaults cover the most common chains; less common
+ * chains require an explicit RPC via `CDP_X402_RPC_URLS` or `rpcUrls`.
+ *
+ * @param network - The CAIP-2 network string from the selected requirement.
+ * @param rpcUrlsByChainId - The resolved chain-ID-to-RPC-URL map.
+ */
+function assertEvmRpcConfigured(
+  network: string,
+  rpcUrlsByChainId: Record<number, { rpcUrl: string }>,
+): void {
+  const chainId = Number(network.split(":")[1]);
+  if (!Number.isNaN(chainId) && rpcUrlsByChainId[chainId] === undefined) {
+    throw new Error(
+      `No RPC URL configured for ${network}. ` +
+        `Provide one via CDP_X402_RPC_URLS='{"${network}":"https://your-rpc-url"}' ` +
+        `or rpcUrls: { "${network}": { rpcUrl: "https://your-rpc-url" } } in the SDK configuration.`,
+    );
+  }
+}
+
+/**
  * Resolves a per-network RPC URL override for SVM signing from
  * `CDP_X402_RPC_URLS`, keyed by the selected requirement's CAIP-2 network.
  *
@@ -220,6 +245,8 @@ export async function signEvmX402Payment(
     options.acceptedIndex,
     EVM_SIGNING_CAPABILITY,
   );
+  const [selected] = selectedPaymentRequired.accepts;
+  assertEvmRpcConfigured(selected.network, rpcUrlsByChainId);
   const client = new x402Client();
   registerExactEvmScheme(client, { signer: account, schemeOptions: rpcUrlsByChainId });
   client.register("eip155:*" as Network, new UptoEvmScheme(account, rpcUrlsByChainId));
@@ -252,6 +279,7 @@ export async function signEvmSmartAccountX402Payment(
     EVM_SMART_ACCOUNT_SIGNING_CAPABILITY,
   );
   const [selected] = selectedPaymentRequired.accepts;
+  assertEvmRpcConfigured(selected.network, rpcUrlsByChainId);
   if (selected.extra?.assetTransferMethod === "permit2") {
     throw new Error(
       `acceptedIndex ${options.acceptedIndex} requires the Permit2 transfer method, which is ` +

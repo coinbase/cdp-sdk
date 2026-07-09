@@ -16,3 +16,12 @@ To run an example, use `pnpm tsx` followed by the path to the example file, for 
 ```bash
 pnpm tsx evm/createAccount.ts
 ```
+
+## x402 Payment Protocol
+
+Examples for paying for and gating x402-protected APIs with CDP-managed wallets live in [`x402/`](./x402). See the [x402 examples README](./x402/README.md) for setup, funding, and environment variables.
+
+- [`x402/clients/payForApi.ts`](./x402/clients/payForApi.ts) — pay for an x402-protected API with a CDP-managed wallet using `CdpX402Client`.
+- [`x402/clients/payForApiWithSpendControls.ts`](./x402/clients/payForApiWithSpendControls.ts) — the same flow with per-payment and cumulative spend caps, an `allowedNetworks` allowlist, and an `onApproachingLimit` callback.
+- [`x402/clients/x402DevMigration.ts`](./x402/clients/x402DevMigration.ts) — migrate from a self-managed private key to a CDP signer, shown two ways.
+- [`x402/servers/express`](./x402/servers/express) — an Express resource server that gates a paid route using `createX402Server` and the CDP-hosted facilitator.

@@ -36,7 +36,12 @@
 - [Webhooks](#webhooks)
   - [Create Subscription](#create-subscription)
 - [x402 Payment Protocol](#x402-payment-protocol)
-  - [CDP Dev: Sign an x402 payment payload directly](#cdp-dev-sign-an-x402-payment-payload-directly)
+  - [Pay for an x402-protected API](#pay-for-an-x402-protected-api)
+  - [Apply spend controls](#apply-spend-controls)
+  - [Gate an HTTP endpoint](#gate-an-http-endpoint)
+  - [Use the CDP-hosted facilitator](#use-the-cdp-hosted-facilitator)
+  - [Use a CDP wallet with an existing x402 client](#use-a-cdp-wallet-with-an-existing-x402-client)
+  - [Sign an x402 payment payload directly](#sign-an-x402-payment-payload-directly)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1631,9 +1636,123 @@ console.log(result.transactionSignature);
 
 ## x402 Payment Protocol
 
-CDP accounts can sign x402 payment payloads directly. Direct signing is useful when the payment payload needs to travel over non-HTTP transports such as gRPC metadata, MCP tool results, queues, or batch jobs.
+[x402](https://x402.org) is an open payment protocol that lets clients pay for HTTP requests using the `402 Payment Required` status code. The SDK ships x402 support in the `@coinbase/cdp-sdk/x402` subpath, which builds on top of the [`@x402`](https://www.npmjs.com/org/x402) packages:
 
-### CDP Dev: Sign an x402 payment payload directly
+- **Payment client** (`CdpX402Client`) — pay for x402-protected APIs with a CDP-managed wallet
+- **Spend controls** — SDK-managed guardrails (per-payment caps, cumulative caps, allowlists) for autonomous agents
+- **Resource server** (`createX402Server`) — add x402 payment gating to your HTTP endpoints
+- **Facilitator** (`createCdpFacilitatorClient`) — the CDP-hosted payment facilitator for verifying and settling payments
+- **Signer adapters** (`fromCdpEvmAccount`, `fromCdpSmartWallet`, `cdpSolanaAccountToSvmSigner`) — bridge CDP accounts into an existing `@x402` setup
+- **Direct signing** (`signX402Payment`) — sign a payment payload with a CDP account without an HTTP round-trip
+
+All entry points resolve `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and (where a wallet is required) `CDP_WALLET_SECRET` from environment variables, and accept explicit overrides via config. See the [x402 examples](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/x402) for complete, runnable programs.
+
+### Pay for an x402-protected API
+
+`CdpX402Client` extends `@x402/core`'s `x402Client` and auto-provisions a CDP-managed wallet on the first payment. Pass it to `wrapFetchWithPayment` from `@x402/fetch` to transparently pay for `402`-gated requests.
+
+```typescript
+import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
+import { wrapFetchWithPayment } from "@x402/fetch";
+
+// Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your environment.
+const client = new CdpX402Client();
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+
+const response = await fetchWithPayment("https://api.example.com/report");
+```
+
+By default the client uses a CDP Server Wallet (EOA). To pay from a CDP Smart Account instead, supply a `walletConfig`:
+
+```typescript
+const client = new CdpX402Client({
+  walletConfig: {
+    type: "smart",
+    accountName: "my-smart-wallet",
+    ownerAccountName: "my-owner",
+  },
+});
+```
+
+### Apply spend controls
+
+Attach `spendControls` to `CdpX402Client` to enforce per-payment and cumulative caps, restrict networks/assets/payees, and receive callbacks as spend approaches a limit. A blocked payment throws a `SpendControlError` with a machine-readable `code`.
+
+```typescript
+import { CdpX402Client, SpendControlError } from "@coinbase/cdp-sdk/x402";
+
+const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
+
+const client = new CdpX402Client({
+  spendControls: {
+    maxAmountPerPayment: { atomic: 10_000n, asset: USDC_BASE },
+    maxCumulativeSpend: { atomic: 50_000n, asset: USDC_BASE },
+    maxCumulativeSpendWindow: "24h",
+    allowedNetworks: ["eip155:8453"],
+    onApproachingLimit: (spent, limit) => {
+      const pct = (Number(spent.atomic) / Number(limit.atomic)) * 100;
+      console.warn(`Approaching spend limit: ${pct.toFixed(0)}% of cap used`);
+    },
+  },
+});
+```
+
+Spend controls can also be applied to any `@x402/core` client directly via `applySpendControls(client, controls)`. Provide a persistent `SpendStore` (via the `store` option) if you need the cumulative ledger to survive process restarts — the default store is in-memory.
+
+### Gate an HTTP endpoint
+
+`createX402Server` provisions a receiver wallet and returns a server descriptor you can hand to an `@x402` HTTP middleware (for example `@x402/express`).
+
+```typescript
+import { createX402Server } from "@coinbase/cdp-sdk/x402";
+import { paymentMiddlewareFromHTTPServer } from "@x402/express";
+
+// Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your environment.
+const server = await createX402Server({
+  routes: { "GET /report": { price: "$0.01", description: "AI-generated report" } },
+});
+
+app.use(paymentMiddlewareFromHTTPServer(server));
+console.log("Receiving EVM payments at", server.payToEvmAddress);
+```
+
+### Use the CDP-hosted facilitator
+
+`createCdpFacilitatorClient` returns a CDP-authenticated `HTTPFacilitatorClient` that verifies and settles payments through the CDP-hosted facilitator. It is a drop-in replacement for a self-hosted facilitator and only needs API-key credentials (no wallet secret).
+
+```typescript
+import { createCdpFacilitatorClient } from "@coinbase/cdp-sdk/x402";
+import { x402ResourceServer } from "@x402/core/server";
+import { ExactEvmScheme } from "@x402/evm/exact/server";
+
+// Set CDP_API_KEY_ID and CDP_API_KEY_SECRET in your environment.
+const facilitator = createCdpFacilitatorClient();
+
+const server = new x402ResourceServer(facilitator).register("eip155:8453", new ExactEvmScheme());
+```
+
+### Use a CDP wallet with an existing x402 client
+
+If you already have an `@x402` client set up, use the signer adapters to sign with a CDP-managed account instead of a local private key.
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { fromCdpEvmAccount } from "@coinbase/cdp-sdk/x402";
+import { x402Client } from "@x402/core/client";
+import { registerExactEvmScheme } from "@x402/evm/exact/client";
+
+const cdp = new CdpClient();
+const account = await cdp.evm.getOrCreateAccount({ name: "my-signer" });
+
+const client = new x402Client();
+registerExactEvmScheme(client, { signer: fromCdpEvmAccount(account) });
+```
+
+Use `fromCdpSmartWallet` for a CDP Smart Account and `cdpSolanaAccountToSvmSigner` for a CDP Solana account.
+
+### Sign an x402 payment payload directly
+
+CDP accounts can also sign x402 payment payloads directly. Direct signing is useful when the payment payload needs to travel over non-HTTP transports such as gRPC metadata, MCP tool results, queues, or batch jobs.
 
 Use `signX402Payment(paymentRequired, acceptedIndex)` on any CDP-managed EVM account, EVM smart account, or Solana account. `paymentRequired` is the x402 payment requirement object returned by a resource server. `acceptedIndex` selects which entry in `paymentRequired.accepts` to sign.
 

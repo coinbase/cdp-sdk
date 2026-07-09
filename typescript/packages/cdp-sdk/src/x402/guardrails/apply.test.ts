@@ -156,7 +156,7 @@ describe("applySpendControls settlement reconciliation", () => {
     expect(await totalFor(resolved)).toBe(10_000n);
   });
 
-  it("does not reconcile a payload that did not originate from this client (identity-keyed)", async () => {
+  it("reconciles spend when the payload object is cloned before the response hook fires", async () => {
     const client = makeClient();
     const resolved = applySpendControls(client, {
       maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
@@ -165,15 +165,69 @@ describe("applySpendControls settlement reconciliation", () => {
     const payload = await client.createPaymentPayload(makeRequired("10000"));
     expect(await totalFor(resolved)).toBe(10_000n);
 
-    // A structurally-identical but distinct object is not the tracked payload, so
-    // rollback is a no-op — confirming reconciliation is keyed on object identity.
+    // Some transports (JSON round-trip, shallow spread, MCP tool wrappers) clone
+    // the payload object before passing it back through onPaymentResponse.
+    // The fingerprint fallback must still correctly reconcile the spend.
     await client.handlePaymentResponse({
       paymentPayload: { ...payload },
       requirements: payload.accepted as PaymentRequirements,
       settleResponse: { success: false } as never,
     });
 
+    expect(await totalFor(resolved)).toBe(0n);
+  });
+
+  it("does not cross-reconcile two independent payments with different amounts", async () => {
+    const client = makeClient();
+    const resolved = applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
+    });
+
+    // Two separate payments — different amounts produce different fingerprints,
+    // so reconciling one must not accidentally affect the other.
+    const payload1 = await client.createPaymentPayload(makeRequired("10000"));
+    const payload2 = await client.createPaymentPayload(makeRequired("20000"));
+    expect(await totalFor(resolved)).toBe(30_000n);
+
+    // Roll back payment2 (via its clone). Payment1 must remain tracked.
+    await client.handlePaymentResponse({
+      paymentPayload: { ...payload2 },
+      requirements: payload2.accepted as PaymentRequirements,
+      settleResponse: { success: false } as never,
+    });
+
     expect(await totalFor(resolved)).toBe(10_000n);
+
+    // Confirm payment1. Final total should remain 10_000.
+    await client.handlePaymentResponse({
+      paymentPayload: payload1,
+      requirements: payload1.accepted as PaymentRequirements,
+      settleResponse: { success: true } as never,
+    });
+
+    expect(await totalFor(resolved)).toBe(10_000n);
+  });
+});
+
+describe("@x402/core internal assumption", () => {
+  // applySpendControls pins its spend-cap hook last by reaching into the client's
+  // private `beforePaymentCreationHooks` array (see pinGuardrailsBeforeHookLast in
+  // apply.ts). This test documents that assumption: if a future @x402/core version
+  // renames or removes the field, this fails when the dependency is bumped, prompting
+  // us to revisit the pinning logic (which otherwise degrades to a runtime warning).
+  it("x402Client exposes a beforePaymentCreationHooks array that onBeforePaymentCreation appends to", () => {
+    const client = new x402Client();
+    const hooks = (client as unknown as { beforePaymentCreationHooks?: unknown[] })
+      .beforePaymentCreationHooks;
+
+    expect(Array.isArray(hooks)).toBe(true);
+
+    const before = (hooks as unknown[]).length;
+    const hook = async (): Promise<undefined> => undefined;
+    client.onBeforePaymentCreation(hook);
+
+    expect((hooks as unknown[]).length).toBe(before + 1);
+    expect((hooks as unknown[])[before]).toBe(hook);
   });
 });
 

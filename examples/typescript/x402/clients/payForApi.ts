@@ -11,15 +11,9 @@
  *   Set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET in your .env
  *
  * Funding the wallet (Base Sepolia USDC):
- *   The example prints its EVM address on startup. Fund it before paying via:
- *   - CDP Faucet (portal):  https://portal.cdp.coinbase.com -> "Onchain Tools" -> "Faucet"
- *   - Programmatically:     cdp.evm.requestFaucet({ address, network: "base-sepolia", token: "usdc" })
- *   Set X402_FUND_FROM_FAUCET=true to have this example auto-request USDC from
- *   the CDP faucet on startup. The CDP faucet funds the same wallets the CDP
- *   x402 facilitator settles against — no separate faucet needed.
- *
- * Optional overrides:
- *   CDP_X402_RPC_URLS       - JSON map of CAIP-2 IDs to RPC URLs
+ *   The example prints its EVM address on startup. Fund it before paying — or
+ *   set X402_FUND_FROM_FAUCET=true to auto-request USDC from the CDP faucet on
+ *   startup. See the x402 examples README for funding options and env vars.
  */
 import "dotenv/config";
 
@@ -28,7 +22,7 @@ import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
 import { wrapFetchWithPayment } from "@x402/fetch";
 
 const X402_PAID_API_URL =
-  process.env.X402_API_URL ?? "https://x402.org/protected";
+  process.env.X402_API_URL ?? "https://x402.vercel.app/protected";
 
 const ACCOUNT_NAME = "x402-client-wallet-1";
 

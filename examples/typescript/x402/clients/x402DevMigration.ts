@@ -31,7 +31,7 @@ import { wrapFetchWithPayment } from "@x402/fetch";
 import { x402Client } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 
-const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.org/protected";
+const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.vercel.app/protected";
 
 /**
  * Logs the outcome of a payment attempt, with a funding hint on a 402.

@@ -76,6 +76,9 @@ export interface CdpX402ClientConfig {
    * CAIP-2 network identifier.
    *
    * Falls back to `CDP_X402_RPC_URLS` env var (JSON object mapping CAIP-2 IDs to URL strings).
+   * RPC URLs are optional for core payload signing and are primarily used to
+   * backfill optional EVM extension capabilities (for example, gas sponsoring
+   * enrichment) and to override default network endpoints.
    */
   rpcUrls?: Partial<Record<string, { rpcUrl: string }>>;
 }

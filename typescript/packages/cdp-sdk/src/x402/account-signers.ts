@@ -6,18 +6,18 @@ import { toClientEvmSigner } from "@x402/evm";
 
 import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
 
+import type { EvmAccount } from "../accounts/evm/types.js";
+import type { SignTypedDataOptions } from "../client/evm/evm.types.js";
 import type { TransactionSigner } from "@solana/kit";
 import type { ClientEvmSigner } from "@x402/evm";
+import type { Hex } from "viem";
 
 /**
- * Minimal interface for a CDP EVM server account (EOA).
- * Matches the relevant methods from CdpClient's EvmServerAccount.
+ * The subset of a CDP EVM server account (EOA) required to sign x402 payments.
+ * Derived from the SDK's {@link EvmAccount} type so the adapter stays in sync
+ * with the real account surface.
  */
-export interface CdpEvmAccount {
-  address: `0x${string}`;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signTypedData(params: any): Promise<`0x${string}`>;
-}
+export type CdpEvmAccount = Pick<EvmAccount, "address" | "signTypedData">;
 
 /**
  * Converts a CDP EVM server account (EOA) into an x402-compatible signer.
@@ -32,13 +32,13 @@ export function fromCdpEvmAccount(account: CdpEvmAccount): ClientEvmSigner {
 // ─── Smart Contract Wallet Adapter ────────────────────────────────────────────
 
 /**
- * Minimal interface for a CDP Smart Account (EvmSmartAccount).
- * Matches the relevant methods from CdpClient's EvmSmartAccount.
+ * The subset of a CDP Smart Account (EvmSmartAccount) required to sign x402
+ * payments. Its `signTypedData` mirrors the SDK smart-account signature, which
+ * requires a `network` derived from the EIP-712 domain's `chainId`.
  */
 export interface CdpSmartAccount {
   address: `0x${string}`;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signTypedData(options: Record<string, any>): Promise<`0x${string}`>;
+  signTypedData(options: Omit<SignTypedDataOptions, "address"> & { network: string }): Promise<Hex>;
 }
 
 /**

@@ -199,14 +199,16 @@ describe("toNetworkScopedEvmSmartAccount", () => {
       expect(mockSmartAccount.signX402Payment).toHaveBeenCalledWith(matchingPayment, 0);
     });
 
-    it("skips the network check when the scoped network is an RPC URL", async () => {
+    it("validates the payment network using the chain resolved from an RPC URL scope", async () => {
+      // The mock resolves resolveViemClients to chain 8453 (Base) regardless of input.
+      // The payment targets "eip155:8453", so it matches the resolved scope — no error.
       const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
         smartAccount: mockSmartAccount,
         network: "https://custom-rpc.example.com",
         owner: mockOwner,
       });
 
-      const anyNetworkPayment: PaymentRequired = {
+      const matchingPayment: PaymentRequired = {
         x402Version: 2,
         resource: { url: "https://example.com/report" },
         accepts: [
@@ -222,8 +224,39 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         ],
       };
 
-      await account.signX402Payment(anyNetworkPayment, 0);
-      expect(mockSmartAccount.signX402Payment).toHaveBeenCalledWith(anyNetworkPayment, 0);
+      await account.signX402Payment(matchingPayment, 0);
+      expect(mockSmartAccount.signX402Payment).toHaveBeenCalledWith(matchingPayment, 0);
+    });
+
+    it("rejects a payment for a mismatched network even when the scope is an RPC URL", async () => {
+      // The mock resolves to chain 8453 (Base). A payment targeting "eip155:137"
+      // (Polygon) must be rejected — the RPC URL scope does not bypass the guard.
+      const account = await toNetworkScopedEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        network: "https://custom-rpc.example.com",
+        owner: mockOwner,
+      });
+
+      const wrongNetworkPayment: PaymentRequired = {
+        x402Version: 2,
+        resource: { url: "https://example.com/report" },
+        accepts: [
+          {
+            scheme: "exact",
+            network: "eip155:137", // Polygon — does not match Base (eip155:8453)
+            asset: "0xasset" as `0x${string}`,
+            amount: "1000",
+            payTo: "0xpayto" as `0x${string}`,
+            maxTimeoutSeconds: 60,
+            extra: {},
+          },
+        ],
+      };
+
+      await expect(account.signX402Payment(wrongNetworkPayment, 0)).rejects.toThrow(
+        'targets network "eip155:137" but this account is scoped to "https://custom-rpc.example.com" (eip155:8453)',
+      );
+      expect(mockSmartAccount.signX402Payment).not.toHaveBeenCalled();
     });
 
     it("should always include sendUserOperation", async () => {
