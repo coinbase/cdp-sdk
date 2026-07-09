@@ -105,16 +105,44 @@ describe("http utils", () => {
     expect(headers["X-Wallet-Auth"]).toBeUndefined();
   });
 
-  it("should require wallet auth for DELETE requests on accounts", async () => {
+  it("should require wallet auth for DELETE requests on wallet accounts", async () => {
     const headers = await getAuthHeaders({
       ...defaultOptions,
       requestMethod: "DELETE",
-      requestPath: "/accounts/123",
+      requestPath: "/v2/evm/accounts/0x1234567890123456789012345678901234567890",
       walletSecret: "test-wallet-secret",
     });
 
     expect(generateWalletJwt).toHaveBeenCalled();
     expect(headers["X-Wallet-Auth"]).toBe(mockWalletAuthToken);
+  });
+
+  it("should not require wallet auth for custodial /v2/accounts writes", async () => {
+    // The custodial account endpoint (POST /v2/accounts) authenticates with the
+    // API key alone — the spec declares apiKeyAuth and no X-Wallet-Auth param.
+    // A bare includes("/accounts") used to over-match it and force wallet auth.
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      requestMethod: "POST",
+      requestPath: "/v2/accounts",
+      walletSecret: "test-wallet-secret",
+    });
+
+    expect(generateWalletJwt).not.toHaveBeenCalled();
+    expect(headers["X-Wallet-Auth"]).toBeUndefined();
+  });
+
+  it("should not require wallet auth (or a secret) for custodial account creation without a wallet secret", async () => {
+    // Regression for the reported error: creating a custodial account without
+    // CDP_WALLET_SECRET set must NOT throw "Wallet Secret not configured".
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      requestMethod: "POST",
+      requestPath: "/v2/accounts",
+    });
+
+    expect(headers["Authorization"]).toBeDefined();
+    expect(headers["X-Wallet-Auth"]).toBeUndefined();
   });
 
   it("should not require wallet auth for GET requests", async () => {

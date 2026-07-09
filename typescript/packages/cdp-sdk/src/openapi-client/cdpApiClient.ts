@@ -59,6 +59,13 @@ export let config: Prettify<Omit<CdpOptions, "basePath"> & { basePath: string }>
   undefined;
 
 /**
+ * Returns the configured axios instance. `configure()` must be called first.
+ *
+ * @returns {AxiosInstance} The configured axios instance.
+ */
+export const getAxiosInstance = (): AxiosInstance => axiosInstance;
+
+/**
  * Configures the CDP client with the given options.
  *
  * @param {CdpOptions} options - The CDP options.

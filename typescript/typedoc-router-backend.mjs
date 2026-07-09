@@ -60,10 +60,16 @@ class BackendGroupRouter extends MemberRouter {
     const groups = this.getGroups(reflection);
     if (groups.size > 0) return groups.values().next().value;
 
-    // Use parent Module name as the group directory — this means @module Client
+    // Use the owning Module name as the group directory — this means @module Client
     // in a file automatically puts all exports in the Client/ directory.
-    if (reflection.parent?.kind === ReflectionKind.Module) {
-      return reflection.parent.name;
+    // Walk the full ancestor chain to the nearest Module so that members nested
+    // inside a `declare namespace` (whose immediate parent is a Namespace, not the
+    // Module) still resolve to their owning module instead of falling through to
+    // the kind-plural fallback and landing at the output root.
+    for (let ancestor = reflection.parent; ancestor; ancestor = ancestor.parent) {
+      if (ancestor.kind === ReflectionKind.Module) {
+        return ancestor.name;
+      }
     }
 
     if (reflection instanceof ReferenceReflection && this.groupReferencesByType) {
@@ -95,8 +101,11 @@ class BackendGroupRouter extends MemberRouter {
       return groupDir;
     }
 
-    // Nested within another declaration (e.g. class methods — anchors, not pages)
-    return `${this.getReflectionAlias(reflection.parent)}/${groupDir}`;
+    // Nested within another declaration (e.g. members of a `declare namespace`).
+    // Place them UNDER the owning module directory (groupDir), inside a subdir
+    // named for the immediate parent, so they fold beneath the module instead of
+    // creating a sibling top-level directory.
+    return `${groupDir}/${this.getReflectionAlias(reflection.parent)}`;
   }
 }
 
@@ -168,6 +177,29 @@ export function load(app) {
         }
       }
       rewriteLinks(outDir);
+    }
+
+    // De-duplicate identical module bullets in the root index.mdx. When a module is
+    // surfaced by more than one entry point (e.g. a resource's client `Client.ts` and
+    // its barrel `index.ts` both carry the same `@module` name), TypeDoc emits one
+    // bullet per entry point, all resolving to the same `<Module>/index` page. Collapse
+    // exact-duplicate `- [Label](url)` lines (keeping first occurrence) so the index
+    // lists each module once, matching the hand-written doc sets. No-op for sets whose
+    // index has no duplicate bullets.
+    const rootIndex = path.join(outDir, "index.mdx");
+    if (fs.existsSync(rootIndex)) {
+      const seen = new Set();
+      const deduped = fs
+        .readFileSync(rootIndex, "utf-8")
+        .split("\n")
+        .filter(line => {
+          if (!/^\s*[-*]\s+\[[^\]]+\]\([^)]+\)\s*$/.test(line)) return true;
+          if (seen.has(line)) return false;
+          seen.add(line);
+          return true;
+        })
+        .join("\n");
+      fs.writeFileSync(rootIndex, deduped, "utf-8");
     }
   });
 

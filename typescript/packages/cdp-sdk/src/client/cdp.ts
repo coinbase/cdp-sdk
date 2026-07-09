@@ -5,6 +5,7 @@ import { EndUserClient } from "./end-user/endUser.js";
 import { EvmClient } from "./evm/evm.js";
 import { PoliciesClient } from "./policies/policies.js";
 import { SolanaClient } from "./solana/solana.js";
+import { VendoredClient } from "./vendored.js";
 import { WebhooksClient } from "./webhooks/webhooks.js";
 
 export interface CdpClientOptions {
@@ -23,7 +24,7 @@ export interface CdpClientOptions {
 /**
  * The main client for interacting with the CDP API.
  */
-export class CdpClient {
+export class CdpClient extends VendoredClient {
   /** Namespace containing all EVM methods. */
   public evm: EvmClient;
 
@@ -104,6 +105,19 @@ We recommend using https://github.com/Schniz/fnm for managing your Node.js versi
       walletSecret,
       source: "sdk",
       sourceVersion: version,
+    });
+
+    /*
+     * Map CdpClient construction onto the generated CoinbaseApiClient convention.
+     * This must run after configure() (so the axios instance is ready) and before
+     * any `this` access below.
+     */
+    super({
+      apiKeyId,
+      apiKeySecret,
+      walletSecret,
+      basePath: options.basePath,
+      debugging: options.debugging,
     });
 
     if (

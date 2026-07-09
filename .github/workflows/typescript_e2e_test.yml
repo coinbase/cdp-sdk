@@ -47,6 +47,8 @@ jobs:
           CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
           CDP_E2E_SMART_ACCOUNT_ADDRESS: ${{ vars.CDP_E2E_SMART_ACCOUNT_ADDRESS }}
           CDP_E2E_SOLANA_RPC_URL: ${{ secrets.CDP_E2E_SOLANA_RPC_URL }}
+          CDP_E2E_FOUNDATION_ACCOUNT_ID: ${{ secrets.CDP_E2E_FOUNDATION_ACCOUNT_ID }}
+          E2E_BASE_PATH: ${{ secrets.E2E_BASE_PATH }}
           E2E_LOGGING: true
           DISABLE_CDP_ERROR_REPORTING: true
           DISABLE_CDP_USAGE_TRACKING: true

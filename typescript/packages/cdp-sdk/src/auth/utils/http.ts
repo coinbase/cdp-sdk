@@ -154,7 +154,13 @@ export async function getAuthHeaders(
  */
 function requiresWalletAuth(requestMethod: string, requestPath: string): boolean {
   return (
-    (requestPath?.includes("/accounts") ||
+    /*
+     * Match the wallet account endpoints (/v2/evm/accounts, /v2/solana/accounts)
+     * but NOT the custodial /v2/accounts endpoint, which authenticates with the
+     * API key alone (see openapi.yaml: POST /v2/accounts declares apiKeyAuth and
+     * no X-Wallet-Auth parameter). A bare includes("/accounts") over-matched it.
+     */
+    (/\/(evm|solana)\/accounts/.test(requestPath ?? "") ||
       requestPath?.includes("/spend-permissions") ||
       requestPath?.includes("/user-operations/prepare-and-send") ||
       requestPath?.includes("/embedded-wallet-api/") ||
