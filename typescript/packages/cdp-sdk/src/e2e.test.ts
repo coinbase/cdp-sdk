@@ -40,6 +40,7 @@ import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
 import { SolanaAccount } from "./accounts/solana/types.js";
 import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
 import { CdpClient, CdpClientOptions } from "./client/cdp.js";
+import { CdpOpenApiClient } from "./openapi-client/index.js";
 import type {
   ServerAccount as Account,
   ImportServerAccountOptions,
@@ -65,6 +66,7 @@ import { SpendControlError } from "./x402/guardrails/types.js";
 import { getSpendControlsRegistry } from "./x402/guardrails/apply.js";
 import { fromCdpEvmAccount } from "./x402/account-signers.js";
 import { CDP_EVM_RPC_URLS } from "./x402/constants.js";
+import { CoinbaseApiError } from "./_vendor/index.js";
 
 dotenv.config();
 
@@ -4958,6 +4960,212 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
       );
     }
   }, 60_000);
+});
+
+describe("Flexible Custody E2E Tests", () => {
+  let cdp: CdpClient;
+  let foundationAccountId: string;
+
+  beforeAll(async () => {
+    const opts: CdpClientOptions = {};
+    if (process.env.E2E_BASE_PATH) opts.basePath = process.env.E2E_BASE_PATH;
+    cdp = new CdpClient(opts);
+
+    if (process.env.CDP_E2E_FOUNDATION_ACCOUNT_ID) {
+      // Reuse a pre-provisioned foundation account for balance/transfer/deposit ops.
+      // Freshly-created accounts are not immediately provisioned for these sub-resources
+      // and the backend returns 5xx until provisioning completes.
+      logger.log("CDP_E2E_FOUNDATION_ACCOUNT_ID is set. Using existing foundation account.");
+      foundationAccountId = process.env.CDP_E2E_FOUNDATION_ACCOUNT_ID;
+    } else {
+      logger.log("CDP_E2E_FOUNDATION_ACCOUNT_ID is not set. Creating a new foundation account.");
+      const account = await cdp.accounts.createAccount({
+        idempotencyKey: crypto.randomUUID(),
+        name: generateRandomName(),
+      });
+      foundationAccountId = account.accountId;
+    }
+  });
+
+  describe("accounts", () => {
+    it("creates, gets, and lists foundation accounts", async () => {
+      const name = generateRandomName();
+      const idempotencyKey = crypto.randomUUID();
+      const reqSpy = vi.spyOn(CdpOpenApiClient.getAxiosInstance(), "request");
+      const created = await (async () => {
+        try {
+          const result = await cdp.accounts.createAccount({
+            idempotencyKey,
+            name,
+          });
+
+          // Verify the idempotencyKey was sent as the X-Idempotency-Key header.
+          const call = reqSpy.mock.calls.find(
+            ([cfg]) =>
+              typeof cfg?.url === "string" &&
+              cfg.url.includes("/v2/accounts") &&
+              cfg.method?.toUpperCase() === "POST",
+          );
+          expect(call?.[0]?.headers?.["x-idempotency-key"]).toBe(idempotencyKey);
+
+          return result;
+        } finally {
+          reqSpy.mockRestore();
+        }
+      })();
+
+      expect(created.accountId).toMatch(/^account_/);
+      expect(created.name).toBe(name);
+      expect(typeof created.owner).toBe("string");
+      expect(created.owner.length).toBeGreaterThan(0);
+
+      const fetched = await cdp.accounts.getAccountById({ accountId: created.accountId });
+      expect(fetched.accountId).toBe(created.accountId);
+      expect(fetched.name).toBe(name);
+
+      const list = await cdp.accounts.listAccounts({ pageSize: 100 });
+      expect(Array.isArray(list.accounts)).toBe(true);
+      expect(list.accounts.length).toBeGreaterThan(0);
+    });
+
+    it("lists balances and gets a balance by asset", async () => {
+      const balances = await cdp.accounts.listBalances({
+        accountId: foundationAccountId,
+        pageSize: 50,
+      });
+      expect(Array.isArray(balances.balances)).toBe(true);
+
+      // New foundation accounts start empty; only assert get-by-asset when a balance exists.
+      if (balances.balances.length > 0) {
+        const symbol = balances.balances[0].asset.symbol;
+        const balance = await cdp.accounts.getBalanceByAsset({
+          accountId: foundationAccountId,
+          asset: symbol,
+        });
+        expect(balance.asset.symbol).toBe(symbol);
+        expect(balance.amount[symbol]).toBeDefined();
+      }
+    });
+  });
+
+  describe("transfers", () => {
+    it("lists transfers and gets one by id", async () => {
+      const list = await cdp.transfers.listTransfers({ pageSize: 50 });
+      expect(Array.isArray(list.transfers)).toBe(true);
+
+      const first = list.transfers[0];
+      if (first?.transferId) {
+        const fetched = await cdp.transfers.getTransferById({ transferId: first.transferId });
+        expect(fetched.transferId).toBe(first.transferId);
+      }
+    });
+
+    it("creates a transfer quote with execute:false (no funds move)", async () => {
+      // execute:false yields a fee quote without moving funds. A new account has no balance,
+      // so accept either a quoted Transfer or a well-formed 4xx CoinbaseApiError — both prove
+      // the mount routes + signs the request end-to-end.
+      const idempotencyKey = crypto.randomUUID();
+      const reqSpy = vi.spyOn(CdpOpenApiClient.getAxiosInstance(), "request");
+      try {
+        try {
+          const transfer = await cdp.transfers.createTransfer({
+            idempotencyKey,
+            source: { accountId: foundationAccountId, asset: "usd" },
+            target: {
+              address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              network: "base",
+              asset: "usdc",
+            },
+            amount: "1.00",
+            asset: "usd",
+            execute: false,
+          });
+          expect(transfer.source).toBeDefined();
+          expect(transfer.target).toBeDefined();
+        } catch (error) {
+          expect(error).toBeInstanceOf(CoinbaseApiError);
+          expect((error as CoinbaseApiError).statusCode).toBeGreaterThanOrEqual(400);
+          expect((error as CoinbaseApiError).statusCode).toBeLessThan(500);
+        }
+
+        // The request is dispatched whether the API returns a quote or a 4xx, so verify
+        // the idempotencyKey was sent as the X-Idempotency-Key header on the captured call.
+        const call = reqSpy.mock.calls.find(
+          ([cfg]) =>
+            typeof cfg?.url === "string" &&
+            cfg.url.includes("/v2/transfers") &&
+            cfg.method?.toUpperCase() === "POST",
+        );
+        expect(call?.[0]?.headers?.["x-idempotency-key"]).toBe(idempotencyKey);
+      } finally {
+        reqSpy.mockRestore();
+      }
+    });
+  });
+
+  describe("deposit destinations", () => {
+    it("creates, gets, and lists deposit destinations", async () => {
+      const idempotencyKey = crypto.randomUUID();
+      const reqSpy = vi.spyOn(CdpOpenApiClient.getAxiosInstance(), "request");
+      const created = await (async () => {
+        try {
+          const result = await cdp.depositDestinations.createDepositDestination({
+            idempotencyKey,
+            type: "crypto",
+            accountId: foundationAccountId,
+            target: { accountId: foundationAccountId, asset: "usdc" },
+            crypto: { network: "base" },
+          });
+
+          // Verify the idempotencyKey was sent as the X-Idempotency-Key header.
+          const call = reqSpy.mock.calls.find(
+            ([cfg]) =>
+              typeof cfg?.url === "string" &&
+              cfg.url.includes("/v2/deposit-destinations") &&
+              cfg.method?.toUpperCase() === "POST",
+          );
+          expect(call?.[0]?.headers?.["x-idempotency-key"]).toBe(idempotencyKey);
+
+          return result;
+        } finally {
+          reqSpy.mockRestore();
+        }
+      })();
+      expect(created.depositDestinationId).toMatch(/^depositDestination_/);
+      expect(created.type).toBe("crypto");
+      expect(created.crypto.network).toBe("base");
+      expect(created.crypto.address).toBeDefined();
+
+      const fetched = await cdp.depositDestinations.getDepositDestinationById({
+        depositDestinationId: created.depositDestinationId,
+      });
+      expect(fetched.depositDestinationId).toBe(created.depositDestinationId);
+
+      const list = await cdp.depositDestinations.listDepositDestinations({
+        accountId: foundationAccountId,
+      });
+      expect(Array.isArray(list.depositDestinations)).toBe(true);
+      expect(
+        list.depositDestinations.some(d => d.depositDestinationId === created.depositDestinationId),
+      ).toBe(true);
+    });
+  });
+
+  describe("payment methods", () => {
+    it("lists payment methods and gets one by id", async () => {
+      const list = await cdp.paymentMethods.listPaymentMethods({ pageSize: 50 });
+      expect(Array.isArray(list.paymentMethods)).toBe(true);
+
+      const first = list.paymentMethods[0];
+      if (first) {
+        const fetched = await cdp.paymentMethods.getPaymentMethod({
+          paymentMethodId: first.paymentMethodId,
+        });
+        expect(fetched.paymentMethodId).toBe(first.paymentMethodId);
+        expect(fetched.paymentRail).toBeDefined();
+      }
+    });
+  });
 });
 
 function timeout(ms: number) {

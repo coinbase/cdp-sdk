@@ -4,3 +4,4 @@ _types/
 docs/
 coverage/
 node_modules/
+src/_vendor/

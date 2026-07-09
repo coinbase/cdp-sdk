@@ -5,6 +5,7 @@
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/policies",
+  "sourceLinkTemplate": "https://github.com/coinbase/cdp-sdk/blob/{gitRevision}/{path}#L{line}",
   "plugin": [
     "typedoc-plugin-markdown",
     "typedoc-plugin-frontmatter",
