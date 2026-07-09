@@ -209,6 +209,28 @@ describe("applySpendControls settlement reconciliation", () => {
   });
 });
 
+describe("@x402/core internal assumption", () => {
+  // applySpendControls pins its spend-cap hook last by reaching into the client's
+  // private `beforePaymentCreationHooks` array (see pinGuardrailsBeforeHookLast in
+  // apply.ts). This test documents that assumption: if a future @x402/core version
+  // renames or removes the field, this fails when the dependency is bumped, prompting
+  // us to revisit the pinning logic (which otherwise degrades to a runtime warning).
+  it("x402Client exposes a beforePaymentCreationHooks array that onBeforePaymentCreation appends to", () => {
+    const client = new x402Client();
+    const hooks = (client as unknown as { beforePaymentCreationHooks?: unknown[] })
+      .beforePaymentCreationHooks;
+
+    expect(Array.isArray(hooks)).toBe(true);
+
+    const before = (hooks as unknown[]).length;
+    const hook = async (): Promise<undefined> => undefined;
+    client.onBeforePaymentCreation(hook);
+
+    expect((hooks as unknown[]).length).toBe(before + 1);
+    expect((hooks as unknown[])[before]).toBe(hook);
+  });
+});
+
 describe("applySpendControls onApproachingLimit", () => {
   it("fires the callback once a confirmed payment crosses a threshold", async () => {
     const client = makeClient();

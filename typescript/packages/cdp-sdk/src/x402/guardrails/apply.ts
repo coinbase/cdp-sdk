@@ -103,12 +103,23 @@ const pinGuardrailsBeforeHookLast = (
    * Access the internal hooks array to keep the spend-controls hook last so that
    * any subsequently registered hooks (e.g. balance check) run before our cap check.
    * This relies on x402Client's private `beforePaymentCreationHooks` array name.
-   * If @x402/core renames that field the splice is silently skipped — hooks will
-   * still fire but potentially out of order.
+   * If @x402/core renames that field we can no longer guarantee ordering; the
+   * spend-control hook still fires (it is already registered), just not
+   * necessarily last, so we warn rather than fail. The characterization test in
+   * apply.test.ts pins this assumption and turns an upstream rename into a red
+   * test at dependency-bump time.
    */
   type WithHookArray = { beforePaymentCreationHooks?: BeforePaymentCreationHook[] };
   const hooks = (client as unknown as WithHookArray).beforePaymentCreationHooks;
-  if (!Array.isArray(hooks)) return;
+  if (!Array.isArray(hooks)) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[@coinbase/cdp-sdk/x402] Unable to pin the spend-control hook last: the x402Client no " +
+        "longer exposes its `beforePaymentCreationHooks` array (likely an incompatible @x402/core " +
+        "version). Spend controls remain active, but may not run after other before-payment hooks.",
+    );
+    return;
+  }
 
   const original = client.onBeforePaymentCreation.bind(client);
   (client as unknown as { onBeforePaymentCreation: unknown }).onBeforePaymentCreation = (

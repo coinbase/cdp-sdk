@@ -8,7 +8,8 @@
     "./packages/cdp-sdk/src/accounts/solana/types.ts",
     "./packages/cdp-sdk/src/actions/evm/types.ts",
     "./packages/cdp-sdk/src/actions/solana/types.ts",
-    "./packages/cdp-sdk/src/auth/**"
+    "./packages/cdp-sdk/src/auth/**",
+    "./packages/cdp-sdk/src/x402/index.ts"
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs",
