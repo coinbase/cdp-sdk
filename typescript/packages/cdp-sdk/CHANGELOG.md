@@ -1,11 +1,5 @@
 # CDP SDK Changelog
 
-## Unreleased
-
-### Patch Changes
-
-- Added support for calling public (unauthenticated) OpenAPI endpoints without configuring API credentials. Missing credential errors are now raised at request time only for authenticated endpoints.
-
 ## 1.52.0
 
 ### Minor Changes
