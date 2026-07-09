@@ -1,0 +1,104 @@
+{
+  "entryPoints": [
+    "./packages/cdp-sdk/src/_vendor/api/resources/accounts/client/Client.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/accounts/index.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/paymentMethods/client/Client.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/paymentMethods/index.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/transfers/client/Client.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/transfers/index.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/depositDestinations/client/Client.ts",
+    "./packages/cdp-sdk/src/_vendor/api/resources/depositDestinations/index.ts",
+    "./packages/cdp-sdk/src/client/vendored.types.accounts.ts",
+    "./packages/cdp-sdk/src/client/vendored.types.paymentMethods.ts",
+    "./packages/cdp-sdk/src/client/vendored.types.transfers.ts",
+    "./packages/cdp-sdk/src/client/vendored.types.depositDestinations.ts"
+  ],
+  "entryPointStrategy": "resolve",
+  "out": "./docs-md/custodial",
+  "sourceLinkTemplate": "https://github.com/coinbase/cdp-sdk/blob/{gitRevision}/{path}#L{line}",
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-frontmatter",
+    "./typedoc-router-backend.mjs",
+    "./ts-frontmatter.mjs"
+  ],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeProtected": true,
+  "excludeTags": [
+    "@override",
+    "@virtual",
+    "@privateRemarks",
+    "@satisfies",
+    "@overload",
+    "@inline",
+    "@inlineType",
+    "@throws"
+  ],
+  "readme": "none",
+  "name": "Overview",
+  "includeVersion": true,
+  "sort": [
+    "kind",
+    "alphabetical"
+  ],
+  "kindSortOrder": [
+    "Class",
+    "Interface",
+    "Function",
+    "TypeAlias",
+    "Enum",
+    "Variable",
+    "Module"
+  ],
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "categoryOrder": [
+    "Accounts",
+    "Payment Methods",
+    "Transfers",
+    "Deposit Destinations",
+    "Types",
+    "Utilities",
+    "*",
+    "Other"
+  ],
+  "exclude": [
+    "**/tests/**/*",
+    "**/*.test.ts",
+    "**/node_modules/**/*",
+    "**/_cjs/**/*",
+    "**/_esm/**/*",
+    "**/_types/**/*",
+    "**/openapi-client/**/*"
+  ],
+  "skipErrorChecking": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "fileExtension": ".mdx",
+  "entryFileName": "index",
+  "mergeReadme": false,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
+  "useCodeBlocks": true,
+  "publicPath": "/sdks/cdp-sdks-v2/typescript",
+  "expandObjects": true,
+  "expandParameters": true,
+  "router": "backend-group",
+  "parametersFormat": "list",
+  "propertiesFormat": "list",
+  "typeDeclarationFormat": "list",
+  "membersWithOwnFile": [
+    "Class",
+    "Function",
+    "Enum",
+    "Variable",
+    "TypeAlias"
+  ],
+  "tsconfig": "./packages/cdp-sdk/tsconfig.json"
+}

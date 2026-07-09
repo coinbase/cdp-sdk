@@ -99,7 +99,7 @@
       }
     }
   ],
-  "ignorePatterns": ["**/*.test.ts", "src/openapi-client/generated"],
+  "ignorePatterns": ["**/*.test.ts", "src/openapi-client/generated", "src/_vendor"],
   "settings": {
     "import/resolver": {
       "node": {
