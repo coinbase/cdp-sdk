@@ -146,13 +146,16 @@ async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
   }
 }
 
-async function ensureSufficientBaseSepoliaUsdcBalance(cdp: CdpClient, account: Account) {
+async function ensureSufficientBaseSepoliaUsdcBalance(
+  cdp: CdpClient,
+  account: { address: Address },
+  minRequiredBalance = 100_000n,
+) {
   const publicClient = createPublicClient<Transport, Chain>({
     chain: baseSepolia,
     transport: http(),
   });
 
-  const minRequiredBalance = 10_000n;
   const readUsdcBalance = () =>
     publicClient.readContract({
       address: X402_BASE_SEPOLIA_USDC as Address,
@@ -225,6 +228,42 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
   if (balance === 0) {
     throw new Error("Account not funded after multiple attempts");
   }
+}
+
+async function ensureSufficientSolanaDevnetUsdcBalance(cdp: CdpClient, account: SolanaAccount) {
+  const minRequiredBalance = 100_000n;
+
+  const readUsdcBalance = async (): Promise<bigint> => {
+    const { balances } = await cdp.solana.listTokenBalances({
+      address: account.address,
+      network: "solana-devnet",
+    });
+    const usdc = balances.find(b => b.token.mintAddress === X402_SOLANA_DEVNET_USDC);
+    return usdc ? usdc.amount.amount : 0n;
+  };
+
+  let usdcBalance = await readUsdcBalance();
+  if (usdcBalance >= minRequiredBalance) {
+    return;
+  }
+
+  logger.log(
+    `Solana devnet USDC balance (${usdcBalance}) too low for ${account.address}. Requesting funds...`,
+  );
+  await account.requestFaucet({ token: "usdc" });
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    usdcBalance = await readUsdcBalance();
+    if (usdcBalance >= minRequiredBalance) {
+      logger.log(`Funds requested. New Solana devnet USDC balance: ${usdcBalance}`);
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  throw new Error(
+    `Solana devnet USDC balance (${usdcBalance}) still below required ${minRequiredBalance} for ${account.address}`,
+  );
 }
 
 describe("CDP Client E2E Tests", () => {
@@ -4481,12 +4520,28 @@ async function getCdpSolanaFeePayer(
   throw new Error(`CDP facilitator did not advertise a Solana fee payer for ${network}.`);
 }
 
+// Mirrors DEFAULT_ACCOUNT_NAME in src/x402/client.ts — the EVM EOA wallet that
+// CdpX402Client provisions and pays from by default. x402 verify/settle exercises
+// real on-chain USDC, so the shared payer must be topped up before these tests.
+const X402_CLIENT_DEFAULT_ACCOUNT_NAME = "x402-client-wallet-1";
+
+// Ensures the default CdpX402Client payer wallet holds enough Base Sepolia USDC to
+// verify and settle the small x402 payments these tests make (and drain over time).
+async function ensureX402DefaultEvmPayerFunded(): Promise<void> {
+  const cdp = new CdpClient(
+    process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+  );
+  const payer = await cdp.evm.getOrCreateAccount({ name: X402_CLIENT_DEFAULT_ACCOUNT_NAME });
+  await ensureSufficientBaseSepoliaUsdcBalance(cdp, payer);
+}
+
 describe("x402 signing E2E Tests", () => {
   it("EVM EOA account signs an x402 payment the CDP facilitator verifies", async () => {
     const cdp = new CdpClient(
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
     const account = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-EVM-Account" });
+    await ensureSufficientBaseSepoliaUsdcBalance(cdp, account);
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
     const { name, version } = await readEvmTokenDomain(
@@ -4526,6 +4581,7 @@ describe("x402 signing E2E Tests", () => {
       name: "X402-E2E-Smart-Account",
       owner,
     });
+    await ensureSufficientBaseSepoliaUsdcBalance(cdp, smartAccount);
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
 
     const { name, version } = await readEvmTokenDomain(
@@ -4561,6 +4617,7 @@ describe("x402 signing E2E Tests", () => {
       process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
     );
     const account = await cdp.solana.getOrCreateAccount({ name: "X402-E2E-Solana-Account" });
+    await ensureSufficientSolanaDevnetUsdcBalance(cdp, account);
 
     const facilitator = createCdpFacilitatorClient();
     const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
@@ -4590,6 +4647,7 @@ describe("x402 signing E2E Tests", () => {
 
 describe("CdpX402Client E2E Tests", () => {
   it("CdpX402Client creates a payment payload that the CDP facilitator verifies", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     const client = new CdpX402Client(
       process.env.E2E_BASE_PATH
         ? {
@@ -4629,6 +4687,7 @@ describe("CdpX402Client E2E Tests", () => {
   }, 180_000);
 
   it("CdpX402Client with spend controls creates a payment payload the CDP facilitator verifies", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     const USDC_BASE_SEPOLIA = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const client = new CdpX402Client({
       spendControls: {
@@ -4678,6 +4737,7 @@ describe("CdpX402Client E2E Tests", () => {
 
 describe("CdpX402Client full payment flow E2E Tests", () => {
   it("wrapFetchWithPayment from @x402/fetch works identically with CdpX402Client", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     await withLocalX402PaidResource(async url => {
       const client = new CdpX402Client();
       const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
@@ -4798,6 +4858,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
   }, 60_000);
 
   it("onApproachingLimit fires when spend crosses configured thresholds", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const notifications: Array<{ spent: bigint; limit: bigint }> = [];
 
@@ -4836,6 +4897,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
 
 describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
   it("spend tracker records confirmed spend after a successful payment", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const client = new CdpX402Client({
       spendControls: {
@@ -5171,6 +5233,7 @@ async function withLocalX402PaidResource<T>(
 
 describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
   it("CdpX402Client pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     // 1. Spin up an X402Server — auto-provisions receiver wallet on Base Sepolia.
     const x402Server = await createX402Server({
       routes: {
@@ -5293,6 +5356,7 @@ describe("createX402Server E2E Tests", () => {
 
 describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
   it("CdpX402Client pays X402Server (upto), server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    await ensureX402DefaultEvmPayerFunded();
     // Server: X402Server with a upto route (max $0.001, settle full amount).
     const x402Server = await createX402Server({
       routes: {
