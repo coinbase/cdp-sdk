@@ -33,13 +33,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
-          node-version: 22.x
+          node-version: 22.22.1
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
           cache-dependency-path: ./typescript/pnpm-lock.yaml
 
-      - name: Use latest npm for trusted publishing
-        run: npm install -g npm@latest
+      - name: Use pinned npm for trusted publishing
+        run: npm install -g npm@11.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
