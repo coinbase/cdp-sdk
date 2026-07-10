@@ -20,7 +20,7 @@ export type CdpOptions = {
    *  ID format: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *  Legacy name format: 'organizations/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/apiKeys/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    */
-  apiKeyId: string;
+  apiKeyId?: string;
 
   /**
    * The API key secret, using the Ed25519 or legacy EC key format.
@@ -28,8 +28,11 @@ export type CdpOptions = {
    * Examples:
    *  Ed25519 key: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=='
    *  EC key: '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n'
+   *
+   * Only required to call authenticated endpoints. Public endpoints (see `publicOperations.gen.ts`)
+   * may be called without credentials.
    */
-  apiKeySecret: string;
+  apiKeySecret?: string;
 
   /** The Wallet Secret. Only needed if calling certain Wallet APIs. */
   walletSecret?: string;
@@ -131,6 +134,14 @@ export const cdpApiClient = async <T>(
   config: AxiosRequestConfig,
   idempotencyKey?: string,
 ): Promise<T> => {
+  /*
+   * Generated functions for public endpoints should work without ever calling configure(), so
+   * fall back to an unauthenticated default configuration the first time any call is made.
+   */
+  if (!axiosInstance) {
+    configure({});
+  }
+
   validateCall(config);
 
   // Add idempotency key to the request headers if provided

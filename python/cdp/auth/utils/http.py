@@ -8,14 +8,16 @@ from cdp.auth.utils.jwt import (
     generate_jwt,
     generate_wallet_jwt,
 )
+from cdp.openapi_client.public_operations import is_public_operation
 
 
 class GetAuthHeadersOptions(BaseModel):
     """Options for generating authentication headers.
 
     Attributes:
-        api_key_id - The API key ID
-        api_key_secret - The API key secret
+        api_key_id - The API key ID. Not required to call public (unauthenticated) endpoints.
+        api_key_secret - The API key secret. Not required to call public (unauthenticated)
+            endpoints.
         request_method - The HTTP method
         request_host - The request host
         request_path - The request path
@@ -28,8 +30,8 @@ class GetAuthHeadersOptions(BaseModel):
 
     """
 
-    api_key_id: str = Field(..., description="The API key ID")
-    api_key_secret: str = Field(..., description="The API key secret")
+    api_key_id: str | None = Field(None, description="The API key ID")
+    api_key_secret: str | None = Field(None, description="The API key secret")
     request_method: str = Field(..., description="The HTTP method")
     request_host: str = Field(..., description="The request host")
     request_path: str = Field(..., description="The request path")
@@ -53,39 +55,55 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
     """
     headers = {}
 
-    # Create JWT options
-    jwt_options = JwtOptions(
-        api_key_id=options.api_key_id,
-        api_key_secret=options.api_key_secret,
-        request_method=options.request_method,
-        request_host=options.request_host,
-        request_path=options.request_path,
-        expires_in=options.expires_in,
-        audience=options.audience,
-    )
-
-    # Generate and add JWT token
-    jwt_token = generate_jwt(jwt_options)
-    headers["Authorization"] = f"Bearer {jwt_token}"
+    # Content-Type describes the request body, not authentication, so set it for all requests
+    # (including public/unauthenticated operations).
     headers["Content-Type"] = "application/json"
 
-    # Add wallet auth if needed
-    if _requires_wallet_auth(options.request_method, options.request_path):
-        if not options.wallet_secret:
-            raise ValueError(
-                "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
-            )
+    has_credentials = bool(options.api_key_id and options.api_key_secret)
 
-        wallet_auth_token = generate_wallet_jwt(
-            WalletJwtOptions(
-                wallet_auth_key=options.wallet_secret,
-                request_method=options.request_method,
-                request_host=options.request_host,
-                request_path=options.request_path,
-                request_data=options.request_body or {},
-            )
+    if not has_credentials and not is_public_operation(
+        options.request_method, options.request_path
+    ):
+        raise ValueError(
+            "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and "
+            "CDP_API_KEY_SECRET environment variables, or pass them as options to the "
+            "CdpClient constructor.",
         )
-        headers["X-Wallet-Auth"] = wallet_auth_token
+
+    # Send the bearer token whenever credentials are available, even for public operations.
+    # This lets the server distinguish an authenticated caller from an anonymous one.
+    if has_credentials:
+        jwt_options = JwtOptions(
+            api_key_id=options.api_key_id,
+            api_key_secret=options.api_key_secret,
+            request_method=options.request_method,
+            request_host=options.request_host,
+            request_path=options.request_path,
+            expires_in=options.expires_in,
+            audience=options.audience,
+        )
+
+        # Generate and add JWT token
+        jwt_token = generate_jwt(jwt_options)
+        headers["Authorization"] = f"Bearer {jwt_token}"
+
+        # Add wallet auth if needed
+        if _requires_wallet_auth(options.request_method, options.request_path):
+            if not options.wallet_secret:
+                raise ValueError(
+                    "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+                )
+
+            wallet_auth_token = generate_wallet_jwt(
+                WalletJwtOptions(
+                    wallet_auth_key=options.wallet_secret,
+                    request_method=options.request_method,
+                    request_host=options.request_host,
+                    request_path=options.request_path,
+                    request_data=options.request_body or {},
+                )
+            )
+            headers["X-Wallet-Auth"] = wallet_auth_token
 
     # Add correlation data
     headers["Correlation-Context"] = _get_correlation_data(

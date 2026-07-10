@@ -34,6 +34,8 @@ go get github.com/coinbase/cdp-sdk/go
 
 To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Save the `API Key ID` and `API Key Secret` for use in the SDK. You will also need to create a wallet secret in the [CDP Portal](https://portal.cdp.coinbase.com/products/wallet-api) create accounts and sign transactions.
 
+Most CDP API endpoints require API key credentials. Public (unauthenticated) endpoints can be called without credentials, and authenticated endpoints will raise a clear request-time error if credentials are missing.
+
 ## Usage
 
 See the [Go examples directory](https://github.com/coinbase/cdp-sdk/tree/main/examples/go/) in the CDP SDK repository for runnable end‑to‑end usage examples.
@@ -54,6 +56,12 @@ cdp, err := cdp.NewClient(cdp.ClientOptions{
 		APIKeySecret: apiKeySecret,
 		WalletSecret: walletSecret,
 	})
+```
+
+If you are only calling public (unauthenticated) endpoints, creating a client with no credentials is supported:
+
+```go
+client, err := cdp.NewClient(cdp.ClientOptions{})
 ```
 
 ### EVM accounts

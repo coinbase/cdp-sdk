@@ -154,4 +154,47 @@ describe("http utils", () => {
     expect(generateWalletJwt).not.toHaveBeenCalled();
     expect(headers["X-Wallet-Auth"]).toBeUndefined();
   });
+
+  it("should throw a clear error when credentials are missing for a non-public operation", async () => {
+    await expect(
+      getAuthHeaders({
+        ...defaultOptions,
+        apiKeyId: undefined,
+        apiKeySecret: undefined,
+      }),
+    ).rejects.toThrow("Missing required CDP API Key configuration");
+
+    expect(generateJwt).not.toHaveBeenCalled();
+  });
+
+  it("should skip JWT and wallet auth headers for a public operation when credentials are missing", async () => {
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      apiKeyId: undefined,
+      apiKeySecret: undefined,
+      requestMethod: "POST",
+      requestPath: "/v2/x402/discovery/mcp",
+    });
+
+    expect(generateJwt).not.toHaveBeenCalled();
+    expect(generateWalletJwt).not.toHaveBeenCalled();
+    expect(headers["Authorization"]).toBeUndefined();
+    expect(headers["X-Wallet-Auth"]).toBeUndefined();
+    expect(headers["Correlation-Context"]).toBe(
+      `sdk_version=${version},sdk_language=typescript,source=sdk-auth`,
+    );
+  });
+
+  it("should still send a bearer token for a public operation when credentials are present", async () => {
+    // Sending the token even when it's not required lets the server distinguish an
+    // authenticated caller from an anonymous one.
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      requestMethod: "POST",
+      requestPath: "/v2/x402/discovery/mcp",
+    });
+
+    expect(generateJwt).toHaveBeenCalled();
+    expect(headers["Authorization"]).toBe(`Bearer ${mockJWT}`);
+  });
 });

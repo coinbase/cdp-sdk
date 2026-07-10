@@ -82,9 +82,9 @@ export function createAxiosFetch(): typeof fetch {
  */
 export interface VendoredClientOptions {
   /** The API key ID. */
-  apiKeyId: string;
+  apiKeyId?: string;
   /** The API key secret. */
-  apiKeySecret: string;
+  apiKeySecret?: string;
   /** The wallet secret. */
   walletSecret?: string;
   /** The host URL to connect to. */

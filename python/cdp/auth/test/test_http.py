@@ -63,6 +63,59 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
         get_auth_headers(options)
 
 
+@patch("cdp.auth.utils.http.generate_jwt")
+def test_get_auth_headers_missing_credentials_for_non_public_operation(
+    mock_jwt, auth_options_factory
+):
+    """Test error when credentials are missing for a non-public operation."""
+    options = auth_options_factory(api_key_id=None, api_key_secret=None)
+
+    with pytest.raises(ValueError, match="Missing required CDP API Key configuration"):
+        get_auth_headers(options)
+
+    mock_jwt.assert_not_called()
+
+
+@patch("cdp.auth.utils.http.generate_jwt")
+def test_get_auth_headers_skips_jwt_for_public_operation_without_credentials(
+    mock_jwt, auth_options_factory
+):
+    """Test that a public operation succeeds without credentials and without a JWT."""
+    options = auth_options_factory(
+        api_key_id=None,
+        api_key_secret=None,
+        request_method="POST",
+        request_path="/v2/x402/discovery/mcp",
+    )
+
+    headers = get_auth_headers(options)
+
+    mock_jwt.assert_not_called()
+    assert "Authorization" not in headers
+    assert "X-Wallet-Auth" not in headers
+
+
+@patch("cdp.auth.utils.http.generate_jwt")
+def test_get_auth_headers_still_sends_bearer_token_for_public_operation_with_credentials(
+    mock_jwt, auth_options_factory
+):
+    """A public operation should still send a bearer token when credentials are present.
+
+    Sending the token even when it's not required lets the server distinguish an
+    authenticated caller from an anonymous one.
+    """
+    mock_jwt.return_value = "mock.jwt.token"
+    options = auth_options_factory(
+        request_method="POST",
+        request_path="/v2/x402/discovery/mcp",
+    )
+
+    headers = get_auth_headers(options)
+
+    mock_jwt.assert_called_once()
+    assert headers["Authorization"] == "Bearer mock.jwt.token"
+
+
 @pytest.mark.parametrize(
     "request_method,request_path,expected",
     [

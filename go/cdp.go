@@ -22,9 +22,9 @@ var (
 
 // ClientOptions contains configuration options for the CDP client.
 type ClientOptions struct {
-	// APIKeyID is the API key ID.
+	// APIKeyID is the API key ID. Not required to call public (unauthenticated) endpoints.
 	APIKeyID string
-	// APIKeySecret is the API key secret.
+	// APIKeySecret is the API key secret. Not required to call public (unauthenticated) endpoints.
 	APIKeySecret string
 	// WalletSecret is the wallet secret.
 	WalletSecret string
@@ -115,6 +115,20 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 			method = "GET"
 		}
 
+		req.Header.Set("Content-Type", "application/json")
+
+		hasCredentials := options.APIKeyID != "" && options.APIKeySecret != ""
+
+		if !hasCredentials {
+			if openapi.IsPublicOperation(method, req.URL.Path) {
+				return nil
+			}
+			return fmt.Errorf("missing required CDP API Key configuration: APIKeyID and APIKeySecret must both be set")
+		}
+
+		// Send the bearer token whenever credentials are available, even for public
+		// operations. This lets the server distinguish an authenticated caller from an
+		// anonymous one.
 		jwtOptions := auth.JwtOptions{
 			KeyID:         options.APIKeyID,
 			KeySecret:     options.APIKeySecret,
@@ -130,7 +144,6 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 		}
 
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwt))
-		req.Header.Set("Content-Type", "application/json")
 
 		return nil
 	}
@@ -140,6 +153,17 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 func walletHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 	return func(_ context.Context, req *http.Request) error {
 		if options.WalletSecret == "" {
+			return nil
+		}
+
+		method := strings.ToUpper(req.Method)
+		if method == "" {
+			method = http.MethodGet
+		}
+
+		// Public (unauthenticated) operations skip all CDP auth headers, including
+		// wallet auth, to stay consistent with the API-key auth editor behavior.
+		if openapi.IsPublicOperation(method, req.URL.Path) {
 			return nil
 		}
 

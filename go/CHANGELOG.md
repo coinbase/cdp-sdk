@@ -6,6 +6,7 @@
 
 - Add support for SendEndUserEvmAsset, SendEndUserSolAsset, and CreateEndUserEvmSwap policy rules and criteria
 - Regenerate OpenAPI client with latest spec updates
+- Added support for calling public (unauthenticated) OpenAPI endpoints without configuring API credentials. Missing credential errors are now raised at request time only for authenticated endpoints.
 
 ## [1.1.0] - 2025-07-21
 

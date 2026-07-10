@@ -8,7 +8,7 @@ from cdp.openapi_client.api_client import ApiClient
 from cdp.openapi_client.api_response import ApiResponse, T as ApiResponseT
 from cdp.openapi_client.configuration import Configuration
 from cdp.openapi_client.constants import ERROR_DOCS_PAGE_URL, SDK_DEFAULT_SOURCE
-from cdp.openapi_client.errors import ApiError, NetworkError, HttpErrorType, is_openapi_error
+from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError, is_openapi_error
 from cdp.openapi_client.exceptions import ApiException
 
 
@@ -17,8 +17,8 @@ class CdpApiClient(ApiClient):
 
     def __init__(
         self,
-        api_key_id: str,
-        api_key_secret: str,
+        api_key_id: str | None = None,
+        api_key_secret: str | None = None,
         wallet_secret: str = None,
         debugging: bool = False,
         base_path: str = "https://api.cdp.coinbase.com/platform",
@@ -29,8 +29,10 @@ class CdpApiClient(ApiClient):
         """Initialize the CDP API Client.
 
         Args:
-            api_key_id (str): The API key id for authentication.
-            api_key_secret (str): The API key secret for authentication.
+            api_key_id (str, optional): The API key id for authentication. Not required to call
+                public (unauthenticated) endpoints.
+            api_key_secret (str, optional): The API key secret for authentication. Not required
+                to call public (unauthenticated) endpoints.
             wallet_secret (str): The wallet secret for authentication.
             debugging (bool): Whether debugging is enabled.
             base_path (str, optional): The base URL for the API. Defaults to "https://api.cdp.coinbase.com/platform".

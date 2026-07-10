@@ -4,6 +4,7 @@
 
 import { generateWalletJwt, generateJwt } from "./jwt.js";
 import { UserInputValidationError } from "../../errors.js";
+import { isPublicOperation } from "../../openapi-client/publicOperations.gen.js";
 import { version } from "../../version.js";
 
 /**
@@ -16,8 +17,10 @@ export interface GetAuthHeadersOptions {
    * Examples:
    *  'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *  'organizations/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/apiKeys/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+   *
+   * Not required to call public (unauthenticated) endpoints. See `isPublicOperation`.
    */
-  apiKeyId: string;
+  apiKeyId?: string;
 
   /**
    * The API key secret
@@ -25,8 +28,10 @@ export interface GetAuthHeadersOptions {
    * Examples:
    *  'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==' (Edwards key (Ed25519))
    *  '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n' (EC key (ES256))
+   *
+   * Not required to call public (unauthenticated) endpoints. See `isPublicOperation`.
    */
-  apiKeySecret: string;
+  apiKeySecret?: string;
 
   /**
    * The HTTP method for the request (e.g. 'GET', 'POST')
@@ -85,35 +90,53 @@ export async function getAuthHeaders(
 ): Promise<Record<string, string>> {
   const headers: Record<string, string> = {};
 
-  // Generate and add JWT token
-  const jwt = await generateJwt({
-    apiKeyId: options.apiKeyId,
-    apiKeySecret: options.apiKeySecret,
-    requestMethod: options.requestMethod,
-    requestHost: options.requestHost,
-    requestPath: options.requestPath,
-    expiresIn: options.expiresIn,
-    audience: options.audience,
-  });
-  headers["Authorization"] = `Bearer ${jwt}`;
+  /*
+   * Content-Type describes the request body, not authentication, so set it for all requests
+   * (including public/unauthenticated operations).
+   */
   headers["Content-Type"] = "application/json";
 
-  // Add wallet auth if needed
-  if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
-    if (!options.walletSecret) {
-      throw new UserInputValidationError(
-        "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
-      );
-    }
+  const hasCredentials = Boolean(options.apiKeyId && options.apiKeySecret);
 
-    const walletAuthToken = await generateWalletJwt({
-      walletSecret: options.walletSecret,
+  if (!hasCredentials && !isPublicOperation(options.requestMethod, options.requestPath)) {
+    throw new UserInputValidationError(
+      "Missing required CDP API Key configuration. Please set the CDP_API_KEY_ID and CDP_API_KEY_SECRET environment variables, or pass them as options to the CdpClient constructor.",
+    );
+  }
+
+  /*
+   * Send the bearer token whenever credentials are available, even for public operations.
+   * This lets the server distinguish an authenticated caller from an anonymous one.
+   */
+  if (hasCredentials) {
+    const jwt = await generateJwt({
+      apiKeyId: options.apiKeyId!,
+      apiKeySecret: options.apiKeySecret!,
       requestMethod: options.requestMethod,
       requestHost: options.requestHost,
       requestPath: options.requestPath,
-      requestData: options.requestBody || {},
+      expiresIn: options.expiresIn,
+      audience: options.audience,
     });
-    headers["X-Wallet-Auth"] = walletAuthToken;
+    headers["Authorization"] = `Bearer ${jwt}`;
+
+    // Add wallet auth if needed
+    if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
+      if (!options.walletSecret) {
+        throw new UserInputValidationError(
+          "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+        );
+      }
+
+      const walletAuthToken = await generateWalletJwt({
+        walletSecret: options.walletSecret,
+        requestMethod: options.requestMethod,
+        requestHost: options.requestHost,
+        requestPath: options.requestPath,
+        requestData: options.requestBody || {},
+      });
+      headers["X-Wallet-Auth"] = walletAuthToken;
+    }
   }
 
   // Add correlation data

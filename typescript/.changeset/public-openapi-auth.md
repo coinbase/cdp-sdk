@@ -1,0 +1,5 @@
+---
+"@coinbase/cdp-sdk": minor
+---
+
+Added support for calling public OpenAPI endpoints without API credentials and reporting missing credentials for authenticated endpoints at request time.

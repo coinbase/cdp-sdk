@@ -21,7 +21,7 @@
     "format:check": "pnpm -r run format:check",
     "lint": "pnpm -r run lint",
     "lint:fix": "pnpm -r run lint:fix",
-    "orval": "make -C .. check-openapi || echo \" NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT.\"; orval --config orval.config.ts",
+    "orval": "make -C .. check-openapi || echo \" NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT.\"; python3 ../scripts/generate_public_operations.py ../openapi.yaml --language typescript && orval --config orval.config.ts",
     "test": "pnpm -r run test",
     "test:coverage": "pnpm -r run test:coverage",
     "test:e2e": "pnpm -r run test:e2e",

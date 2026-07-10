@@ -1,4 +1,4 @@
-.PHONY: update-openapi check-openapi-updated generate-all-clients help
+.PHONY: update-openapi check-openapi-updated generate-all-clients generate-public-operations help
 
 # The timestamp ensures all requests are unique and the latest spec is fetched.
 OPENAPI_URL := https://drla6sbl8l00t.cloudfront.net/openapi.yaml?timestamp=$(shell date +%s)
@@ -10,6 +10,7 @@ help:
 	@echo "  make update-openapi      - Download the latest OpenAPI spec from the CDN"
 	@echo "  make check-openapi       - Check if a newer OpenAPI spec is available"
 	@echo "  make generate-all-clients - Generate clients for all languages"
+	@echo "  make generate-public-operations - Regenerate the per-language public (unauthenticated) endpoint lookup tables"
 
 generate-all-clients:
 	@echo "Generating TypeScript client..."
@@ -23,6 +24,10 @@ generate-all-clients:
 	@echo "Generating Java client..."
 	@cd java && make client
 	@echo "All clients generated successfully!"
+
+generate-public-operations:
+	@echo "Generating public (unauthenticated) operation lookup tables..."
+	@python3 scripts/generate_public_operations.py
 
 update-openapi:
 	@echo "Downloading latest OpenAPI spec from $(OPENAPI_URL)..."

@@ -14,8 +14,10 @@ export interface AuthInterceptorOptions {
    * Examples:
    *  'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
    *  'organizations/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/apiKeys/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+   *
+   * Not required to call public (unauthenticated) endpoints.
    */
-  apiKeyId: string;
+  apiKeyId?: string;
 
   /**
    * The API key secret
@@ -23,8 +25,10 @@ export interface AuthInterceptorOptions {
    * Examples:
    *  'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==' (Edwards key (Ed25519))
    *  '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n' (EC key (ES256))
+   *
+   * Not required to call public (unauthenticated) endpoints.
    */
-  apiKeySecret: string;
+  apiKeySecret?: string;
 
   /** The Wallet Secret */
   walletSecret?: string;
