@@ -107,7 +107,7 @@ const parseRpcUrlsFromEnv = (): Partial<Record<string, { rpcUrl: string }>> | un
   } catch {
     throw new Error(
       "CDP_X402_RPC_URLS must be valid JSON, e.g. " +
-        '\'{"eip155:8453":"https://base-mainnet.g.alchemy.com/v2/KEY"}\'',
+        '\'{"eip155:137":"https://your-rpc-provider.example.com/polygon"}\'',
     );
   }
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
