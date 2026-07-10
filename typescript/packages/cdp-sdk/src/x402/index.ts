@@ -87,7 +87,7 @@ export type { CdpSchemeRegistration } from "./server-extensions.js";
 
 // Main client
 export { CdpX402Client } from "./client.js";
-export type { CdpX402ClientConfig, WalletConfig } from "./client.js";
+export type { CdpX402ClientConfig, CdpX402WalletAddresses, WalletConfig } from "./client.js";
 
 // Facilitator
 export { createCdpFacilitatorClient, CDP_FACILITATOR_URL } from "./facilitator.js";
@@ -130,4 +130,4 @@ export {
 export type { CdpEvmAccount, CdpSmartAccount, CdpSolanaAccount } from "./account-signers.js";
 
 // Constants
-export { CDP_EVM_RPC_URLS } from "./constants.js";
+export { getDefaultEvmRpcUrls } from "./constants.js";

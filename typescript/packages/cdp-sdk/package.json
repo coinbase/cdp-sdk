@@ -60,6 +60,9 @@
     "viem": "^2.47.0",
     "zod": "^3.25.76"
   },
+  "devDependencies": {
+    "ox": "^0.14.0"
+  },
   "author": "Coinbase Inc.",
   "repository": "https://github.com/coinbase/cdp-sdk",
   "license": "MIT",

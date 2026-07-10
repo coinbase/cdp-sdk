@@ -65,6 +65,7 @@ listens on http://localhost:8402 with a paid `GET /report` route.
   `https://x402.vercel.app/protected`.
 - `X402_FUND_FROM_FAUCET` — set to `true` in `payForApi.ts` to auto-request USDC on startup.
 - `CDP_X402_RPC_URLS` — JSON object mapping CAIP-2 network IDs to RPC URLs, e.g.
-  `{"eip155:8453":"https://base-mainnet.g.alchemy.com/v2/KEY"}`. Required for chains without a
-  bundled default RPC.
+  `{"eip155:137":"https://polygon-mainnet.g.alchemy.com/v2/KEY"}`. Base and Base Sepolia resolve an
+  RPC automatically via your CDP project's node endpoint; every other network requires an explicit
+  entry here.
 - `PAY_TO` — (server only) the EVM address that should receive payments.

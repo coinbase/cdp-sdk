@@ -44,6 +44,19 @@ vi.mock("../../x402/account-signers.js", () => ({
   cdpSolanaAccountToSvmSigner: vi.fn().mockReturnValue({ address: "SolMock" }),
 }));
 
+// Base/Base Sepolia RPC defaults are resolved via the CDP-authenticated node
+// endpoint (see getBaseNodeRpcUrl); mock it so tests don't depend on a live
+// CDP client configuration.
+vi.mock("../../accounts/evm/getBaseNodeRpcUrl.js", () => ({
+  getBaseNodeRpcUrl: vi.fn((network: "base" | "base-sepolia") =>
+    Promise.resolve(
+      network === "base"
+        ? "https://api.developer.coinbase.com/rpc/v1/base/mock-token"
+        : "https://api.developer.coinbase.com/rpc/v1/base-sepolia/mock-token",
+    ),
+  ),
+}));
+
 import {
   signEvmX402Payment,
   signEvmSmartAccountX402Payment,
@@ -227,14 +240,20 @@ describe("signEvmX402Payment", () => {
       | undefined;
 
     expect(exactConfig?.schemeOptions?.[84532]?.rpcUrl).toBe("https://custom.base-sepolia.example");
-    expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://mainnet.base.org");
+    // Base mainnet keeps its CDP-node-resolved default even though it wasn't overridden.
+    expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe(
+      "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
+    );
 
     const uptoSchemeOptions = vi.mocked(UptoEvmScheme).mock.calls.at(-1)?.[1] as
       | Record<number, { rpcUrl: string }>
       | undefined;
     expect(uptoSchemeOptions?.[84532]?.rpcUrl).toBe("https://custom.base-sepolia.example");
-    expect(uptoSchemeOptions?.[8453]?.rpcUrl).toBe("https://mainnet.base.org");
-    expect(uptoSchemeOptions?.[480]).toBeDefined();
+    expect(uptoSchemeOptions?.[8453]?.rpcUrl).toBe(
+      "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
+    );
+    // World has no bundled default — only Base/Base Sepolia resolve automatically.
+    expect(uptoSchemeOptions?.[480]).toBeUndefined();
   });
 
   it("throws a clear error when CDP_X402_RPC_URLS is invalid JSON", async () => {
@@ -393,7 +412,7 @@ describe("signEvmX402Payment scheme/network validation", () => {
 // ─── RPC URL gap detection ────────────────────────────────────────────────────
 
 // Optimism (eip155:10) is in CHAIN_ID_TO_CDP_NETWORK (smart wallet signing
-// supported) but has no entry in CDP_EVM_RPC_URLS (no bundled public RPC).
+// supported) but has no default RPC from getDefaultEvmRpcUrls (Base-only defaults).
 const optimismPaymentRequired: PaymentRequired = {
   x402Version: 2,
   resource: { url: "https://example.com/report" },

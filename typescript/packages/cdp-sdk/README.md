@@ -1662,6 +1662,14 @@ const fetchWithPayment = wrapFetchWithPayment(fetch, client);
 const response = await fetchWithPayment("https://api.example.com/report");
 ```
 
+The wallet used for payment is managed internally (a CDP Server Wallet named `"x402-client-wallet-1"` by default). To find its address — for example, to fund it before paying — call `getAddresses()`, which provisions the wallet eagerly instead of waiting for the first payment:
+
+```typescript
+const client = new CdpX402Client();
+const { evmAddress, svmAddress } = await client.getAddresses();
+console.log("Fund this address before paying:", evmAddress, svmAddress);
+```
+
 By default the client uses a CDP Server Wallet (EOA). To pay from a CDP Smart Account instead, supply a `walletConfig`:
 
 ```typescript

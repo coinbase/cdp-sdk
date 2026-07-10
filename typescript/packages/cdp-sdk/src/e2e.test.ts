@@ -65,7 +65,7 @@ import { createX402Server } from "./x402/server.js";
 import { SpendControlError } from "./x402/guardrails/types.js";
 import { getSpendControlsRegistry } from "./x402/guardrails/apply.js";
 import { fromCdpEvmAccount } from "./x402/account-signers.js";
-import { CDP_EVM_RPC_URLS } from "./x402/constants.js";
+import { getDefaultEvmRpcUrls } from "./x402/constants.js";
 import { CoinbaseApiError } from "./_vendor/index.js";
 
 dotenv.config();
@@ -5383,8 +5383,9 @@ function createX402HttpTestServer(
       });
       res.end(JSON.stringify(handlerResult.body));
     } catch (err) {
+      console.error("x402 test server request failed:", err);
       res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: String(err) }));
+      res.end(JSON.stringify({ error: "Internal server error" }));
     }
   });
 }
@@ -5661,7 +5662,7 @@ describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", 
           const signer = fromCdpEvmAccount(payerEvmAccount);
 
           // Chain ID 84532 = Base Sepolia.
-          const rpcUrl = CDP_EVM_RPC_URLS[X402_BASE_SEPOLIA_CAIP2]?.rpcUrl;
+          const rpcUrl = (await getDefaultEvmRpcUrls())[X402_BASE_SEPOLIA_CAIP2]?.rpcUrl;
           const batchClientScheme = new BatchSettlementEvmClientScheme(signer, { rpcUrl });
 
           const client = new x402Client();

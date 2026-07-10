@@ -112,6 +112,19 @@ vi.mock("./account-signers.js", () => ({
   cdpSolanaAccountToSvmSigner: vi.fn().mockReturnValue({ address: "SolMock" }),
 }));
 
+// Base/Base Sepolia RPC defaults are resolved via the CDP-authenticated node
+// endpoint (see getBaseNodeRpcUrl); mock it so tests don't depend on a live
+// CDP client configuration.
+vi.mock("../accounts/evm/getBaseNodeRpcUrl.js", () => ({
+  getBaseNodeRpcUrl: vi.fn((network: "base" | "base-sepolia") =>
+    Promise.resolve(
+      network === "base"
+        ? "https://api.developer.coinbase.com/rpc/v1/base/mock-token"
+        : "https://api.developer.coinbase.com/rpc/v1/base-sepolia/mock-token",
+    ),
+  ),
+}));
+
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
 import { CdpX402Client } from "./client.js";
@@ -363,7 +376,71 @@ describe("CdpX402Client", () => {
     });
   });
 
+  describe("accountName", () => {
+    it("resolves the default account name without provisioning a wallet", () => {
+      const client = new CdpX402Client();
+      expect(client.accountName).toBe("x402-client-wallet-1");
+      expect(MockCdpClient).not.toHaveBeenCalled();
+    });
+
+    it("resolves a custom account name from config", () => {
+      const client = new CdpX402Client({
+        walletConfig: { type: "eoa", accountName: "my-agent-wallet" },
+      });
+      expect(client.accountName).toBe("my-agent-wallet");
+    });
+  });
+
+  describe("getAddresses", () => {
+    it("provisions the wallet and returns its EVM and Solana addresses", async () => {
+      const client = new CdpX402Client();
+      const addresses = await client.getAddresses();
+
+      expect(addresses.evmAddress).toBe(MOCK_EVM_ADDRESS);
+      expect(addresses.svmAddress).toBe(MOCK_SVM_ADDRESS);
+      expect(addresses.ownerWallet).toBeUndefined();
+      expect(MockCdpClient).toHaveBeenCalledTimes(1);
+    });
+
+    it("shares initialization with createPaymentPayload", async () => {
+      const client = new CdpX402Client();
+      await client.getAddresses();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(MockCdpClient).toHaveBeenCalledTimes(1);
+    });
+
+    it("includes the owner wallet name for smart wallets", async () => {
+      mockGetOrCreateAccount
+        .mockResolvedValueOnce({ address: "0xowner", signTypedData: vi.fn() })
+        .mockResolvedValue(mockEvmAccount);
+      mockGetOrCreateSmartAccount.mockResolvedValue(mockSmartAccount);
+
+      const client = new CdpX402Client({
+        walletConfig: { type: "smart", ownerAccountName: "my-owner" },
+      });
+      const addresses = await client.getAddresses();
+
+      expect(addresses.evmAddress).toBe(MOCK_SCW_ADDRESS);
+      expect(addresses.ownerWallet).toBe("my-owner");
+    });
+  });
+
   describe("RPC URL override behavior", () => {
+    it("defaults Base mainnet's RPC to the CDP-authenticated node endpoint", async () => {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
+        | { schemeOptions?: Record<number, { rpcUrl: string }> }
+        | undefined;
+      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe(
+        "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
+      );
+      // Polygon has no bundled default — only Base/Base Sepolia resolve automatically.
+      expect(exactConfig?.schemeOptions?.[137]).toBeUndefined();
+    });
+
     it("passes EVM RPC URL overrides from config to exact and upto schemes", async () => {
       const rpcUrls = { "eip155:8453": { rpcUrl: "https://my-rpc.example.com" } };
       const client = new CdpX402Client({ rpcUrls });

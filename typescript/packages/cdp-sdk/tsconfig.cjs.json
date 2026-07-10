@@ -28,12 +28,8 @@
       "@x402/fetch": ["node_modules/@x402/fetch/dist/cjs/index.d.ts"],
       "@x402/svm/exact/client": ["node_modules/@x402/svm/dist/cjs/exact/client/index.d.ts"],
       "@x402/svm/exact/server": ["node_modules/@x402/svm/dist/cjs/exact/server/index.d.ts"],
-      "ox/tempo": [
-        "../../node_modules/.pnpm/ox@0.14.29_typescript@5.9.3_zod@3.25.76/node_modules/ox/_types/tempo/index.d.ts"
-      ],
-      "ox/tempo/*": [
-        "../../node_modules/.pnpm/ox@0.14.29_typescript@5.9.3_zod@3.25.76/node_modules/ox/_types/tempo/*.d.ts"
-      ]
+      "ox/tempo": ["node_modules/ox/_types/tempo/index.d.ts"],
+      "ox/tempo/*": ["node_modules/ox/_types/tempo/*.d.ts"]
     }
   }
 }

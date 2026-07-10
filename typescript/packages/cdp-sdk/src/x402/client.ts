@@ -17,13 +17,14 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
-import { CDP_EVM_RPC_URLS } from "./constants.js";
+import { getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
 import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 
 import type { SpendControls } from "./guardrails/types.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
+import type { Address } from "viem";
 
 /** Wallet type for CDP Server Wallet (EOA) or Smart Contract Wallet. */
 type WalletType = "eoa" | "smart";
@@ -72,13 +73,16 @@ export interface CdpX402ClientConfig {
    */
   spendControls?: SpendControls;
   /**
-   * Override the public JSON-RPC endpoints used for payment signing, keyed by
-   * CAIP-2 network identifier.
+   * JSON-RPC endpoints used for payment signing, keyed by CAIP-2 network
+   * identifier.
+   *
+   * Base and Base Sepolia already resolve an RPC automatically via the
+   * CDP-authenticated node endpoint, so no override is required for those.
+   * Every other network (Polygon, Arbitrum, World, etc.) has no default and
+   * must be supplied here to backfill optional EVM extension capabilities
+   * (for example, `eip2612` gas-sponsoring enrichment).
    *
    * Falls back to `CDP_X402_RPC_URLS` env var (JSON object mapping CAIP-2 IDs to URL strings).
-   * RPC URLs are optional for core payload signing and are primarily used to
-   * backfill optional EVM extension capabilities (for example, gas sponsoring
-   * enrichment) and to override default network endpoints.
    */
   rpcUrls?: Partial<Record<string, { rpcUrl: string }>>;
 }
@@ -151,7 +155,7 @@ const buildSvmRpcOverrides = (
 
 type SignerSetup = {
   cdpClient: CdpClient;
-  evmAddress: `0x${string}`;
+  evmAddress: Address;
   svmAddress: string;
   ownerWallet?: string;
 };
@@ -188,7 +192,7 @@ const setupCdpSigners = async (
 
   const svmAccount = await cdpClient.solana.getOrCreateAccount({ name: accountName });
 
-  let evmAddress: `0x${string}`;
+  let evmAddress: Address;
   let ownerWallet: string | undefined;
   let evmSigner;
 
@@ -216,7 +220,7 @@ const setupCdpSigners = async (
         const existingAddress = await findSmartAccountByOwner(cdpClient, ownerAccount.address);
         if (!existingAddress) throw error;
         smartAccount = await cdpClient.evm.getSmartAccount({
-          address: existingAddress as `0x${string}`,
+          address: existingAddress as Address,
           owner: ownerAccount,
         });
       } else {
@@ -224,18 +228,18 @@ const setupCdpSigners = async (
       }
     }
 
-    evmAddress = smartAccount.address as `0x${string}`;
+    evmAddress = smartAccount.address as Address;
     ownerWallet = ownerAccountName;
     evmSigner = fromCdpSmartWallet(smartAccount);
   } else {
     const evmAccount = await cdpClient.evm.getOrCreateAccount({ name: accountName });
-    evmAddress = evmAccount.address as `0x${string}`;
+    evmAddress = evmAccount.address as Address;
     evmSigner = fromCdpEvmAccount(evmAccount);
   }
 
   const resolvedRpcUrls = { ...parseRpcUrlsFromEnv(), ...config?.rpcUrls };
   const mergedRpcUrls: Record<string, { rpcUrl: string }> = {
-    ...CDP_EVM_RPC_URLS,
+    ...(await getDefaultEvmRpcUrls()),
     ...resolvedRpcUrls,
   } as Record<string, { rpcUrl: string }>;
   const evmRpcUrlsByChainId = buildEvmRpcUrlsByChainId(mergedRpcUrls);
@@ -267,11 +271,27 @@ const setupCdpSigners = async (
 };
 
 /**
+ * Wallet addresses provisioned by a {@link CdpX402Client}.
+ */
+export interface CdpX402WalletAddresses {
+  /** EVM address (EOA or Smart Contract Wallet) used for payment signing. */
+  evmAddress: Address;
+  /** Solana address used for payment signing. */
+  svmAddress: string;
+  /** Name of the owner EOA account backing a `"smart"` wallet, if configured. */
+  ownerWallet?: string;
+}
+
+/**
  * A Coinbase CDP-powered x402 client that initializes lazily on first payment.
  *
  * Extends `x402Client` with automatic wallet provisioning and scheme registration.
  * Credentials and RPC URLs fall back to environment variables; wallet
  * configuration is supplied explicitly via config.
+ *
+ * The account name/address used for payments is resolved internally. Use
+ * {@link CdpX402Client.getAddresses} to retrieve it — for example, to fund
+ * the wallet before making a payment.
  *
  * @example
  * ```typescript
@@ -279,6 +299,9 @@ const setupCdpSigners = async (
  * import { wrapFetchWithPayment } from "@x402/fetch";
  *
  * const client = new CdpX402Client();
+ * const { evmAddress, svmAddress } = await client.getAddresses();
+ * console.log("Fund this address before paying:", evmAddress, svmAddress);
+ *
  * const fetchWithPayment = wrapFetchWithPayment(fetch, client);
  * const response = await fetchWithPayment("https://api.example.com/report");
  * ```
@@ -299,6 +322,7 @@ const setupCdpSigners = async (
 export class CdpX402Client extends x402Client {
   private readonly _config: CdpX402ClientConfig | undefined;
   private _initPromise: Promise<void> | null = null;
+  private _addresses: CdpX402WalletAddresses | null = null;
 
   /**
    * Creates a CdpX402Client that initializes lazily on first payment.
@@ -308,6 +332,29 @@ export class CdpX402Client extends x402Client {
   constructor(config?: CdpX402ClientConfig) {
     super();
     this._config = config;
+  }
+
+  /**
+   * The CDP account name that this client provisions (or has already
+   * provisioned) for payment signing. Resolved synchronously from config
+   * and defaults — does not perform any CDP account lookups.
+   *
+   * @returns The resolved account name, e.g. `"x402-client-wallet-1"`.
+   */
+  get accountName(): string {
+    return resolveAccountName(this._config?.walletConfig);
+  }
+
+  /**
+   * Provisions the CDP wallet (if not already provisioned) and returns its
+   * addresses. Call this eagerly — for example, to display or fund the
+   * wallet — instead of waiting for the lazy initialization on first payment.
+   *
+   * @returns The EVM and Solana addresses backing this client's payments.
+   */
+  async getAddresses(): Promise<CdpX402WalletAddresses> {
+    await this._ensureInitialized();
+    return this._addresses!;
   }
 
   /**
@@ -325,7 +372,8 @@ export class CdpX402Client extends x402Client {
    * Provisions CDP accounts and registers payment schemes.
    */
   private async _initialize(): Promise<void> {
-    await setupCdpSigners(this, this._config);
+    const { evmAddress, svmAddress, ownerWallet } = await setupCdpSigners(this, this._config);
+    this._addresses = { evmAddress, svmAddress, ownerWallet };
   }
 
   /**

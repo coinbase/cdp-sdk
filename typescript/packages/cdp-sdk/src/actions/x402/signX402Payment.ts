@@ -7,7 +7,7 @@ import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
 
 import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
-import { CDP_EVM_RPC_URLS } from "../../x402/constants.js";
+import { getDefaultEvmRpcUrls } from "../../x402/constants.js";
 
 import type { CdpSmartAccount, CdpSolanaAccount } from "../../x402/account-signers.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
@@ -108,13 +108,14 @@ function parseRpcUrlsFromEnv(): RpcUrlsByCaip2 {
 /**
  * Resolves the final CAIP-2 keyed EVM RPC configuration used for x402 signing.
  *
- * Defaults come from CDP_EVM_RPC_URLS, with CDP_X402_RPC_URLS env values taking precedence.
+ * Defaults come from {@link getDefaultEvmRpcUrls} (Base networks only), with
+ * CDP_X402_RPC_URLS env values taking precedence.
  *
  * @returns CAIP-2 keyed RPC configuration map.
  */
-function resolveEvmRpcUrlsByCaip2(): RpcUrlsByCaip2 {
+async function resolveEvmRpcUrlsByCaip2(): Promise<RpcUrlsByCaip2> {
   return {
-    ...CDP_EVM_RPC_URLS,
+    ...(await getDefaultEvmRpcUrls()),
     ...parseRpcUrlsFromEnv(),
   };
 }
@@ -191,8 +192,9 @@ function selectAcceptedPaymentRequired(
  * chain that has no configured RPC URL in the resolved map.
  *
  * Without an RPC, the x402 EVM scheme cannot sign or submit the payment
- * transaction. The CDP defaults cover the most common chains; less common
- * chains require an explicit RPC via `CDP_X402_RPC_URLS` or `rpcUrls`.
+ * transaction. Base and Base Sepolia resolve an RPC automatically via the
+ * CDP-authenticated node endpoint; every other chain requires an explicit
+ * RPC via `CDP_X402_RPC_URLS` or `rpcUrls`.
  *
  * @param network - The CAIP-2 network string from the selected requirement.
  * @param rpcUrlsByChainId - The resolved chain-ID-to-RPC-URL map.
@@ -239,7 +241,7 @@ export async function signEvmX402Payment(
   account: ClientEvmSigner,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
-  const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(resolveEvmRpcUrlsByCaip2());
+  const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(await resolveEvmRpcUrlsByCaip2());
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,
@@ -272,7 +274,7 @@ export async function signEvmSmartAccountX402Payment(
   account: CdpSmartAccount,
   options: SignX402PaymentOptions,
 ): Promise<PaymentPayload> {
-  const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(resolveEvmRpcUrlsByCaip2());
+  const rpcUrlsByChainId = buildEvmRpcUrlsByChainId(await resolveEvmRpcUrlsByCaip2());
   const selectedPaymentRequired = selectAcceptedPaymentRequired(
     options.paymentRequired,
     options.acceptedIndex,

@@ -1,4 +1,5 @@
 /* Network and RPC constants for x402 signing. */
+import { getBaseNodeRpcUrl } from "../accounts/evm/getBaseNodeRpcUrl.js";
 import {
   EvmNetworkCriterionNetworksItem,
   X402V2Network,
@@ -72,18 +73,32 @@ export const CDP_NETWORK_TO_CAIP2: Record<string, string> = Object.fromEntries(
 );
 
 /**
- * Public JSON-RPC endpoints for CDP-supported EVM networks, keyed by CAIP-2
- * network identifier.
+ * Resolves the default EVM RPC URLs used for x402 payment signing, keyed by
+ * CAIP-2 network identifier.
  *
- * These are free-tier public RPCs. For production workloads consider supplying
- * a dedicated RPC URL via the `rpcUrls` config option or `CDP_X402_RPC_URLS`
+ * Only Base and Base Sepolia get a default: both are backed by the CDP
+ * project's own authenticated node endpoint (via {@link getBaseNodeRpcUrl}),
+ * so no shared public infrastructure sits on the payment-signing path and no
+ * extra configuration is required to use them.
+ *
+ * All other networks (Polygon, Arbitrum, World, etc.) have no default RPC.
+ * RPC URLs are optional for core payload signing on those networks — they're
+ * only needed to backfill optional extension capabilities (for example,
+ * `eip2612` gas-sponsoring enrichment) — so callers that need one must supply
+ * it explicitly via the `rpcUrls` config option or `CDP_X402_RPC_URLS`
  * environment variable.
+ *
+ * @returns CAIP-2 keyed RPC configuration map containing only the networks
+ * that resolved successfully.
  */
-export const CDP_EVM_RPC_URLS: Record<string, { rpcUrl: string }> = {
-  [baseMainnetCaip2]: { rpcUrl: "https://mainnet.base.org" },
-  [baseSepoliaCaip2]: { rpcUrl: "https://sepolia.base.org" },
-  [polygonCaip2]: { rpcUrl: "https://polygon-bor-rpc.publicnode.com" },
-  [arbitrumCaip2]: { rpcUrl: "https://arb1.arbitrum.io/rpc" },
-  [worldCaip2]: { rpcUrl: "https://worldchain-mainnet.g.alchemy.com/public" },
-  [worldSepoliaCaip2]: { rpcUrl: "https://worldchain-sepolia.g.alchemy.com/public" },
-};
+export async function getDefaultEvmRpcUrls(): Promise<Record<string, { rpcUrl: string }>> {
+  const [mainnetRpcUrl, sepoliaRpcUrl] = await Promise.all([
+    getBaseNodeRpcUrl("base"),
+    getBaseNodeRpcUrl("base-sepolia"),
+  ]);
+
+  const defaults: Record<string, { rpcUrl: string }> = {};
+  if (mainnetRpcUrl) defaults[baseMainnetCaip2] = { rpcUrl: mainnetRpcUrl };
+  if (sepoliaRpcUrl) defaults[baseSepoliaCaip2] = { rpcUrl: sepoliaRpcUrl };
+  return defaults;
+}

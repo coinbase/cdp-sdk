@@ -148,6 +148,10 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
+    devDependencies:
+      ox:
+        specifier: ^0.14.0
+        version: 0.14.29(typescript@5.9.3)(zod@3.25.76)
 
 packages:
 
