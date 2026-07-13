@@ -4288,10 +4288,19 @@ describe("CDP Client E2E Tests", () => {
  */
 // Skip these tests when running against localhost or the dev host, where the
 // public (unauthenticated) x402 endpoints aren't available or behave differently.
-const shouldSkipUnauthenticatedTests =
-  !!process.env.E2E_BASE_PATH &&
-  (process.env.E2E_BASE_PATH.includes("localhost") ||
-    process.env.E2E_BASE_PATH.includes("cloud-api-dev.cbhq.net"));
+// Parse the URL and match on the exact hostname rather than a substring so that
+// hosts like `cloud-api-dev.cbhq.net.evil.com` don't spuriously match.
+const shouldSkipUnauthenticatedTests = (() => {
+  const basePath = process.env.E2E_BASE_PATH;
+  if (!basePath) return false;
+  let hostname: string;
+  try {
+    hostname = new URL(basePath).hostname;
+  } catch {
+    return false;
+  }
+  return hostname === "localhost" || hostname === "cloud-api-dev.cbhq.net";
+})();
 
 describe.skipIf(shouldSkipUnauthenticatedTests)("Unauthenticated (public) endpoint access", () => {
   const basePathOptions: CdpClientOptions = process.env.E2E_BASE_PATH
