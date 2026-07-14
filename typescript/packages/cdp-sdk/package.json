@@ -16,6 +16,11 @@
       "types": "./_types/auth/index.d.ts",
       "import": "./_esm/auth/index.js",
       "default": "./_cjs/auth/index.js"
+    },
+    "./x402": {
+      "types": "./_types/x402/index.d.ts",
+      "import": "./_esm/x402/index.js",
+      "default": "./_cjs/x402/index.js"
     }
   },
   "scripts": {
@@ -49,6 +54,26 @@
     "uncrypto": "^0.1.3",
     "viem": "^2.47.0",
     "zod": "^3.25.76"
+  },
+  "peerDependencies": {
+    "@x402/core": "^2.16.0",
+    "@x402/evm": "^2.16.0",
+    "@x402/extensions": "^2.17.0",
+    "@x402/svm": "^2.16.0"
+  },
+  "peerDependenciesMeta": {
+    "@x402/core": {
+      "optional": true
+    },
+    "@x402/evm": {
+      "optional": true
+    },
+    "@x402/extensions": {
+      "optional": true
+    },
+    "@x402/svm": {
+      "optional": true
+    }
   },
   "author": "Coinbase Inc.",
   "repository": "https://github.com/coinbase/cdp-sdk",

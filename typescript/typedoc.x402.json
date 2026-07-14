@@ -1,0 +1,68 @@
+{
+  "entryPoints": [
+    "./packages/cdp-sdk/src/x402/index.ts"
+  ],
+  "entryPointStrategy": "resolve",
+  "out": "./docs-md/x402",
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-frontmatter",
+    "./typedoc-router-backend.mjs",
+    "./ts-frontmatter.mjs"
+  ],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeProtected": false,
+  "name": "index",
+  "includeVersion": true,
+  "sort": [
+    "kind"
+  ],
+  "kindSortOrder": [
+    "Function",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Enum",
+    "Variable"
+  ],
+  "categorizeByGroup": true,
+  "exclude": [
+    "**/tests/**/*",
+    "**/*.test.ts",
+    "**/node_modules/**/*",
+    "**/_cjs/**/*",
+    "**/_esm/**/*",
+    "**/_types/**/*",
+    "**/openapi-client/**/*"
+  ],
+  "skipErrorChecking": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "fileExtension": ".mdx",
+  "entryFileName": "index",
+  "mergeReadme": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
+  "useCodeBlocks": true,
+  "publicPath": "/sdks/cdp-sdks-v2/typescript/x402",
+  "expandObjects": true,
+  "expandParameters": true,
+  "router": "backend-group",
+  "parametersFormat": "list",
+  "propertiesFormat": "list",
+  "typeDeclarationFormat": "list",
+  "membersWithOwnFile": [
+    "Class",
+    "Function",
+    "Enum",
+    "Variable",
+    "TypeAlias"
+  ],
+  "tsconfig": "./packages/cdp-sdk/tsconfig.json"
+}

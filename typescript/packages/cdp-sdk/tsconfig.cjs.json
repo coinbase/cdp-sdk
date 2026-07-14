@@ -6,6 +6,30 @@
     "outDir": "./_cjs",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@x402/core/client": ["../../node_modules/@x402/core/dist/cjs/client/index.d.ts"],
+      "@x402/core/http": ["../../node_modules/@x402/core/dist/cjs/http/index.d.ts"],
+      "@x402/core/server": ["../../node_modules/@x402/core/dist/cjs/server/index.d.ts"],
+      "@x402/core/types": ["../../node_modules/@x402/core/dist/cjs/types/index.d.ts"],
+      "@x402/evm": ["../../node_modules/@x402/evm/dist/cjs/index.d.ts"],
+      "@x402/evm/exact/client": ["../../node_modules/@x402/evm/dist/cjs/exact/client/index.d.ts"],
+      "@x402/evm/exact/server": ["../../node_modules/@x402/evm/dist/cjs/exact/server/index.d.ts"],
+      "@x402/evm/upto/client": ["../../node_modules/@x402/evm/dist/cjs/upto/client/index.d.ts"],
+      "@x402/evm/upto/server": ["../../node_modules/@x402/evm/dist/cjs/upto/server/index.d.ts"],
+      "@x402/evm/batch-settlement/server": [
+        "../../node_modules/@x402/evm/dist/cjs/batch-settlement/server/index.d.ts"
+      ],
+      "@x402/evm/batch-settlement/client": [
+        "../../node_modules/@x402/evm/dist/cjs/batch-settlement/client/index.d.ts"
+      ],
+      "@x402/extensions/bazaar": ["../../node_modules/@x402/extensions/dist/cjs/bazaar/index.d.ts"],
+      "@x402/fetch": ["../../node_modules/@x402/fetch/dist/cjs/index.d.ts"],
+      "@x402/svm/exact/client": ["../../node_modules/@x402/svm/dist/cjs/exact/client/index.d.ts"],
+      "@x402/svm/exact/server": ["../../node_modules/@x402/svm/dist/cjs/exact/server/index.d.ts"],
+      "ox/tempo": ["../../node_modules/ox/_types/tempo/index.d.ts"],
+      "ox/tempo/*": ["../../node_modules/ox/_types/tempo/*.d.ts"]
+    }
   }
 }

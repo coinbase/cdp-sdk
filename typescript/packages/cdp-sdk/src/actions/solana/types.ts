@@ -13,6 +13,8 @@ import {
 } from "../../client/solana/solana.types.js";
 
 import type { SignTransactionResult } from "./signTransaction.js";
+import type { SignX402PaymentOptions } from "../x402/signX402Payment.js";
+import type { PaymentPayload } from "@x402/core/types";
 
 export type AccountActions = {
   /**
@@ -121,6 +123,24 @@ export type AccountActions = {
   signTransaction: (
     options: Omit<SignTransactionOptions, "address">,
   ) => Promise<SignTransactionResult>;
+
+  /**
+   * Signs an x402 payment payload for direct use with any transport.
+   *
+   * @param paymentRequired - The payment requirements returned by a resource server.
+   * @param acceptedIndex - Index into `paymentRequired.accepts`.
+   *
+   * @returns The signed x402 payment payload.
+   *
+   * @example
+   * ```ts
+   * const payment = await account.signX402Payment(paymentRequired, acceptedIndex);
+   * ```
+   */
+  signX402Payment: (
+    paymentRequired: SignX402PaymentOptions["paymentRequired"],
+    acceptedIndex: number,
+  ) => Promise<PaymentPayload>;
 
   /**
    * Sends a transaction.

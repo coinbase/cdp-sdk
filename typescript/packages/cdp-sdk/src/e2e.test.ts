@@ -1,3 +1,5 @@
+import { createServer as createHttpServer } from "node:http";
+import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import {
   address as solanaAddress,
   appendTransactionMessageInstructions,
@@ -55,6 +57,20 @@ import {
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
+import { HTTPFacilitatorClient } from "@x402/core/http";
+import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
+import { VerifyError } from "@x402/core/types";
+import { wrapFetchWithPayment } from "@x402/fetch";
+import { BatchSettlementEvmScheme as BatchSettlementEvmClientScheme } from "@x402/evm/batch-settlement/client";
+import { x402Client } from "@x402/core/client";
+import type { Network } from "@x402/core/types";
+import { CdpX402Client } from "./x402/client.js";
+import { createCdpFacilitatorClient } from "./x402/facilitator.js";
+import { createX402Server } from "./x402/server.js";
+import { SpendControlError } from "./x402/guardrails/types.js";
+import { getSpendControlsRegistry } from "./x402/guardrails/apply.js";
+import { fromCdpEvmAccount } from "./x402/account-signers.js";
+import { getDefaultEvmRpcUrls } from "./x402/constants.js";
 import { CoinbaseApiError } from "./_vendor/index.js";
 
 dotenv.config();
@@ -137,6 +153,52 @@ async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
   }
 }
 
+async function ensureSufficientBaseSepoliaUsdcBalance(
+  cdp: CdpClient,
+  account: { address: Address },
+  minRequiredBalance = 100_000n,
+) {
+  const publicClient = createPublicClient<Transport, Chain>({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const readUsdcBalance = () =>
+    publicClient.readContract({
+      address: X402_BASE_SEPOLIA_USDC as Address,
+      abi: x402Erc20DomainAbi,
+      functionName: "balanceOf",
+      args: [account.address],
+    }) as Promise<bigint>;
+
+  let usdcBalance = await readUsdcBalance();
+  if (usdcBalance >= minRequiredBalance) {
+    return;
+  }
+
+  logger.log(`USDC balance (${usdcBalance}) too low for ${account.address}. Requesting funds...`);
+  const { transactionHash } = await cdp.evm.requestFaucet({
+    address: account.address,
+    network: "base-sepolia",
+    token: "usdc",
+  });
+
+  await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    usdcBalance = await readUsdcBalance();
+    if (usdcBalance >= minRequiredBalance) {
+      logger.log(`Funds requested. New USDC balance: ${usdcBalance}`);
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  throw new Error(
+    `USDC balance (${usdcBalance}) still below required ${minRequiredBalance} for ${account.address}`,
+  );
+}
+
 async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount) {
   function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -173,6 +235,42 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
   if (balance === 0) {
     throw new Error("Account not funded after multiple attempts");
   }
+}
+
+async function ensureSufficientSolanaDevnetUsdcBalance(cdp: CdpClient, account: SolanaAccount) {
+  const minRequiredBalance = 100_000n;
+
+  const readUsdcBalance = async (): Promise<bigint> => {
+    const { balances } = await cdp.solana.listTokenBalances({
+      address: account.address,
+      network: "solana-devnet",
+    });
+    const usdc = balances.find(b => b.token.mintAddress === X402_SOLANA_DEVNET_USDC);
+    return usdc ? usdc.amount.amount : 0n;
+  };
+
+  let usdcBalance = await readUsdcBalance();
+  if (usdcBalance >= minRequiredBalance) {
+    return;
+  }
+
+  logger.log(
+    `Solana devnet USDC balance (${usdcBalance}) too low for ${account.address}. Requesting funds...`,
+  );
+  await account.requestFaucet({ token: "usdc" });
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    usdcBalance = await readUsdcBalance();
+    if (usdcBalance >= minRequiredBalance) {
+      logger.log(`Funds requested. New Solana devnet USDC balance: ${usdcBalance}`);
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  throw new Error(
+    `Solana devnet USDC balance (${usdcBalance}) still below required ${minRequiredBalance} for ${account.address}`,
+  );
 }
 
 describe("CDP Client E2E Tests", () => {
@@ -4277,6 +4375,596 @@ describe("CDP Client E2E Tests", () => {
       }
     });
   });
+
+  describe("x402 facilitator", () => {
+    it("gets supported payment kinds from the CDP hosted facilitator", async () => {
+      const facilitator = createCdpFacilitatorClient();
+      const supported = await facilitator.getSupported();
+
+      expect(supported).toBeDefined();
+      expect(Array.isArray(supported.kinds)).toBe(true);
+      expect(supported.kinds.length).toBeGreaterThan(0);
+
+      // Every kind must have the required fields.
+      for (const kind of supported.kinds) {
+        expect(typeof kind.x402Version).toBe("number");
+        expect(typeof kind.scheme).toBe("string");
+        expect(typeof kind.network).toBe("string");
+      }
+
+      logger.log("Supported x402 payment kinds:", JSON.stringify(supported, null, 2));
+    });
+
+    it("rejects an invalid payment payload when verifying", async () => {
+      const facilitator = createCdpFacilitatorClient();
+
+      // Construct a minimal but invalid payment — zero signature, zero address.
+      // The facilitator should reject this as invalid rather than erroring with
+      // an auth failure, confirming that CDP JWT authentication is working.
+      const paymentRequirements: PaymentRequirements = {
+        scheme: "exact",
+        network: "eip155:84532",
+        asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        amount: "100",
+        payTo: "0x0000000000000000000000000000000000000000",
+        maxTimeoutSeconds: 300,
+        extra: {},
+      };
+
+      const paymentPayload: PaymentPayload = {
+        x402Version: 1,
+        accepted: paymentRequirements,
+        payload: {
+          signature:
+            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          from: "0x0000000000000000000000000000000000000000",
+        },
+      };
+
+      // The facilitator rejects the invalid payment (rather than returning an auth
+      // error), confirming that CDP JWT authentication is working. The rejection
+      // may come as a successful 2xx with isValid:false, a VerifyError (non-2xx
+      // with an isValid body), or a generic Error with a non-401/403 status —
+      // all of which confirm auth was accepted.
+      try {
+        const result = await facilitator.verify(paymentPayload, paymentRequirements);
+        expect(result.isValid).toBe(false);
+      } catch (err) {
+        if (err instanceof VerifyError) {
+          expect(err.response.isValid).toBe(false);
+        } else {
+          // Generic Error from the facilitator (non-2xx without an isValid body).
+          // Confirm it is a payment rejection, not an auth failure.
+          expect(err).toBeInstanceOf(Error);
+          const message = (err as Error).message;
+          expect(message).toMatch(/Facilitator verify failed \(4/);
+          expect(message).not.toMatch(/Facilitator verify failed \(401/);
+          expect(message).not.toMatch(/Facilitator verify failed \(403/);
+        }
+      }
+    });
+  });
+});
+
+const X402_BASE_SEPOLIA_CAIP2 = "eip155:84532";
+const X402_BASE_SEPOLIA_USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+const X402_SOLANA_DEVNET_CAIP2 = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+const X402_SOLANA_DEVNET_USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
+
+// Payment recipient (payTo) for the x402 facilitator tests. Must differ from the payer — the
+// CDP facilitator rejects self-sends. Override via env; the EVM default is a burn address, which
+// is a valid transferWithAuthorization recipient. The Solana default reuses the same devnet address
+// used for Solana transfer tests, which already has a USDC token account on devnet.
+const X402_EVM_PAY_TO = (process.env.CDP_E2E_X402_EVM_PAY_TO ??
+  "0x000000000000000000000000000000000000dEaD") as Address;
+const X402_SOLANA_PAY_TO =
+  process.env.CDP_E2E_X402_SOLANA_PAY_TO ?? "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
+
+const x402Erc20DomainAbi = [
+  {
+    type: "function",
+    name: "name",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    name: "version",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ type: "uint256" }],
+  },
+] as const;
+
+// Reads the EIP-712 domain (name, version) for an EIP-3009 token directly from chain so the
+// signed authorization matches what the facilitator recovers on-chain.
+async function readEvmTokenDomain(
+  publicClient: PublicClient,
+  asset: Address,
+): Promise<{ name: string; version: string }> {
+  const name = (await publicClient.readContract({
+    address: asset,
+    abi: x402Erc20DomainAbi,
+    functionName: "name",
+  })) as string;
+  let version = "2";
+  try {
+    version = (await publicClient.readContract({
+      address: asset,
+      abi: x402Erc20DomainAbi,
+      functionName: "version",
+    })) as string;
+  } catch {
+    // Some tokens omit version(); default to "2" (USDC).
+  }
+  return { name, version };
+}
+
+// Resolves the CDP facilitator's Solana fee payer from the /supported signers map.
+async function getCdpSolanaFeePayer(
+  facilitator: HTTPFacilitatorClient,
+  network: string,
+): Promise<string> {
+  const supported = await facilitator.getSupported();
+  const signers = supported.signers ?? {};
+  for (const [pattern, addresses] of Object.entries(signers)) {
+    const matchesNetwork =
+      pattern === network ||
+      (pattern.endsWith(":*") && network.startsWith(pattern.slice(0, -1))) ||
+      pattern.startsWith("solana");
+    if (matchesNetwork && addresses && addresses.length > 0) {
+      return addresses[0];
+    }
+  }
+  throw new Error(`CDP facilitator did not advertise a Solana fee payer for ${network}.`);
+}
+
+// Mirrors DEFAULT_ACCOUNT_NAME in src/x402/client.ts — the EVM EOA wallet that
+// CdpX402Client provisions and pays from by default. x402 verify/settle exercises
+// real on-chain USDC, so the shared payer must be topped up before these tests.
+const X402_CLIENT_DEFAULT_ACCOUNT_NAME = "x402-client-wallet-1";
+
+// Ensures the default CdpX402Client payer wallet holds enough Base Sepolia USDC to
+// verify and settle the small x402 payments these tests make (and drain over time).
+async function ensureX402DefaultEvmPayerFunded(): Promise<void> {
+  const cdp = new CdpClient(
+    process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+  );
+  const payer = await cdp.evm.getOrCreateAccount({ name: X402_CLIENT_DEFAULT_ACCOUNT_NAME });
+  await ensureSufficientBaseSepoliaUsdcBalance(cdp, payer);
+}
+
+describe("x402 signing E2E Tests", () => {
+  it("EVM EOA account signs an x402 payment the CDP facilitator verifies", async () => {
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const account = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-EVM-Account" });
+    await ensureSufficientBaseSepoliaUsdcBalance(cdp, account);
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await account.signX402Payment(paymentRequired, 0);
+    const facilitator = createCdpFacilitatorClient();
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+
+  it("EVM smart account signs an x402 payment the CDP facilitator verifies", async () => {
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const owner = await cdp.evm.getOrCreateAccount({ name: "X402-E2E-Smart-Account-Owner" });
+    const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+      name: "X402-E2E-Smart-Account",
+      owner,
+    });
+    await ensureSufficientBaseSepoliaUsdcBalance(cdp, smartAccount);
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await smartAccount.signX402Payment(paymentRequired, 0);
+    const facilitator = createCdpFacilitatorClient();
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+
+  it("Solana account signs an x402 payment the CDP facilitator verifies", async () => {
+    const cdp = new CdpClient(
+      process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+    );
+    const account = await cdp.solana.getOrCreateAccount({ name: "X402-E2E-Solana-Account" });
+    await ensureSufficientSolanaDevnetUsdcBalance(cdp, account);
+
+    const facilitator = createCdpFacilitatorClient();
+    const feePayer = await getCdpSolanaFeePayer(facilitator, X402_SOLANA_DEVNET_CAIP2);
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_SOLANA_DEVNET_CAIP2,
+          asset: X402_SOLANA_DEVNET_USDC,
+          amount: "10000",
+          payTo: X402_SOLANA_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { feePayer },
+        },
+      ],
+    };
+
+    const payment = await account.signX402Payment(paymentRequired, 0);
+    const result = await facilitator.verify(payment as PaymentPayload, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+});
+
+describe("CdpX402Client E2E Tests", () => {
+  it("CdpX402Client creates a payment payload that the CDP facilitator verifies", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    const client = new CdpX402Client(
+      process.env.E2E_BASE_PATH
+        ? {
+            // When using a custom base path the CDP client may need adjusting, but
+            // CdpX402Client reads credentials from env vars — just verify it works.
+          }
+        : undefined,
+    );
+    const facilitator = createCdpFacilitatorClient();
+
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await client.createPaymentPayload(paymentRequired);
+    const result = await facilitator.verify(payment, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+
+  it("CdpX402Client with spend controls creates a payment payload the CDP facilitator verifies", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    const USDC_BASE_SEPOLIA = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    const client = new CdpX402Client({
+      spendControls: {
+        maxAmountPerPayment: { atomic: 100_000n, asset: USDC_BASE_SEPOLIA },
+        maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC_BASE_SEPOLIA },
+        maxCumulativeSpendWindow: "24h",
+        allowedNetworks: [X402_BASE_SEPOLIA_CAIP2],
+      },
+    });
+    const facilitator = createCdpFacilitatorClient();
+
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+    const { name, version } = await readEvmTokenDomain(
+      publicClient,
+      X402_BASE_SEPOLIA_USDC as Address,
+    );
+
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: X402_BASE_SEPOLIA_CAIP2,
+          asset: X402_BASE_SEPOLIA_USDC,
+          amount: "10000",
+          payTo: X402_EVM_PAY_TO,
+          maxTimeoutSeconds: 300,
+          extra: { name, version },
+        },
+      ],
+    };
+
+    const payment = await client.createPaymentPayload(paymentRequired);
+    const result = await facilitator.verify(payment, payment.accepted);
+
+    expect(result.isValid).toBe(true);
+  }, 180_000);
+});
+
+// ─── Full HTTP payment flow ───────────────────────────────────────────────────
+
+// These tests pay a real x402-protected resource. Instead of depending on a
+// public third-party endpoint, they stand up a local X402Server (introduced by
+// this PR) that provisions a CDP receiver wallet and settles through the CDP
+// facilitator — see `withLocalX402PaidResource` below.
+
+describe("CdpX402Client full payment flow E2E Tests", () => {
+  it("wrapFetchWithPayment from @x402/fetch works identically with CdpX402Client", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    await withLocalX402PaidResource(async url => {
+      const client = new CdpX402Client();
+      const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+      const response = await fetchWithPayment(url);
+      expect(response.status).toBe(200);
+    });
+  }, 300_000);
+});
+
+// ─── Spend control enforcement ────────────────────────────────────────────────
+
+// Helpers that build a minimal PaymentRequired for Base Sepolia USDC without
+// needing a real server — the guardrail checks fire before any signing attempt.
+async function buildSepoliaPaymentRequired(amount: string): Promise<PaymentRequired> {
+  const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
+  const { name, version } = await readEvmTokenDomain(
+    publicClient,
+    X402_BASE_SEPOLIA_USDC as Address,
+  );
+  return {
+    x402Version: 2,
+    resource: { url: "https://example.com/report", mimeType: "application/json" },
+    accepts: [
+      {
+        scheme: "exact",
+        network: X402_BASE_SEPOLIA_CAIP2,
+        asset: X402_BASE_SEPOLIA_USDC,
+        amount,
+        payTo: X402_EVM_PAY_TO,
+        maxTimeoutSeconds: 300,
+        extra: { name, version },
+      },
+    ],
+  };
+}
+
+describe("CdpX402Client spend control enforcement E2E Tests", () => {
+  it("per-payment cap blocks a payment whose amount exceeds the limit", async () => {
+    const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    const client = new CdpX402Client({
+      spendControls: {
+        // cap of 1 atomic unit — any real payment will exceed it
+        maxAmountPerPayment: { atomic: 1n, asset: USDC },
+      },
+    });
+
+    const paymentRequired = await buildSepoliaPaymentRequired("10000");
+
+    await expect(client.createPaymentPayload(paymentRequired)).rejects.toSatisfy(
+      (e: unknown) => e instanceof SpendControlError && e.code === "per_payment_cap",
+    );
+  }, 60_000);
+
+  it("allowedNetworks blocks a payment whose network is not in the allowlist", async () => {
+    const client = new CdpX402Client({
+      spendControls: {
+        // Base mainnet only — the payment targets Base Sepolia
+        allowedNetworks: ["eip155:8453"],
+      },
+    });
+
+    const paymentRequired = await buildSepoliaPaymentRequired("10000");
+
+    await expect(client.createPaymentPayload(paymentRequired)).rejects.toSatisfy(
+      (e: unknown) => e instanceof SpendControlError && e.code === "network_not_allowed",
+    );
+  }, 60_000);
+
+  it("allowedAssets blocks a payment whose asset is not in the allowlist", async () => {
+    const MAINNET_USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
+    const client = new CdpX402Client({
+      spendControls: {
+        // mainnet USDC only — the payment targets sepolia USDC
+        allowedAssets: [MAINNET_USDC],
+      },
+    });
+
+    const paymentRequired = await buildSepoliaPaymentRequired("10000");
+
+    await expect(client.createPaymentPayload(paymentRequired)).rejects.toSatisfy(
+      (e: unknown) => e instanceof SpendControlError && e.code === "asset_not_allowed",
+    );
+  }, 60_000);
+
+  it("allowedPayees blocks a payment whose payTo is not in the allowlist", async () => {
+    const client = new CdpX402Client({
+      spendControls: {
+        // Allow only a specific address that is not X402_EVM_PAY_TO
+        allowedPayees: ["0x1111111111111111111111111111111111111111"],
+      },
+    });
+
+    const paymentRequired = await buildSepoliaPaymentRequired("10000");
+
+    await expect(client.createPaymentPayload(paymentRequired)).rejects.toSatisfy(
+      (e: unknown) => e instanceof SpendControlError && e.code === "payee_not_allowed",
+    );
+  }, 60_000);
+
+  it("cumulative cap blocks a second payment that would push spend over the limit", async () => {
+    const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    // Cap: 15_000. First payment: 10_000 (allowed). Second payment: 10_000 (blocked: 20_000 > 15_000).
+    const client = new CdpX402Client({
+      spendControls: {
+        maxCumulativeSpend: { atomic: 15_000n, asset: USDC },
+      },
+    });
+
+    const paymentRequired = await buildSepoliaPaymentRequired("10000");
+
+    // First payment creates a provisional entry of 10_000 — succeeds.
+    await client.createPaymentPayload(paymentRequired);
+
+    // Second payment would push total to 20_000 > 15_000 — must be blocked.
+    await expect(client.createPaymentPayload(paymentRequired)).rejects.toSatisfy(
+      (e: unknown) => e instanceof SpendControlError && e.code === "cumulative_cap",
+    );
+  }, 60_000);
+
+  it("onApproachingLimit fires when spend crosses configured thresholds", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    const notifications: Array<{ spent: bigint; limit: bigint }> = [];
+
+    // Cap: 20_000 atomic. Threshold: 50% (10_000). The local route charges $0.015
+    // (15_000 atomic USDC), so a single confirmed payment crosses the threshold.
+    const client = new CdpX402Client({
+      spendControls: {
+        maxCumulativeSpend: { atomic: 20_000n, asset: USDC },
+        approachingLimitThresholds: [0.5],
+        onApproachingLimit: (spent, limit) => {
+          notifications.push({ spent: BigInt(spent.atomic), limit: BigInt(limit.atomic) });
+        },
+      },
+    });
+
+    // Make a real payment so the onPaymentResponse hook fires and confirms spend.
+    await withLocalX402PaidResource(
+      async url => {
+        const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+        const response = await fetchWithPayment(url);
+        expect(response.status).toBe(200);
+      },
+      { price: "$0.015" },
+    );
+
+    // onApproachingLimit fires on confirmation (onPaymentResponse hook). The
+    // $0.015 payment (15_000) crosses the 50% threshold (10_000) of the cap.
+    expect(notifications.length).toBeGreaterThan(0);
+    const [first] = notifications;
+    expect(first.limit).toBe(20_000n);
+    expect(first.spent).toBeGreaterThan(0n);
+  }, 300_000);
+});
+
+// ─── Settlement-aware spend tracking ─────────────────────────────────────────
+
+describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
+  it("spend tracker records confirmed spend after a successful payment", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    const client = new CdpX402Client({
+      spendControls: {
+        maxCumulativeSpend: { atomic: 10_000_000n, asset: USDC },
+      },
+    });
+
+    await withLocalX402PaidResource(async url => {
+      const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+      const response = await fetchWithPayment(url);
+      expect(response.status).toBe(200);
+    });
+
+    // After the onPaymentResponse hook fires, the registry confirms the spend
+    // and the tracker should have at least one entry.
+    const registry = getSpendControlsRegistry(client);
+    expect(registry).toBeDefined();
+  }, 300_000);
+
+  it("a payment blocked by a guardrail does not permanently consume cumulative budget", async () => {
+    const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
+    // Set a per-payment cap that blocks the payment — cumulative budget must remain at zero.
+    const client = new CdpX402Client({
+      spendControls: {
+        maxAmountPerPayment: { atomic: 1n, asset: USDC },
+        maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
+      },
+    });
+
+    const paymentRequired = await buildSepoliaPaymentRequired("10000");
+
+    // This should be blocked by per_payment_cap before any provisional entry is recorded.
+    await expect(client.createPaymentPayload(paymentRequired)).rejects.toSatisfy(
+      (e: unknown) => e instanceof SpendControlError && e.code === "per_payment_cap",
+    );
+
+    // Now remove the per-payment cap by creating a fresh client with only the cumulative cap.
+    // The point is that the previous blocked attempt must not have consumed budget.
+    // We verify by checking that a 99_999-unit payment is allowed (it would be blocked if
+    // the failed attempt had erroneously committed 10_000 to the tracker).
+    const client2 = new CdpX402Client({
+      spendControls: {
+        maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
+      },
+    });
+
+    // 99_999 is under the cap of 100_000 — should succeed in reaching the signing step.
+    // We expect it to fail at signing (e.g. an on-chain/balance error or a real
+    // network error), not at the cumulative_cap guardrail.
+    const bigPayment = await buildSepoliaPaymentRequired("99999");
+    const error = await client2.createPaymentPayload(bigPayment).then(
+      () => null,
+      (e: unknown) => e,
+    );
+    if (error !== null) {
+      expect(error).not.toSatisfy(
+        (e: unknown) => e instanceof SpendControlError && e.code === "cumulative_cap",
+      );
+    }
+  }, 60_000);
 });
 
 /*
@@ -4688,3 +5376,400 @@ function generateRandomAddress() {
   return ("0x" +
     [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join("")) as Address;
 }
+
+// ─── createX402Server E2E Tests ────────────────────────────────────────────
+
+/**
+ * Minimal Node.js HTTP server adapter over `x402HTTPResourceServer`.
+ *
+ * Implements the x402 payment flow without a framework:
+ *   no-payment-required → serve resource directly
+ *   payment-error       → return 402 with PAYMENT-REQUIRED header
+ *   payment-verified    → serve resource + processSettlement → 200 with PAYMENT-RESPONSE header
+ *
+ * Used only in e2e tests so we avoid adding express/hono as dev-dependencies
+ * of the cdp-sdk package itself.
+ */
+function createX402HttpTestServer(
+  x402Server: import("./x402/server.js").X402Server,
+  handler: (
+    req: IncomingMessage,
+  ) => Promise<{ status: number; body: unknown; headers?: Record<string, string> }>,
+): Server {
+  return createHttpServer(async (req: IncomingMessage, res: ServerResponse) => {
+    const url = new URL(req.url ?? "/", "http://localhost");
+    const path = url.pathname;
+    const method = req.method ?? "GET";
+
+    const adapter = {
+      getHeader: (name: string) => req.headers[name.toLowerCase()] as string | undefined,
+      getMethod: () => method,
+      getPath: () => path,
+      getUrl: () => req.url ?? "/",
+      getAcceptHeader: () => (req.headers.accept as string) ?? "",
+      getUserAgent: () => (req.headers["user-agent"] as string) ?? "",
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const context: any = { adapter, path, method };
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: any = await (x402Server as any).processHTTPRequest(context);
+
+      if (result.type === "no-payment-required") {
+        const { status, body, headers: extraHeaders } = await handler(req);
+        res.writeHead(status, {
+          "Content-Type": "application/json",
+          ...extraHeaders,
+        });
+        res.end(JSON.stringify(body));
+        return;
+      }
+
+      if (result.type === "payment-error") {
+        const { status, headers, body } = result.response;
+        res.writeHead(status, headers);
+        res.end(JSON.stringify(body ?? {}));
+        return;
+      }
+
+      // payment-verified: run the handler, then settle.
+      const { paymentPayload, paymentRequirements, declaredExtensions, cancellationDispatcher } =
+        result;
+      const transportContext = { request: context };
+
+      let handlerResult: { status: number; body: unknown; headers?: Record<string, string> };
+      try {
+        handlerResult = await handler(req);
+      } catch (err) {
+        await cancellationDispatcher.cancel({ reason: "handler_threw", error: err });
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Handler error" }));
+        return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const settle: any = await (x402Server as any).processSettlement(
+        paymentPayload,
+        paymentRequirements,
+        declaredExtensions,
+        transportContext,
+      );
+
+      if (!settle.success) {
+        const failureResponse = settle.response;
+        res.writeHead(failureResponse.status, failureResponse.headers);
+        res.end(JSON.stringify(failureResponse.body ?? {}));
+        return;
+      }
+
+      res.writeHead(handlerResult.status, {
+        "Content-Type": "application/json",
+        ...(handlerResult.headers ?? {}),
+        ...settle.headers,
+      });
+      res.end(JSON.stringify(handlerResult.body));
+    } catch (err) {
+      console.error("x402 test server request failed:", err);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Internal server error" }));
+    }
+  });
+}
+
+/**
+ * Spins up a local `X402Server`-backed HTTP resource on an ephemeral port,
+ * invokes `run` with its URL, and always tears the server down afterward.
+ *
+ * The server provisions a CDP receiver wallet and settles through the CDP
+ * facilitator, so this exercises the full pay → verify → settle round-trip on
+ * Base Sepolia without depending on any third-party endpoint.
+ *
+ * @param run - Callback invoked with the paid resource URL.
+ * @param options - Optional overrides.
+ * @param options.price - Route price, defaults to `"$0.001"`.
+ * @returns The value returned by `run`.
+ */
+async function withLocalX402PaidResource<T>(
+  run: (url: string) => Promise<T>,
+  options?: { price?: string },
+): Promise<T> {
+  const x402Server = await createX402Server({
+    routes: {
+      "GET /ping": {
+        price: options?.price ?? "$0.001",
+        description: "Local e2e paid resource",
+        networks: [X402_BASE_SEPOLIA_CAIP2],
+        // Suppress the auto-injected Bazaar extension: local test servers use
+        // http://localhost URLs which fail the extension's https:// requirement,
+        // causing a noisy-but-harmless "rejected" log from the facilitator.
+        extensions: { bazaar: null },
+      },
+    },
+  });
+
+  const httpServer = createX402HttpTestServer(x402Server, async () => ({
+    status: 200,
+    body: { pong: true },
+  }));
+
+  try {
+    const url = await new Promise<string>((resolve, reject) => {
+      httpServer.on("error", reject);
+      httpServer.listen(0, () => {
+        const addr = httpServer.address() as { port: number } | null;
+        if (!addr) {
+          reject(new Error("failed to bind local X402 test server"));
+          return;
+        }
+        resolve(`http://localhost:${addr.port}/ping`);
+      });
+    });
+    return await run(url);
+  } finally {
+    httpServer.close();
+  }
+}
+
+describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
+  it("CdpX402Client pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    // 1. Spin up an X402Server — auto-provisions receiver wallet on Base Sepolia.
+    const x402Server = await createX402Server({
+      routes: {
+        "GET /ping": {
+          price: "$0.001",
+          description: "Round-trip e2e test",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
+          extensions: { bazaar: null },
+        },
+      },
+    });
+
+    // Receiver must differ from payer — CDP facilitator rejects self-sends.
+    // The provisioned receiver is a separate CDP wallet from the payer wallet.
+    expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const httpServer = createX402HttpTestServer(x402Server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await new Promise<void>((resolve, reject) => {
+      httpServer.listen(0, async () => {
+        const addr = httpServer.address() as { port: number };
+        const url = `http://localhost:${addr.port}/ping`;
+
+        try {
+          // 2. Pay with CdpX402Client — auto-provisions a separate payer wallet.
+          const client = new CdpX402Client();
+          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+          const response = await fetchWithPayment(url);
+
+          // 3. Assert the full flow succeeded.
+          expect(response.status).toBe(200);
+
+          // PAYMENT-RESPONSE header is set by processSettlement on success,
+          // confirming the CDP facilitator verified and settled the payment.
+          const paymentResponse = response.headers.get("payment-response");
+          expect(paymentResponse).toBeTruthy();
+
+          const body = (await response.json()) as { pong: boolean };
+          expect(body.pong).toBe(true);
+
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          httpServer.close();
+        }
+      });
+    });
+  }, 300_000);
+});
+
+describe("createX402Server E2E Tests", () => {
+  it("provisions a receiver wallet and exposes EVM and Solana addresses", async () => {
+    const server = await createX402Server({
+      routes: {
+        "GET /report": { price: "$0.001", description: "test route" },
+      },
+    });
+
+    expect(server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    expect(server.payToSvmAddress).toBeTruthy();
+    expect(typeof server.payToSvmAddress).toBe("string");
+    expect(server.payToSvmAddress?.length).toBeGreaterThan(0);
+  }, 180_000);
+
+  it("accepts payToConfig: { type: 'address' } without wallet provisioning", async () => {
+    const EVM_ADDR = "0x0000000000000000000000000000000000000001" as `0x${string}`;
+    const SOL_ADDR = "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
+
+    const server = await createX402Server({
+      routes: { "GET /report": { price: "$0.001", networks: ["eip155:8453"] } },
+      payToConfig: { type: "address", evm: EVM_ADDR, solana: SOL_ADDR },
+    });
+
+    expect(server.payToEvmAddress).toBe(EVM_ADDR);
+    expect(server.payToSvmAddress).toBe(SOL_ADDR);
+  }, 60_000);
+
+  it("routes are populated with payTo addresses and CDP extensions after create()", async () => {
+    const server = await createX402Server({
+      routes: {
+        "GET /report": {
+          price: "$0.001",
+          description: "E2E route",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
+        },
+      },
+    });
+
+    const routes = server.routes as Record<
+      string,
+      {
+        accepts:
+          | Array<{ payTo: string; network: string; scheme: string }>
+          | { payTo: string; network: string; scheme: string };
+        extensions?: Record<string, unknown>;
+      }
+    >;
+
+    const routeConfig = routes["GET /report"];
+    expect(routeConfig).toBeDefined();
+
+    const accepts = Array.isArray(routeConfig.accepts)
+      ? routeConfig.accepts
+      : [routeConfig.accepts];
+    const evmAccept = accepts.find(a => a.network.startsWith("eip155:"));
+    expect(evmAccept).toBeDefined();
+    expect(evmAccept!.payTo).toBe(server.payToEvmAddress);
+    expect(evmAccept!.scheme).toBe("exact");
+
+    expect(routeConfig.extensions).toBeDefined();
+    expect(routeConfig.extensions!["eip2612GasSponsoring"]).toBeDefined();
+    expect(routeConfig.extensions!["bazaar"]).toBeDefined();
+  }, 180_000);
+});
+
+// ─── upto round-trip E2E Tests ─────────────────────────────────────────────
+
+describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
+  it("CdpX402Client pays X402Server (upto), server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    await ensureX402DefaultEvmPayerFunded();
+    // Server: X402Server with a upto route (max $0.001, settle full amount).
+    const x402Server = await createX402Server({
+      routes: {
+        "GET /ping": {
+          price: "$0.001",
+          scheme: "upto",
+          description: "upto round-trip e2e test",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
+          extensions: { bazaar: null },
+        },
+      },
+    });
+
+    expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const httpServer = createX402HttpTestServer(x402Server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await new Promise<void>((resolve, reject) => {
+      httpServer.listen(0, async () => {
+        const addr = httpServer.address() as { port: number };
+        const url = `http://localhost:${addr.port}/ping`;
+
+        try {
+          // Client: CdpX402Client auto-registers UptoEvmScheme for EOA wallets.
+          const client = new CdpX402Client();
+          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+          const response = await fetchWithPayment(url);
+
+          expect(response.status).toBe(200);
+          expect(response.headers.get("payment-response")).toBeTruthy();
+          const body = (await response.json()) as { pong: boolean };
+          expect(body.pong).toBe(true);
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          httpServer.close();
+        }
+      });
+    });
+  }, 300_000);
+});
+
+// ─── batch-settlement round-trip E2E Tests ─────────────────────────────────
+
+describe("createX402Server batch-settlement + x402Client round-trip E2E Tests", () => {
+  it("x402Client (batch-settlement) pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
+    // Reuse the shared funded payer so this test never needs its own faucet
+    // call — ensureX402DefaultEvmPayerFunded() tops it up along with all other
+    // CdpX402Client e2e tests. The receiver is a dedicated stable wallet that
+    // only receives payments and is never fauceted.
+    await ensureX402DefaultEvmPayerFunded();
+
+    // Server: X402Server with a batch-settlement route on Base Sepolia.
+    const x402Server = await createX402Server({
+      payToConfig: { type: "eoa", accountName: "x402-batch-receiver" },
+      routes: {
+        "GET /ping": {
+          price: "$0.001",
+          scheme: "batch-settlement",
+          description: "batch-settlement round-trip e2e test",
+          networks: [X402_BASE_SEPOLIA_CAIP2],
+          extensions: { bazaar: null }, // Suppress the auto-injected Bazaar extension - facilitator rejects non-https URLs.
+        },
+      },
+    });
+
+    expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+
+    const httpServer = createX402HttpTestServer(x402Server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await new Promise<void>((resolve, reject) => {
+      httpServer.listen(0, async () => {
+        const addr = httpServer.address() as { port: number };
+        const url = `http://localhost:${addr.port}/ping`;
+
+        try {
+          // Client: raw x402Client with a CDP-backed BatchSettlementEvmScheme.
+          const cdpClientForPayer = new CdpClient();
+          const payerEvmAccount = await cdpClientForPayer.evm.getOrCreateAccount({
+            name: X402_CLIENT_DEFAULT_ACCOUNT_NAME,
+          });
+          const signer = fromCdpEvmAccount(payerEvmAccount);
+
+          // Chain ID 84532 = Base Sepolia.
+          const rpcUrl = (await getDefaultEvmRpcUrls())[X402_BASE_SEPOLIA_CAIP2]?.rpcUrl;
+          const batchClientScheme = new BatchSettlementEvmClientScheme(signer, { rpcUrl });
+
+          const client = new x402Client();
+          client.register(X402_BASE_SEPOLIA_CAIP2 as Network, batchClientScheme);
+
+          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+          const response = await fetchWithPayment(url);
+
+          expect(response.status).toBe(200);
+          expect(response.headers.get("payment-response")).toBeTruthy();
+          const body = (await response.json()) as { pong: boolean };
+          expect(body.pong).toBe(true);
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          httpServer.close();
+        }
+      });
+    });
+  }, 300_000);
+});

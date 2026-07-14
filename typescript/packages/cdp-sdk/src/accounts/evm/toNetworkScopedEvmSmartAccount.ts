@@ -76,12 +76,29 @@ export async function toNetworkScopedEvmSmartAccount<Network extends NetworkOrRp
     return undefined;
   })();
 
+  const { chain: scopedChain } = await resolveViemClients({
+    networkOrNodeUrl: options.network,
+    account: options.owner,
+  });
+  const scopedCaip2 = `eip155:${scopedChain.id}`;
+
   const account = {
     address: options.smartAccount.address,
     network: options.network,
     owners: [options.owner],
     name: options.smartAccount.name,
     type: "evm-smart",
+    signX402Payment: async (paymentRequired, acceptedIndex) => {
+      const selected = paymentRequired.accepts[acceptedIndex];
+      if (selected && selected.network !== scopedCaip2) {
+        throw new Error(
+          `acceptedIndex ${acceptedIndex} targets network "${selected.network}" but this account ` +
+            `is scoped to "${options.network}" (${scopedCaip2}). Choose an acceptedIndex whose ` +
+            `network matches the scoped network, or call signX402Payment on the unscoped account.`,
+        );
+      }
+      return options.smartAccount.signX402Payment(paymentRequired, acceptedIndex);
+    },
     sendUserOperation: async (
       userOpOptions: Omit<SendUserOperationOptions<unknown[]>, "smartAccount" | "network">,
     ) => {

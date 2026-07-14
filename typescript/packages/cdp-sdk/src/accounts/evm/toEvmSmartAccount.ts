@@ -31,6 +31,7 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { signEvmSmartAccountX402Payment } from "../../actions/x402/signX402Payment.js";
 import { Analytics } from "../../analytics.js";
 import {
   GetUserOperationOptions,
@@ -50,6 +51,7 @@ import type {
   SmartAccountSwapResult,
 } from "../../actions/evm/swap/types.js";
 import type { Address, Hex } from "../../types/misc.js";
+import type { CdpSmartAccount } from "../../x402/account-signers.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount
@@ -259,6 +261,21 @@ export function toEvmSmartAccount(
         );
       } catch (error) {
         Analytics.trackError(error, "signTypedData");
+        throw error;
+      }
+    },
+    async signX402Payment(paymentRequired, acceptedIndex) {
+      Analytics.trackAction({
+        action: "sign_x402_payment",
+        accountType: "evm_smart",
+      });
+      try {
+        return await signEvmSmartAccountX402Payment(account as unknown as CdpSmartAccount, {
+          paymentRequired,
+          acceptedIndex,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "signX402Payment");
         throw error;
       }
     },

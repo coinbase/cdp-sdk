@@ -55,9 +55,12 @@ describe("SolanaClient", () => {
       const result = await client.createAccount();
       expect(result).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });
@@ -78,9 +81,11 @@ describe("SolanaClient", () => {
       });
       expect(result).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         policies: [policyId],
@@ -281,9 +286,12 @@ describe("SolanaClient", () => {
       const result = await client.getAccount({ address: "cdpSolanaAccount" });
       expect(result).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });
@@ -300,9 +308,12 @@ describe("SolanaClient", () => {
       const result = await client.getAccount({ name: "cdpSolanaAccount" });
       expect(result).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });
@@ -337,17 +348,23 @@ describe("SolanaClient", () => {
       const result2 = await client.getOrCreateAccount({ name: "cdpSolanaAccount" });
       expect(result).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });
       expect(result2).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });
@@ -370,9 +387,12 @@ describe("SolanaClient", () => {
         accounts: [
           {
             address: "cdpSolanaAccount",
+            name: undefined,
+            policies: undefined,
             requestFaucet: expect.any(Function),
             signMessage: expect.any(Function),
             signTransaction: expect.any(Function),
+            signX402Payment: expect.any(Function),
             sendTransaction: expect.any(Function),
             transfer: expect.any(Function),
           },
@@ -558,9 +578,11 @@ describe("SolanaClient", () => {
       expect(result).toEqual({
         address: "cdpSolanaAccount",
         name: "updatedAccountName",
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });
@@ -590,9 +612,11 @@ describe("SolanaClient", () => {
       );
       expect(result).toEqual({
         address: "cdpSolanaAccount",
+        name: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         policies: [policyId],
@@ -624,9 +648,11 @@ describe("SolanaClient", () => {
       expect(result).toEqual({
         address: "cdpSolanaAccount",
         name: "updatedWithIdempotencyKey",
+        policies: undefined,
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        signX402Payment: expect.any(Function),
         sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
       });

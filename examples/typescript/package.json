@@ -6,6 +6,10 @@
     "@solana-program/system": "0.10.0",
     "@solana-program/token": "0.9.0",
     "@solana/kit": "5.5.1",
+    "@x402/core": "^2.16.0",
+    "@x402/evm": "^2.16.0",
+    "@x402/fetch": "^2.16.0",
+    "@x402/svm": "^2.16.0",
     "@types/node": "22.19.15",
     "bs58": "6.0.0",
     "dotenv": "16.6.1",
@@ -18,6 +22,11 @@
   },
   "scripts": {
     "build": "tsc"
+  },
+  "pnpm": {
+    "overrides": {
+      "range-parser": "1.2.1"
+    }
   },
   "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
 }

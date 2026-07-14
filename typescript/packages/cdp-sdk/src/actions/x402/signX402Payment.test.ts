@@ -1,0 +1,491 @@
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { PaymentPayload, PaymentRequired } from "@x402/core/types";
+
+const mockPayload: PaymentPayload = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepted: {
+    scheme: "exact",
+    network: "eip155:84532",
+    asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    amount: "1000",
+    payTo: "0x0000000000000000000000000000000000000001",
+    maxTimeoutSeconds: 60,
+    extra: {},
+  },
+  payload: { signature: "0xmock" },
+};
+
+const mockCreatePaymentPayload = vi.fn().mockResolvedValue(mockPayload);
+
+vi.mock("@x402/core/client", () => ({
+  x402Client: vi.fn().mockImplementation(() => ({
+    register: vi.fn(),
+    createPaymentPayload: mockCreatePaymentPayload,
+  })),
+}));
+
+vi.mock("@x402/evm/exact/client", () => ({
+  registerExactEvmScheme: vi.fn(),
+}));
+
+vi.mock("@x402/evm/upto/client", () => ({
+  UptoEvmScheme: vi.fn().mockImplementation(() => ({})),
+}));
+
+vi.mock("@x402/svm/exact/client", () => ({
+  registerExactSvmScheme: vi.fn(),
+  ExactSvmScheme: vi.fn().mockImplementation(() => ({})),
+}));
+
+vi.mock("../../x402/account-signers.js", () => ({
+  fromCdpSmartWallet: vi.fn().mockReturnValue({ address: "0xmock", signTypedData: vi.fn() }),
+  cdpSolanaAccountToSvmSigner: vi.fn().mockReturnValue({ address: "SolMock" }),
+}));
+
+// Base/Base Sepolia RPC defaults are resolved via the CDP-authenticated node
+// endpoint (see getBaseNodeRpcUrl); mock it so tests don't depend on a live
+// CDP client configuration.
+vi.mock("../../accounts/evm/getBaseNodeRpcUrl.js", () => ({
+  getBaseNodeRpcUrl: vi.fn((network: "base" | "base-sepolia") =>
+    Promise.resolve(
+      network === "base"
+        ? "https://api.developer.coinbase.com/rpc/v1/base/mock-token"
+        : "https://api.developer.coinbase.com/rpc/v1/base-sepolia/mock-token",
+    ),
+  ),
+}));
+
+import {
+  signEvmX402Payment,
+  signEvmSmartAccountX402Payment,
+  signSolanaX402Payment,
+} from "./signX402Payment.js";
+
+import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
+import { registerExactEvmScheme } from "@x402/evm/exact/client";
+import { UptoEvmScheme } from "@x402/evm/upto/client";
+import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
+
+const evmPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+const solanaPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      asset: "11111111111111111111111111111111",
+      amount: "1000",
+      payTo: "11111111111111111111111111111111",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+const uptoEvmPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "upto",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+const permit2EvmPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: { assetTransferMethod: "permit2" },
+    },
+  ],
+};
+
+const mixedPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      asset: "11111111111111111111111111111111",
+      amount: "1000",
+      payTo: "11111111111111111111111111111111",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+    {
+      scheme: "exact",
+      network: "eip155:84532",
+      asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+const originalCdpX402RpcUrls = process.env.CDP_X402_RPC_URLS;
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  delete process.env.CDP_X402_RPC_URLS;
+});
+
+afterAll(() => {
+  if (originalCdpX402RpcUrls === undefined) {
+    delete process.env.CDP_X402_RPC_URLS;
+  } else {
+    process.env.CDP_X402_RPC_URLS = originalCdpX402RpcUrls;
+  }
+});
+
+describe("signEvmX402Payment", () => {
+  it("uses the EVM account directly as the signer", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 });
+    expect(registerExactEvmScheme).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ signer: account }),
+    );
+    expect(UptoEvmScheme).toHaveBeenCalledWith(account, expect.any(Object));
+  });
+
+  it("registers the exact EVM scheme", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 });
+    expect(registerExactEvmScheme).toHaveBeenCalled();
+  });
+
+  it("returns the payment payload from x402Client", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    const result = await signEvmX402Payment(account, {
+      paymentRequired: evmPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(result).toBe(mockPayload);
+    expect(mockCreatePaymentPayload).toHaveBeenCalledWith(evmPaymentRequired);
+  });
+
+  it("constructs an x402Client instance", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    const { x402Client } = await import("@x402/core/client");
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 });
+    expect(x402Client).toHaveBeenCalled();
+  });
+
+  it("selects acceptedIndex from original paymentRequired.accepts before x402 filtering", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, {
+      paymentRequired: mixedPaymentRequired,
+      acceptedIndex: 1,
+    });
+
+    expect(mockCreatePaymentPayload).toHaveBeenLastCalledWith({
+      ...mixedPaymentRequired,
+      accepts: [mixedPaymentRequired.accepts[1]],
+    });
+  });
+
+  it("throws when acceptedIndex is out of range", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: mixedPaymentRequired, acceptedIndex: 99 }),
+    ).rejects.toThrow("acceptedIndex 99 is out of range");
+  });
+
+  it("applies CDP_X402_RPC_URLS overrides to exact and upto EVM schemes", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({
+      "eip155:84532": "https://custom.base-sepolia.example",
+      "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "https://ignored.solana.example",
+    });
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 });
+
+    const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
+      | { schemeOptions?: Record<number, { rpcUrl: string }> }
+      | undefined;
+
+    expect(exactConfig?.schemeOptions?.[84532]?.rpcUrl).toBe("https://custom.base-sepolia.example");
+    // Base mainnet keeps its CDP-node-resolved default even though it wasn't overridden.
+    expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe(
+      "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
+    );
+
+    const uptoSchemeOptions = vi.mocked(UptoEvmScheme).mock.calls.at(-1)?.[1] as
+      | Record<number, { rpcUrl: string }>
+      | undefined;
+    expect(uptoSchemeOptions?.[84532]?.rpcUrl).toBe("https://custom.base-sepolia.example");
+    expect(uptoSchemeOptions?.[8453]?.rpcUrl).toBe(
+      "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
+    );
+    // World has no bundled default — only Base/Base Sepolia resolve automatically.
+    expect(uptoSchemeOptions?.[480]).toBeUndefined();
+  });
+
+  it("throws a clear error when CDP_X402_RPC_URLS is invalid JSON", async () => {
+    process.env.CDP_X402_RPC_URLS = "{not-valid-json";
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow("Invalid CDP_X402_RPC_URLS");
+  });
+
+  it("throws when CDP_X402_RPC_URLS uses object values instead of strings", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({
+      "eip155:84532": { rpcUrl: "https://custom.base-sepolia.example" },
+    });
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: evmPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow('Invalid CDP_X402_RPC_URLS entry for "eip155:84532": expected string URL.');
+  });
+});
+
+describe("signEvmSmartAccountX402Payment", () => {
+  it("creates an EVM signer from the smart account using fromCdpSmartWallet", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: evmPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(fromCdpSmartWallet).toHaveBeenCalledWith(account);
+  });
+
+  it("returns the payment payload from x402Client", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    const result = await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: evmPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(result).toBe(mockPayload);
+  });
+
+  it("registers only the exact EVM scheme and not the Permit2-based upto scheme", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: evmPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(registerExactEvmScheme).toHaveBeenCalled();
+    expect(UptoEvmScheme).not.toHaveBeenCalled();
+  });
+
+  it("rejects the upto scheme, which Permit2-only and unsupported for smart accounts", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmSmartAccountX402Payment(account, {
+        paymentRequired: uptoEvmPaymentRequired,
+        acceptedIndex: 0,
+      }),
+    ).rejects.toThrow('uses the "upto" scheme, which is not supported for EVM smart accounts');
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+
+  it("rejects an exact requirement that uses the Permit2 transfer method", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmSmartAccountX402Payment(account, {
+        paymentRequired: permit2EvmPaymentRequired,
+        acceptedIndex: 0,
+      }),
+    ).rejects.toThrow("requires the Permit2 transfer method, which is not supported");
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+});
+
+describe("signSolanaX402Payment", () => {
+  it("creates a Solana signer from the account", async () => {
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+    await signSolanaX402Payment(account, {
+      paymentRequired: solanaPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(cdpSolanaAccountToSvmSigner).toHaveBeenCalledWith(account);
+  });
+
+  it("registers the exact SVM scheme", async () => {
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+    await signSolanaX402Payment(account, {
+      paymentRequired: solanaPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(registerExactSvmScheme).toHaveBeenCalled();
+  });
+
+  it("returns the payment payload from x402Client", async () => {
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+    const result = await signSolanaX402Payment(account, {
+      paymentRequired: solanaPaymentRequired,
+      acceptedIndex: 0,
+    });
+    expect(result).toBe(mockPayload);
+  });
+
+  it("applies a CDP_X402_RPC_URLS override for the selected Solana network", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({
+      "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "https://custom.solana.example",
+    });
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+
+    await signSolanaX402Payment(account, {
+      paymentRequired: solanaPaymentRequired,
+      acceptedIndex: 0,
+    });
+
+    expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), {
+      rpcUrl: "https://custom.solana.example",
+    });
+    expect(registerExactSvmScheme).not.toHaveBeenCalled();
+  });
+
+  it("rejects an acceptedIndex that targets a non-Solana network", async () => {
+    const account = {
+      address: "SolanaAddress",
+      signTransaction: vi.fn().mockResolvedValue({ signedTransaction: "" }),
+    };
+
+    await expect(
+      signSolanaX402Payment(account, { paymentRequired: mixedPaymentRequired, acceptedIndex: 1 }),
+    ).rejects.toThrow('targets network "eip155:84532", which a Solana account cannot sign');
+  });
+});
+
+describe("signEvmX402Payment scheme/network validation", () => {
+  it("rejects an acceptedIndex that targets a non-EVM network", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: mixedPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow(
+      'targets network "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", which a EVM account cannot sign',
+    );
+  });
+});
+
+// ─── RPC URL gap detection ────────────────────────────────────────────────────
+
+// Optimism (eip155:10) is in CHAIN_ID_TO_CDP_NETWORK (smart wallet signing
+// supported) but has no default RPC from getDefaultEvmRpcUrls (Base-only defaults).
+const optimismPaymentRequired: PaymentRequired = {
+  x402Version: 2,
+  resource: { url: "https://example.com/report" },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "eip155:10",
+      asset: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+      amount: "1000",
+      payTo: "0x0000000000000000000000000000000000000001",
+      maxTimeoutSeconds: 60,
+      extra: {},
+    },
+  ],
+};
+
+describe("signEvmX402Payment RPC URL gap detection", () => {
+  it("throws a clear error when the selected chain has no configured RPC URL", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: optimismPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow(/No RPC URL configured for eip155:10/);
+
+    // Signing must not be attempted when the RPC is missing.
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+
+  it("error message includes actionable CDP_X402_RPC_URLS guidance", async () => {
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+
+    await expect(
+      signEvmX402Payment(account, { paymentRequired: optimismPaymentRequired, acceptedIndex: 0 }),
+    ).rejects.toThrow(/CDP_X402_RPC_URLS/);
+  });
+
+  it("succeeds when CDP_X402_RPC_URLS supplies an RPC for the chain", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({ "eip155:10": "https://mainnet.optimism.io" });
+
+    const account = { address: "0xabc" as `0x${string}`, signTypedData: vi.fn() };
+    const result = await signEvmX402Payment(account, {
+      paymentRequired: optimismPaymentRequired,
+      acceptedIndex: 0,
+    });
+
+    expect(result).toBe(mockPayload);
+    expect(mockCreatePaymentPayload).toHaveBeenCalledOnce();
+  });
+});
+
+describe("signEvmSmartAccountX402Payment RPC URL gap detection", () => {
+  it("throws a clear error when the selected chain has no configured RPC URL", async () => {
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+
+    await expect(
+      signEvmSmartAccountX402Payment(account, {
+        paymentRequired: optimismPaymentRequired,
+        acceptedIndex: 0,
+      }),
+    ).rejects.toThrow(/No RPC URL configured for eip155:10/);
+
+    expect(mockCreatePaymentPayload).not.toHaveBeenCalled();
+  });
+
+  it("succeeds when CDP_X402_RPC_URLS supplies an RPC for the chain", async () => {
+    process.env.CDP_X402_RPC_URLS = JSON.stringify({ "eip155:10": "https://mainnet.optimism.io" });
+
+    const account = { address: "0xsmart" as `0x${string}`, signTypedData: vi.fn() };
+    const result = await signEvmSmartAccountX402Payment(account, {
+      paymentRequired: optimismPaymentRequired,
+      acceptedIndex: 0,
+    });
+
+    expect(result).toBe(mockPayload);
+  });
+});
