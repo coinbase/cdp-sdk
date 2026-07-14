@@ -69,6 +69,18 @@ importers:
       '@solana/kit':
         specifier: ^5.5.1
         version: 5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/core':
+        specifier: ^2.16.0
+        version: 2.16.0
+      '@x402/evm':
+        specifier: ^2.16.0
+        version: 2.16.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/extensions':
+        specifier: ^2.17.0
+        version: 2.17.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/svm':
+        specifier: ^2.16.0
+        version: 2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       abitype:
         specifier: 1.0.6
         version: 1.0.6(typescript@5.8.3)(zod@3.25.76)
@@ -96,22 +108,6 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
-    devDependencies:
-      '@x402/core':
-        specifier: ^2.16.0
-        version: 2.16.0
-      '@x402/evm':
-        specifier: ^2.16.0
-        version: 2.16.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
-      '@x402/extensions':
-        specifier: ^2.17.0
-        version: 2.17.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
-      '@x402/fetch':
-        specifier: ^2.16.0
-        version: 2.16.0
-      '@x402/svm':
-        specifier: ^2.16.0
-        version: 2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
 
   x402/servers/express:
     dependencies:
