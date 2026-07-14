@@ -112,9 +112,6 @@ importers:
       '@x402/svm':
         specifier: ^2.16.0
         version: 2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
-      ox:
-        specifier: ^0.14.0
-        version: 0.14.29(typescript@5.8.3)(zod@3.25.76)
 
   x402/servers/express:
     dependencies:
