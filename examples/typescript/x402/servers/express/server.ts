@@ -44,6 +44,7 @@
 import "dotenv/config";
 
 import express from "express";
+import type { Address } from "viem";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { paymentMiddleware, paymentMiddlewareFromHTTPServer, x402ResourceServer } from "@x402/express";
 import { createCdpFacilitatorClient, createX402Server } from "@coinbase/cdp-sdk/x402";
@@ -54,7 +55,7 @@ const app = express();
 // ─── Approach 1: Drop in the CDP facilitator into an existing server setup ──
 
 if (APPROACH === "1") {
-  const PAY_TO = (process.env.PAY_TO ?? "") as `0x${string}`;
+  const PAY_TO = (process.env.PAY_TO ?? "") as Address;
   if (!PAY_TO) throw new Error("PAY_TO env var required (an EVM address to receive payments)");
 
   // Before — self-hosted or other facilitator:

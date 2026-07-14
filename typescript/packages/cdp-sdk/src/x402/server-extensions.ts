@@ -23,6 +23,7 @@ import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
+import type { Address } from "viem";
 
 /*
  * ---------------------------------------------------------------------------
@@ -202,7 +203,7 @@ export function getCdpDefaultSchemes(): CdpSchemeRegistration[] {
  * @param evmAddress - EVM address of the payment receiver.
  * @returns A scheme+network registration for `batch-settlement` on all EVM networks.
  */
-export function getCdpBatchSettlementScheme(evmAddress: `0x${string}`): CdpSchemeRegistration {
+export function getCdpBatchSettlementScheme(evmAddress: Address): CdpSchemeRegistration {
   return {
     network: "eip155:*" as Network,
     server: new BatchSettlementEvmScheme(evmAddress),

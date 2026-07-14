@@ -1,17 +1,42 @@
 /*
  * Account-level x402 payment signing.
+ *
+ * `@x402/*` packages are optional peer dependencies of the SDK — most
+ * consumers of `@coinbase/cdp-sdk` never touch x402, so every module reached
+ * from an account's `signX402Payment()` method (this file, and the
+ * `../../x402/account-signers.js` adapters it uses) loads them lazily via
+ * dynamic `import()` instead of a static top-level import. That keeps a bare
+ * `import { CdpClient } from "@coinbase/cdp-sdk"` from requiring `@x402/*` to
+ * be installed at all; they're only resolved the first time a caller
+ * actually signs an x402 payment.
  */
-import { x402Client } from "@x402/core/client";
-import { registerExactEvmScheme } from "@x402/evm/exact/client";
-import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
-
-import { fromCdpSmartWallet, cdpSolanaAccountToSvmSigner } from "../../x402/account-signers.js";
 import { getDefaultEvmRpcUrls } from "../../x402/constants.js";
 
 import type { CdpSmartAccount, CdpSolanaAccount } from "../../x402/account-signers.js";
 import type { Network, PaymentPayload, PaymentRequired } from "@x402/core/types";
 import type { ClientEvmSigner } from "@x402/evm";
+
+/**
+ * Dynamically imports an optional `@x402/*` peer dependency (or an internal
+ * module that itself imports one), wrapping module-not-found failures with
+ * an actionable install hint instead of a raw resolution error.
+ *
+ * @param specifier - The module specifier to import.
+ * @param loader - Thunk performing the dynamic `import()`, so callers keep accurate typing.
+ * @returns The imported module's exports.
+ */
+async function importX402Dependency<T>(specifier: string, loader: () => Promise<T>): Promise<T> {
+  try {
+    return await loader();
+  } catch (error) {
+    throw new Error(
+      `Failed to load "${specifier}", which is required to sign x402 payments. ` +
+        "Install the CDP SDK's x402 peer dependencies: " +
+        "`npm install @x402/core @x402/evm @x402/svm`.",
+      { cause: error },
+    );
+  }
+}
 
 /**
  * Options for signing an x402 payment payload.
@@ -249,6 +274,13 @@ export async function signEvmX402Payment(
   );
   const [selected] = selectedPaymentRequired.accepts;
   assertEvmRpcConfigured(selected.network, rpcUrlsByChainId);
+
+  const [{ x402Client }, { registerExactEvmScheme }, { UptoEvmScheme }] = await Promise.all([
+    importX402Dependency("@x402/core/client", () => import("@x402/core/client")),
+    importX402Dependency("@x402/evm/exact/client", () => import("@x402/evm/exact/client")),
+    importX402Dependency("@x402/evm/upto/client", () => import("@x402/evm/upto/client")),
+  ]);
+
   const client = new x402Client();
   registerExactEvmScheme(client, { signer: account, schemeOptions: rpcUrlsByChainId });
   client.register("eip155:*" as Network, new UptoEvmScheme(account, rpcUrlsByChainId));
@@ -289,6 +321,16 @@ export async function signEvmSmartAccountX402Payment(
         `(transferWithAuthorization).`,
     );
   }
+
+  const [{ x402Client }, { registerExactEvmScheme }, { fromCdpSmartWallet }] = await Promise.all([
+    importX402Dependency("@x402/core/client", () => import("@x402/core/client")),
+    importX402Dependency("@x402/evm/exact/client", () => import("@x402/evm/exact/client")),
+    importX402Dependency(
+      "../../x402/account-signers.js",
+      () => import("../../x402/account-signers.js"),
+    ),
+  ]);
+
   const signer = fromCdpSmartWallet(account);
   const client = new x402Client();
   registerExactEvmScheme(client, { signer, schemeOptions: rpcUrlsByChainId });
@@ -312,6 +354,20 @@ export async function signSolanaX402Payment(
     SVM_SIGNING_CAPABILITY,
   );
   const [selected] = selectedPaymentRequired.accepts;
+
+  const [
+    { x402Client },
+    { ExactSvmScheme, registerExactSvmScheme },
+    { cdpSolanaAccountToSvmSigner },
+  ] = await Promise.all([
+    importX402Dependency("@x402/core/client", () => import("@x402/core/client")),
+    importX402Dependency("@x402/svm/exact/client", () => import("@x402/svm/exact/client")),
+    importX402Dependency(
+      "../../x402/account-signers.js",
+      () => import("../../x402/account-signers.js"),
+    ),
+  ]);
+
   const signer = cdpSolanaAccountToSvmSigner(account);
   const client = new x402Client();
   const rpcUrl = resolveSvmRpcUrlOverride(selected.network);

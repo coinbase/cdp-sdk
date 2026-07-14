@@ -45,11 +45,6 @@
     "@solana-program/system": "^0.10.0",
     "@solana-program/token": "^0.9.0",
     "@solana/kit": "^5.5.1",
-    "@x402/core": "^2.16.0",
-    "@x402/evm": "^2.16.0",
-    "@x402/extensions": "^2.17.0",
-    "@x402/fetch": "^2.16.0",
-    "@x402/svm": "^2.16.0",
     "abitype": "1.0.6",
     "axios": "1.16.0",
     "axios-retry": "^4.5.0",
@@ -60,7 +55,36 @@
     "viem": "^2.47.0",
     "zod": "^3.25.76"
   },
+  "peerDependencies": {
+    "@x402/core": "^2.16.0",
+    "@x402/evm": "^2.16.0",
+    "@x402/extensions": "^2.17.0",
+    "@x402/fetch": "^2.16.0",
+    "@x402/svm": "^2.16.0"
+  },
+  "peerDependenciesMeta": {
+    "@x402/core": {
+      "optional": true
+    },
+    "@x402/evm": {
+      "optional": true
+    },
+    "@x402/extensions": {
+      "optional": true
+    },
+    "@x402/fetch": {
+      "optional": true
+    },
+    "@x402/svm": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@x402/core": "^2.16.0",
+    "@x402/evm": "^2.16.0",
+    "@x402/extensions": "^2.17.0",
+    "@x402/fetch": "^2.16.0",
+    "@x402/svm": "^2.16.0",
     "ox": "^0.14.0"
   },
   "author": "Coinbase Inc.",

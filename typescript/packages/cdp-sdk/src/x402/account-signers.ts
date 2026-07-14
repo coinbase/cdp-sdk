@@ -10,7 +10,7 @@ import type { EvmAccount } from "../accounts/evm/types.js";
 import type { SignTypedDataOptions } from "../client/evm/evm.types.js";
 import type { TransactionSigner } from "@solana/kit";
 import type { ClientEvmSigner } from "@x402/evm";
-import type { Hex } from "viem";
+import type { Address, Hex } from "viem";
 
 /**
  * The subset of a CDP EVM server account (EOA) required to sign x402 payments.
@@ -37,7 +37,7 @@ export function fromCdpEvmAccount(account: CdpEvmAccount): ClientEvmSigner {
  * requires a `network` derived from the EIP-712 domain's `chainId`.
  */
 export interface CdpSmartAccount {
-  address: `0x${string}`;
+  address: Address;
   signTypedData(options: Omit<SignTypedDataOptions, "address"> & { network: string }): Promise<Hex>;
 }
 
@@ -79,7 +79,7 @@ export function fromCdpSmartWallet(account: CdpSmartAccount): ClientEvmSigner {
   const signerShape = {
     address: account.address,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async signTypedData({ domain, types, primaryType, message }: any): Promise<`0x${string}`> {
+    async signTypedData({ domain, types, primaryType, message }: any): Promise<Hex> {
       const chainId = domain?.chainId as number | undefined;
       const network = resolveNetworkFromChainId(chainId);
       return account.signTypedData({ domain, types, primaryType, message, network });

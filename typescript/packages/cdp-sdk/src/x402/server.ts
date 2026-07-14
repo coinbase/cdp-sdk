@@ -89,6 +89,7 @@ import { CdpClient } from "../client/cdp.js";
 
 import type { RoutesConfig, RouteConfig } from "@x402/core/server";
 import type { Network } from "@x402/core/types";
+import type { Address } from "viem";
 
 /*
  * ---------------------------------------------------------------------------
@@ -246,7 +247,7 @@ export type PayToConfig =
        */
       type: "address";
       /** EVM address to receive payments. */
-      evm?: `0x${string}`;
+      evm?: Address;
       /** Solana address to receive payments. */
       solana?: string;
     };
@@ -341,7 +342,7 @@ export interface CdpX402ServerConfig {
  */
 
 interface ProvisionedAddresses {
-  evmAddress: `0x${string}` | "";
+  evmAddress: Address | "";
   svmAddress: string;
   ownerWallet?: string;
 }
@@ -431,7 +432,7 @@ async function provisionServerAccounts(
         const existingAddress = await findSmartAccountByOwner(cdpClient, ownerAccount.address);
         if (!existingAddress) throw error;
         smartAccount = await cdpClient.evm.getSmartAccount({
-          address: existingAddress as `0x${string}`,
+          address: existingAddress as Address,
           owner: ownerAccount,
         });
       } else {
@@ -440,7 +441,7 @@ async function provisionServerAccounts(
     }
 
     return {
-      evmAddress: smartAccount.address as `0x${string}`,
+      evmAddress: smartAccount.address as Address,
       svmAddress,
       ownerWallet: payToConfig.ownerAccountName,
     };
@@ -448,7 +449,7 @@ async function provisionServerAccounts(
 
   const evmAccount = await cdpClient.evm.getOrCreateAccount({ name: accountName });
   return {
-    evmAddress: evmAccount.address as `0x${string}`,
+    evmAddress: evmAccount.address as Address,
     svmAddress,
   };
 }
@@ -604,7 +605,7 @@ function assertNonEmptyPayTo(payTo: string, network: string): void {
  */
 function fillX402RoutePayTo(
   route: RouteConfig,
-  evmAddress: `0x${string}` | "",
+  evmAddress: Address | "",
   svmAddress: string,
 ): RouteConfig {
   const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
@@ -651,7 +652,7 @@ function fillX402RoutePayTo(
  */
 function convertCdpRoute(
   route: CdpRouteConfig,
-  evmAddress: `0x${string}` | "",
+  evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
   available: NetworkFamilies,
@@ -780,7 +781,7 @@ function withAutoInjectedExtensions(pattern: string, route: RouteConfig): RouteC
  */
 function resolveRoutes(
   routes: Record<string, CdpRouteConfig | RouteConfig>,
-  evmAddress: `0x${string}` | "",
+  evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
 ): RoutesConfig {
@@ -845,7 +846,7 @@ export class X402Server extends x402HTTPResourceServer {
    * provisioned (no `eip155:*` route, and `payToConfig` did not supply an
    * `evm` address).
    */
-  readonly payToEvmAddress: `0x${string}` | undefined;
+  readonly payToEvmAddress: Address | undefined;
   /**
    * Solana address of the provisioned receiver wallet. `undefined` when no
    * Solana wallet was provisioned (no `solana:*` route, and `payToConfig` did
@@ -875,7 +876,7 @@ export class X402Server extends x402HTTPResourceServer {
   private constructor(
     resourceServer: x402ResourceServer,
     routes: RoutesConfig,
-    payToEvmAddress: `0x${string}` | undefined,
+    payToEvmAddress: Address | undefined,
     payToSvmAddress: string | undefined,
     ownerWallet?: string,
   ) {
@@ -948,7 +949,7 @@ export class X402Server extends x402HTTPResourceServer {
 
     // 5. Resolve payTo addresses — provision wallets or use provided addresses.
     const payToConfig = merged.payToConfig;
-    let evmAddress: `0x${string}` | "";
+    let evmAddress: Address | "";
     let svmAddress: string;
     let ownerWallet: string | undefined;
 
@@ -1025,12 +1026,12 @@ export class X402Server extends x402HTTPResourceServer {
      *    servers never speculatively register a scheme they'll never use, while
      *    still covering full x402 RouteConfigs with an explicit payTo.
      */
-    const batchAddresses = new Set<`0x${string}`>();
+    const batchAddresses = new Set<Address>();
     for (const route of Object.values(resolvedRoutes)) {
       const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
       for (const opt of accepts) {
         if ((opt.scheme as string) === "batch-settlement" && opt.payTo) {
-          batchAddresses.add(opt.payTo as `0x${string}`);
+          batchAddresses.add(opt.payTo as Address);
         }
       }
     }
