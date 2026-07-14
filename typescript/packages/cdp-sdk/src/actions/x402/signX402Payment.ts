@@ -31,8 +31,7 @@ async function importX402Dependency<T>(specifier: string, loader: () => Promise<
   } catch (error) {
     throw new Error(
       `Failed to load "${specifier}", which is required to sign x402 payments. ` +
-        "Install the CDP SDK's x402 peer dependencies: " +
-        "`npm install @x402/core @x402/evm @x402/svm`.",
+        "Install the CDP SDK's x402 peer dependencies: `@x402/core`, `@x402/evm`, `@x402/svm`.",
       { cause: error },
     );
   }

@@ -1647,7 +1647,7 @@ console.log(result.transactionSignature);
 
 All entry points resolve `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and (where a wallet is required) `CDP_WALLET_SECRET` from environment variables, and accept explicit overrides via config. See the [x402 examples](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/x402) for complete, runnable programs.
 
-`@x402/core`, `@x402/evm`, `@x402/extensions`, `@x402/fetch`, and `@x402/svm` are optional peer dependencies — install the ones you need alongside `@coinbase/cdp-sdk` (e.g. `npm install @x402/core @x402/evm @x402/svm`) rather than expecting them to come along automatically.
+`@x402/core`, `@x402/evm`, `@x402/extensions`, and `@x402/svm` are optional peer dependencies — install the ones you need alongside `@coinbase/cdp-sdk` (e.g. `npm install @x402/core @x402/evm @x402/svm`) rather than expecting them to come along automatically. `@x402/fetch` isn't used by the SDK itself, but pairs well with `CdpX402Client` if you want its `wrapFetchWithPayment` helper — install it separately if so.
 
 ### Pay for an x402-protected API
 

@@ -70,6 +70,9 @@ importers:
       orval:
         specifier: 7.21.0
         version: 7.21.0(encoding@0.1.13)(openapi-types@12.1.3)(typescript@5.9.3)
+      ox:
+        specifier: 0.14.29
+        version: 0.14.29(typescript@5.9.3)(zod@3.25.76)
       prettier:
         specifier: 3.8.1
         version: 3.8.1
@@ -149,9 +152,6 @@ importers:
       '@x402/svm':
         specifier: ^2.16.0
         version: 2.16.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
-      ox:
-        specifier: ^0.14.0
-        version: 0.14.29(typescript@5.9.3)(zod@3.25.76)
 
 packages:
 

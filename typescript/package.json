@@ -48,6 +48,7 @@
     "eslint-plugin-unused-imports": "4.4.1",
     "msw": "2.12.10",
     "orval": "7.21.0",
+    "ox": "0.14.29",
     "prettier": "3.8.1",
     "tsx": "4.21.0",
     "typedoc": "0.28.17",
