@@ -60,7 +60,7 @@ This module contains the TypeScript CDP SDK, which is a library that provides a 
 
 ## Documentation
 
-CDP SDK has [auto-generated docs for the Typescript SDK](https://coinbase.github.io/cdp-sdk/typescript).
+CDP SDK has [auto-generated docs for the Typescript SDK](https://docs.cdp.coinbase.com/sdks/cdp-sdks-v2/typescript).
 
 Further documentation is also available on the CDP docs website:
 
