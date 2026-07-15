@@ -60,7 +60,7 @@ This module contains the TypeScript CDP SDK, which is a library that provides a 
 
 ## Documentation
 
-CDP SDK has [auto-generated docs for the Typescript SDK](https://coinbase.github.io/cdp-sdk/typescript).
+CDP SDK has [auto-generated docs for the Typescript SDK](https://docs.cdp.coinbase.com/sdks/cdp-sdks-v2/typescript).
 
 Further documentation is also available on the CDP docs website:
 
@@ -1887,7 +1887,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 For feature requests, feedback, or questions, please reach out to us in the **#cdp-sdk** channel of the [Coinbase Developer Platform Discord](https://discord.com/invite/cdp).
 
 - [API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
-- [SDK Docs](https://coinbase.github.io/cdp-sdk/typescript)
+- [SDK Docs](https://docs.cdp.coinbase.com/sdks/cdp-sdks-v2/typescript)
 - [GitHub Issues](https://github.com/coinbase/cdp-sdk/issues)
 
 ## Security

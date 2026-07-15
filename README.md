@@ -44,7 +44,7 @@ CDP SDK has full-featured client libraries for the following languages. Follow t
 
 CDP SDK has auto-generated SDK docs for each of the full-featured client libraries:
 
-- [TypeScript](https://coinbase.github.io/cdp-sdk/typescript)
+- [TypeScript](https://docs.cdp.coinbase.com/sdks/cdp-sdks-v2/typescript)
 - [Python](https://coinbase.github.io/cdp-sdk/python)
 - [Go](https://coinbase.github.io/cdp-sdk/go)
 
