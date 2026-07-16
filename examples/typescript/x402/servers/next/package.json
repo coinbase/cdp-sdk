@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "name": "x402-next-server-example",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 8402",
+    "build": "next build",
+    "start": "next start -p 8402"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "workspace:*",
+    "@x402/core": "^2.16.0",
+    "@x402/evm": "^2.16.0",
+    "@x402/extensions": "^2.17.0",
+    "@x402/next": "^2.16.0",
+    "@x402/svm": "^2.16.0",
+    "next": "^16.2.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.3",
+    "viem": "2.47.0"
+  }
+}

@@ -9,5 +9,5 @@
       "@coinbase/cdp-sdk": ["../../typescript/packages/cdp-sdk/src"]
     }
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "x402/servers"]
 }
