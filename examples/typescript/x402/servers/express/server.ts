@@ -20,7 +20,9 @@
  *
  * `createX402Server` provisions a receiver wallet, wires the CDP facilitator,
  * and returns a fully initialized `x402HTTPResourceServer`. No PAY_TO needed —
- * the wallet addresses are exposed on the returned server object.
+ * the wallet addresses are exposed on the returned server object. This approach
+ * also demonstrates the `upto` scheme (usage-based billing) on `GET /usage`
+ * alongside the default `exact`-scheme `GET /report` route.
  *
  * Requires: CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET
  * ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +48,12 @@ import "dotenv/config";
 import express from "express";
 import type { Address } from "viem";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
-import { paymentMiddleware, paymentMiddlewareFromHTTPServer, x402ResourceServer } from "@x402/express";
+import {
+  paymentMiddleware,
+  paymentMiddlewareFromHTTPServer,
+  setSettlementOverrides,
+  x402ResourceServer,
+} from "@x402/express";
 import { createCdpFacilitatorClient, createX402Server } from "@coinbase/cdp-sdk/x402";
 
 const APPROACH = process.env.APPROACH ?? "2";
@@ -94,6 +101,18 @@ if (APPROACH === "1") {
       "GET /report": { price: "$0.01", description: "AI-generated report" },
       // networks defaults to Base mainnet + Solana mainnet for "exact" scheme.
       // Override with networks: ["eip155:8453"] to restrict to EVM-only, etc.
+
+      // Usage-based billing with the "upto" scheme: the client authorizes a
+      // ceiling ($0.10 here) and the server settles only the amount actually
+      // used (see the /usage handler below). createX402Server auto-registers
+      // the upto scheme, so the route config is all that's needed here. upto
+      // is EVM-only; pinned to Base Sepolia so the demo funds on testnet.
+      "GET /usage": {
+        price: "$0.10",
+        scheme: "upto",
+        networks: ["eip155:84532"],
+        description: "Usage-based billing — authorize up to $0.10, settle actual usage",
+      },
     },
     // Optional: bring your own addresses instead of provisioning a CDP wallet.
     // payToConfig: { type: "address", evm: "0x...", solana: "..." },
@@ -102,6 +121,23 @@ if (APPROACH === "1") {
   // server IS an x402HTTPResourceServer — pass it to any x402 middleware.
   app.use(paymentMiddlewareFromHTTPServer(server));
   app.get("/report", (_req, res) => res.json({ report: "..." }));
+
+  // upto route: compute a variable charge at or below the authorized max, then
+  // tell the middleware to settle only that amount via setSettlementOverrides.
+  // In production this would be real usage — LLM tokens, bytes served, etc.
+  app.get("/usage", (_req, res) => {
+    const maxAtomic = 100_000; // $0.10 in 6-decimal USDC atomic units
+    const actualAtomic = Math.floor(Math.random() * (maxAtomic + 1));
+    setSettlementOverrides(res, { amount: String(actualAtomic) });
+    res.json({
+      result: "Here is your usage-metered response...",
+      usage: {
+        authorizedMaxAtomic: String(maxAtomic),
+        actualChargedAtomic: String(actualAtomic),
+      },
+    });
+  });
+
   app.listen(8402, () =>
     console.log(
       `Listening on http://localhost:8402\n` +

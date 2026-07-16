@@ -3,21 +3,23 @@
   "name": "x402-mcp-server-example",
   "type": "module",
   "scripts": {
-    "start": "tsx server.ts"
+    "start": "tsx server.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "@types/express": "^5.0.2",
-    "@x402/core": "^2.16.0",
-    "@x402/evm": "^2.16.0",
-    "@x402/mcp": "^2.16.0",
+    "@x402/core": "^2.18.0",
+    "@x402/evm": "^2.18.0",
+    "@x402/mcp": "^2.18.0",
     "dotenv": "^16.0.0",
     "express": "^5.2.1",
     "tsx": "^4.21.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "typescript": "^5.7.3",
     "viem": "2.47.0"
   }
 }

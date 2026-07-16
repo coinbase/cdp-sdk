@@ -8,8 +8,8 @@
  * it drops in directly — CDP provisions the wallet and signs payments; no
  * private keys, no manual scheme registration.
  *
- * This clean example connects, lists tools, then calls the free `ping` tool and
- * the paid `generate_report` tool. See `chatbot.ts` for an LLM-driven variant.
+ * This minimal example connects, lists tools, then calls the free `ping` tool
+ * and the paid `generate_report` tool. See `chatbot.ts` for an LLM-driven variant.
  *
  * Setup:
  *   1. Start the MCP server:  cd ../../servers/mcp && pnpm install && pnpm start

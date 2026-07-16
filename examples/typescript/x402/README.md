@@ -82,6 +82,16 @@ Approach 1 (and the Next.js example) needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET
 (the server receives payments, so no wallet secret). Approach 2 also needs `CDP_WALLET_SECRET` to
 provision the receiver wallet, and prints the provisioned addresses instead of using `PAY_TO`.
 
+The Express server's Approach 2 additionally exposes `GET /usage`, which demonstrates the `upto`
+scheme (usage-based billing): the client authorizes a ceiling of `$0.10` and the handler settles
+only the amount actually used via `setSettlementOverrides`. `createX402Server` auto-registers the
+`upto` scheme, so the route just sets `scheme: "upto"`. Pay it with the existing fetch client —
+`CdpX402Client` handles `upto` automatically — by pointing it at the route:
+
+```bash
+X402_API_URL=http://localhost:8402/usage pnpm tsx x402/clients/payForApi.ts
+```
+
 **MCP server** — exposes paid tools over SSE using the CDP hosted facilitator and a CDP-managed
 receiver wallet:
 

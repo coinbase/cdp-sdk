@@ -65,6 +65,43 @@ function generateReport(topic: string): string {
   return `AI report on "${topic}": demand is trending up, sentiment is positive, no anomalies detected.`;
 }
 
+/** A tool handler wrapper produced by `createPaymentWrapper` — see `main()`. */
+type PaymentWrapper = ReturnType<typeof createPaymentWrapper>;
+
+/**
+ * Builds a fresh `McpServer` with both tools registered.
+ *
+ * The MCP SDK's `Server.connect()` binds a server 1:1 to a single transport
+ * and throws if you call it again on the same instance ("use a separate
+ * Protocol instance per connection" — see its source). So every new SSE
+ * connection needs its own `McpServer`; this factory is what `startSseServer`
+ * calls per connection. `paid` is shared across all of them since it's just
+ * stateless verify/settle logic, not tied to any one transport.
+ *
+ * @param paid - Payment wrapper from `createPaymentWrapper`, applied to the paid tool.
+ * @returns A new, unconnected `McpServer` with `generate_report` and `ping` registered.
+ */
+function createMcpServer(paid: PaymentWrapper): McpServer {
+  const mcpServer = new McpServer({ name: "x402 CDP Report Service", version: "1.0.0" });
+
+  // Paid tool — wrap the handler with `paid(...)`.
+  mcpServer.tool(
+    "generate_report",
+    "Generate an AI report on a topic. Requires payment of $0.01 USDC.",
+    { topic: z.string().describe("The topic to generate a report about") },
+    paid(async (args: { topic: string }) => ({
+      content: [{ type: "text" as const, text: generateReport(args.topic) }],
+    })),
+  );
+
+  // Free tool — no wrapper.
+  mcpServer.tool("ping", "A free health check tool", {}, async () => ({
+    content: [{ type: "text" as const, text: "pong" }],
+  }));
+
+  return mcpServer;
+}
+
 async function main(): Promise<void> {
   const payTo = await resolvePayTo();
 
@@ -85,48 +122,39 @@ async function main(): Promise<void> {
   // createPaymentWrapper wraps any tool handler with x402 verify + settle.
   const paid = createPaymentWrapper(resourceServer, { accepts: reportAccepts });
 
-  const mcpServer = new McpServer({ name: "x402 CDP Report Service", version: "1.0.0" });
-
-  // Paid tool — wrap the handler with `paid(...)`.
-  mcpServer.tool(
-    "generate_report",
-    "Generate an AI report on a topic. Requires payment of $0.01 USDC.",
-    { topic: z.string().describe("The topic to generate a report about") },
-    paid(async (args: { topic: string }) => ({
-      content: [{ type: "text" as const, text: generateReport(args.topic) }],
-    })),
-  );
-
-  // Free tool — no wrapper.
-  mcpServer.tool("ping", "A free health check tool", {}, async () => ({
-    content: [{ type: "text" as const, text: "pong" }],
-  }));
-
-  startSseServer(mcpServer, payTo);
+  startSseServer(() => createMcpServer(paid), payTo);
 }
 
 /**
- * Serves the MCP server over SSE via a small Express app.
+ * Serves MCP over SSE via a small Express app, supporting any number of
+ * concurrent clients.
  *
- * @param mcpServer - The MCP server instance.
+ * Each `GET /sse` gets its own `McpServer` (from `createServer`) and its own
+ * `SSEServerTransport`, keyed by `transport.sessionId`. The transport sends
+ * that session ID to the client as part of the SSE handshake, and the client
+ * echoes it back as a `sessionId` query param on every `POST /messages` —
+ * that's how we route each message to the right session's transport instead
+ * of guessing.
+ *
+ * @param createServer - Builds a fresh `McpServer` for a new connection.
  * @param payTo - The receiver address, for the startup log.
  */
-function startSseServer(mcpServer: McpServer, payTo: Address): void {
+function startSseServer(createServer: () => McpServer, payTo: Address): void {
   const app = express();
   const transports = new Map<string, SSEServerTransport>();
 
   app.get("/sse", async (_req, res) => {
     const transport = new SSEServerTransport("/messages", res);
-    const sessionId = crypto.randomUUID();
-    transports.set(sessionId, transport);
-    res.on("close", () => transports.delete(sessionId));
-    await mcpServer.connect(transport);
+    transports.set(transport.sessionId, transport);
+    res.on("close", () => transports.delete(transport.sessionId));
+    await createServer().connect(transport);
   });
 
   app.post("/messages", express.json(), async (req, res) => {
-    const transport = Array.from(transports.values())[0];
+    const sessionId = String(req.query.sessionId ?? "");
+    const transport = transports.get(sessionId);
     if (!transport) {
-      res.status(400).json({ error: "No active SSE connection" });
+      res.status(400).json({ error: `No active SSE session for sessionId "${sessionId}"` });
       return;
     }
     await transport.handlePostMessage(req, res, req.body);

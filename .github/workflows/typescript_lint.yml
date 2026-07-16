@@ -80,6 +80,24 @@ jobs:
         run: pnpm build
         working-directory: ./examples/typescript
 
+      - name: Build express server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/express
+
+      - name: Build hono server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/hono
+
+      - name: Build mcp server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/mcp
+
+      - name: Build next server example
+        # PAY_TO is only needed so the module-level check in app/x402.ts
+        # doesn't throw during the build; no real payments are made.
+        run: PAY_TO=0x000000000000000000000000000000000000dEaD pnpm build
+        working-directory: ./examples/typescript/x402/servers/next
+
   lint:
     runs-on: ubuntu-latest
     steps:
