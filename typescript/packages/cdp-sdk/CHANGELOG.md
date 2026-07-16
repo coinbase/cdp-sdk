@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.53.0
+
+### Minor Changes
+
+- [#745](https://github.com/coinbase/cdp-sdk/pull/745) [`11a7c24`](https://github.com/coinbase/cdp-sdk/commit/11a7c24fbfe6688fca7e0e856857400662146e4a) Thanks [@ethanoroshiba](https://github.com/ethanoroshiba)! - Added support for calling public OpenAPI endpoints without API credentials and reporting missing credentials for authenticated endpoints at request time.
+
+- [#743](https://github.com/coinbase/cdp-sdk/pull/743) [`595e2cc`](https://github.com/coinbase/cdp-sdk/commit/595e2cc72755db79a3758b213bce7e0eaba54fc7) Thanks [@ethanoroshiba](https://github.com/ethanoroshiba)! - Added first-class x402 payment protocol support. Introduced the `@coinbase/cdp-sdk/x402` subpath exporting `CdpX402Client` for paying x402-protected APIs with CDP-managed wallets, `createX402Server` for gating HTTP endpoints, `createCdpFacilitatorClient` for the CDP-hosted facilitator, SDK-managed spend controls, and CDP-account-to-x402 signer adapters. Added a `signX402Payment` action to CDP EVM server accounts, EVM smart accounts, and Solana accounts for signing x402 payment payloads directly.
+
+  The `@x402/core`, `@x402/evm`, `@x402/extensions`, and `@x402/svm` packages are optional peer dependencies rather than regular dependencies, so installing `@coinbase/cdp-sdk` doesn't pull them in unless you use x402 functionality. Install them yourself (e.g. `npm install @x402/core @x402/evm @x402/svm`) to use `signX402Payment`, `@coinbase/cdp-sdk/x402`, or the x402 examples.
+
 ## 1.52.0
 
 ### Minor Changes
