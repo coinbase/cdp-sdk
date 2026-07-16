@@ -39,6 +39,7 @@ export async function listSpendPermissions(
   });
 
   return {
+    nextPageToken: result.nextPageToken,
     spendPermissions: result.spendPermissions.map(permission => ({
       ...permission,
       permissionHash: permission.permissionHash as Hex,
