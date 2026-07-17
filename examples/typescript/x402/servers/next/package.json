@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev -p 8402",
     "build": "next build",
-    "start": "next start -p 8402"
+    "start": "next start -p 8402",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",

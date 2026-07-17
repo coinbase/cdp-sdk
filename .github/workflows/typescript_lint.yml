@@ -92,10 +92,12 @@ jobs:
         run: pnpm build
         working-directory: ./examples/typescript/x402/servers/mcp
 
-      - name: Build next server example
-        # PAY_TO is only needed so the module-level check in app/x402.ts
-        # doesn't throw during the build; no real payments are made.
-        run: PAY_TO=0x000000000000000000000000000000000000dEaD pnpm build
+      - name: Type-check next server example
+        # A full `next build` collects page data, which evaluates the route
+        # module and constructs the CDP facilitator — that requires real CDP
+        # credentials (absent in CI). Type-checking catches the same type and
+        # dependency-version errors without executing credentialed module code.
+        run: pnpm typecheck
         working-directory: ./examples/typescript/x402/servers/next
 
   lint:

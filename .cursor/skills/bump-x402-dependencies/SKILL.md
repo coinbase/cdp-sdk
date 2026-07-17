@@ -97,27 +97,27 @@ description: >-
    ```
 
    The root `tsconfig.json` excludes `x402/servers`, so each server workspace
-   has its own `tsconfig.json` and a `"build": "tsc"` (or, for `next`,
-   `"build": "next build"`) script — just run `pnpm build` in each:
+   has its own `tsconfig.json`. `express`, `hono`, and `mcp` have a
+   `"build": "tsc"` script; `next` has a `"typecheck": "tsc --noEmit"` script
+   (its `"build"` is `next build`). Run each:
 
    ```bash
    cd x402/servers/express && pnpm build
    cd ../hono               && pnpm build
    cd ../mcp                && pnpm build
-   cd ../next               && PAY_TO=0x000000000000000000000000000000000000dEaD pnpm build
+   cd ../next               && pnpm typecheck
    ```
 
-   `next`'s build needs `PAY_TO` set (any well-formed address, e.g. the
-   `0x000...dEaD` above) — `app/x402.ts` throws at import time if it's
-   missing, regardless of Turbopack. Its `next.config.ts` sets
-   `turbopack.root`/`outputFileTracingRoot` to the actual repo root, since
-   `@coinbase/cdp-sdk` lives in a sibling pnpm workspace outside
-   `examples/typescript`; without that, Turbopack can't resolve it at all
-   (`Module not found: Can't resolve '@coinbase/cdp-sdk'`) — don't remove it.
-   The build will still log a `Facilitator getSupported failed (401)` from
-   the CDP API — that's expected with no/invalid CDP credentials in this
-   environment and does not fail the build (`/api/report` stays dynamic); it
-   is unrelated to the dependency bump.
+   Type-check `next` rather than `next build` it: a full `next build` collects
+   page data, which evaluates the route module and constructs the CDP
+   facilitator via `createCdpFacilitatorClient()` — that throws without real
+   `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` (absent in CI), so `next build`
+   can't run credential-free. `tsc --noEmit` catches the same type and
+   dependency-version errors without executing module code, and it's what the
+   `build-examples` CI job runs. (For reference, a real `next build` also needs
+   `PAY_TO` set and its `next.config.ts` sets `turbopack.root` /
+   `outputFileTracingRoot` to the repo root so Turbopack can resolve the
+   workspace-linked `@coinbase/cdp-sdk` — don't remove that config.)
 
 7. **If any regression check fails**, don't just move on. An error like
    `Types have separate declarations of a private property '...'` means some
