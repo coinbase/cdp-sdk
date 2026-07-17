@@ -113,14 +113,14 @@
         },
         "scheme": {
           "type": "string",
-          "enum": ["exact", "upto", "batch-settlement"],
-          "description": "Payment scheme. Defaults to \"exact\". \"upto\" and \"batch-settlement\" are EVM-only."
+          "enum": ["exact", "upto"],
+          "description": "Payment scheme. Defaults to \"exact\". \"upto\" is EVM-only."
         },
         "networks": {
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/definitions/caip2Network" },
-          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet for \"exact\" (or the environment's testnet equivalents), and EVM-only for \"upto\" / \"batch-settlement\"."
+          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet for \"exact\" (or the environment's testnet equivalents), and EVM-only for \"upto\"."
         },
         "maxTimeoutSeconds": {
           "type": "number",
@@ -141,7 +141,7 @@
       "properties": {
         "scheme": {
           "type": "string",
-          "enum": ["exact", "upto", "batch-settlement"]
+          "enum": ["exact", "upto"]
         },
         "price": { "type": "string" },
         "network": { "$ref": "#/definitions/caip2Network" },

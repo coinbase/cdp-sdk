@@ -16,14 +16,12 @@
  * their value takes precedence over the auto-generated one.
  */
 
-import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
-import type { Address } from "viem";
 
 /*
  * ---------------------------------------------------------------------------
@@ -190,24 +188,6 @@ export function getCdpDefaultSchemes(): CdpSchemeRegistration[] {
     { network: "eip155:*" as Network, server: new UptoEvmScheme() },
     { network: "solana:*" as Network, server: new ExactSvmScheme() },
   ];
-}
-
-/**
- * Creates a `batch-settlement` scheme registration for the given EVM receiver address.
- *
- * Unlike `exact` and `upto`, the `batch-settlement` scheme requires a receiver address at
- * construction time (the scheme maintains per-channel state keyed to the receiver). Call
- * this after the receiver wallet has been provisioned and pass the result to
- * `resourceServer.register()`.
- *
- * @param evmAddress - EVM address of the payment receiver.
- * @returns A scheme+network registration for `batch-settlement` on all EVM networks.
- */
-export function getCdpBatchSettlementScheme(evmAddress: Address): CdpSchemeRegistration {
-  return {
-    network: "eip155:*" as Network,
-    server: new BatchSettlementEvmScheme(evmAddress),
-  };
 }
 
 /*
