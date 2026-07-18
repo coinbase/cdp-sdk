@@ -4652,14 +4652,7 @@ describe("x402 signing E2E Tests", () => {
 describe("CdpX402Client E2E Tests", () => {
   it("CdpX402Client creates a payment payload that the CDP facilitator verifies", async () => {
     await ensureX402DefaultEvmPayerFunded();
-    const client = new CdpX402Client(
-      process.env.E2E_BASE_PATH
-        ? {
-            // When using a custom base path the CDP client may need adjusting, but
-            // CdpX402Client reads credentials from env vars — just verify it works.
-          }
-        : undefined,
-    );
+    const client = new CdpX402Client({ environment: "development" });
     const facilitator = createCdpFacilitatorClient();
 
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
@@ -4694,6 +4687,7 @@ describe("CdpX402Client E2E Tests", () => {
     await ensureX402DefaultEvmPayerFunded();
     const USDC_BASE_SEPOLIA = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         maxAmountPerPayment: { atomic: 100_000n, asset: USDC_BASE_SEPOLIA },
         maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC_BASE_SEPOLIA },
@@ -4743,7 +4737,7 @@ describe("CdpX402Client full payment flow E2E Tests", () => {
   it("wrapFetchWithPayment from @x402/fetch works identically with CdpX402Client", async () => {
     await ensureX402DefaultEvmPayerFunded();
     await withLocalX402PaidResource(async url => {
-      const client = new CdpX402Client();
+      const client = new CdpX402Client({ environment: "development" });
       const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
       const response = await fetchWithPayment(url);
       expect(response.status).toBe(200);
@@ -4782,6 +4776,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
   it("per-payment cap blocks a payment whose amount exceeds the limit", async () => {
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         // cap of 1 atomic unit — any real payment will exceed it
         maxAmountPerPayment: { atomic: 1n, asset: USDC },
@@ -4797,6 +4792,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
 
   it("allowedNetworks blocks a payment whose network is not in the allowlist", async () => {
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         // Base mainnet only — the payment targets Base Sepolia
         allowedNetworks: ["eip155:8453"],
@@ -4813,6 +4809,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
   it("allowedAssets blocks a payment whose asset is not in the allowlist", async () => {
     const MAINNET_USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         // mainnet USDC only — the payment targets sepolia USDC
         allowedAssets: [MAINNET_USDC],
@@ -4828,6 +4825,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
 
   it("allowedPayees blocks a payment whose payTo is not in the allowlist", async () => {
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         // Allow only a specific address that is not X402_EVM_PAY_TO
         allowedPayees: ["0x1111111111111111111111111111111111111111"],
@@ -4845,6 +4843,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     // Cap: 15_000. First payment: 10_000 (allowed). Second payment: 10_000 (blocked: 20_000 > 15_000).
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         maxCumulativeSpend: { atomic: 15_000n, asset: USDC },
       },
@@ -4869,6 +4868,7 @@ describe("CdpX402Client spend control enforcement E2E Tests", () => {
     // Cap: 20_000 atomic. Threshold: 50% (10_000). The local route charges $0.015
     // (15_000 atomic USDC), so a single confirmed payment crosses the threshold.
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         maxCumulativeSpend: { atomic: 20_000n, asset: USDC },
         approachingLimitThresholds: [0.5],
@@ -4904,6 +4904,7 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
     await ensureX402DefaultEvmPayerFunded();
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         maxCumulativeSpend: { atomic: 10_000_000n, asset: USDC },
       },
@@ -4925,6 +4926,7 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
     const USDC = X402_BASE_SEPOLIA_USDC.toLowerCase();
     // Set a per-payment cap that blocks the payment — cumulative budget must remain at zero.
     const client = new CdpX402Client({
+      environment: "development",
       spendControls: {
         maxAmountPerPayment: { atomic: 1n, asset: USDC },
         maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
@@ -4943,6 +4945,7 @@ describe("CdpX402Client settlement-aware spend tracking E2E Tests", () => {
     // We verify by checking that a 99_999-unit payment is allowed (it would be blocked if
     // the failed attempt had erroneously committed 10_000 to the tracker).
     const client2 = new CdpX402Client({
+      environment: "development",
       spendControls: {
         maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
       },
@@ -5560,7 +5563,7 @@ describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
 
         try {
           // 2. Pay with CdpX402Client — auto-provisions a separate payer wallet.
-          const client = new CdpX402Client();
+          const client = new CdpX402Client({ environment: "development" });
           const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
           const response = await fetchWithPayment(url);
 
@@ -5683,7 +5686,7 @@ describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
 
         try {
           // Client: CdpX402Client auto-registers UptoEvmScheme for EOA wallets.
-          const client = new CdpX402Client();
+          const client = new CdpX402Client({ environment: "development" });
           const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
           const response = await fetchWithPayment(url);
 
