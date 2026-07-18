@@ -4,13 +4,13 @@
  * CdpX402Client is a drop-in extension of x402Client that auto-provisions
  * CDP-managed wallets (EVM EOA or Smart Contract Wallet + Solana), registers
  * payment schemes and wires spend controls.
- * Credentials and RPC URLs fall back to environment variables; wallet
- * configuration is supplied explicitly via config.
+ * Credentials fall back to environment variables; wallet configuration and
+ * RPC URLs are supplied explicitly via config.
  */
 import { x402Client } from "@x402/core/client";
+import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
-import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
@@ -33,7 +33,15 @@ import type { Address } from "viem";
 /** Wallet type for CDP Server Wallet (EOA) or Smart Contract Wallet. */
 type WalletType = "eoa" | "smart";
 
-type SupportedNetwork = "base" | "base-sepolia" | "polygon" | "arbitrum" | "world" | "world-sepolia" | "solana" | "solana-devnet";
+type SupportedNetwork =
+  | "base"
+  | "base-sepolia"
+  | "polygon"
+  | "arbitrum"
+  | "world"
+  | "world-sepolia"
+  | "solana"
+  | "solana-devnet";
 
 /**
  * Wallet configuration for the CDP x402 client.
@@ -61,16 +69,16 @@ export type WalletConfig =
     };
 
 export type SchemesConfig = {
-  "exact": boolean | undefined;
-  "upto": boolean | undefined;
+  exact: boolean | undefined;
+  upto: boolean | undefined;
   "batch-settlement": boolean | undefined;
-}
+};
 
 export type NetworkConfig = {
   network: SupportedNetwork;
   rpcUrl?: string;
   scheme: SchemesConfig;
-}
+};
 
 /**
  * Configuration for {@link CdpX402Client}.
@@ -92,26 +100,37 @@ export interface CdpX402ClientConfig {
   spendControls?: SpendControls;
 
   /**
+   * Deployment environment. Controls which Base network is prescribed by default.
+   *
+   * - `"production"` (default) — Base mainnet.
+   * - `"development"` — Base Sepolia.
+   *
+   * Falls back to the `CDP_X402_CLIENT_ENVIRONMENT` env var.
+   */
+  environment?: "production" | "development";
+
+  /**
    * Optional SDK-managed additional network schemes configuration.
    *
-   * Base and Base Sepolia are always prescribed as a baseline, regardless of
-   * this option, since CDP hosts a default RPC for both:
+   * The Base network matching `environment` is always prescribed as a
+   * baseline, regardless of this option, since CDP hosts a default RPC for it:
    *
    * Defaults to [
    *    { network: "base", scheme: { "exact": true, "upto": true } },
-   *    { network: "base-sepolia", scheme: { "exact": true  } },
    * ]
+   * (or `"base-sepolia"` instead of `"base"` when `environment` is `"development"`)
    *
-   * Use `networkSchemes` to add other networks (e.g. `"solana"`, `"polygon"`),
-   * or to override the scheme for `"base"` / `"base-sepolia"` (e.g. to
-   * disable a scheme). An override for `"base"` or `"base-sepolia"` that
-   * omits `rpcUrl` still gets the CDP-hosted default RPC injected for it.
+   * Use `networkSchemes` to add other networks (e.g. `"solana"`, `"polygon"`,
+   * or the Base network for the *other* environment), or to override the
+   * scheme for the prescribed Base network (e.g. to disable a scheme). An
+   * override for `"base"` or `"base-sepolia"` that omits `rpcUrl` still gets
+   * the CDP-hosted default RPC injected for it.
    *
-   * Solana requires RPC and has no — an entry for `"solana"` or `"solana-devnet"`
-   * that omits `rpcUrl` is skipped, with a warning, rather than being
-   * registered without one.
+   * Solana has no CDP-hosted default RPC — an entry for `"solana"` or
+   * `"solana-devnet"` that has no `rpcUrl` is skipped, with a warning, rather
+   * than being registered without one.
    */
-  networkSchemes?: NetworkConfig[]
+  networkSchemes?: NetworkConfig[];
 }
 
 const DEFAULT_ACCOUNT_NAME = "x402-client-wallet-1";
@@ -125,31 +144,21 @@ const resolveWalletType = (type: string | undefined): WalletType => {
 const resolveAccountName = (config?: WalletConfig): string =>
   config?.accountName ?? DEFAULT_ACCOUNT_NAME;
 
-const parseRpcUrlsFromEnv = (): Partial<Record<string, { rpcUrl: string }>> | undefined => {
-  const raw = process.env.CDP_X402_RPC_URLS;
-  if (!raw) return undefined;
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw new Error(
-      "CDP_X402_RPC_URLS must be valid JSON, e.g. " +
-        '\'{"eip155:137":"https://your-rpc-provider.example.com/polygon"}\'',
-    );
-  }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error(
-      "CDP_X402_RPC_URLS must be a JSON object mapping CAIP-2 network IDs to URL strings",
-    );
-  }
-  return Object.fromEntries(
-    Object.entries(parsed as Record<string, unknown>).map(([network, url]) => {
-      if (typeof url !== "string") {
-        throw new Error(`CDP_X402_RPC_URLS: value for "${network}" must be a string URL`);
-      }
-      return [network, { rpcUrl: url }];
-    }),
-  );
+/**
+ * Resolves the deployment environment, falling back from explicit config to
+ * the `CDP_X402_CLIENT_ENVIRONMENT` env var. Mirrors the server-side
+ * `CDP_X402_SERVER_ENVIRONMENT` resolution in `server.ts`.
+ *
+ * @param config - Optional explicit environment override.
+ * @returns `"development"` only when explicitly requested; `"production"` otherwise.
+ */
+const resolveEnvironment = (
+  config: Pick<CdpX402ClientConfig, "environment"> | undefined,
+): "production" | "development" => {
+  const rawEnv =
+    config?.environment ??
+    (process.env.CDP_X402_CLIENT_ENVIRONMENT as "production" | "development" | undefined);
+  return rawEnv === "development" ? "development" : "production";
 };
 
 const buildEvmRpcUrlsByChainId = (
@@ -162,19 +171,6 @@ const buildEvmRpcUrlsByChainId = (
     const numericChainId = Number(chainId);
     if (!Number.isNaN(numericChainId)) {
       result[numericChainId] = cfg;
-    }
-  }
-  return result;
-};
-
-const buildSvmRpcOverrides = (
-  rpcUrlsByCaip2: Record<string, { rpcUrl: string }>,
-): Record<string, string> => {
-  const result: Record<string, string> = {};
-  for (const [caip2, cfg] of Object.entries(rpcUrlsByCaip2)) {
-    const [namespace] = caip2.split(":");
-    if (namespace === "solana") {
-      result[caip2] = cfg.rpcUrl;
     }
   }
   return result;
@@ -271,33 +267,45 @@ const setupCdpSigners = async (
   const defaultBaseRpcUrl = defaultEvmRpcUrls[baseMainnetCaip2]?.rpcUrl;
   const defaultBaseSepoliaRpcUrl = defaultEvmRpcUrls[baseSepoliaCaip2]?.rpcUrl;
 
-  // Always prescribed, regardless of `networkSchemes`: Base + Base Sepolia
-  // only. Both get the CDP-hosted default RPC. Solana has no default RPC, so
-  // it's never prescribed automatically — it must be added explicitly via
-  // `networkSchemes` with an `rpcUrl` (see the merge loop below).
-  const defaultNetworkSchemes: NetworkConfig[] = [
-    {
-      network: "base",
-      rpcUrl: defaultBaseRpcUrl,
-      scheme: { exact: true, upto: true, "batch-settlement": false },
-    },
-    {
-      network: "base-sepolia",
-      rpcUrl: defaultBaseSepoliaRpcUrl,
-      scheme: { exact: true, upto: true, "batch-settlement": false },
-    },
-  ];
+  /*
+   * Always prescribed, regardless of `networkSchemes`: exactly one Base
+   * network, chosen by `environment` (falls back to `CDP_X402_CLIENT_ENVIRONMENT`)
+   * — mainnet in production, Sepolia in development — gets the CDP-hosted
+   * default RPC. Solana has no default RPC, so it's never prescribed
+   * automatically — it must be added explicitly via `networkSchemes` with an
+   * `rpcUrl` (see the merge loop below).
+   */
+  const environment = resolveEnvironment(config);
+  const defaultNetworkSchemes: NetworkConfig[] =
+    environment === "development"
+      ? [
+          {
+            network: "base-sepolia",
+            rpcUrl: defaultBaseSepoliaRpcUrl,
+            scheme: { exact: true, upto: true, "batch-settlement": false },
+          },
+        ]
+      : [
+          {
+            network: "base",
+            rpcUrl: defaultBaseRpcUrl,
+            scheme: { exact: true, upto: true, "batch-settlement": false },
+          },
+        ];
 
-  // `networkSchemes` is additive on top of the default baseline, not a replacement:
-  // an entry for a network we already prescribe overrides its scheme (and
-  // `rpcUrl`, if given); anything else just enables a new network.
-  // Solana requires RPC and has no default
+  /*
+   * `networkSchemes` is additive on top of the default baseline, not a
+   * replacement: an entry for the network we already prescribe overrides its
+   * scheme (and `rpcUrl`, if given); anything else just enables a new
+   * network — including the Base network for the *other* environment.
+   */
   const networksByName = new Map(defaultNetworkSchemes.map(config => [config.network, config]));
   for (const override of config?.networkSchemes ?? []) {
     const isSolana = override.network === "solana" || override.network === "solana-devnet";
     const rpcUrl = override.rpcUrl ?? networksByName.get(override.network)?.rpcUrl;
 
     if (isSolana && !rpcUrl) {
+      // eslint-disable-next-line no-console
       console.warn(
         `CdpX402Client: skipping network "${override.network}": Solana has no default RPC, ` +
           "so an rpcUrl is required. Set it on this entry in networkSchemes.",
@@ -308,20 +316,25 @@ const setupCdpSigners = async (
     networksByName.set(override.network, { ...override, rpcUrl });
   }
 
-  // ExactEvmScheme takes one RPC map covering every registered EVM network
-  // (keyed by chain ID); build it once from whichever EVM networks ended up
-  // with a resolved rpcUrl. `normalizeNetwork` converts the v1-style plain
-  // names used here (e.g. "base") into the CAIP-2 form v2's `register` needs
-  // (e.g. "eip155:8453") — `registerV1` keeps using the plain name.
+  /*
+   * ExactEvmScheme takes one RPC map covering every registered EVM network
+   * (keyed by chain ID); build it once from whichever EVM networks ended up
+   * with a resolved rpcUrl. `normalizeNetwork` converts the v1-style plain
+   * names used here (e.g. "base") into the CAIP-2 form v2's `register` needs
+   * (e.g. "eip155:8453") — `registerV1` keeps using the plain name.
+   */
   const evmRpcUrlsByCaip2: Record<string, { rpcUrl: string }> = {};
   for (const [network, netConfig] of networksByName) {
     if (network === "solana" || network === "solana-devnet") continue;
-    if (netConfig.rpcUrl) evmRpcUrlsByCaip2[normalizeNetwork(network)] = { rpcUrl: netConfig.rpcUrl };
+    if (netConfig.rpcUrl)
+      evmRpcUrlsByCaip2[normalizeNetwork(network)] = { rpcUrl: netConfig.rpcUrl };
   }
   const evmRpcUrlsByChainId = buildEvmRpcUrlsByChainId(evmRpcUrlsByCaip2);
 
-  // Register the schemes for each network
-  // Solana upto & batch-settlement schemes are not yet supported
+  /*
+   * Register the schemes for each network
+   * Solana upto & batch-settlement schemes are not yet supported
+   */
   for (const [network, netConfig] of networksByName) {
     if (!netConfig.scheme.exact) continue;
     const caip2Network = normalizeNetwork(network) as Network;
@@ -329,16 +342,29 @@ const setupCdpSigners = async (
     if (netConfig.scheme.exact) {
       if (network === "solana" || network === "solana-devnet") {
         client.register(caip2Network, new ExactSvmScheme(svmSigner, { rpcUrl: netConfig.rpcUrl }));
-        client.registerV1(network as Network, new ExactSvmSchemeV1(svmSigner, { rpcUrl: netConfig.rpcUrl }));
+        client.registerV1(
+          network as Network,
+          new ExactSvmSchemeV1(svmSigner, { rpcUrl: netConfig.rpcUrl }),
+        );
       } else {
         client.register(caip2Network, new ExactEvmScheme(evmSigner, evmRpcUrlsByChainId));
         client.registerV1(network as Network, new ExactEvmSchemeV1(evmSigner));
       }
     }
 
-    if (netConfig.scheme.upto) {
+    /*
+     * `upto` is registered only for EOA wallets. Smart accounts sign with an
+     * ERC-1271/ERC-6492 contract signature, which only settles via the
+     * EIP-3009 `exact` flow; `upto`'s Permit2 transfer method requires an
+     * on-chain Permit2 allowance owned by an EOA, so it's intentionally
+     * unsupported for smart accounts.
+     */
+    if (netConfig.scheme.upto && walletType !== "smart") {
       if (network === "solana" || network === "solana-devnet") {
-        console.warn(`CdpX402Client: skipping network "${network}": Solana Upto scheme is not yet supported.`);
+        // eslint-disable-next-line no-console
+        console.warn(
+          `CdpX402Client: skipping network "${network}": Solana Upto scheme is not yet supported.`,
+        );
       } else {
         client.register(caip2Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
       }
@@ -346,7 +372,10 @@ const setupCdpSigners = async (
 
     if (netConfig.scheme["batch-settlement"]) {
       if (network === "solana" || network === "solana-devnet") {
-        console.warn(`CdpX402Client: skipping network "${network}": Solana Batch Settlement scheme is not yet supported.`);
+        // eslint-disable-next-line no-console
+        console.warn(
+          `CdpX402Client: skipping network "${network}": Solana Batch Settlement scheme is not yet supported.`,
+        );
       } else {
         client.register(caip2Network, new BatchSettlementEvmScheme(evmSigner, evmRpcUrlsByChainId));
       }
@@ -376,8 +405,8 @@ export interface CdpX402WalletAddresses {
  * A Coinbase CDP-powered x402 client that initializes lazily on first payment.
  *
  * Extends `x402Client` with automatic wallet provisioning and scheme registration.
- * Credentials and RPC URLs fall back to environment variables; wallet
- * configuration is supplied explicitly via config.
+ * Credentials fall back to environment variables; wallet configuration and
+ * RPC URLs are supplied explicitly via config.
  *
  * The account name/address used for payments is resolved internally. Use
  * {@link CdpX402Client.getAddresses} to retrieve it — for example, to fund
@@ -417,7 +446,7 @@ export class CdpX402Client extends x402Client {
   /**
    * Creates a CdpX402Client that initializes lazily on first payment.
    *
-   * @param config - Optional configuration. Credentials and RPC URLs fall back to environment variables.
+   * @param config - Optional configuration. Credentials fall back to environment variables.
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
