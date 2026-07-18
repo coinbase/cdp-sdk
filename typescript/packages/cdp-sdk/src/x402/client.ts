@@ -267,7 +267,7 @@ const setupCdpSigners = async (
   const defaultBaseRpcUrl = defaultEvmRpcUrls[baseMainnetCaip2]?.rpcUrl;
   const defaultBaseSepoliaRpcUrl = defaultEvmRpcUrls[baseSepoliaCaip2]?.rpcUrl;
 
-  // "development" registers Base Sepolia, since this example pays there.
+  // `environment` "development" prescribes Base Sepolia; "production" (default) prescribes Base mainnet.
   const environment = resolveEnvironment(config);
   const defaultNetworkSchemes: NetworkConfig[] =
     environment === "development"
@@ -331,8 +331,7 @@ const setupCdpSigners = async (
       }
     }
 
-    // `upto`'s Permit2 transfer method requires an initial approval transaciton that cannot be sponsored
-    // disabled for smart accounts at this time
+    // `upto`'s Permit2 transfer method requires an initial approval transaction that cannot be sponsored; disabled for smart accounts at this time.
     if (netConfig.scheme.upto && walletType !== "smart") {
       if (network === "solana" || network === "solana-devnet") {
         // eslint-disable-next-line no-console
