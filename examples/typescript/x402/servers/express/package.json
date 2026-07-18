@@ -9,11 +9,11 @@
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",
     "@types/express": "^5.0.2",
-    "@x402/core": "^2.18.0",
-    "@x402/evm": "^2.18.0",
-    "@x402/express": "^2.18.0",
-    "@x402/extensions": "^2.18.0",
-    "@x402/svm": "^2.18.0",
+    "@x402/core": "^2.19.0",
+    "@x402/evm": "^2.19.0",
+    "@x402/express": "^2.19.0",
+    "@x402/extensions": "^2.19.0",
+    "@x402/svm": "^2.19.0",
     "dotenv": "^16.0.0",
     "express": "^5.2.1",
     "tsx": "^4.21.0"
