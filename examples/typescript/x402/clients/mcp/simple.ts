@@ -27,7 +27,8 @@ const SERVER_URL = process.env.MCP_SERVER_URL ?? "http://localhost:4022";
 
 async function main() {
   // A CDP-managed payment client — provisions the wallet lazily and signs 402s.
-  const payment = new CdpX402Client();
+  // "development" registers Base Sepolia, since the MCP server settles there.
+  const payment = new CdpX402Client({ environment: "development" });
   const { evmAddress } = await payment.getAddresses();
   console.log("CDP-managed x402 MCP client ready");
   console.log("  Paying from EVM address:", evmAddress);

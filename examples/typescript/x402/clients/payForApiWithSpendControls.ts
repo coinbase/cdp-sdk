@@ -30,7 +30,12 @@ const USDC_BASE_SEPOLIA = "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
 const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.vercel.app/protected";
 
 async function main() {
+  // CdpX402Client lazily provisions its wallet on first payment and handles
+  // 402 responses automatically. Calling `getAddresses()` eagerly provisions
+  // it now, so we know which address to fund before paying.
+  // "development" registers Base Sepolia, since this example pays there.
   const client = new CdpX402Client({
+    environment: "development",
     spendControls: {
       // Hard cap: each payment must not exceed $0.01 USDC
       maxAmountPerPayment: { atomic: 10_000n, asset: USDC_BASE_SEPOLIA },

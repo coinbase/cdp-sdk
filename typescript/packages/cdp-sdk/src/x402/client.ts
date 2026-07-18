@@ -267,14 +267,7 @@ const setupCdpSigners = async (
   const defaultBaseRpcUrl = defaultEvmRpcUrls[baseMainnetCaip2]?.rpcUrl;
   const defaultBaseSepoliaRpcUrl = defaultEvmRpcUrls[baseSepoliaCaip2]?.rpcUrl;
 
-  /*
-   * Always prescribed, regardless of `networkSchemes`: exactly one Base
-   * network, chosen by `environment` (falls back to `CDP_X402_CLIENT_ENVIRONMENT`)
-   * — mainnet in production, Sepolia in development — gets the CDP-hosted
-   * default RPC. Solana has no default RPC, so it's never prescribed
-   * automatically — it must be added explicitly via `networkSchemes` with an
-   * `rpcUrl` (see the merge loop below).
-   */
+  // "development" registers Base Sepolia, since this example pays there.
   const environment = resolveEnvironment(config);
   const defaultNetworkSchemes: NetworkConfig[] =
     environment === "development"
@@ -293,12 +286,7 @@ const setupCdpSigners = async (
           },
         ];
 
-  /*
-   * `networkSchemes` is additive on top of the default baseline, not a
-   * replacement: an entry for the network we already prescribe overrides its
-   * scheme (and `rpcUrl`, if given); anything else just enables a new
-   * network — including the Base network for the *other* environment.
-   */
+  // `networkSchemes` is additive on top of the default baseline: it overrides the prescribed network's scheme, or adds a new one.
   const networksByName = new Map(defaultNetworkSchemes.map(config => [config.network, config]));
   for (const override of config?.networkSchemes ?? []) {
     const isSolana = override.network === "solana" || override.network === "solana-devnet";
@@ -316,13 +304,7 @@ const setupCdpSigners = async (
     networksByName.set(override.network, { ...override, rpcUrl });
   }
 
-  /*
-   * ExactEvmScheme takes one RPC map covering every registered EVM network
-   * (keyed by chain ID); build it once from whichever EVM networks ended up
-   * with a resolved rpcUrl. `normalizeNetwork` converts the v1-style plain
-   * names used here (e.g. "base") into the CAIP-2 form v2's `register` needs
-   * (e.g. "eip155:8453") — `registerV1` keeps using the plain name.
-   */
+  // `normalizeNetwork` converts the v1-style plain names used here (e.g. "base") into the CAIP-2 form v2's `register` needs (e.g. "eip155:8453"); `registerV1` keeps using the plain name.
   const evmRpcUrlsByCaip2: Record<string, { rpcUrl: string }> = {};
   for (const [network, netConfig] of networksByName) {
     if (network === "solana" || network === "solana-devnet") continue;
@@ -331,10 +313,7 @@ const setupCdpSigners = async (
   }
   const evmRpcUrlsByChainId = buildEvmRpcUrlsByChainId(evmRpcUrlsByCaip2);
 
-  /*
-   * Register the schemes for each network
-   * Solana upto & batch-settlement schemes are not yet supported
-   */
+  // Solana upto & batch-settlement schemes are not yet supported.
   for (const [network, netConfig] of networksByName) {
     if (!netConfig.scheme.exact) continue;
     const caip2Network = normalizeNetwork(network) as Network;
@@ -352,13 +331,8 @@ const setupCdpSigners = async (
       }
     }
 
-    /*
-     * `upto` is registered only for EOA wallets. Smart accounts sign with an
-     * ERC-1271/ERC-6492 contract signature, which only settles via the
-     * EIP-3009 `exact` flow; `upto`'s Permit2 transfer method requires an
-     * on-chain Permit2 allowance owned by an EOA, so it's intentionally
-     * unsupported for smart accounts.
-     */
+    // `upto`'s Permit2 transfer method requires an initial approval transaciton that cannot be sponsored
+    // disabled for smart accounts at this time
     if (netConfig.scheme.upto && walletType !== "smart") {
       if (network === "solana" || network === "solana-devnet") {
         // eslint-disable-next-line no-console

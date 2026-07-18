@@ -25,7 +25,11 @@ import axios from "axios";
 const X402_PAID_API_URL = process.env.X402_API_URL ?? "https://x402.vercel.app/protected";
 
 async function main() {
-  const client = new CdpX402Client();
+  // CdpX402Client lazily provisions its wallet on first payment and handles
+  // 402 responses automatically. Calling `getAddresses()` eagerly provisions
+  // it now, so we know which address to fund before paying.
+  // "development" registers Base Sepolia, since this example pays there.
+  const client = new CdpX402Client({ environment: "development" });
   const { evmAddress, svmAddress } = await client.getAddresses();
 
   console.log("CDP-managed x402 client ready (axios transport)");

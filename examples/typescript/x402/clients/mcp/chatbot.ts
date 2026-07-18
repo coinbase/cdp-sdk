@@ -37,7 +37,8 @@ async function main() {
   const anthropic = new Anthropic();
 
   // CDP-managed wallet that auto-pays x402-protected MCP tools.
-  const payment = new CdpX402Client();
+  // "development" registers Base Sepolia, since the MCP server settles there.
+  const payment = new CdpX402Client({ environment: "development" });
   const { evmAddress } = await payment.getAddresses();
   console.log("Chatbot wallet (fund with USDC on Base Sepolia):", evmAddress, "\n");
 
