@@ -78,7 +78,6 @@ import {
 import { createCdpFacilitatorClient } from "./facilitator.js";
 import {
   getCdpDefaultSchemes,
-  getCdpBatchSettlementScheme,
   getCdpExtensionRegistrations,
   CDP_SUPPORTED_EXTENSIONS,
   CDP_EXTENSION_BAZAAR,
@@ -149,10 +148,8 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
  * - `"upto"` — Usage-based billing: the client authorizes a maximum amount
  *   and the server settles the actual amount charged (≤ max) via Permit2.
  *   EVM-only (`eip155:*`).
- * - `"batch-settlement"` — High-throughput stateful payment channels. Clients
- *   deposit once and sign off-chain vouchers per request. EVM-only (`eip155:*`).
  */
-export type CdpPaymentScheme = "exact" | "upto" | "batch-settlement";
+export type CdpPaymentScheme = "exact" | "upto";
 
 /**
  * Simplified CDP-owned route configuration.
@@ -177,11 +174,11 @@ export interface CdpRouteConfig {
   /**
    * Payment scheme to use for this route.
    *
-   * Defaults to `"exact"`. The `"upto"` and `"batch-settlement"` schemes are
-   * EVM-only — `networks` must not include Solana or other non-EVM chains when
-   * they are specified. When an EVM-only scheme is used without an explicit
-   * `networks` list the default falls back to the environment's EVM networks
-   * (Base mainnet or Base Sepolia depending on `environment`).
+   * Defaults to `"exact"`. The `"upto"` scheme is EVM-only — `networks` must
+   * not include Solana or other non-EVM chains when specified. When an
+   * EVM-only scheme is used without an explicit `networks` list the default
+   * falls back to the environment's EVM networks (Base mainnet or Base
+   * Sepolia depending on `environment`).
    */
   scheme?: CdpPaymentScheme;
   /**
@@ -464,10 +461,10 @@ async function provisionServerAccounts(
  * Returns `true` when the given payment scheme only supports EVM networks.
  *
  * @param scheme - The payment scheme to check.
- * @returns `true` for EVM-only schemes (`"upto"` and `"batch-settlement"`).
+ * @returns `true` for EVM-only schemes (`"upto"`).
  */
 function isEvmOnlyScheme(scheme: CdpPaymentScheme): boolean {
-  return scheme === "upto" || scheme === "batch-settlement";
+  return scheme === "upto";
 }
 
 /**
@@ -484,8 +481,7 @@ function networkFamily(network: string): "evm" | "svm" | "other" {
 
 /**
  * Returns the default networks for a simplified route given its scheme and the
- * deployment environment. EVM-only schemes (`"upto"`, `"batch-settlement"`)
- * default to EVM networks only.
+ * deployment environment. EVM-only schemes (`"upto"`) default to EVM networks only.
  *
  * @param scheme - Payment scheme for the route.
  * @param environment - Deployment environment controlling mainnet vs testnet defaults.
@@ -993,54 +989,7 @@ export class X402Server extends x402HTTPResourceServer {
     // 6. Resolve routes (simplified CDP format or full x402 format).
     const resolvedRoutes = resolveRoutes(routes, evmAddress, svmAddress, environment);
 
-    /*
-     * 7. Guard: batch-settlement stores per-channel state keyed to the receiver address,
-     *    so only one receiver address is valid per server instance.
-     *    Collect all distinct payTo values used in batch-settlement routes (scanning
-     *    both simplified and full x402 RouteConfig formats), then reject the config
-     *    if more than one distinct address is found.
-     */
-    const batchPayTos = new Set<string>();
-    for (const route of Object.values(resolvedRoutes)) {
-      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
-      for (const opt of accepts) {
-        if ((opt.scheme as string) === "batch-settlement" && opt.payTo) {
-          batchPayTos.add((opt.payTo as string).toLowerCase());
-        }
-      }
-    }
-    if (batchPayTos.size > 1) {
-      throw new Error(
-        `batch-settlement routes must all share the same EVM receiver address within one ` +
-          `X402Server instance. ${batchPayTos.size} distinct addresses found: ` +
-          `${[...batchPayTos].join(", ")}. ` +
-          `Create separate X402Server instances for routes with different receivers.`,
-      );
-    }
-
-    /*
-     * 8. Register batch-settlement scheme only for EVM receiver addresses actually
-     *    used by a batch-settlement route. BatchSettlementEvmScheme requires the
-     *    receiver address at construction time; scanning resolved routes (rather
-     *    than unconditionally registering for `evmAddress`) ensures exact/upto-only
-     *    servers never speculatively register a scheme they'll never use, while
-     *    still covering full x402 RouteConfigs with an explicit payTo.
-     */
-    const batchAddresses = new Set<Address>();
-    for (const route of Object.values(resolvedRoutes)) {
-      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
-      for (const opt of accepts) {
-        if ((opt.scheme as string) === "batch-settlement" && opt.payTo) {
-          batchAddresses.add(opt.payTo as Address);
-        }
-      }
-    }
-    for (const addr of batchAddresses) {
-      const reg = getCdpBatchSettlementScheme(addr);
-      resourceServer.register(reg.network as Network, reg.server);
-    }
-
-    // 9. Construct and initialize — syncs supported schemes with the facilitator.
+    // 7. Construct and initialize — syncs supported schemes with the facilitator.
     const instance = new X402Server(
       resourceServer,
       resolvedRoutes,

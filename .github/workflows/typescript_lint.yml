@@ -80,6 +80,28 @@ jobs:
         run: pnpm build
         working-directory: ./examples/typescript
 
+      - name: Build express server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/express
+
+      - name: Build hono server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/hono
+
+      - name: Build mcp server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/mcp
+
+      - name: Type-check next server example
+        # A full `next build` collects page data, which evaluates the route
+        # module and constructs the CDP facilitator and makes live CDP API
+        # calls — undesirable in this job, which builds on every PR touching
+        # typescript/examples, not just x402 ones. Type-checking catches the
+        # same type and dependency-version errors without executing that
+        # module code or depending on network/CDP availability.
+        run: pnpm typecheck
+        working-directory: ./examples/typescript/x402/servers/next
+
   lint:
     runs-on: ubuntu-latest
     steps:

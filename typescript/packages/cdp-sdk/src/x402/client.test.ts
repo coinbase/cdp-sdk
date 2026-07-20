@@ -7,6 +7,7 @@ import type { PaymentPayload, PaymentRequired } from "@x402/core/types";
 const {
   mockCreatePaymentPayload,
   mockRegister,
+  mockRegisterV1,
   mockRegisterPolicy,
   mockOnBeforePaymentCreation,
   mockOnAfterPaymentCreation,
@@ -20,6 +21,7 @@ const {
 } = vi.hoisted(() => {
   const mockCreatePaymentPayload = vi.fn();
   const mockRegister = vi.fn();
+  const mockRegisterV1 = vi.fn();
   const mockRegisterPolicy = vi.fn();
   const mockOnBeforePaymentCreation = vi.fn().mockReturnThis();
   const mockOnAfterPaymentCreation = vi.fn().mockReturnThis();
@@ -48,6 +50,7 @@ const {
   return {
     mockCreatePaymentPayload,
     mockRegister,
+    mockRegisterV1,
     mockRegisterPolicy,
     mockOnBeforePaymentCreation,
     mockOnAfterPaymentCreation,
@@ -67,6 +70,10 @@ vi.mock("@x402/core/client", () => {
   class MockX402Client {
     register(...args: unknown[]) {
       return mockRegister(...args);
+    }
+
+    registerV1(...args: unknown[]) {
+      return mockRegisterV1(...args);
     }
 
     registerPolicy(...args: unknown[]) {
@@ -95,13 +102,26 @@ vi.mock("@x402/core/client", () => {
   };
 });
 
-vi.mock("@x402/evm/exact/client", () => ({ registerExactEvmScheme: vi.fn() }));
+// `client.ts` registers schemes by constructing these classes directly (not
+// via the `registerExact*Scheme` helper functions), so each is mocked as a
+// plain constructor whose call args (signer, RPC map) tests can assert on.
+vi.mock("@x402/evm/exact/client", () => ({
+  ExactEvmScheme: vi.fn().mockImplementation(() => ({})),
+}));
+vi.mock("@x402/evm/exact/v1/client", () => ({
+  ExactEvmSchemeV1: vi.fn().mockImplementation(() => ({})),
+}));
 vi.mock("@x402/evm/upto/client", () => ({
   UptoEvmScheme: vi.fn().mockImplementation(() => ({})),
 }));
+vi.mock("@x402/evm/batch-settlement/client", () => ({
+  BatchSettlementEvmScheme: vi.fn().mockImplementation(() => ({})),
+}));
 vi.mock("@x402/svm/exact/client", () => ({
   ExactSvmScheme: vi.fn().mockImplementation(() => ({})),
-  registerExactSvmScheme: vi.fn(),
+}));
+vi.mock("@x402/svm/exact/v1/client", () => ({
+  ExactSvmSchemeV1: vi.fn().mockImplementation(() => ({})),
 }));
 
 vi.mock("../client/cdp.js", () => ({ CdpClient: MockCdpClient }));
@@ -114,7 +134,8 @@ vi.mock("./account-signers.js", () => ({
 
 // Base/Base Sepolia RPC defaults are resolved via the CDP-authenticated node
 // endpoint (see getBaseNodeRpcUrl); mock it so tests don't depend on a live
-// CDP client configuration.
+// CDP client configuration. `constants.ts` and `guardrails/normalize.ts` are
+// left unmocked — they're pure lookups over static data and safe to run for real.
 vi.mock("../accounts/evm/getBaseNodeRpcUrl.js", () => ({
   getBaseNodeRpcUrl: vi.fn((network: "base" | "base-sepolia") =>
     Promise.resolve(
@@ -128,9 +149,12 @@ vi.mock("../accounts/evm/getBaseNodeRpcUrl.js", () => ({
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
 import { CdpX402Client } from "./client.js";
-import { registerExactEvmScheme } from "@x402/evm/exact/client";
+import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
+import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
-import { ExactSvmScheme, registerExactSvmScheme } from "@x402/svm/exact/client";
+import { ExactSvmScheme } from "@x402/svm/exact/client";
+import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -190,6 +214,22 @@ function clearEnv(keys: string[]) {
   }
 }
 
+/**
+ * Returns the RPC-by-chain-ID map most recently passed to a mocked scheme
+ * constructor (`ExactEvmScheme` / `UptoEvmScheme`), as `client.ts` builds one
+ * shared map per network and passes it straight through.
+ *
+ * @param mockCtor - The mocked scheme constructor to read the last call from.
+ * @returns The RPC-by-chain-ID map, or `undefined` if never called.
+ */
+function lastEvmRpcMap(
+  mockCtor: typeof ExactEvmScheme | typeof UptoEvmScheme,
+): Record<number, { rpcUrl: string }> | undefined {
+  return vi.mocked(mockCtor).mock.calls.at(-1)?.[1] as
+    | Record<number, { rpcUrl: string }>
+    | undefined;
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("CdpX402Client", () => {
@@ -202,7 +242,12 @@ describe("CdpX402Client", () => {
   });
 
   afterEach(() => {
-    clearEnv(["CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET", "CDP_X402_RPC_URLS"]);
+    clearEnv([
+      "CDP_API_KEY_ID",
+      "CDP_API_KEY_SECRET",
+      "CDP_WALLET_SECRET",
+      "CDP_X402_CLIENT_ENVIRONMENT",
+    ]);
   });
 
   describe("constructor", () => {
@@ -267,20 +312,123 @@ describe("CdpX402Client", () => {
   });
 
   describe("scheme registration", () => {
-    it("registers exact EVM, Solana, and upto EVM schemes for EOA wallet", async () => {
+    it("registers exact + upto for Base mainnet by default (production, EOA wallet)", async () => {
       const client = new CdpX402Client();
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(registerExactEvmScheme).toHaveBeenCalledWith(
-        expect.any(Object),
-        expect.objectContaining({
-          signer: expect.anything(),
-          schemeOptions: expect.any(Object),
-        }),
-      );
-      expect(registerExactSvmScheme).toHaveBeenCalledTimes(1);
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
+      expect(mockRegister).not.toHaveBeenCalledWith("eip155:84532", expect.anything());
+      expect(mockRegisterV1).toHaveBeenCalledWith("base", expect.anything());
+      expect(mockRegisterV1).not.toHaveBeenCalledWith("base-sepolia", expect.anything());
+      expect(ExactEvmScheme).toHaveBeenCalledTimes(1);
       expect(UptoEvmScheme).toHaveBeenCalledTimes(1);
-      expect(mockRegister).toHaveBeenCalledWith("eip155:*", expect.any(Object));
+    });
+
+    it("does not register Solana by default — it has no default RPC", async () => {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactSvmScheme).not.toHaveBeenCalled();
+      expect(ExactSvmSchemeV1).not.toHaveBeenCalled();
+    });
+
+    it("registers an exact Solana scheme when added via networkSchemes with an rpcUrl", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          {
+            network: "solana",
+            rpcUrl: "https://my-solana-rpc.example.com",
+            scheme: { exact: true },
+          },
+        ],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), {
+        rpcUrl: "https://my-solana-rpc.example.com",
+      });
+      expect(mockRegister).toHaveBeenCalledWith(
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+        expect.anything(),
+      );
+    });
+
+    it("registers an exact Solana scheme added via networkSchemes without an rpcUrl — exact has a public default RPC", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "solana", scheme: { exact: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), { rpcUrl: undefined });
+      expect(mockRegister).toHaveBeenCalledWith(
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+        expect.anything(),
+      );
+    });
+
+    it("skips the upto scheme for Solana regardless of rpcUrl — not yet supported", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const client = new CdpX402Client({
+        networkSchemes: [
+          { network: "base", scheme: { upto: false } },
+          {
+            network: "solana",
+            rpcUrl: "https://my-solana-rpc.example.com",
+            scheme: { upto: true },
+          },
+        ],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(UptoEvmScheme).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('skipping network "solana": Solana Upto scheme'),
+      );
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe("environment", () => {
+    it("defaults to production — registers Base mainnet, not Base Sepolia", async () => {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
+      expect(mockRegister).not.toHaveBeenCalledWith("eip155:84532", expect.anything());
+    });
+
+    it("registers Base Sepolia instead of mainnet when environment: 'development' is set explicitly", async () => {
+      const client = new CdpX402Client({ environment: "development" });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegister).toHaveBeenCalledWith("eip155:84532", expect.anything());
+      expect(mockRegister).not.toHaveBeenCalledWith("eip155:8453", expect.anything());
+    });
+
+    it("falls back to CDP_X402_CLIENT_ENVIRONMENT when config.environment is not set", async () => {
+      process.env.CDP_X402_CLIENT_ENVIRONMENT = "development";
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegister).toHaveBeenCalledWith("eip155:84532", expect.anything());
+      expect(mockRegister).not.toHaveBeenCalledWith("eip155:8453", expect.anything());
+    });
+
+    it("prefers explicit config.environment over CDP_X402_CLIENT_ENVIRONMENT", async () => {
+      process.env.CDP_X402_CLIENT_ENVIRONMENT = "development";
+      const client = new CdpX402Client({ environment: "production" });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
+      expect(mockRegister).not.toHaveBeenCalledWith("eip155:84532", expect.anything());
+    });
+
+    it("an unrecognized CDP_X402_CLIENT_ENVIRONMENT value falls back to production", async () => {
+      process.env.CDP_X402_CLIENT_ENVIRONMENT = "staging";
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
     });
   });
 
@@ -333,7 +481,16 @@ describe("CdpX402Client", () => {
       );
     });
 
-    it("does not register upto EVM scheme for smart wallets", async () => {
+    it("still registers the exact EVM scheme for smart wallets", async () => {
+      const client = new CdpX402Client({
+        walletConfig: { type: "smart", ownerAccountName: "my-owner" },
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactEvmScheme).toHaveBeenCalled();
+    });
+
+    it("does not register the upto EVM scheme for smart wallets", async () => {
       const client = new CdpX402Client({
         walletConfig: { type: "smart", ownerAccountName: "my-owner" },
       });
@@ -431,70 +588,49 @@ describe("CdpX402Client", () => {
       const client = new CdpX402Client();
       await client.createPaymentPayload(mockPaymentRequired);
 
-      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
-        | { schemeOptions?: Record<number, { rpcUrl: string }> }
-        | undefined;
-      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe(
+      const evmRpcMap = lastEvmRpcMap(ExactEvmScheme);
+      expect(evmRpcMap?.[8453]?.rpcUrl).toBe(
         "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
       );
-      // Polygon has no bundled default — only Base/Base Sepolia resolve automatically.
-      expect(exactConfig?.schemeOptions?.[137]).toBeUndefined();
+      // Polygon isn't prescribed by default and has no bundled RPC.
+      expect(evmRpcMap?.[137]).toBeUndefined();
     });
 
-    it("passes EVM RPC URL overrides from config to exact and upto schemes", async () => {
-      const rpcUrls = { "eip155:8453": { rpcUrl: "https://my-rpc.example.com" } };
-      const client = new CdpX402Client({ rpcUrls });
+    it("defaults Base Sepolia's RPC to the CDP-authenticated node endpoint in development", async () => {
+      const client = new CdpX402Client({ environment: "development" });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
-        | { schemeOptions?: Record<number, { rpcUrl: string }> }
-        | undefined;
-      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://my-rpc.example.com");
-
-      const uptoConfig = vi.mocked(UptoEvmScheme).mock.calls.at(-1)?.[1] as
-        | Record<number, { rpcUrl: string }>
-        | undefined;
-      expect(uptoConfig?.[8453]?.rpcUrl).toBe("https://my-rpc.example.com");
-    });
-
-    it("parses CDP_X402_RPC_URLS env var", async () => {
-      process.env.CDP_X402_RPC_URLS = '{"eip155:8453":"https://custom-rpc.example.com"}';
-      const client = new CdpX402Client();
-      await client.createPaymentPayload(mockPaymentRequired);
-
-      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
-        | { schemeOptions?: Record<number, { rpcUrl: string }> }
-        | undefined;
-      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://custom-rpc.example.com");
-    });
-
-    it("throws on invalid CDP_X402_RPC_URLS JSON", async () => {
-      process.env.CDP_X402_RPC_URLS = "not-valid-json";
-      const client = new CdpX402Client();
-      await expect(client.createPaymentPayload(mockPaymentRequired)).rejects.toThrow(
-        /CDP_X402_RPC_URLS must be valid JSON/,
+      expect(lastEvmRpcMap(ExactEvmScheme)?.[84532]?.rpcUrl).toBe(
+        "https://api.developer.coinbase.com/rpc/v1/base-sepolia/mock-token",
       );
     });
 
-    it("explicit rpcUrls config takes precedence over CDP_X402_RPC_URLS env var", async () => {
-      process.env.CDP_X402_RPC_URLS = '{"eip155:8453":"https://env-rpc.example.com"}';
-      const rpcUrls = { "eip155:8453": { rpcUrl: "https://config-rpc.example.com" } };
-      const client = new CdpX402Client({ rpcUrls });
+    it("passes an explicit networkSchemes rpcUrl override to exact and upto schemes", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          {
+            network: "base",
+            rpcUrl: "https://my-rpc.example.com",
+            scheme: { exact: true, upto: true },
+          },
+        ],
+      });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      const exactConfig = vi.mocked(registerExactEvmScheme).mock.calls.at(-1)?.[1] as
-        | { schemeOptions?: Record<number, { rpcUrl: string }> }
-        | undefined;
-      expect(exactConfig?.schemeOptions?.[8453]?.rpcUrl).toBe("https://config-rpc.example.com");
+      expect(lastEvmRpcMap(ExactEvmScheme)?.[8453]?.rpcUrl).toBe("https://my-rpc.example.com");
+      expect(lastEvmRpcMap(UptoEvmScheme)?.[8453]?.rpcUrl).toBe("https://my-rpc.example.com");
     });
 
-    it("registers an explicit Solana scheme when an SVM RPC override is provided", async () => {
-      const rpcUrls = {
-        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": {
-          rpcUrl: "https://solana-devnet-rpc.example.com",
-        },
-      };
-      const client = new CdpX402Client({ rpcUrls });
+    it("registers an explicit Solana scheme when an SVM RPC override is provided via networkSchemes", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          {
+            network: "solana-devnet",
+            rpcUrl: "https://solana-devnet-rpc.example.com",
+            scheme: { exact: true },
+          },
+        ],
+      });
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), {
@@ -504,6 +640,45 @@ describe("CdpX402Client", () => {
         "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
         expect.anything(),
       );
+    });
+  });
+
+  describe("per-scheme registration", () => {
+    it("registers upto even when exact is disabled for the same network", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { exact: false, upto: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactEvmScheme).not.toHaveBeenCalled();
+      expect(UptoEvmScheme).toHaveBeenCalled();
+    });
+
+    it("registers batchSettlement even when exact is disabled for the same network", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { exact: false, batchSettlement: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactEvmScheme).not.toHaveBeenCalled();
+      expect(BatchSettlementEvmScheme).toHaveBeenCalled();
+    });
+
+    it("passes a single rpcUrl (not a chain-ID map) to BatchSettlementEvmScheme", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          {
+            network: "base",
+            rpcUrl: "https://my-rpc.example.com",
+            scheme: { batchSettlement: true },
+          },
+        ],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(BatchSettlementEvmScheme).toHaveBeenCalledWith(expect.anything(), {
+        rpcUrl: "https://my-rpc.example.com",
+      });
     });
   });
 });

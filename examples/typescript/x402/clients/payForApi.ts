@@ -32,7 +32,8 @@ async function main() {
   // CdpX402Client lazily provisions its wallet on first payment and handles
   // 402 responses automatically. Calling `getAddresses()` eagerly provisions
   // it now, so we know which address to fund before paying.
-  const client = new CdpX402Client();
+  // "development" registers Base Sepolia, since this example pays there.
+  const client = new CdpX402Client({ environment: "development" });
   const { evmAddress, svmAddress } = await client.getAddresses();
 
   console.log("CDP-managed x402 client ready");

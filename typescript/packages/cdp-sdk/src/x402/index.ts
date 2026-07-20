@@ -75,7 +75,6 @@ export type {
 } from "./server.js";
 export {
   getCdpDefaultSchemes,
-  getCdpBatchSettlementScheme,
   getCdpExtensionRegistrations,
   CDP_EXTENSION_GAS_SPONSORING_EIP2612,
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,

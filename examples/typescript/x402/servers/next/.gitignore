@@ -1,0 +1,4 @@
+# Next.js build output and generated type declarations (root .gitignore already covers .next/,
+# but this app lives a few levels deep so we repeat it here for local `git status` sanity).
+.next/
+next-env.d.ts

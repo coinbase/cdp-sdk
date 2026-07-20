@@ -56,8 +56,9 @@ async function dropInReplacement() {
   //   const client = new x402Client();
   //   client.register("eip155:*", new ExactEvmScheme(privateKeySigner));
 
-  // After (CDP-managed wallet):
-  const client = new CdpX402Client();
+  // After (CDP-managed wallet)
+  // "development" registers Base Sepolia, since this example pays there.
+  const client = new CdpX402Client({ environment: "development" });
   const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
 
   const response = await fetchWithPayment(X402_PAID_API_URL);
