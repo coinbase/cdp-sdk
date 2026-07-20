@@ -69,9 +69,9 @@ export type WalletConfig =
     };
 
 export type SchemesConfig = {
-  exact: boolean | undefined;
-  upto: boolean | undefined;
-  "batch-settlement": boolean | undefined;
+  exact?: boolean;
+  upto?: boolean;
+  batchSettlement?: boolean;
 };
 
 export type NetworkConfig = {
@@ -116,7 +116,7 @@ export interface CdpX402ClientConfig {
    * baseline, regardless of this option, since CDP hosts a default RPC for it:
    *
    * Defaults to [
-   *    { network: "base", scheme: { "exact": true, "upto": true } },
+   *    { network: "base", scheme: { exact: true, upto: true } },
    * ]
    * (or `"base-sepolia"` instead of `"base"` when `environment` is `"development"`)
    *
@@ -126,9 +126,10 @@ export interface CdpX402ClientConfig {
    * override for `"base"` or `"base-sepolia"` that omits `rpcUrl` still gets
    * the CDP-hosted default RPC injected for it.
    *
-   * Solana has no CDP-hosted default RPC — an entry for `"solana"` or
-   * `"solana-devnet"` that has no `rpcUrl` is skipped, with a warning, rather
-   * than being registered without one.
+   * Solana has no CDP-hosted default RPC and no override is required for
+   * `exact` — it falls back to a public default RPC. `upto` and
+   * `batchSettlement` aren't yet supported for Solana (skipped with a
+   * warning), regardless of `rpcUrl`.
    */
   networkSchemes?: NetworkConfig[];
 }
@@ -275,32 +276,21 @@ const setupCdpSigners = async (
           {
             network: "base-sepolia",
             rpcUrl: defaultBaseSepoliaRpcUrl,
-            scheme: { exact: true, upto: true, "batch-settlement": false },
+            scheme: { exact: true, upto: true },
           },
         ]
       : [
           {
             network: "base",
             rpcUrl: defaultBaseRpcUrl,
-            scheme: { exact: true, upto: true, "batch-settlement": false },
+            scheme: { exact: true, upto: true },
           },
         ];
 
   // `networkSchemes` is additive on top of the default baseline: it overrides the prescribed network's scheme, or adds a new one.
   const networksByName = new Map(defaultNetworkSchemes.map(config => [config.network, config]));
   for (const override of config?.networkSchemes ?? []) {
-    const isSolana = override.network === "solana" || override.network === "solana-devnet";
     const rpcUrl = override.rpcUrl ?? networksByName.get(override.network)?.rpcUrl;
-
-    if (isSolana && !rpcUrl) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `CdpX402Client: skipping network "${override.network}": Solana has no default RPC, ` +
-          "so an rpcUrl is required. Set it on this entry in networkSchemes.",
-      );
-      continue;
-    }
-
     networksByName.set(override.network, { ...override, rpcUrl });
   }
 
@@ -313,13 +303,12 @@ const setupCdpSigners = async (
   }
   const evmRpcUrlsByChainId = buildEvmRpcUrlsByChainId(evmRpcUrlsByCaip2);
 
-  // Solana upto & batch-settlement schemes are not yet supported.
   for (const [network, netConfig] of networksByName) {
-    if (!netConfig.scheme.exact) continue;
     const caip2Network = normalizeNetwork(network) as Network;
+    const isSolana = network === "solana" || network === "solana-devnet";
 
     if (netConfig.scheme.exact) {
-      if (network === "solana" || network === "solana-devnet") {
+      if (isSolana) {
         client.register(caip2Network, new ExactSvmScheme(svmSigner, { rpcUrl: netConfig.rpcUrl }));
         client.registerV1(
           network as Network,
@@ -333,7 +322,7 @@ const setupCdpSigners = async (
 
     // `upto`'s Permit2 transfer method requires an initial approval transaction that cannot be sponsored; disabled for smart accounts at this time.
     if (netConfig.scheme.upto && walletType !== "smart") {
-      if (network === "solana" || network === "solana-devnet") {
+      if (isSolana) {
         // eslint-disable-next-line no-console
         console.warn(
           `CdpX402Client: skipping network "${network}": Solana Upto scheme is not yet supported.`,
@@ -343,14 +332,17 @@ const setupCdpSigners = async (
       }
     }
 
-    if (netConfig.scheme["batch-settlement"]) {
-      if (network === "solana" || network === "solana-devnet") {
+    if (netConfig.scheme.batchSettlement) {
+      if (isSolana) {
         // eslint-disable-next-line no-console
         console.warn(
           `CdpX402Client: skipping network "${network}": Solana Batch Settlement scheme is not yet supported.`,
         );
       } else {
-        client.register(caip2Network, new BatchSettlementEvmScheme(evmSigner, evmRpcUrlsByChainId));
+        client.register(
+          caip2Network,
+          new BatchSettlementEvmScheme(evmSigner, { rpcUrl: netConfig.rpcUrl }),
+        );
       }
     }
   }

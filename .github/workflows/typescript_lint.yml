@@ -94,9 +94,11 @@ jobs:
 
       - name: Type-check next server example
         # A full `next build` collects page data, which evaluates the route
-        # module and constructs the CDP facilitator — that requires real CDP
-        # credentials (absent in CI). Type-checking catches the same type and
-        # dependency-version errors without executing credentialed module code.
+        # module and constructs the CDP facilitator and makes live CDP API
+        # calls — undesirable in this job, which builds on every PR touching
+        # typescript/examples, not just x402 ones. Type-checking catches the
+        # same type and dependency-version errors without executing that
+        # module code or depending on network/CDP availability.
         run: pnpm typecheck
         working-directory: ./examples/typescript/x402/servers/next
 

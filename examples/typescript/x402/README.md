@@ -111,10 +111,15 @@ it with `MCP_SERVER_URL` (defaults to `http://localhost:4022`).
   `https://x402.vercel.app/protected`.
 - `X402_FUND_FROM_FAUCET` — set to `true` in `payForApi.ts` to auto-request USDC on startup.
 - `MCP_SERVER_URL` — (MCP clients) the MCP server URL. Defaults to `http://localhost:4022`.
-- `CDP_X402_RPC_URLS` — JSON object mapping CAIP-2 network IDs to RPC URLs, e.g.
-  `{"eip155:137":"https://your-rpc-provider.example.com/polygon"}`. Base and Base Sepolia resolve an
-  RPC automatically via your CDP project's node endpoint; CDP doesn't host RPCs for other networks,
-  so those require an explicit entry here from your own RPC provider.
+- `CDP_X402_CLIENT_ENVIRONMENT` — `"production"` (default, Base mainnet) or `"development"` (Base
+  Sepolia). Controls which Base network `CdpX402Client` prescribes by default; overridden by the
+  `environment` config option. These examples pass `environment: "development"` explicitly, so this
+  env var isn't required to run them as-is.
+- Non-Base RPC URLs — pass them via the `networkSchemes` config option on `CdpX402Client`, e.g.
+  `new CdpX402Client({ networkSchemes: [{ network: "polygon", rpcUrl: "https://your-rpc-provider.example.com/polygon", scheme: { exact: true } }] })`.
+  Base and Base Sepolia resolve an RPC automatically via your CDP project's node endpoint; CDP
+  doesn't host RPCs for other networks, so those require an explicit `rpcUrl` from your own RPC
+  provider.
 - `PAY_TO` — (servers) the EVM address that should receive payments (required for Approach 1 and the
   Next.js server; optional for the MCP server).
 - `PORT` — (MCP server only) override the listen port. Defaults to `4022`.

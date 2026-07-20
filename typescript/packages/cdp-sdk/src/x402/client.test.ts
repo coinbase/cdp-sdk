@@ -149,6 +149,7 @@ vi.mock("../accounts/evm/getBaseNodeRpcUrl.js", () => ({
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
 import { CdpX402Client } from "./client.js";
+import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
@@ -337,7 +338,7 @@ describe("CdpX402Client", () => {
           {
             network: "solana",
             rpcUrl: "https://my-solana-rpc.example.com",
-            scheme: { exact: true, upto: undefined, "batch-settlement": undefined },
+            scheme: { exact: true },
           },
         ],
       });
@@ -352,20 +353,37 @@ describe("CdpX402Client", () => {
       );
     });
 
-    it("skips a Solana network added via networkSchemes without an rpcUrl, with a warning", async () => {
+    it("registers an exact Solana scheme added via networkSchemes without an rpcUrl — exact has a public default RPC", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "solana", scheme: { exact: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactSvmScheme).toHaveBeenCalledWith(expect.anything(), { rpcUrl: undefined });
+      expect(mockRegister).toHaveBeenCalledWith(
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+        expect.anything(),
+      );
+    });
+
+    it("skips the upto scheme for Solana regardless of rpcUrl — not yet supported", async () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const client = new CdpX402Client({
         networkSchemes: [
+          { network: "base", scheme: { upto: false } },
           {
             network: "solana",
-            scheme: { exact: true, upto: undefined, "batch-settlement": undefined },
+            rpcUrl: "https://my-solana-rpc.example.com",
+            scheme: { upto: true },
           },
         ],
       });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(ExactSvmScheme).not.toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('skipping network "solana"'));
+      expect(UptoEvmScheme).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('skipping network "solana": Solana Upto scheme'),
+      );
       warnSpy.mockRestore();
     });
   });
@@ -593,7 +611,7 @@ describe("CdpX402Client", () => {
           {
             network: "base",
             rpcUrl: "https://my-rpc.example.com",
-            scheme: { exact: true, upto: true, "batch-settlement": undefined },
+            scheme: { exact: true, upto: true },
           },
         ],
       });
@@ -609,7 +627,7 @@ describe("CdpX402Client", () => {
           {
             network: "solana-devnet",
             rpcUrl: "https://solana-devnet-rpc.example.com",
-            scheme: { exact: true, upto: undefined, "batch-settlement": undefined },
+            scheme: { exact: true },
           },
         ],
       });
@@ -622,6 +640,45 @@ describe("CdpX402Client", () => {
         "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
         expect.anything(),
       );
+    });
+  });
+
+  describe("per-scheme registration", () => {
+    it("registers upto even when exact is disabled for the same network", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { exact: false, upto: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactEvmScheme).not.toHaveBeenCalled();
+      expect(UptoEvmScheme).toHaveBeenCalled();
+    });
+
+    it("registers batchSettlement even when exact is disabled for the same network", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { exact: false, batchSettlement: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(ExactEvmScheme).not.toHaveBeenCalled();
+      expect(BatchSettlementEvmScheme).toHaveBeenCalled();
+    });
+
+    it("passes a single rpcUrl (not a chain-ID map) to BatchSettlementEvmScheme", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          {
+            network: "base",
+            rpcUrl: "https://my-rpc.example.com",
+            scheme: { batchSettlement: true },
+          },
+        ],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(BatchSettlementEvmScheme).toHaveBeenCalledWith(expect.anything(), {
+        rpcUrl: "https://my-rpc.example.com",
+      });
     });
   });
 });

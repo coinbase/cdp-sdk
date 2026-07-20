@@ -110,14 +110,17 @@ description: >-
 
    Type-check `next` rather than `next build` it: a full `next build` collects
    page data, which evaluates the route module and constructs the CDP
-   facilitator via `createCdpFacilitatorClient()` — that throws without real
-   `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` (absent in CI), so `next build`
-   can't run credential-free. `tsc --noEmit` catches the same type and
-   dependency-version errors without executing module code, and it's what the
-   `build-examples` CI job runs. (For reference, a real `next build` also needs
-   `PAY_TO` set and its `next.config.ts` sets `turbopack.root` /
-   `outputFileTracingRoot` to the repo root so Turbopack can resolve the
-   workspace-linked `@coinbase/cdp-sdk` — don't remove that config.)
+   facilitator via `createCdpFacilitatorClient()` — that needs real
+   `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` and makes live CDP API calls, which
+   this job (and this skill's local regression check) intentionally avoids —
+   `build-examples` runs on every PR touching `typescript`/`examples`, not
+   just x402 ones, and shouldn't depend on network/CDP availability. `tsc
+   --noEmit` catches the same type and dependency-version errors without
+   executing module code, and it's what the `build-examples` CI job runs.
+   (For reference, a real `next build` also needs `PAY_TO` set and its
+   `next.config.ts` sets `turbopack.root` / `outputFileTracingRoot` to the
+   repo root so Turbopack can resolve the workspace-linked
+   `@coinbase/cdp-sdk` — don't remove that config.)
 
 7. **If any regression check fails**, don't just move on. An error like
    `Types have separate declarations of a private property '...'` means some
@@ -148,13 +151,20 @@ description: >-
 
 ## Notes
 
-- The example servers should not be started against a live facilitator/API as
-  part of this check — that needs real CDP credentials and a funded wallet,
-  and isn't reproducible. The `pnpm build` checks above (type-check only,
-  except `next` which also compiles/prerenders) are what
-  `.github/workflows/typescript_lint.yml`'s `build-examples` job runs in CI
-  for the SDK, root examples, and all four server examples — running them
-  locally first should mean CI has no surprises.
+- Steps 5-6 above (type-check/build only) mirror what CI's `build-examples`
+  job runs, and are enough to catch the dependency-version-skew errors this
+  skill exists to fix. They don't require CDP credentials, so they're the
+  right default when you don't have any configured.
+- If you *do* have CDP credentials (`CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` /
+  `CDP_WALLET_SECRET`) and a funded testnet wallet, also live-test the example
+  servers and clients against each other (`pnpm start` in each server
+  directory, then run a client example against it) before considering the
+  bump complete. This isn't required by the skill, but it's worth doing: a
+  prior x402 bump introduced a runtime-only regression (an MCP server hanging
+  on a second concurrent client) that type-checking never caught. CI's E2E
+  workflows do have real CDP credentials (a globally-set API key and wallet
+  secret — see `.github/workflows/typescript_e2e_test.yml`), so this kind of
+  check is reproducible there even without local credentials.
 - If a new x402-consuming example is added later, add its `package.json` to
   the table in step 2, give it its own `tsconfig.json` + `"build": "tsc"`
   script (mirroring `express`/`hono`/`mcp`) so it gets type-checked at all,
