@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.54.0
+
+### Minor Changes
+
+- [#757](https://github.com/coinbase/cdp-sdk/pull/757) [`8cd04bd`](https://github.com/coinbase/cdp-sdk/commit/8cd04bd70abdf6df88cfbceb7f1a06757b4ea4ea) Thanks [@CarsonRoscoe](https://github.com/CarsonRoscoe)! - Bump the `@x402/core`, `@x402/evm`, `@x402/extensions`, and `@x402/svm` peer dependencies to `^2.19.0`, rework `CdpX402Client`'s network/RPC configuration, and add client-side `batch-settlement` scheme support.
+  - `CdpX402Client`'s `rpcUrls` config option and the `CDP_X402_RPC_URLS` env var are replaced by `networkSchemes`, which configures a network's RPC URL and enabled schemes (`exact`/`upto`/`batchSettlement`) together. A new `environment` option (`"production"` default / `"development"`, falls back to `CDP_X402_CLIENT_ENVIRONMENT`) controls whether Base mainnet or Base Sepolia is prescribed by default. If you were setting `rpcUrls` or `CDP_X402_RPC_URLS`, switch to `networkSchemes[].rpcUrl`.
+  - `createX402Server`'s `batch-settlement` scheme support (and the `getCdpBatchSettlementScheme` helper) is temporarily removed: it registered the scheme but never ran the channel-manager settle lifecycle, so a client's payment could be accepted without the receiver actually getting paid. Client-side `CdpX402Client` `batch-settlement` support is unaffected. Re-enabling the server side is planned once that lifecycle is implemented.
+
+### Patch Changes
+
+- [#756](https://github.com/coinbase/cdp-sdk/pull/756) [`d6897c7`](https://github.com/coinbase/cdp-sdk/commit/d6897c7532bffeafe5d16978ae11be7e76d610e9) Thanks [@milan-cb](https://github.com/milan-cb)! - Added nextPageToken to listSpendPermissions
+
 ## 1.53.0
 
 ### Minor Changes
