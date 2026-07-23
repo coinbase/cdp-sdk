@@ -124,6 +124,43 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
 
+  x402/servers/bazaar:
+    dependencies:
+      '@coinbase/cdp-sdk':
+        specifier: workspace:*
+        version: link:../../../../../typescript/packages/cdp-sdk
+      '@types/express':
+        specifier: ^5.0.2
+        version: 5.0.6
+      '@x402/core':
+        specifier: ^2.19.0
+        version: 2.19.0
+      '@x402/evm':
+        specifier: ^2.19.0
+        version: 2.19.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/express':
+        specifier: ^2.19.0
+        version: 2.19.0(bufferutil@4.1.0)(express@5.2.1)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/extensions':
+        specifier: ^2.19.0
+        version: 2.19.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/svm':
+        specifier: ^2.19.0
+        version: 2.19.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
+      dotenv:
+        specifier: ^16.0.0
+        version: 16.6.1
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.8.3
+
   x402/servers/express:
     dependencies:
       '@coinbase/cdp-sdk':

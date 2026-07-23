@@ -82,6 +82,17 @@ Approach 1 (and the Next.js example) needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET
 (the server receives payments, so no wallet secret). Approach 2 also needs `CDP_WALLET_SECRET` to
 provision the receiver wallet, and prints the provisioned addresses instead of using `PAY_TO`.
 
+**Bazaar server** — loads its paid `GET /weather/:city` route from `x402.config.json`.
+`createX402Server` connects it to the CDP Facilitator and makes the route discoverable in the CDP
+Bazaar automatically:
+
+```bash
+cd x402/servers/bazaar && pnpm install && pnpm start
+```
+
+It needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and `CDP_WALLET_SECRET` to provision its receiver
+wallet.
+
 The Express server's Approach 2 additionally exposes `GET /usage`, which demonstrates the `upto`
 scheme (usage-based billing): the client authorizes a ceiling of `$0.10` and the handler settles
 only the amount actually used via `setSettlementOverrides`. `createX402Server` auto-registers the
