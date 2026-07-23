@@ -158,6 +158,9 @@ if (APPROACH === "1") {
   // credentials and keep this file to `routes` — don't commit secrets.
   const server = await createX402Server({
     configPath: "./x402.config.json",
+    routes: {
+      "GET /report": { price: "$0.01", description: "AI-generated report" },
+    },
     // Inline routes here would override the file's routes for matched keys.
   });
 
