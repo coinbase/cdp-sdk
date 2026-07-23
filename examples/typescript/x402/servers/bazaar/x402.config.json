@@ -1,0 +1,9 @@
+{
+  "$schema": "../express/x402.config.schema.json",
+  "routes": {
+    "GET /weather/:city": {
+      "price": "$0.01",
+      "description": "Current weather conditions for a city"
+    }
+  }
+}

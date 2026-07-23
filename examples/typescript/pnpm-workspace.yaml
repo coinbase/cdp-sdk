@@ -1,5 +1,6 @@
 packages:
   - "../../typescript/packages/cdp-sdk"
+  - "./x402/servers/bazaar"
   - "./x402/servers/express"
   - "./x402/servers/hono"
   - "./x402/servers/next"
