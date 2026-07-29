@@ -776,7 +776,7 @@ function withAutoInjectedExtensions(
     extensions: {
       ...(routeHasEvmAccept(route) && CDP_SUPPORTED_EXTENSIONS),
       ...(bazaar && { [CDP_EXTENSION_BAZAAR]: buildBazaarDeclaration(bazaar.method, bazaar.path) }),
-      ...(builderCode && {
+      ...(builderCode !== undefined && {
         [CDP_EXTENSION_BUILDER_CODE]: declareBuilderCodeExtension(builderCode),
       }),
       ...route.extensions,

@@ -1156,6 +1156,15 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
       }),
     ).rejects.toThrow(/Invalid builder code/);
   });
+
+  it("rejects an empty-string builderCode at create time instead of silently leaving it unset", async () => {
+    await expect(
+      createX402Server({
+        builderCode: "",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code/);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

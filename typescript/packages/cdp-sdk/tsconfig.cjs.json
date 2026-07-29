@@ -28,6 +28,9 @@
         "../../node_modules/@x402/evm/dist/cjs/batch-settlement/client/index.d.ts"
       ],
       "@x402/extensions/bazaar": ["../../node_modules/@x402/extensions/dist/cjs/bazaar/index.d.ts"],
+      "@x402/extensions/builder-code": [
+        "../../node_modules/@x402/extensions/dist/cjs/builder-code/index.d.ts"
+      ],
       "@x402/fetch": ["../../node_modules/@x402/fetch/dist/cjs/index.d.ts"],
       "@x402/svm/exact/client": ["../../node_modules/@x402/svm/dist/cjs/exact/client/index.d.ts"],
       "@x402/svm/exact/v1/client": [

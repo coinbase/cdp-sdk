@@ -361,7 +361,7 @@ const setupCdpSigners = async (
     applySpendControls(client, config.spendControls);
   }
 
-  if (config?.builderCode) {
+  if (config?.builderCode !== undefined) {
     const { BuilderCodeClientExtension } = await import("@x402/extensions/builder-code");
     client.registerExtension(new BuilderCodeClientExtension(config.builderCode));
   }

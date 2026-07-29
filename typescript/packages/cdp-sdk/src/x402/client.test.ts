@@ -721,5 +721,12 @@ describe("CdpX402Client", () => {
         expect.objectContaining({ key: "builder-code" }),
       );
     });
+
+    it("still attempts registration (does not silently skip) when builderCode is an empty string", async () => {
+      const client = new CdpX402Client({ builderCode: "" });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(MockBuilderCodeClientExtension).toHaveBeenCalledWith("");
+    });
   });
 });
