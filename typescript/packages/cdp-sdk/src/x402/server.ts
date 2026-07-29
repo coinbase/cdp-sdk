@@ -68,7 +68,9 @@
 import { readFile } from "node:fs/promises";
 
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
+import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 
+import { assertValidBuilderCode } from "./builder-code.js";
 import {
   baseMainnetCaip2,
   baseSepoliaCaip2,
@@ -83,7 +85,6 @@ import {
   CDP_EXTENSION_BAZAAR,
   CDP_EXTENSION_BUILDER_CODE,
   buildBazaarDeclaration,
-  declareBuilderCodeExtension,
 } from "./server-extensions.js";
 import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 import { CdpClient } from "../client/cdp.js";
@@ -941,10 +942,16 @@ export class X402Server extends x402HTTPResourceServer {
       };
     }
 
-    // 2. Validate routes before doing any I/O (fail fast before wallet provisioning).
+    /*
+     * 2. Validate routes and builder code before doing any I/O (fail fast
+     *    before wallet provisioning).
+     */
     const routes = merged.routes;
     if (!routes || Object.keys(routes).length === 0) {
       throw new Error("createX402Server requires at least one payment route.");
+    }
+    if (merged.builderCode !== undefined) {
+      assertValidBuilderCode(merged.builderCode);
     }
 
     // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).

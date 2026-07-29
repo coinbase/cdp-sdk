@@ -1148,13 +1148,17 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
     expect(passedRoutes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBe(override);
   });
 
-  it("rejects an invalid builderCode at create time", async () => {
+  it("rejects an invalid builderCode before provisioning wallets", async () => {
+    const { CdpClient } = await import("../client/cdp.js");
+
     await expect(
       createX402Server({
         builderCode: "INVALID-CODE",
         routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
       }),
     ).rejects.toThrow(/Invalid builder code/);
+
+    expect(CdpClient).not.toHaveBeenCalled();
   });
 
   it("rejects an empty-string builderCode at create time instead of silently leaving it unset", async () => {
@@ -1164,6 +1168,18 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
         routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
       }),
     ).rejects.toThrow(/Invalid builder code/);
+  });
+
+  it("rejects a builderCode supplied via configPath", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify({ builderCode: "Bad Code" }));
+
+    await expect(
+      createX402Server({
+        configPath: "./x402.config.json",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code: "Bad Code"/);
   });
 });
 

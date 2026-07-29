@@ -21,16 +21,10 @@
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
-import {
-  BUILDER_CODE,
-  builderCodeResourceServerExtension,
-  declareBuilderCodeExtension,
-} from "@x402/extensions/builder-code";
+import { BUILDER_CODE, builderCodeResourceServerExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
-
-export { declareBuilderCodeExtension };
 
 /*
  * ---------------------------------------------------------------------------

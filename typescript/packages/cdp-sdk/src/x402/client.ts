@@ -12,6 +12,7 @@ import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
+import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
 
@@ -20,6 +21,7 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
+import { assertValidBuilderCode } from "./builder-code.js";
 import { baseMainnetCaip2, baseSepoliaCaip2, getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -101,13 +103,18 @@ export interface CdpX402ClientConfig {
 
   /**
    * Optional [builder code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
-   * for on-chain attribution (`s` / service code).
+   * for on-chain attribution (`s` / service codes). Pass an array to attribute
+   * several participants, e.g. a client layered behind middleware.
    *
    * When set, registers the `builder-code` client extension so payment payloads
-   * include this code. Must match `^[a-z0-9_]{1,32}$`. Omit to leave the
-   * extension unset.
+   * include these codes. Codes only reach the payload for resource servers that
+   * advertise the `builder-code` extension in their `PaymentRequired` response;
+   * against servers that do not, the codes are dropped.
+   *
+   * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes are rejected by the
+   * constructor. Omit to leave the extension unset.
    */
-  builderCode?: string;
+  builderCode?: string | string[];
 
   /**
    * Deployment environment. Controls which Base network is prescribed by default.
@@ -362,7 +369,6 @@ const setupCdpSigners = async (
   }
 
   if (config?.builderCode !== undefined) {
-    const { BuilderCodeClientExtension } = await import("@x402/extensions/builder-code");
     client.registerExtension(new BuilderCodeClientExtension(config.builderCode));
   }
 
@@ -433,9 +439,14 @@ export class CdpX402Client extends x402Client {
    * Creates a CdpX402Client that initializes lazily on first payment.
    *
    * @param config - Optional configuration. Credentials fall back to environment variables.
+   * @throws If `config.builderCode` contains a code that is not 1-32 lowercase
+   * alphanumeric / underscore characters.
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
+    if (config?.builderCode !== undefined) {
+      assertValidBuilderCode(config.builderCode);
+    }
     this._config = config;
   }
 

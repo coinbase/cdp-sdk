@@ -118,7 +118,10 @@ vi.mock("@x402/core/client", () => {
   };
 });
 
-vi.mock("@x402/extensions/builder-code", () => ({
+// Only the client extension is mocked (to assert its constructor args); the
+// real `BUILDER_CODE_PATTERN` is kept so validation is tested against the spec.
+vi.mock("@x402/extensions/builder-code", async importOriginal => ({
+  ...(await importOriginal<typeof import("@x402/extensions/builder-code")>()),
   BuilderCodeClientExtension: MockBuilderCodeClientExtension,
 }));
 
@@ -722,11 +725,37 @@ describe("CdpX402Client", () => {
       );
     });
 
-    it("still attempts registration (does not silently skip) when builderCode is an empty string", async () => {
-      const client = new CdpX402Client({ builderCode: "" });
+    it("registers all codes when builderCode is an array", async () => {
+      const client = new CdpX402Client({ builderCode: ["my_client", "my_middleware"] });
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(MockBuilderCodeClientExtension).toHaveBeenCalledWith("");
+      expect(MockBuilderCodeClientExtension).toHaveBeenCalledWith(["my_client", "my_middleware"]);
+      expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects an invalid builderCode in the constructor, before any CDP I/O", () => {
+      expect(() => new CdpX402Client({ builderCode: "INVALID-CODE" })).toThrow(
+        /Invalid builder code/,
+      );
+
+      expect(MockCdpClient).not.toHaveBeenCalled();
+      expect(mockRegisterExtension).not.toHaveBeenCalled();
+    });
+
+    it("rejects an empty-string builderCode in the constructor instead of silently leaving it unset", () => {
+      expect(() => new CdpX402Client({ builderCode: "" })).toThrow(/Invalid builder code/);
+    });
+
+    it("rejects an array containing an invalid builderCode in the constructor", () => {
+      expect(() => new CdpX402Client({ builderCode: ["my_client", "Bad Code"] })).toThrow(
+        /Invalid builder code: "Bad Code"/,
+      );
+    });
+
+    it("rejects a builderCode longer than 32 characters", () => {
+      expect(() => new CdpX402Client({ builderCode: "a".repeat(33) })).toThrow(
+        /Invalid builder code/,
+      );
     });
   });
 });

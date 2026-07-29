@@ -1694,11 +1694,13 @@ const client = new CdpX402Client({
 });
 ```
 
-To attribute payments via the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters). The client attaches it as the service code (`s`) on payment payloads; omit it to leave the extension unset:
+To attribute payments via the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of them when several participants share attribution). The client attaches them as service codes (`s`) on payment payloads; omit the field to leave the extension unset:
 
 ```typescript
 const client = new CdpX402Client({ builderCode: "my_client" });
 ```
+
+Service codes are only attached when the resource server advertises the `builder-code` extension in its `PaymentRequired` response — against servers that do not, the codes are dropped and the payment proceeds unattributed.
 
 ### Apply spend controls
 

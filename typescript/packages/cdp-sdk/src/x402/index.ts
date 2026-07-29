@@ -83,7 +83,6 @@ export {
   CDP_EXTENSION_BUILDER_CODE,
   CDP_SUPPORTED_EXTENSIONS,
   buildBazaarDeclaration,
-  declareBuilderCodeExtension,
 } from "./server-extensions.js";
 export type { CdpSchemeRegistration } from "./server-extensions.js";
 
