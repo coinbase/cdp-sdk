@@ -9,6 +9,7 @@ const {
   mockRegister,
   mockRegisterV1,
   mockRegisterPolicy,
+  mockRegisterExtension,
   mockOnBeforePaymentCreation,
   mockOnAfterPaymentCreation,
   mockOnPaymentCreationFailure,
@@ -17,12 +18,14 @@ const {
   mockListSmartAccounts,
   mockGetSmartAccount,
   mockSolanaGetOrCreateAccount,
+  MockBuilderCodeClientExtension,
   MockCdpClient,
 } = vi.hoisted(() => {
   const mockCreatePaymentPayload = vi.fn();
   const mockRegister = vi.fn();
   const mockRegisterV1 = vi.fn();
   const mockRegisterPolicy = vi.fn();
+  const mockRegisterExtension = vi.fn().mockReturnThis();
   const mockOnBeforePaymentCreation = vi.fn().mockReturnThis();
   const mockOnAfterPaymentCreation = vi.fn().mockReturnThis();
   const mockOnPaymentCreationFailure = vi.fn().mockReturnThis();
@@ -31,6 +34,13 @@ const {
   const mockListSmartAccounts = vi.fn();
   const mockGetSmartAccount = vi.fn();
   const mockSolanaGetOrCreateAccount = vi.fn();
+  const MockBuilderCodeClientExtension = vi.fn().mockImplementation(function (
+    this: { key: string; serviceCodes: string | string[] },
+    serviceCodes: string | string[],
+  ) {
+    this.key = "builder-code";
+    this.serviceCodes = serviceCodes;
+  });
 
   const mockCdpClientInstance = {
     evm: {
@@ -52,6 +62,7 @@ const {
     mockRegister,
     mockRegisterV1,
     mockRegisterPolicy,
+    mockRegisterExtension,
     mockOnBeforePaymentCreation,
     mockOnAfterPaymentCreation,
     mockOnPaymentCreationFailure,
@@ -60,6 +71,7 @@ const {
     mockListSmartAccounts,
     mockGetSmartAccount,
     mockSolanaGetOrCreateAccount,
+    MockBuilderCodeClientExtension,
     MockCdpClient,
   };
 });
@@ -78,6 +90,10 @@ vi.mock("@x402/core/client", () => {
 
     registerPolicy(...args: unknown[]) {
       return mockRegisterPolicy(...args);
+    }
+
+    registerExtension(...args: unknown[]) {
+      return mockRegisterExtension(...args);
     }
 
     createPaymentPayload(...args: unknown[]) {
@@ -101,6 +117,10 @@ vi.mock("@x402/core/client", () => {
     x402HTTPClient: vi.fn().mockImplementation(() => ({})),
   };
 });
+
+vi.mock("@x402/extensions/builder-code", () => ({
+  BuilderCodeClientExtension: MockBuilderCodeClientExtension,
+}));
 
 // `client.ts` registers schemes by constructing these classes directly (not
 // via the `registerExact*Scheme` helper functions), so each is mocked as a
@@ -679,6 +699,27 @@ describe("CdpX402Client", () => {
       expect(BatchSettlementEvmScheme).toHaveBeenCalledWith(expect.anything(), {
         rpcUrl: "https://my-rpc.example.com",
       });
+    });
+  });
+
+  describe("builderCode", () => {
+    it("does not register the builder-code extension when builderCode is omitted", async () => {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegisterExtension).not.toHaveBeenCalled();
+      expect(MockBuilderCodeClientExtension).not.toHaveBeenCalled();
+    });
+
+    it("registers BuilderCodeClientExtension when builderCode is set", async () => {
+      const client = new CdpX402Client({ builderCode: "my_client" });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(MockBuilderCodeClientExtension).toHaveBeenCalledWith("my_client");
+      expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+      expect(mockRegisterExtension).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "builder-code" }),
+      );
     });
   });
 });

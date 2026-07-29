@@ -1694,6 +1694,12 @@ const client = new CdpX402Client({
 });
 ```
 
+To attribute payments via the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters). The client attaches it as the service code (`s`) on payment payloads; omit it to leave the extension unset:
+
+```typescript
+const client = new CdpX402Client({ builderCode: "my_client" });
+```
+
 ### Apply spend controls
 
 Attach `spendControls` to `CdpX402Client` to enforce per-payment and cumulative caps, restrict networks/assets/payees, and receive callbacks as spend approaches a limit. A blocked payment throws a `SpendControlError` with a machine-readable `code`.
@@ -1734,6 +1740,15 @@ const server = await createX402Server({
 
 app.use(paymentMiddlewareFromHTTPServer(server));
 console.log("Receiving EVM payments at", server.payToEvmAddress);
+```
+
+To attribute settled payments to your app via [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md), pass optional `builderCode`. Every route then advertises the extension with that app code (`a`); omit it to leave the extension unset:
+
+```typescript
+const server = await createX402Server({
+  builderCode: "my_app",
+  routes: { "GET /report": { price: "$0.01", description: "AI-generated report" } },
+});
 ```
 
 ### Use the CDP-hosted facilitator

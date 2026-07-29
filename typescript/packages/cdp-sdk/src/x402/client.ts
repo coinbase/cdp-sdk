@@ -100,6 +100,16 @@ export interface CdpX402ClientConfig {
   spendControls?: SpendControls;
 
   /**
+   * Optional [builder code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
+   * for on-chain attribution (`s` / service code).
+   *
+   * When set, registers the `builder-code` client extension so payment payloads
+   * include this code. Must match `^[a-z0-9_]{1,32}$`. Omit to leave the
+   * extension unset.
+   */
+  builderCode?: string;
+
+  /**
    * Deployment environment. Controls which Base network is prescribed by default.
    *
    * - `"production"` (default) — Base mainnet.
@@ -351,6 +361,11 @@ const setupCdpSigners = async (
     applySpendControls(client, config.spendControls);
   }
 
+  if (config?.builderCode) {
+    const { BuilderCodeClientExtension } = await import("@x402/extensions/builder-code");
+    client.registerExtension(new BuilderCodeClientExtension(config.builderCode));
+  }
+
   return { cdpClient, evmAddress, svmAddress: svmAccount.address, ownerWallet };
 };
 
@@ -401,6 +416,12 @@ export interface CdpX402WalletAddresses {
  *     allowedNetworks: ["eip155:8453"],
  *   },
  * });
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Attribute payments to this client via the builder-code extension.
+ * const client = new CdpX402Client({ builderCode: "my_client" });
  * ```
  */
 export class CdpX402Client extends x402Client {

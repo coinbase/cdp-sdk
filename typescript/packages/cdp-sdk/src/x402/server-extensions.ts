@@ -4,12 +4,14 @@
  * `createX402Server` automatically advertises all CDP extensions on every
  * route. Gas-sponsoring extensions are static (presence of key is enough).
  * Bazaar is built per-route from the route key and any user-provided overrides.
+ * Builder code is injected only when `builderCode` is set on the server config.
  *
  * | Key | Auto-injected | Notes |
  * |-----|---------------|-------|
  * | `"eip2612GasSponsoring"` | ✓ | Sponsored Permit2 via EIP-2612 permit |
  * | `"erc20ApprovalGasSponsoring"` | ✓ | Sponsored ERC-20 approve tx |
  * | `"bazaar"` | ✓ | Minimal discovery metadata built from route pattern |
+ * | `"builder-code"` | when `builderCode` set | ERC-8021 app attribution (`a`) |
  *
  * Users who need richer Bazaar metadata (queryParams, body example, output
  * schema, etc.) can override by setting `extensions.bazaar` on the route —
@@ -19,9 +21,16 @@
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
+import {
+  BUILDER_CODE,
+  builderCodeResourceServerExtension,
+  declareBuilderCodeExtension,
+} from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
+
+export { declareBuilderCodeExtension };
 
 /*
  * ---------------------------------------------------------------------------
@@ -56,6 +65,15 @@ export const CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL = "erc20ApprovalGasSpon
  */
 export const CDP_EXTENSION_BAZAAR = "bazaar" as const;
 
+/**
+ * Extension key for [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
+ * on-chain attribution (ERC-8021 Schema 2).
+ *
+ * Injected by `createX402Server` only when `builderCode` is set on the server
+ * config. Declares the app code (`a`) in `PaymentRequired.extensions`.
+ */
+export const CDP_EXTENSION_BUILDER_CODE = BUILDER_CODE;
+
 /*
  * ---------------------------------------------------------------------------
  * Auto-injected extension set
@@ -71,8 +89,8 @@ export const CDP_EXTENSION_BAZAAR = "bazaar" as const;
  * only activates the path when `requirements.extra.assetTransferMethod` is
  * `"permit2"`, so the declarations are harmless for EIP-3009 and Solana routes.
  *
- * Bazaar is NOT in this set — it is injected separately because it requires
- * per-route metadata (HTTP method, path template) to build its declaration.
+ * Bazaar and builder-code are NOT in this set — Bazaar needs per-route metadata
+ * (HTTP method, path template), and builder-code is opt-in via `builderCode`.
  */
 export const CDP_SUPPORTED_EXTENSIONS: Record<string, unknown> = {
   [CDP_EXTENSION_GAS_SPONSORING_EIP2612]: {},
@@ -216,7 +234,7 @@ export function getCdpDefaultSchemes(): CdpSchemeRegistration[] {
  * }
  * ```
  *
- * @returns Array of `ResourceServerExtension` registrations for gas-sponsoring and Bazaar.
+ * @returns Array of `ResourceServerExtension` registrations for gas-sponsoring, Bazaar, and builder-code.
  */
 export function getCdpExtensionRegistrations(): ResourceServerExtension[] {
   return [
@@ -229,5 +247,6 @@ export function getCdpExtensionRegistrations(): ResourceServerExtension[] {
       enrichPaymentRequiredResponse: async declaration => declaration ?? {},
     },
     bazaarResourceServerExtension,
+    builderCodeResourceServerExtension,
   ];
 }

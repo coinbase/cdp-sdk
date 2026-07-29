@@ -27,6 +27,11 @@
       "enum": ["production", "development"],
       "description": "Deployment environment controlling default networks. `production` (default) → Base mainnet + Solana mainnet; `development` → Base Sepolia + Solana Devnet. Falls back to the CDP_X402_SERVER_ENVIRONMENT env var."
     },
+    "builderCode": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,32}$",
+      "description": "Optional ERC-8021 builder-code app attribution (`a`). When set, every route advertises the builder-code extension with this code. Omit to leave the extension unset. Override per-route via extensions[\"builder-code\"]."
+    },
     "payToConfig": {
       "description": "How receiver payTo addresses are resolved. Defaults to { \"type\": \"eoa\" }.",
       "oneOf": [
@@ -129,7 +134,7 @@
         },
         "extensions": {
           "type": "object",
-          "description": "Extension overrides. CDP extensions are auto-injected; use this to override the auto-generated Bazaar declaration with richer discovery metadata."
+          "description": "Extension overrides. CDP extensions (gas-sponsoring, bazaar, and builder-code when builderCode is set) are auto-injected; use this to override the auto-generated Bazaar or builder-code declaration."
         }
       },
       "required": ["price"]

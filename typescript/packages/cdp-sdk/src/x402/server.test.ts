@@ -14,6 +14,7 @@ import {
   CDP_EXTENSION_GAS_SPONSORING_EIP2612,
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
   CDP_EXTENSION_BAZAAR,
+  CDP_EXTENSION_BUILDER_CODE,
   CDP_SUPPORTED_EXTENSIONS,
   buildBazaarDeclaration,
   getCdpDefaultSchemes,
@@ -23,6 +24,7 @@ import {
   validateDiscoveryExtension,
   validateDiscoveryExtensionSpec,
 } from "@x402/extensions/bazaar";
+import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -906,6 +908,7 @@ describe("X402Server extension registration", () => {
     expect(registeredKeys).toContain(CDP_EXTENSION_GAS_SPONSORING_EIP2612);
     expect(registeredKeys).toContain(CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL);
     expect(registeredKeys).toContain(CDP_EXTENSION_BAZAAR);
+    expect(registeredKeys).toContain(CDP_EXTENSION_BUILDER_CODE);
   });
 
   it("registers exactly the extensions from getCdpExtensionRegistrations()", async () => {
@@ -1084,6 +1087,74 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
     const ext = passedRoutes["GET /explicit"].extensions;
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_EIP2612]).toBeDefined();
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL]).toBeDefined();
+  });
+
+  it("does NOT inject builder-code when builderCode is omitted", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { extensions: Record<string, unknown> }>,
+    ];
+    expect(passedRoutes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBeUndefined();
+  });
+
+  it("injects builder-code on every route when builderCode is set", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+    await createX402Server({
+      builderCode: "my_app",
+      routes: {
+        "GET /a": { price: "$0.01", networks: ["eip155:8453"] },
+        "GET /b": { price: "$0.02", networks: ["eip155:8453"] },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { extensions: Record<string, { info: { a?: string } }> }>,
+    ];
+    const expected = declareBuilderCodeExtension("my_app");
+    for (const pattern of ["GET /a", "GET /b"]) {
+      const builderCode = passedRoutes[pattern].extensions[CDP_EXTENSION_BUILDER_CODE];
+      expect(builderCode).toEqual(expected);
+      expect(builderCode.info.a).toBe("my_app");
+    }
+  });
+
+  it("user-provided builder-code declaration overrides the auto-injected one", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+    const override = declareBuilderCodeExtension("other_app");
+
+    await createX402Server({
+      builderCode: "my_app",
+      routes: {
+        "GET /report": {
+          price: "$0.01",
+          networks: ["eip155:8453"],
+          extensions: { [CDP_EXTENSION_BUILDER_CODE]: override },
+        },
+      },
+    });
+
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { extensions: Record<string, unknown> }>,
+    ];
+    expect(passedRoutes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBe(override);
+  });
+
+  it("rejects an invalid builderCode at create time", async () => {
+    await expect(
+      createX402Server({
+        builderCode: "INVALID-CODE",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code/);
   });
 });
 
