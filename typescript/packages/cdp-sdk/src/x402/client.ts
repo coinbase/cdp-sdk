@@ -21,6 +21,7 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
+import { toServiceBuilderCodes } from "./builder-code.js";
 import { baseMainnetCaip2, baseSepoliaCaip2, getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -110,9 +111,10 @@ export interface CdpX402ClientConfig {
    * advertise the `builder-code` extension in their `PaymentRequired` response;
    * against servers that do not, the codes are dropped.
    *
-   * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes are rejected by the
-   * constructor. Omit to leave the extension unset. A `builder-code` extension
-   * registered manually via `registerExtension` replaces the one built here.
+   * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes and an empty array
+   * are rejected by the constructor. Omit to leave the extension unset. A
+   * `builder-code` extension registered manually via `registerExtension`
+   * replaces the one built here.
    */
   builderCode?: string | string[];
 
@@ -435,8 +437,8 @@ export class CdpX402Client extends x402Client {
    * Creates a CdpX402Client that initializes lazily on first payment.
    *
    * @param config - Optional configuration. Credentials fall back to environment variables.
-   * @throws If `config.builderCode` contains a code that is not 1-32 lowercase
-   * alphanumeric / underscore characters.
+   * @throws If `config.builderCode` is an empty array, or contains a code that
+   * is not 1-32 lowercase alphanumeric / underscore characters.
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
@@ -446,7 +448,9 @@ export class CdpX402Client extends x402Client {
      * call by the caller takes precedence over the config.
      */
     if (config?.builderCode !== undefined) {
-      this.registerExtension(new BuilderCodeClientExtension(config.builderCode));
+      this.registerExtension(
+        new BuilderCodeClientExtension(toServiceBuilderCodes(config.builderCode)),
+      );
     }
     this._config = config;
   }

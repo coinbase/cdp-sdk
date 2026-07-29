@@ -70,6 +70,7 @@ import { readFile } from "node:fs/promises";
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
 import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 
+import { assertBuilderCode } from "./builder-code.js";
 import {
   baseMainnetCaip2,
   baseSepoliaCaip2,
@@ -90,6 +91,7 @@ import { CdpClient } from "../client/cdp.js";
 
 import type { RoutesConfig, RouteConfig } from "@x402/core/server";
 import type { Network } from "@x402/core/types";
+import type { BuilderCodeRequiredExtension } from "@x402/extensions/builder-code";
 import type { Address } from "viem";
 
 /*
@@ -765,25 +767,23 @@ function routeHasEvmAccept(route: RouteConfig): boolean {
  *
  * @param pattern - Route key (e.g. `"GET /report"`) used to derive Bazaar metadata.
  * @param route - Resolved x402 `RouteConfig` to augment with CDP extensions.
- * @param builderCode - Optional app builder code to advertise on this route.
+ * @param builderCode - Optional pre-validated builder-code declaration to advertise.
  * @returns A new `RouteConfig` with CDP extensions merged in.
  */
 function withAutoInjectedExtensions(
   pattern: string,
   route: RouteConfig,
-  builderCode?: string,
+  builderCode?: BuilderCodeRequiredExtension,
 ): RouteConfig {
   const bazaar = parseRouteKeyForBazaar(pattern);
+  const hasEvmAccept = routeHasEvmAccept(route);
 
   return {
     ...route,
     extensions: {
-      ...(routeHasEvmAccept(route) && CDP_SUPPORTED_EXTENSIONS),
+      ...(hasEvmAccept && CDP_SUPPORTED_EXTENSIONS),
       ...(bazaar && { [CDP_EXTENSION_BAZAAR]: buildBazaarDeclaration(bazaar.method, bazaar.path) }),
-      ...(builderCode !== undefined &&
-        routeHasEvmAccept(route) && {
-          [CDP_EXTENSION_BUILDER_CODE]: declareBuilderCodeExtension(builderCode),
-        }),
+      ...(builderCode && hasEvmAccept && { [CDP_EXTENSION_BUILDER_CODE]: builderCode }),
       ...route.extensions,
     },
   };
@@ -798,7 +798,7 @@ function withAutoInjectedExtensions(
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
  * @param svmAddress - Solana receiver address for `solana:*` payment options (`""` when none).
  * @param environment - Deployment environment controlling default network selection.
- * @param builderCode - Optional app builder code injected on every EVM route.
+ * @param builderCode - Optional builder-code declaration injected on every EVM route.
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
@@ -806,7 +806,7 @@ function resolveRoutes(
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
-  builderCode?: string,
+  builderCode?: BuilderCodeRequiredExtension,
 ): RoutesConfig {
   const result: Record<string, RouteConfig> = {};
   const available: NetworkFamilies = { evm: evmAddress !== "", svm: svmAddress !== "" };
@@ -954,19 +954,10 @@ export class X402Server extends x402HTTPResourceServer {
     if (!routes || Object.keys(routes).length === 0) {
       throw new Error("createX402Server requires at least one payment route.");
     }
+    let builderCodeDeclaration: BuilderCodeRequiredExtension | undefined;
     if (merged.builderCode !== undefined) {
-      /*
-       * A `configPath` file is parsed as untyped JSON, so the type is checked
-       * here: the upstream pattern check coerces its argument, which would let
-       * `42` or `["my_app"]` through and advertise a malformed declaration.
-       */
-      if (typeof merged.builderCode !== "string") {
-        throw new Error(
-          `Invalid builder code: ${JSON.stringify(merged.builderCode)}. Must be a string of 1-32 characters, lowercase alphanumeric and underscores only.`,
-        );
-      }
-      // Throws on a malformed code; the declaration itself is rebuilt per route.
-      declareBuilderCodeExtension(merged.builderCode);
+      assertBuilderCode(merged.builderCode);
+      builderCodeDeclaration = declareBuilderCodeExtension(merged.builderCode);
     }
 
     // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).
@@ -1036,7 +1027,7 @@ export class X402Server extends x402HTTPResourceServer {
       evmAddress,
       svmAddress,
       environment,
-      merged.builderCode,
+      builderCodeDeclaration,
     );
 
     // 7. Construct and initialize — syncs supported schemes with the facilitator.

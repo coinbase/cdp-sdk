@@ -1,17 +1,18 @@
 /**
  * CDP-opinionated extension wiring for the x402 payment protocol.
  *
- * `createX402Server` automatically advertises all CDP extensions on every
- * route. Gas-sponsoring extensions are static (presence of key is enough).
- * Bazaar is built per-route from the route key and any user-provided overrides.
- * Builder code is injected only when `builderCode` is set on the server config.
+ * `createX402Server` advertises the extensions below on the routes each one
+ * applies to. Gas-sponsoring extensions are static (presence of the key is
+ * enough) and EVM-only. Bazaar is built per-route from the route key and any
+ * user-provided overrides. Builder code is EVM-only and injected only when
+ * `builderCode` is set on the server config.
  *
- * | Key | Auto-injected | Notes |
- * |-----|---------------|-------|
- * | `"eip2612GasSponsoring"` | ✓ | Sponsored Permit2 via EIP-2612 permit |
- * | `"erc20ApprovalGasSponsoring"` | ✓ | Sponsored ERC-20 approve tx |
- * | `"bazaar"` | ✓ | Minimal discovery metadata built from route pattern |
- * | `"builder-code"` | when `builderCode` set, EVM routes only | ERC-8021 app attribution (`a`) |
+ * | Key | Auto-injected on | Notes |
+ * |-----|------------------|-------|
+ * | `"eip2612GasSponsoring"` | EVM routes | Sponsored Permit2 via EIP-2612 permit |
+ * | `"erc20ApprovalGasSponsoring"` | EVM routes | Sponsored ERC-20 approve tx |
+ * | `"bazaar"` | every route | Minimal discovery metadata built from route pattern |
+ * | `"builder-code"` | EVM routes, when `builderCode` set | ERC-8021 app attribution (`a`) |
  *
  * Users who need richer Bazaar metadata (queryParams, body example, output
  * schema, etc.) can override by setting `extensions.bazaar` on the route —

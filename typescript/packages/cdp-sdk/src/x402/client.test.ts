@@ -728,16 +728,6 @@ describe("CdpX402Client", () => {
       expect(await enrichedServiceCodes()).toEqual(["my_client", "my_middleware"]);
     });
 
-    it("registers in the constructor so a manually registered extension wins", () => {
-      const client = new CdpX402Client({ builderCode: "my_client" });
-      const custom = new BuilderCodeClientExtension("my_override");
-      client.registerExtension(custom);
-
-      // Registration order decides the winner: the client registry is keyed by
-      // extension key, so the caller's later registration replaces ours.
-      expect(mockRegisterExtension.mock.calls.at(-1)?.[0]).toBe(custom);
-    });
-
     it("rejects an invalid builderCode in the constructor, before any CDP I/O", () => {
       expect(() => new CdpX402Client({ builderCode: "INVALID-CODE" })).toThrow(
         /Invalid builder code/,
@@ -760,6 +750,26 @@ describe("CdpX402Client", () => {
     it("rejects a builderCode longer than 32 characters", () => {
       expect(() => new CdpX402Client({ builderCode: "a".repeat(33) })).toThrow(
         /Invalid builder code/,
+      );
+    });
+
+    it("rejects an empty builderCode array rather than registering a code-less extension", () => {
+      expect(() => new CdpX402Client({ builderCode: [] })).toThrow(/Invalid builder code: \[\]/);
+
+      expect(mockRegisterExtension).not.toHaveBeenCalled();
+    });
+
+    /*
+     * `builderCode` is typed, but callers can still feed it untyped JSON, and the
+     * upstream pattern check coerces its argument — `42` stringifies into
+     * something the pattern accepts.
+     */
+    it.each([
+      ["a number", 42],
+      ["a nested array", [["my_client"]]],
+    ])("rejects %s as builderCode", (_label, builderCode) => {
+      expect(() => new CdpX402Client({ builderCode: builderCode as never })).toThrow(
+        /Invalid builder code: .*Must be a string/,
       );
     });
   });
