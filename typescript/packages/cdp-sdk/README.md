@@ -1744,7 +1744,7 @@ app.use(paymentMiddlewareFromHTTPServer(server));
 console.log("Receiving EVM payments at", server.payToEvmAddress);
 ```
 
-To attribute settled payments to your app via [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md), pass optional `builderCode`. Every route then advertises the extension with that app code (`a`); omit it to leave the extension unset:
+To attribute settled payments to your app via [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md), pass optional `builderCode`. Every route with an EVM payment option then advertises the extension with that app code (`a`); omit it to leave the extension unset. Solana-only routes are skipped, since the attribution suffix is ERC-8021 EVM calldata:
 
 ```typescript
 const server = await createX402Server({

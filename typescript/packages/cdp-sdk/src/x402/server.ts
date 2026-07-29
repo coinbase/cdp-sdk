@@ -70,7 +70,6 @@ import { readFile } from "node:fs/promises";
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
 import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 
-import { assertValidBuilderCode } from "./builder-code.js";
 import {
   baseMainnetCaip2,
   baseSepoliaCaip2,
@@ -200,8 +199,9 @@ export interface CdpRouteConfig {
    * Extension overrides for this route.
    *
    * Gas-sponsoring and `bazaar` are injected automatically. When the server
-   * config sets `builderCode`, `builder-code` is injected too. Use this field
-   * to override the auto-generated Bazaar or builder-code declaration.
+   * config sets `builderCode`, `builder-code` is injected too on EVM routes.
+   * Use this field to override the auto-generated Bazaar or builder-code
+   * declaration.
    */
   extensions?: Record<string, unknown>;
 }
@@ -301,9 +301,11 @@ export interface CdpX402ServerConfig {
    * Optional [builder code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
    * for on-chain attribution (`a` / app code).
    *
-   * When set, every route advertises the `builder-code` extension with this
-   * app code. Must match `^[a-z0-9_]{1,32}$`. Omit to leave the extension
-   * unset. Override per-route via `extensions["builder-code"]`.
+   * When set, every route with an EVM (`eip155:*`) payment option advertises the
+   * `builder-code` extension with this app code; Solana-only routes are skipped
+   * because the attribution suffix is ERC-8021 EVM calldata. Must match
+   * `^[a-z0-9_]{1,32}$`. Omit to leave the extension unset. Override per-route
+   * via `extensions["builder-code"]`.
    */
   builderCode?: string;
   /**
@@ -755,10 +757,11 @@ function routeHasEvmAccept(route: RouteConfig): boolean {
 
 /**
  * Merges CDP auto-injected extensions into a resolved route config. Gas-sponsoring
- * extensions are added only to routes with an EVM (`eip155:*`) payment option
- * (they are meaningless for Solana-only routes); the Bazaar declaration is built
- * from the route pattern for all routes; builder-code is added when `builderCode`
- * is provided. User-provided `route.extensions` always win.
+ * extensions and builder-code are added only to routes with an EVM (`eip155:*`)
+ * payment option — gas sponsoring is meaningless for Solana-only routes, and
+ * builder-code attribution is an ERC-8021 EVM calldata suffix. The Bazaar
+ * declaration is built from the route pattern for all routes. User-provided
+ * `route.extensions` always win.
  *
  * @param pattern - Route key (e.g. `"GET /report"`) used to derive Bazaar metadata.
  * @param route - Resolved x402 `RouteConfig` to augment with CDP extensions.
@@ -777,9 +780,10 @@ function withAutoInjectedExtensions(
     extensions: {
       ...(routeHasEvmAccept(route) && CDP_SUPPORTED_EXTENSIONS),
       ...(bazaar && { [CDP_EXTENSION_BAZAAR]: buildBazaarDeclaration(bazaar.method, bazaar.path) }),
-      ...(builderCode !== undefined && {
-        [CDP_EXTENSION_BUILDER_CODE]: declareBuilderCodeExtension(builderCode),
-      }),
+      ...(builderCode !== undefined &&
+        routeHasEvmAccept(route) && {
+          [CDP_EXTENSION_BUILDER_CODE]: declareBuilderCodeExtension(builderCode),
+        }),
       ...route.extensions,
     },
   };
@@ -794,7 +798,7 @@ function withAutoInjectedExtensions(
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
  * @param svmAddress - Solana receiver address for `solana:*` payment options (`""` when none).
  * @param environment - Deployment environment controlling default network selection.
- * @param builderCode - Optional app builder code injected on every route.
+ * @param builderCode - Optional app builder code injected on every EVM route.
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
@@ -951,7 +955,18 @@ export class X402Server extends x402HTTPResourceServer {
       throw new Error("createX402Server requires at least one payment route.");
     }
     if (merged.builderCode !== undefined) {
-      assertValidBuilderCode(merged.builderCode);
+      /*
+       * A `configPath` file is parsed as untyped JSON, so the type is checked
+       * here: the upstream pattern check coerces its argument, which would let
+       * `42` or `["my_app"]` through and advertise a malformed declaration.
+       */
+      if (typeof merged.builderCode !== "string") {
+        throw new Error(
+          `Invalid builder code: ${JSON.stringify(merged.builderCode)}. Must be a string of 1-32 characters, lowercase alphanumeric and underscores only.`,
+        );
+      }
+      // Throws on a malformed code; the declaration itself is rebuilt per route.
+      declareBuilderCodeExtension(merged.builderCode);
     }
 
     // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).

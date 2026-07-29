@@ -21,7 +21,6 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
-import { assertValidBuilderCode } from "./builder-code.js";
 import { baseMainnetCaip2, baseSepoliaCaip2, getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -112,7 +111,8 @@ export interface CdpX402ClientConfig {
    * against servers that do not, the codes are dropped.
    *
    * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes are rejected by the
-   * constructor. Omit to leave the extension unset.
+   * constructor. Omit to leave the extension unset. A `builder-code` extension
+   * registered manually via `registerExtension` replaces the one built here.
    */
   builderCode?: string | string[];
 
@@ -368,10 +368,6 @@ const setupCdpSigners = async (
     applySpendControls(client, config.spendControls);
   }
 
-  if (config?.builderCode !== undefined) {
-    client.registerExtension(new BuilderCodeClientExtension(config.builderCode));
-  }
-
   return { cdpClient, evmAddress, svmAddress: svmAccount.address, ownerWallet };
 };
 
@@ -444,8 +440,13 @@ export class CdpX402Client extends x402Client {
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
+    /*
+     * Registered here rather than during lazy initialization so that a malformed
+     * code throws before any CDP I/O, and so a `registerExtension("builder-code")`
+     * call by the caller takes precedence over the config.
+     */
     if (config?.builderCode !== undefined) {
-      assertValidBuilderCode(config.builderCode);
+      this.registerExtension(new BuilderCodeClientExtension(config.builderCode));
     }
     this._config = config;
   }

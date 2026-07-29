@@ -60,6 +60,7 @@ import { SpendPermission } from "./spend-permissions/types.js";
 import { HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { VerifyError } from "@x402/core/types";
+import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 import { wrapFetchWithPayment } from "@x402/fetch";
 import { CdpX402Client } from "./x402/client.js";
 import { createCdpFacilitatorClient } from "./x402/facilitator.js";
@@ -4650,9 +4651,12 @@ describe("x402 signing E2E Tests", () => {
 });
 
 describe("CdpX402Client E2E Tests", () => {
-  it("CdpX402Client creates a payment payload that the CDP facilitator verifies", async () => {
+  it("CdpX402Client creates a payment payload with builder-code attribution that the CDP facilitator verifies", async () => {
     await ensureX402DefaultEvmPayerFunded();
-    const client = new CdpX402Client({ environment: "development" });
+    const client = new CdpX402Client({
+      environment: "development",
+      builderCode: "cdp_sdk_e2e_client",
+    });
     const facilitator = createCdpFacilitatorClient();
 
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http() });
@@ -4675,11 +4679,18 @@ describe("CdpX402Client E2E Tests", () => {
           extra: { name, version },
         },
       ],
+      // Mirrors what createX402Server advertises when `builderCode` is set.
+      extensions: { "builder-code": declareBuilderCodeExtension("cdp_sdk_e2e_app") },
     };
 
     const payment = await client.createPaymentPayload(paymentRequired);
     const result = await facilitator.verify(payment, payment.accepted);
 
+    // The app code is echoed from the server declaration, the service code comes
+    // from the client's `builderCode`; the facilitator accepts the enriched echo.
+    expect(payment.extensions?.["builder-code"]).toMatchObject({
+      info: { a: "cdp_sdk_e2e_app", s: ["cdp_sdk_e2e_client"] },
+    });
     expect(result.isValid).toBe(true);
   }, 180_000);
 

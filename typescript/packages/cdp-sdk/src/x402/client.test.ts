@@ -18,7 +18,6 @@ const {
   mockListSmartAccounts,
   mockGetSmartAccount,
   mockSolanaGetOrCreateAccount,
-  MockBuilderCodeClientExtension,
   MockCdpClient,
 } = vi.hoisted(() => {
   const mockCreatePaymentPayload = vi.fn();
@@ -34,13 +33,6 @@ const {
   const mockListSmartAccounts = vi.fn();
   const mockGetSmartAccount = vi.fn();
   const mockSolanaGetOrCreateAccount = vi.fn();
-  const MockBuilderCodeClientExtension = vi.fn().mockImplementation(function (
-    this: { key: string; serviceCodes: string | string[] },
-    serviceCodes: string | string[],
-  ) {
-    this.key = "builder-code";
-    this.serviceCodes = serviceCodes;
-  });
 
   const mockCdpClientInstance = {
     evm: {
@@ -71,7 +63,6 @@ const {
     mockListSmartAccounts,
     mockGetSmartAccount,
     mockSolanaGetOrCreateAccount,
-    MockBuilderCodeClientExtension,
     MockCdpClient,
   };
 });
@@ -117,13 +108,6 @@ vi.mock("@x402/core/client", () => {
     x402HTTPClient: vi.fn().mockImplementation(() => ({})),
   };
 });
-
-// Only the client extension is mocked (to assert its constructor args); the
-// real `BUILDER_CODE_PATTERN` is kept so validation is tested against the spec.
-vi.mock("@x402/extensions/builder-code", async importOriginal => ({
-  ...(await importOriginal<typeof import("@x402/extensions/builder-code")>()),
-  BuilderCodeClientExtension: MockBuilderCodeClientExtension,
-}));
 
 // `client.ts` registers schemes by constructing these classes directly (not
 // via the `registerExact*Scheme` helper functions), so each is mocked as a
@@ -176,6 +160,7 @@ import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
+import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
 
@@ -251,6 +236,22 @@ function lastEvmRpcMap(
   return vi.mocked(mockCtor).mock.calls.at(-1)?.[1] as
     | Record<number, { rpcUrl: string }>
     | undefined;
+}
+
+/**
+ * Runs the registered builder-code extension over a payload to read back the
+ * service codes it attaches — `BuilderCodeClientExtension` keeps them private.
+ *
+ * @returns The `s` service codes, or undefined if no extension was registered.
+ */
+async function enrichedServiceCodes(): Promise<string[] | undefined> {
+  const extension = mockRegisterExtension.mock.calls.at(-1)?.[0] as
+    | BuilderCodeClientExtension
+    | undefined;
+  if (!extension) return undefined;
+
+  const enriched = await extension.enrichPaymentPayload(mockPayload, mockPaymentRequired);
+  return (enriched.extensions?.["builder-code"] as { info: { s: string[] } }).info.s;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -711,26 +712,30 @@ describe("CdpX402Client", () => {
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(mockRegisterExtension).not.toHaveBeenCalled();
-      expect(MockBuilderCodeClientExtension).not.toHaveBeenCalled();
     });
 
-    it("registers BuilderCodeClientExtension when builderCode is set", async () => {
-      const client = new CdpX402Client({ builderCode: "my_client" });
-      await client.createPaymentPayload(mockPaymentRequired);
+    it("registers BuilderCodeClientExtension with the configured service codes", async () => {
+      new CdpX402Client({ builderCode: "my_client" });
 
-      expect(MockBuilderCodeClientExtension).toHaveBeenCalledWith("my_client");
       expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
-      expect(mockRegisterExtension).toHaveBeenCalledWith(
-        expect.objectContaining({ key: "builder-code" }),
-      );
+      expect(await enrichedServiceCodes()).toEqual(["my_client"]);
     });
 
     it("registers all codes when builderCode is an array", async () => {
-      const client = new CdpX402Client({ builderCode: ["my_client", "my_middleware"] });
-      await client.createPaymentPayload(mockPaymentRequired);
+      new CdpX402Client({ builderCode: ["my_client", "my_middleware"] });
 
-      expect(MockBuilderCodeClientExtension).toHaveBeenCalledWith(["my_client", "my_middleware"]);
       expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+      expect(await enrichedServiceCodes()).toEqual(["my_client", "my_middleware"]);
+    });
+
+    it("registers in the constructor so a manually registered extension wins", () => {
+      const client = new CdpX402Client({ builderCode: "my_client" });
+      const custom = new BuilderCodeClientExtension("my_override");
+      client.registerExtension(custom);
+
+      // Registration order decides the winner: the client registry is keyed by
+      // extension key, so the caller's later registration replaces ours.
+      expect(mockRegisterExtension.mock.calls.at(-1)?.[0]).toBe(custom);
     });
 
     it("rejects an invalid builderCode in the constructor, before any CDP I/O", () => {

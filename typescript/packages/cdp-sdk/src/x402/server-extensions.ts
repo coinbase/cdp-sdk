@@ -11,7 +11,7 @@
  * | `"eip2612GasSponsoring"` | ✓ | Sponsored Permit2 via EIP-2612 permit |
  * | `"erc20ApprovalGasSponsoring"` | ✓ | Sponsored ERC-20 approve tx |
  * | `"bazaar"` | ✓ | Minimal discovery metadata built from route pattern |
- * | `"builder-code"` | when `builderCode` set | ERC-8021 app attribution (`a`) |
+ * | `"builder-code"` | when `builderCode` set, EVM routes only | ERC-8021 app attribution (`a`) |
  *
  * Users who need richer Bazaar metadata (queryParams, body example, output
  * schema, etc.) can override by setting `extensions.bazaar` on the route —
@@ -63,8 +63,8 @@ export const CDP_EXTENSION_BAZAAR = "bazaar" as const;
  * Extension key for [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
  * on-chain attribution (ERC-8021 Schema 2).
  *
- * Injected by `createX402Server` only when `builderCode` is set on the server
- * config. Declares the app code (`a`) in `PaymentRequired.extensions`.
+ * Injected by `createX402Server` on EVM routes only when `builderCode` is set on
+ * the server config. Declares the app code (`a`) in `PaymentRequired.extensions`.
  */
 export const CDP_EXTENSION_BUILDER_CODE = BUILDER_CODE;
 
@@ -84,7 +84,8 @@ export const CDP_EXTENSION_BUILDER_CODE = BUILDER_CODE;
  * `"permit2"`, so the declarations are harmless for EIP-3009 and Solana routes.
  *
  * Bazaar and builder-code are NOT in this set — Bazaar needs per-route metadata
- * (HTTP method, path template), and builder-code is opt-in via `builderCode`.
+ * (HTTP method, path template), and builder-code is opt-in via `builderCode`
+ * and carries the app code in its declaration.
  */
 export const CDP_SUPPORTED_EXTENSIONS: Record<string, unknown> = {
   [CDP_EXTENSION_GAS_SPONSORING_EIP2612]: {},
