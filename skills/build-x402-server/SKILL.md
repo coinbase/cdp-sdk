@@ -67,13 +67,17 @@ no key. Also confirm the runtime: Node.js 22 or later, or Python 3.10 or later.
 
 ### 2. Install
 
-Pick the line matching the Decisions table. The `@x402/*` packages are optional peer dependencies of
-the CDP SDK, so they are not installed for you, and `@x402/svm` and `@x402/extensions` are required
-even for an EVM-only server because `@coinbase/cdp-sdk/x402` imports them at module load.
+Pick the line matching the Decisions table. `@x402/core`, `@x402/evm`, `@x402/svm`, and
+`@x402/extensions` are optional peer dependencies of the CDP SDK, so they are not installed for you,
+and all four are needed even for an EVM-only server because `@coinbase/cdp-sdk/x402` imports them at
+module load. Only the framework and its adapter change between the three TypeScript lines.
 
 ```bash
-# TypeScript, Express (Hono and Next.js: @x402/hono or @x402/next in place of @x402/express)
+# TypeScript, Express
 npm install express @coinbase/cdp-sdk @x402/core @x402/evm @x402/svm @x402/extensions @x402/express
+
+# ...or Hono:    hono @hono/node-server, and @x402/hono in place of @x402/express
+# ...or Next.js: next, and @x402/next in place of @x402/express
 
 # Python
 pip install "cdp-sdk" "x402[evm,svm,fastapi]" uvicorn   # FastAPI
@@ -134,13 +138,18 @@ app.fetch, port })` in place of `app.listen`. The server object is identical.
 once in its own module and import it from the handler:
 
 ```typescript
-// app/x402.ts
+// app/x402.ts — note the /server subpath: the client ExactEvmScheme needs a signer
+import { x402ResourceServer } from "@x402/core/server";
+import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { createCdpFacilitatorClient } from "@coinbase/cdp-sdk/x402";
+
 export const server = new x402ResourceServer(createCdpFacilitatorClient()).register(
   "eip155:84532",
   new ExactEvmScheme(),
 );
 
 // app/api/report/route.ts
+import { withX402 } from "@x402/next";
 export const GET = withX402(handler, { accepts: [...], description: "..." }, server);
 ```
 
@@ -152,9 +161,10 @@ Gotchas worth stating once:
 
 **Usage-based pricing (`upto`)** only when the user asks for it. The route takes `scheme: "upto"`
 and a price that acts as a ceiling; the handler calls `setSettlementOverrides(res, { amount })`
-with the amount actually used before sending the body. That amount is a string of atomic units, so
-`"100000"` is $0.10 in 6-decimal USDC. `upto` is EVM-only, so under `"development"` it resolves to
-Base Sepolia alone.
+with the amount actually used before sending the body. `amount` is a string, and it accepts atomic
+units (`"100000"` is $0.10 in 6-decimal USDC), a dollar price (`"$0.05"`), or a percentage of the
+authorized ceiling (`"50%"`) — pick whichever the usage calculation produces naturally. `upto` is
+EVM-only, so under `"development"` it resolves to Base Sepolia alone.
 
 #### Python
 
@@ -203,9 +213,10 @@ the user needs a lifespan hook instead.
 server=server)` from `x402.http.middleware.flask`, which is a function that mutates the app rather
 than a middleware class. Handing Flask the async `x402ResourceServer` raises a `TypeError`.
 
-Two more gotchas: a `PaymentOption` needs `pay_to`, `price`, `scheme`, and `network` together, and
-a missing one fails at request time rather than at startup; and this path is EVM-only, with no
-Solana option.
+Two more gotchas: `PaymentOption` is a dataclass whose `scheme`, `pay_to`, `price`, and `network`
+have no defaults, so a missing one is a `TypeError` at construction — which, with a module-level
+route map, means the server refuses to import rather than failing a request later. And this path is
+EVM-only, with no Solana option.
 
 ### 4. Confirm the route is protected
 

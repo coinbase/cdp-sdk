@@ -63,13 +63,17 @@ no key yet. Also confirm the runtime: Node.js 22 or later, or Python 3.10 or lat
 
 ### 2. Install
 
-Pick the line matching the Decisions table. The `@x402/*` packages are optional peer dependencies of
-the CDP SDK, so they are not installed for you. Keep `@x402/svm` and `@x402/extensions` even for an
-EVM-only integration: `@coinbase/cdp-sdk/x402` imports them at module load.
+Pick the line matching the Decisions table. `@x402/core`, `@x402/evm`, `@x402/svm`, and
+`@x402/extensions` are optional peer dependencies of the CDP SDK, so they are not installed for you,
+and all four are needed even for an EVM-only integration because `@coinbase/cdp-sdk/x402` imports
+them at module load. The transport package on the end is the one that changes.
 
 ```bash
-# TypeScript, fetch (axios or MCP: @x402/axios or @x402/mcp in place of @x402/fetch)
+# TypeScript, fetch
 npm install @coinbase/cdp-sdk @x402/core @x402/evm @x402/svm @x402/extensions @x402/fetch
+
+# ...or axios: @x402/axios in place of @x402/fetch, plus axios itself
+# ...or MCP:   @x402/mcp   in place of @x402/fetch, plus @modelcontextprotocol/sdk
 
 # Python
 pip install "cdp-sdk" "x402[evm,svm,httpx]"      # async
@@ -155,13 +159,14 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-The `EthAccountSigner` wrap is the single most likely thing to get wrong in this file. Handing
-`EvmLocalAccount` straight to `ExactEvmScheme` type-checks and then fails at signing time, because
-the two disagree on the argument order of `sign_typed_data` — the error names neither class.
-`EthAccountSigner` is what reconciles them. A type checker may still flag the wrap, since
-`EvmLocalAccount` subclasses `BaseAccount` rather than `LocalAccount`; at runtime it is correct.
+`EvmLocalAccount` and the x402 signer protocol declare `sign_typed_data` differently, and
+`EthAccountSigner` is what reconciles them. Writing the wrap explicitly is a readability choice
+rather than a requirement: `ExactEvmScheme` already auto-wraps anything that is an `eth_account`
+`BaseAccount`, which `EvmLocalAccount` is, so passing the account directly works too. Keep the
+explicit form so the adaptation is visible. A type checker may flag it, since `EvmLocalAccount`
+subclasses `BaseAccount` rather than `LocalAccount`; at runtime it is correct.
 
-Three more things that break first:
+Three things that break first:
 
 - `CdpClient` is an async context manager. Resolve the account inside `async with`.
 - On the httpx path, `await response.aread()` before touching the body.
@@ -179,6 +184,8 @@ Run the client once. With no USDC it fails, and it prints the address to fund. S
 USDC there:
 
 ```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+
 await new CdpClient().evm.requestFaucet({
   address: evmAddress,
   network: "base-sepolia",
@@ -205,7 +212,7 @@ yet, `https://x402.vercel.app/protected` charges $0.01 on Base Sepolia.
 | Symptom                            | Cause                                                          | Fix                                                            |
 | ---------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
 | `402` no matter how often you retry | Wallet holds no USDC, or the faucet transfer has not confirmed | Check the balance of the printed address before retrying       |
-| Python signing failure             | `ExactEvmScheme` got `EvmLocalAccount` directly                | Wrap it: `EthAccountSigner(EvmLocalAccount(account))`          |
+| Python `TypeError` on the client   | A sync client paired with async pieces, or the reverse         | `x402_requests` needs `x402ClientSync`; `x402HttpxClient` needs `x402Client` |
 | Wallet authentication error        | `CDP_WALLET_SECRET` missing or wrong                           | It is separate from the API key secret; check both             |
 | No scheme registered for network   | Registered chain ID differs from the one the server asks for   | Match the `network` in the `402` response                      |
 | Payment exceeds balance            | —                                                              | Report the shortfall in USDC, not atomic units: 10000 is $0.01 |
