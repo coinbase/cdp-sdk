@@ -32,7 +32,11 @@
  *   APPROACH=1 PAY_TO=0x... pnpm start   # drop-in facilitator swap
  *   APPROACH=2 pnpm start                 # inline config (default)
  */
-import "dotenv/config";
+import { config } from "dotenv";
+
+// Servers run from their own directory, so load a local .env if there is one and
+// otherwise fall back to the shared examples/typescript/.env.
+config({ path: [".env", "../../../.env"] });
 
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
@@ -42,6 +46,7 @@ import { paymentMiddleware, paymentMiddlewareFromHTTPServer, x402ResourceServer 
 import { createCdpFacilitatorClient, createX402Server } from "@coinbase/cdp-sdk/x402";
 
 const APPROACH = process.env.APPROACH ?? "2";
+const PORT = Number(process.env.PORT ?? 8402);
 const app = new Hono();
 
 // ─── Approach 1: Drop the CDP facilitator into an existing server setup ─────
@@ -72,8 +77,8 @@ if (APPROACH === "1") {
   );
 
   app.get("/report", c => c.json({ report: "..." }));
-  serve({ fetch: app.fetch, port: 8402 }, () =>
-    console.log(`Listening on http://localhost:8402\nReceiving EVM payments at ${PAY_TO}`),
+  serve({ fetch: app.fetch, port: PORT }, () =>
+    console.log(`Listening on http://localhost:${PORT}\nReceiving EVM payments at ${PAY_TO}`),
   );
 
 // ─── Approach 2: One-liner server with inline route config ──────────────────
@@ -82,10 +87,13 @@ if (APPROACH === "1") {
   // createX402Server provisions a receiver wallet, wires the CDP facilitator,
   // and returns an X402Server (extends x402HTTPResourceServer) — all in one call.
   const server = await createX402Server({
+    // "development" defaults every route to Base Sepolia + Solana Devnet, so the
+    // demo settles on testnet. Drop it (or use "production") to go to mainnet.
+    environment: "development",
     routes: {
       "GET /report": { price: "$0.01", description: "AI-generated report" },
-      // networks defaults to Base mainnet + Solana mainnet for "exact" scheme.
-      // Override with networks: ["eip155:8453"] to restrict to EVM-only, etc.
+      // Override the environment default per route with e.g.
+      // networks: ["eip155:84532"] to restrict this route to EVM-only.
     },
     // Optional: bring your own addresses instead of provisioning a CDP wallet.
     // payToConfig: { type: "address", evm: "0x...", solana: "..." },
@@ -94,9 +102,9 @@ if (APPROACH === "1") {
   // server IS an x402HTTPResourceServer — pass it to any x402 middleware.
   app.use(paymentMiddlewareFromHTTPServer(server));
   app.get("/report", c => c.json({ report: "..." }));
-  serve({ fetch: app.fetch, port: 8402 }, () =>
+  serve({ fetch: app.fetch, port: PORT }, () =>
     console.log(
-      `Listening on http://localhost:8402\n` +
+      `Listening on http://localhost:${PORT}\n` +
         `Receiving EVM payments at ${server.payToEvmAddress}\n` +
         `Receiving Solana payments at ${server.payToSvmAddress}`,
     ),

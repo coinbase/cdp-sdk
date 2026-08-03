@@ -16,7 +16,11 @@
  *   pnpm install
  *   pnpm start
  */
-import "dotenv/config";
+import { config } from "dotenv";
+
+// Servers run from their own directory, so load a local .env if there is one and
+// otherwise fall back to the shared examples/typescript/.env.
+config({ path: [".env", "../../../.env"] });
 
 import express from "express";
 import { paymentMiddlewareFromHTTPServer } from "@x402/express";
@@ -45,9 +49,10 @@ app.get("/weather/:city", (req, res) => {
   res.json({ city: req.params.city, ...data });
 });
 
-app.listen(8402, () =>
+const PORT = Number(process.env.PORT ?? 8402);
+app.listen(PORT, () =>
   console.log(
-    `Listening on http://localhost:8402\n` +
+    `Listening on http://localhost:${PORT}\n` +
       `Receiving EVM payments at ${server.payToEvmAddress}\n` +
       `Receiving Solana payments at ${server.payToSvmAddress}`,
   ),
