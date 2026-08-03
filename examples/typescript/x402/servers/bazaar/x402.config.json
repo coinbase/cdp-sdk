@@ -1,5 +1,6 @@
 {
   "$schema": "../express/x402.config.schema.json",
+  "environment": "development",
   "routes": {
     "GET /weather/:city": {
       "price": "$0.01",
