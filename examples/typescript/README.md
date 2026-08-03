@@ -22,6 +22,11 @@ pnpm tsx evm/createAccount.ts
 Examples for paying for and gating x402-protected APIs with CDP-managed wallets live in [`x402/`](./x402). See the [x402 examples README](./x402/README.md) for setup, funding, and environment variables.
 
 - [`x402/clients/payForApi.ts`](./x402/clients/payForApi.ts) — pay for an x402-protected API with a CDP-managed wallet using `CdpX402Client`.
+- [`x402/clients/payForApiWithAxios.ts`](./x402/clients/payForApiWithAxios.ts) — the same flow over axios instead of fetch.
 - [`x402/clients/payForApiWithSpendControls.ts`](./x402/clients/payForApiWithSpendControls.ts) — the same flow with per-payment and cumulative spend caps, an `allowedNetworks` allowlist, and an `onApproachingLimit` callback.
 - [`x402/clients/x402DevMigration.ts`](./x402/clients/x402DevMigration.ts) — migrate from a self-managed private key to a CDP signer, shown two ways.
-- [`x402/servers/express`](./x402/servers/express) — an Express resource server that gates a paid route using `createX402Server` and the CDP-hosted facilitator.
+- [`x402/clients/mcp`](./x402/clients/mcp) — pay for MCP tool calls, both directly and from a Claude-driven chatbot.
+- [`x402/servers/express`](./x402/servers/express) — an Express resource server that gates a paid route using `createX402Server` and the CDP-hosted facilitator, shown three ways.
+- [`x402/servers/hono`](./x402/servers/hono) and [`x402/servers/next`](./x402/servers/next) — the same wiring on Hono and on the Next.js App Router.
+- [`x402/servers/bazaar`](./x402/servers/bazaar) — a paid route that publishes discovery metadata to the CDP Bazaar.
+- [`x402/servers/mcp`](./x402/servers/mcp) — charge for MCP tool calls.
