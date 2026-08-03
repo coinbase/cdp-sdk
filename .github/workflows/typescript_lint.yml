@@ -92,6 +92,10 @@ jobs:
         run: pnpm build
         working-directory: ./examples/typescript/x402/servers/mcp
 
+      - name: Build bazaar server example
+        run: pnpm build
+        working-directory: ./examples/typescript/x402/servers/bazaar
+
       - name: Type-check next server example
         # A full `next build` collects page data, which evaluates the route
         # module and constructs the CDP facilitator and makes live CDP API
