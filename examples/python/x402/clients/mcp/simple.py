@@ -2,7 +2,7 @@
 
 """Call x402-paid MCP tools with a CDP-managed wallet.
 
-The signer is a CDP Server Wallet exposed through eth_account's LocalAccount
+The signer is a CDP Server Wallet reached through eth_account's account
 interface via EvmLocalAccount, registered onto a standard x402Client -- no
 private keys. create_x402_mcp_client runs the 402 -> pay -> retry loop for you.
 
@@ -24,6 +24,7 @@ from cdp.evm_local_account import EvmLocalAccount
 from dotenv import load_dotenv
 from x402 import x402Client
 from x402.mcp import create_x402_mcp_client
+from x402.mechanisms.evm import EthAccountSigner
 from x402.mechanisms.evm.exact import ExactEvmScheme
 
 load_dotenv()
@@ -35,13 +36,18 @@ NETWORK = "eip155:84532"  # Base Sepolia
 async def main() -> None:
     async with CdpClient() as cdp:
         account = await cdp.evm.get_or_create_account(name="x402-client-wallet-1")
-        signer = EvmLocalAccount(account)
+        # EthAccountSigner adapts the CDP account to the x402 signer protocol.
+        signer = EthAccountSigner(EvmLocalAccount(account))
         print(f"Paying from {signer.address}")
 
+        # The same CDP credentials power both the faucet and the facilitator.
         if os.getenv("CDP_FUND_FROM_FAUCET", "").lower() == "true":
-            await cdp.evm.request_faucet(
+            tx = await cdp.evm.request_faucet(
                 address=signer.address, network="base-sepolia", token="usdc"
             )
+            print(f"Requested USDC from the CDP faucet: {tx}")
+            print("Wait for it to confirm, then re-run without the flag to pay.")
+            return
 
         payment_client = x402Client()
         payment_client.register(NETWORK, ExactEvmScheme(signer))
@@ -55,8 +61,16 @@ async def main() -> None:
 
             report = await mcp.call_tool("generate_report", {"topic": "USDC on Base"})
             print(f"generate_report -> {report.content[0].text}")
-            if report.payment_response and report.payment_response.transaction:
-                print(f"Settled tx: {report.payment_response.transaction}")
+            # payment_response is a SettleResponse, or the raw dict if it could
+            # not be parsed, so read the receipt without assuming either shape.
+            receipt = report.payment_response
+            tx_hash = (
+                receipt.get("transaction")
+                if isinstance(receipt, dict)
+                else getattr(receipt, "transaction", None)
+            )
+            if tx_hash:
+                print(f"Settled tx: {tx_hash}")
 
 
 if __name__ == "__main__":

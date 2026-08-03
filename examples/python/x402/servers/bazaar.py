@@ -35,6 +35,7 @@ from x402.server import x402ResourceServer
 
 load_dotenv()
 
+PORT = int(os.getenv("PORT", "4021"))
 EVM_ADDRESS = os.getenv("EVM_ADDRESS")
 SVM_ADDRESS = os.getenv("SVM_ADDRESS")
 EVM_NETWORK: Network = "eip155:84532"  # Base Sepolia
@@ -108,4 +109,5 @@ async def get_weather(city: str) -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=4021)
+    print(f"Receiving payments at {EVM_ADDRESS} (EVM) and {SVM_ADDRESS} (Solana)")
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
