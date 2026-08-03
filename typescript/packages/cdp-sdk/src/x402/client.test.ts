@@ -330,7 +330,15 @@ describe("CdpX402Client", () => {
         "transient network error",
       );
 
-      await expect(client.createPaymentPayload(mockPaymentRequired)).resolves.toBe(mockPayload);
+      /*
+       * `toMatchObject` rather than `toBe`/`toEqual`: every payload now comes
+       * back reconciled with the SDK's own service builder code (see the
+       * `builderCode` describe block below), so it's no longer the same
+       * object as `mockPayload`, nor an exact deep match.
+       */
+      await expect(client.createPaymentPayload(mockPaymentRequired)).resolves.toMatchObject(
+        mockPayload,
+      );
       expect(MockCdpClient).toHaveBeenCalledTimes(2);
     });
   });
@@ -707,25 +715,30 @@ describe("CdpX402Client", () => {
   });
 
   describe("builderCode", () => {
-    it("does not register the builder-code extension when builderCode is omitted", async () => {
+    it("always registers the builder-code extension, even when builderCode is omitted, for the SDK's own attribution", async () => {
       const client = new CdpX402Client();
       await client.createPaymentPayload(mockPaymentRequired);
 
-      expect(mockRegisterExtension).not.toHaveBeenCalled();
+      expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+      expect(await enrichedServiceCodes()).toEqual(["cdp_sdk_client"]);
     });
 
-    it("registers BuilderCodeClientExtension with the configured service codes", async () => {
+    it("registers BuilderCodeClientExtension with the configured service codes plus the SDK's own", async () => {
       new CdpX402Client({ builderCode: "my_client" });
 
       expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
-      expect(await enrichedServiceCodes()).toEqual(["my_client"]);
+      expect(await enrichedServiceCodes()).toEqual(["my_client", "cdp_sdk_client"]);
     });
 
-    it("registers all codes when builderCode is an array", async () => {
+    it("registers all codes when builderCode is an array, plus the SDK's own", async () => {
       new CdpX402Client({ builderCode: ["my_client", "my_middleware"] });
 
       expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
-      expect(await enrichedServiceCodes()).toEqual(["my_client", "my_middleware"]);
+      expect(await enrichedServiceCodes()).toEqual([
+        "my_client",
+        "my_middleware",
+        "cdp_sdk_client",
+      ]);
     });
 
     it("rejects an invalid builderCode in the constructor, before any CDP I/O", () => {
@@ -771,6 +784,59 @@ describe("CdpX402Client", () => {
       expect(() => new CdpX402Client({ builderCode: builderCode as never })).toThrow(
         /Invalid builder code: .*Must be a string/,
       );
+    });
+  });
+
+  describe("builderCode reconciliation", () => {
+    it("attaches the SDK's own service code to a payload with no builder-code extension at all", async () => {
+      const client = new CdpX402Client();
+      const payload = await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(payload.extensions?.["builder-code"]).toEqual({ info: { s: ["cdp_sdk_client"] } });
+    });
+
+    /*
+     * `@x402/core` treats server-declared `builder-code` fields as
+     * authoritative: when the resource server also declares `s` (as
+     * `createX402Server` does, to attach its own service code), its merge
+     * discards whatever the registered `BuilderCodeClientExtension` produced
+     * for `s` instead of combining them. `mockCreatePaymentPayload` is set up
+     * here to return exactly what that lossy merge would produce — only the
+     * server's `s` and `a`, with the client's contributed codes already gone
+     * — so this test exercises `CdpX402Client`'s own reconciliation, not
+     * `@x402/core`'s (mocked away) merge.
+     */
+    it("unions the SDK's own and configured codes back in when the server's declared s clobbered them", async () => {
+      mockCreatePaymentPayload.mockResolvedValue({
+        ...mockPayload,
+        extensions: { "builder-code": { info: { a: "their_app", s: ["cdp_sdk_server"] } } },
+      });
+      const client = new CdpX402Client({ builderCode: "my_client" });
+
+      const payload = await client.createPaymentPayload(mockPaymentRequired);
+
+      const builderCode = payload.extensions?.["builder-code"] as {
+        info: { a: string; s: string[] };
+      };
+      expect(builderCode.info.a).toBe("their_app");
+      expect(builderCode.info.s).toEqual(
+        expect.arrayContaining(["cdp_sdk_server", "my_client", "cdp_sdk_client"]),
+      );
+      expect(builderCode.info.s).toHaveLength(3);
+    });
+
+    it("dedupes when a code already appears on both sides", async () => {
+      mockCreatePaymentPayload.mockResolvedValue({
+        ...mockPayload,
+        extensions: { "builder-code": { info: { s: ["cdp_sdk_client"] } } },
+      });
+      const client = new CdpX402Client();
+
+      const payload = await client.createPaymentPayload(mockPaymentRequired);
+
+      expect((payload.extensions?.["builder-code"] as { info: { s: string[] } }).info.s).toEqual([
+        "cdp_sdk_client",
+      ]);
     });
   });
 });

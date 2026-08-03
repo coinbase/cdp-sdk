@@ -1694,7 +1694,7 @@ const client = new CdpX402Client({
 });
 ```
 
-To attribute payments via the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of them when several participants share attribution). The client attaches them as service codes (`s`) on payment payloads; omit the field to leave the extension unset:
+Every `CdpX402Client` always attaches its own `cdp_sdk_client` service code to the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, for on-chain attribution of payments made through the CDP SDK. To attribute payments to your own app or service too, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of them when several participants share attribution) — it's added to `s` alongside the SDK's own code:
 
 ```typescript
 const client = new CdpX402Client({ builderCode: "my_client" });
@@ -1744,7 +1744,7 @@ app.use(paymentMiddlewareFromHTTPServer(server));
 console.log("Receiving EVM payments at", server.payToEvmAddress);
 ```
 
-To attribute settled payments to your app via [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md), pass optional `builderCode`. Every route with an EVM payment option then advertises the extension with that app code (`a`); omit it to leave the extension unset. Solana-only routes are skipped, since the attribution suffix is ERC-8021 EVM calldata:
+Every route with an EVM payment option always advertises the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension with the SDK's own `cdp_sdk_server` service code, for on-chain attribution of payments received through the CDP SDK. Solana-only routes are skipped, since the attribution suffix is ERC-8021 EVM calldata. To additionally attribute settled payments to your own app, pass optional `builderCode` — it's declared as the app code (`a`) alongside the SDK's own service code:
 
 ```typescript
 const server = await createX402Server({

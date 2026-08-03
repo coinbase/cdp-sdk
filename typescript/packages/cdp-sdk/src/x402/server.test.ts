@@ -20,11 +20,11 @@ import {
   getCdpDefaultSchemes,
   getCdpExtensionRegistrations,
 } from "./server-extensions.js";
+import { declareServerBuilderCodeExtension } from "./builder-code.js";
 import {
   validateDiscoveryExtension,
   validateDiscoveryExtensionSpec,
 } from "@x402/extensions/bazaar";
-import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -1111,25 +1111,28 @@ describe("X402Server auto-injects the builder-code extension", () => {
    * @returns Resolved routes keyed by pattern, with their extension declarations.
    */
   async function passedRoutes(): Promise<
-    Record<string, { extensions: Record<string, { info: { a?: string } }> }>
+    Record<string, { extensions: Record<string, { info: { a?: string; s?: string[] } }> }>
   > {
     const { x402HTTPResourceServer } = await import("@x402/core/server");
     return vi.mocked(x402HTTPResourceServer).mock.calls[0]![1] as unknown as Record<
       string,
-      { extensions: Record<string, { info: { a?: string } }> }
+      { extensions: Record<string, { info: { a?: string; s?: string[] } }> }
     >;
   }
 
-  it("does NOT inject builder-code when builderCode is omitted", async () => {
+  it("injects builder-code with the SDK's own service code (and no app code) when builderCode is omitted", async () => {
     await createX402Server({
       routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
     });
 
     const routes = await passedRoutes();
-    expect(routes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBeUndefined();
+    const builderCode = routes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE];
+    expect(builderCode).toEqual(declareServerBuilderCodeExtension());
+    expect(builderCode.info.a).toBeUndefined();
+    expect(builderCode.info.s).toEqual(["cdp_sdk_server"]);
   });
 
-  it("injects builder-code on every EVM route when builderCode is set", async () => {
+  it("injects builder-code with both the app code and the SDK's own service code on every EVM route when builderCode is set", async () => {
     await createX402Server({
       builderCode: "my_app",
       routes: {
@@ -1139,11 +1142,12 @@ describe("X402Server auto-injects the builder-code extension", () => {
     });
 
     const routes = await passedRoutes();
-    const expected = declareBuilderCodeExtension("my_app");
+    const expected = declareServerBuilderCodeExtension("my_app");
     for (const pattern of ["GET /a", "GET /b"]) {
       const builderCode = routes[pattern].extensions[CDP_EXTENSION_BUILDER_CODE];
       expect(builderCode).toEqual(expected);
       expect(builderCode.info.a).toBe("my_app");
+      expect(builderCode.info.s).toEqual(["cdp_sdk_server"]);
     }
   });
 
@@ -1162,7 +1166,7 @@ describe("X402Server auto-injects the builder-code extension", () => {
   });
 
   it("user-provided builder-code declaration overrides the auto-injected one", async () => {
-    const override = declareBuilderCodeExtension("other_app");
+    const override = declareServerBuilderCodeExtension("other_app");
 
     await createX402Server({
       builderCode: "my_app",

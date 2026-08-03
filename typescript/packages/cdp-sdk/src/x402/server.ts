@@ -68,9 +68,8 @@
 import { readFile } from "node:fs/promises";
 
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
-import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 
-import { assertBuilderCode } from "./builder-code.js";
+import { assertBuilderCode, declareServerBuilderCodeExtension } from "./builder-code.js";
 import {
   baseMainnetCaip2,
   baseSepoliaCaip2,
@@ -200,10 +199,10 @@ export interface CdpRouteConfig {
   /**
    * Extension overrides for this route.
    *
-   * Gas-sponsoring and `bazaar` are injected automatically. When the server
-   * config sets `builderCode`, `builder-code` is injected too on EVM routes.
-   * Use this field to override the auto-generated Bazaar or builder-code
-   * declaration.
+   * Gas-sponsoring, `bazaar`, and `builder-code` are injected automatically on
+   * EVM routes (`builder-code` always carries the SDK's own service code, plus
+   * the server config's `builderCode` app code when set). Use this field to
+   * override the auto-generated Bazaar or builder-code declaration.
    */
   extensions?: Record<string, unknown>;
 }
@@ -303,11 +302,12 @@ export interface CdpX402ServerConfig {
    * Optional [builder code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
    * for on-chain attribution (`a` / app code).
    *
-   * When set, every route with an EVM (`eip155:*`) payment option advertises the
-   * `builder-code` extension with this app code; Solana-only routes are skipped
-   * because the attribution suffix is ERC-8021 EVM calldata. Must match
-   * `^[a-z0-9_]{1,32}$`. Omit to leave the extension unset. Override per-route
-   * via `extensions["builder-code"]`.
+   * Every route with an EVM (`eip155:*`) payment option always advertises the
+   * `builder-code` extension with this SDK's own service code (`s`); Solana-only
+   * routes are skipped because the attribution suffix is ERC-8021 EVM calldata.
+   * Setting `builderCode` additionally declares your own app code (`a`) on
+   * those routes. Must match `^[a-z0-9_]{1,32}$`. Override per-route via
+   * `extensions["builder-code"]`.
    */
   builderCode?: string;
   /**
@@ -767,7 +767,9 @@ function routeHasEvmAccept(route: RouteConfig): boolean {
  *
  * @param pattern - Route key (e.g. `"GET /report"`) used to derive Bazaar metadata.
  * @param route - Resolved x402 `RouteConfig` to augment with CDP extensions.
- * @param builderCode - Optional pre-validated builder-code declaration to advertise.
+ * @param builderCode - Pre-validated builder-code declaration to advertise. `create()`
+ * always supplies one (at minimum the SDK's own service code); `undefined` here only
+ * occurs in tests that call this function directly.
  * @returns A new `RouteConfig` with CDP extensions merged in.
  */
 function withAutoInjectedExtensions(
@@ -798,7 +800,7 @@ function withAutoInjectedExtensions(
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
  * @param svmAddress - Solana receiver address for `solana:*` payment options (`""` when none).
  * @param environment - Deployment environment controlling default network selection.
- * @param builderCode - Optional builder-code declaration injected on every EVM route.
+ * @param builderCode - Builder-code declaration injected on every EVM route.
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
@@ -954,11 +956,17 @@ export class X402Server extends x402HTTPResourceServer {
     if (!routes || Object.keys(routes).length === 0) {
       throw new Error("createX402Server requires at least one payment route.");
     }
-    let builderCodeDeclaration: BuilderCodeRequiredExtension | undefined;
     if (merged.builderCode !== undefined) {
       assertBuilderCode(merged.builderCode);
-      builderCodeDeclaration = declareBuilderCodeExtension(merged.builderCode);
     }
+    /*
+     * Always declared (not gated on `builderCode`) so every EVM route attaches
+     * this SDK's own service code to `s`, in addition to the developer's own
+     * app code (`a`) when configured.
+     */
+    const builderCodeDeclaration: BuilderCodeRequiredExtension = declareServerBuilderCodeExtension(
+      merged.builderCode,
+    );
 
     // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).
     const credentials = resolveServerCredentials(merged);

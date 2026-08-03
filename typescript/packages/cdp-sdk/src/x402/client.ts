@@ -21,7 +21,11 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
-import { toServiceBuilderCodes } from "./builder-code.js";
+import {
+  CDP_SDK_CLIENT_BUILDER_CODE,
+  reconcileServiceBuilderCodes,
+  toServiceBuilderCodes,
+} from "./builder-code.js";
 import { baseMainnetCaip2, baseSepoliaCaip2, getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -106,15 +110,16 @@ export interface CdpX402ClientConfig {
    * for on-chain attribution (`s` / service codes). Pass an array to attribute
    * several participants, e.g. a client layered behind middleware.
    *
-   * When set, registers the `builder-code` client extension so payment payloads
-   * include these codes. Codes only reach the payload for resource servers that
+   * Every `CdpX402Client` always attaches its own `cdp_sdk_client` service
+   * code to `s` alongside any codes configured here, regardless of whether
+   * this option is set. Codes only reach the payload for resource servers that
    * advertise the `builder-code` extension in their `PaymentRequired` response;
    * against servers that do not, the codes are dropped.
    *
    * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes and an empty array
-   * are rejected by the constructor. Omit to leave the extension unset. A
-   * `builder-code` extension registered manually via `registerExtension`
-   * replaces the one built here.
+   * are rejected by the constructor. A `builder-code` extension registered
+   * manually via `registerExtension` replaces the one built from this option
+   * (the auto-attached `cdp_sdk_client` code is still preserved where possible).
    */
   builderCode?: string | string[];
 
@@ -430,6 +435,7 @@ export interface CdpX402WalletAddresses {
  */
 export class CdpX402Client extends x402Client {
   private readonly _config: CdpX402ClientConfig | undefined;
+  private readonly _serviceBuilderCodes: string[];
   private _initPromise: Promise<void> | null = null;
   private _addresses: CdpX402WalletAddresses | null = null;
 
@@ -442,16 +448,18 @@ export class CdpX402Client extends x402Client {
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
+    this._serviceBuilderCodes = [
+      ...(config?.builderCode !== undefined ? toServiceBuilderCodes(config.builderCode) : []),
+      CDP_SDK_CLIENT_BUILDER_CODE,
+    ];
     /*
      * Registered here rather than during lazy initialization so that a malformed
      * code throws before any CDP I/O, and so a `registerExtension("builder-code")`
-     * call by the caller takes precedence over the config.
+     * call by the caller takes precedence over the config. `createPaymentPayload`
+     * separately guarantees `_serviceBuilderCodes` survives even when a caller's
+     * override (or the server's own declaration) replaces this extension's output.
      */
-    if (config?.builderCode !== undefined) {
-      this.registerExtension(
-        new BuilderCodeClientExtension(toServiceBuilderCodes(config.builderCode)),
-      );
-    }
+    this.registerExtension(new BuilderCodeClientExtension(this._serviceBuilderCodes));
     this._config = config;
   }
 
@@ -482,11 +490,14 @@ export class CdpX402Client extends x402Client {
    * Creates the payment payload, initializing the CDP wallet lazily on first call.
    *
    * @param paymentRequired - The x402 payment requirements from the resource server.
-   * @returns The signed payment payload.
+   * @returns The signed payment payload, with this client's service builder
+   * codes reconciled into `extensions["builder-code"].s` (see
+   * {@link reconcileServiceBuilderCodes}).
    */
   override async createPaymentPayload(paymentRequired: PaymentRequired): Promise<PaymentPayload> {
     await this._ensureInitialized();
-    return super.createPaymentPayload(paymentRequired);
+    const payload = await super.createPaymentPayload(paymentRequired);
+    return reconcileServiceBuilderCodes(payload, this._serviceBuilderCodes);
   }
 
   /**

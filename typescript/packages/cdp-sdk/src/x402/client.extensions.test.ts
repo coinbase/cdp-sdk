@@ -22,8 +22,8 @@ function builderCodeExtensions(client: CdpX402Client): ClientExtension[] {
 }
 
 describe("CdpX402Client extension registry", () => {
-  it("registers no builder-code extension when builderCode is omitted", () => {
-    expect(builderCodeExtensions(new CdpX402Client())).toHaveLength(0);
+  it("registers a builder-code extension even when builderCode is omitted, for the SDK's own attribution", () => {
+    expect(builderCodeExtensions(new CdpX402Client())).toHaveLength(1);
   });
 
   it("registers exactly one builder-code extension from builderCode", () => {

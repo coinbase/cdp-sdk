@@ -60,8 +60,8 @@ import { SpendPermission } from "./spend-permissions/types.js";
 import { HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { VerifyError } from "@x402/core/types";
-import { declareBuilderCodeExtension } from "@x402/extensions/builder-code";
 import { wrapFetchWithPayment } from "@x402/fetch";
+import { declareServerBuilderCodeExtension } from "./x402/builder-code.js";
 import { CdpX402Client } from "./x402/client.js";
 import { createCdpFacilitatorClient } from "./x402/facilitator.js";
 import { createX402Server } from "./x402/server.js";
@@ -4679,18 +4679,26 @@ describe("CdpX402Client E2E Tests", () => {
           extra: { name, version },
         },
       ],
-      // Mirrors what createX402Server advertises when `builderCode` is set.
-      extensions: { "builder-code": declareBuilderCodeExtension("cdp_sdk_e2e_app") },
+      // Mirrors what createX402Server actually advertises when `builderCode` is
+      // set: the app's own code (`a`) alongside the SDK's own service code (`s`).
+      extensions: { "builder-code": declareServerBuilderCodeExtension("cdp_sdk_e2e_app") },
     };
 
     const payment = await client.createPaymentPayload(paymentRequired);
     const result = await facilitator.verify(payment, payment.accepted);
 
-    // The app code is echoed from the server declaration, the service code comes
-    // from the client's `builderCode`; the facilitator accepts the enriched echo.
+    // The app code is echoed from the server declaration. `s` combines the
+    // server's own service code with the client's configured + auto-attached
+    // codes — proving CdpX402Client's reconciliation survives the real
+    // `@x402/core` merge (which would otherwise drop the client's codes
+    // entirely once the server also declares `s`) and that the CDP
+    // facilitator accepts the resulting attribution.
     expect(payment.extensions?.["builder-code"]).toMatchObject({
-      info: { a: "cdp_sdk_e2e_app", s: ["cdp_sdk_e2e_client"] },
+      info: { a: "cdp_sdk_e2e_app" },
     });
+    expect((payment.extensions?.["builder-code"] as { info: { s: string[] } }).info.s).toEqual(
+      expect.arrayContaining(["cdp_sdk_server", "cdp_sdk_e2e_client", "cdp_sdk_client"]),
+    );
     expect(result.isValid).toBe(true);
   }, 180_000);
 
