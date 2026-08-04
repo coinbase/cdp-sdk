@@ -96,16 +96,11 @@ Every server listens on its own default port and honors `PORT`, so pass `PORT` o
 to run two at once. The Next.js example is the exception to the shared-`.env` fallback: Next loads
 env files itself, from `x402/servers/next`.
 
-**Bazaar server** — loads its paid `GET /weather/:city` route from `x402.config.json`.
-`createX402Server` connects it to the CDP Facilitator and makes the route discoverable in the CDP
-Bazaar automatically:
-
-```bash
-cd x402/servers/bazaar && pnpm install && pnpm start
-```
-
-It needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and `CDP_WALLET_SECRET` to provision its receiver
-wallet.
+Every route declared through `createX402Server` — any of the three approaches above — is
+discoverable in the CDP Bazaar automatically once it settles a real payment through the CDP
+Facilitator; there's no separate wiring or registration step. See
+[Get discovered](https://docs.cdp.coinbase.com/x402/seller/get-discovered) for how to add richer
+discovery metadata to a route.
 
 The Express server's Approach 2 additionally exposes `GET /usage`, which demonstrates the `upto`
 scheme (usage-based billing): the client authorizes a ceiling of `$0.10` and the handler settles

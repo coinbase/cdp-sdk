@@ -28,5 +28,4 @@ Examples for paying for and gating x402-protected APIs with CDP-managed wallets 
 - [`x402/clients/mcp`](./x402/clients/mcp) — pay for MCP tool calls, both directly and from a Claude-driven chatbot.
 - [`x402/servers/express`](./x402/servers/express) — an Express resource server that gates a paid route using `createX402Server` and the CDP-hosted facilitator, shown three ways.
 - [`x402/servers/hono`](./x402/servers/hono) and [`x402/servers/next`](./x402/servers/next) — the same wiring on Hono and on the Next.js App Router.
-- [`x402/servers/bazaar`](./x402/servers/bazaar) — a paid route that publishes discovery metadata to the CDP Bazaar.
 - [`x402/servers/mcp`](./x402/servers/mcp) — charge for MCP tool calls.

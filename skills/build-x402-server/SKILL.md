@@ -183,6 +183,7 @@ from x402.http.types import RouteConfig
 from x402.mechanisms.evm.exact import ExactEvmServerScheme
 from x402.server import x402ResourceServer
 
+PAY_TO = "0x1234567890123456789012345678901234567890"  # Your EVM address to get paid on Base Sepolia
 NETWORK = "eip155:84532"  # Base Sepolia
 
 server = x402ResourceServer(HTTPFacilitatorClient(create_facilitator_config()))
@@ -260,14 +261,14 @@ of the client skill — link it rather than re-teaching funding here.
 TypeScript, under `https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/x402/servers/`:
 `express/server.ts` (all three approaches), `express/x402.config.json` and
 `express/x402.config.schema.json`, `hono/server.ts`, `next/app/api/report/route.ts`,
-`bazaar/server.ts`, `mcp/server.ts`.
+`mcp/server.ts`.
 
 Python, under `https://github.com/coinbase/cdp-sdk/blob/main/examples/python/x402/servers/`:
 `fastapi/server.py`, `flask/server.py`, `bazaar.py`, `mcp/server.py`.
 
 ## After the first payment
 
-- Make the endpoint findable: [Get discovered](https://docs.cdp.coinbase.com/x402/seller/get-discovered), plus the Bazaar examples above
+- Make the endpoint findable: [Get discovered](https://docs.cdp.coinbase.com/x402/seller/get-discovered). TypeScript's `createX402Server` handles it automatically; Python needs manual metadata like `bazaar.py` above
 - What settled the payment: [CDP Facilitator](https://docs.cdp.coinbase.com/x402/seller/facilitator)
 - Other networks, schemes, receivers, lifecycle hooks: [Production configuration](https://docs.cdp.coinbase.com/x402/seller/production-configuration)
 - Charging for MCP tools: [Charge over MCP](https://docs.cdp.coinbase.com/x402/seller/mcp-payments)

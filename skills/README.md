@@ -21,9 +21,11 @@ npx skills add coinbase/cdp-sdk --skill build-x402-client
 
 ## These are not the repo's own agent instructions
 
-`.cursor/skills/` holds skills for people working *on* this repo, such as
-`bump-x402-dependencies`. Nothing in there ships to users. This directory is the opposite: it is
-published, so treat every line as public API surface.
+Editor- and agent-specific folders such as `.cursor/skills/` (currently just
+`bump-x402-dependencies`) hold skills for people working *on* this repo — the equivalent of a
+`.claude/skills/` or `.codex/skills/` folder, had this repo used those agents instead. Nothing in
+there ships to users. This directory is the opposite: it is published, so treat every line as
+public API surface.
 
 ## These are not the Agentic Wallet skills
 
