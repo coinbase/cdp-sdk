@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.55.0
+
+### Minor Changes
+
+- [#768](https://github.com/coinbase/cdp-sdk/pull/768) [`3fb682a`](https://github.com/coinbase/cdp-sdk/commit/3fb682ab2e50f136f2d5e8c83ae68c4a7f229229) Thanks [@ethanoroshiba](https://github.com/ethanoroshiba)! - Add optional `builderCode` on `CdpX402Client` and `createX402Server` to attach the x402 `builder-code` extension for ERC-8021 on-chain attribution. The client accepts a single service code or an array of them; the server advertises its app code on every route with an EVM payment option. Independently of this option, every `CdpX402Client` and every EVM route on `createX402Server` now also always attaches the SDK's own service code, for attributing on-chain activity to the CDP SDK.
+
+### Patch Changes
+
+- [#768](https://github.com/coinbase/cdp-sdk/pull/768) [`3fb682a`](https://github.com/coinbase/cdp-sdk/commit/3fb682ab2e50f136f2d5e8c83ae68c4a7f229229) Thanks [@ethanoroshiba](https://github.com/ethanoroshiba)! - Bump the `@x402/core`, `@x402/evm`, `@x402/extensions`, and `@x402/svm` peer dependencies to `^2.21.0`.
+
 ## 1.54.0
 
 ### Minor Changes
