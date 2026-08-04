@@ -148,7 +148,7 @@ importers:
         specifier: ^2.21.0
         version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       dotenv:
-        specifier: ^16.0.0
+        specifier: ^16.4.3
         version: 16.6.1
       express:
         specifier: ^5.2.1
@@ -188,7 +188,7 @@ importers:
         specifier: ^2.21.0
         version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       dotenv:
-        specifier: ^16.0.0
+        specifier: ^16.4.3
         version: 16.6.1
       hono:
         specifier: ^4.7.1
@@ -225,7 +225,7 @@ importers:
         specifier: ^2.21.0
         version: 2.21.0
       dotenv:
-        specifier: ^16.0.0
+        specifier: ^16.4.3
         version: 16.6.1
       express:
         specifier: ^5.2.1
