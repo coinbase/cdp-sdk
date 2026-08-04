@@ -4689,10 +4689,7 @@ describe("CdpX402Client E2E Tests", () => {
 
     // The app code is echoed from the server declaration. `s` combines the
     // server's own service code with the client's configured + auto-attached
-    // codes — proving CdpX402Client's reconciliation survives the real
-    // `@x402/core` merge (which would otherwise drop the client's codes
-    // entirely once the server also declares `s`) and that the CDP
-    // facilitator accepts the resulting attribution.
+    // codes through the x402 extension merge.
     expect(payment.extensions?.["builder-code"]).toMatchObject({
       info: { a: "cdp_sdk_e2e_app" },
     });

@@ -21,11 +21,7 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
-import {
-  CDP_SDK_CLIENT_BUILDER_CODE,
-  reconcileServiceBuilderCodes,
-  toServiceBuilderCodes,
-} from "./builder-code.js";
+import { CDP_SDK_CLIENT_BUILDER_CODE, toServiceBuilderCodes } from "./builder-code.js";
 import { baseMainnetCaip2, baseSepoliaCaip2, getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -112,14 +108,12 @@ export interface CdpX402ClientConfig {
    *
    * Every `CdpX402Client` always attaches its own `cdp_sdk_client` service
    * code to `s` alongside any codes configured here, regardless of whether
-   * this option is set. Codes only reach the payload for resource servers that
-   * advertise the `builder-code` extension in their `PaymentRequired` response;
-   * against servers that do not, the codes are dropped.
+   * this option is set. Up to four codes may be configured, because the x402
+   * extension allows five service codes total.
    *
    * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes and an empty array
    * are rejected by the constructor. A `builder-code` extension registered
-   * manually via `registerExtension` replaces the one built from this option
-   * (the auto-attached `cdp_sdk_client` code is still preserved where possible).
+   * manually via `registerExtension` replaces the one built from this option.
    */
   builderCode?: string | string[];
 
@@ -443,8 +437,8 @@ export class CdpX402Client extends x402Client {
    * Creates a CdpX402Client that initializes lazily on first payment.
    *
    * @param config - Optional configuration. Credentials fall back to environment variables.
-   * @throws If `config.builderCode` is an empty array, or contains a code that
-   * is not 1-32 lowercase alphanumeric / underscore characters.
+   * @throws If `config.builderCode` is empty, has more than four codes, or
+   * contains a code that is not 1-32 lowercase alphanumeric / underscore characters.
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
@@ -455,9 +449,7 @@ export class CdpX402Client extends x402Client {
     /*
      * Registered here rather than during lazy initialization so that a malformed
      * code throws before any CDP I/O, and so a `registerExtension("builder-code")`
-     * call by the caller takes precedence over the config. `createPaymentPayload`
-     * separately guarantees `_serviceBuilderCodes` survives even when a caller's
-     * override (or the server's own declaration) replaces this extension's output.
+     * call by the caller takes precedence over the config.
      */
     this.registerExtension(new BuilderCodeClientExtension(this._serviceBuilderCodes));
     this._config = config;
@@ -490,14 +482,11 @@ export class CdpX402Client extends x402Client {
    * Creates the payment payload, initializing the CDP wallet lazily on first call.
    *
    * @param paymentRequired - The x402 payment requirements from the resource server.
-   * @returns The signed payment payload, with this client's service builder
-   * codes reconciled into `extensions["builder-code"].s` (see
-   * {@link reconcileServiceBuilderCodes}).
+   * @returns The signed payment payload.
    */
   override async createPaymentPayload(paymentRequired: PaymentRequired): Promise<PaymentPayload> {
     await this._ensureInitialized();
-    const payload = await super.createPaymentPayload(paymentRequired);
-    return reconcileServiceBuilderCodes(payload, this._serviceBuilderCodes);
+    return super.createPaymentPayload(paymentRequired);
   }
 
   /**

@@ -1694,13 +1694,13 @@ const client = new CdpX402Client({
 });
 ```
 
-Every `CdpX402Client` always attaches its own `cdp_sdk_client` service code to the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, for on-chain attribution of payments made through the CDP SDK. To attribute payments to your own app or service too, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of them when several participants share attribution) — it's added to `s` alongside the SDK's own code:
+Every `CdpX402Client` always attaches its own `cdp_sdk_client` service code to the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, for on-chain attribution of payments made through the CDP SDK. To attribute payments to your own app or service too, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of up to four codes when several participants share attribution) — it's added to `s` alongside the SDK's own code:
 
 ```typescript
 const client = new CdpX402Client({ builderCode: "my_client" });
 ```
 
-Service codes are only attached when the resource server advertises the `builder-code` extension in its `PaymentRequired` response — against servers that do not, the codes are dropped and the payment proceeds unattributed.
+Service codes are attached even when the resource server does not advertise the extension. When it does, client and server service codes are merged and deduplicated.
 
 ### Apply spend controls
 
