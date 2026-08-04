@@ -8,7 +8,7 @@ description: |
   an unexpected 402 response.
 compatibility: Requires a CDP API key and wallet secret. Node.js >= 22 (TypeScript) or Python >= 3.10.
 metadata:
-  author: developer-platform@coinbase.com
+  author: cdp@coinbase.com
   version: "0.1.0"
 ---
 
@@ -24,7 +24,7 @@ you resolved to in step 3. This file covers TypeScript and Python; reading both 
 ## When not to use this skill
 
 - **The user's end users should pay from their own wallets.** That is
-  [x402 payments with Embedded Wallets](https://docs.cdp.coinbase.com/wallets/using-wallets/x402-payments),
+  [x402 payments with User Wallets](https://docs.cdp.coinbase.com/wallets/using-wallets/x402-payments),
   a browser flow, not this server-side one.
 - **The user wants an agent to spend money now, without writing code.** Use the agentic-wallet
   [pay-for-service](https://docs.cdp.coinbase.com/agentic-wallet/cli/skills/pay-for-service) skill,
@@ -63,22 +63,25 @@ no key yet. Also confirm the runtime: Node.js 22 or later, or Python 3.10 or lat
 
 ### 2. Install
 
-Pick the line matching the Decisions table. `@x402/core`, `@x402/evm`, `@x402/svm`, and
+Pick the dependencies matching the Decisions table. `@x402/core`, `@x402/evm`, `@x402/svm`, and
 `@x402/extensions` are optional peer dependencies of the CDP SDK, so they are not installed for you,
 and all four are needed even for an EVM-only integration because `@coinbase/cdp-sdk/x402` imports
-them at module load. The transport package on the end is the one that changes.
+them at module load.
 
-```bash
-# TypeScript, fetch
-npm install @coinbase/cdp-sdk @x402/core @x402/evm @x402/svm @x402/extensions @x402/fetch
+For TypeScript, use the package manager already configured in the project. If none is configured,
+use npm. Install:
 
-# ...or axios: @x402/axios in place of @x402/fetch, plus axios itself
-# ...or MCP:   @x402/mcp   in place of @x402/fetch, plus @modelcontextprotocol/sdk
+- **fetch:** `@coinbase/cdp-sdk`, `@x402/core`, `@x402/evm`, `@x402/svm`,
+  `@x402/extensions`, and `@x402/fetch`
+- **axios:** the same packages with `@x402/axios` instead of `@x402/fetch`, plus `axios`
+- **MCP:** the same packages with `@x402/mcp` instead of `@x402/fetch`, plus
+  `@modelcontextprotocol/sdk`
 
-# Python
-pip install "cdp-sdk" "x402[evm,svm,httpx]"      # async
-pip install "cdp-sdk" "x402[evm,svm,requests]"   # sync
-```
+For Python, use the package manager already configured in the project. If none is configured, use
+pip. Install:
+
+- **async:** `cdp-sdk` and `x402[evm,svm,httpx]`
+- **sync:** `cdp-sdk` and `x402[evm,svm,requests]`
 
 ### 3. Write the client
 

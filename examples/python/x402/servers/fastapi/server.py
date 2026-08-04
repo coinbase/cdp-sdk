@@ -39,7 +39,7 @@ NETWORK: Network = "eip155:84532"  # Base Sepolia
 
 
 async def resolve_pay_to() -> str:
-    """Return PAY_TO, else the address of a CDP-managed Server Wallet."""
+    """Return PAY_TO, else the address of a CDP-managed API Key Wallet."""
     pay_to = os.getenv("PAY_TO")
     if pay_to:
         return pay_to

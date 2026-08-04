@@ -3,7 +3,7 @@
 """Pay for an x402-protected API with requests instead of httpx.
 
 The CDP wiring is identical to ``pay_for_api.py`` -- ``EvmLocalAccount`` exposes
-a CDP Server Wallet as a signer, so there is no private key to store. Only the
+a CDP API Key Wallet as a signer, so there is no private key to store. Only the
 transport differs: the sync ``x402ClientSync`` pairs with ``x402_requests``,
 where the async ``x402Client`` pairs with ``x402HttpxClient``. Mixing the two
 raises a TypeError.

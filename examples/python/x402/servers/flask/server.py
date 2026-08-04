@@ -3,7 +3,7 @@
 """Flask resource server protected by x402, powered by the CDP SDK.
 
 The CDP wiring is identical to ``x402/servers/fastapi/server.py`` -- the CDP
-facilitator settles the payment and a CDP Server Wallet receives it. Only the
+facilitator settles the payment and a CDP API Key Wallet receives it. Only the
 framework differs: Flask is synchronous, so it pairs ``x402ResourceServerSync``
 with ``HTTPFacilitatorClientSync``. Handing Flask the async ``x402ResourceServer``
 raises a TypeError.
@@ -35,7 +35,7 @@ NETWORK: Network = "eip155:84532"  # Base Sepolia
 
 
 async def resolve_pay_to() -> str:
-    """Return PAY_TO, else the address of a CDP-managed Server Wallet."""
+    """Return PAY_TO, else the address of a CDP-managed API Key Wallet."""
     pay_to = os.getenv("PAY_TO")
     if pay_to:
         return pay_to

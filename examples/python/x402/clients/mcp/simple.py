@@ -2,7 +2,7 @@
 
 """Call x402-paid MCP tools with a CDP-managed wallet.
 
-The signer is a CDP Server Wallet reached through eth_account's account
+The signer is a CDP API Key Wallet reached through eth_account's account
 interface via EvmLocalAccount, registered onto a standard x402Client -- no
 private keys. create_x402_mcp_client runs the 402 -> pay -> retry loop for you.
 

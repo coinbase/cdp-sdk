@@ -3,7 +3,7 @@
 """Pay for an x402-protected API with a CDP-managed wallet (async, httpx).
 
 The standard x402 Foundation client stack with one CDP swap: the signer is a CDP
-Server Wallet reached through eth_account's account interface via
+API Key Wallet reached through eth_account's account interface via
 ``EvmLocalAccount``, so there is no private key to store. ``x402HttpxClient``
 runs the 402 -> pay -> retry loop for you.
 

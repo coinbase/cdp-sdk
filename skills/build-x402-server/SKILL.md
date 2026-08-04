@@ -7,7 +7,7 @@ description: |
   endpoint, accept payments from agents, or add x402 to a server they already run.
 compatibility: Requires a CDP API key and wallet secret. Node.js >= 22 (TypeScript) or Python >= 3.10.
 metadata:
-  author: developer-platform@coinbase.com
+  author: cdp@coinbase.com
   version: "0.1.0"
 ---
 
