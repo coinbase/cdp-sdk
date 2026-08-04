@@ -69,6 +69,7 @@ import { readFile } from "node:fs/promises";
 
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
 
+import { assertBuilderCode, declareServerBuilderCodeExtension } from "./builder-code.js";
 import {
   baseMainnetCaip2,
   baseSepoliaCaip2,
@@ -81,6 +82,7 @@ import {
   getCdpExtensionRegistrations,
   CDP_SUPPORTED_EXTENSIONS,
   CDP_EXTENSION_BAZAAR,
+  CDP_EXTENSION_BUILDER_CODE,
   buildBazaarDeclaration,
 } from "./server-extensions.js";
 import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
@@ -88,6 +90,7 @@ import { CdpClient } from "../client/cdp.js";
 
 import type { RoutesConfig, RouteConfig } from "@x402/core/server";
 import type { Network } from "@x402/core/types";
+import type { BuilderCodeRequiredExtension } from "@x402/extensions/builder-code";
 import type { Address } from "viem";
 
 /*
@@ -196,9 +199,10 @@ export interface CdpRouteConfig {
   /**
    * Extension overrides for this route.
    *
-   * All three CDP extensions (`eip2612GasSponsoring`, `erc20ApprovalGasSponsoring`,
-   * and `bazaar`) are injected automatically. Use this field to override the
-   * auto-generated Bazaar declaration with richer discovery metadata.
+   * Gas-sponsoring, `bazaar`, and `builder-code` are injected automatically on
+   * EVM routes (`builder-code` always carries the SDK's own service code, plus
+   * the server config's `builderCode` app code when set). Use this field to
+   * override the auto-generated Bazaar or builder-code declaration.
    */
   extensions?: Record<string, unknown>;
 }
@@ -294,6 +298,18 @@ export interface CdpX402ServerConfig {
    * own addresses without provisioning a CDP wallet.
    */
   payToConfig?: PayToConfig;
+  /**
+   * Optional [builder code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
+   * for on-chain attribution (`a` / app code).
+   *
+   * Every route with an EVM (`eip155:*`) payment option always advertises the
+   * `builder-code` extension with this SDK's own service code (`s`); Solana-only
+   * routes are skipped because the attribution suffix is ERC-8021 EVM calldata.
+   * Setting `builderCode` additionally declares your own app code (`a`) on
+   * those routes. Must match `^[a-z0-9_]{1,32}$`. Override per-route via
+   * `extensions["builder-code"]`.
+   */
+  builderCode?: string;
   /**
    * Payment-protected routes served by this server.
    *
@@ -743,22 +759,33 @@ function routeHasEvmAccept(route: RouteConfig): boolean {
 
 /**
  * Merges CDP auto-injected extensions into a resolved route config. Gas-sponsoring
- * extensions are added only to routes with an EVM (`eip155:*`) payment option
- * (they are meaningless for Solana-only routes); the Bazaar declaration is built
- * from the route pattern for all routes. User-provided `route.extensions` always win.
+ * extensions and builder-code are added only to routes with an EVM (`eip155:*`)
+ * payment option — gas sponsoring is meaningless for Solana-only routes, and
+ * builder-code attribution is an ERC-8021 EVM calldata suffix. The Bazaar
+ * declaration is built from the route pattern for all routes. User-provided
+ * `route.extensions` always win.
  *
  * @param pattern - Route key (e.g. `"GET /report"`) used to derive Bazaar metadata.
  * @param route - Resolved x402 `RouteConfig` to augment with CDP extensions.
+ * @param builderCode - Pre-validated builder-code declaration to advertise. `create()`
+ * always supplies one (at minimum the SDK's own service code); `undefined` here only
+ * occurs in tests that call this function directly.
  * @returns A new `RouteConfig` with CDP extensions merged in.
  */
-function withAutoInjectedExtensions(pattern: string, route: RouteConfig): RouteConfig {
+function withAutoInjectedExtensions(
+  pattern: string,
+  route: RouteConfig,
+  builderCode?: BuilderCodeRequiredExtension,
+): RouteConfig {
   const bazaar = parseRouteKeyForBazaar(pattern);
+  const hasEvmAccept = routeHasEvmAccept(route);
 
   return {
     ...route,
     extensions: {
-      ...(routeHasEvmAccept(route) && CDP_SUPPORTED_EXTENSIONS),
+      ...(hasEvmAccept && CDP_SUPPORTED_EXTENSIONS),
       ...(bazaar && { [CDP_EXTENSION_BAZAAR]: buildBazaarDeclaration(bazaar.method, bazaar.path) }),
+      ...(builderCode && hasEvmAccept && { [CDP_EXTENSION_BUILDER_CODE]: builderCode }),
       ...route.extensions,
     },
   };
@@ -773,6 +800,7 @@ function withAutoInjectedExtensions(pattern: string, route: RouteConfig): RouteC
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
  * @param svmAddress - Solana receiver address for `solana:*` payment options (`""` when none).
  * @param environment - Deployment environment controlling default network selection.
+ * @param builderCode - Builder-code declaration injected on every EVM route.
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
@@ -780,6 +808,7 @@ function resolveRoutes(
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
+  builderCode?: BuilderCodeRequiredExtension,
 ): RoutesConfig {
   const result: Record<string, RouteConfig> = {};
   const available: NetworkFamilies = { evm: evmAddress !== "", svm: svmAddress !== "" };
@@ -789,7 +818,7 @@ function resolveRoutes(
       "accepts" in route
         ? fillX402RoutePayTo(route, evmAddress, svmAddress)
         : convertCdpRoute(route, evmAddress, svmAddress, environment, available);
-    result[pattern] = withAutoInjectedExtensions(pattern, resolved);
+    result[pattern] = withAutoInjectedExtensions(pattern, resolved, builderCode);
   }
 
   return result;
@@ -919,11 +948,25 @@ export class X402Server extends x402HTTPResourceServer {
       };
     }
 
-    // 2. Validate routes before doing any I/O (fail fast before wallet provisioning).
+    /*
+     * 2. Validate routes and builder code before doing any I/O (fail fast
+     *    before wallet provisioning).
+     */
     const routes = merged.routes;
     if (!routes || Object.keys(routes).length === 0) {
       throw new Error("createX402Server requires at least one payment route.");
     }
+    if (merged.builderCode !== undefined) {
+      assertBuilderCode(merged.builderCode);
+    }
+    /*
+     * Always declared (not gated on `builderCode`) so every EVM route attaches
+     * this SDK's own service code to `s`, in addition to the developer's own
+     * app code (`a`) when configured.
+     */
+    const builderCodeDeclaration: BuilderCodeRequiredExtension = declareServerBuilderCodeExtension(
+      merged.builderCode,
+    );
 
     // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).
     const credentials = resolveServerCredentials(merged);
@@ -987,7 +1030,13 @@ export class X402Server extends x402HTTPResourceServer {
     }
 
     // 6. Resolve routes (simplified CDP format or full x402 format).
-    const resolvedRoutes = resolveRoutes(routes, evmAddress, svmAddress, environment);
+    const resolvedRoutes = resolveRoutes(
+      routes,
+      evmAddress,
+      svmAddress,
+      environment,
+      builderCodeDeclaration,
+    );
 
     // 7. Construct and initialize — syncs supported schemes with the facilitator.
     const instance = new X402Server(

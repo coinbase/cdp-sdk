@@ -1694,6 +1694,14 @@ const client = new CdpX402Client({
 });
 ```
 
+Every `CdpX402Client` always attaches its own `cdp_sdk_client` service code to the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, for on-chain attribution of payments made through the CDP SDK. To attribute payments to your own app or service too, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of up to four codes when several participants share attribution) — it's added to `s` alongside the SDK's own code:
+
+```typescript
+const client = new CdpX402Client({ builderCode: "my_client" });
+```
+
+Service codes are attached even when the resource server does not advertise the extension. When it does, client and server service codes are merged and deduplicated.
+
 ### Apply spend controls
 
 Attach `spendControls` to `CdpX402Client` to enforce per-payment and cumulative caps, restrict networks/assets/payees, and receive callbacks as spend approaches a limit. A blocked payment throws a `SpendControlError` with a machine-readable `code`.
@@ -1734,6 +1742,15 @@ const server = await createX402Server({
 
 app.use(paymentMiddlewareFromHTTPServer(server));
 console.log("Receiving EVM payments at", server.payToEvmAddress);
+```
+
+Every route with an EVM payment option always advertises the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension with the SDK's own `cdp_sdk_server` service code, for on-chain attribution of payments received through the CDP SDK. Solana-only routes are skipped, since the attribution suffix is ERC-8021 EVM calldata. To additionally attribute settled payments to your own app, pass optional `builderCode` — it's declared as the app code (`a`) alongside the SDK's own service code:
+
+```typescript
+const server = await createX402Server({
+  builderCode: "my_app",
+  routes: { "GET /report": { price: "$0.01", description: "AI-generated report" } },
+});
 ```
 
 ### Use the CDP-hosted facilitator

@@ -9,6 +9,7 @@ const {
   mockRegister,
   mockRegisterV1,
   mockRegisterPolicy,
+  mockRegisterExtension,
   mockOnBeforePaymentCreation,
   mockOnAfterPaymentCreation,
   mockOnPaymentCreationFailure,
@@ -23,6 +24,7 @@ const {
   const mockRegister = vi.fn();
   const mockRegisterV1 = vi.fn();
   const mockRegisterPolicy = vi.fn();
+  const mockRegisterExtension = vi.fn().mockReturnThis();
   const mockOnBeforePaymentCreation = vi.fn().mockReturnThis();
   const mockOnAfterPaymentCreation = vi.fn().mockReturnThis();
   const mockOnPaymentCreationFailure = vi.fn().mockReturnThis();
@@ -52,6 +54,7 @@ const {
     mockRegister,
     mockRegisterV1,
     mockRegisterPolicy,
+    mockRegisterExtension,
     mockOnBeforePaymentCreation,
     mockOnAfterPaymentCreation,
     mockOnPaymentCreationFailure,
@@ -78,6 +81,10 @@ vi.mock("@x402/core/client", () => {
 
     registerPolicy(...args: unknown[]) {
       return mockRegisterPolicy(...args);
+    }
+
+    registerExtension(...args: unknown[]) {
+      return mockRegisterExtension(...args);
     }
 
     createPaymentPayload(...args: unknown[]) {
@@ -153,6 +160,7 @@ import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
+import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
 
@@ -228,6 +236,22 @@ function lastEvmRpcMap(
   return vi.mocked(mockCtor).mock.calls.at(-1)?.[1] as
     | Record<number, { rpcUrl: string }>
     | undefined;
+}
+
+/**
+ * Runs the registered builder-code extension over a payload to read back the
+ * service codes it attaches — `BuilderCodeClientExtension` keeps them private.
+ *
+ * @returns The `s` service codes, or undefined if no extension was registered.
+ */
+async function enrichedServiceCodes(): Promise<string[] | undefined> {
+  const extension = mockRegisterExtension.mock.calls.at(-1)?.[0] as
+    | BuilderCodeClientExtension
+    | undefined;
+  if (!extension) return undefined;
+
+  const enriched = await extension.enrichPaymentPayload(mockPayload, mockPaymentRequired);
+  return (enriched.extensions?.["builder-code"] as { info: { s: string[] } }).info.s;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -306,7 +330,15 @@ describe("CdpX402Client", () => {
         "transient network error",
       );
 
-      await expect(client.createPaymentPayload(mockPaymentRequired)).resolves.toBe(mockPayload);
+      /*
+       * `toMatchObject` rather than `toBe`/`toEqual`: every payload now comes
+       * back reconciled with the SDK's own service builder code (see the
+       * `builderCode` describe block below), so it's no longer the same
+       * object as `mockPayload`, nor an exact deep match.
+       */
+      await expect(client.createPaymentPayload(mockPaymentRequired)).resolves.toMatchObject(
+        mockPayload,
+      );
       expect(MockCdpClient).toHaveBeenCalledTimes(2);
     });
   });
@@ -679,6 +711,99 @@ describe("CdpX402Client", () => {
       expect(BatchSettlementEvmScheme).toHaveBeenCalledWith(expect.anything(), {
         rpcUrl: "https://my-rpc.example.com",
       });
+    });
+  });
+
+  describe("builderCode", () => {
+    it("always registers the builder-code extension, even when builderCode is omitted, for the SDK's own attribution", async () => {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+      expect(await enrichedServiceCodes()).toEqual(["cdp_sdk_client"]);
+    });
+
+    it("registers BuilderCodeClientExtension with the configured service codes plus the SDK's own", async () => {
+      new CdpX402Client({ builderCode: "my_client" });
+
+      expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+      expect(await enrichedServiceCodes()).toEqual(["my_client", "cdp_sdk_client"]);
+    });
+
+    it("registers all codes when builderCode is an array, plus the SDK's own", async () => {
+      new CdpX402Client({ builderCode: ["my_client", "my_middleware"] });
+
+      expect(mockRegisterExtension).toHaveBeenCalledTimes(1);
+      expect(await enrichedServiceCodes()).toEqual([
+        "my_client",
+        "my_middleware",
+        "cdp_sdk_client",
+      ]);
+    });
+
+    it("accepts four configured service codes plus the SDK's own", async () => {
+      new CdpX402Client({ builderCode: ["client", "middleware", "partner", "agent"] });
+
+      expect(await enrichedServiceCodes()).toEqual([
+        "client",
+        "middleware",
+        "partner",
+        "agent",
+        "cdp_sdk_client",
+      ]);
+    });
+
+    it("rejects an invalid builderCode in the constructor, before any CDP I/O", () => {
+      expect(() => new CdpX402Client({ builderCode: "INVALID-CODE" })).toThrow(
+        /Invalid builder code/,
+      );
+
+      expect(MockCdpClient).not.toHaveBeenCalled();
+      expect(mockRegisterExtension).not.toHaveBeenCalled();
+    });
+
+    it("rejects an empty-string builderCode in the constructor instead of silently leaving it unset", () => {
+      expect(() => new CdpX402Client({ builderCode: "" })).toThrow(/Invalid builder code/);
+    });
+
+    it("rejects an array containing an invalid builderCode in the constructor", () => {
+      expect(() => new CdpX402Client({ builderCode: ["my_client", "Bad Code"] })).toThrow(
+        /Invalid builder code: "Bad Code"/,
+      );
+    });
+
+    it("rejects a builderCode longer than 32 characters", () => {
+      expect(() => new CdpX402Client({ builderCode: "a".repeat(33) })).toThrow(
+        /Invalid builder code/,
+      );
+    });
+
+    it("rejects an empty builderCode array rather than registering a code-less extension", () => {
+      expect(() => new CdpX402Client({ builderCode: [] })).toThrow(/Invalid builder code: \[\]/);
+
+      expect(mockRegisterExtension).not.toHaveBeenCalled();
+    });
+
+    it("rejects five configured service codes", () => {
+      expect(
+        () => new CdpX402Client({ builderCode: ["one", "two", "three", "four", "five"] }),
+      ).toThrow(/at most 4 configured service codes/);
+
+      expect(mockRegisterExtension).not.toHaveBeenCalled();
+    });
+
+    /*
+     * `builderCode` is typed, but callers can still feed it untyped JSON, and the
+     * upstream pattern check coerces its argument — `42` stringifies into
+     * something the pattern accepts.
+     */
+    it.each([
+      ["a number", 42],
+      ["a nested array", [["my_client"]]],
+    ])("rejects %s as builderCode", (_label, builderCode) => {
+      expect(() => new CdpX402Client({ builderCode: builderCode as never })).toThrow(
+        /Invalid builder code: .*Must be a string/,
+      );
     });
   });
 });

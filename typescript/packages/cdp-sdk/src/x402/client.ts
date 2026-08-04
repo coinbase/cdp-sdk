@@ -12,6 +12,7 @@ import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
 import { UptoEvmScheme } from "@x402/evm/upto/client";
+import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
 
@@ -20,6 +21,7 @@ import {
   fromCdpEvmAccount,
   fromCdpSmartWallet,
 } from "./account-signers.js";
+import { CDP_SDK_CLIENT_BUILDER_CODE, toServiceBuilderCodes } from "./builder-code.js";
 import { baseMainnetCaip2, baseSepoliaCaip2, getDefaultEvmRpcUrls } from "./constants.js";
 import { CdpClient } from "../client/cdp.js";
 import { applySpendControls } from "./guardrails/apply.js";
@@ -98,6 +100,22 @@ export interface CdpX402ClientConfig {
    * Optional SDK-managed spend controls.
    */
   spendControls?: SpendControls;
+
+  /**
+   * Optional [builder code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
+   * for on-chain attribution (`s` / service codes). Pass an array to attribute
+   * several participants, e.g. a client layered behind middleware.
+   *
+   * Every `CdpX402Client` always attaches its own `cdp_sdk_client` service
+   * code to `s` alongside any codes configured here, regardless of whether
+   * this option is set. Up to four codes may be configured, because the x402
+   * extension allows five service codes total.
+   *
+   * Each code must match `^[a-z0-9_]{1,32}$`; invalid codes and an empty array
+   * are rejected by the constructor. A `builder-code` extension registered
+   * manually via `registerExtension` replaces the one built from this option.
+   */
+  builderCode?: string | string[];
 
   /**
    * Deployment environment. Controls which Base network is prescribed by default.
@@ -402,9 +420,16 @@ export interface CdpX402WalletAddresses {
  *   },
  * });
  * ```
+ *
+ * @example
+ * ```typescript
+ * // Attribute payments to this client via the builder-code extension.
+ * const client = new CdpX402Client({ builderCode: "my_client" });
+ * ```
  */
 export class CdpX402Client extends x402Client {
   private readonly _config: CdpX402ClientConfig | undefined;
+  private readonly _serviceBuilderCodes: string[];
   private _initPromise: Promise<void> | null = null;
   private _addresses: CdpX402WalletAddresses | null = null;
 
@@ -412,9 +437,21 @@ export class CdpX402Client extends x402Client {
    * Creates a CdpX402Client that initializes lazily on first payment.
    *
    * @param config - Optional configuration. Credentials fall back to environment variables.
+   * @throws If `config.builderCode` is empty, has more than four codes, or
+   * contains a code that is not 1-32 lowercase alphanumeric / underscore characters.
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
+    this._serviceBuilderCodes = [
+      ...(config?.builderCode !== undefined ? toServiceBuilderCodes(config.builderCode) : []),
+      CDP_SDK_CLIENT_BUILDER_CODE,
+    ];
+    /*
+     * Registered here rather than during lazy initialization so that a malformed
+     * code throws before any CDP I/O, and so a `registerExtension("builder-code")`
+     * call by the caller takes precedence over the config.
+     */
+    this.registerExtension(new BuilderCodeClientExtension(this._serviceBuilderCodes));
     this._config = config;
   }
 

@@ -6,6 +6,7 @@
  * - **Payment client**: `CdpX402Client` — pay for x402-protected APIs
  * - **Facilitator**: `createCdpFacilitatorClient` — CDP-hosted payment facilitator
  * - **Spend controls**: guardrails for autonomous agents
+ * - **Builder codes**: optional `builderCode` on client/server for ERC-8021 attribution
  * - **Signer adapters**: bridge CDP accounts into existing x402 setups
  *
  * ## Quick start
@@ -79,6 +80,7 @@ export {
   CDP_EXTENSION_GAS_SPONSORING_EIP2612,
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
   CDP_EXTENSION_BAZAAR,
+  CDP_EXTENSION_BUILDER_CODE,
   CDP_SUPPORTED_EXTENSIONS,
   buildBazaarDeclaration,
 } from "./server-extensions.js";

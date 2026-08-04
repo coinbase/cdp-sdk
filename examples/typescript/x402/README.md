@@ -8,6 +8,9 @@ the CDP SDK adds on top:
 - **Hosted facilitator** — `createCdpFacilitatorClient()` is a drop-in for a self-hosted facilitator.
 - **Spend controls** — per-payment and rolling caps, network/asset/payee allowlists, and an
   approaching-limit callback.
+- **Builder codes** — optional `builderCode` on `CdpX402Client` / `createX402Server` for
+  [on-chain attribution](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md)
+  (`s` on the client, `a` on the server).
 
 ## Prerequisites
 

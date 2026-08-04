@@ -14,11 +14,13 @@ import {
   CDP_EXTENSION_GAS_SPONSORING_EIP2612,
   CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL,
   CDP_EXTENSION_BAZAAR,
+  CDP_EXTENSION_BUILDER_CODE,
   CDP_SUPPORTED_EXTENSIONS,
   buildBazaarDeclaration,
   getCdpDefaultSchemes,
   getCdpExtensionRegistrations,
 } from "./server-extensions.js";
+import { declareServerBuilderCodeExtension } from "./builder-code.js";
 import {
   validateDiscoveryExtension,
   validateDiscoveryExtensionSpec,
@@ -906,6 +908,7 @@ describe("X402Server extension registration", () => {
     expect(registeredKeys).toContain(CDP_EXTENSION_GAS_SPONSORING_EIP2612);
     expect(registeredKeys).toContain(CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL);
     expect(registeredKeys).toContain(CDP_EXTENSION_BAZAAR);
+    expect(registeredKeys).toContain(CDP_EXTENSION_BUILDER_CODE);
   });
 
   it("registers exactly the extensions from getCdpExtensionRegistrations()", async () => {
@@ -1084,6 +1087,181 @@ describe("X402Server auto-injects gas-sponsoring extensions", () => {
     const ext = passedRoutes["GET /explicit"].extensions;
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_EIP2612]).toBeDefined();
     expect(ext[CDP_EXTENSION_GAS_SPONSORING_ERC20_APPROVAL]).toBeDefined();
+  });
+});
+
+describe("X402Server auto-injects the builder-code extension", () => {
+  const savedEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockHttpInitialize.mockResolvedValue(undefined);
+    process.env.CDP_API_KEY_ID = "env-key-id";
+    process.env.CDP_API_KEY_SECRET = "env-key-secret";
+    process.env.CDP_WALLET_SECRET = "env-wallet-secret";
+  });
+
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  /**
+   * Reads the routes `createX402Server` handed to the HTTP resource server.
+   *
+   * @returns Resolved routes keyed by pattern, with their extension declarations.
+   */
+  async function passedRoutes(): Promise<
+    Record<string, { extensions: Record<string, { info: { a?: string; s?: string[] } }> }>
+  > {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
+    return vi.mocked(x402HTTPResourceServer).mock.calls[0]![1] as unknown as Record<
+      string,
+      { extensions: Record<string, { info: { a?: string; s?: string[] } }> }
+    >;
+  }
+
+  it("injects builder-code with the SDK's own service code (and no app code) when builderCode is omitted", async () => {
+    await createX402Server({
+      routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+    });
+
+    const routes = await passedRoutes();
+    const builderCode = routes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE];
+    expect(builderCode).toEqual(declareServerBuilderCodeExtension());
+    expect(builderCode.info.a).toBeUndefined();
+    expect(builderCode.info.s).toEqual(["cdp_sdk_server"]);
+  });
+
+  it("injects builder-code with both the app code and the SDK's own service code on every EVM route when builderCode is set", async () => {
+    await createX402Server({
+      builderCode: "my_app",
+      routes: {
+        "GET /a": { price: "$0.01", networks: ["eip155:8453"] },
+        "GET /b": { price: "$0.02", networks: ["eip155:8453"] },
+      },
+    });
+
+    const routes = await passedRoutes();
+    const expected = declareServerBuilderCodeExtension("my_app");
+    for (const pattern of ["GET /a", "GET /b"]) {
+      const builderCode = routes[pattern].extensions[CDP_EXTENSION_BUILDER_CODE];
+      expect(builderCode).toEqual(expected);
+      expect(builderCode.info.a).toBe("my_app");
+      expect(builderCode.info.s).toEqual(["cdp_sdk_server"]);
+    }
+  });
+
+  it("does NOT inject builder-code on a Solana-only route", async () => {
+    await createX402Server({
+      builderCode: "my_app",
+      routes: {
+        "GET /svm": { price: "$0.01", networks: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"] },
+        "GET /evm": { price: "$0.01", networks: ["eip155:8453"] },
+      },
+    });
+
+    const routes = await passedRoutes();
+    expect(routes["GET /svm"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBeUndefined();
+    expect(routes["GET /evm"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBeDefined();
+  });
+
+  it("user-provided builder-code declaration overrides the auto-injected one", async () => {
+    const override = declareServerBuilderCodeExtension("other_app");
+
+    await createX402Server({
+      builderCode: "my_app",
+      routes: {
+        "GET /report": {
+          price: "$0.01",
+          networks: ["eip155:8453"],
+          extensions: { [CDP_EXTENSION_BUILDER_CODE]: override },
+        },
+      },
+    });
+
+    const routes = await passedRoutes();
+    expect(routes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE]).toBe(override);
+  });
+
+  it("injects a builderCode supplied via configPath", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify({ builderCode: "file_app" }));
+
+    await createX402Server({
+      configPath: "./x402.config.json",
+      routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+    });
+
+    const routes = await passedRoutes();
+    expect(routes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE].info.a).toBe("file_app");
+  });
+
+  it("inline builderCode wins over the one in configPath", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify({ builderCode: "file_app" }));
+
+    await createX402Server({
+      builderCode: "inline_app",
+      configPath: "./x402.config.json",
+      routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+    });
+
+    const routes = await passedRoutes();
+    expect(routes["GET /report"].extensions[CDP_EXTENSION_BUILDER_CODE].info.a).toBe("inline_app");
+  });
+
+  it("rejects an invalid builderCode before provisioning wallets", async () => {
+    const { CdpClient } = await import("../client/cdp.js");
+
+    await expect(
+      createX402Server({
+        builderCode: "INVALID-CODE",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code/);
+
+    expect(CdpClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects an empty-string builderCode at create time instead of silently leaving it unset", async () => {
+    await expect(
+      createX402Server({
+        builderCode: "",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code/);
+  });
+
+  it("rejects a builderCode supplied via configPath", async () => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify({ builderCode: "Bad Code" }));
+
+    await expect(
+      createX402Server({
+        configPath: "./x402.config.json",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code: "Bad Code"/);
+  });
+
+  /*
+   * A config file is untyped JSON, and the upstream pattern check coerces its
+   * argument — `42` and `["my_app"]` both stringify into something the pattern
+   * accepts, so they must be rejected on type before reaching it.
+   */
+  it.each([
+    ["a number", 42],
+    ["a single-element array", ["my_app"]],
+  ])("rejects %s as builderCode from configPath", async (_label, builderCode) => {
+    const { readFile } = await import("node:fs/promises");
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify({ builderCode }));
+
+    await expect(
+      createX402Server({
+        configPath: "./x402.config.json",
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      }),
+    ).rejects.toThrow(/Invalid builder code: .*Must be a string/);
   });
 });
 
