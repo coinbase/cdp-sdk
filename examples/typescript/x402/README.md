@@ -28,8 +28,8 @@ pay. Each client prints its EVM address on startup. Fund that address using any 
 
 - **CDP Faucet (portal):** https://portal.cdp.coinbase.com -> "Onchain Tools" -> "Faucet"
 - **Programmatically:** `cdp.evm.requestFaucet({ address, network: "base-sepolia", token: "usdc" })`
-- **Auto-fund shortcut:** run `payForApi.ts` with `X402_FUND_FROM_FAUCET=true` to request USDC from
-  the CDP faucet on startup.
+- **Auto-fund shortcut:** run `payForApi.ts` once with `X402_FUND_FROM_FAUCET=true`. That run
+  requests USDC and exits; re-run it without the flag once the transfer confirms.
 
 The CDP faucet funds the same wallets the CDP x402 facilitator settles against — no separate
 faucet is needed.
@@ -64,11 +64,22 @@ Run from the `examples/typescript` directory. Every client uses the same CDP pri
 ## Servers
 
 Each server is a self-contained workspace package with its own dependencies, so it runs differently
-from the client examples — install and start it from its own directory.
+from the client examples — install and start it from its own directory. They fall back to the
+shared `examples/typescript/.env`, so there is no second copy of your credentials to maintain.
 
-The HTTP servers all expose the same paid `GET /report` route on http://localhost:8402 and show two
-CDP approaches: (1) drop `createCdpFacilitatorClient()` into an existing setup, and (2) the
-`createX402Server` one-liner that also provisions the receiver wallet.
+Express and Hono serve a paid `GET /report` on http://localhost:8402; the Next.js server serves
+`GET /api/report` on the same port. Every server settles on Base Sepolia so the clients above can
+pay it. `APPROACH` selects the CDP wiring:
+
+1. **`APPROACH=1`** — drop `createCdpFacilitatorClient()` into an x402 server you already have.
+   Needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and `PAY_TO`; no wallet secret, because the
+   address you supply receives the payments.
+2. **`APPROACH=2`** (default) — the `createX402Server` one-liner with inline routes, which also
+   provisions the receiver wallet. Needs `CDP_WALLET_SECRET` as well, and prints the provisioned
+   addresses instead of using `PAY_TO`.
+3. **`APPROACH=3`** (Express only) — the same one-liner reading its routes from
+   `x402.config.json`. `x402.config.schema.json` in the same directory documents every field.
+   Keep credentials in env vars rather than the file.
 
 ```bash
 # Express
@@ -81,9 +92,15 @@ cd x402/servers/hono && pnpm install && APPROACH=2 pnpm start
 cd x402/servers/next && pnpm install && PAY_TO=0x... pnpm dev
 ```
 
-Approach 1 (and the Next.js example) needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and `PAY_TO`
-(the server receives payments, so no wallet secret). Approach 2 also needs `CDP_WALLET_SECRET` to
-provision the receiver wallet, and prints the provisioned addresses instead of using `PAY_TO`.
+Every server listens on its own default port and honors `PORT`, so pass `PORT` on the command line
+to run two at once. The Next.js example is the exception to the shared-`.env` fallback: Next loads
+env files itself, from `x402/servers/next`.
+
+Every route declared through `createX402Server` — any of the three approaches above — is
+discoverable in the CDP Bazaar automatically once it settles a real payment through the CDP
+Facilitator; there's no separate wiring or registration step. See
+[Get discovered](https://docs.cdp.coinbase.com/x402/seller/get-discovered) for how to add richer
+discovery metadata to a route.
 
 The Express server's Approach 2 additionally exposes `GET /usage`, which demonstrates the `upto`
 scheme (usage-based billing): the client authorizes a ceiling of `$0.10` and the handler settles
@@ -110,19 +127,27 @@ it with `MCP_SERVER_URL` (defaults to `http://localhost:4022`).
 
 - `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, `CDP_WALLET_SECRET` — CDP credentials (see Prerequisites).
 - `ANTHROPIC_API_KEY` — (MCP chatbot only) Claude API key for `x402/clients/mcp/chatbot.ts`.
+- `ANTHROPIC_MODEL` — (MCP chatbot only) override the Claude model. Defaults to
+  `claude-sonnet-4-5`.
 - `X402_API_URL` — override the x402-protected URL the HTTP clients call. Defaults to
   `https://x402.vercel.app/protected`.
-- `X402_FUND_FROM_FAUCET` — set to `true` in `payForApi.ts` to auto-request USDC on startup.
+- `X402_FUND_FROM_FAUCET` — set to `true` for one `payForApi.ts` run to request USDC from the
+  faucet. That run exits without paying.
 - `MCP_SERVER_URL` — (MCP clients) the MCP server URL. Defaults to `http://localhost:4022`.
 - `CDP_X402_CLIENT_ENVIRONMENT` — `"production"` (default, Base mainnet) or `"development"` (Base
   Sepolia). Controls which Base network `CdpX402Client` prescribes by default; overridden by the
   `environment` config option. These examples pass `environment: "development"` explicitly, so this
   env var isn't required to run them as-is.
+- `CDP_X402_SERVER_ENVIRONMENT` — the `createX402Server` equivalent of the above. The servers also
+  pass `environment: "development"` explicitly, so this env var isn't required either.
 - Non-Base RPC URLs — pass them via the `networkSchemes` config option on `CdpX402Client`, e.g.
   `new CdpX402Client({ networkSchemes: [{ network: "polygon", rpcUrl: "https://your-rpc-provider.example.com/polygon", scheme: { exact: true } }] })`.
   Base and Base Sepolia resolve an RPC automatically via your CDP project's node endpoint; CDP
   doesn't host RPCs for other networks, so those require an explicit `rpcUrl` from your own RPC
   provider.
+- `APPROACH` — (Express and Hono) which CDP wiring to run: `1`, `2` (default), or `3`
+  (Express only).
 - `PAY_TO` — (servers) the EVM address that should receive payments (required for Approach 1 and the
   Next.js server; optional for the MCP server).
-- `PORT` — (MCP server only) override the listen port. Defaults to `4022`.
+- `PORT` — (servers) override the listen port. Defaults to `8402` for the HTTP servers and `4022`
+  for the MCP server. Set it per command rather than in `.env`, where it would move every server.

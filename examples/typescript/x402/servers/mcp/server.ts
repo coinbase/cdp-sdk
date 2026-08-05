@@ -24,7 +24,11 @@
  *   pnpm install
  *   pnpm start   # listens on http://localhost:4022
  */
-import "dotenv/config";
+import { config } from "dotenv";
+
+// Servers run from their own directory, so load a local .env if there is one and
+// otherwise fall back to the shared examples/typescript/.env.
+config({ path: [".env", "../../../.env"] });
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";

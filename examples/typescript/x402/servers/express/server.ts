@@ -43,7 +43,11 @@
  *   APPROACH=2 pnpm start                  # inline config
  *   APPROACH=3 pnpm start                  # config file
  */
-import "dotenv/config";
+import { config } from "dotenv";
+
+// Servers run from their own directory, so load a local .env if there is one and
+// otherwise fall back to the shared examples/typescript/.env.
+config({ path: [".env", "../../../.env"] });
 
 import express from "express";
 import type { Address } from "viem";
@@ -57,6 +61,7 @@ import {
 import { createCdpFacilitatorClient, createX402Server } from "@coinbase/cdp-sdk/x402";
 
 const APPROACH = process.env.APPROACH ?? "2";
+const PORT = Number(process.env.PORT ?? 8402);
 const app = express();
 
 // ─── Approach 1: Drop in the CDP facilitator into an existing server setup ──
@@ -87,8 +92,8 @@ if (APPROACH === "1") {
   );
 
   app.get("/report", (_req, res) => res.json({ report: "..." }));
-  app.listen(8402, () =>
-    console.log(`Listening on http://localhost:8402\nReceiving EVM payments at ${PAY_TO}`),
+  app.listen(PORT, () =>
+    console.log(`Listening on http://localhost:${PORT}\nReceiving EVM payments at ${PAY_TO}`),
   );
 
 // ─── Approach 2: One-liner server with inline route config ──────────────────
@@ -97,20 +102,22 @@ if (APPROACH === "1") {
   // createX402Server provisions a receiver wallet, wires the CDP facilitator,
   // and returns a fully initialized x402HTTPResourceServer — all in one call.
   const server = await createX402Server({
+    // "development" defaults every route to Base Sepolia + Solana Devnet, so the
+    // demo settles on testnet. Drop it (or use "production") to go to mainnet.
+    environment: "development",
     routes: {
       "GET /report": { price: "$0.01", description: "AI-generated report" },
-      // networks defaults to Base mainnet + Solana mainnet for "exact" scheme.
-      // Override with networks: ["eip155:8453"] to restrict to EVM-only, etc.
+      // Override the environment default per route with e.g.
+      // networks: ["eip155:84532"] to restrict this route to EVM-only.
 
       // Usage-based billing with the "upto" scheme: the client authorizes a
       // ceiling ($0.10 here) and the server settles only the amount actually
       // used (see the /usage handler below). createX402Server auto-registers
       // the upto scheme, so the route config is all that's needed here. upto
-      // is EVM-only; pinned to Base Sepolia so the demo funds on testnet.
+      // is EVM-only, so it resolves to Base Sepolia alone under "development".
       "GET /usage": {
         price: "$0.10",
         scheme: "upto",
-        networks: ["eip155:84532"],
         description: "Usage-based billing — authorize up to $0.10, settle actual usage",
       },
     },
@@ -126,8 +133,9 @@ if (APPROACH === "1") {
   // tell the middleware to settle only that amount via setSettlementOverrides.
   // In production this would be real usage — LLM tokens, bytes served, etc.
   app.get("/usage", (_req, res) => {
-    const maxAtomic = 100_000; // $0.10 in 6-decimal USDC atomic units
-    const actualAtomic = Math.floor(Math.random() * (maxAtomic + 1));
+    const maxAtomic = 100_000; // the route's $0.10 price, in 6-decimal USDC atomic units
+    // Charge somewhere in (0, max]. Settling zero is legal but pointless here.
+    const actualAtomic = 1 + Math.floor(Math.random() * maxAtomic);
     setSettlementOverrides(res, { amount: String(actualAtomic) });
     res.json({
       result: "Here is your usage-metered response...",
@@ -138,9 +146,9 @@ if (APPROACH === "1") {
     });
   });
 
-  app.listen(8402, () =>
+  app.listen(PORT, () =>
     console.log(
-      `Listening on http://localhost:8402\n` +
+      `Listening on http://localhost:${PORT}\n` +
         `Receiving EVM payments at ${server.payToEvmAddress}\n` +
         `Receiving Solana payments at ${server.payToSvmAddress}`,
     ),
@@ -152,22 +160,27 @@ if (APPROACH === "1") {
   // Routes (and optionally credentials) live in a JSON config file.
   // Inline config always takes precedence when both are provided.
   //
-  // See ./x402.config.json for the config loaded here, and
+  // See ./x402.config.json for the config loaded here — it sets
+  // "environment": "development" so this demo settles on Base Sepolia — and
   // ./x402.config.schema.json for the full documented schema (all fields:
   // routes, payToConfig, environment, credentials). Tip: prefer env vars for
   // credentials and keep this file to `routes` — don't commit secrets.
   const server = await createX402Server({
     configPath: "./x402.config.json",
-    // Inline routes here would override the file's routes for matched keys.
+    // Adding `routes` here would override the file's entry for any matching
+    // key, which is how you keep a shared config file and still special-case
+    // one route in code.
   });
 
   app.use(paymentMiddlewareFromHTTPServer(server));
   app.get("/report", (_req, res) => res.json({ report: "..." }));
-  app.listen(8402, () =>
+  app.listen(PORT, () =>
     console.log(
-      `Listening on http://localhost:8402\n` +
+      `Listening on http://localhost:${PORT}\n` +
         `Receiving EVM payments at ${server.payToEvmAddress}\n` +
         `Receiving Solana payments at ${server.payToSvmAddress}`,
     ),
   );
+} else {
+  throw new Error(`Unknown APPROACH "${APPROACH}" — set APPROACH to 1, 2, or 3.`);
 }

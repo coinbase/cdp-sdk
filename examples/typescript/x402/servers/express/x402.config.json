@@ -1,5 +1,6 @@
 {
   "$schema": "./x402.config.schema.json",
+  "environment": "development",
   "routes": {
     "GET /report": {
       "price": "$0.01",

@@ -29,7 +29,7 @@ import { CdpX402Client } from "@coinbase/cdp-sdk/x402";
 import { wrapMCPClientWithPayment } from "@x402/mcp";
 
 const SERVER_URL = process.env.MCP_SERVER_URL ?? "http://localhost:4022";
-const MODEL = "claude-opus-4-8";
+const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
 
 async function main() {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY env var required");
