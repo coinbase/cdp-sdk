@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import json
-import random
+import secrets
 import time
 import uuid
 from datetime import datetime
@@ -193,10 +193,11 @@ def generate_jwt(options: JwtOptions) -> str:
         claims = {
             "sub": options.api_key_id,
             "iss": "cdp",
-            "aud": options.audience,
             "nbf": now,
             "exp": now + expires_in,
         }
+        if options.audience:
+            claims["aud"] = options.audience
 
         # Add the uris claim only for JWTs intended for REST API requests, not for websocket connections
         if has_all_uri_params:
@@ -307,4 +308,4 @@ def _generate_nonce() -> str:
         A 16-character random string of digits
 
     """
-    return "".join(random.choices("0123456789", k=16))
+    return "".join(secrets.choice("0123456789") for _ in range(16))
