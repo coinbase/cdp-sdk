@@ -265,7 +265,7 @@ const account = await cdp.solana.createAccount({
 
 ```typescript
 const account = await cdp.evm.updateAccount({
-  addresss: account.address,
+  address: account.address,
   update: {
     name: "Updated name",
     accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
@@ -277,7 +277,7 @@ const account = await cdp.evm.updateAccount({
 
 ```typescript
 const account = await cdp.solana.updateAccount({
-  addresss: account.address,
+  address: account.address,
   update: {
     name: "Updated name",
     accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
