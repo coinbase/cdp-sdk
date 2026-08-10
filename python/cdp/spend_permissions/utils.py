@@ -4,8 +4,16 @@ import secrets
 from datetime import datetime
 from typing import Literal
 
+from web3 import Web3
+
 from cdp.errors import UserInputValidationError
 from cdp.openapi_client import SpendPermissionNetwork
+from cdp.spend_permissions.constants import (
+    SPEND_PERMISSION_MANAGER_ABI,
+    SPEND_PERMISSION_MANAGER_ADDRESS,
+    SPEND_ROUTER_ABI,
+    SPEND_ROUTER_ADDRESS,
+)
 from cdp.spend_permissions.types import (
     SpendPermission,
     SpendPermissionInput,
@@ -112,4 +120,73 @@ def resolve_spend_permission(
         end=end,
         salt=spend_permission_input.salt or generate_random_salt(),
         extra_data=spend_permission_input.extra_data or "0x",
+    )
+
+
+def is_spend_router_permission(spender: str) -> bool:
+    """Report whether a permission's onchain spender is the SpendRouter contract.
+
+    Permissions created via the CDP API after SpendRouter integration set spender to
+    SPEND_ROUTER_ADDRESS; pre-router permissions set it to the developer-provided address
+    directly. Comparison is case-insensitive because mixed-case addresses (EIP-55 checksums)
+    and all-lowercase addresses both occur on API responses.
+
+    Args:
+        spender: The permission's onchain spender address.
+
+    Returns:
+        True if the spender is the SpendRouter contract.
+
+    """
+    return spender.lower() == SPEND_ROUTER_ADDRESS.lower()
+
+
+def build_spend_call(spend_permission: SpendPermission, value: int) -> tuple[str, str]:
+    """Build the (target contract address, encoded calldata) pair for a spend.
+
+    Dispatches based on the permission's onchain spender: SpendRouter permissions go to
+    `SpendRouter.spendAndRoute`, legacy permissions go to `SpendPermissionManager.spend`.
+    Centralized so account_use and smart_account_use share a single dispatch decision and
+    stay forward-compatible with any future router functions added to the SpendRouter ABI.
+
+    Args:
+        spend_permission: The permission to spend against.
+        value: The amount to spend (must be <= remaining allowance for the current period).
+
+    Returns:
+        Tuple of (checksummed target contract address, hex-encoded calldata).
+
+    """
+    w3 = Web3()
+    permission_tuple = (
+        Web3.to_checksum_address(spend_permission.account),
+        Web3.to_checksum_address(spend_permission.spender),
+        Web3.to_checksum_address(spend_permission.token),
+        int(spend_permission.allowance),
+        int(spend_permission.period),
+        int(spend_permission.start),
+        int(spend_permission.end),
+        int(spend_permission.salt),
+        bytes.fromhex(spend_permission.extra_data[2:])
+        if spend_permission.extra_data.startswith("0x")
+        else bytes.fromhex(spend_permission.extra_data),
+    )
+
+    if is_spend_router_permission(spend_permission.spender):
+        contract = w3.eth.contract(
+            address=Web3.to_checksum_address(SPEND_ROUTER_ADDRESS),
+            abi=SPEND_ROUTER_ABI,
+        )
+        return (
+            Web3.to_checksum_address(SPEND_ROUTER_ADDRESS),
+            contract.encode_abi("spendAndRoute", args=[permission_tuple, value]),
+        )
+
+    contract = w3.eth.contract(
+        address=Web3.to_checksum_address(SPEND_PERMISSION_MANAGER_ADDRESS),
+        abi=SPEND_PERMISSION_MANAGER_ABI,
+    )
+    return (
+        Web3.to_checksum_address(SPEND_PERMISSION_MANAGER_ADDRESS),
+        contract.encode_abi("spend", args=[permission_tuple, value]),
     )
