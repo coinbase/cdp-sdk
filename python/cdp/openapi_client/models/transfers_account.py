@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,9 +28,16 @@ class TransfersAccount(BaseModel):
     """
     The Account specific details for the transfer.
     """ # noqa: E501
-    account_id: StrictStr = Field(description="The ID of the Account.", alias="accountId")
-    asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="The symbol of the asset (e.g., eth, usd, usdc, usdt).")
+    account_id: Annotated[str, Field(strict=True)] = Field(description="The ID of the Account.", alias="accountId")
+    asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="The asset symbol. Supported values are `usdc`, `eurc`, `usd`, and `eur`.")
     __properties: ClassVar[List[str]] = ["accountId", "asset"]
+
+    @field_validator('account_id')
+    def account_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^account_[a-f0-9\-]{36}$", value):
+            raise ValueError(r"must validate the regular expression /^account_[a-f0-9\-]{36}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

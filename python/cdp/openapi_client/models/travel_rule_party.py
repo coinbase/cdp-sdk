@@ -28,10 +28,10 @@ class TravelRuleParty(BaseModel):
     """
     Information about a party (originator or beneficiary) for travel rule compliance.
     """ # noqa: E501
-    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
     name: Optional[StrictStr] = Field(default=None, description="Full name of the party.")
     address: Optional[PhysicalAddress] = None
-    __properties: ClassVar[List[str]] = ["financialInstitution", "name", "address"]
+    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
+    __properties: ClassVar[List[str]] = ["name", "address", "financialInstitution"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -87,9 +87,9 @@ class TravelRuleParty(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "financialInstitution": obj.get("financialInstitution"),
             "name": obj.get("name"),
-            "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None
+            "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
+            "financialInstitution": obj.get("financialInstitution")
         })
         return _obj
 

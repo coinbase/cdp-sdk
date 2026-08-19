@@ -17,13 +17,15 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictInt, StrictStr
+from pydantic import Field, StrictBool, StrictInt, StrictStr, field_validator
 from typing import List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.inline_object import InlineObject
 from cdp.openapi_client.models.inline_object1 import InlineObject1
 from cdp.openapi_client.models.inline_object2 import InlineObject2
 from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
+from cdp.openapi_client.models.x402_bundle_response import X402BundleResponse
+from cdp.openapi_client.models.x402_bundles_response import X402BundlesResponse
 from cdp.openapi_client.models.x402_discovery_merchant_response import X402DiscoveryMerchantResponse
 from cdp.openapi_client.models.x402_discovery_resources_response import X402DiscoveryResourcesResponse
 from cdp.openapi_client.models.x402_mcp_request import X402McpRequest
@@ -48,6 +50,537 @@ class X402FacilitatorApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    async def get_x402_bundle(
+        self,
+        bundle_slug: Annotated[str, Field(strict=True, max_length=64, description="The unique, URL-safe slug identifying the bundle (as returned by `GET /v2/x402/discovery/bundles`).")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402BundleResponse:
+        """Get an x402 bundle
+
+        Gets a single curated x402 workflow bundle by its bundle slug, including the bundle metadata and its ordered member resources joined to their full discovery metadata.
+
+        :param bundle_slug: The unique, URL-safe slug identifying the bundle (as returned by `GET /v2/x402/discovery/bundles`). (required)
+        :type bundle_slug: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_x402_bundle_serialize(
+            bundle_slug=bundle_slug,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402BundleResponse",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_x402_bundle_with_http_info(
+        self,
+        bundle_slug: Annotated[str, Field(strict=True, max_length=64, description="The unique, URL-safe slug identifying the bundle (as returned by `GET /v2/x402/discovery/bundles`).")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402BundleResponse]:
+        """Get an x402 bundle
+
+        Gets a single curated x402 workflow bundle by its bundle slug, including the bundle metadata and its ordered member resources joined to their full discovery metadata.
+
+        :param bundle_slug: The unique, URL-safe slug identifying the bundle (as returned by `GET /v2/x402/discovery/bundles`). (required)
+        :type bundle_slug: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_x402_bundle_serialize(
+            bundle_slug=bundle_slug,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402BundleResponse",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_x402_bundle_without_preload_content(
+        self,
+        bundle_slug: Annotated[str, Field(strict=True, max_length=64, description="The unique, URL-safe slug identifying the bundle (as returned by `GET /v2/x402/discovery/bundles`).")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get an x402 bundle
+
+        Gets a single curated x402 workflow bundle by its bundle slug, including the bundle metadata and its ordered member resources joined to their full discovery metadata.
+
+        :param bundle_slug: The unique, URL-safe slug identifying the bundle (as returned by `GET /v2/x402/discovery/bundles`). (required)
+        :type bundle_slug: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_x402_bundle_serialize(
+            bundle_slug=bundle_slug,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402BundleResponse",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_x402_bundle_serialize(
+        self,
+        bundle_slug,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if bundle_slug is not None:
+            _path_params['bundleSlug'] = bundle_slug
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/x402/discovery/bundles/{bundleSlug}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_x402_bundles(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> X402BundlesResponse:
+        """List x402 bundles
+
+        Lists the available curated x402 workflow bundles. A bundle is an ordered, named grouping of curated x402 resources that together cover a common agent workflow. The result set is small and server-controlled, so this endpoint is not paginated.
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_bundles_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402BundlesResponse",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_x402_bundles_with_http_info(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[X402BundlesResponse]:
+        """List x402 bundles
+
+        Lists the available curated x402 workflow bundles. A bundle is an ordered, named grouping of curated x402 resources that together cover a common agent workflow. The result set is small and server-controlled, so this endpoint is not paginated.
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_bundles_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402BundlesResponse",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_x402_bundles_without_preload_content(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List x402 bundles
+
+        Lists the available curated x402 workflow bundles. A bundle is an ordered, named grouping of curated x402 resources that together cover a common agent workflow. The result set is small and server-controlled, so this endpoint is not paginated.
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_x402_bundles_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "X402BundlesResponse",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_x402_bundles_serialize(
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'unauthenticated'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/x402/discovery/bundles',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -959,6 +1492,9 @@ class X402FacilitatorApi:
         url_substring: Annotated[Optional[Annotated[str, Field(min_length=3, strict=True, max_length=2048)]], Field(description="Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.")] = None,
         max_usd_price: Annotated[Optional[StrictStr], Field(description="Filter results to resources with a USD price at or below this value.")] = None,
         extensions: Annotated[Optional[List[StrictStr]], Field(description="Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.")] = None,
+        tags: Annotated[Optional[Annotated[List[StrictStr], Field(max_length=5)]], Field(description="Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).")] = None,
+        bundle_slugs: Annotated[Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=64)]], Field(max_length=5)]], Field(description="Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).")] = None,
+        curated_only: Annotated[Optional[StrictBool], Field(description="When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.")] = None,
         _request_timeout: Union[
             None,
@@ -993,6 +1529,12 @@ class X402FacilitatorApi:
         :type max_usd_price: str
         :param extensions: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
         :type extensions: List[str]
+        :param tags: Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).
+        :type tags: List[str]
+        :param bundle_slugs: Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).
+        :type bundle_slugs: List[str]
+        :param curated_only: When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.
+        :type curated_only: bool
         :param limit: Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
@@ -1026,6 +1568,9 @@ class X402FacilitatorApi:
             url_substring=url_substring,
             max_usd_price=max_usd_price,
             extensions=extensions,
+            tags=tags,
+            bundle_slugs=bundle_slugs,
+            curated_only=curated_only,
             limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1062,6 +1607,9 @@ class X402FacilitatorApi:
         url_substring: Annotated[Optional[Annotated[str, Field(min_length=3, strict=True, max_length=2048)]], Field(description="Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.")] = None,
         max_usd_price: Annotated[Optional[StrictStr], Field(description="Filter results to resources with a USD price at or below this value.")] = None,
         extensions: Annotated[Optional[List[StrictStr]], Field(description="Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.")] = None,
+        tags: Annotated[Optional[Annotated[List[StrictStr], Field(max_length=5)]], Field(description="Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).")] = None,
+        bundle_slugs: Annotated[Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=64)]], Field(max_length=5)]], Field(description="Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).")] = None,
+        curated_only: Annotated[Optional[StrictBool], Field(description="When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.")] = None,
         _request_timeout: Union[
             None,
@@ -1096,6 +1644,12 @@ class X402FacilitatorApi:
         :type max_usd_price: str
         :param extensions: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
         :type extensions: List[str]
+        :param tags: Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).
+        :type tags: List[str]
+        :param bundle_slugs: Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).
+        :type bundle_slugs: List[str]
+        :param curated_only: When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.
+        :type curated_only: bool
         :param limit: Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
@@ -1129,6 +1683,9 @@ class X402FacilitatorApi:
             url_substring=url_substring,
             max_usd_price=max_usd_price,
             extensions=extensions,
+            tags=tags,
+            bundle_slugs=bundle_slugs,
+            curated_only=curated_only,
             limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1165,6 +1722,9 @@ class X402FacilitatorApi:
         url_substring: Annotated[Optional[Annotated[str, Field(min_length=3, strict=True, max_length=2048)]], Field(description="Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with `query` to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather than `example`) — a short substring may also match resources whose path contains the same string.")] = None,
         max_usd_price: Annotated[Optional[StrictStr], Field(description="Filter results to resources with a USD price at or below this value.")] = None,
         extensions: Annotated[Optional[List[StrictStr]], Field(description="Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.")] = None,
+        tags: Annotated[Optional[Annotated[List[StrictStr], Field(max_length=5)]], Field(description="Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).")] = None,
+        bundle_slugs: Annotated[Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=64)]], Field(max_length=5)]], Field(description="Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).")] = None,
+        curated_only: Annotated[Optional[StrictBool], Field(description="When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.")] = None,
         _request_timeout: Union[
             None,
@@ -1199,6 +1759,12 @@ class X402FacilitatorApi:
         :type max_usd_price: str
         :param extensions: Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
         :type extensions: List[str]
+        :param tags: Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).
+        :type tags: List[str]
+        :param bundle_slugs: Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).
+        :type bundle_slugs: List[str]
+        :param curated_only: When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.
+        :type curated_only: bool
         :param limit: Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20.
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
@@ -1232,6 +1798,9 @@ class X402FacilitatorApi:
             url_substring=url_substring,
             max_usd_price=max_usd_price,
             extensions=extensions,
+            tags=tags,
+            bundle_slugs=bundle_slugs,
+            curated_only=curated_only,
             limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1263,6 +1832,9 @@ class X402FacilitatorApi:
         url_substring,
         max_usd_price,
         extensions,
+        tags,
+        bundle_slugs,
+        curated_only,
         limit,
         _request_auth,
         _content_type,
@@ -1274,6 +1846,8 @@ class X402FacilitatorApi:
 
         _collection_formats: Dict[str, str] = {
             'extensions': 'multi',
+            'tags': 'multi',
+            'bundleSlugs': 'multi',
         }
 
         _path_params: Dict[str, str] = {}
@@ -1318,6 +1892,18 @@ class X402FacilitatorApi:
         if extensions is not None:
             
             _query_params.append(('extensions', extensions))
+            
+        if tags is not None:
+            
+            _query_params.append(('tags', tags))
+            
+        if bundle_slugs is not None:
+            
+            _query_params.append(('bundleSlugs', bundle_slugs))
+            
+        if curated_only is not None:
+            
+            _query_params.append(('curatedOnly', curated_only))
             
         if limit is not None:
             

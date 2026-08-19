@@ -38,7 +38,7 @@ class TestWebhookSubscriptionResponse(unittest.TestCase):
             return WebhookSubscriptionResponse(
                 created_at = '2025-01-15T10:30:00Z',
                 updated_at = '2025-01-16T14:00:00Z',
-                description = 'A description of the resource.',
+                description = 'Subscription for token transfer events',
                 event_types = [onchain.activity.detected],
                 is_enabled = True,
                 metadata = {secret=123e4567-e89b-12d3-a456-426614174000},

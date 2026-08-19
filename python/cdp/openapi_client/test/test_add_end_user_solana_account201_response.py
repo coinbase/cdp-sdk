@@ -38,13 +38,17 @@ class TestAddEndUserSolanaAccount201Response(unittest.TestCase):
             return AddEndUserSolanaAccount201Response(
                 solana_account = cdp.openapi_client.models.end_user_solana_account.EndUserSolanaAccount(
                     address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT', 
-                    created_at = '2025-01-15T10:30:00Z', )
+                    created_at = '2025-01-15T10:30:00Z', 
+                    exported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                    ejected_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
             )
         else:
             return AddEndUserSolanaAccount201Response(
                 solana_account = cdp.openapi_client.models.end_user_solana_account.EndUserSolanaAccount(
                     address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT', 
-                    created_at = '2025-01-15T10:30:00Z', ),
+                    created_at = '2025-01-15T10:30:00Z', 
+                    exported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                    ejected_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), ),
         )
         """
 

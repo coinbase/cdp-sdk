@@ -2,7 +2,9 @@
 
 # import apis into api package
 from cdp.openapi_client.api.accounts_api import AccountsApi
+from cdp.openapi_client.api.customers_api import CustomersApi
 from cdp.openapi_client.api.deposit_destinations_api import DepositDestinationsApi
+from cdp.openapi_client.api.disbursements_api import DisbursementsApi
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
@@ -13,6 +15,7 @@ from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.onramp_api import OnrampApi
 from cdp.openapi_client.api.payment_methods_api import PaymentMethodsApi
+from cdp.openapi_client.api.payment_sessions_api import PaymentSessionsApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.sqlapi_api import SQLAPIApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi

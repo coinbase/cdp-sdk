@@ -18,13 +18,12 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.transfers_account import TransfersAccount
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATETRANSFERSOURCE_ONE_OF_SCHEMAS = ["PaymentMethod", "TransfersAccount"]
+CREATETRANSFERSOURCE_ONE_OF_SCHEMAS = ["TransfersAccount"]
 
 class CreateTransferSource(BaseModel):
     """
@@ -32,10 +31,8 @@ class CreateTransferSource(BaseModel):
     """
     # data type: TransfersAccount
     oneof_schema_1_validator: Optional[TransfersAccount] = None
-    # data type: PaymentMethod
-    oneof_schema_2_validator: Optional[PaymentMethod] = None
-    actual_instance: Optional[Union[PaymentMethod, TransfersAccount]] = None
-    one_of_schemas: Set[str] = { "PaymentMethod", "TransfersAccount" }
+    actual_instance: Optional[Union[TransfersAccount]] = None
+    one_of_schemas: Set[str] = { "TransfersAccount" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -63,17 +60,12 @@ class CreateTransferSource(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `TransfersAccount`")
         else:
             match += 1
-        # validate data type: PaymentMethod
-        if not isinstance(v, PaymentMethod):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `PaymentMethod`")
-        else:
-            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateTransferSource with oneOf schemas: PaymentMethod, TransfersAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateTransferSource with oneOf schemas: TransfersAccount. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateTransferSource with oneOf schemas: PaymentMethod, TransfersAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateTransferSource with oneOf schemas: TransfersAccount. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -94,19 +86,13 @@ class CreateTransferSource(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into PaymentMethod
-        try:
-            instance.actual_instance = PaymentMethod.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateTransferSource with oneOf schemas: PaymentMethod, TransfersAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateTransferSource with oneOf schemas: TransfersAccount. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateTransferSource with oneOf schemas: PaymentMethod, TransfersAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateTransferSource with oneOf schemas: TransfersAccount. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -120,7 +106,7 @@ class CreateTransferSource(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], PaymentMethod, TransfersAccount]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], TransfersAccount]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

@@ -139,6 +139,13 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_sign_solana_x402_payment_with_end_user_account(self) -> None:
+        """Test case for sign_solana_x402_payment_with_end_user_account
+
+        Sign x402 payment via end user Solana account
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

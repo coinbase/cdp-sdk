@@ -36,6 +36,7 @@ class TestTravelRuleOriginatorAllOfVirtualAssetServiceProvider(unittest.TestCase
         model = TravelRuleOriginatorAllOfVirtualAssetServiceProvider()
         if include_optional:
             return TravelRuleOriginatorAllOfVirtualAssetServiceProvider(
+                identifier = '5493001KJTIIGC8Y1R17',
                 name = 'Fidelity Digital Asset Services, LLC',
                 address = cdp.openapi_client.models.physical_address.PhysicalAddress(
                     line1 = '123 Market St', 
@@ -43,8 +44,7 @@ class TestTravelRuleOriginatorAllOfVirtualAssetServiceProvider(unittest.TestCase
                     city = 'San Francisco', 
                     state = 'CA', 
                     post_code = '94105', 
-                    country_code = 'US', ),
-                identifier = '5493001KJTIIGC8Y1R17'
+                    country_code = 'US', )
             )
         else:
             return TravelRuleOriginatorAllOfVirtualAssetServiceProvider(

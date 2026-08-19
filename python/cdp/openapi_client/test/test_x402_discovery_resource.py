@@ -46,7 +46,10 @@ class TestX402DiscoveryResource(unittest.TestCase):
                 quality = {l30DaysTotalCalls=42, l30DaysUniquePayers=15, lastCalledAt=2024-01-15T10:30:00Z},
                 service_name = 'Weather API',
                 tags = [weather, data],
-                icon_url = 'https://example.com'
+                bundle_slugs = [defi-trading],
+                icon_url = 'https://example.com',
+                curated = True,
+                skill_url = 'https://example.com'
             )
         else:
             return X402DiscoveryResource(

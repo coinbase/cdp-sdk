@@ -53,19 +53,17 @@ class TestCreateOnrampOrderRequest(unittest.TestCase):
                 purchase_amount = '10.000000',
                 purchase_currency = 'USDC',
                 client_ip = '127.0.0.1',
-                domain = 'pay.coinbase.com'
+                domain = 'pay.coinbase.com',
+                locale = 'es-ES',
+                user_auth_token = 'eyJ2ZXJpZmljYXRpb25JZHMiOlsidl9hYmMxMjMiLCJ2X2RlZjQ1NiJdfQ=='
             )
         else:
             return CreateOnrampOrderRequest(
-                agreement_accepted_at = '2025-04-24T00:00:00Z',
                 destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 destination_network = 'base',
-                email = 'test@example.com',
                 partner_user_ref = 'user-1234',
                 payment_currency = 'USD',
                 payment_method = 'GUEST_CHECKOUT_APPLE_PAY',
-                phone_number = '+12055555555',
-                phone_number_verified_at = '2025-04-24T00:00:00Z',
                 purchase_currency = 'USDC',
         )
         """

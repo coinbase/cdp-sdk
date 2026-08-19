@@ -30,7 +30,7 @@ class WebhookSubscriptionUpdateRequest(BaseModel):
     """
     Request to update an existing webhook subscription. 
     """ # noqa: E501
-    description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
+    description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=100)]] = Field(default=None, description="A human-readable description of the webhook subscription. Must be at most 100 characters. ")
     event_types: List[EventType] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     target: WebhookTarget

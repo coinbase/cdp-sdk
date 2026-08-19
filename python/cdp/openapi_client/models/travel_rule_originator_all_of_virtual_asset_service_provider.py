@@ -28,10 +28,10 @@ class TravelRuleOriginatorAllOfVirtualAssetServiceProvider(BaseModel):
     """
     Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers.
     """ # noqa: E501
+    identifier: Optional[StrictStr] = Field(default=None, description="The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP).")
     name: Optional[StrictStr] = Field(default=None, description="The name of the originating Virtual Asset Service Provider (VASP).")
     address: Optional[PhysicalAddress] = Field(default=None, description="The address of the originating Virtual Asset Service Provider (VASP).")
-    identifier: Optional[StrictStr] = Field(default=None, description="The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP).")
-    __properties: ClassVar[List[str]] = ["name", "address", "identifier"]
+    __properties: ClassVar[List[str]] = ["identifier", "name", "address"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -87,9 +87,9 @@ class TravelRuleOriginatorAllOfVirtualAssetServiceProvider(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "identifier": obj.get("identifier"),
             "name": obj.get("name"),
-            "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
-            "identifier": obj.get("identifier")
+            "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None
         })
         return _obj
 

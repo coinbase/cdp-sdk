@@ -38,13 +38,17 @@ class TestAddEndUserEvmAccount201Response(unittest.TestCase):
             return AddEndUserEvmAccount201Response(
                 evm_account = cdp.openapi_client.models.end_user_evm_account.EndUserEvmAccount(
                     address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', 
-                    created_at = '2025-01-15T10:30:00Z', )
+                    created_at = '2025-01-15T10:30:00Z', 
+                    exported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                    ejected_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
             )
         else:
             return AddEndUserEvmAccount201Response(
                 evm_account = cdp.openapi_client.models.end_user_evm_account.EndUserEvmAccount(
                     address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', 
-                    created_at = '2025-01-15T10:30:00Z', ),
+                    created_at = '2025-01-15T10:30:00Z', 
+                    exported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                    ejected_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), ),
         )
         """
 

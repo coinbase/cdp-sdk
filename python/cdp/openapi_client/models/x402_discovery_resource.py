@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
@@ -30,7 +30,7 @@ from typing_extensions import Self
 
 class X402DiscoveryResource(BaseModel):
     """
-    A single discovered x402 resource.
+    A single discovered x402 resource. Its fields come from three sources:  - **x402 protocol** — negotiated from the resource's payment-required response: `resource`,   `type`, `x402Version`, `accepts`, `extensions`. - **Provider-supplied** — metadata published by the resource owner: `description`,   `serviceName`, `tags`. - **Coinbase-derived** — added during ingestion and curation: `iconUrl`, `quality`,   `lastUpdated`, and (for Coinbase-curated endpoints only) `curated`, `skillUrl` (a   Coinbase-authored SKILL.md), and `bundleSlugs`. 
     """ # noqa: E501
     resource: StrictStr = Field(description="The URL of the resource.")
     description: Optional[StrictStr] = Field(default=None, description="A human-readable description of the resource.")
@@ -40,10 +40,13 @@ class X402DiscoveryResource(BaseModel):
     accepts: Optional[List[X402PaymentRequirements]] = Field(default=None, description="Payment requirements accepted by the resource.")
     extensions: Optional[Dict[str, Any]] = Field(default=None, description="Map of x402 protocol extensions supported by the resource, keyed by extension name.")
     quality: Optional[X402ResourceQuality] = None
-    service_name: Optional[StrictStr] = Field(default=None, description="Provider-supplied display name of the service this resource belongs to. This is a free-form label for grouping and presentation only — it is not a stable identifier, and two resources sharing the same `serviceName` are not guaranteed to belong to the same logical service. ", alias="serviceName")
-    tags: Optional[List[StrictStr]] = Field(default=None, description="Provider-supplied, low-cardinality string labels associated with the resource for client-side filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive. Order is not significant and duplicates are not expected. ")
+    service_name: Optional[StrictStr] = Field(default=None, description="Display name of the service this resource belongs to. This is a free-form label for grouping and presentation only — it is not a stable identifier, and two resources sharing the same `serviceName` are not guaranteed to belong to the same logical service. ", alias="serviceName")
+    tags: Optional[List[StrictStr]] = Field(default=None, description="Low-cardinality string labels associated with the resource for client-side filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive. Order is not significant and duplicates are not expected. ")
+    bundle_slugs: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=64)]], Field(max_length=50)]] = Field(default=None, description="Slugs of the curated x402 bundles this resource belongs to. A bundle is an ordered, named grouping of curated resources covering a common agent workflow. Present only for Coinbase-curated resources (`curated: true`); omitted when the resource is not curated or is not a member of any bundle.", alias="bundleSlugs")
     icon_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="URL of a square icon representing the service this resource belongs to. Distinct from a brand logo: this is intended for compact, list-view rendering (favicon-style) and is normalized to a square aspect ratio at ingestion. The image is moderated and re-hosted by Coinbase, so the URL is stable and safe to render directly in clients. Omitted when the provider did not supply an icon, when the supplied icon failed moderation, or when image processing was unavailable at ingestion time. ", alias="iconUrl")
-    __properties: ClassVar[List[str]] = ["resource", "description", "type", "x402Version", "lastUpdated", "accepts", "extensions", "quality", "serviceName", "tags", "iconUrl"]
+    curated: Optional[StrictBool] = Field(default=None, description="Whether this resource is a Coinbase-curated endpoint. Curated endpoints have passed the partner-admission and verification bar and surface higher in search and listing results. Omitted (treated as `false`) when the resource is not curated. ")
+    skill_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="URL of the SKILL.md document describing how to use this resource. Omitted when the resource has no associated skill document. ", alias="skillUrl")
+    __properties: ClassVar[List[str]] = ["resource", "description", "type", "x402Version", "lastUpdated", "accepts", "extensions", "quality", "serviceName", "tags", "bundleSlugs", "iconUrl", "curated", "skillUrl"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -54,6 +57,16 @@ class X402DiscoveryResource(BaseModel):
 
     @field_validator('icon_url')
     def icon_url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
+        return value
+
+    @field_validator('skill_url')
+    def skill_url_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
@@ -133,7 +146,10 @@ class X402DiscoveryResource(BaseModel):
             "quality": X402ResourceQuality.from_dict(obj["quality"]) if obj.get("quality") is not None else None,
             "serviceName": obj.get("serviceName"),
             "tags": obj.get("tags"),
-            "iconUrl": obj.get("iconUrl")
+            "bundleSlugs": obj.get("bundleSlugs"),
+            "iconUrl": obj.get("iconUrl"),
+            "curated": obj.get("curated"),
+            "skillUrl": obj.get("skillUrl")
         })
         return _obj
 

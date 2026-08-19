@@ -36,7 +36,6 @@ class TestTravelRuleParty(unittest.TestCase):
         model = TravelRuleParty()
         if include_optional:
             return TravelRuleParty(
-                financial_institution = 'PayPal, Inc.',
                 name = 'John Doe',
                 address = cdp.openapi_client.models.physical_address.PhysicalAddress(
                     line1 = '123 Market St', 
@@ -44,7 +43,8 @@ class TestTravelRuleParty(unittest.TestCase):
                     city = 'San Francisco', 
                     state = 'CA', 
                     post_code = '94105', 
-                    country_code = 'US', )
+                    country_code = 'US', ),
+                financial_institution = 'PayPal, Inc.'
             )
         else:
             return TravelRuleParty(

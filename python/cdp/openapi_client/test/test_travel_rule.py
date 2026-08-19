@@ -38,6 +38,7 @@ class TestTravelRule(unittest.TestCase):
             return TravelRule(
                 is_self = True,
                 is_intermediary = True,
+                attest_verified_wallet_ownership = True,
                 originator = None,
                 beneficiary = None
             )

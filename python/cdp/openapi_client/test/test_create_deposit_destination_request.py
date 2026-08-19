@@ -40,13 +40,16 @@ class TestCreateDepositDestinationRequest(unittest.TestCase):
                 type = 'crypto',
                 target = None,
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
-                crypto = {network=base}
+                compliance = {requesterIpAddress=203.0.113.42},
+                crypto = {network=base},
+                fiat = {currency=usd}
             )
         else:
             return CreateDepositDestinationRequest(
                 account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 type = 'crypto',
                 crypto = {network=base},
+                fiat = {currency=usd},
         )
         """
 

@@ -36,12 +36,12 @@ class TestTransfersAccount(unittest.TestCase):
         model = TransfersAccount()
         if include_optional:
             return TransfersAccount(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd'
             )
         else:
             return TransfersAccount(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd',
         )
         """

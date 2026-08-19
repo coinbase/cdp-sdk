@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.onramp_order import OnrampOrder
 from cdp.openapi_client.models.onramp_payment_link import OnrampPaymentLink
@@ -31,7 +31,8 @@ class CreateOnrampOrder201Response(BaseModel):
     """ # noqa: E501
     order: OnrampOrder
     payment_link: Optional[OnrampPaymentLink] = Field(default=None, alias="paymentLink")
-    __properties: ClassVar[List[str]] = ["order", "paymentLink"]
+    user_auth_token: Optional[StrictStr] = Field(default=None, description="Present for embedded orders once the user has verified. Store this and pass it on future orders for the same user to skip OTP verification. Valid for 60 days.", alias="userAuthToken")
+    __properties: ClassVar[List[str]] = ["order", "paymentLink", "userAuthToken"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,7 +92,8 @@ class CreateOnrampOrder201Response(BaseModel):
 
         _obj = cls.model_validate({
             "order": OnrampOrder.from_dict(obj["order"]) if obj.get("order") is not None else None,
-            "paymentLink": OnrampPaymentLink.from_dict(obj["paymentLink"]) if obj.get("paymentLink") is not None else None
+            "paymentLink": OnrampPaymentLink.from_dict(obj["paymentLink"]) if obj.get("paymentLink") is not None else None,
+            "userAuthToken": obj.get("userAuthToken")
         })
         return _obj
 

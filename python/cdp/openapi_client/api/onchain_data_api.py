@@ -64,7 +64,7 @@ class OnchainDataApi:
     ) -> ListEvmTokenBalances200Response:
         """List EVM token balances
 
-        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  Calls to the `base` and `base-sepolia` networks offer:   * 99.5% < 2 second freshness from chain tip for new tokens on an address.   * 99.5% < 2 second freshness from chain tip for balance data.  Calls to the `ethereum` network offer:   * 99% < 30 second freshness from chain tip for new tokens on an address.   * 99% < 2 second freshness from chain tip for balance data.
 
         :param address: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
         :type address: str
@@ -148,7 +148,7 @@ class OnchainDataApi:
     ) -> ApiResponse[ListEvmTokenBalances200Response]:
         """List EVM token balances
 
-        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  Calls to the `base` and `base-sepolia` networks offer:   * 99.5% < 2 second freshness from chain tip for new tokens on an address.   * 99.5% < 2 second freshness from chain tip for balance data.  Calls to the `ethereum` network offer:   * 99% < 30 second freshness from chain tip for new tokens on an address.   * 99% < 2 second freshness from chain tip for balance data.
 
         :param address: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
         :type address: str
@@ -232,7 +232,7 @@ class OnchainDataApi:
     ) -> RESTResponseType:
         """List EVM token balances
 
-        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  Calls to the `base` and `base-sepolia` networks offer:   * 99.5% < 2 second freshness from chain tip for new tokens on an address.   * 99.5% < 2 second freshness from chain tip for balance data.  Calls to the `ethereum` network offer:   * 99% < 30 second freshness from chain tip for new tokens on an address.   * 99% < 2 second freshness from chain tip for balance data.
 
         :param address: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
         :type address: str

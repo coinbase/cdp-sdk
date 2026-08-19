@@ -20,7 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.network import Network
+from cdp.openapi_client.models.payment_network import PaymentNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +29,7 @@ class TransferDetailsOnchainTransactionsInner(BaseModel):
     An onchain transaction associated with the transfer.
     """ # noqa: E501
     transaction_hash: StrictStr = Field(description="The transaction hash.", alias="transactionHash")
-    network: Network
+    network: PaymentNetwork
     __properties: ClassVar[List[str]] = ["transactionHash", "network"]
 
     model_config = ConfigDict(

@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictInt, StrictStr, field_validator
-from typing import Optional
+from typing import List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.account import Account
 from cdp.openapi_client.models.account_type import AccountType
@@ -65,7 +65,7 @@ class AccountsApi:
     ) -> Account:
         """Create account
 
-        Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403).
 
         :param create_account_request: (required)
         :type create_account_request: CreateAccountRequest
@@ -105,6 +105,7 @@ class AccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Account",
             '400': "Error",
+            '403': "Error",
             '422': "Error",
             '503': "Error",
         }
@@ -139,7 +140,7 @@ class AccountsApi:
     ) -> ApiResponse[Account]:
         """Create account
 
-        Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403).
 
         :param create_account_request: (required)
         :type create_account_request: CreateAccountRequest
@@ -179,6 +180,7 @@ class AccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Account",
             '400': "Error",
+            '403': "Error",
             '422': "Error",
             '503': "Error",
         }
@@ -213,7 +215,7 @@ class AccountsApi:
     ) -> RESTResponseType:
         """Create account
 
-        Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403).
 
         :param create_account_request: (required)
         :type create_account_request: CreateAccountRequest
@@ -253,6 +255,7 @@ class AccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Account",
             '400': "Error",
+            '403': "Error",
             '422': "Error",
             '503': "Error",
         }
@@ -1216,6 +1219,7 @@ class AccountsApi:
         self,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        owner: Annotated[Optional[List[Annotated[str, Field(strict=True)]]], Field(description="Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * `entity_<uuid>` - Accounts owned by a specific entity * `customer_<uuid>` - Accounts owned by a specific customer  **Owner type wildcards:** * `entity` - All entity-owned accounts * `customer` - All customer-owned accounts  **Examples:** * `owner=customer_af29...` - A specific customer's accounts * `owner=customer` - All customer accounts * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts * When omitted, accounts with any owner are returned.")] = None,
         type: Annotated[Optional[AccountType], Field(description="Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.")] = None,
         _request_timeout: Union[
             None,
@@ -1238,6 +1242,8 @@ class AccountsApi:
         :type page_size: int
         :param page_token: The token for the next page of resources, if any.
         :type page_token: str
+        :param owner: Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * `entity_<uuid>` - Accounts owned by a specific entity * `customer_<uuid>` - Accounts owned by a specific customer  **Owner type wildcards:** * `entity` - All entity-owned accounts * `customer` - All customer-owned accounts  **Examples:** * `owner=customer_af29...` - A specific customer's accounts * `owner=customer` - All customer accounts * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts * When omitted, accounts with any owner are returned.
+        :type owner: List[str]
         :param type: Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.
         :type type: AccountType
         :param _request_timeout: timeout setting for this request. If one
@@ -1265,6 +1271,7 @@ class AccountsApi:
         _param = self._list_foundation_accounts_serialize(
             page_size=page_size,
             page_token=page_token,
+            owner=owner,
             type=type,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1292,6 +1299,7 @@ class AccountsApi:
         self,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        owner: Annotated[Optional[List[Annotated[str, Field(strict=True)]]], Field(description="Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * `entity_<uuid>` - Accounts owned by a specific entity * `customer_<uuid>` - Accounts owned by a specific customer  **Owner type wildcards:** * `entity` - All entity-owned accounts * `customer` - All customer-owned accounts  **Examples:** * `owner=customer_af29...` - A specific customer's accounts * `owner=customer` - All customer accounts * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts * When omitted, accounts with any owner are returned.")] = None,
         type: Annotated[Optional[AccountType], Field(description="Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.")] = None,
         _request_timeout: Union[
             None,
@@ -1314,6 +1322,8 @@ class AccountsApi:
         :type page_size: int
         :param page_token: The token for the next page of resources, if any.
         :type page_token: str
+        :param owner: Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * `entity_<uuid>` - Accounts owned by a specific entity * `customer_<uuid>` - Accounts owned by a specific customer  **Owner type wildcards:** * `entity` - All entity-owned accounts * `customer` - All customer-owned accounts  **Examples:** * `owner=customer_af29...` - A specific customer's accounts * `owner=customer` - All customer accounts * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts * When omitted, accounts with any owner are returned.
+        :type owner: List[str]
         :param type: Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.
         :type type: AccountType
         :param _request_timeout: timeout setting for this request. If one
@@ -1341,6 +1351,7 @@ class AccountsApi:
         _param = self._list_foundation_accounts_serialize(
             page_size=page_size,
             page_token=page_token,
+            owner=owner,
             type=type,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1368,6 +1379,7 @@ class AccountsApi:
         self,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        owner: Annotated[Optional[List[Annotated[str, Field(strict=True)]]], Field(description="Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * `entity_<uuid>` - Accounts owned by a specific entity * `customer_<uuid>` - Accounts owned by a specific customer  **Owner type wildcards:** * `entity` - All entity-owned accounts * `customer` - All customer-owned accounts  **Examples:** * `owner=customer_af29...` - A specific customer's accounts * `owner=customer` - All customer accounts * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts * When omitted, accounts with any owner are returned.")] = None,
         type: Annotated[Optional[AccountType], Field(description="Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.")] = None,
         _request_timeout: Union[
             None,
@@ -1390,6 +1402,8 @@ class AccountsApi:
         :type page_size: int
         :param page_token: The token for the next page of resources, if any.
         :type page_token: str
+        :param owner: Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * `entity_<uuid>` - Accounts owned by a specific entity * `customer_<uuid>` - Accounts owned by a specific customer  **Owner type wildcards:** * `entity` - All entity-owned accounts * `customer` - All customer-owned accounts  **Examples:** * `owner=customer_af29...` - A specific customer's accounts * `owner=customer` - All customer accounts * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts * When omitted, accounts with any owner are returned.
+        :type owner: List[str]
         :param type: Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.
         :type type: AccountType
         :param _request_timeout: timeout setting for this request. If one
@@ -1417,6 +1431,7 @@ class AccountsApi:
         _param = self._list_foundation_accounts_serialize(
             page_size=page_size,
             page_token=page_token,
+            owner=owner,
             type=type,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1439,6 +1454,7 @@ class AccountsApi:
         self,
         page_size,
         page_token,
+        owner,
         type,
         _request_auth,
         _content_type,
@@ -1449,6 +1465,7 @@ class AccountsApi:
         _host = None
 
         _collection_formats: Dict[str, str] = {
+            'owner': 'csv',
         }
 
         _path_params: Dict[str, str] = {}
@@ -1469,6 +1486,10 @@ class AccountsApi:
         if page_token is not None:
             
             _query_params.append(('pageToken', page_token))
+            
+        if owner is not None:
+            
+            _query_params.append(('owner', owner))
             
         if type is not None:
             

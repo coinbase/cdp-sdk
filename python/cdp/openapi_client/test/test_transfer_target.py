@@ -36,9 +36,9 @@ class TestTransferTarget(unittest.TestCase):
         model = TransferTarget()
         if include_optional:
             return TransferTarget(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd',
-                payment_method_id = '',
+                payment_method_id = 'paymentMethod_8e03978e-40d5-43e8-bc93-6894a57f9324',
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 network = 'base',
                 destination_tag = '',
@@ -46,9 +46,9 @@ class TestTransferTarget(unittest.TestCase):
             )
         else:
             return TransferTarget(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd',
-                payment_method_id = '',
+                payment_method_id = 'paymentMethod_8e03978e-40d5-43e8-bc93-6894a57f9324',
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 network = 'base',
                 email = 'user@example.com',

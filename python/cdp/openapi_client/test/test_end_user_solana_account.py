@@ -37,7 +37,9 @@ class TestEndUserSolanaAccount(unittest.TestCase):
         if include_optional:
             return EndUserSolanaAccount(
                 address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
-                created_at = '2025-01-15T10:30:00Z'
+                created_at = '2025-01-15T10:30:00Z',
+                exported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                ejected_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
             )
         else:
             return EndUserSolanaAccount(

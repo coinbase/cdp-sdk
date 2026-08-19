@@ -33,7 +33,7 @@ class TransferRequest(BaseModel):
     """ # noqa: E501
     source: CreateTransferSource
     target: TransferTarget
-    amount: StrictStr = Field(description="The amount of the transfer, as a decimal string in standard unit denomination of the asset specified by `asset` (e.g., \"100.00\" for 100 USD, \"0.05\" for 0.05 ETH).")
+    amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the transfer, as a decimal string in standard unit denomination of the asset specified by `asset` (e.g., \"100.00\" for 100 USD, \"0.05\" for 0.05 ETH).")
     asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="The symbol of the asset for the amount. This must be one of the assets of the source or target.")
     amount_type: Optional[StrictStr] = Field(default='source', description="Specifies whether the given amount is to be received by the target or taken from the source.  - `target`: The transfer `target` receives the exact value specified in `amount`. Fees are added to the amount taken from the transfer `source`. - `source`: The transfer `target` receives the value specified in `amount`, minus any fees. ", alias="amountType")
     validate_only: Optional[StrictBool] = Field(default=False, description="If true, validates the transfer without initiating it.  If the request is valid, a 2xx will be returned. If the request is invalid, a 4xx error will be returned. The response will include an errorType, for e.g. invalid_target if the specified target cannot receive funds.", alias="validateOnly")
@@ -41,6 +41,13 @@ class TransferRequest(BaseModel):
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     travel_rule: Optional[TravelRule] = Field(default=None, description="Travel Rule compliance information for this transfer. Required for transfers to external wallets above regulatory thresholds. Fields required differ by region and Coinbase contracting entity.", alias="travelRule")
     __properties: ClassVar[List[str]] = ["source", "target", "amount", "asset", "amountType", "validateOnly", "execute", "metadata", "travelRule"]
+
+    @field_validator('amount')
+    def amount_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^\+?(?:(?:0*[1-9]\d*)(?:\.\d*)?|0*\.\d*[1-9]\d*)$", value):
+            raise ValueError(r"must validate the regular expression /^\+?(?:(?:0*[1-9]\d*)(?:\.\d*)?|0*\.\d*[1-9]\d*)$/")
+        return value
 
     @field_validator('amount_type')
     def amount_type_validate_enum(cls, value):

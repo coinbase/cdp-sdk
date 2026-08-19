@@ -19,11 +19,12 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from cdp.openapi_client.models.crypto_deposit_destination import CryptoDepositDestination
+from cdp.openapi_client.models.fiat_deposit_destination import FiatDepositDestination
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-DEPOSITDESTINATION_ONE_OF_SCHEMAS = ["CryptoDepositDestination"]
+DEPOSITDESTINATION_ONE_OF_SCHEMAS = ["CryptoDepositDestination", "FiatDepositDestination"]
 
 class DepositDestination(BaseModel):
     """
@@ -31,8 +32,10 @@ class DepositDestination(BaseModel):
     """
     # data type: CryptoDepositDestination
     oneof_schema_1_validator: Optional[CryptoDepositDestination] = None
-    actual_instance: Optional[Union[CryptoDepositDestination]] = None
-    one_of_schemas: Set[str] = { "CryptoDepositDestination" }
+    # data type: FiatDepositDestination
+    oneof_schema_2_validator: Optional[FiatDepositDestination] = None
+    actual_instance: Optional[Union[CryptoDepositDestination, FiatDepositDestination]] = None
+    one_of_schemas: Set[str] = { "CryptoDepositDestination", "FiatDepositDestination" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -63,12 +66,17 @@ class DepositDestination(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CryptoDepositDestination`")
         else:
             match += 1
+        # validate data type: FiatDepositDestination
+        if not isinstance(v, FiatDepositDestination):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `FiatDepositDestination`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in DepositDestination with oneOf schemas: CryptoDepositDestination. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in DepositDestination with oneOf schemas: CryptoDepositDestination, FiatDepositDestination. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in DepositDestination with oneOf schemas: CryptoDepositDestination. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in DepositDestination with oneOf schemas: CryptoDepositDestination, FiatDepositDestination. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -89,13 +97,19 @@ class DepositDestination(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into FiatDepositDestination
+        try:
+            instance.actual_instance = FiatDepositDestination.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into DepositDestination with oneOf schemas: CryptoDepositDestination. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into DepositDestination with oneOf schemas: CryptoDepositDestination, FiatDepositDestination. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into DepositDestination with oneOf schemas: CryptoDepositDestination. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into DepositDestination with oneOf schemas: CryptoDepositDestination, FiatDepositDestination. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -109,7 +123,7 @@ class DepositDestination(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CryptoDepositDestination]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CryptoDepositDestination, FiatDepositDestination]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

@@ -32,11 +32,12 @@ class DepositTravelRuleOriginator(BaseModel):
     """ # noqa: E501
     name: Optional[StrictStr] = Field(default=None, description="Full name of the originator.")
     address: Optional[PhysicalAddress] = None
-    wallet_type: Optional[StrictStr] = Field(default=None, description="The type of the originator's wallet.", alias="walletType")
+    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
     virtual_asset_service_provider: Optional[DepositTravelRuleVasp] = Field(default=None, alias="virtualAssetServiceProvider")
     personal_id: Optional[StrictStr] = Field(default=None, description="Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier).", alias="personalId")
     date_of_birth: Optional[DateOfBirth] = Field(default=None, description="Date of birth of the originator.", alias="dateOfBirth")
-    __properties: ClassVar[List[str]] = ["name", "address", "walletType", "virtualAssetServiceProvider", "personalId", "dateOfBirth"]
+    wallet_type: Optional[StrictStr] = Field(default=None, description="The type of the originator's wallet.", alias="walletType")
+    __properties: ClassVar[List[str]] = ["name", "address", "financialInstitution", "virtualAssetServiceProvider", "personalId", "dateOfBirth", "walletType"]
 
     @field_validator('wallet_type')
     def wallet_type_validate_enum(cls, value):
@@ -110,10 +111,11 @@ class DepositTravelRuleOriginator(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
-            "walletType": obj.get("walletType"),
+            "financialInstitution": obj.get("financialInstitution"),
             "virtualAssetServiceProvider": DepositTravelRuleVasp.from_dict(obj["virtualAssetServiceProvider"]) if obj.get("virtualAssetServiceProvider") is not None else None,
             "personalId": obj.get("personalId"),
-            "dateOfBirth": DateOfBirth.from_dict(obj["dateOfBirth"]) if obj.get("dateOfBirth") is not None else None
+            "dateOfBirth": DateOfBirth.from_dict(obj["dateOfBirth"]) if obj.get("dateOfBirth") is not None else None,
+            "walletType": obj.get("walletType")
         })
         return _obj
 

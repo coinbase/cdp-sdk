@@ -29,7 +29,7 @@ class CreateEvmEip7702DelegationRequest(BaseModel):
     CreateEvmEip7702DelegationRequest
     """ # noqa: E501
     network: EvmEip7702DelegationNetwork
-    enable_spend_permissions: Optional[StrictBool] = Field(default=False, description="Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.", alias="enableSpendPermissions")
+    enable_spend_permissions: Optional[StrictBool] = Field(default=None, description="Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.", alias="enableSpendPermissions")
     __properties: ClassVar[List[str]] = ["network", "enableSpendPermissions"]
 
     model_config = ConfigDict(
@@ -84,7 +84,7 @@ class CreateEvmEip7702DelegationRequest(BaseModel):
 
         _obj = cls.model_validate({
             "network": obj.get("network"),
-            "enableSpendPermissions": obj.get("enableSpendPermissions") if obj.get("enableSpendPermissions") is not None else False
+            "enableSpendPermissions": obj.get("enableSpendPermissions")
         })
         return _obj
 

@@ -36,12 +36,12 @@ class TestPaymentMethod(unittest.TestCase):
         model = PaymentMethod()
         if include_optional:
             return PaymentMethod(
-                payment_method_id = '',
+                payment_method_id = 'paymentMethod_8e03978e-40d5-43e8-bc93-6894a57f9324',
                 asset = 'usd'
             )
         else:
             return PaymentMethod(
-                payment_method_id = '',
+                payment_method_id = 'paymentMethod_8e03978e-40d5-43e8-bc93-6894a57f9324',
                 asset = 'usd',
         )
         """
