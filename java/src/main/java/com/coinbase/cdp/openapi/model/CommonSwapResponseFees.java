@@ -40,26 +40,26 @@ import com.coinbase.cdp.openapi.ApiClient;
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CommonSwapResponseFees {
   public static final String JSON_PROPERTY_GAS_FEE = "gasFee";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private TokenFee gasFee;
 
   public static final String JSON_PROPERTY_PROTOCOL_FEE = "protocolFee";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private TokenFee protocolFee;
 
   public CommonSwapResponseFees() { 
   }
 
-  public CommonSwapResponseFees gasFee(@jakarta.annotation.Nonnull TokenFee gasFee) {
+  public CommonSwapResponseFees gasFee(@jakarta.annotation.Nullable TokenFee gasFee) {
     this.gasFee = gasFee;
     return this;
   }
 
   /**
-   * The estimated gas fee for the swap.
+   * Get gasFee
    * @return gasFee
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_GAS_FEE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public TokenFee getGasFee() {
@@ -69,21 +69,21 @@ public class CommonSwapResponseFees {
 
   @JsonProperty(JSON_PROPERTY_GAS_FEE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setGasFee(@jakarta.annotation.Nonnull TokenFee gasFee) {
+  public void setGasFee(@jakarta.annotation.Nullable TokenFee gasFee) {
     this.gasFee = gasFee;
   }
 
 
-  public CommonSwapResponseFees protocolFee(@jakarta.annotation.Nonnull TokenFee protocolFee) {
+  public CommonSwapResponseFees protocolFee(@jakarta.annotation.Nullable TokenFee protocolFee) {
     this.protocolFee = protocolFee;
     return this;
   }
 
   /**
-   * The estimated protocol fee for the swap.
+   * Get protocolFee
    * @return protocolFee
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PROTOCOL_FEE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public TokenFee getProtocolFee() {
@@ -93,7 +93,7 @@ public class CommonSwapResponseFees {
 
   @JsonProperty(JSON_PROPERTY_PROTOCOL_FEE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setProtocolFee(@jakarta.annotation.Nonnull TokenFee protocolFee) {
+  public void setProtocolFee(@jakarta.annotation.Nullable TokenFee protocolFee) {
     this.protocolFee = protocolFee;
   }
 

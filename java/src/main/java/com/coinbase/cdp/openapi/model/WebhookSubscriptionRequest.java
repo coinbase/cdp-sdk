@@ -82,7 +82,7 @@ public class WebhookSubscriptionRequest {
   }
 
   /**
-   * Description of the webhook subscription.
+   * A human-readable description of the webhook subscription. Must be at most 100 characters. 
    * @return description
    */
   @jakarta.annotation.Nullable

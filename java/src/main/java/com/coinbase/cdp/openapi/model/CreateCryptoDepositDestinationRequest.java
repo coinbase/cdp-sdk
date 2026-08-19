@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.Compliance;
 import com.coinbase.cdp.openapi.model.CreateDepositDestinationCrypto;
 import com.coinbase.cdp.openapi.model.DepositDestinationTarget;
 import com.coinbase.cdp.openapi.model.Metadata;
@@ -40,6 +41,7 @@ import com.coinbase.cdp.openapi.ApiClient;
   CreateCryptoDepositDestinationRequest.JSON_PROPERTY_TYPE,
   CreateCryptoDepositDestinationRequest.JSON_PROPERTY_TARGET,
   CreateCryptoDepositDestinationRequest.JSON_PROPERTY_METADATA,
+  CreateCryptoDepositDestinationRequest.JSON_PROPERTY_COMPLIANCE,
   CreateCryptoDepositDestinationRequest.JSON_PROPERTY_CRYPTO
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -92,6 +94,10 @@ public class CreateCryptoDepositDestinationRequest {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_COMPLIANCE = "compliance";
+  @jakarta.annotation.Nullable
+  private Compliance compliance;
 
   public static final String JSON_PROPERTY_CRYPTO = "crypto";
   @jakarta.annotation.Nonnull
@@ -196,6 +202,30 @@ public class CreateCryptoDepositDestinationRequest {
   }
 
 
+  public CreateCryptoDepositDestinationRequest compliance(@jakarta.annotation.Nullable Compliance compliance) {
+    this.compliance = compliance;
+    return this;
+  }
+
+  /**
+   * Get compliance
+   * @return compliance
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_COMPLIANCE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Compliance getCompliance() {
+    return compliance;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_COMPLIANCE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCompliance(@jakarta.annotation.Nullable Compliance compliance) {
+    this.compliance = compliance;
+  }
+
+
   public CreateCryptoDepositDestinationRequest crypto(@jakarta.annotation.Nonnull CreateDepositDestinationCrypto crypto) {
     this.crypto = crypto;
     return this;
@@ -236,12 +266,13 @@ public class CreateCryptoDepositDestinationRequest {
         Objects.equals(this.type, createCryptoDepositDestinationRequest.type) &&
         Objects.equals(this.target, createCryptoDepositDestinationRequest.target) &&
         Objects.equals(this.metadata, createCryptoDepositDestinationRequest.metadata) &&
+        Objects.equals(this.compliance, createCryptoDepositDestinationRequest.compliance) &&
         Objects.equals(this.crypto, createCryptoDepositDestinationRequest.crypto);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(accountId, type, target, metadata, crypto);
+    return Objects.hash(accountId, type, target, metadata, compliance, crypto);
   }
 
   @Override
@@ -252,6 +283,7 @@ public class CreateCryptoDepositDestinationRequest {
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    target: ").append(toIndentedString(target)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    compliance: ").append(toIndentedString(compliance)).append("\n");
     sb.append("    crypto: ").append(toIndentedString(crypto)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -320,6 +352,11 @@ public class CreateCryptoDepositDestinationRequest {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `compliance` to the URL query string
+    if (getCompliance() != null) {
+      joiner.add(getCompliance().toUrlQueryString(prefix + "compliance" + suffix));
+    }
+
     // add `crypto` to the URL query string
     if (getCrypto() != null) {
       joiner.add(getCrypto().toUrlQueryString(prefix + "crypto" + suffix));
@@ -354,6 +391,10 @@ public class CreateCryptoDepositDestinationRequest {
     }
     public CreateCryptoDepositDestinationRequest.Builder metadata(Metadata metadata) {
       this.instance.metadata = metadata;
+      return this;
+    }
+    public CreateCryptoDepositDestinationRequest.Builder compliance(Compliance compliance) {
+      this.instance.compliance = compliance;
       return this;
     }
     public CreateCryptoDepositDestinationRequest.Builder crypto(CreateDepositDestinationCrypto crypto) {
@@ -398,6 +439,7 @@ public class CreateCryptoDepositDestinationRequest {
       .type(getType())
       .target(getTarget())
       .metadata(getMetadata())
+      .compliance(getCompliance())
       .crypto(getCrypto());
   }
 

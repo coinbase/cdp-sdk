@@ -19,7 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.Network;
+import com.coinbase.cdp.openapi.model.PaymentNetwork;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -40,12 +40,12 @@ import com.coinbase.cdp.openapi.ApiClient;
 public class CreateDepositDestinationCrypto {
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
-  private Network network;
+  private PaymentNetwork network;
 
   public CreateDepositDestinationCrypto() { 
   }
 
-  public CreateDepositDestinationCrypto network(@jakarta.annotation.Nonnull Network network) {
+  public CreateDepositDestinationCrypto network(@jakarta.annotation.Nonnull PaymentNetwork network) {
     this.network = network;
     return this;
   }
@@ -57,14 +57,14 @@ public class CreateDepositDestinationCrypto {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public Network getNetwork() {
+  public PaymentNetwork getNetwork() {
     return network;
   }
 
 
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setNetwork(@jakarta.annotation.Nonnull Network network) {
+  public void setNetwork(@jakarta.annotation.Nonnull PaymentNetwork network) {
     this.network = network;
   }
 
@@ -161,7 +161,7 @@ public class CreateDepositDestinationCrypto {
       this.instance = instance;
     }
 
-    public CreateDepositDestinationCrypto.Builder network(Network network) {
+    public CreateDepositDestinationCrypto.Builder network(PaymentNetwork network) {
       this.instance.network = network;
       return this;
     }

@@ -45,7 +45,7 @@ public class CreateEvmEip7702DelegationRequest {
 
   public static final String JSON_PROPERTY_ENABLE_SPEND_PERMISSIONS = "enableSpendPermissions";
   @jakarta.annotation.Nullable
-  private Boolean enableSpendPermissions = false;
+  private Boolean enableSpendPermissions;
 
   public CreateEvmEip7702DelegationRequest() { 
   }

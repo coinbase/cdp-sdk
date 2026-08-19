@@ -34,12 +34,16 @@ import com.coinbase.cdp.openapi.ApiClient;
  * Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers.
  */
 @JsonPropertyOrder({
+  TravelRuleOriginatorAllOfVirtualAssetServiceProvider.JSON_PROPERTY_IDENTIFIER,
   TravelRuleOriginatorAllOfVirtualAssetServiceProvider.JSON_PROPERTY_NAME,
-  TravelRuleOriginatorAllOfVirtualAssetServiceProvider.JSON_PROPERTY_ADDRESS,
-  TravelRuleOriginatorAllOfVirtualAssetServiceProvider.JSON_PROPERTY_IDENTIFIER
+  TravelRuleOriginatorAllOfVirtualAssetServiceProvider.JSON_PROPERTY_ADDRESS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
+  public static final String JSON_PROPERTY_IDENTIFIER = "identifier";
+  @jakarta.annotation.Nullable
+  private String identifier;
+
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nullable
   private String name;
@@ -48,12 +52,32 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
   @jakarta.annotation.Nullable
   private PhysicalAddress address;
 
-  public static final String JSON_PROPERTY_IDENTIFIER = "identifier";
-  @jakarta.annotation.Nullable
-  private String identifier;
-
   public TravelRuleOriginatorAllOfVirtualAssetServiceProvider() { 
   }
+
+  public TravelRuleOriginatorAllOfVirtualAssetServiceProvider identifier(@jakarta.annotation.Nullable String identifier) {
+    this.identifier = identifier;
+    return this;
+  }
+
+  /**
+   * The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP).
+   * @return identifier
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_IDENTIFIER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getIdentifier() {
+    return identifier;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_IDENTIFIER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setIdentifier(@jakarta.annotation.Nullable String identifier) {
+    this.identifier = identifier;
+  }
+
 
   public TravelRuleOriginatorAllOfVirtualAssetServiceProvider name(@jakarta.annotation.Nullable String name) {
     this.name = name;
@@ -103,30 +127,6 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
   }
 
 
-  public TravelRuleOriginatorAllOfVirtualAssetServiceProvider identifier(@jakarta.annotation.Nullable String identifier) {
-    this.identifier = identifier;
-    return this;
-  }
-
-  /**
-   * The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP).
-   * @return identifier
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_IDENTIFIER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getIdentifier() {
-    return identifier;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_IDENTIFIER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifier(@jakarta.annotation.Nullable String identifier) {
-    this.identifier = identifier;
-  }
-
-
   /**
    * Return true if this TravelRuleOriginator_allOf_virtualAssetServiceProvider object is equal to o.
    */
@@ -139,23 +139,23 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
       return false;
     }
     TravelRuleOriginatorAllOfVirtualAssetServiceProvider travelRuleOriginatorAllOfVirtualAssetServiceProvider = (TravelRuleOriginatorAllOfVirtualAssetServiceProvider) o;
-    return Objects.equals(this.name, travelRuleOriginatorAllOfVirtualAssetServiceProvider.name) &&
-        Objects.equals(this.address, travelRuleOriginatorAllOfVirtualAssetServiceProvider.address) &&
-        Objects.equals(this.identifier, travelRuleOriginatorAllOfVirtualAssetServiceProvider.identifier);
+    return Objects.equals(this.identifier, travelRuleOriginatorAllOfVirtualAssetServiceProvider.identifier) &&
+        Objects.equals(this.name, travelRuleOriginatorAllOfVirtualAssetServiceProvider.name) &&
+        Objects.equals(this.address, travelRuleOriginatorAllOfVirtualAssetServiceProvider.address);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, address, identifier);
+    return Objects.hash(identifier, name, address);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {\n");
+    sb.append("    identifier: ").append(toIndentedString(identifier)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
-    sb.append("    identifier: ").append(toIndentedString(identifier)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -203,6 +203,11 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `identifier` to the URL query string
+    if (getIdentifier() != null) {
+      joiner.add(String.format("%sidentifier%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIdentifier()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `name` to the URL query string
     if (getName() != null) {
       joiner.add(String.format("%sname%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getName()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -211,11 +216,6 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
     // add `address` to the URL query string
     if (getAddress() != null) {
       joiner.add(getAddress().toUrlQueryString(prefix + "address" + suffix));
-    }
-
-    // add `identifier` to the URL query string
-    if (getIdentifier() != null) {
-      joiner.add(String.format("%sidentifier%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIdentifier()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -233,16 +233,16 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
       this.instance = instance;
     }
 
+    public TravelRuleOriginatorAllOfVirtualAssetServiceProvider.Builder identifier(String identifier) {
+      this.instance.identifier = identifier;
+      return this;
+    }
     public TravelRuleOriginatorAllOfVirtualAssetServiceProvider.Builder name(String name) {
       this.instance.name = name;
       return this;
     }
     public TravelRuleOriginatorAllOfVirtualAssetServiceProvider.Builder address(PhysicalAddress address) {
       this.instance.address = address;
-      return this;
-    }
-    public TravelRuleOriginatorAllOfVirtualAssetServiceProvider.Builder identifier(String identifier) {
-      this.instance.identifier = identifier;
       return this;
     }
 
@@ -279,9 +279,9 @@ public class TravelRuleOriginatorAllOfVirtualAssetServiceProvider {
   */
   public TravelRuleOriginatorAllOfVirtualAssetServiceProvider.Builder toBuilder() {
     return new TravelRuleOriginatorAllOfVirtualAssetServiceProvider.Builder()
+      .identifier(getIdentifier())
       .name(getName())
-      .address(getAddress())
-      .identifier(getIdentifier());
+      .address(getAddress());
   }
 
 }

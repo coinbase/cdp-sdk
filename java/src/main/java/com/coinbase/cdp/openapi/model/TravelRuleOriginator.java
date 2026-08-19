@@ -36,19 +36,15 @@ import com.coinbase.cdp.openapi.ApiClient;
  * Originator (sender) party.
  */
 @JsonPropertyOrder({
-  TravelRuleOriginator.JSON_PROPERTY_FINANCIAL_INSTITUTION,
   TravelRuleOriginator.JSON_PROPERTY_NAME,
   TravelRuleOriginator.JSON_PROPERTY_ADDRESS,
+  TravelRuleOriginator.JSON_PROPERTY_FINANCIAL_INSTITUTION,
   TravelRuleOriginator.JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER,
   TravelRuleOriginator.JSON_PROPERTY_PERSONAL_ID,
   TravelRuleOriginator.JSON_PROPERTY_DATE_OF_BIRTH
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class TravelRuleOriginator {
-  public static final String JSON_PROPERTY_FINANCIAL_INSTITUTION = "financialInstitution";
-  @jakarta.annotation.Nullable
-  private String financialInstitution;
-
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nullable
   private String name;
@@ -56,6 +52,10 @@ public class TravelRuleOriginator {
   public static final String JSON_PROPERTY_ADDRESS = "address";
   @jakarta.annotation.Nullable
   private PhysicalAddress address;
+
+  public static final String JSON_PROPERTY_FINANCIAL_INSTITUTION = "financialInstitution";
+  @jakarta.annotation.Nullable
+  private String financialInstitution;
 
   public static final String JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER = "virtualAssetServiceProvider";
   @jakarta.annotation.Nullable
@@ -71,30 +71,6 @@ public class TravelRuleOriginator {
 
   public TravelRuleOriginator() { 
   }
-
-  public TravelRuleOriginator financialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
-    this.financialInstitution = financialInstitution;
-    return this;
-  }
-
-  /**
-   * Name of the financial institution.
-   * @return financialInstitution
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getFinancialInstitution() {
-    return financialInstitution;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setFinancialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
-    this.financialInstitution = financialInstitution;
-  }
-
 
   public TravelRuleOriginator name(@jakarta.annotation.Nullable String name) {
     this.name = name;
@@ -141,6 +117,30 @@ public class TravelRuleOriginator {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setAddress(@jakarta.annotation.Nullable PhysicalAddress address) {
     this.address = address;
+  }
+
+
+  public TravelRuleOriginator financialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
+    this.financialInstitution = financialInstitution;
+    return this;
+  }
+
+  /**
+   * Name of the financial institution.
+   * @return financialInstitution
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getFinancialInstitution() {
+    return financialInstitution;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFinancialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
+    this.financialInstitution = financialInstitution;
   }
 
 
@@ -228,9 +228,9 @@ public class TravelRuleOriginator {
       return false;
     }
     TravelRuleOriginator travelRuleOriginator = (TravelRuleOriginator) o;
-    return Objects.equals(this.financialInstitution, travelRuleOriginator.financialInstitution) &&
-        Objects.equals(this.name, travelRuleOriginator.name) &&
+    return Objects.equals(this.name, travelRuleOriginator.name) &&
         Objects.equals(this.address, travelRuleOriginator.address) &&
+        Objects.equals(this.financialInstitution, travelRuleOriginator.financialInstitution) &&
         Objects.equals(this.virtualAssetServiceProvider, travelRuleOriginator.virtualAssetServiceProvider) &&
         Objects.equals(this.personalId, travelRuleOriginator.personalId) &&
         Objects.equals(this.dateOfBirth, travelRuleOriginator.dateOfBirth);
@@ -238,16 +238,16 @@ public class TravelRuleOriginator {
 
   @Override
   public int hashCode() {
-    return Objects.hash(financialInstitution, name, address, virtualAssetServiceProvider, personalId, dateOfBirth);
+    return Objects.hash(name, address, financialInstitution, virtualAssetServiceProvider, personalId, dateOfBirth);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TravelRuleOriginator {\n");
-    sb.append("    financialInstitution: ").append(toIndentedString(financialInstitution)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
+    sb.append("    financialInstitution: ").append(toIndentedString(financialInstitution)).append("\n");
     sb.append("    virtualAssetServiceProvider: ").append(toIndentedString(virtualAssetServiceProvider)).append("\n");
     sb.append("    personalId: ").append(toIndentedString(personalId)).append("\n");
     sb.append("    dateOfBirth: ").append(toIndentedString(dateOfBirth)).append("\n");
@@ -298,11 +298,6 @@ public class TravelRuleOriginator {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `financialInstitution` to the URL query string
-    if (getFinancialInstitution() != null) {
-      joiner.add(String.format("%sfinancialInstitution%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getFinancialInstitution()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-    }
-
     // add `name` to the URL query string
     if (getName() != null) {
       joiner.add(String.format("%sname%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getName()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -311,6 +306,11 @@ public class TravelRuleOriginator {
     // add `address` to the URL query string
     if (getAddress() != null) {
       joiner.add(getAddress().toUrlQueryString(prefix + "address" + suffix));
+    }
+
+    // add `financialInstitution` to the URL query string
+    if (getFinancialInstitution() != null) {
+      joiner.add(String.format("%sfinancialInstitution%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getFinancialInstitution()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `virtualAssetServiceProvider` to the URL query string
@@ -343,16 +343,16 @@ public class TravelRuleOriginator {
       this.instance = instance;
     }
 
-    public TravelRuleOriginator.Builder financialInstitution(String financialInstitution) {
-      this.instance.financialInstitution = financialInstitution;
-      return this;
-    }
     public TravelRuleOriginator.Builder name(String name) {
       this.instance.name = name;
       return this;
     }
     public TravelRuleOriginator.Builder address(PhysicalAddress address) {
       this.instance.address = address;
+      return this;
+    }
+    public TravelRuleOriginator.Builder financialInstitution(String financialInstitution) {
+      this.instance.financialInstitution = financialInstitution;
       return this;
     }
     public TravelRuleOriginator.Builder virtualAssetServiceProvider(TravelRuleOriginatorAllOfVirtualAssetServiceProvider virtualAssetServiceProvider) {
@@ -401,9 +401,9 @@ public class TravelRuleOriginator {
   */
   public TravelRuleOriginator.Builder toBuilder() {
     return new TravelRuleOriginator.Builder()
-      .financialInstitution(getFinancialInstitution())
       .name(getName())
       .address(getAddress())
+      .financialInstitution(getFinancialInstitution())
       .virtualAssetServiceProvider(getVirtualAssetServiceProvider())
       .personalId(getPersonalId())
       .dateOfBirth(getDateOfBirth());

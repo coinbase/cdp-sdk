@@ -60,6 +60,20 @@ public enum EventType {
   
   WALLET_HASH_SIGNED("wallet.hash.signed"),
   
+  PAYMENTS_TRANSFERS_QUOTED("payments.transfers.quoted"),
+  
+  PAYMENTS_TRANSFERS_PROCESSING("payments.transfers.processing"),
+  
+  PAYMENTS_TRANSFERS_COMPLETED("payments.transfers.completed"),
+  
+  PAYMENTS_TRANSFERS_FAILED("payments.transfers.failed"),
+  
+  PAYMENTS_TRANSFERS_EXPIRED("payments.transfers.expired"),
+  
+  PAYMENTS_TRANSFERS_TRAVEL_RULE_INCOMPLETE("payments.transfers.travel_rule_incomplete"),
+  
+  PAYMENTS_TRANSFERS_TRAVEL_RULE_COMPLETED("payments.transfers.travel_rule_completed"),
+  
   ONRAMP_TRANSACTION_CREATED("onramp.transaction.created"),
   
   ONRAMP_TRANSACTION_UPDATED("onramp.transaction.updated"),
@@ -74,7 +88,45 @@ public enum EventType {
   
   OFFRAMP_TRANSACTION_SUCCESS("offramp.transaction.success"),
   
-  OFFRAMP_TRANSACTION_FAILED("offramp.transaction.failed");
+  OFFRAMP_TRANSACTION_FAILED("offramp.transaction.failed"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_CREATED("acceptance.payment_session.created"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_CANCELED("acceptance.payment_session.canceled"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_AUTHORIZATION_PENDING("acceptance.payment_session.authorization_pending"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_AUTHORIZATION_SUCCEEDED("acceptance.payment_session.authorization_succeeded"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_AUTHORIZATION_FAILED("acceptance.payment_session.authorization_failed"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_CAPTURE_PENDING("acceptance.payment_session.capture_pending"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_CAPTURE_SUCCEEDED("acceptance.payment_session.capture_succeeded"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_CAPTURE_FAILED("acceptance.payment_session.capture_failed"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_REFUND_PENDING("acceptance.payment_session.refund_pending"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_REFUND_SUCCEEDED("acceptance.payment_session.refund_succeeded"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_REFUND_FAILED("acceptance.payment_session.refund_failed"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_VOID_PENDING("acceptance.payment_session.void_pending"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_VOID_SUCCEEDED("acceptance.payment_session.void_succeeded"),
+  
+  ACCEPTANCE_PAYMENT_SESSION_VOID_FAILED("acceptance.payment_session.void_failed"),
+  
+  ACCEPTANCE_DISBURSEMENT_PENDING("acceptance.disbursement.pending"),
+  
+  ACCEPTANCE_DISBURSEMENT_SUCCEEDED("acceptance.disbursement.succeeded"),
+  
+  ACCEPTANCE_DISBURSEMENT_FAILED("acceptance.disbursement.failed"),
+  
+  CUSTOMERS_CAPABILITY_CHANGED("customers.capability.changed"),
+  
+  CUSTOMERS_CUSTOMER_DELETED("customers.customer.deleted");
 
   private String value;
 

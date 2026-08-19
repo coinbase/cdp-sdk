@@ -38,10 +38,11 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   DepositTravelRuleOriginator.JSON_PROPERTY_NAME,
   DepositTravelRuleOriginator.JSON_PROPERTY_ADDRESS,
-  DepositTravelRuleOriginator.JSON_PROPERTY_WALLET_TYPE,
+  DepositTravelRuleOriginator.JSON_PROPERTY_FINANCIAL_INSTITUTION,
   DepositTravelRuleOriginator.JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER,
   DepositTravelRuleOriginator.JSON_PROPERTY_PERSONAL_ID,
-  DepositTravelRuleOriginator.JSON_PROPERTY_DATE_OF_BIRTH
+  DepositTravelRuleOriginator.JSON_PROPERTY_DATE_OF_BIRTH,
+  DepositTravelRuleOriginator.JSON_PROPERTY_WALLET_TYPE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class DepositTravelRuleOriginator {
@@ -52,6 +53,22 @@ public class DepositTravelRuleOriginator {
   public static final String JSON_PROPERTY_ADDRESS = "address";
   @jakarta.annotation.Nullable
   private PhysicalAddress address;
+
+  public static final String JSON_PROPERTY_FINANCIAL_INSTITUTION = "financialInstitution";
+  @jakarta.annotation.Nullable
+  private String financialInstitution;
+
+  public static final String JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER = "virtualAssetServiceProvider";
+  @jakarta.annotation.Nullable
+  private DepositTravelRuleVasp virtualAssetServiceProvider;
+
+  public static final String JSON_PROPERTY_PERSONAL_ID = "personalId";
+  @jakarta.annotation.Nullable
+  private String personalId;
+
+  public static final String JSON_PROPERTY_DATE_OF_BIRTH = "dateOfBirth";
+  @jakarta.annotation.Nullable
+  private DateOfBirth dateOfBirth;
 
   /**
    * The type of the originator&#39;s wallet.
@@ -97,18 +114,6 @@ public class DepositTravelRuleOriginator {
   public static final String JSON_PROPERTY_WALLET_TYPE = "walletType";
   @jakarta.annotation.Nullable
   private WalletTypeEnum walletType;
-
-  public static final String JSON_PROPERTY_VIRTUAL_ASSET_SERVICE_PROVIDER = "virtualAssetServiceProvider";
-  @jakarta.annotation.Nullable
-  private DepositTravelRuleVasp virtualAssetServiceProvider;
-
-  public static final String JSON_PROPERTY_PERSONAL_ID = "personalId";
-  @jakarta.annotation.Nullable
-  private String personalId;
-
-  public static final String JSON_PROPERTY_DATE_OF_BIRTH = "dateOfBirth";
-  @jakarta.annotation.Nullable
-  private DateOfBirth dateOfBirth;
 
   public DepositTravelRuleOriginator() { 
   }
@@ -161,27 +166,27 @@ public class DepositTravelRuleOriginator {
   }
 
 
-  public DepositTravelRuleOriginator walletType(@jakarta.annotation.Nullable WalletTypeEnum walletType) {
-    this.walletType = walletType;
+  public DepositTravelRuleOriginator financialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
+    this.financialInstitution = financialInstitution;
     return this;
   }
 
   /**
-   * The type of the originator&#39;s wallet.
-   * @return walletType
+   * Name of the financial institution.
+   * @return financialInstitution
    */
   @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_WALLET_TYPE)
+  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public WalletTypeEnum getWalletType() {
-    return walletType;
+  public String getFinancialInstitution() {
+    return financialInstitution;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_WALLET_TYPE)
+  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setWalletType(@jakarta.annotation.Nullable WalletTypeEnum walletType) {
-    this.walletType = walletType;
+  public void setFinancialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
+    this.financialInstitution = financialInstitution;
   }
 
 
@@ -257,6 +262,30 @@ public class DepositTravelRuleOriginator {
   }
 
 
+  public DepositTravelRuleOriginator walletType(@jakarta.annotation.Nullable WalletTypeEnum walletType) {
+    this.walletType = walletType;
+    return this;
+  }
+
+  /**
+   * The type of the originator&#39;s wallet.
+   * @return walletType
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_WALLET_TYPE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public WalletTypeEnum getWalletType() {
+    return walletType;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_WALLET_TYPE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setWalletType(@jakarta.annotation.Nullable WalletTypeEnum walletType) {
+    this.walletType = walletType;
+  }
+
+
   /**
    * Return true if this DepositTravelRuleOriginator object is equal to o.
    */
@@ -271,15 +300,16 @@ public class DepositTravelRuleOriginator {
     DepositTravelRuleOriginator depositTravelRuleOriginator = (DepositTravelRuleOriginator) o;
     return Objects.equals(this.name, depositTravelRuleOriginator.name) &&
         Objects.equals(this.address, depositTravelRuleOriginator.address) &&
-        Objects.equals(this.walletType, depositTravelRuleOriginator.walletType) &&
+        Objects.equals(this.financialInstitution, depositTravelRuleOriginator.financialInstitution) &&
         Objects.equals(this.virtualAssetServiceProvider, depositTravelRuleOriginator.virtualAssetServiceProvider) &&
         Objects.equals(this.personalId, depositTravelRuleOriginator.personalId) &&
-        Objects.equals(this.dateOfBirth, depositTravelRuleOriginator.dateOfBirth);
+        Objects.equals(this.dateOfBirth, depositTravelRuleOriginator.dateOfBirth) &&
+        Objects.equals(this.walletType, depositTravelRuleOriginator.walletType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, address, walletType, virtualAssetServiceProvider, personalId, dateOfBirth);
+    return Objects.hash(name, address, financialInstitution, virtualAssetServiceProvider, personalId, dateOfBirth, walletType);
   }
 
   @Override
@@ -288,10 +318,11 @@ public class DepositTravelRuleOriginator {
     sb.append("class DepositTravelRuleOriginator {\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
-    sb.append("    walletType: ").append(toIndentedString(walletType)).append("\n");
+    sb.append("    financialInstitution: ").append(toIndentedString(financialInstitution)).append("\n");
     sb.append("    virtualAssetServiceProvider: ").append(toIndentedString(virtualAssetServiceProvider)).append("\n");
     sb.append("    personalId: ").append(toIndentedString(personalId)).append("\n");
     sb.append("    dateOfBirth: ").append(toIndentedString(dateOfBirth)).append("\n");
+    sb.append("    walletType: ").append(toIndentedString(walletType)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -349,9 +380,9 @@ public class DepositTravelRuleOriginator {
       joiner.add(getAddress().toUrlQueryString(prefix + "address" + suffix));
     }
 
-    // add `walletType` to the URL query string
-    if (getWalletType() != null) {
-      joiner.add(String.format("%swalletType%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getWalletType()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `financialInstitution` to the URL query string
+    if (getFinancialInstitution() != null) {
+      joiner.add(String.format("%sfinancialInstitution%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getFinancialInstitution()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `virtualAssetServiceProvider` to the URL query string
@@ -367,6 +398,11 @@ public class DepositTravelRuleOriginator {
     // add `dateOfBirth` to the URL query string
     if (getDateOfBirth() != null) {
       joiner.add(getDateOfBirth().toUrlQueryString(prefix + "dateOfBirth" + suffix));
+    }
+
+    // add `walletType` to the URL query string
+    if (getWalletType() != null) {
+      joiner.add(String.format("%swalletType%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getWalletType()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -392,8 +428,8 @@ public class DepositTravelRuleOriginator {
       this.instance.address = address;
       return this;
     }
-    public DepositTravelRuleOriginator.Builder walletType(WalletTypeEnum walletType) {
-      this.instance.walletType = walletType;
+    public DepositTravelRuleOriginator.Builder financialInstitution(String financialInstitution) {
+      this.instance.financialInstitution = financialInstitution;
       return this;
     }
     public DepositTravelRuleOriginator.Builder virtualAssetServiceProvider(DepositTravelRuleVasp virtualAssetServiceProvider) {
@@ -406,6 +442,10 @@ public class DepositTravelRuleOriginator {
     }
     public DepositTravelRuleOriginator.Builder dateOfBirth(DateOfBirth dateOfBirth) {
       this.instance.dateOfBirth = dateOfBirth;
+      return this;
+    }
+    public DepositTravelRuleOriginator.Builder walletType(WalletTypeEnum walletType) {
+      this.instance.walletType = walletType;
       return this;
     }
 
@@ -444,10 +484,11 @@ public class DepositTravelRuleOriginator {
     return new DepositTravelRuleOriginator.Builder()
       .name(getName())
       .address(getAddress())
-      .walletType(getWalletType())
+      .financialInstitution(getFinancialInstitution())
       .virtualAssetServiceProvider(getVirtualAssetServiceProvider())
       .personalId(getPersonalId())
-      .dateOfBirth(getDateOfBirth());
+      .dateOfBirth(getDateOfBirth())
+      .walletType(getWalletType());
   }
 
 }

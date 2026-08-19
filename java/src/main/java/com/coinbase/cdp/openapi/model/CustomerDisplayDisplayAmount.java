@@ -30,85 +30,56 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * The originating US bank account details for the transfer source. Present when funds were deposited from an external bank account into a deposit destination. Only the last 4 digits of the account number are exposed.
+ * The amount to present to the payer, which may differ from the authoritative settlement amount and asset. Commonly used when the payer&#39;s local currency differs from the settlement currency (e.g., charging in USD but displaying the equivalent in CAD). Stored and returned as-is — no cross-validation is performed against the authoritative &#x60;amount&#x60; and &#x60;asset&#x60;. Both &#x60;amount&#x60; and &#x60;currency&#x60; must be provided together.
  */
 @JsonPropertyOrder({
-  OriginatingBankAccountUS.JSON_PROPERTY_BANK_NAME,
-  OriginatingBankAccountUS.JSON_PROPERTY_ACCOUNT_LAST4,
-  OriginatingBankAccountUS.JSON_PROPERTY_CURRENCY
+  CustomerDisplayDisplayAmount.JSON_PROPERTY_AMOUNT,
+  CustomerDisplayDisplayAmount.JSON_PROPERTY_CURRENCY
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class OriginatingBankAccountUS {
-  public static final String JSON_PROPERTY_BANK_NAME = "bankName";
+public class CustomerDisplayDisplayAmount {
+  public static final String JSON_PROPERTY_AMOUNT = "amount";
   @jakarta.annotation.Nonnull
-  private String bankName;
-
-  public static final String JSON_PROPERTY_ACCOUNT_LAST4 = "accountLast4";
-  @jakarta.annotation.Nonnull
-  private String accountLast4;
+  private String amount;
 
   public static final String JSON_PROPERTY_CURRENCY = "currency";
   @jakarta.annotation.Nonnull
   private String currency;
 
-  public OriginatingBankAccountUS() { 
+  public CustomerDisplayDisplayAmount() { 
   }
 
-  public OriginatingBankAccountUS bankName(@jakarta.annotation.Nonnull String bankName) {
-    this.bankName = bankName;
+  public CustomerDisplayDisplayAmount amount(@jakarta.annotation.Nonnull String amount) {
+    this.amount = amount;
     return this;
   }
 
   /**
-   * The name of the bank that originated the deposit.
-   * @return bankName
+   * The display amount as a decimal string (e.g., &#x60;\&quot;1.37\&quot;&#x60;).
+   * @return amount
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_BANK_NAME)
+  @JsonProperty(JSON_PROPERTY_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getBankName() {
-    return bankName;
+  public String getAmount() {
+    return amount;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_BANK_NAME)
+  @JsonProperty(JSON_PROPERTY_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setBankName(@jakarta.annotation.Nonnull String bankName) {
-    this.bankName = bankName;
+  public void setAmount(@jakarta.annotation.Nonnull String amount) {
+    this.amount = amount;
   }
 
 
-  public OriginatingBankAccountUS accountLast4(@jakarta.annotation.Nonnull String accountLast4) {
-    this.accountLast4 = accountLast4;
-    return this;
-  }
-
-  /**
-   * The last 4 digits of the originating bank account number.
-   * @return accountLast4
-   */
-  @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_ACCOUNT_LAST4)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getAccountLast4() {
-    return accountLast4;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ACCOUNT_LAST4)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAccountLast4(@jakarta.annotation.Nonnull String accountLast4) {
-    this.accountLast4 = accountLast4;
-  }
-
-
-  public OriginatingBankAccountUS currency(@jakarta.annotation.Nonnull String currency) {
+  public CustomerDisplayDisplayAmount currency(@jakarta.annotation.Nonnull String currency) {
     this.currency = currency;
     return this;
   }
 
   /**
-   * The fiat currency of the deposit (e.g., &#x60;usd&#x60;).
+   * An ISO 4217 currency code in lowercase for the display amount (e.g., &#x60;cad&#x60;, &#x60;usd&#x60;).
    * @return currency
    */
   @jakarta.annotation.Nonnull
@@ -127,7 +98,7 @@ public class OriginatingBankAccountUS {
 
 
   /**
-   * Return true if this OriginatingBankAccountUS object is equal to o.
+   * Return true if this CustomerDisplay_displayAmount object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -137,23 +108,21 @@ public class OriginatingBankAccountUS {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OriginatingBankAccountUS originatingBankAccountUS = (OriginatingBankAccountUS) o;
-    return Objects.equals(this.bankName, originatingBankAccountUS.bankName) &&
-        Objects.equals(this.accountLast4, originatingBankAccountUS.accountLast4) &&
-        Objects.equals(this.currency, originatingBankAccountUS.currency);
+    CustomerDisplayDisplayAmount customerDisplayDisplayAmount = (CustomerDisplayDisplayAmount) o;
+    return Objects.equals(this.amount, customerDisplayDisplayAmount.amount) &&
+        Objects.equals(this.currency, customerDisplayDisplayAmount.currency);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bankName, accountLast4, currency);
+    return Objects.hash(amount, currency);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class OriginatingBankAccountUS {\n");
-    sb.append("    bankName: ").append(toIndentedString(bankName)).append("\n");
-    sb.append("    accountLast4: ").append(toIndentedString(accountLast4)).append("\n");
+    sb.append("class CustomerDisplayDisplayAmount {\n");
+    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("    currency: ").append(toIndentedString(currency)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -202,14 +171,9 @@ public class OriginatingBankAccountUS {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `bankName` to the URL query string
-    if (getBankName() != null) {
-      joiner.add(String.format("%sbankName%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getBankName()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-    }
-
-    // add `accountLast4` to the URL query string
-    if (getAccountLast4() != null) {
-      joiner.add(String.format("%saccountLast4%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAccountLast4()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `amount` to the URL query string
+    if (getAmount() != null) {
+      joiner.add(String.format("%samount%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAmount()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     // add `currency` to the URL query string
@@ -222,36 +186,32 @@ public class OriginatingBankAccountUS {
 
     public static class Builder {
 
-    private OriginatingBankAccountUS instance;
+    private CustomerDisplayDisplayAmount instance;
 
     public Builder() {
-      this(new OriginatingBankAccountUS());
+      this(new CustomerDisplayDisplayAmount());
     }
 
-    protected Builder(OriginatingBankAccountUS instance) {
+    protected Builder(CustomerDisplayDisplayAmount instance) {
       this.instance = instance;
     }
 
-    public OriginatingBankAccountUS.Builder bankName(String bankName) {
-      this.instance.bankName = bankName;
+    public CustomerDisplayDisplayAmount.Builder amount(String amount) {
+      this.instance.amount = amount;
       return this;
     }
-    public OriginatingBankAccountUS.Builder accountLast4(String accountLast4) {
-      this.instance.accountLast4 = accountLast4;
-      return this;
-    }
-    public OriginatingBankAccountUS.Builder currency(String currency) {
+    public CustomerDisplayDisplayAmount.Builder currency(String currency) {
       this.instance.currency = currency;
       return this;
     }
 
 
     /**
-    * returns a built OriginatingBankAccountUS instance.
+    * returns a built CustomerDisplayDisplayAmount instance.
     *
     * The builder is not reusable.
     */
-    public OriginatingBankAccountUS build() {
+    public CustomerDisplayDisplayAmount build() {
       try {
         return this.instance;
       } finally {
@@ -269,17 +229,16 @@ public class OriginatingBankAccountUS {
   /**
   * Create a builder with no initialized field.
   */
-  public static OriginatingBankAccountUS.Builder builder() {
-    return new OriginatingBankAccountUS.Builder();
+  public static CustomerDisplayDisplayAmount.Builder builder() {
+    return new CustomerDisplayDisplayAmount.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public OriginatingBankAccountUS.Builder toBuilder() {
-    return new OriginatingBankAccountUS.Builder()
-      .bankName(getBankName())
-      .accountLast4(getAccountLast4())
+  public CustomerDisplayDisplayAmount.Builder toBuilder() {
+    return new CustomerDisplayDisplayAmount.Builder()
+      .amount(getAmount())
       .currency(getCurrency());
   }
 

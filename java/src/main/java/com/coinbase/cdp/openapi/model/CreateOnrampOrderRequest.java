@@ -52,12 +52,14 @@ import com.coinbase.cdp.openapi.ApiClient;
   CreateOnrampOrderRequest.JSON_PROPERTY_PURCHASE_AMOUNT,
   CreateOnrampOrderRequest.JSON_PROPERTY_PURCHASE_CURRENCY,
   CreateOnrampOrderRequest.JSON_PROPERTY_CLIENT_IP,
-  CreateOnrampOrderRequest.JSON_PROPERTY_DOMAIN
+  CreateOnrampOrderRequest.JSON_PROPERTY_DOMAIN,
+  CreateOnrampOrderRequest.JSON_PROPERTY_LOCALE,
+  CreateOnrampOrderRequest.JSON_PROPERTY_USER_AUTH_TOKEN
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CreateOnrampOrderRequest {
   public static final String JSON_PROPERTY_AGREEMENT_ACCEPTED_AT = "agreementAcceptedAt";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private OffsetDateTime agreementAcceptedAt;
 
   public static final String JSON_PROPERTY_DESTINATION_ADDRESS = "destinationAddress";
@@ -69,7 +71,7 @@ public class CreateOnrampOrderRequest {
   private String destinationNetwork;
 
   public static final String JSON_PROPERTY_EMAIL = "email";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String email;
 
   public static final String JSON_PROPERTY_IS_QUOTE = "isQuote";
@@ -97,11 +99,11 @@ public class CreateOnrampOrderRequest {
   private OnrampOrderPaymentMethodTypeId paymentMethod;
 
   public static final String JSON_PROPERTY_PHONE_NUMBER = "phoneNumber";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String phoneNumber;
 
   public static final String JSON_PROPERTY_PHONE_NUMBER_VERIFIED_AT = "phoneNumberVerifiedAt";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private OffsetDateTime phoneNumberVerifiedAt;
 
   public static final String JSON_PROPERTY_SMS_VERIFICATION_ID = "smsVerificationId";
@@ -128,29 +130,37 @@ public class CreateOnrampOrderRequest {
   @jakarta.annotation.Nullable
   private String domain;
 
+  public static final String JSON_PROPERTY_LOCALE = "locale";
+  @jakarta.annotation.Nullable
+  private String locale;
+
+  public static final String JSON_PROPERTY_USER_AUTH_TOKEN = "userAuthToken";
+  @jakarta.annotation.Nullable
+  private String userAuthToken;
+
   public CreateOnrampOrderRequest() { 
   }
 
-  public CreateOnrampOrderRequest agreementAcceptedAt(@jakarta.annotation.Nonnull OffsetDateTime agreementAcceptedAt) {
+  public CreateOnrampOrderRequest agreementAcceptedAt(@jakarta.annotation.Nullable OffsetDateTime agreementAcceptedAt) {
     this.agreementAcceptedAt = agreementAcceptedAt;
     return this;
   }
 
   /**
-   * The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
+   * The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
    * @return agreementAcceptedAt
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_AGREEMENT_ACCEPTED_AT)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getAgreementAcceptedAt() {
     return agreementAcceptedAt;
   }
 
 
   @JsonProperty(JSON_PROPERTY_AGREEMENT_ACCEPTED_AT)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAgreementAcceptedAt(@jakarta.annotation.Nonnull OffsetDateTime agreementAcceptedAt) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAgreementAcceptedAt(@jakarta.annotation.Nullable OffsetDateTime agreementAcceptedAt) {
     this.agreementAcceptedAt = agreementAcceptedAt;
   }
 
@@ -203,7 +213,7 @@ public class CreateOnrampOrderRequest {
   }
 
 
-  public CreateOnrampOrderRequest email(@jakarta.annotation.Nonnull String email) {
+  public CreateOnrampOrderRequest email(@jakarta.annotation.Nullable String email) {
     this.email = email;
     return this;
   }
@@ -212,17 +222,17 @@ public class CreateOnrampOrderRequest {
    * The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
    * @return email
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EMAIL)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEmail() {
     return email;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EMAIL)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEmail(@jakarta.annotation.Nonnull String email) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEmail(@jakarta.annotation.Nullable String email) {
     this.email = email;
   }
 
@@ -371,50 +381,50 @@ public class CreateOnrampOrderRequest {
   }
 
 
-  public CreateOnrampOrderRequest phoneNumber(@jakarta.annotation.Nonnull String phoneNumber) {
+  public CreateOnrampOrderRequest phoneNumber(@jakarta.annotation.Nullable String phoneNumber) {
     this.phoneNumber = phoneNumber;
     return this;
   }
 
   /**
-   * The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.  Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.
+   * The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API. Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview) for more details on phone number verification requirements and best practices.
    * @return phoneNumber
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhoneNumber() {
     return phoneNumber;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPhoneNumber(@jakarta.annotation.Nonnull String phoneNumber) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPhoneNumber(@jakarta.annotation.Nullable String phoneNumber) {
     this.phoneNumber = phoneNumber;
   }
 
 
-  public CreateOnrampOrderRequest phoneNumberVerifiedAt(@jakarta.annotation.Nonnull OffsetDateTime phoneNumberVerifiedAt) {
+  public CreateOnrampOrderRequest phoneNumberVerifiedAt(@jakarta.annotation.Nullable OffsetDateTime phoneNumberVerifiedAt) {
     this.phoneNumberVerifiedAt = phoneNumberVerifiedAt;
     return this;
   }
 
   /**
-   * Timestamp of when the user&#39;s phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.
+   * Timestamp of when the user&#39;s phone number was verified via OTP. User phone number must be verified every 60 days. If this timestamp is older than 60 days, an error will be returned.
    * @return phoneNumberVerifiedAt
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER_VERIFIED_AT)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getPhoneNumberVerifiedAt() {
     return phoneNumberVerifiedAt;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER_VERIFIED_AT)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPhoneNumberVerifiedAt(@jakarta.annotation.Nonnull OffsetDateTime phoneNumberVerifiedAt) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPhoneNumberVerifiedAt(@jakarta.annotation.Nullable OffsetDateTime phoneNumberVerifiedAt) {
     this.phoneNumberVerifiedAt = phoneNumberVerifiedAt;
   }
 
@@ -545,7 +555,7 @@ public class CreateOnrampOrderRequest {
   }
 
   /**
-   * The domain that the Apple Pay button will be rendered on. Required when using the &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60;  payment method and embedding the payment link in an iframe.
+   * The domain that the Apple Pay or Google Pay button will be rendered on. Required when using the &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; or &#x60;GUEST_CHECKOUT_GOOGLE_PAY&#x60; payment method and embedding the payment link in an iframe. Omit this field entirely for mobile iOS Apple Pay via WebView integration.
    * @return domain
    */
   @jakarta.annotation.Nullable
@@ -560,6 +570,54 @@ public class CreateOnrampOrderRequest {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setDomain(@jakarta.annotation.Nullable String domain) {
     this.domain = domain;
+  }
+
+
+  public CreateOnrampOrderRequest locale(@jakarta.annotation.Nullable String locale) {
+    this.locale = locale;
+    return this;
+  }
+
+  /**
+   * Optional [BCP-47](https://www.rfc-editor.org/info/bcp47) locale tag (e.g. &#x60;es-ES&#x60;, &#x60;pt-BR&#x60;, &#x60;en&#x60;) used to localize the hosted payment page. When provided, it is appended to the returned &#x60;paymentLink&#x60; URL and mapped to the closest locale supported by the Apple Pay and Google Pay buttons; unsupported locales fall back to the user&#39;s browser language. Any well-formed BCP-47 tag is accepted.
+   * @return locale
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_LOCALE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getLocale() {
+    return locale;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_LOCALE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLocale(@jakarta.annotation.Nullable String locale) {
+    this.locale = locale;
+  }
+
+
+  public CreateOnrampOrderRequest userAuthToken(@jakarta.annotation.Nullable String userAuthToken) {
+    this.userAuthToken = userAuthToken;
+    return this;
+  }
+
+  /**
+   * Optional. A reusable token returned by a previous verified order. When provided, a returning user checking out to the same wallet is taken straight to the pay button, skipping OTP (best-effort — an invalid, expired, or different-wallet token still requires verification).
+   * @return userAuthToken
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_USER_AUTH_TOKEN)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getUserAuthToken() {
+    return userAuthToken;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_USER_AUTH_TOKEN)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUserAuthToken(@jakarta.annotation.Nullable String userAuthToken) {
+    this.userAuthToken = userAuthToken;
   }
 
 
@@ -592,12 +650,14 @@ public class CreateOnrampOrderRequest {
         Objects.equals(this.purchaseAmount, createOnrampOrderRequest.purchaseAmount) &&
         Objects.equals(this.purchaseCurrency, createOnrampOrderRequest.purchaseCurrency) &&
         Objects.equals(this.clientIp, createOnrampOrderRequest.clientIp) &&
-        Objects.equals(this.domain, createOnrampOrderRequest.domain);
+        Objects.equals(this.domain, createOnrampOrderRequest.domain) &&
+        Objects.equals(this.locale, createOnrampOrderRequest.locale) &&
+        Objects.equals(this.userAuthToken, createOnrampOrderRequest.userAuthToken);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(agreementAcceptedAt, destinationAddress, destinationNetwork, email, isQuote, partnerOrderRef, partnerUserRef, paymentAmount, paymentCurrency, paymentMethod, phoneNumber, phoneNumberVerifiedAt, smsVerificationId, emailVerificationId, purchaseAmount, purchaseCurrency, clientIp, domain);
+    return Objects.hash(agreementAcceptedAt, destinationAddress, destinationNetwork, email, isQuote, partnerOrderRef, partnerUserRef, paymentAmount, paymentCurrency, paymentMethod, phoneNumber, phoneNumberVerifiedAt, smsVerificationId, emailVerificationId, purchaseAmount, purchaseCurrency, clientIp, domain, locale, userAuthToken);
   }
 
   @Override
@@ -622,6 +682,8 @@ public class CreateOnrampOrderRequest {
     sb.append("    purchaseCurrency: ").append(toIndentedString(purchaseCurrency)).append("\n");
     sb.append("    clientIp: ").append(toIndentedString(clientIp)).append("\n");
     sb.append("    domain: ").append(toIndentedString(domain)).append("\n");
+    sb.append("    locale: ").append(toIndentedString(locale)).append("\n");
+    sb.append("    userAuthToken: ").append(toIndentedString(userAuthToken)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -759,6 +821,16 @@ public class CreateOnrampOrderRequest {
       joiner.add(String.format("%sdomain%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getDomain()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `locale` to the URL query string
+    if (getLocale() != null) {
+      joiner.add(String.format("%slocale%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getLocale()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `userAuthToken` to the URL query string
+    if (getUserAuthToken() != null) {
+      joiner.add(String.format("%suserAuthToken%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getUserAuthToken()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -846,6 +918,14 @@ public class CreateOnrampOrderRequest {
       this.instance.domain = domain;
       return this;
     }
+    public CreateOnrampOrderRequest.Builder locale(String locale) {
+      this.instance.locale = locale;
+      return this;
+    }
+    public CreateOnrampOrderRequest.Builder userAuthToken(String userAuthToken) {
+      this.instance.userAuthToken = userAuthToken;
+      return this;
+    }
 
 
     /**
@@ -897,7 +977,9 @@ public class CreateOnrampOrderRequest {
       .purchaseAmount(getPurchaseAmount())
       .purchaseCurrency(getPurchaseCurrency())
       .clientIp(getClientIp())
-      .domain(getDomain());
+      .domain(getDomain())
+      .locale(getLocale())
+      .userAuthToken(getUserAuthToken());
   }
 
 }

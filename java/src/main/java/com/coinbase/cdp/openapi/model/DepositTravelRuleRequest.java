@@ -35,12 +35,26 @@ import com.coinbase.cdp.openapi.ApiClient;
  * Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
  */
 @JsonPropertyOrder({
+  DepositTravelRuleRequest.JSON_PROPERTY_IS_SELF,
+  DepositTravelRuleRequest.JSON_PROPERTY_IS_INTERMEDIARY,
+  DepositTravelRuleRequest.JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP,
   DepositTravelRuleRequest.JSON_PROPERTY_ORIGINATOR,
-  DepositTravelRuleRequest.JSON_PROPERTY_BENEFICIARY,
-  DepositTravelRuleRequest.JSON_PROPERTY_IS_SELF
+  DepositTravelRuleRequest.JSON_PROPERTY_BENEFICIARY
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class DepositTravelRuleRequest {
+  public static final String JSON_PROPERTY_IS_SELF = "isSelf";
+  @jakarta.annotation.Nullable
+  private Boolean isSelf;
+
+  public static final String JSON_PROPERTY_IS_INTERMEDIARY = "isIntermediary";
+  @jakarta.annotation.Nullable
+  private Boolean isIntermediary;
+
+  public static final String JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP = "attestVerifiedWalletOwnership";
+  @jakarta.annotation.Nullable
+  private Boolean attestVerifiedWalletOwnership;
+
   public static final String JSON_PROPERTY_ORIGINATOR = "originator";
   @jakarta.annotation.Nullable
   private DepositTravelRuleOriginator originator;
@@ -49,12 +63,80 @@ public class DepositTravelRuleRequest {
   @jakarta.annotation.Nullable
   private DepositTravelRuleBeneficiary beneficiary;
 
-  public static final String JSON_PROPERTY_IS_SELF = "isSelf";
-  @jakarta.annotation.Nullable
-  private Boolean isSelf;
-
   public DepositTravelRuleRequest() { 
   }
+
+  public DepositTravelRuleRequest isSelf(@jakarta.annotation.Nullable Boolean isSelf) {
+    this.isSelf = isSelf;
+    return this;
+  }
+
+  /**
+   * Indicates whether the user attests that the originating wallet belongs to them.
+   * @return isSelf
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_IS_SELF)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getIsSelf() {
+    return isSelf;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_IS_SELF)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setIsSelf(@jakarta.annotation.Nullable Boolean isSelf) {
+    this.isSelf = isSelf;
+  }
+
+
+  public DepositTravelRuleRequest isIntermediary(@jakarta.annotation.Nullable Boolean isIntermediary) {
+    this.isIntermediary = isIntermediary;
+    return this;
+  }
+
+  /**
+   * Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.  **Background:**  The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.  **Set to &#x60;true&#x60; when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).  **Set to &#x60;false&#x60; (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization&#39;s own funds.  **Impact on required fields:**  When &#x60;isIntermediary&#x60; is &#x60;true&#x60;, you must provide the &#x60;originator&#x60; object with the following details: - The originator&#39;s (i.e. your end customer&#39;s) name - The originator&#39;s address - Your organization&#39;s VASP information (&#x60;virtualAssetServiceProvider&#x60; object with &#x60;identifier&#x60;, &#x60;name&#x60;, and &#x60;address&#x60;)  In certain jurisdictions, &#x60;personalId&#x60; and &#x60;dateOfBirth&#x60; must also reflect the **original sender&#39;s** identity — not your organization&#39;s. These fields will not be auto-populated from any internal KYC data when &#x60;isIntermediary&#x60; is &#x60;true&#x60;. 
+   * @return isIntermediary
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_IS_INTERMEDIARY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getIsIntermediary() {
+    return isIntermediary;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_IS_INTERMEDIARY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setIsIntermediary(@jakarta.annotation.Nullable Boolean isIntermediary) {
+    this.isIntermediary = isIntermediary;
+  }
+
+
+  public DepositTravelRuleRequest attestVerifiedWalletOwnership(@jakarta.annotation.Nullable Boolean attestVerifiedWalletOwnership) {
+    this.attestVerifiedWalletOwnership = attestVerifiedWalletOwnership;
+    return this;
+  }
+
+  /**
+   * When &#x60;true&#x60;, you attest that the originating wallet&#39;s ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this travel-rule submission.  **Only valid when &#x60;isIntermediary&#x60; is &#x60;true&#x60;.** You can only attest to the originating wallet&#39;s ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a &#x60;400&#x60; error if set to &#x60;true&#x60; when &#x60;isIntermediary&#x60; is &#x60;false&#x60; or omitted.
+   * @return attestVerifiedWalletOwnership
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getAttestVerifiedWalletOwnership() {
+    return attestVerifiedWalletOwnership;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAttestVerifiedWalletOwnership(@jakarta.annotation.Nullable Boolean attestVerifiedWalletOwnership) {
+    this.attestVerifiedWalletOwnership = attestVerifiedWalletOwnership;
+  }
+
 
   public DepositTravelRuleRequest originator(@jakarta.annotation.Nullable DepositTravelRuleOriginator originator) {
     this.originator = originator;
@@ -104,30 +186,6 @@ public class DepositTravelRuleRequest {
   }
 
 
-  public DepositTravelRuleRequest isSelf(@jakarta.annotation.Nullable Boolean isSelf) {
-    this.isSelf = isSelf;
-    return this;
-  }
-
-  /**
-   * Indicates whether the user attests that the originating wallet belongs to them.
-   * @return isSelf
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_IS_SELF)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Boolean getIsSelf() {
-    return isSelf;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_IS_SELF)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIsSelf(@jakarta.annotation.Nullable Boolean isSelf) {
-    this.isSelf = isSelf;
-  }
-
-
   /**
    * Return true if this DepositTravelRuleRequest object is equal to o.
    */
@@ -140,23 +198,27 @@ public class DepositTravelRuleRequest {
       return false;
     }
     DepositTravelRuleRequest depositTravelRuleRequest = (DepositTravelRuleRequest) o;
-    return Objects.equals(this.originator, depositTravelRuleRequest.originator) &&
-        Objects.equals(this.beneficiary, depositTravelRuleRequest.beneficiary) &&
-        Objects.equals(this.isSelf, depositTravelRuleRequest.isSelf);
+    return Objects.equals(this.isSelf, depositTravelRuleRequest.isSelf) &&
+        Objects.equals(this.isIntermediary, depositTravelRuleRequest.isIntermediary) &&
+        Objects.equals(this.attestVerifiedWalletOwnership, depositTravelRuleRequest.attestVerifiedWalletOwnership) &&
+        Objects.equals(this.originator, depositTravelRuleRequest.originator) &&
+        Objects.equals(this.beneficiary, depositTravelRuleRequest.beneficiary);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(originator, beneficiary, isSelf);
+    return Objects.hash(isSelf, isIntermediary, attestVerifiedWalletOwnership, originator, beneficiary);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class DepositTravelRuleRequest {\n");
+    sb.append("    isSelf: ").append(toIndentedString(isSelf)).append("\n");
+    sb.append("    isIntermediary: ").append(toIndentedString(isIntermediary)).append("\n");
+    sb.append("    attestVerifiedWalletOwnership: ").append(toIndentedString(attestVerifiedWalletOwnership)).append("\n");
     sb.append("    originator: ").append(toIndentedString(originator)).append("\n");
     sb.append("    beneficiary: ").append(toIndentedString(beneficiary)).append("\n");
-    sb.append("    isSelf: ").append(toIndentedString(isSelf)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -204,6 +266,21 @@ public class DepositTravelRuleRequest {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `isSelf` to the URL query string
+    if (getIsSelf() != null) {
+      joiner.add(String.format("%sisSelf%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIsSelf()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `isIntermediary` to the URL query string
+    if (getIsIntermediary() != null) {
+      joiner.add(String.format("%sisIntermediary%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIsIntermediary()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `attestVerifiedWalletOwnership` to the URL query string
+    if (getAttestVerifiedWalletOwnership() != null) {
+      joiner.add(String.format("%sattestVerifiedWalletOwnership%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAttestVerifiedWalletOwnership()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `originator` to the URL query string
     if (getOriginator() != null) {
       joiner.add(getOriginator().toUrlQueryString(prefix + "originator" + suffix));
@@ -212,11 +289,6 @@ public class DepositTravelRuleRequest {
     // add `beneficiary` to the URL query string
     if (getBeneficiary() != null) {
       joiner.add(getBeneficiary().toUrlQueryString(prefix + "beneficiary" + suffix));
-    }
-
-    // add `isSelf` to the URL query string
-    if (getIsSelf() != null) {
-      joiner.add(String.format("%sisSelf%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIsSelf()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -234,16 +306,24 @@ public class DepositTravelRuleRequest {
       this.instance = instance;
     }
 
+    public DepositTravelRuleRequest.Builder isSelf(Boolean isSelf) {
+      this.instance.isSelf = isSelf;
+      return this;
+    }
+    public DepositTravelRuleRequest.Builder isIntermediary(Boolean isIntermediary) {
+      this.instance.isIntermediary = isIntermediary;
+      return this;
+    }
+    public DepositTravelRuleRequest.Builder attestVerifiedWalletOwnership(Boolean attestVerifiedWalletOwnership) {
+      this.instance.attestVerifiedWalletOwnership = attestVerifiedWalletOwnership;
+      return this;
+    }
     public DepositTravelRuleRequest.Builder originator(DepositTravelRuleOriginator originator) {
       this.instance.originator = originator;
       return this;
     }
     public DepositTravelRuleRequest.Builder beneficiary(DepositTravelRuleBeneficiary beneficiary) {
       this.instance.beneficiary = beneficiary;
-      return this;
-    }
-    public DepositTravelRuleRequest.Builder isSelf(Boolean isSelf) {
-      this.instance.isSelf = isSelf;
       return this;
     }
 
@@ -280,9 +360,11 @@ public class DepositTravelRuleRequest {
   */
   public DepositTravelRuleRequest.Builder toBuilder() {
     return new DepositTravelRuleRequest.Builder()
+      .isSelf(getIsSelf())
+      .isIntermediary(getIsIntermediary())
+      .attestVerifiedWalletOwnership(getAttestVerifiedWalletOwnership())
       .originator(getOriginator())
-      .beneficiary(getBeneficiary())
-      .isSelf(getIsSelf());
+      .beneficiary(getBeneficiary());
   }
 
 }

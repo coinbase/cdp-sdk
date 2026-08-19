@@ -172,7 +172,7 @@ public class X402SettlePaymentRejection {
   }
 
   /**
-   * The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+   * The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature. Populated even though &#x60;success&#x60; is &#x60;false&#x60; when &#x60;errorReason&#x60; is &#x60;settlement_pending&#x60;: the transaction broadcast successfully but its receipt could not be retrieved, so the hash is returned for the caller to reconcile before retrying.
    * @return transaction
    */
   @jakarta.annotation.Nullable

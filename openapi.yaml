@@ -27518,6 +27518,7 @@ components:
         - settle_exact_failed_onchain
         - settle_exact_svm_block_height_exceeded
         - settle_exact_svm_transaction_confirmation_timed_out
+        - settlement_pending
         - invalid_batch_settlement_evm_unknown_settle_action
         - invalid_batch_settlement_evm_claim_payload
         - invalid_batch_settlement_evm_settle_payload
@@ -27716,6 +27717,7 @@ components:
             The transaction of the settlement.
             For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
             For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+            Populated even though `success` is `false` when `errorReason` is `settlement_pending`: the transaction broadcast successfully but its receipt could not be retrieved, so the hash is returned for the caller to reconcile before retrying.
           pattern: ^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$
           example: '0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9'
         network:

@@ -19,7 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.Network;
+import com.coinbase.cdp.openapi.model.PaymentNetwork;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -47,7 +47,7 @@ public class OnchainAddress {
 
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
-  private Network network;
+  private PaymentNetwork network;
 
   public static final String JSON_PROPERTY_DESTINATION_TAG = "destinationTag";
   @jakarta.annotation.Nullable
@@ -84,7 +84,7 @@ public class OnchainAddress {
   }
 
 
-  public OnchainAddress network(@jakarta.annotation.Nonnull Network network) {
+  public OnchainAddress network(@jakarta.annotation.Nonnull PaymentNetwork network) {
     this.network = network;
     return this;
   }
@@ -96,14 +96,14 @@ public class OnchainAddress {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public Network getNetwork() {
+  public PaymentNetwork getNetwork() {
     return network;
   }
 
 
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setNetwork(@jakarta.annotation.Nonnull Network network) {
+  public void setNetwork(@jakarta.annotation.Nonnull PaymentNetwork network) {
     this.network = network;
   }
 
@@ -138,7 +138,7 @@ public class OnchainAddress {
   }
 
   /**
-   * Asset symbol of the payment received by the recipient.
+   * Asset symbol of the payment received by the recipient. Supported values are &#x60;usdc&#x60; and &#x60;eurc&#x60;.
    * @return asset
    */
   @jakarta.annotation.Nonnull
@@ -273,7 +273,7 @@ public class OnchainAddress {
       this.instance.address = address;
       return this;
     }
-    public OnchainAddress.Builder network(Network network) {
+    public OnchainAddress.Builder network(PaymentNetwork network) {
       this.instance.network = network;
       return this;
     }

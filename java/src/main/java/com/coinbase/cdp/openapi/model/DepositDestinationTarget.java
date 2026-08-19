@@ -20,6 +20,8 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.DepositDestinationTargetAccount;
+import com.coinbase.cdp.openapi.model.DepositDestinationTargetOnchainAddress;
+import com.coinbase.cdp.openapi.model.PaymentNetwork;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -115,6 +117,32 @@ public class DepositDestinationTarget extends AbstractOpenApiSchema {
                 log.log(Level.FINER, "Input data does not match schema 'DepositDestinationTargetAccount'", e);
             }
 
+            // deserialize DepositDestinationTargetOnchainAddress
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (DepositDestinationTargetOnchainAddress.class.equals(Integer.class) || DepositDestinationTargetOnchainAddress.class.equals(Long.class) || DepositDestinationTargetOnchainAddress.class.equals(Float.class) || DepositDestinationTargetOnchainAddress.class.equals(Double.class) || DepositDestinationTargetOnchainAddress.class.equals(Boolean.class) || DepositDestinationTargetOnchainAddress.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((DepositDestinationTargetOnchainAddress.class.equals(Integer.class) || DepositDestinationTargetOnchainAddress.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((DepositDestinationTargetOnchainAddress.class.equals(Float.class) || DepositDestinationTargetOnchainAddress.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (DepositDestinationTargetOnchainAddress.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (DepositDestinationTargetOnchainAddress.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(DepositDestinationTargetOnchainAddress.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'DepositDestinationTargetOnchainAddress'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'DepositDestinationTargetOnchainAddress'", e);
+            }
+
             if (match == 1) {
                 DepositDestinationTarget ret = new DepositDestinationTarget();
                 ret.setActualInstance(deserialized);
@@ -144,8 +172,14 @@ public class DepositDestinationTarget extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
+    public DepositDestinationTarget(DepositDestinationTargetOnchainAddress o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
     static {
         schemas.put("DepositDestinationTargetAccount", DepositDestinationTargetAccount.class);
+        schemas.put("DepositDestinationTargetOnchainAddress", DepositDestinationTargetOnchainAddress.class);
         JSON.registerDescendants(DepositDestinationTarget.class, Collections.unmodifiableMap(schemas));
     }
 
@@ -157,7 +191,7 @@ public class DepositDestinationTarget extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * DepositDestinationTargetAccount
+     * DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
@@ -169,14 +203,19 @@ public class DepositDestinationTarget extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be DepositDestinationTargetAccount");
+        if (JSON.isInstanceOf(DepositDestinationTargetOnchainAddress.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        throw new RuntimeException("Invalid instance type. Must be DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * DepositDestinationTargetAccount
+     * DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress
      *
-     * @return The actual instance (DepositDestinationTargetAccount)
+     * @return The actual instance (DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress)
      */
     @Override
     public Object getActualInstance() {
@@ -192,6 +231,17 @@ public class DepositDestinationTarget extends AbstractOpenApiSchema {
      */
     public DepositDestinationTargetAccount getDepositDestinationTargetAccount() throws ClassCastException {
         return (DepositDestinationTargetAccount)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `DepositDestinationTargetOnchainAddress`. If the actual instance is not `DepositDestinationTargetOnchainAddress`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `DepositDestinationTargetOnchainAddress`
+     * @throws ClassCastException if the instance is not `DepositDestinationTargetOnchainAddress`
+     */
+    public DepositDestinationTargetOnchainAddress getDepositDestinationTargetOnchainAddress() throws ClassCastException {
+        return (DepositDestinationTargetOnchainAddress)super.getActualInstance();
     }
 
 
@@ -231,6 +281,12 @@ public class DepositDestinationTarget extends AbstractOpenApiSchema {
     if (getActualInstance() instanceof DepositDestinationTargetAccount) {
         if (getActualInstance() != null) {
           joiner.add(((DepositDestinationTargetAccount)getActualInstance()).toUrlQueryString(prefix + "one_of_0" + suffix));
+        }
+        return joiner.toString();
+    }
+    if (getActualInstance() instanceof DepositDestinationTargetOnchainAddress) {
+        if (getActualInstance() != null) {
+          joiner.add(((DepositDestinationTargetOnchainAddress)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
         }
         return joiner.toString();
     }

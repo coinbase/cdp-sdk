@@ -11,6 +11,8 @@ import type {
   SearchX402ResourcesParams,
   SettleX402PaymentBody,
   VerifyX402PaymentBody,
+  X402BundleResponse,
+  X402BundlesResponse,
   X402DiscoveryMerchantResponse,
   X402DiscoveryResourcesResponse,
   X402McpRequest,
@@ -141,6 +143,32 @@ export const postX402DiscoveryMcp = (
   );
 };
 /**
+ * Lists the available curated x402 workflow bundles. A bundle is an ordered, named grouping of curated x402 resources that together cover a common agent workflow.
+The result set is small and server-controlled, so this endpoint is not paginated.
+ * @summary List x402 bundles
+ */
+export const listX402Bundles = (
+  options?: SecondParameter<typeof cdpApiClient<X402BundlesResponse>>,
+) => {
+  return cdpApiClient<X402BundlesResponse>(
+    { url: `/v2/x402/discovery/bundles`, method: "GET" },
+    options,
+  );
+};
+/**
+ * Gets a single curated x402 workflow bundle by its bundle slug, including the bundle metadata and its ordered member resources joined to their full discovery metadata.
+ * @summary Get an x402 bundle
+ */
+export const getX402Bundle = (
+  bundleSlug: string,
+  options?: SecondParameter<typeof cdpApiClient<X402BundleResponse>>,
+) => {
+  return cdpApiClient<X402BundleResponse>(
+    { url: `/v2/x402/discovery/bundles/${bundleSlug}`, method: "GET" },
+    options,
+  );
+};
+/**
  * Validates an x402 endpoint's bazaar-discovery configuration by probing the seller's URL live.
 Returns a uniform array of preflight check results (reachable, returns402, hasBazaarExtension, parse) and a simulated facilitator accept/reject decision so sellers and agents can confirm their endpoint is ready to be discovered before going live.
 This operation is read-only: it performs no payment and does not index the resource.
@@ -177,6 +205,8 @@ export type SearchX402ResourcesResult = NonNullable<
 export type PostX402DiscoveryMcpResult = NonNullable<
   Awaited<ReturnType<typeof postX402DiscoveryMcp>>
 >;
+export type ListX402BundlesResult = NonNullable<Awaited<ReturnType<typeof listX402Bundles>>>;
+export type GetX402BundleResult = NonNullable<Awaited<ReturnType<typeof getX402Bundle>>>;
 export type ValidateX402ResourceResult = NonNullable<
   Awaited<ReturnType<typeof validateX402Resource>>
 >;

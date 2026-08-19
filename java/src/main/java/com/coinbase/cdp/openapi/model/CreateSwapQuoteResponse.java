@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.CommonSwapResponseFees;
 import com.coinbase.cdp.openapi.model.CommonSwapResponseIssues;
-import com.coinbase.cdp.openapi.model.CreateSwapQuoteResponseAllOfPermit2;
 import com.coinbase.cdp.openapi.model.CreateSwapQuoteResponseAllOfTransaction;
+import com.coinbase.cdp.openapi.model.SwapPermit2Approval;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -121,8 +121,8 @@ public class CreateSwapQuoteResponse {
   private String fromToken;
 
   public static final String JSON_PROPERTY_PERMIT2 = "permit2";
-  @jakarta.annotation.Nonnull
-  private CreateSwapQuoteResponseAllOfPermit2 permit2;
+  @jakarta.annotation.Nullable
+  private SwapPermit2Approval permit2;
 
   public static final String JSON_PROPERTY_TRANSACTION = "transaction";
   @jakarta.annotation.Nonnull
@@ -347,7 +347,7 @@ public class CreateSwapQuoteResponse {
   }
 
 
-  public CreateSwapQuoteResponse permit2(@jakarta.annotation.Nonnull CreateSwapQuoteResponseAllOfPermit2 permit2) {
+  public CreateSwapQuoteResponse permit2(@jakarta.annotation.Nullable SwapPermit2Approval permit2) {
     this.permit2 = permit2;
     return this;
   }
@@ -356,17 +356,17 @@ public class CreateSwapQuoteResponse {
    * Get permit2
    * @return permit2
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PERMIT2)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public CreateSwapQuoteResponseAllOfPermit2 getPermit2() {
+  public SwapPermit2Approval getPermit2() {
     return permit2;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PERMIT2)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPermit2(@jakarta.annotation.Nonnull CreateSwapQuoteResponseAllOfPermit2 permit2) {
+  public void setPermit2(@jakarta.annotation.Nullable SwapPermit2Approval permit2) {
     this.permit2 = permit2;
   }
 
@@ -593,7 +593,7 @@ public class CreateSwapQuoteResponse {
       this.instance.fromToken = fromToken;
       return this;
     }
-    public CreateSwapQuoteResponse.Builder permit2(CreateSwapQuoteResponseAllOfPermit2 permit2) {
+    public CreateSwapQuoteResponse.Builder permit2(SwapPermit2Approval permit2) {
       this.instance.permit2 = permit2;
       return this;
     }

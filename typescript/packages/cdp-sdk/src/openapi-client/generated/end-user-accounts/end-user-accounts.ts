@@ -51,6 +51,9 @@ import type {
   SignSolanaTransactionWithEndUserAccount200,
   SignSolanaTransactionWithEndUserAccountBody,
   SignSolanaTransactionWithEndUserAccountParams,
+  SignSolanaX402PaymentWithEndUserAccount200,
+  SignSolanaX402PaymentWithEndUserAccountBody,
+  SignSolanaX402PaymentWithEndUserAccountParams,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -398,6 +401,30 @@ export const signSolanaTransactionWithEndUserAccount = (
   );
 };
 /**
+ * Signs an x402 payment payload using the end user's given Solana account.
+Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope's x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted.
+Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request.
+If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
+ * @summary Sign x402 payment via end user Solana account
+ */
+export const signSolanaX402PaymentWithEndUserAccount = (
+  userId: string,
+  signSolanaX402PaymentWithEndUserAccountBody: SignSolanaX402PaymentWithEndUserAccountBody,
+  params?: SignSolanaX402PaymentWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<SignSolanaX402PaymentWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<SignSolanaX402PaymentWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/solana/sign/x402-payment`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signSolanaX402PaymentWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
  * Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
 The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
 The unsigned transaction should be serialized into a byte array and then encoded as base64.
@@ -497,6 +524,9 @@ export type SignSolanaMessageWithEndUserAccountResult = NonNullable<
 >;
 export type SignSolanaTransactionWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signSolanaTransactionWithEndUserAccount>>
+>;
+export type SignSolanaX402PaymentWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof signSolanaX402PaymentWithEndUserAccount>>
 >;
 export type SendSolanaTransactionWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof sendSolanaTransactionWithEndUserAccount>>

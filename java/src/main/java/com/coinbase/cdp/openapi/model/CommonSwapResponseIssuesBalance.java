@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * Details of the balance of the &#x60;fromToken&#x60; that the &#x60;taker&#x60; must hold. Null if the &#x60;taker&#x60; has a sufficient balance.
+ * CommonSwapResponseIssuesBalance
  */
 @JsonPropertyOrder({
   CommonSwapResponseIssuesBalance.JSON_PROPERTY_TOKEN,
@@ -127,7 +127,7 @@ public class CommonSwapResponseIssuesBalance {
 
 
   /**
-   * Return true if this CommonSwapResponse_issues_balance object is equal to o.
+   * Return true if this CommonSwapResponseIssuesBalance object is equal to o.
    */
   @Override
   public boolean equals(Object o) {

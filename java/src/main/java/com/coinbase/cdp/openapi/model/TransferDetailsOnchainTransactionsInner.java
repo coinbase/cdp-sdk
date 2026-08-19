@@ -19,7 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.Network;
+import com.coinbase.cdp.openapi.model.PaymentNetwork;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -45,7 +45,7 @@ public class TransferDetailsOnchainTransactionsInner {
 
   public static final String JSON_PROPERTY_NETWORK = "network";
   @jakarta.annotation.Nonnull
-  private Network network;
+  private PaymentNetwork network;
 
   public TransferDetailsOnchainTransactionsInner() { 
   }
@@ -74,7 +74,7 @@ public class TransferDetailsOnchainTransactionsInner {
   }
 
 
-  public TransferDetailsOnchainTransactionsInner network(@jakarta.annotation.Nonnull Network network) {
+  public TransferDetailsOnchainTransactionsInner network(@jakarta.annotation.Nonnull PaymentNetwork network) {
     this.network = network;
     return this;
   }
@@ -86,14 +86,14 @@ public class TransferDetailsOnchainTransactionsInner {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public Network getNetwork() {
+  public PaymentNetwork getNetwork() {
     return network;
   }
 
 
   @JsonProperty(JSON_PROPERTY_NETWORK)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setNetwork(@jakarta.annotation.Nonnull Network network) {
+  public void setNetwork(@jakarta.annotation.Nonnull PaymentNetwork network) {
     this.network = network;
   }
 
@@ -201,7 +201,7 @@ public class TransferDetailsOnchainTransactionsInner {
       this.instance.transactionHash = transactionHash;
       return this;
     }
-    public TransferDetailsOnchainTransactionsInner.Builder network(Network network) {
+    public TransferDetailsOnchainTransactionsInner.Builder network(PaymentNetwork network) {
       this.instance.network = network;
       return this;
     }

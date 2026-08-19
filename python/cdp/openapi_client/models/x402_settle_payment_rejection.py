@@ -33,7 +33,7 @@ class X402SettlePaymentRejection(BaseModel):
     error_reason: X402SettleErrorReason = Field(alias="errorReason")
     error_message: Optional[StrictStr] = Field(default=None, description="The message describing the error reason.", alias="errorMessage")
     payer: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
-    transaction: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.")
+    transaction: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature. Populated even though `success` is `false` when `errorReason` is `settlement_pending`: the transaction broadcast successfully but its receipt could not be retrieved, so the hash is returned for the caller to reconcile before retrying.")
     network: Optional[StrictStr] = Field(default=None, description="The network where the settlement occurred.")
     __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network"]
 

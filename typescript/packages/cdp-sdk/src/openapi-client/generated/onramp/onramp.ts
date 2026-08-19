@@ -13,6 +13,7 @@ import type {
   GetOnrampUserLimits200,
   GetOnrampUserLimitsBody,
   InitiateOnrampVerificationRequest,
+  OnrampLimitUpgradeEmbeddedResponse,
   OnrampLimitUpgradeRequest,
   OnrampSessionRequest,
   OnrampVerificationConfirmation,
@@ -71,9 +72,17 @@ export const submitOnrampVerification = (
 /**
  * Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
 
-This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`.
+This API supports two modes:
 
-For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
+**Headless mode (standard)**: returns a seamless Apple Pay or Google Pay button that you integrate directly into your app. Your app collects and verifies the user's contact details before calling this endpoint — `phoneNumber`, `email`, `phoneNumberVerifiedAt`, and `agreementAcceptedAt` are required and enforced server-side.
+
+**Embedded mode**: returns a webview that collects and verifies the user's contact and identity information, then shows the payment screen. Omit both `phoneNumber` and `email` from the request to select this mode. Embedded mode requires account enablement; contact the Onramp team for access.
+
+Read more about the difference between the two modes in the [Headless Onramp overview](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
+
+This API supports the `GUEST_CHECKOUT_APPLE_PAY` and `GUEST_CHECKOUT_GOOGLE_PAY` payment methods.
+
+For detailed integration instructions and to get access to this API, refer to the  [Guest Checkout Onramp API docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
  * @summary Create an onramp order
  */
 export const createOnrampOrder = (
@@ -158,7 +167,9 @@ export const getOnrampUserLimits = (
   );
 };
 /**
- * Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId. 
+ * Requests a limit upgrade for an onramp user. Only phone number is currently supported as a userId.
+
+The default API mode submits identity information directly and returns HTTP 202 when the request is accepted. Embedded mode (`interactionMode: embedded`) returns a Coinbase-hosted `upgradeUrl` where the user enters identity information.
 
 The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the `limitUpgradeOptions` array.
 
@@ -172,9 +183,9 @@ The verification process is asynchronous. After calling this endpoint, use the [
  */
 export const requestLimitsUpgrade = (
   onrampLimitUpgradeRequest: OnrampLimitUpgradeRequest,
-  options?: SecondParameter<typeof cdpApiClient<void>>,
+  options?: SecondParameter<typeof cdpApiClient<OnrampLimitUpgradeEmbeddedResponse | void>>,
 ) => {
-  return cdpApiClient<void>(
+  return cdpApiClient<OnrampLimitUpgradeEmbeddedResponse | void>(
     {
       url: `/v2/onramp/limits/upgrade`,
       method: "POST",

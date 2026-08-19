@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.Compliance;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,16 +34,50 @@ import com.coinbase.cdp.openapi.ApiClient;
  * CreateAccountRequest
  */
 @JsonPropertyOrder({
-  CreateAccountRequest.JSON_PROPERTY_NAME
+  CreateAccountRequest.JSON_PROPERTY_OWNER,
+  CreateAccountRequest.JSON_PROPERTY_NAME,
+  CreateAccountRequest.JSON_PROPERTY_COMPLIANCE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CreateAccountRequest {
+  public static final String JSON_PROPERTY_OWNER = "owner";
+  @jakarta.annotation.Nullable
+  private String owner;
+
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nullable
   private String name;
 
+  public static final String JSON_PROPERTY_COMPLIANCE = "compliance";
+  @jakarta.annotation.Nullable
+  private Compliance compliance;
+
   public CreateAccountRequest() { 
   }
+
+  public CreateAccountRequest owner(@jakarta.annotation.Nullable String owner) {
+    this.owner = owner;
+    return this;
+  }
+
+  /**
+   * The Owner of the Account to create. * If omitted, the account will be owned by the Entity making the request. * If the account is for a customer, the value will be a Customer ID,   e.g. &#x60;customer_af2937b0-9846-4fe7-bfe9-ccc22d935114&#x60;.  * Further, the corresponding Customer must have all of the following capabilities enabled:   - &#x60;custodyCrypto&#x60;   - &#x60;custodyFiat&#x60;   - &#x60;custodyStablecoin&#x60;.
+   * @return owner
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_OWNER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getOwner() {
+    return owner;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_OWNER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOwner(@jakarta.annotation.Nullable String owner) {
+    this.owner = owner;
+  }
+
 
   public CreateAccountRequest name(@jakarta.annotation.Nullable String name) {
     this.name = name;
@@ -68,6 +103,30 @@ public class CreateAccountRequest {
   }
 
 
+  public CreateAccountRequest compliance(@jakarta.annotation.Nullable Compliance compliance) {
+    this.compliance = compliance;
+    return this;
+  }
+
+  /**
+   * Get compliance
+   * @return compliance
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_COMPLIANCE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Compliance getCompliance() {
+    return compliance;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_COMPLIANCE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCompliance(@jakarta.annotation.Nullable Compliance compliance) {
+    this.compliance = compliance;
+  }
+
+
   /**
    * Return true if this CreateAccountRequest object is equal to o.
    */
@@ -80,19 +139,23 @@ public class CreateAccountRequest {
       return false;
     }
     CreateAccountRequest createAccountRequest = (CreateAccountRequest) o;
-    return Objects.equals(this.name, createAccountRequest.name);
+    return Objects.equals(this.owner, createAccountRequest.owner) &&
+        Objects.equals(this.name, createAccountRequest.name) &&
+        Objects.equals(this.compliance, createAccountRequest.compliance);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name);
+    return Objects.hash(owner, name, compliance);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CreateAccountRequest {\n");
+    sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    compliance: ").append(toIndentedString(compliance)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -140,9 +203,19 @@ public class CreateAccountRequest {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `owner` to the URL query string
+    if (getOwner() != null) {
+      joiner.add(String.format("%sowner%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getOwner()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `name` to the URL query string
     if (getName() != null) {
       joiner.add(String.format("%sname%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getName()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `compliance` to the URL query string
+    if (getCompliance() != null) {
+      joiner.add(getCompliance().toUrlQueryString(prefix + "compliance" + suffix));
     }
 
     return joiner.toString();
@@ -160,8 +233,16 @@ public class CreateAccountRequest {
       this.instance = instance;
     }
 
+    public CreateAccountRequest.Builder owner(String owner) {
+      this.instance.owner = owner;
+      return this;
+    }
     public CreateAccountRequest.Builder name(String name) {
       this.instance.name = name;
+      return this;
+    }
+    public CreateAccountRequest.Builder compliance(Compliance compliance) {
+      this.instance.compliance = compliance;
       return this;
     }
 
@@ -198,7 +279,9 @@ public class CreateAccountRequest {
   */
   public CreateAccountRequest.Builder toBuilder() {
     return new CreateAccountRequest.Builder()
-      .name(getName());
+      .owner(getOwner())
+      .name(getName())
+      .compliance(getCompliance());
   }
 
 }

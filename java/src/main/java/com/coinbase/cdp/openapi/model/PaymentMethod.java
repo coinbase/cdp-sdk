@@ -79,7 +79,7 @@ public class PaymentMethod {
   }
 
   /**
-   * The symbol of the asset (e.g., eth, usd, usdc, usdt).
+   * The asset symbol. Supported values are &#x60;usd&#x60; and &#x60;eur&#x60;.
    * @return asset
    */
   @jakarta.annotation.Nonnull

@@ -51,7 +51,7 @@ public class CreateEvmEip7702DelegationWithEndUserAccountRequest {
 
   public static final String JSON_PROPERTY_ENABLE_SPEND_PERMISSIONS = "enableSpendPermissions";
   @jakarta.annotation.Nullable
-  private Boolean enableSpendPermissions = false;
+  private Boolean enableSpendPermissions;
 
   public static final String JSON_PROPERTY_WALLET_SECRET_ID = "walletSecretId";
   @jakarta.annotation.Nullable

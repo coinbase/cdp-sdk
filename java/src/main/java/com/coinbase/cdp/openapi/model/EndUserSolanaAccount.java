@@ -35,7 +35,9 @@ import com.coinbase.cdp.openapi.ApiClient;
  */
 @JsonPropertyOrder({
   EndUserSolanaAccount.JSON_PROPERTY_ADDRESS,
-  EndUserSolanaAccount.JSON_PROPERTY_CREATED_AT
+  EndUserSolanaAccount.JSON_PROPERTY_CREATED_AT,
+  EndUserSolanaAccount.JSON_PROPERTY_EXPORTED_AT,
+  EndUserSolanaAccount.JSON_PROPERTY_EJECTED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class EndUserSolanaAccount {
@@ -46,6 +48,14 @@ public class EndUserSolanaAccount {
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @jakarta.annotation.Nonnull
   private OffsetDateTime createdAt;
+
+  public static final String JSON_PROPERTY_EXPORTED_AT = "exportedAt";
+  @jakarta.annotation.Nullable
+  private OffsetDateTime exportedAt;
+
+  public static final String JSON_PROPERTY_EJECTED_AT = "ejectedAt";
+  @jakarta.annotation.Nullable
+  private OffsetDateTime ejectedAt;
 
   public EndUserSolanaAccount() { 
   }
@@ -98,6 +108,54 @@ public class EndUserSolanaAccount {
   }
 
 
+  public EndUserSolanaAccount exportedAt(@jakarta.annotation.Nullable OffsetDateTime exportedAt) {
+    this.exportedAt = exportedAt;
+    return this;
+  }
+
+  /**
+   * The date and time when the account&#39;s private key was first exported, in ISO 8601 format. This is set on the first export and preserved on subsequent exports; it is not updated on re-export.
+   * @return exportedAt
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXPORTED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OffsetDateTime getExportedAt() {
+    return exportedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXPORTED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExportedAt(@jakarta.annotation.Nullable OffsetDateTime exportedAt) {
+    this.exportedAt = exportedAt;
+  }
+
+
+  public EndUserSolanaAccount ejectedAt(@jakarta.annotation.Nullable OffsetDateTime ejectedAt) {
+    this.ejectedAt = ejectedAt;
+    return this;
+  }
+
+  /**
+   * The date and time when the account&#39;s key was ejected (marked for deletion), in ISO 8601 format. Populated when the account has been ejected. The account record remains queryable after this timestamp is set; it reflects when ejection was requested, not when the key material is purged.
+   * @return ejectedAt
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EJECTED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OffsetDateTime getEjectedAt() {
+    return ejectedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EJECTED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEjectedAt(@jakarta.annotation.Nullable OffsetDateTime ejectedAt) {
+    this.ejectedAt = ejectedAt;
+  }
+
+
   /**
    * Return true if this EndUserSolanaAccount object is equal to o.
    */
@@ -111,12 +169,14 @@ public class EndUserSolanaAccount {
     }
     EndUserSolanaAccount endUserSolanaAccount = (EndUserSolanaAccount) o;
     return Objects.equals(this.address, endUserSolanaAccount.address) &&
-        Objects.equals(this.createdAt, endUserSolanaAccount.createdAt);
+        Objects.equals(this.createdAt, endUserSolanaAccount.createdAt) &&
+        Objects.equals(this.exportedAt, endUserSolanaAccount.exportedAt) &&
+        Objects.equals(this.ejectedAt, endUserSolanaAccount.ejectedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(address, createdAt);
+    return Objects.hash(address, createdAt, exportedAt, ejectedAt);
   }
 
   @Override
@@ -125,6 +185,8 @@ public class EndUserSolanaAccount {
     sb.append("class EndUserSolanaAccount {\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
+    sb.append("    exportedAt: ").append(toIndentedString(exportedAt)).append("\n");
+    sb.append("    ejectedAt: ").append(toIndentedString(ejectedAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -182,6 +244,16 @@ public class EndUserSolanaAccount {
       joiner.add(String.format("%screatedAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getCreatedAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `exportedAt` to the URL query string
+    if (getExportedAt() != null) {
+      joiner.add(String.format("%sexportedAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExportedAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `ejectedAt` to the URL query string
+    if (getEjectedAt() != null) {
+      joiner.add(String.format("%sejectedAt%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getEjectedAt()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -203,6 +275,14 @@ public class EndUserSolanaAccount {
     }
     public EndUserSolanaAccount.Builder createdAt(OffsetDateTime createdAt) {
       this.instance.createdAt = createdAt;
+      return this;
+    }
+    public EndUserSolanaAccount.Builder exportedAt(OffsetDateTime exportedAt) {
+      this.instance.exportedAt = exportedAt;
+      return this;
+    }
+    public EndUserSolanaAccount.Builder ejectedAt(OffsetDateTime ejectedAt) {
+      this.instance.ejectedAt = ejectedAt;
       return this;
     }
 
@@ -240,7 +320,9 @@ public class EndUserSolanaAccount {
   public EndUserSolanaAccount.Builder toBuilder() {
     return new EndUserSolanaAccount.Builder()
       .address(getAddress())
-      .createdAt(getCreatedAt());
+      .createdAt(getCreatedAt())
+      .exportedAt(getExportedAt())
+      .ejectedAt(getEjectedAt());
   }
 
 }

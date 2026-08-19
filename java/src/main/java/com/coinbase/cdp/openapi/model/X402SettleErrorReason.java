@@ -124,6 +124,8 @@ public enum X402SettleErrorReason {
   
   SETTLE_EXACT_SVM_TRANSACTION_CONFIRMATION_TIMED_OUT("settle_exact_svm_transaction_confirmation_timed_out"),
   
+  SETTLEMENT_PENDING("settlement_pending"),
+  
   INVALID_BATCH_SETTLEMENT_EVM_UNKNOWN_SETTLE_ACTION("invalid_batch_settlement_evm_unknown_settle_action"),
   
   INVALID_BATCH_SETTLEMENT_EVM_CLAIM_PAYLOAD("invalid_batch_settlement_evm_claim_payload"),

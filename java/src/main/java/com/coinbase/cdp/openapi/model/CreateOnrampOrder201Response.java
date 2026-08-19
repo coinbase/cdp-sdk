@@ -36,7 +36,8 @@ import com.coinbase.cdp.openapi.ApiClient;
  */
 @JsonPropertyOrder({
   CreateOnrampOrder201Response.JSON_PROPERTY_ORDER,
-  CreateOnrampOrder201Response.JSON_PROPERTY_PAYMENT_LINK
+  CreateOnrampOrder201Response.JSON_PROPERTY_PAYMENT_LINK,
+  CreateOnrampOrder201Response.JSON_PROPERTY_USER_AUTH_TOKEN
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CreateOnrampOrder201Response {
@@ -47,6 +48,10 @@ public class CreateOnrampOrder201Response {
   public static final String JSON_PROPERTY_PAYMENT_LINK = "paymentLink";
   @jakarta.annotation.Nullable
   private OnrampPaymentLink paymentLink;
+
+  public static final String JSON_PROPERTY_USER_AUTH_TOKEN = "userAuthToken";
+  @jakarta.annotation.Nullable
+  private String userAuthToken;
 
   public CreateOnrampOrder201Response() { 
   }
@@ -99,6 +104,30 @@ public class CreateOnrampOrder201Response {
   }
 
 
+  public CreateOnrampOrder201Response userAuthToken(@jakarta.annotation.Nullable String userAuthToken) {
+    this.userAuthToken = userAuthToken;
+    return this;
+  }
+
+  /**
+   * Present for embedded orders once the user has verified. Store this and pass it on future orders for the same user to skip OTP verification. Valid for 60 days.
+   * @return userAuthToken
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_USER_AUTH_TOKEN)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getUserAuthToken() {
+    return userAuthToken;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_USER_AUTH_TOKEN)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUserAuthToken(@jakarta.annotation.Nullable String userAuthToken) {
+    this.userAuthToken = userAuthToken;
+  }
+
+
   /**
    * Return true if this createOnrampOrder_201_response object is equal to o.
    */
@@ -112,12 +141,13 @@ public class CreateOnrampOrder201Response {
     }
     CreateOnrampOrder201Response createOnrampOrder201Response = (CreateOnrampOrder201Response) o;
     return Objects.equals(this.order, createOnrampOrder201Response.order) &&
-        Objects.equals(this.paymentLink, createOnrampOrder201Response.paymentLink);
+        Objects.equals(this.paymentLink, createOnrampOrder201Response.paymentLink) &&
+        Objects.equals(this.userAuthToken, createOnrampOrder201Response.userAuthToken);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(order, paymentLink);
+    return Objects.hash(order, paymentLink, userAuthToken);
   }
 
   @Override
@@ -126,6 +156,7 @@ public class CreateOnrampOrder201Response {
     sb.append("class CreateOnrampOrder201Response {\n");
     sb.append("    order: ").append(toIndentedString(order)).append("\n");
     sb.append("    paymentLink: ").append(toIndentedString(paymentLink)).append("\n");
+    sb.append("    userAuthToken: ").append(toIndentedString(userAuthToken)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -183,6 +214,11 @@ public class CreateOnrampOrder201Response {
       joiner.add(getPaymentLink().toUrlQueryString(prefix + "paymentLink" + suffix));
     }
 
+    // add `userAuthToken` to the URL query string
+    if (getUserAuthToken() != null) {
+      joiner.add(String.format("%suserAuthToken%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getUserAuthToken()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -204,6 +240,10 @@ public class CreateOnrampOrder201Response {
     }
     public CreateOnrampOrder201Response.Builder paymentLink(OnrampPaymentLink paymentLink) {
       this.instance.paymentLink = paymentLink;
+      return this;
+    }
+    public CreateOnrampOrder201Response.Builder userAuthToken(String userAuthToken) {
+      this.instance.userAuthToken = userAuthToken;
       return this;
     }
 
@@ -241,7 +281,8 @@ public class CreateOnrampOrder201Response {
   public CreateOnrampOrder201Response.Builder toBuilder() {
     return new CreateOnrampOrder201Response.Builder()
       .order(getOrder())
-      .paymentLink(getPaymentLink());
+      .paymentLink(getPaymentLink())
+      .userAuthToken(getUserAuthToken());
   }
 
 }

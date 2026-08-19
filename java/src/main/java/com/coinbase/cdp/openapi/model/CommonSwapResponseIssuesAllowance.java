@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
+ * CommonSwapResponseIssuesAllowance
  */
 @JsonPropertyOrder({
   CommonSwapResponseIssuesAllowance.JSON_PROPERTY_CURRENT_ALLOWANCE,
@@ -98,7 +98,7 @@ public class CommonSwapResponseIssuesAllowance {
 
 
   /**
-   * Return true if this CommonSwapResponse_issues_allowance object is equal to o.
+   * Return true if this CommonSwapResponseIssuesAllowance object is equal to o.
    */
   @Override
   public boolean equals(Object o) {

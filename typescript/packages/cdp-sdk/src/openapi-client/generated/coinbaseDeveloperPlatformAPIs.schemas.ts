@@ -7,6 +7,11 @@
  */
 /**
  * The type of the Account.
+
+- `prime`: a linked Coinbase Prime account.
+- `business`: a linked Coinbase Business account.
+- `cdp`: a CDP-native account created via this API. Used for accounts created on
+  behalf of an Entity and for Customer-owned accounts.
  */
 export type AccountType = (typeof AccountType)[keyof typeof AccountType];
 
@@ -25,9 +30,15 @@ export type AccountId = string;
 
 /**
  * The Owner ID of the Account.
+
 Owner IDs are UUIDs prefixed with the Owner Type as follows:
+
 * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
-Support for Customer-owned accounts (`customer_` prefix) is in development.
+
+* **Customer**: `customer_` - If the Owner is one of your Customers,
+  e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`. Customer ownership requires the
+  Customer to have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
+  capabilities enabled.
  * @pattern ^(entity|customer)_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
  */
 export type Owner = string;
@@ -174,14 +185,14 @@ export type CapabilityName = (typeof CapabilityName)[keyof typeof CapabilityName
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CapabilityName = {
-  custodyCrypto: "custodyCrypto",
-  custodyFiat: "custodyFiat",
-  custodyStablecoin: "custodyStablecoin",
-  tradeCrypto: "tradeCrypto",
-  tradeStablecoin: "tradeStablecoin",
-  transferCrypto: "transferCrypto",
-  transferFiat: "transferFiat",
-  transferStablecoin: "transferStablecoin",
+  CustodyCrypto: "custodyCrypto",
+  CustodyFiat: "custodyFiat",
+  CustodyStablecoin: "custodyStablecoin",
+  TradeCrypto: "tradeCrypto",
+  TradeStablecoin: "tradeStablecoin",
+  TransferCrypto: "transferCrypto",
+  TransferFiat: "transferFiat",
+  TransferStablecoin: "transferStablecoin",
 } as const;
 
 /**
@@ -207,8 +218,36 @@ submitted to resolve the block.
   unauthorizedCapabilities?: CapabilityName[];
 }
 
+/**
+ * Compliance context for a request. Carries per-request compliance signals,
+such as the IP address of the individual (i.e., end-customer) that
+initiated the request.
+
+This object is request-only — it is never echoed back in responses.
+Inner fields are write-only.
+
+ */
+export interface Compliance {
+  /** IPv4 or IPv6 address of the individual (i.e., end-customer) that
+initiated this request. NOT the IP of the partner server making the
+API call.
+ */
+  requesterIpAddress?: string;
+}
+
 export interface CreateAccountRequest {
+  /** The Owner of the Account to create.
+* If omitted, the account will be owned by the Entity making the request.
+* If the account is for a customer, the value will be a Customer ID,
+  e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
+
+* Further, the corresponding Customer must have all of the following capabilities enabled:
+  - `custodyCrypto`
+  - `custodyFiat`
+  - `custodyStablecoin`. */
+  owner?: Owner;
   name?: AccountName;
+  compliance?: Compliance;
 }
 
 /**
@@ -276,6 +315,772 @@ export interface Balances {
 }
 
 /**
+ * The ID of the Customer, which is a UUID prefixed by `customer_`.
+ * @pattern ^customer_[a-f0-9\-]{36}$
+ */
+export type CustomerId = string;
+
+/**
+ * The type of the customer. Required on create; accepted but ignored on update.
+
+ */
+export type CustomerType = (typeof CustomerType)[keyof typeof CustomerType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CustomerType = {
+  CustomerTypeIndividual: "individual",
+} as const;
+
+/**
+ * The status of a capability. Based on recoverability:
+- `unrequested`: Capability has not been requested by the customer
+- `pending`: Customer can take action to resolve (requirements `due` or `rejected`)
+- `active`: Capability is enabled and can be used
+- `inactive`: Permanently blocked - no customer action possible
+
+ */
+export type CapabilityStatus = (typeof CapabilityStatus)[keyof typeof CapabilityStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CapabilityStatus = {
+  unrequested: "unrequested",
+  pending: "pending",
+  active: "active",
+  inactive: "inactive",
+} as const;
+
+/**
+ * The current state of a capability for a customer. The `status` field is always
+present. When `requested` is `false`, the status will be `unrequested`.
+
+ */
+export interface Capability {
+  /** Whether the customer has explicitly requested this capability. */
+  requested: boolean;
+  /** Current status of the capability. When `requested` is `false`, status is `unrequested`.
+When `requested` is `true`, status is one of `pending`, `active`, or `inactive`.
+ */
+  status: CapabilityStatus;
+}
+
+/**
+ * The current state of each capability for a Customer. Each capability shows
+whether it has been requested and its current status.
+
+ */
+export interface CapabilitiesMap {
+  /** Hold cryptocurrency in a Coinbase custodial account. */
+  custodyCrypto?: Capability;
+  /** Hold fiat currency in a Coinbase custodial account. */
+  custodyFiat?: Capability;
+  /** Hold stablecoin in a Coinbase custodial account. */
+  custodyStablecoin?: Capability;
+  /** Trade cryptocurrency. */
+  tradeCrypto?: Capability;
+  /** Trade stablecoin. */
+  tradeStablecoin?: Capability;
+  /** Transfer cryptocurrency to another party. */
+  transferCrypto?: Capability;
+  /** Transfer fiat currency to another party. */
+  transferFiat?: Capability;
+  /** Transfer stablecoin to another party. */
+  transferStablecoin?: Capability;
+}
+
+/**
+ * The current status of a requirement:
+- `due`: Must be submitted
+- `pending`: Submitted, awaiting verification
+- `rejected`: Verification failed - customer must resubmit
+
+When verification passes, the requirement disappears from the response entirely.
+
+ */
+export type RequirementStatus = (typeof RequirementStatus)[keyof typeof RequirementStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const RequirementStatus = {
+  due: "due",
+  pending: "pending",
+  rejected: "rejected",
+} as const;
+
+/**
+ * Stable, opaque identifier for a specific Terms of Service version
+(for example, `us_individual_2026-05-29`). The same identifier is
+surfaced on `Customer.requirements.tos.tosVersions[].versionId` (the
+versions a Customer still needs to accept) and on
+`Customer.tosAcceptances[].versionId` (the versions the Customer has
+accepted). Treat the value as opaque and submit it verbatim; the
+identifier format is stable across API versions, but the set of
+valid values grows over time as new Terms of Service versions are
+published.
+
+ * @minLength 1
+ * @maxLength 64
+ */
+export type TosVersionId = string;
+
+/**
+ * Metadata for one Terms of Service document a Customer may need to
+accept. Each entry represents one logical document (identified by
+`versionId`) that may be published in multiple languages —
+`languages` lists the BCP 47 language tags the document is available
+to view and accept in. `url` is the canonical, language-agnostic
+document URL; partners append `?lang=<tag>` (where `<tag>` is one of
+`languages`) to retrieve a specific translation, and omit the
+parameter to let the documentation site choose a default. This API
+does not serve Terms of Service body content; this schema describes
+metadata only.
+
+ */
+export interface TermsOfService {
+  /** Stable identifier for this Terms of Service document. Submit this
+value as `versionId` on a `TosAcceptance` to record acceptance.
+ */
+  versionId: TosVersionId;
+  /**
+   * BCP 47 language tags this Terms of Service document can be viewed
+and accepted in. The list is non-empty (every published document
+carries at least one language). Append the chosen tag to `url` as
+`?lang=<tag>` to fetch the localized document, and submit the same
+tag as `language` on the corresponding `TosAcceptance` to record
+which translation the Customer reviewed.
+
+   * @minItems 1
+   */
+  languages: string[];
+  /** Canonical, language-agnostic URL where the Terms of Service
+document is hosted (for example,
+`https://docs.cdp.coinbase.com/legal/terms/us_individual`).
+Append `?lang=<tag>` (where `<tag>` is one of `languages`) to
+retrieve a specific translation; without the parameter, the
+documentation site renders a default translation.
+ */
+  url: Url;
+}
+
+/**
+ * Identifier for a tax attestation form a Customer may need to
+complete. The same identifier is surfaced on
+`Customer.requirements.taxAttestation.taxForms[]` (the forms a
+Customer still needs to attest to) and submitted back as `form` on
+`Customer.taxAttestations[]` to record the attestation.
+
+ */
+export type TaxForm = (typeof TaxForm)[keyof typeof TaxForm];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const TaxForm = {
+  us_w9: "us_w9",
+} as const;
+
+/**
+ * A single requirement that a customer must submit to enable capabilities.
+Requirements are only shown for requested capabilities.
+
+ */
+export interface Requirement {
+  status: RequirementStatus;
+  /** Optional deadline by which this requirement must be satisfied.
+
+For the `tos` requirement, when present, `deadline` is the earliest
+deadline among the unaccepted required Terms of Service versions.
+ */
+  deadline?: string;
+  /** List of capabilities affected by this requirement, sorted alphabetically.
+Only present for `due`, `pending`, or `rejected` statuses.
+ */
+  impact?: CapabilityName[];
+  /** Required Terms of Service versions the Customer has not yet
+accepted, with the metadata needed to render an acceptance UI
+(each entry carries a stable `versionId`, the BCP 47
+`languages` the version is published in, and a
+language-agnostic `url`). This field appears only under the
+requirement key `tos`; do not infer meaning from `tosVersions`
+on other requirement keys. Only populated for the `tos`
+requirement; omitted on every other requirement key. Submit each
+`versionId` back via `tosAcceptances[].versionId` on `Update Customer` (or
+`Create Customer`) together with `language` and `acceptedAt` to clear the requirement.
+ */
+  tosVersions?: TermsOfService[];
+  /** Required tax attestation forms the Customer has not yet completed.
+This field appears only under the requirement key `taxAttestation`.
+Submit each `form` back via `taxAttestations[].form` on
+`Update Customer` (or `Create Customer`) together with the other
+fields required for that form to clear the requirement.
+ */
+  taxForms?: TaxForm[];
+}
+
+/**
+ * Map of requirements to be submitted. Each key is the field name
+(e.g., "ssnLast4"), with values to describe its state. Requirements
+are only shown for requested capabilities. When a requirement is
+verified, it disappears from this map.
+
+When comparing deadlines across keys, note that `requirements.tos.deadline`
+is an aggregate: the earliest deadline among unaccepted required Terms of
+Service versions listed in `requirements.tos.tosVersions[]` (not a separate
+clock from those version rows).
+
+ */
+export interface RequirementsMap {
+  [key: string]: Requirement;
+}
+
+/**
+ * An email address. Maximum length 254 characters per [RFC 5321](https://www.rfc-editor.org/rfc/rfc5321).
+ * @maxLength 254
+ * @pattern ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$
+ */
+export type Email = string;
+
+/**
+ * Individual customer data returned on read — the `individual` object on
+Get / Create / Update Customer responses. Only contact-identity fields are
+echoed back; every other field accepted on the `IndividualInput` object
+(`address`, `ssnLast4`, `dateOfBirth`, `fullSsn`, `citizenship`,
+`phoneNumber`, and the CDD fields) is ingestion-only and never returned.
+
+ */
+export interface Individual {
+  /** First name (given name). */
+  firstName?: string;
+  /** Last name (family name/surname). */
+  lastName?: string;
+  /** Email address for the customer. */
+  email?: Email;
+}
+
+/**
+ * The ID of the Project, a UUID v4.
+ * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+ */
+export type ProjectId = string;
+
+/**
+ * A single Terms of Service acceptance recorded for a Customer. Submit
+one entry per required document listed in
+`Customer.requirements.tos.tosVersions[]` (returned on `Get Customer`,
+`Create Customer`, and `Update Customer`). `language` records the
+single translation the Customer actually reviewed.
+
+When new required Terms of Service versions are published, only the
+new `versionId`s appear in `Customer.requirements.tos.tosVersions[]`;
+submit acceptances for only those new version(s).
+
+ */
+export interface TosAcceptance {
+  /** The `versionId` of the Terms of Service document being accepted,
+as listed in `Customer.requirements.tos.tosVersions[]`.
+ */
+  versionId: TosVersionId;
+  /** BCP 47 language tag of the Terms of Service translation the
+Customer reviewed. At write time the server rejects values that
+are not listed under `languages` on the matching required
+document for this Customer (same `versionId` as listed in
+`Customer.requirements.tos.tosVersions[]`).
+ */
+  language: string;
+  /** Timestamp at which the Customer accepted the Terms of Service,
+in ISO 8601 / RFC 3339 format. The server may validate or reject
+obviously non-credible timestamps; when enforcement tightens,
+the authoritative acceptance time may be recorded server-side
+instead of trusting client-supplied values alone.
+ */
+  acceptedAt: string;
+}
+
+/**
+ * A customer record returned on read (Get / Create / Update Customer).
+ */
+export interface Customer {
+  customerId: CustomerId;
+  type: CustomerType;
+  /** Current state of each capability for this customer. Each capability
+shows whether it has been requested and its current status.
+ */
+  readonly capabilities: CapabilitiesMap;
+  /** Map of requirements to be submitted. Each key is the field name, with
+values to describe its state. Requirements are only shown for requested
+capabilities. When a requirement is fulfilled, it disappears from this map.
+ */
+  readonly requirements: RequirementsMap;
+  /** Timestamp when the customer was created. */
+  readonly createdAt?: string;
+  /** Timestamp when the customer was last updated. */
+  readonly updatedAt?: string;
+  individual?: Individual;
+  /** The project IDs that this customer is associated with. */
+  projectIds?: ProjectId[];
+  /** Terms of Service acceptances recorded for the customer.
+   */
+  tosAcceptances?: TosAcceptance[];
+}
+
+/**
+ * Request to enable or disable a capability.
+ */
+export interface CapabilityInput {
+  /** Whether to request this capability. */
+  requested: boolean;
+}
+
+/**
+ * The capabilities to request for a Customer. Each capability can be
+individually requested. The requirements to enable each capability
+will be returned in the response.
+
+ */
+export interface CapabilitiesMapInput {
+  /** Hold cryptocurrency in a Coinbase custodial account. */
+  custodyCrypto?: CapabilityInput;
+  /** Hold fiat currency in a Coinbase custodial account. */
+  custodyFiat?: CapabilityInput;
+  /** Hold stablecoin in a Coinbase custodial account. */
+  custodyStablecoin?: CapabilityInput;
+  /** Trade cryptocurrency. */
+  tradeCrypto?: CapabilityInput;
+  /** Trade stablecoin. */
+  tradeStablecoin?: CapabilityInput;
+  /** Transfer cryptocurrency to another party. */
+  transferCrypto?: CapabilityInput;
+  /** Transfer fiat currency to another party. */
+  transferFiat?: CapabilityInput;
+  /** Transfer stablecoin to another party. */
+  transferStablecoin?: CapabilityInput;
+}
+
+/**
+ * A physical address with standard address components including street, city, state/province, postal code, and country.
+ */
+export interface PhysicalAddress {
+  /** Primary street address. */
+  line1?: string;
+  /** Secondary address information. */
+  line2?: string;
+  /** City or locality. */
+  city?: string;
+  /** State, province, or region. */
+  state?: string;
+  /** Postal or ZIP code. */
+  postCode?: string;
+  /**
+   * ISO 3166-1 alpha-2 country code (2 characters). See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes.
+   * @minLength 2
+   * @maxLength 2
+   */
+  countryCode?: string;
+}
+
+/**
+ * Date of birth with lenient formatting. Accepts both zero-padded ("04", "07")
+and single-digit ("4", "7") values for day and month.
+
+ */
+export interface DateOfBirthLenient {
+  /**
+   * Day of birth (1-31). Both single-digit ("7") and zero-padded ("07") formats are accepted.
+   * @minLength 1
+   * @maxLength 2
+   * @pattern ^(?:0?[1-9]|[12][0-9]|3[01])$
+   */
+  day?: string;
+  /**
+   * Month of birth (1-12). Both single-digit ("4") and zero-padded ("04") formats are accepted.
+   * @minLength 1
+   * @maxLength 2
+   * @pattern ^(?:0?[1-9]|1[0-2])$
+   */
+  month?: string;
+  /**
+   * Year of birth (four digits).
+   * @minLength 4
+   * @maxLength 4
+   * @pattern ^[0-9]{4}$
+   */
+  year?: string;
+}
+
+/**
+ * An ISO 3166-1 alpha-2 country code.
+ * @minLength 2
+ * @maxLength 2
+ * @pattern ^[A-Z]{2}$
+ */
+export type CountryCode = string;
+
+/**
+ * A phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.
+ * @pattern ^\+[1-9]\d{1,14}$
+ */
+export type PhoneNumber = string;
+
+/**
+ * ISO 3166-1 alpha-2 country code. Only US addresses
+are currently supported.
+
+ */
+export type IndividualInputAddressAllOfCountryCode =
+  (typeof IndividualInputAddressAllOfCountryCode)[keyof typeof IndividualInputAddressAllOfCountryCode];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IndividualInputAddressAllOfCountryCode = {
+  US: "US",
+} as const;
+
+export type IndividualInputAddressAllOf = {
+  /** ISO 3166-1 alpha-2 country code. Only US addresses
+are currently supported.
+ */
+  countryCode?: IndividualInputAddressAllOfCountryCode;
+};
+
+/**
+ * Primary residential address. Only US addresses are currently
+supported. Non-US `countryCode` values are rejected with a 400.
+
+ */
+export type IndividualInputAddress = PhysicalAddress & IndividualInputAddressAllOf;
+
+/**
+ * Primary purpose for using Coinbase services.
+
+ */
+export type IndividualInputPurposeOfAccount =
+  (typeof IndividualInputPurposeOfAccount)[keyof typeof IndividualInputPurposeOfAccount];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IndividualInputPurposeOfAccount = {
+  investing: "investing",
+  long_term_investment: "long_term_investment",
+  short_term_investment: "short_term_investment",
+  trading: "trading",
+  trading_on_coinbase: "trading_on_coinbase",
+  trading_on_other_exchanges: "trading_on_other_exchanges",
+  day_trading: "day_trading",
+  arbitrage_trading: "arbitrage_trading",
+  online_purchases: "online_purchases",
+  online_payments: "online_payments",
+  payments_or_gifts: "payments_or_gifts",
+  payments_to_friends: "payments_to_friends",
+  transfer_crypto: "transfer_crypto",
+  investing_on_other_exchanges: "investing_on_other_exchanges",
+  business: "business",
+  other: "other",
+} as const;
+
+/**
+ * Primary source of funds for the account.
+
+ */
+export type IndividualInputSourceOfFunds =
+  (typeof IndividualInputSourceOfFunds)[keyof typeof IndividualInputSourceOfFunds];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IndividualInputSourceOfFunds = {
+  salary: "salary",
+  employment_business_income: "employment_business_income",
+  investments: "investments",
+  savings: "savings",
+  pension: "pension",
+  business_earnings: "business_earnings",
+  crypto_assets: "crypto_assets",
+  inheritance: "inheritance",
+  sale_of_assets: "sale_of_assets",
+  sale_of_company_shares_or_dividends: "sale_of_company_shares_or_dividends",
+  sale_of_property: "sale_of_property",
+  sale_of_other_assets: "sale_of_other_assets",
+  credit_or_loan: "credit_or_loan",
+  government_benefits_or_credits: "government_benefits_or_credits",
+  legal_settlement: "legal_settlement",
+  family_or_third_party: "family_or_third_party",
+  lottery_or_gambling: "lottery_or_gambling",
+  crypto_mining: "crypto_mining",
+  other: "other",
+} as const;
+
+/**
+ * Current employment status.
+
+ */
+export type IndividualInputEmploymentStatus =
+  (typeof IndividualInputEmploymentStatus)[keyof typeof IndividualInputEmploymentStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IndividualInputEmploymentStatus = {
+  employed_fulltime: "employed_fulltime",
+  employed_parttime: "employed_parttime",
+  self_employed: "self_employed",
+  employed_government_official: "employed_government_official",
+  employed_company_officer_or_board_member: "employed_company_officer_or_board_member",
+  employed_crypto_related_business: "employed_crypto_related_business",
+  personal_trader_or_angel_investor: "personal_trader_or_angel_investor",
+  crypto_miner: "crypto_miner",
+  student: "student",
+  retired: "retired",
+  homemaker: "homemaker",
+  unemployed: "unemployed",
+  dependent: "dependent",
+} as const;
+
+/**
+ * Industry or occupation.
+
+ */
+export type IndividualInputOccupation =
+  (typeof IndividualInputOccupation)[keyof typeof IndividualInputOccupation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IndividualInputOccupation = {
+  agriculture: "agriculture",
+  arts_and_media: "arts_and_media",
+  casinos_and_gaming: "casinos_and_gaming",
+  construction: "construction",
+  cryptocurrency: "cryptocurrency",
+  defense: "defense",
+  education: "education",
+  energy_oil_and_gas: "energy_oil_and_gas",
+  energy_other: "energy_other",
+  entertainment: "entertainment",
+  finance: "finance",
+  financial_services_non_crypto: "financial_services_non_crypto",
+  fintech_non_crypto_software_development: "fintech_non_crypto_software_development",
+  fintech_non_crypto_internet_only_financial_institution:
+    "fintech_non_crypto_internet_only_financial_institution",
+  fintech_non_crypto_other: "fintech_non_crypto_other",
+  food_and_hospitality: "food_and_hospitality",
+  government: "government",
+  health_and_fitness: "health_and_fitness",
+  healthcare: "healthcare",
+  healthcare_other: "healthcare_other",
+  healthcare_pharmaceuticals: "healthcare_pharmaceuticals",
+  mining: "mining",
+  mining_crypto: "mining_crypto",
+  non_profit_and_charity: "non_profit_and_charity",
+  pharma_industry: "pharma_industry",
+  politics: "politics",
+  professional_services: "professional_services",
+  property_and_construction_building_work: "property_and_construction_building_work",
+  property_and_construction_commercial_and_management:
+    "property_and_construction_commercial_and_management",
+  property_and_construction_design: "property_and_construction_design",
+  real_estate: "real_estate",
+  retail_fashion: "retail_fashion",
+  retail_food_and_beverage: "retail_food_and_beverage",
+  retail_jewelry_and_antiques: "retail_jewelry_and_antiques",
+  retail_other: "retail_other",
+  retail_pharmacy: "retail_pharmacy",
+  technology: "technology",
+  technology_and_it: "technology_and_it",
+  transportation: "transportation",
+  all_other_industries_and_services: "all_other_industries_and_services",
+  dependent_student_unemployed: "dependent_student_unemployed",
+  other: "other",
+} as const;
+
+/**
+ * Expected annual volume of activity on the account, expressed as a
+dollar range. Use the dollar-honest ids below:
+
+- `under_1k`: $0 – $1,000
+- `1k_to_10k`: $1,000 – $10,000
+- `10k_to_100k`: $10,000 – $100,000
+- `100k_to_250k`: $100,000 – $250,000
+- `250k_to_750k`: $250,000 – $750,000
+- `750k_to_1_5m`: $750,000 – $1.5M
+- `1_5m_plus`: $1.5M+
+
+ */
+export type IndividualInputExpectedVolume =
+  (typeof IndividualInputExpectedVolume)[keyof typeof IndividualInputExpectedVolume];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IndividualInputExpectedVolume = {
+  under_1k: "under_1k",
+  "1k_to_10k": "1k_to_10k",
+  "10k_to_100k": "10k_to_100k",
+  "100k_to_250k": "100k_to_250k",
+  "250k_to_750k": "250k_to_750k",
+  "750k_to_1_5m": "750k_to_1_5m",
+  "1_5m_plus": "1_5m_plus",
+} as const;
+
+/**
+ * Individual customer data submitted on create / update requests. Fields are
+organized by the capabilities they unlock; not all are required for all
+customers (the requirements depend on which capabilities are requested).
+Read responses return the narrower `Individual` object (only `firstName`,
+`lastName`, and `email`), not this full request shape.
+
+ */
+export interface IndividualInput {
+  /** First name (given name). */
+  firstName?: string;
+  /** Last name (family name/surname). */
+  lastName?: string;
+  /** Primary residential address. Only US addresses are currently
+supported. Non-US `countryCode` values are rejected with a 400.
+ */
+  address?: IndividualInputAddress;
+  /**
+   * Last 4 digits of the Social Security Number (US only).
+Used for identity verification.
+
+   * @minLength 4
+   * @maxLength 4
+   * @pattern ^[0-9]{4}$
+   */
+  ssnLast4?: string;
+  /** Date of birth. */
+  dateOfBirth?: DateOfBirthLenient;
+  /**
+   * Full Social Security Number (US only).
+
+   * @pattern ^([0-9]{3}-[0-9]{2}-[0-9]{4}|\*\*\*-\*\*-[0-9]{4})$
+   */
+  fullSsn?: string;
+  /** ISO 3166-1 alpha-2 country code representing the customer's citizenship.
+   */
+  citizenship?: CountryCode;
+  /** Email address for the customer. */
+  email?: Email;
+  /** Phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format. */
+  phoneNumber?: PhoneNumber;
+  /** Primary purpose for using Coinbase services.
+   */
+  purposeOfAccount?: IndividualInputPurposeOfAccount;
+  /** Primary source of funds for the account.
+   */
+  sourceOfFunds?: IndividualInputSourceOfFunds;
+  /** Current employment status.
+   */
+  employmentStatus?: IndividualInputEmploymentStatus;
+  /** Industry or occupation.
+   */
+  occupation?: IndividualInputOccupation;
+  /** Expected annual volume of activity on the account, expressed as a
+dollar range. Use the dollar-honest ids below:
+
+- `under_1k`: $0 – $1,000
+- `1k_to_10k`: $1,000 – $10,000
+- `10k_to_100k`: $10,000 – $100,000
+- `100k_to_250k`: $100,000 – $250,000
+- `250k_to_750k`: $250,000 – $750,000
+- `750k_to_1_5m`: $750,000 – $1.5M
+- `1_5m_plus`: $1.5M+
+ */
+  expectedVolume?: IndividualInputExpectedVolume;
+}
+
+export type UsW9AttestationForm = (typeof UsW9AttestationForm)[keyof typeof UsW9AttestationForm];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const UsW9AttestationForm = {
+  us_w9: "us_w9",
+} as const;
+
+/**
+ * Tax attestation for IRS Form W-9, used for US persons. Carries the
+W-9-specific backup withholding certification alongside the fields common
+to every form (`edeliveryConsent`, `acceptedAt`).
+
+ */
+export interface UsW9Attestation {
+  form: UsW9AttestationForm;
+  /** Whether the Customer consents to electronic delivery (e-delivery) of
+tax documents. Both `true` and `false` are recorded as submitted.
+ */
+  edeliveryConsent: boolean;
+  /** Timestamp at which the Customer completed the tax attestation, in
+ISO 8601 / RFC 3339 format. The server may reject obviously
+non-credible timestamps.
+ */
+  acceptedAt: string;
+  /** Whether the Customer is exempt from backup withholding, as certified
+on IRS Form W-9.
+ */
+  isExemptBackupWithholding: boolean;
+}
+
+/**
+ * A single tax attestation recorded for a Customer. Submit one entry per
+required form listed in `Customer.requirements.taxAttestation.taxForms[]`
+(returned on `Get Customer`, `Create Customer`, and `Update Customer`
+whenever a `taxAttestation` requirement is unsatisfied). The `form` field
+selects the variant and determines which additional fields are required.
+
+ */
+export type TaxAttestation = UsW9Attestation;
+
+/**
+ * Fields accepted on customer create and update requests. Shared by
+`CreateCustomerRequest` and `UpdateCustomerRequest`; excludes the
+server-managed response-only fields that appear on `Customer`.
+
+ */
+export interface CustomerWriteBase {
+  /** The type of the customer. Required on create; accepted but ignored on
+update.
+ */
+  type?: CustomerType;
+  /** Capabilities to request for the customer. */
+  capabilities?: CapabilitiesMapInput;
+  /** Information about an Individual customer. Not all fields are required
+for all customers; the requirements depend on which capabilities are
+requested. Submit only fields that are required by the capabilities
+that have been requested.
+ */
+  individual?: IndividualInput;
+  /** The project IDs that this customer is associated with. */
+  projectIds?: ProjectId[];
+  /** Terms of Service acceptances to record on the customer. Submit one
+entry per required version surfaced inline on
+`requirements.tos.tosVersions[]` (returned by `Get Customer`,
+`Create Customer`, and `Update Customer` whenever a `tos` requirement
+is unsatisfied). The server rejects each acceptance whose `language`
+is not listed under `languages` on the matching required version with
+`errorType: "unsupported_tos_language"`.
+
+When new required Terms of Service versions are published, only the
+new `versionId`s appear in `requirements.tos.tosVersions[]`; submit
+acceptances for only those new version(s).
+
+Omit `tosAcceptances` on a partial update to leave previously recorded
+acceptances unchanged. Sending `tosAcceptances: []` is invalid
+(`errorType: "invalid_request"`) because it would clear all acceptances
+without replacing them; omit the field entirely when you are not
+updating Terms of Service acceptances.
+ */
+  tosAcceptances?: TosAcceptance[];
+  /** Tax attestations to record on the customer. Submit one entry per
+required form surfaced inline on
+`requirements.taxAttestation.taxForms[]` (returned by `Get Customer`,
+`Create Customer`, and `Update Customer` whenever a `taxAttestation`
+requirement is unsatisfied). The required fields per entry depend on
+`form`; see `TaxAttestation`. This field is ingestion-only and is
+never returned on read.
+
+Omit `taxAttestations` on a partial update to leave previously
+recorded attestations unchanged. Sending `taxAttestations: []` is
+invalid (`errorType: "invalid_request"`) because it would clear all
+attestations without replacing them; omit the field entirely when you
+are not updating tax attestations.
+ */
+  taxAttestations?: TaxAttestation[];
+  compliance?: Compliance;
+}
+
+export type CreateCustomerRequestAllOf = { [key: string]: unknown };
+
+export type CreateCustomerRequest = CustomerWriteBase &
+  CreateCustomerRequestAllOf &
+  Required<Pick<CustomerWriteBase & CreateCustomerRequestAllOf, "type">>;
+
+export type UpdateCustomerRequest = CustomerWriteBase;
+
+/**
  * The type of deposit destination.
  */
 export type DepositDestinationType = string;
@@ -287,22 +1092,20 @@ export type DepositDestinationType = string;
 export type DepositDestinationId = string;
 
 /**
- * The blockchain network for the payment. Supported networks depend on the account type. See [API and Network Support](https://docs.cdp.coinbase.com/api-reference/payment-apis/supported-networks-assets#by-asset-and-network) for more details.
+ * The blockchain network for crypto payments, transfers, and deposit destinations.
  */
-export type Network = (typeof Network)[keyof typeof Network];
+export type PaymentNetwork = (typeof PaymentNetwork)[keyof typeof PaymentNetwork];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const Network = {
+export const PaymentNetwork = {
   base: "base",
   ethereum: "ethereum",
   solana: "solana",
-  aptos: "aptos",
   arbitrum: "arbitrum",
-  "arbitrum-sepolia": "arbitrum-sepolia",
   optimism: "optimism",
-  polygon: "polygon",
-  world: "world",
-  "world-sepolia": "world-sepolia",
+  monad: "monad",
+  sui: "sui",
+  avacchain: "avacchain",
 } as const;
 
 /**
@@ -316,7 +1119,7 @@ export type BlockchainAddress = string;
  * Crypto-specific deposit destination details. In responses, this object is always present. Contains the network and address for the deposit destination.
  */
 export interface DepositDestinationCrypto {
-  network: Network;
+  network: PaymentNetwork;
   address: BlockchainAddress;
 }
 
@@ -331,9 +1134,44 @@ export interface DepositDestinationTargetAccount {
 }
 
 /**
+ * The target of the payment is an onchain address.
+ */
+export interface OnchainAddress {
+  /** The onchain crypto address of the recipient.
+
+Examples:
+- EVM address: 0xabc1234567890abcdef1234567890abcdef123456
+- Solana address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+- XRP address: rhccc5p23aKiCGFcEqqnjEfLRZ6xEvfy3s
+ */
+  address: BlockchainAddress;
+  network: PaymentNetwork;
+  /** The destination tag of the onchain address. Destination tags are used by certain networks
+(primarily XRP/Ripple) to identify specific recipients when multiple users share a single address.
+The tag ensures funds are credited to the correct account within the shared address.
+
+Examples by network:
+- XRP/Ripple: Numeric values like "1234567890" or "123456"
+- Stellar (XLM): Memos which can be text, ID, or hash format
+
+Note: Most networks (Ethereum, Bitcoin, Solana) do not use destination tags.
+ */
+  destinationTag?: string;
+  /** Asset symbol of the payment received by the recipient. Supported values are `usdc` and `eurc`. */
+  asset: Asset;
+}
+
+/**
+ * Routes deposited funds to an external onchain address.
+ */
+export type DepositDestinationTargetOnchainAddress = OnchainAddress;
+
+/**
  * The intended target for deposited funds.
  */
-export type DepositDestinationTarget = DepositDestinationTargetAccount;
+export type DepositDestinationTarget =
+  | DepositDestinationTargetAccount
+  | DepositDestinationTargetOnchainAddress;
 
 /**
  * The status of the deposit destination.
@@ -382,9 +1220,99 @@ export interface CryptoDepositDestination {
 }
 
 /**
+ * A payment rail supported by a fiat deposit destination.
+ */
+export type DepositDestinationPaymentRail =
+  (typeof DepositDestinationPaymentRail)[keyof typeof DepositDestinationPaymentRail];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DepositDestinationPaymentRail = {
+  ach: "ach",
+  fedwire: "fedwire",
+} as const;
+
+export type BankAccountUSAccountType =
+  (typeof BankAccountUSAccountType)[keyof typeof BankAccountUSAccountType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const BankAccountUSAccountType = {
+  us_bank: "us_bank",
+} as const;
+
+/**
+ * The fiat currency for the deposit destination.
+ */
+export type BankAccountUSCurrency =
+  (typeof BankAccountUSCurrency)[keyof typeof BankAccountUSCurrency];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const BankAccountUSCurrency = {
+  usd: "usd",
+} as const;
+
+/**
+ * A US bank account identified by ABA routing number and account number.
+ */
+export interface BankAccountUS {
+  accountType: BankAccountUSAccountType;
+  /** The fiat currency for the deposit destination. */
+  currency: BankAccountUSCurrency;
+  /** The name of the bank holding the account. */
+  bankName: string;
+  /** The name of the account beneficiary. */
+  beneficiaryName: string;
+  /**
+   * The ABA routing number of the bank.
+   * @pattern ^[0-9]{9}$
+   */
+  routingNumber: string;
+  /**
+   * The bank account number.
+   * @pattern ^[0-9]{4,17}$
+   */
+  accountNumber: string;
+  /** The address of the bank. Present when required by the receiving institution. */
+  bankAddress?: string;
+  /** A reference code that must be included in the payment memo or reference field so the receiving institution can route the deposit to the correct account. Only present when required by the receiving institution. */
+  referenceCode?: string;
+  /** The payment rails this account can receive deposits on. */
+  supportedRails: DepositDestinationPaymentRail[];
+}
+
+/**
+ * Fiat bank account details for a deposit destination. The `accountType` field indicates the account identification scheme and determines which fields are present.
+ */
+export type DepositDestinationFiat = BankAccountUS;
+
+export type FiatDepositDestinationType =
+  (typeof FiatDepositDestinationType)[keyof typeof FiatDepositDestinationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const FiatDepositDestinationType = {
+  fiat: "fiat",
+} as const;
+
+/**
+ * A fiat deposit destination. Represents a single bank account provisioned at a single banking partner. Each deposit destination has one status and one lifecycle. The `fiat` object contains the bank account details, keyed by account type.
+ */
+export interface FiatDepositDestination {
+  depositDestinationId: DepositDestinationId;
+  accountId: AccountId;
+  type: FiatDepositDestinationType;
+  fiat: DepositDestinationFiat;
+  target?: DepositDestinationTarget;
+  status: DepositDestinationStatus;
+  metadata?: Metadata;
+  /** The timestamp when the deposit destination was created. */
+  createdAt: string;
+  /** The timestamp when the deposit destination was last updated. */
+  updatedAt: string;
+}
+
+/**
  * A deposit destination for receiving funds to an account.
  */
-export type DepositDestination = CryptoDepositDestination;
+export type DepositDestination = CryptoDepositDestination | FiatDepositDestination;
 
 /**
  * Common fields for creating a deposit destination.
@@ -395,13 +1323,14 @@ export interface CreateDepositDestinationRequestBase {
   type: DepositDestinationType;
   target?: DepositDestinationTarget;
   metadata?: Metadata;
+  compliance?: Compliance;
 }
 
 /**
  * Crypto-specific details for creating a deposit destination.
  */
 export interface CreateDepositDestinationCrypto {
-  network: Network;
+  network: PaymentNetwork;
 }
 
 export type CreateCryptoDepositDestinationRequestAllOfType =
@@ -432,9 +1361,59 @@ export type CreateCryptoDepositDestinationRequest = CreateDepositDestinationRequ
   };
 
 /**
+ * The fiat currency for the deposit destination.
+ */
+export type CreateDepositDestinationFiatCurrency =
+  (typeof CreateDepositDestinationFiatCurrency)[keyof typeof CreateDepositDestinationFiatCurrency];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreateDepositDestinationFiatCurrency = {
+  usd: "usd",
+} as const;
+
+/**
+ * Fiat-specific request fields for creating a deposit destination. The server determines the account type and provisioning method based on the account's eligibility. Optionally specify a `paymentRail` to target a specific payment rail, which may influence banking partner selection.
+ */
+export interface CreateDepositDestinationFiat {
+  /** The fiat currency for the deposit destination. */
+  currency: CreateDepositDestinationFiatCurrency;
+  /** Optional. The desired payment rail. When omitted, the server provisions the default banking partner and returns all rails the account supports. When specified, the server selects a banking partner that supports the requested rail. */
+  paymentRail?: DepositDestinationPaymentRail;
+}
+
+export type CreateFiatDepositDestinationRequestAllOfType =
+  (typeof CreateFiatDepositDestinationRequestAllOfType)[keyof typeof CreateFiatDepositDestinationRequestAllOfType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreateFiatDepositDestinationRequestAllOfType = {
+  fiat: "fiat",
+} as const;
+
+export type CreateFiatDepositDestinationRequestAllOf = {
+  type?: CreateFiatDepositDestinationRequestAllOfType;
+  /** Fiat-specific details. Required when `type` is `fiat`. */
+  fiat: CreateDepositDestinationFiat;
+};
+
+export type CreateFiatDepositDestinationRequestType =
+  (typeof CreateFiatDepositDestinationRequestType)[keyof typeof CreateFiatDepositDestinationRequestType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreateFiatDepositDestinationRequestType = {
+  fiat: "fiat",
+} as const;
+
+export type CreateFiatDepositDestinationRequest = CreateDepositDestinationRequestBase &
+  CreateFiatDepositDestinationRequestAllOf & {
+    type: CreateFiatDepositDestinationRequestType;
+  };
+
+/**
  * Request to create a new deposit destination. Provide the type-specific details matching the chosen `type`.
  */
-export type CreateDepositDestinationRequest = CreateCryptoDepositDestinationRequest;
+export type CreateDepositDestinationRequest =
+  | CreateCryptoDepositDestinationRequest
+  | CreateFiatDepositDestinationRequest;
 
 /**
  * The current status of the transfer, indicating what action you need to take next. Required when validateOnly is false.
@@ -454,71 +1433,80 @@ export const TransferStatus = {
 } as const;
 
 /**
- * An email address. Maximum length 254 characters per [RFC 5321](https://www.rfc-editor.org/rfc/rfc5321).
- * @maxLength 254
- * @pattern ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}/-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$
- */
-export type Email = string;
-
-/**
  * The Account specific details for the transfer.
  */
 export interface TransfersAccount {
   /** The ID of the Account. */
-  accountId: string;
+  accountId: AccountId;
+  /** The asset symbol. Supported values are `usdc`, `eurc`, `usd`, and `eur`. */
   asset: Asset;
 }
+
+/**
+ * The ID of the Payment Method, which is a UUID prefixed by the string `paymentMethod_`.
+ * @pattern ^paymentMethod_[a-f0-9\-]{36}$
+ */
+export type PaymentMethodId = string;
 
 /**
  * The Payment Method specific details for the transfer.
  */
 export interface PaymentMethod {
   /** The ID of the Payment Method. */
-  paymentMethodId: string;
+  paymentMethodId: PaymentMethodId;
+  /** The asset symbol. Supported values are `usd` and `eur`. */
   asset: Asset;
 }
 
 /**
- * The target of the payment is an onchain address.
+ * The originating ACH deposit details for the transfer source. Present when funds were deposited via ACH into a deposit destination.
  */
-export interface OnchainAddress {
-  /** The onchain crypto address of the recipient.
-
-Examples:
-- EVM address: 0xabc1234567890abcdef1234567890abcdef123456
-- Solana address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
-- XRP address: rhccc5p23aKiCGFcEqqnjEfLRZ6xEvfy3s
- */
-  address: BlockchainAddress;
-  network: Network;
-  /** The destination tag of the onchain address. Destination tags are used by certain networks
-(primarily XRP/Ripple) to identify specific recipients when multiple users share a single address.
-The tag ensures funds are credited to the correct account within the shared address.
-
-Examples by network:
-- XRP/Ripple: Numeric values like "1234567890" or "123456"
-- Stellar (XLM): Memos which can be text, ID, or hash format
-
-Note: Most networks (Ethereum, Bitcoin, Solana) do not use destination tags.
- */
-  destinationTag?: string;
-  /** Asset symbol of the payment received by the recipient. */
-  asset: Asset;
-}
-
-/**
- * The originating US bank account details for the transfer source. Present when funds were deposited from an external bank account into a deposit destination. Only the last 4 digits of the account number are exposed.
- */
-export interface OriginatingBankAccountUS {
-  /** The name of the bank that originated the deposit. */
-  bankName: string;
+export interface AchDepositSource {
+  /** The fiat currency of the ACH deposit (e.g., `usd`). */
+  currency: Asset;
   /**
-   * The last 4 digits of the originating bank account number.
-   * @pattern ^[0-9]{4}$
+   * The company name from the ACH batch header record. Masked on webhook payloads.
+   * @maxLength 16
    */
-  accountLast4: string;
-  /** The fiat currency of the deposit (e.g., `usd`). */
-  currency: string;
+  companyName: string;
+  /**
+   * The company entry description from the ACH batch header record.
+   * @maxLength 10
+   */
+  companyEntryDescription: string;
+  /**
+   * The individual identification number from the ACH entry detail record. For Person-to-Person WEB credit Entries, this field is required and contains the name of the consumer Originator. Masked on webhook payloads.
+   * @maxLength 15
+   */
+  individualIdentificationNumber?: string;
+}
+
+/**
+ * The originating Fedwire deposit details for the transfer source. Present when funds were deposited via Fedwire into a deposit destination.
+ */
+export interface FedwireDepositSource {
+  /** The fiat currency of the Fedwire deposit (e.g., `usd`). */
+  currency: Asset;
+  /**
+   * The Output Message Accountability Data (OMAD), a unique identifier assigned by the Fedwire network to the wire transfer message.
+   * @maxLength 22
+   */
+  omad: string;
+  /**
+   * The originator's bank account number. Masked on webhook payloads.
+   * @pattern ^[0-9]{4,17}$
+   */
+  accountNumber: string;
+  /**
+   * The name of the originator. Masked on webhook payloads.
+   * @maxLength 35
+   */
+  originatorName: string;
+  /**
+   * The Originator to Beneficiary Information (OBI) lines from the Fedwire message. Up to 4 lines, each up to 35 characters. Free-form and may contain identifying information about the originator. Masked on webhook payloads.
+   * @maxItems 4
+   */
+  originatorToBeneficiary?: string[];
 }
 
 /**
@@ -528,7 +1516,8 @@ export type TransferSource =
   | TransfersAccount
   | PaymentMethod
   | OnchainAddress
-  | OriginatingBankAccountUS;
+  | AchDepositSource
+  | FedwireDepositSource;
 
 /**
  * The target of the payment is an email address.
@@ -649,7 +1638,7 @@ export const TravelRuleStatus = {
 export type TransferDetailsOnchainTransactionsItem = {
   /** The transaction hash. */
   transactionHash: string;
-  network: Network;
+  network: PaymentNetwork;
 };
 
 /**
@@ -713,39 +1702,46 @@ export interface Transfer {
 /**
  * The source of the transfer.
  */
-export type CreateTransferSource = TransfersAccount | PaymentMethod;
+export type CreateTransferSource = TransfersAccount;
 
 /**
- * A physical address with standard address components including street, city, state/province, postal code, and country.
+ * A positive decimal string without scientific notation or whitespace.
+ * @pattern ^\+?(?:(?:0*[1-9]\d*)(?:\.\d*)?|0*\.\d*[1-9]\d*)$
  */
-export interface PhysicalAddress {
-  /** Primary street address. */
-  line1?: string;
-  /** Secondary address information. */
-  line2?: string;
-  /** City or locality. */
-  city?: string;
-  /** State, province, or region. */
-  state?: string;
-  /** Postal or ZIP code. */
-  postCode?: string;
-  /**
-   * ISO 3166-1 alpha-2 country code (2 characters). See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes.
-   * @minLength 2
-   * @maxLength 2
-   */
-  countryCode?: string;
-}
+export type PositiveDecimal = string;
+
+/**
+ * Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.
+
+**Background:**
+
+The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.
+
+**Set to `true` when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).
+
+**Set to `false` (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization's own funds.
+
+**Impact on required fields:**
+
+When `isIntermediary` is `true`, you must provide the `originator` object with the following details:
+- The originator's (i.e. your end customer's) name
+- The originator's address
+- Your organization's VASP information (`virtualAssetServiceProvider` object with `identifier`, `name`, and `address`)
+
+In certain jurisdictions, `personalId` and `dateOfBirth` must also reflect the **original sender's** identity — not your organization's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
+
+ */
+export type IsIntermediary = boolean;
 
 /**
  * Information about a party (originator or beneficiary) for travel rule compliance.
  */
 export interface TravelRuleParty {
-  /** Name of the financial institution. */
-  financialInstitution?: string;
   /** Full name of the party. */
   name?: string;
   address?: PhysicalAddress;
+  /** Name of the financial institution. */
+  financialInstitution?: string;
 }
 
 /**
@@ -779,12 +1775,12 @@ export interface DateOfBirth {
  * Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers.
  */
 export type TravelRuleOriginatorAllOfVirtualAssetServiceProvider = {
+  /** The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP). */
+  identifier?: string;
   /** The name of the originating Virtual Asset Service Provider (VASP). */
   name?: string;
   /** The address of the originating Virtual Asset Service Provider (VASP). */
   address?: PhysicalAddress;
-  /** The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP). */
-  identifier?: string;
 };
 
 export type TravelRuleOriginatorAllOf = {
@@ -829,31 +1825,11 @@ export type TravelRuleBeneficiary = TravelRuleParty & TravelRuleBeneficiaryAllOf
 export interface TravelRule {
   /** Indicates whether the user attests that the receiving wallet belongs to them. */
   isSelf?: boolean;
-  /** Indicates whether Coinbase is being used as an intermediary Virtual Asset Service Provider (VASP) to send crypto on behalf of your customer.
+  isIntermediary?: IsIntermediary;
+  /** When `true`, you attest that the beneficiary's wallet ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this transfer.
 
-**Background:**
-
-The Travel Rule (FATF Recommendation 16) requires VASPs to share originator and beneficiary information for virtual asset transfers. When Coinbase acts as an intermediary, additional Travel Rule data must be provided to satisfy compliance requirements.
-
-**Set to `true` when:**
-
-- Your organization is a VASP using Coinbase to send crypto **on behalf of your end customer**
-- In this scenario, Coinbase acts as an intermediary in the transfer chain and handles Travel Rule data exchange with the beneficiary VASP
-
-**Set to `false` (or omit) when:**
-
-- You are transferring funds directly from your own Coinbase account, where **Coinbase is your primary VASP** rather than an intermediary for another institution
-
-**Impact on required fields:**
-
-When `isIntermediary` is `true`, you must provide the `originator` object with details about the **original sender**, including:
-- Originator name
-- Originator address
-- Your VASP information (`virtualAssetServiceProvider` object with `name`, `address`, and `identifier`)
-
-For jurisdictions that require them (such as Coinbase Luxembourg), `personalIdentification` and `dateOfBirth` must also reflect the **original sender's** identity — not the intermediary's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
- */
-  isIntermediary?: boolean;
+**Only valid when `isIntermediary` is `true`.** You can only attest to the beneficiary's wallet ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted. */
+  attestVerifiedWalletOwnership?: boolean;
   originator?: TravelRuleOriginator;
   beneficiary?: TravelRuleBeneficiary;
 }
@@ -881,7 +1857,7 @@ export interface TransferRequest {
   source: CreateTransferSource;
   target: TransferTarget;
   /** The amount of the transfer, as a decimal string in standard unit denomination of the asset specified by `asset` (e.g., "100.00" for 100 USD, "0.05" for 0.05 ETH). */
-  amount: string;
+  amount: PositiveDecimal;
   /** The symbol of the asset for the amount. This must be one of the assets of the source or target. */
   asset: Asset;
   /** Specifies whether the given amount is to be received by the target or taken from the source.
@@ -930,13 +1906,15 @@ export interface DepositTravelRuleOriginator {
   /** Full name of the originator. */
   name?: string;
   address?: PhysicalAddress;
-  /** The type of the originator's wallet. */
-  walletType?: DepositTravelRuleOriginatorWalletType;
+  /** Name of the financial institution. */
+  financialInstitution?: string;
   virtualAssetServiceProvider?: DepositTravelRuleVasp;
   /** Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier). */
   personalId?: string;
   /** Date of birth of the originator. */
   dateOfBirth?: DateOfBirth;
+  /** The type of the originator's wallet. */
+  walletType?: DepositTravelRuleOriginatorWalletType;
 }
 
 /**
@@ -951,12 +1929,17 @@ export interface DepositTravelRuleBeneficiary {
  * Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
  */
 export interface DepositTravelRuleRequest {
+  /** Indicates whether the user attests that the originating wallet belongs to them. */
+  isSelf?: boolean;
+  isIntermediary?: IsIntermediary;
+  /** When `true`, you attest that the originating wallet's ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this travel-rule submission.
+
+**Only valid when `isIntermediary` is `true`.** You can only attest to the originating wallet's ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted. */
+  attestVerifiedWalletOwnership?: boolean;
   /** Originator information for the travel rule submission. */
   originator?: DepositTravelRuleOriginator;
   /** Beneficiary information for the travel rule submission. */
   beneficiary?: DepositTravelRuleBeneficiary;
-  /** Indicates whether the user attests that the originating wallet belongs to them. */
-  isSelf?: boolean;
 }
 
 /**
@@ -968,6 +1951,871 @@ export interface DepositTravelRuleResponse {
   missingFields?: string[];
   /** Additional context about the current status. Present when status is `incomplete` to explain what needs to be fixed before the transfer can proceed. */
   reason?: string;
+}
+
+/**
+ * The ID of the payment session, a UUID prefixed by `paymentSession_`.
+ * @pattern ^paymentSession_[a-f0-9\-]{36}$
+ */
+export type PaymentSessionId = string;
+
+/**
+ * The blockchain network supported for payment session targets. Testnet networks are only available in sandbox environments.
+ */
+export type PaymentTargetNetwork = (typeof PaymentTargetNetwork)[keyof typeof PaymentTargetNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentTargetNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * A blockchain wallet address used as a payment target (merchant recipient).
+ */
+export interface PaymentTargetWallet {
+  /** The blockchain address of the recipient. */
+  address: BlockchainAddress;
+  /** The blockchain network for the payment. */
+  network?: PaymentTargetNetwork;
+}
+
+/**
+ * The target of the payment.
+ */
+export type PaymentSessionTarget = PaymentTargetWallet | TransfersAccount;
+
+/**
+ * Deadlines for each stage of the payment session lifecycle. All fields are optional; when omitted from a create request, the following defaults apply: `authorizationExpiresAt` = now + 1 day, `captureExpiresAt` = now + 7 days, `refundExpiresAt` = now + 30 days.
+
+Expiries must satisfy `authorizationExpiresAt` ≤ `captureExpiresAt` ≤ `refundExpiresAt`. The API returns a 400 error if this constraint is violated.
+
+Each deadline acts as a guard — after it passes, the corresponding action is rejected, but the session remains in its current status. No automatic state transitions occur; the merchant must take explicit action (e.g., cancel or void) to move the session to a terminal state.
+ */
+export interface PaymentExpiries {
+  /** The UTC ISO 8601 timestamp after which authorization attempts are rejected. Defaults to now + 1 day if omitted. The session remains in its current pre-authorization status; the merchant must explicitly cancel the session. */
+  authorizationExpiresAt?: string;
+  /** The UTC ISO 8601 timestamp after which capture attempts are rejected. Defaults to now + 7 days if omitted. The session remains in its current status; the merchant must explicitly void to release uncaptured funds. */
+  captureExpiresAt?: string;
+  /** The UTC ISO 8601 timestamp after which refund attempts are rejected. Defaults to now + 30 days if omitted. The session remains in its current status; the refund window is simply closed. */
+  refundExpiresAt?: string;
+}
+
+/**
+ * The blockchain network supported for payment session sources. Testnet networks are only available in sandbox environments.
+ */
+export type PaymentSourceNetwork = (typeof PaymentSourceNetwork)[keyof typeof PaymentSourceNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentSourceNetwork = {
+  arbitrum: "arbitrum",
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  optimism: "optimism",
+  "optimism-sepolia": "optimism-sepolia",
+  polygon: "polygon",
+  "polygon-amoy": "polygon-amoy",
+} as const;
+
+/**
+ * A blockchain wallet address used as a payment source.
+ */
+export interface PaymentSourceWallet {
+  /** The blockchain address of the payer. */
+  address: BlockchainAddress;
+  /** The blockchain network for the payment. */
+  network?: PaymentSourceNetwork;
+  /** The asset used for the payment. */
+  asset?: Asset;
+}
+
+/**
+ * A Coinbase account authenticated via OAuth, used as a payment source.
+ */
+export interface PaymentSourceCoinbase {
+  /** The unique identifier of the payer within Coinbase. */
+  coinbaseUserId: string;
+}
+
+/**
+ * The source of the payment. Can be either an onchain wallet address or a Coinbase account authenticated via OAuth.
+ */
+export type PaymentSessionSource = PaymentSourceWallet | PaymentSourceCoinbase;
+
+/**
+ * The most recent meaningful event on the payment session.
+For session-level milestones the value is one of `created` or `canceled`. For action outcomes the value follows the pattern `{action}_{result}` — e.g. `authorization_succeeded`, `capture_pending`, `refund_failed`.
+ */
+export type PaymentSessionStatus = (typeof PaymentSessionStatus)[keyof typeof PaymentSessionStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentSessionStatus = {
+  PaymentSessionStatusCreated: "created",
+  PaymentSessionStatusCanceled: "canceled",
+  PaymentSessionStatusAuthorizationPending: "authorization_pending",
+  PaymentSessionStatusAuthorizationSucceeded: "authorization_succeeded",
+  PaymentSessionStatusAuthorizationFailed: "authorization_failed",
+  PaymentSessionStatusCapturePending: "capture_pending",
+  PaymentSessionStatusCaptureSucceeded: "capture_succeeded",
+  PaymentSessionStatusCaptureFailed: "capture_failed",
+  PaymentSessionStatusVoidPending: "void_pending",
+  PaymentSessionStatusVoidSucceeded: "void_succeeded",
+  PaymentSessionStatusVoidFailed: "void_failed",
+  PaymentSessionStatusRefundPending: "refund_pending",
+  PaymentSessionStatusRefundSucceeded: "refund_succeeded",
+  PaymentSessionStatusRefundFailed: "refund_failed",
+} as const;
+
+/**
+ * Running totals tracking how funds move through the session. All amounts are decimal representations denominated in the session's `asset`.
+ */
+export interface PaymentSessionBalances {
+  /** Authorized funds not yet captured or voided. Decreases with each capture or void. */
+  capturable?: string;
+  /** Total funds captured across all captures. */
+  captured?: string;
+  /** Captured funds not yet refunded. Equals `captured` minus `refunded`. */
+  refundable?: string;
+  /** Total funds refunded across all refunds. */
+  refunded?: string;
+}
+
+/**
+ * The ID of the authorization, a UUID prefixed by `authorization_`.
+ * @pattern ^authorization_[a-f0-9\-]{36}$
+ */
+export type AuthorizationId = string;
+
+/**
+ * The current status of a payment action (authorization, capture, void, or refund).
+ */
+export type PaymentActionStatus = (typeof PaymentActionStatus)[keyof typeof PaymentActionStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentActionStatus = {
+  pending: "pending",
+  succeeded: "succeeded",
+  failed: "failed",
+} as const;
+
+/**
+ * An error that occurred during a payment operation.
+ */
+export interface PaymentError {
+  /** A machine-readable error code. */
+  code?: string;
+  /** A human-readable description of the error. */
+  message?: string;
+  /** The UTC ISO 8601 timestamp at which the error occurred. */
+  occurredAt?: string;
+}
+
+/**
+ * An onchain transaction associated with a payment action.
+ */
+export interface OnchainTransaction {
+  /** The blockchain transaction hash. */
+  transactionHash: string;
+  /** The blockchain network the transaction occurred on. */
+  network: PaymentSourceNetwork;
+}
+
+/**
+ * A hold placed on the payer's funds. Once authorized, the merchant can capture (collect) the funds. Only one authorization is allowed per session.
+ */
+export interface Authorization {
+  /** The unique identifier of the authorization. */
+  authorizationId?: AuthorizationId;
+  /** The ID of the payment session this authorization belongs to. */
+  paymentSessionId?: PaymentSessionId;
+  /** The current status of the authorization. */
+  status?: PaymentActionStatus;
+  /** A decimal representation of the authorized amount, denominated in the session's `asset`. */
+  amount?: string;
+  error?: PaymentError;
+  /** A human-readable message describing the outcome or status for display. Returned for x402 authorizations; omitted for other authorization flows unless documented otherwise. */
+  message?: string;
+  metadata?: Metadata;
+  /** The payer for this authorization. For wallet authorizations, this is the blockchain address that signed the payloads. For Coinbase authorizations, this is the authenticated Coinbase account. This value is also reflected on the parent payment session's `source` field after a successful authorization. */
+  source?: PaymentSessionSource;
+  /** The onchain transactions associated with this authorization. */
+  onchainTransactions?: OnchainTransaction[];
+  /** The UTC ISO 8601 timestamp at which the authorization was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the authorization was last updated. */
+  updatedAt?: string;
+}
+
+/**
+ * The ID of the capture, a UUID prefixed by `capture_`.
+ * @pattern ^capture_[a-f0-9\-]{36}$
+ */
+export type CaptureId = string;
+
+/**
+ * A collection of authorized funds. Multiple partial captures are allowed up to the authorized amount. Each capture settles funds to the merchant's target.
+ */
+export interface Capture {
+  /** The unique identifier of the capture. */
+  captureId?: CaptureId;
+  /** The ID of the payment session this capture belongs to. */
+  paymentSessionId?: PaymentSessionId;
+  /** The current status of the capture. */
+  status?: PaymentActionStatus;
+  /** A decimal representation of the captured amount, denominated in the session's `asset`. */
+  amount?: string;
+  /** When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release. */
+  finalCapture: boolean;
+  error?: PaymentError;
+  metadata?: Metadata;
+  /** The onchain transactions associated with this capture. */
+  onchainTransactions?: OnchainTransaction[];
+  /** The UTC ISO 8601 timestamp at which the capture was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the capture was last updated. */
+  updatedAt?: string;
+}
+
+/**
+ * The ID of the void, a UUID prefixed by `void_`.
+ * @pattern ^void_[a-f0-9\-]{36}$
+ */
+export type VoidId = string;
+
+/**
+ * A release of uncaptured authorized funds back to the payer. Voids release all remaining capturable funds in a single operation, including after partial refunds as long as a capturableAmount remains.
+ */
+export interface Void {
+  /** The unique identifier of the void. */
+  voidId?: VoidId;
+  /** The ID of the payment session this void belongs to. */
+  paymentSessionId?: PaymentSessionId;
+  /** The current status of the void. */
+  status?: PaymentActionStatus;
+  /** A decimal representation of the voided amount, denominated in the session's `asset`. */
+  amount?: string;
+  error?: PaymentError;
+  metadata?: Metadata;
+  /** The onchain transactions associated with this void. */
+  onchainTransactions?: OnchainTransaction[];
+  /** The UTC ISO 8601 timestamp at which the void was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the void was last updated. */
+  updatedAt?: string;
+}
+
+/**
+ * The ID of the refund, a UUID prefixed by `refund_`.
+ * @pattern ^refund_[a-f0-9\-]{36}$
+ */
+export type RefundId = string;
+
+/**
+ * An onchain address from which funds are pulled to fund the refund. Network and asset are inferred from the payment session.
+ */
+export interface RefundWallet {
+  /** The onchain crypto address from which to fund the refund. */
+  address: BlockchainAddress;
+}
+
+/**
+ * The source from which a refund is funded.
+ */
+export type RefundSource = TransfersAccount | RefundWallet;
+
+/**
+ * A return of previously captured funds to the payer. Multiple partial refunds are allowed up to the total captured amount.
+ */
+export interface Refund {
+  /** The unique identifier of the refund. */
+  refundId?: RefundId;
+  /** The ID of the payment session this refund belongs to. */
+  paymentSessionId?: PaymentSessionId;
+  /** The source from which the refund is funded. Can be a CDP account or an onchain address. */
+  source?: RefundSource;
+  /** The current status of the refund. */
+  status?: PaymentActionStatus;
+  /** A decimal representation of the refunded amount, denominated in the session's `asset`. */
+  amount?: string;
+  /** The reason for the refund. */
+  reason?: string;
+  error?: PaymentError;
+  metadata?: Metadata;
+  /** The onchain transactions associated with this refund. */
+  onchainTransactions?: OnchainTransaction[];
+  /** The UTC ISO 8601 timestamp at which the refund was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the refund was last updated. */
+  updatedAt?: string;
+}
+
+/**
+ * Redirect URLs used to direct the payer after a web-based payment flow completes or fails.
+ */
+export interface PaymentRedirect {
+  /** The URL to redirect the payer to on payment failure. */
+  failureUrl?: Url;
+  /** The URL to redirect the payer to on payment success. */
+  successUrl?: Url;
+}
+
+/**
+ * The amount to present to the payer, which may differ from the authoritative settlement amount and asset. Commonly used when the payer's local currency differs from the settlement currency (e.g., charging in USD but displaying the equivalent in CAD). Stored and returned as-is — no cross-validation is performed against the authoritative `amount` and `asset`. Both `amount` and `currency` must be provided together.
+ */
+export type CustomerDisplayDisplayAmount = {
+  /** The display amount as a decimal string (e.g., `"1.37"`). */
+  amount: string;
+  /** An ISO 4217 currency code in lowercase for the display amount (e.g., `cad`, `usd`). */
+  currency: string;
+};
+
+/**
+ * Merchant-provided display data shown to the payer during checkout. All fields are informational only — stored and returned as-is, with no effect on payment processing, settlement, or validation.
+ */
+export interface CustomerDisplay {
+  /**
+   * The merchant name to display on the payment UI. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
+   * @maxLength 128
+   */
+  merchantName?: string;
+  /** The amount to present to the payer, which may differ from the authoritative settlement amount and asset. Commonly used when the payer's local currency differs from the settlement currency (e.g., charging in USD but displaying the equivalent in CAD). Stored and returned as-is — no cross-validation is performed against the authoritative `amount` and `asset`. Both `amount` and `currency` must be provided together. */
+  displayAmount?: CustomerDisplayDisplayAmount;
+}
+
+/**
+ * Tracks the full lifecycle of a payment from creation through settlement. Typical flow: **Create** → **Authorize** (via payment method) → **Capture**. Optional: **Void** to release uncaptured funds, or **Refund** to return captured funds.
+ */
+export interface PaymentSession {
+  /** The unique identifier of the payment session. */
+  paymentSessionId?: PaymentSessionId;
+  /** The ID of the entity that owns the payment session. */
+  entityId?: string;
+  /** A decimal representation of the payment amount, denominated in `asset`. */
+  amount?: string;
+  /** The symbol of the asset for the payment amount. */
+  asset?: Asset;
+  /** The target of the payment session. */
+  target?: PaymentSessionTarget;
+  /** When true, a capture is automatically created after a successful authorization. When false or omitted, the merchant must create captures manually via the captures endpoint. */
+  autoCapture?: boolean;
+  expiries?: PaymentExpiries;
+  /** The source of the payment session. Set after a successful authorization. Not present before authorization. */
+  source?: PaymentSessionSource;
+  /** The most recent meaningful event on the payment session. */
+  status?: PaymentSessionStatus;
+  balances?: PaymentSessionBalances;
+  /** The authorizations for this payment session. */
+  authorizations?: Authorization[];
+  /** The captures for this payment session. */
+  captures?: Capture[];
+  /** The voids for this payment session. */
+  voids?: Void[];
+  /** The refunds for this payment session. */
+  refunds?: Refund[];
+  /** A URL to the hosted payment page where the payer can complete this payment session. */
+  readonly url?: Url;
+  /** URL for the hosted x402 payment flow. This endpoint expects an HTTP **POST** request (for example, submitting the x402 payment via request headers); do not treat it as a page opened with GET alone. Only present when the payment target supports a wallet source. */
+  readonly x402Url?: Url;
+  redirect?: PaymentRedirect;
+  customerDisplay?: CustomerDisplay;
+  metadata?: Metadata;
+  /**
+   * A merchant-provided internal identifier for this payment session, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+   * @maxLength 256
+   */
+  externalReferenceId?: string;
+  /** The reason the payment session was canceled. Only present when the session has been canceled. */
+  cancellationReason?: string;
+  /** The UTC ISO 8601 timestamp at which the payment session was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the payment session was last updated. */
+  updatedAt?: string;
+}
+
+/**
+ * A natural person, identified by name and physical address.
+ */
+export interface Person {
+  /** Full legal name of the person. */
+  name?: string;
+  /** Physical address of the person. */
+  address?: PhysicalAddress;
+}
+
+export type PaymentSessionComplianceAllOf = {
+  /** Information about the person paying. Required by some entity configurations to meet regulatory requirements for fund transfers. When required, omitting this field or leaving required sub-fields empty returns a 400 listing the specific fields needed. */
+  buyer?: Person;
+};
+
+/**
+ * Compliance context for a payment session request. Extends the base Compliance schema with buyer information required for travel rule obligations.
+This object is request-only — it is never echoed back in responses.
+ */
+export type PaymentSessionCompliance = Compliance & PaymentSessionComplianceAllOf;
+
+/**
+ * A request to create a new payment session.
+ */
+export interface CreatePaymentSessionRequest {
+  /** A decimal representation of the payment amount, denominated in `asset`. */
+  amount: string;
+  /** The symbol of the asset for the payment amount. */
+  asset: Asset;
+  /** The target of the payment session. */
+  target: PaymentSessionTarget;
+  expiries?: PaymentExpiries;
+  redirect?: PaymentRedirect;
+  /** When true, a capture is automatically created after a successful authorization. When false or omitted, the merchant must create captures manually via the captures endpoint. */
+  autoCapture?: boolean;
+  /**
+   * A merchant-provided internal identifier for this payment session, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+   * @maxLength 256
+   */
+  externalReferenceId?: string;
+  customerDisplay?: CustomerDisplay;
+  metadata?: Metadata;
+  /** Compliance context for this payment session. Carries buyer information required by some entity configurations to meet regulatory requirements. */
+  compliance?: PaymentSessionCompliance;
+}
+
+/**
+ * A request to cancel a payment session.
+ */
+export interface CancelPaymentSessionRequest {
+  /** The reason for cancelling the payment session. */
+  cancellationReason?: string;
+}
+
+/**
+ * The domain of the EIP-712 typed data.
+ */
+export interface EIP712Domain {
+  /** The name of the DApp or protocol. */
+  name?: string;
+  /** The version of the DApp or protocol. */
+  version?: string;
+  /** The chain ID of the EVM network. */
+  chainId?: number;
+  /**
+   * The 0x-prefixed EVM address of the verifying smart contract.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  verifyingContract?: string;
+  /**
+   * The optional 32-byte 0x-prefixed hex salt for domain separation.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  salt?: string;
+}
+
+/**
+ * A mapping of struct names to an array of type objects (name + type).
+Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+
+ */
+export interface EIP712Types {
+  [key: string]: unknown;
+}
+
+/**
+ * The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
+ */
+export type EIP712MessageMessage = { [key: string]: unknown };
+
+/**
+ * The message to sign using EIP-712.
+ */
+export interface EIP712Message {
+  domain: EIP712Domain;
+  types: EIP712Types;
+  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
+  primaryType: string;
+  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712MessageMessage;
+}
+
+/**
+ * The payload type.
+ */
+export type EIP3009PayloadType = (typeof EIP3009PayloadType)[keyof typeof EIP3009PayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EIP3009PayloadType = {
+  eip3009: "eip3009",
+} as const;
+
+/**
+ * An EIP-3009 TransferWithAuthorization typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
+ */
+export interface EIP3009Payload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  /** The payload type. */
+  type: EIP3009PayloadType;
+  /** EIP-712 typed data for a TransferWithAuthorization. Pass to `eth_signTypedData_v4`. */
+  data: EIP712Message;
+}
+
+/**
+ * The payload type.
+ */
+export type Permit2PayloadType = (typeof Permit2PayloadType)[keyof typeof Permit2PayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Permit2PayloadType = {
+  permit2: "permit2",
+} as const;
+
+/**
+ * A Permit2 PermitTransferFrom typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
+ */
+export interface Permit2Payload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  /** The payload type. */
+  type: Permit2PayloadType;
+  /** EIP-712 typed data for a Permit2 PermitTransferFrom. Pass to `eth_signTypedData_v4`. */
+  data: EIP712Message;
+}
+
+/**
+ * The payload type.
+ */
+export type Erc20ApprovalPayloadType =
+  (typeof Erc20ApprovalPayloadType)[keyof typeof Erc20ApprovalPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Erc20ApprovalPayloadType = {
+  erc20_approval: "erc20_approval",
+} as const;
+
+/**
+ * An EVM transaction object. Send via `eth_sendTransaction`.
+ */
+export type Erc20ApprovalPayloadData = {
+  /** The EVM chain ID for the transaction. */
+  chainId: number;
+  /**
+   * The 0x-prefixed address of the ERC-20 token contract to approve.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  to: string;
+  /** The ABI-encoded `approve()` calldata. */
+  data: string;
+  /** The native token value to send (always `"0"` for approvals). */
+  value: string;
+  /** The estimated gas limit for the transaction. */
+  gas?: string;
+  /** The maximum fee per gas unit (EIP-1559). */
+  maxFeePerGas?: string;
+  /** The maximum priority fee per gas unit (EIP-1559). */
+  maxPriorityFeePerGas?: string;
+};
+
+/**
+ * An ERC-20 approval transaction payload. The payer must send `data` as an EVM transaction via `eth_sendTransaction` and return the resulting transaction hash.
+ */
+export interface Erc20ApprovalPayload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  /** The payload type. */
+  type: Erc20ApprovalPayloadType;
+  /** An EVM transaction object. Send via `eth_sendTransaction`. */
+  data: Erc20ApprovalPayloadData;
+}
+
+/**
+ * The payload type.
+ */
+export type SpendPermissionPayloadType =
+  (typeof SpendPermissionPayloadType)[keyof typeof SpendPermissionPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SpendPermissionPayloadType = {
+  spend_permission: "spend_permission",
+} as const;
+
+/**
+ * A spend permission EIP-712 typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. This grants a spender the ability to transfer tokens from the payer's smart account under the specified constraints (allowance, period, expiry).
+ */
+export interface SpendPermissionPayload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  /** The payload type. */
+  type: SpendPermissionPayloadType;
+  /** EIP-712 typed data for a SpendPermission approval. Pass to `eth_signTypedData_v4`. */
+  data: EIP712Message;
+}
+
+/**
+ * A single onchain payload the payer must process to complete an onchain payment option. Inspect `type` to determine how to handle the `data` field:
+- `eip3009` — pass `data` to `eth_signTypedData_v4`, return the signature.
+- `permit2` — pass `data` to `eth_signTypedData_v4`, return the signature.
+- `erc20_approval` — send `data` via `eth_sendTransaction`, return the transaction hash.
+- `spend_permission` — pass `data` to `eth_signTypedData_v4`, return the signature.
+ */
+export type OnchainSignaturePayload =
+  | EIP3009Payload
+  | Permit2Payload
+  | Erc20ApprovalPayload
+  | SpendPermissionPayload;
+
+/**
+ * An authorization option for completing payment via a wallet. Specifies the currency, amount, and network the payer would pay on, and the payloads the payer must sign or submit.
+ */
+export interface WalletAuthorizationOption {
+  /** The unique identifier of the authorization option. */
+  optionId: string;
+  /** The source address this authorization option applies to. */
+  source: PaymentSourceWallet;
+  /** A decimal representation of the amount the payer would pay if they choose this option, denominated in `asset`. May differ from the session amount when paying in a different asset. */
+  amount: string;
+  /** The symbol of the asset the payer would pay in for this option. */
+  asset: Asset;
+  /** The blockchain network the transaction will occur on for this option. */
+  network: PaymentSourceNetwork;
+  /** The payloads the payer must sign or submit to authorize the payment via this option. */
+  payloads: OnchainSignaturePayload[];
+}
+
+/**
+ * Describes, for one enabled (network, asset) combination, what the payer would need to fund a source address with so that it becomes eligible to authorize the payment. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings, formatted the same way as `WalletAuthorizationOption.amount`.
+ */
+export interface WalletAuthorizationFundsRequirement {
+  /** The symbol of the asset the payer would fund on this network. */
+  asset: Asset;
+  /** The blockchain network this funding requirement applies to. */
+  network: PaymentSourceNetwork;
+  /** A decimal representation of the address's current balance of `asset` on this `network`. */
+  currentBalance: string;
+  /** A decimal representation of the balance of `asset` the payer must hold on this `network` to become eligible to authorize the payment. */
+  requiredBalance: string;
+}
+
+/**
+ * A machine-readable code indicating why this address has no eligible authorization option. The enum is closed — any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+ */
+export type IneligibleWalletAuthorizationAddressCode =
+  (typeof IneligibleWalletAuthorizationAddressCode)[keyof typeof IneligibleWalletAuthorizationAddressCode];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IneligibleWalletAuthorizationAddressCode = {
+  /** The address does not hold enough of the session asset on a supported source network to cover the session amount. */
+  insufficient_funds: "insufficient_funds",
+  /** The address was superseded because a preferred funding option was selected instead. */
+  superseded_by_preferred_option: "superseded_by_preferred_option",
+} as const;
+
+/**
+ * A requested payer wallet address that has no eligible authorization option for this payment session, along with a machine- and human-readable reason.
+ */
+export interface IneligibleWalletAuthorizationAddress {
+  /** The requested payer wallet address that has no eligible authorization option. */
+  address: BlockchainAddress;
+  /** A machine-readable code indicating why this address has no eligible authorization option. The enum is closed — any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec. */
+  code: IneligibleWalletAuthorizationAddressCode;
+  /** A human-readable, English-language description of why this address has no eligible authorization option. Suitable for surfacing in product UIs — does not contain personally identifiable information or internal infrastructure details. Clients that need localized strings should dispatch on `code` and provide their own translations. */
+  message: string;
+  /** The funding options for this address, one entry per (network, asset) combination the payer could fund to become eligible. Only present when `code` is `insufficient_funds`, and honors the request's `network` and `asset` filters. May be an empty array. */
+  fundsRequired?: WalletAuthorizationFundsRequirement[];
+}
+
+/**
+ * The available wallet authorization options for a payment session. Each option describes one way the payer can authorize the payment from their wallet. Present the options to the payer and let them choose one. Requested addresses with no eligible option appear in `ineligibleAddresses` with a `code` explaining why.
+ */
+export interface WalletAuthorizationOptionsResponse {
+  /** The available wallet authorization options. */
+  options: WalletAuthorizationOption[];
+  /** Requested payer addresses that have no eligible authorization option, each with a `code` explaining why. Empty when every requested address can authorize the payment. */
+  ineligibleAddresses: IneligibleWalletAuthorizationAddress[];
+}
+
+/**
+ * A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:
+- `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.
+- `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+ */
+export interface OnchainSignedPayload {
+  /** The unique identifier of the signed payload. */
+  payloadId?: string;
+  /** The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. */
+  signature?: string;
+}
+
+/**
+ * A request to authorize a payment session using a wallet. The payer selects one of the options returned by the wallet authorization options endpoint and submits the signed payloads.
+ */
+export interface WalletAuthorizationRequest {
+  /** The identifier of the chosen authorization option. Must match an `optionId` from the wallet authorization options response. */
+  optionId: string;
+  /** The processed payloads from the payer, corresponding to the payloads in the selected authorization option. */
+  signedPayloads: OnchainSignedPayload[];
+  metadata?: Metadata;
+}
+
+/**
+ * A request to authorize a payment session using the payer's Coinbase account authenticated via OAuth.
+ */
+export interface CoinbaseAuthorizationRequest {
+  metadata?: Metadata;
+}
+
+/**
+ * A request to create a capture for a payment session.
+ */
+export interface CreateCaptureRequest {
+  /** A decimal representation of the amount to capture, denominated in the session's `asset`. If omitted, the full remaining capturable amount is captured. */
+  amount?: string;
+  /** When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release. */
+  finalCapture: boolean;
+  metadata?: Metadata;
+}
+
+/**
+ * A request to create a void for a payment session. A void releases all remaining capturable funds back to the payer, including after partial refunds as long as a capturableAmount remains.
+ */
+export interface CreateVoidRequest {
+  metadata?: Metadata;
+}
+
+/**
+ * A request to create a refund for a payment session.
+ */
+export interface CreateRefundRequest {
+  /** The source from which to fund the refund. Can be a CDP account or an onchain address. */
+  source: RefundSource;
+  /** A decimal representation of the amount to refund, denominated in the session's `asset`. If omitted, the full remaining refundable amount is refunded. */
+  amount?: string;
+  /** The reason for the refund. */
+  reason?: string;
+  metadata?: Metadata;
+}
+
+/**
+ * The ID of the disbursement, a UUID prefixed by `disbursement_`.
+ * @pattern ^disbursement_[a-f0-9\-]{36}$
+ */
+export type DisbursementId = string;
+
+/**
+ * The source from which the disbursement is funded. Currently restricted to a CDP account owned by the merchant. Modeled as a `oneOf` so additional source types (e.g. a merchant-controlled onchain wallet) can be added without a breaking change.
+ */
+export type DisbursementSource = TransfersAccount;
+
+/**
+ * A Coinbase-user target for the disbursement.
+ */
+export interface DisbursementCoinbaseTarget {
+  /** The unique identifier of the recipient within Coinbase. */
+  coinbaseUserId: string;
+}
+
+/**
+ * The blockchain network for the payment. Supported networks depend on the account type.
+ */
+export type Network = (typeof Network)[keyof typeof Network];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Network = {
+  base: "base",
+  ethereum: "ethereum",
+  solana: "solana",
+  aptos: "aptos",
+  arbitrum: "arbitrum",
+  "arbitrum-sepolia": "arbitrum-sepolia",
+  optimism: "optimism",
+  polygon: "polygon",
+  world: "world",
+  "world-sepolia": "world-sepolia",
+} as const;
+
+/**
+ * An onchain address target for the disbursement.
+ */
+export interface DisbursementWalletTarget {
+  /** The onchain crypto address of the recipient. */
+  address: BlockchainAddress;
+  /** The blockchain network on which the target receives funds. */
+  network: Network;
+}
+
+/**
+ * The target of the disbursement. Can be either a Coinbase user account or an onchain blockchain address.
+ */
+export type DisbursementTarget = DisbursementCoinbaseTarget | DisbursementWalletTarget;
+
+/**
+ * A Disbursement represents a merchant-initiated payment of funds from a CDP account they own to a Coinbase account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.
+
+Disbursements are asynchronous: the resource is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+ */
+export interface Disbursement {
+  /** The unique identifier of the disbursement. */
+  disbursementId: DisbursementId;
+  /** The source from which the disbursement is funded. */
+  source: DisbursementSource;
+  /** The target receiving the disbursement. */
+  target: DisbursementTarget;
+  /** A decimal representation of the disbursed amount, denominated in `asset`. */
+  amount: string;
+  /** The symbol of the asset for the disbursement amount. */
+  asset: Asset;
+  /** The current status of the disbursement. */
+  status: PaymentActionStatus;
+  /** Human-readable reason for the disbursement. */
+  reason?: string;
+  /**
+   * A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+   * @maxLength 256
+   */
+  externalReferenceId?: string;
+  metadata?: Metadata;
+  /** Error details, present only when the disbursement failed. */
+  error?: PaymentError;
+  /** The onchain transactions associated with this disbursement. */
+  onchainTransactions?: OnchainTransaction[];
+  /** The UTC ISO 8601 timestamp at which the disbursement was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the disbursement was last updated. */
+  updatedAt: string;
+}
+
+export type DisbursementComplianceAllOf = {
+  /** Information about the person receiving this disbursement. Required by some entity configurations to meet regulatory requirements for fund transfers. When required, omitting this field or leaving required sub-fields empty returns a 400 listing the specific fields needed. */
+  recipient?: Person;
+};
+
+/**
+ * Compliance context for a disbursement request. Extends the base Compliance schema with recipient information required for travel rule obligations.
+This object is request-only — it is never echoed back in responses.
+ */
+export type DisbursementCompliance = Compliance & DisbursementComplianceAllOf;
+
+/**
+ * A request to create a disbursement.
+ */
+export interface CreateDisbursementRequest {
+  /** The source from which to fund the disbursement. */
+  source: DisbursementSource;
+  /** The target receiving the disbursement. */
+  target: DisbursementTarget;
+  /** A decimal representation of the amount to disburse, denominated in `asset`. */
+  amount: string;
+  /** The symbol of the asset for the disbursement amount. */
+  asset: Asset;
+  /** Human-readable reason for the disbursement. */
+  reason?: string;
+  /**
+   * A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+   * @maxLength 256
+   */
+  externalReferenceId?: string;
+  metadata?: Metadata;
+  /** Compliance context for this disbursement. Carries recipient information required by some entity configurations to meet regulatory requirements. */
+  compliance?: DisbursementCompliance;
 }
 
 /**
@@ -990,12 +2838,6 @@ export interface EmailAuthentication {
   /** The email address of the end user. */
   email: Email;
 }
-
-/**
- * A phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.
- * @pattern ^\+[1-9]\d{1,14}$
- */
-export type PhoneNumber = string;
 
 /**
  * The type of authentication information.
@@ -1166,6 +3008,16 @@ export interface EndUserEvmAccount {
   address: string;
   /** The date and time when the account was created, in ISO 8601 format. */
   createdAt: string;
+  /**
+   * The date and time when the account's private key was first exported, in ISO 8601 format. This is set on the first export and preserved on subsequent exports; it is not updated on re-export.
+   * @nullable
+   */
+  exportedAt?: string | null;
+  /**
+   * The date and time when the account's key was ejected (marked for deletion), in ISO 8601 format. Populated when the account has been ejected. The account record remains queryable after this timestamp is set; it reflects when ejection was requested, not when the key material is purged.
+   * @nullable
+   */
+  ejectedAt?: string | null;
 }
 
 /**
@@ -1194,6 +3046,16 @@ export interface EndUserSolanaAccount {
   address: string;
   /** The date and time when the account was created, in ISO 8601 format. */
   createdAt: string;
+  /**
+   * The date and time when the account's private key was first exported, in ISO 8601 format. This is set on the first export and preserved on subsequent exports; it is not updated on re-export.
+   * @nullable
+   */
+  exportedAt?: string | null;
+  /**
+   * The date and time when the account's key was ejected (marked for deletion), in ISO 8601 format. Populated when the account has been ejected. The account record remains queryable after this timestamp is set; it reflects when ejection was requested, not when the key material is purged.
+   * @nullable
+   */
+  ejectedAt?: string | null;
 }
 
 /**
@@ -1237,54 +3099,6 @@ export interface EndUser {
  */
 export interface PaymasterContext {
   [key: string]: unknown;
-}
-
-/**
- * The domain of the EIP-712 typed data.
- */
-export interface EIP712Domain {
-  /** The name of the DApp or protocol. */
-  name?: string;
-  /** The version of the DApp or protocol. */
-  version?: string;
-  /** The chain ID of the EVM network. */
-  chainId?: number;
-  /**
-   * The 0x-prefixed EVM address of the verifying smart contract.
-   * @pattern ^0x[a-fA-F0-9]{40}$
-   */
-  verifyingContract?: string;
-  /**
-   * The optional 32-byte 0x-prefixed hex salt for domain separation.
-   * @pattern ^0x[a-fA-F0-9]{64}$
-   */
-  salt?: string;
-}
-
-/**
- * A mapping of struct names to an array of type objects (name + type).
-Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
-
- */
-export interface EIP712Types {
-  [key: string]: unknown;
-}
-
-/**
- * The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
- */
-export type EIP712MessageMessage = { [key: string]: unknown };
-
-/**
- * The message to sign using EIP-712.
- */
-export interface EIP712Message {
-  domain: EIP712Domain;
-  types: EIP712Types;
-  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
-  primaryType: string;
-  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
-  message: EIP712MessageMessage;
 }
 
 /**
@@ -1412,6 +3226,732 @@ export interface EvmUserOperation {
   /** The timestamp at which the prepared user operation expires. */
   expiresAt?: string;
 }
+
+/**
+ * The version of the x402 protocol.
+ */
+export type X402Version = (typeof X402Version)[keyof typeof X402Version];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402Version = {
+  NUMBER_1: 1,
+  NUMBER_2: 2,
+} as const;
+
+/**
+ * The x402 v2 network identifier in CAIP-2 format. x402 v2 identifies networks by their CAIP-2 chain ID (e.g. `eip155:<chainId>` for EVM networks, `solana:<genesisHash>` for Solana). Supported networks: Base, Polygon, Arbitrum One, World Chain (EVM), and Solana.
+ */
+export type X402V2Network = (typeof X402V2Network)[keyof typeof X402V2Network];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402V2Network = {
+  "eip155:8453": "eip155:8453",
+  "eip155:84532": "eip155:84532",
+  "eip155:137": "eip155:137",
+  "eip155:42161": "eip155:42161",
+  "eip155:480": "eip155:480",
+  "eip155:4801": "eip155:4801",
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+  "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+} as const;
+
+/**
+ * The scheme of the payment protocol to use. Supported schemes are `exact`, `upto`, and `batch-settlement`.
+ */
+export type X402V2PaymentRequirementsScheme =
+  (typeof X402V2PaymentRequirementsScheme)[keyof typeof X402V2PaymentRequirementsScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402V2PaymentRequirementsScheme = {
+  exact: "exact",
+  upto: "upto",
+  "batch-settlement": "batch-settlement",
+} as const;
+
+/**
+ * The optional additional scheme-specific payment info.
+ */
+export type X402V2PaymentRequirementsExtra = { [key: string]: unknown };
+
+/**
+ * The x402 v2 payment requirements. Uses CAIP-2 network identifiers and supports `exact`, `upto`, and `batch-settlement` schemes. Carries only the payment fields (no resource metadata — that is in the enclosing `x402V2PaymentPayload.resource`).
+ */
+export interface X402V2PaymentRequirements {
+  /** The scheme of the payment protocol to use. Supported schemes are `exact`, `upto`, and `batch-settlement`. */
+  scheme: X402V2PaymentRequirementsScheme;
+  /** The network of the blockchain to send payment on in CAIP-2 format. */
+  network: X402V2Network;
+  /** The asset to pay with.
+
+For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the asset will be a base58-encoded Solana address. */
+  asset: BlockchainAddress;
+  /** The amount to pay for the resource in atomic units of the payment asset. */
+  amount: string;
+  /** The destination to pay value to.
+
+For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, payTo will be a base58-encoded Solana address. */
+  payTo: BlockchainAddress;
+  /** The maximum time in seconds for the resource server to respond. */
+  maxTimeoutSeconds: number;
+  /** The optional additional scheme-specific payment info. */
+  extra?: X402V2PaymentRequirementsExtra;
+}
+
+/**
+ * The x402 v1 network identifier. x402 v1 uses human-readable network names. Supported networks: Base mainnet and testnet, Solana mainnet and devnet.
+ */
+export type X402V1Network = (typeof X402V1Network)[keyof typeof X402V1Network];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402V1Network = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+/**
+ * A human-readable description.
+ * @minLength 0
+ * @maxLength 500
+ */
+export type Description = string;
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402V1PaymentRequirementsScheme =
+  (typeof X402V1PaymentRequirementsScheme)[keyof typeof X402V1PaymentRequirementsScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402V1PaymentRequirementsScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The optional JSON schema describing the resource output.
+ */
+export type X402V1PaymentRequirementsOutputSchema = { [key: string]: unknown };
+
+/**
+ * The optional additional scheme-specific payment info.
+ */
+export type X402V1PaymentRequirementsExtra = { [key: string]: unknown };
+
+/**
+ * The x402 v1 payment requirements. Uses human-readable network names, and carries resource metadata (`resource`, `description`, `mimeType`) alongside the payment fields. The only supported scheme is `exact`.
+ */
+export interface X402V1PaymentRequirements {
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402V1PaymentRequirementsScheme;
+  /** The network of the blockchain to send payment on. */
+  network: X402V1Network;
+  /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
+  maxAmountRequired: string;
+  /** The URL of the resource to pay for. */
+  resource: string;
+  /** A human-readable description of the resource. */
+  description: Description;
+  /** The MIME type of the resource response. */
+  mimeType: string;
+  /** The optional JSON schema describing the resource output. */
+  outputSchema?: X402V1PaymentRequirementsOutputSchema;
+  /** The destination to pay value to.
+
+For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, payTo will be a base58-encoded Solana address. */
+  payTo: BlockchainAddress;
+  /** The maximum time in seconds for the resource server to respond. */
+  maxTimeoutSeconds: number;
+  /** The asset to pay with.
+
+For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the asset will be a base58-encoded Solana address. */
+  asset: BlockchainAddress;
+  /** The optional additional scheme-specific payment info. */
+  extra?: X402V1PaymentRequirementsExtra;
+}
+
+/**
+ * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+ */
+export type X402PaymentRequirements = X402V2PaymentRequirements | X402V1PaymentRequirements;
+
+/**
+ * Describes the resource being accessed in x402 protocol.
+ */
+export interface X402ResourceInfo {
+  /** The URL of the resource. */
+  url?: string;
+  /** A human-readable description of the resource. */
+  description?: Description;
+  /** The MIME type of the resource response. */
+  mimeType?: string;
+}
+
+/**
+ * Optional protocol extensions. Unknown keys are forwarded as-is into the signed payment payload.
+ */
+export type X402PaymentRequiredExtensions = { [key: string]: unknown };
+
+/**
+ * The x402 protocol payment required response body, returned by a resource server when a request lacks valid payment. Contains the accepted payment options, optional resource metadata, and an optional error message from the resource server.
+ */
+export interface X402PaymentRequired {
+  /** The x402 protocol version. */
+  x402Version: X402Version;
+  /**
+   * The list of payment options the resource server accepts. At least one option must be present.
+   * @minItems 1
+   * @maxItems 16
+   */
+  accepts: X402PaymentRequirements[];
+  /** Optional metadata about the resource being paid for. */
+  resource?: X402ResourceInfo;
+  /** An optional error message from the resource server describing why payment is required. */
+  error?: string;
+  /** Optional protocol extensions. Unknown keys are forwarded as-is into the signed payment payload. */
+  extensions?: X402PaymentRequiredExtensions;
+}
+
+/**
+ * The authorization data for the ERC-3009 authorization message.
+ */
+export type X402ExactEvmPayloadAuthorization = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the sender of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  from: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the recipient of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  to: string;
+  /** The value of the payment, in atomic units of the payment asset. */
+  value: string;
+  /** The unix timestamp after which the payment is valid. */
+  validAfter: string;
+  /** The unix timestamp before which the payment is valid. */
+  validBefore: string;
+  /**
+   * The hex-encoded nonce of the payment (bytes32).
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  nonce: string;
+};
+
+/**
+ * The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
+ */
+export interface X402ExactEvmPayload {
+  /**
+   * The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
+   * @pattern ^0x[0-9a-fA-F]{130,}$
+   */
+  signature: string;
+  /** The authorization data for the ERC-3009 authorization message. */
+  authorization: X402ExactEvmPayloadAuthorization;
+}
+
+/**
+ * The token permissions for the transfer.
+ */
+export type X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the token to transfer.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  token: string;
+  /** The amount to transfer in atomic units. */
+  amount: string;
+};
+
+/**
+ * The witness data containing payment details.
+ */
+export type X402ExactEvmPermit2PayloadPermit2AuthorizationWitness = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the recipient.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  to: string;
+  /** The unix timestamp after which the payment is valid. */
+  validAfter: string;
+  /**
+   * Optional hex-encoded extra data.
+   * @pattern ^0x[0-9a-fA-F]*$
+   */
+  extra?: string;
+};
+
+/**
+ * The authorization data for the Permit2 PermitWitnessTransferFrom message.
+ */
+export type X402ExactEvmPermit2PayloadPermit2Authorization = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the sender of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  from: string;
+  /** The token permissions for the transfer. */
+  permitted: X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted;
+  /**
+   * The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  spender: string;
+  /**
+   * The Permit2 nonce as a decimal string (uint256).
+   * @pattern ^[0-9]+$
+   */
+  nonce: string;
+  /** The unix timestamp before which the permit is valid. */
+  deadline: string;
+  /** The witness data containing payment details. */
+  witness: X402ExactEvmPermit2PayloadPermit2AuthorizationWitness;
+};
+
+/**
+ * The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.
+ */
+export interface X402ExactEvmPermit2Payload {
+  /**
+   * The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
+   * @pattern ^0x[0-9a-fA-F]{130,}$
+   */
+  signature: string;
+  /** The authorization data for the Permit2 PermitWitnessTransferFrom message. */
+  permit2Authorization: X402ExactEvmPermit2PayloadPermit2Authorization;
+}
+
+/**
+ * The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
+ */
+export interface X402ExactSolanaPayload {
+  /** The base64-encoded Solana transaction. */
+  transaction: string;
+}
+
+/**
+ * The token permissions for the transfer.
+ */
+export type X402UptoEvmPermit2PayloadPermit2AuthorizationPermitted = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the token to transfer.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  token: string;
+  /** The maximum amount the client authorizes to transfer in atomic units. */
+  amount: string;
+};
+
+/**
+ * The witness data containing payment details. Includes a `facilitator` field to bind the authorization to a specific facilitator address.
+ */
+export type X402UptoEvmPermit2PayloadPermit2AuthorizationWitness = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the recipient.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  to: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the facilitator authorized to settle this payment. MUST match the `facilitatorAddress` advertised in the payment requirements `extra` field.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  facilitator: string;
+  /** The unix timestamp after which the payment is valid. */
+  validAfter: string;
+};
+
+/**
+ * The authorization data for the Permit2 PermitWitnessTransferFrom message. The `permitted.amount` is the maximum the client authorizes; the actual settled amount is decided by the resource server at settle time and MUST be less than or equal to it.
+ */
+export type X402UptoEvmPermit2PayloadPermit2Authorization = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the sender of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  from: string;
+  /** The token permissions for the transfer. */
+  permitted: X402UptoEvmPermit2PayloadPermit2AuthorizationPermitted;
+  /**
+   * The 0x-prefixed, checksum EVM address of the spender (the x402 Upto Permit2 proxy contract).
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  spender: string;
+  /**
+   * The Permit2 nonce as a decimal string (uint256).
+   * @pattern ^[0-9]+$
+   */
+  nonce: string;
+  /** The unix timestamp before which the permit is valid. */
+  deadline: string;
+  /** The witness data containing payment details. Includes a `facilitator` field to bind the authorization to a specific facilitator address. */
+  witness: X402UptoEvmPermit2PayloadPermit2AuthorizationWitness;
+};
+
+/**
+ * The x402 protocol upto scheme payload for EVM networks using Permit2. The `upto` scheme authorizes a maximum amount and lets the facilitator settle for the actual amount used. Structurally identical to `x402ExactEvmPermit2Payload` except `permit2Authorization.witness` carries an additional `facilitator` address that binds the authorization to a specific facilitator (the one announced via `extra.facilitatorAddress` in the payment requirements). For more details, see [EVM Upto Scheme Details](https://github.com/x402-foundation/x402/blob/main/specs/schemes/upto/scheme_upto_evm.md).
+ */
+export interface X402UptoEvmPermit2Payload {
+  /**
+   * The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
+   * @pattern ^0x[0-9a-fA-F]{130,}$
+   */
+  signature: string;
+  /** The authorization data for the Permit2 PermitWitnessTransferFrom message. The `permitted.amount` is the maximum the client authorizes; the actual settled amount is decided by the resource server at settle time and MUST be less than or equal to it. */
+  permit2Authorization: X402UptoEvmPermit2PayloadPermit2Authorization;
+}
+
+/**
+ * Immutable configuration for an x402 batch-settlement payment channel. The EIP-712 hash of this struct produces the `channelId` used by all batch-settlement payloads.
+ */
+export interface X402BatchSettlementChannelConfig {
+  /**
+   * The 0x-prefixed, checksum EVM address of the payer (channel funder).
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  payer: string;
+  /**
+   * The 0x-prefixed, checksum EVM address authorized to sign vouchers on behalf of the payer.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  payerAuthorizer: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the receiver (resource server / merchant).
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  receiver: string;
+  /**
+   * The 0x-prefixed, checksum EVM address authorized to sign claim batches on behalf of the receiver (typically the facilitator).
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  receiverAuthorizer: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the ERC-20 payment token.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  token: string;
+  /**
+   * The non-cooperative withdraw delay in seconds. Must be between 900 (15 minutes) and 2,592,000 (30 days).
+   * @minimum 900
+   * @maximum 2592000
+   */
+  withdrawDelay: number;
+  /**
+   * A 32-byte salt used to differentiate channels between the same payer/receiver pair.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  salt: string;
+}
+
+/**
+ * A signed cumulative-ceiling voucher for an x402 batch-settlement channel. `maxClaimableAmount` is monotonically increasing across requests in the same channel; the receiver may claim any amount up to this ceiling.
+ */
+export interface X402BatchSettlementVoucher {
+  /**
+   * The 32-byte EIP-712 hash of the `channelConfig` for this voucher's channel.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  channelId: string;
+  /**
+   * The cumulative maximum amount (uint128 as decimal string) the receiver is authorized to claim from this channel as of this voucher.
+   * @pattern ^[0-9]+$
+   */
+  maxClaimableAmount: string;
+  /**
+   * The EIP-712 hex-encoded signature of the voucher by `payerAuthorizer`.
+   * @pattern ^0x[0-9a-fA-F]+$
+   */
+  signature: string;
+}
+
+export type X402BatchSettlementDepositPayloadType =
+  (typeof X402BatchSettlementDepositPayloadType)[keyof typeof X402BatchSettlementDepositPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402BatchSettlementDepositPayloadType = {
+  deposit: "deposit",
+} as const;
+
+/**
+ * An ERC-3009 receiveWithAuthorization message authorizing the channel-funding transfer.
+ */
+export type X402BatchSettlementDepositPayloadDepositAuthorizationErc3009Authorization = {
+  /** The unix timestamp after which the authorization is valid. */
+  validAfter: string;
+  /** The unix timestamp before which the authorization is valid. */
+  validBefore: string;
+  /**
+   * The 32-byte ERC-3009 nonce/salt for replay protection.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  salt: string;
+  /**
+   * The EIP-712 hex-encoded signature of the ERC-3009 authorization.
+   * @pattern ^0x[0-9a-fA-F]+$
+   */
+  signature: string;
+};
+
+/**
+ * The asset-transfer authorization for the deposit. Currently only ERC-3009 is supported.
+ */
+export type X402BatchSettlementDepositPayloadDepositAuthorization = {
+  /** An ERC-3009 receiveWithAuthorization message authorizing the channel-funding transfer. */
+  erc3009Authorization?: X402BatchSettlementDepositPayloadDepositAuthorizationErc3009Authorization;
+};
+
+/**
+ * The deposit amount and asset-transfer authorization that funds the channel.
+ */
+export type X402BatchSettlementDepositPayloadDeposit = {
+  /**
+   * The deposit amount in atomic units of `channelConfig.token`.
+   * @pattern ^[0-9]+$
+   */
+  amount: string;
+  /** The asset-transfer authorization for the deposit. Currently only ERC-3009 is supported. */
+  authorization: X402BatchSettlementDepositPayloadDepositAuthorization;
+};
+
+/**
+ * Sent on the first request to fund a channel via an ERC-3009 receiveWithAuthorization deposit.
+ */
+export interface X402BatchSettlementDepositPayload {
+  type: X402BatchSettlementDepositPayloadType;
+  channelConfig: X402BatchSettlementChannelConfig;
+  voucher: X402BatchSettlementVoucher;
+  /** The deposit amount and asset-transfer authorization that funds the channel. */
+  deposit: X402BatchSettlementDepositPayloadDeposit;
+}
+
+export type X402BatchSettlementVoucherPayloadType =
+  (typeof X402BatchSettlementVoucherPayloadType)[keyof typeof X402BatchSettlementVoucherPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402BatchSettlementVoucherPayloadType = {
+  voucher: "voucher",
+} as const;
+
+/**
+ * Sent on subsequent requests against an already-funded channel; carries only the latest cumulative voucher.
+ */
+export interface X402BatchSettlementVoucherPayload {
+  type: X402BatchSettlementVoucherPayloadType;
+  channelConfig: X402BatchSettlementChannelConfig;
+  voucher: X402BatchSettlementVoucher;
+}
+
+/**
+ * The voucher to claim, identified by the channel config it was signed against and its cumulative ceiling. Field shape mirrors the on-chain claim struct.
+ */
+export type X402BatchSettlementClaimVoucher = {
+  channel: X402BatchSettlementChannelConfig;
+  /**
+   * The cumulative maximum claimable amount (uint128 as decimal string) signed by the payer authorizer.
+   * @pattern ^[0-9]+$
+   */
+  maxClaimableAmount: string;
+};
+
+/**
+ * A single voucher claim within a batched on-chain claim transaction. Used by `x402BatchSettlementClaimPayload.claims` and by the server-enriched shape of `x402BatchSettlementRefundPayload.claims`.
+NOTE: the nested `voucher` here has a **different shape** from the top-level `x402BatchSettlementVoucher` schema. The top-level voucher is the signed cumulative-ceiling message sent by a client (`{channelId, maxClaimableAmount, signature}`). This nested `voucher` mirrors the on-chain claim struct (`{channel: ChannelConfig, maxClaimableAmount}`) that participates in the EIP-712 hash, with `signature` and `totalClaimed` as siblings rather than nested fields. The field names match the upstream x402 protocol and the on-chain Solidity struct; they cannot be renamed without breaking wire and EIP-712 compatibility.
+ */
+export interface X402BatchSettlementClaim {
+  /** The voucher to claim, identified by the channel config it was signed against and its cumulative ceiling. Field shape mirrors the on-chain claim struct. */
+  voucher: X402BatchSettlementClaimVoucher;
+  /**
+   * The voucher signature from `payerAuthorizer`.
+   * @pattern ^0x[0-9a-fA-F]+$
+   */
+  signature: string;
+  /**
+   * The cumulative amount already claimed from this channel as of this claim.
+   * @pattern ^[0-9]+$
+   */
+  totalClaimed: string;
+}
+
+export type X402BatchSettlementRefundPayloadType =
+  (typeof X402BatchSettlementRefundPayloadType)[keyof typeof X402BatchSettlementRefundPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402BatchSettlementRefundPayloadType = {
+  refund: "refund",
+} as const;
+
+/**
+ * A cooperative refund request. The client emits the minimal shape (just `channelConfig` and `voucher`, with an optional `amount`). A mediating server enriches the payload with `amount`, `refundNonce`, and `claims` before forwarding to the facilitator. Authorizer signatures are optional — the facilitator auto-signs when absent. Field presence determines which shape was sent; the facilitator dispatches accordingly.
+ */
+export interface X402BatchSettlementRefundPayload {
+  type: X402BatchSettlementRefundPayloadType;
+  channelConfig: X402BatchSettlementChannelConfig;
+  voucher: X402BatchSettlementVoucher;
+  /**
+   * The refund amount in atomic units of `channelConfig.token`. Optional in the client-emitted shape (defaults to the full remaining channel balance). Required when the payload is enriched by a mediating server.
+   * @pattern ^[0-9]+$
+   */
+  amount?: string;
+  /**
+   * The on-chain refund nonce for replay protection (uint256 as decimal string). Only present on the server-enriched shape.
+   * @pattern ^[0-9]+$
+   */
+  refundNonce?: string;
+  /** Voucher claims to include atomically with the refund. Only present on the server-enriched shape. */
+  claims?: X402BatchSettlementClaim[];
+  /**
+   * Optional EIP-712 signature from the receiver authorizer over the refund. When omitted, the facilitator auto-signs.
+   * @pattern ^0x[0-9a-fA-F]+$
+   */
+  refundAuthorizerSignature?: string;
+  /**
+   * Optional EIP-712 signature from the receiver authorizer over the included claims. When omitted, the facilitator auto-signs.
+   * @pattern ^0x[0-9a-fA-F]+$
+   */
+  claimAuthorizerSignature?: string;
+}
+
+export type X402BatchSettlementClaimPayloadType =
+  (typeof X402BatchSettlementClaimPayloadType)[keyof typeof X402BatchSettlementClaimPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402BatchSettlementClaimPayloadType = {
+  claim: "claim",
+} as const;
+
+/**
+ * Server-to-facilitator request to batch on-chain claims of accumulated vouchers. `claimAuthorizerSignature` is optional; when absent the facilitator auto-signs with its receiver-authorizer key.
+ */
+export interface X402BatchSettlementClaimPayload {
+  type: X402BatchSettlementClaimPayloadType;
+  /** The list of voucher claims to batch in a single on-chain `claim` call. */
+  claims: X402BatchSettlementClaim[];
+  /**
+   * Optional EIP-712 signature from the receiver authorizer over the claim batch. When omitted, the facilitator auto-signs.
+   * @pattern ^0x[0-9a-fA-F]+$
+   */
+  claimAuthorizerSignature?: string;
+}
+
+export type X402BatchSettlementSettlePayloadType =
+  (typeof X402BatchSettlementSettlePayloadType)[keyof typeof X402BatchSettlementSettlePayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402BatchSettlementSettlePayloadType = {
+  settle: "settle",
+} as const;
+
+/**
+ * Server-to-facilitator request to transfer claimed funds for a `(receiver, token)` pair to the receiver wallet.
+ */
+export interface X402BatchSettlementSettlePayload {
+  type: X402BatchSettlementSettlePayloadType;
+  /**
+   * The 0x-prefixed, checksum EVM address of the receiver to settle to.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  receiver: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the token to settle.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  token: string;
+}
+
+/**
+ * The x402 protocol batch-settlement scheme payload for EVM networks. The `batch-settlement` scheme uses pre-funded payment channels with off-chain cumulative-ceiling vouchers, allowing servers to batch-claim accumulated value in a single on-chain transaction. The payload is a discriminated union on the `type` field with five variants:
+
+  - `deposit`: client-initiated channel funding via ERC-3009.
+  - `voucher`: client-side cumulative voucher against an already-funded channel.
+  - `refund`: cooperative refund request. The client emits a minimal shape (just channelConfig + voucher, with an optional `amount`); a mediating server enriches it with `amount`, `refundNonce`, and `claims` before forwarding to the facilitator. Authorizer signatures are optional — the facilitator auto-signs when absent.
+  - `claim`: server-to-facilitator request to batch on-chain voucher claims.
+  - `settle`: server-to-facilitator request to transfer claimed funds to the receiver.
+
+For more details, see [batch-settlement specs](https://github.com/x402-foundation/x402/tree/main/specs/schemes/batch-settlement).
+ */
+export type X402BatchSettlementEvmPayload =
+  | X402BatchSettlementDepositPayload
+  | X402BatchSettlementVoucherPayload
+  | X402BatchSettlementRefundPayload
+  | X402BatchSettlementClaimPayload
+  | X402BatchSettlementSettlePayload;
+
+/**
+ * The payload of the payment depending on the x402Version, scheme, and network. Discriminated by scheme-specific fields: exact-EVM/upto-EVM payloads carry a `signature`; exact-Solana carries a `transaction`; batch-settlement carries a `type` discriminator. See `x402BatchSettlementEvmPayload` for the documented batch-settlement variants.
+ */
+export type X402V2PaymentPayloadPayload =
+  | X402ExactEvmPayload
+  | X402ExactEvmPermit2Payload
+  | X402ExactSolanaPayload
+  | X402UptoEvmPermit2Payload
+  | X402BatchSettlementEvmPayload;
+
+/**
+ * Optional protocol extensions.
+ */
+export type X402V2PaymentPayloadExtensions = { [key: string]: unknown };
+
+/**
+ * The x402 v2 protocol payment payload. Uses CAIP-2 network identifiers. The `accepted` field carries the full payment requirements; `scheme` and `network` are not top-level fields (they are on the nested `accepted` object).
+ */
+export interface X402V2PaymentPayload {
+  /** The x402 protocol version. Must be `2` for this payload shape. */
+  x402Version: X402Version;
+  /** The payload of the payment depending on the x402Version, scheme, and network. Discriminated by scheme-specific fields: exact-EVM/upto-EVM payloads carry a `signature`; exact-Solana carries a `transaction`; batch-settlement carries a `type` discriminator. See `x402BatchSettlementEvmPayload` for the documented batch-settlement variants. */
+  payload: X402V2PaymentPayloadPayload;
+  accepted: X402V2PaymentRequirements;
+  resource?: X402ResourceInfo;
+  /** Optional protocol extensions. */
+  extensions?: X402V2PaymentPayloadExtensions;
+}
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402V1PaymentPayloadScheme =
+  (typeof X402V1PaymentPayloadScheme)[keyof typeof X402V1PaymentPayloadScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402V1PaymentPayloadScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The payload of the payment depending on the x402Version, scheme, and network.
+ */
+export type X402V1PaymentPayloadPayload =
+  | X402ExactEvmPayload
+  | X402ExactEvmPermit2Payload
+  | X402ExactSolanaPayload;
+
+/**
+ * The x402 v1 protocol payment payload. Uses human-readable network names and requires `scheme` and `network` alongside the inner `payload` object.
+ */
+export interface X402V1PaymentPayload {
+  /** The x402 protocol version. Must be `1` for this payload shape. */
+  x402Version: X402Version;
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402V1PaymentPayloadScheme;
+  /** The network of the blockchain to send payment on. */
+  network: X402V1Network;
+  /** The payload of the payment depending on the x402Version, scheme, and network. */
+  payload: X402V1PaymentPayloadPayload;
+}
+
+/**
+ * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the PAYMENT-SIGNATURE header.
+For EVM networks, smart account signatures can be longer than 65 bytes.
+ */
+export type X402PaymentPayload = X402V2PaymentPayload | X402V1PaymentPayload;
 
 export interface EvmAccount {
   /**
@@ -1671,39 +4211,7 @@ export interface TokenFee {
   token: string;
 }
 
-/**
- * The estimated gas fee for the swap.
- * @nullable
- */
-export type CommonSwapResponseFeesGasFee = TokenFee | null;
-
-/**
- * The estimated protocol fee for the swap.
- * @nullable
- */
-export type CommonSwapResponseFeesProtocolFee = TokenFee | null;
-
-/**
- * The estimated fees for the swap.
- */
-export type CommonSwapResponseFees = {
-  /**
-   * The estimated gas fee for the swap.
-   * @nullable
-   */
-  gasFee: CommonSwapResponseFeesGasFee;
-  /**
-   * The estimated protocol fee for the swap.
-   * @nullable
-   */
-  protocolFee: CommonSwapResponseFeesProtocolFee;
-};
-
-/**
- * Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
- * @nullable
- */
-export type CommonSwapResponseIssuesAllowance = {
+export interface CommonSwapResponseIssuesAllowance {
   /**
    * The current allowance of the `fromToken` by the `taker`.
    * @pattern ^\d+$
@@ -1714,13 +4222,9 @@ export type CommonSwapResponseIssuesAllowance = {
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
   spender: string;
-} | null;
+}
 
-/**
- * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
- * @nullable
- */
-export type CommonSwapResponseIssuesBalance = {
+export interface CommonSwapResponseIssuesBalance {
   /**
    * The 0x-prefixed contract address of the token.
    * @pattern ^0x[a-fA-F0-9]{40}$
@@ -1736,22 +4240,46 @@ export type CommonSwapResponseIssuesBalance = {
    * @pattern ^\d+$
    */
   requiredBalance: string;
-} | null;
+}
+
+/**
+ * The estimated gas fee for the swap.
+ */
+export type CommonSwapResponseFeesGasFee = TokenFee | null;
+
+/**
+ * The estimated protocol fee for the swap.
+ */
+export type CommonSwapResponseFeesProtocolFee = TokenFee | null;
+
+/**
+ * The estimated fees for the swap.
+ */
+export type CommonSwapResponseFees = {
+  /** The estimated gas fee for the swap. */
+  gasFee: CommonSwapResponseFeesGasFee;
+  /** The estimated protocol fee for the swap. */
+  protocolFee: CommonSwapResponseFeesProtocolFee;
+};
+
+/**
+ * Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
+ */
+export type CommonSwapResponseIssuesAllowanceProperty = CommonSwapResponseIssuesAllowance | null;
+
+/**
+ * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+ */
+export type CommonSwapResponseIssuesBalanceProperty = CommonSwapResponseIssuesBalance | null;
 
 /**
  * An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
  */
 export type CommonSwapResponseIssues = {
-  /**
-   * Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
-   * @nullable
-   */
-  allowance: CommonSwapResponseIssuesAllowance;
-  /**
-   * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
-   * @nullable
-   */
-  balance: CommonSwapResponseIssuesBalance;
+  /** Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required. */
+  allowance: CommonSwapResponseIssuesAllowanceProperty;
+  /** Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance. */
+  balance: CommonSwapResponseIssuesBalanceProperty;
   /** This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert. */
   simulationIncomplete: boolean;
 };
@@ -1795,13 +4323,14 @@ export interface CommonSwapResponse {
   fromToken: string;
 }
 
+/**
+ * The estimated gas limit that should be used to send the transaction to guarantee settlement.
+ */
+export type GetSwapPriceResponseAllOfGas = string | null;
+
 export type GetSwapPriceResponseAllOf = {
-  /**
-   * The estimated gas limit that should be used to send the transaction to guarantee settlement.
-   * @nullable
-   * @pattern ^\d+$
-   */
-  gas: string | null;
+  /** The estimated gas limit that should be used to send the transaction to guarantee settlement. */
+  gas: GetSwapPriceResponseAllOfGas;
   /**
    * The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
    * @pattern ^\d+$
@@ -1821,18 +4350,19 @@ export interface SwapUnavailableResponse {
  */
 export type GetSwapPriceResponseWrapper = GetSwapPriceResponse | SwapUnavailableResponse;
 
-/**
- * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
- * @nullable
- */
-export type CreateSwapQuoteResponseAllOfPermit2 = {
+export interface SwapPermit2Approval {
   /**
    * The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
    * @pattern ^0x[a-fA-F0-9]{64}$
    */
   hash: string;
   eip712: EIP712Message;
-} | null;
+}
+
+/**
+ * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
+ */
+export type CreateSwapQuoteResponseAllOfPermit2 = SwapPermit2Approval | null;
 
 /**
  * The details of the transaction to be signed and submitted to execute the swap.
@@ -1863,10 +4393,7 @@ export type CreateSwapQuoteResponseAllOfTransaction = {
 };
 
 export type CreateSwapQuoteResponseAllOf = {
-  /**
-   * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
-   * @nullable
-   */
+  /** The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap. */
   permit2: CreateSwapQuoteResponseAllOfPermit2;
   /** The details of the transaction to be signed and submitted to execute the swap. */
   transaction: CreateSwapQuoteResponseAllOfTransaction;
@@ -4053,13 +6580,6 @@ export interface OnchainDataResult {
 }
 
 /**
- * A human-readable description.
- * @minLength 0
- * @maxLength 500
- */
-export type Description = string;
-
-/**
  * Schema definition for a table column.
  */
 export interface OnchainDataColumnSchema {
@@ -4111,6 +6631,15 @@ export interface AccountTokenAddressesResponse {
 }
 
 /**
+ * A human-readable description of the webhook subscription.
+Must be at most 100 characters.
+
+ * @minLength 0
+ * @maxLength 100
+ */
+export type WebhookDescription = string;
+
+/**
  * A webhook event type identifier following dot-separated format:
 `<domain>.<entity>.<verb>` (e.g., "onchain.activity.detected").
 
@@ -4134,6 +6663,13 @@ export const EventType = {
   wallettyped_datasigned: "wallet.typed_data.signed",
   walletmessagesigned: "wallet.message.signed",
   wallethashsigned: "wallet.hash.signed",
+  paymentstransfersquoted: "payments.transfers.quoted",
+  paymentstransfersprocessing: "payments.transfers.processing",
+  paymentstransferscompleted: "payments.transfers.completed",
+  paymentstransfersfailed: "payments.transfers.failed",
+  paymentstransfersexpired: "payments.transfers.expired",
+  paymentstransferstravel_rule_incomplete: "payments.transfers.travel_rule_incomplete",
+  paymentstransferstravel_rule_completed: "payments.transfers.travel_rule_completed",
   onramptransactioncreated: "onramp.transaction.created",
   onramptransactionupdated: "onramp.transaction.updated",
   onramptransactionsuccess: "onramp.transaction.success",
@@ -4142,6 +6678,27 @@ export const EventType = {
   offramptransactionupdated: "offramp.transaction.updated",
   offramptransactionsuccess: "offramp.transaction.success",
   offramptransactionfailed: "offramp.transaction.failed",
+  acceptancepayment_sessioncreated: "acceptance.payment_session.created",
+  acceptancepayment_sessioncanceled: "acceptance.payment_session.canceled",
+  acceptancepayment_sessionauthorization_pending:
+    "acceptance.payment_session.authorization_pending",
+  acceptancepayment_sessionauthorization_succeeded:
+    "acceptance.payment_session.authorization_succeeded",
+  acceptancepayment_sessionauthorization_failed: "acceptance.payment_session.authorization_failed",
+  acceptancepayment_sessioncapture_pending: "acceptance.payment_session.capture_pending",
+  acceptancepayment_sessioncapture_succeeded: "acceptance.payment_session.capture_succeeded",
+  acceptancepayment_sessioncapture_failed: "acceptance.payment_session.capture_failed",
+  acceptancepayment_sessionrefund_pending: "acceptance.payment_session.refund_pending",
+  acceptancepayment_sessionrefund_succeeded: "acceptance.payment_session.refund_succeeded",
+  acceptancepayment_sessionrefund_failed: "acceptance.payment_session.refund_failed",
+  acceptancepayment_sessionvoid_pending: "acceptance.payment_session.void_pending",
+  acceptancepayment_sessionvoid_succeeded: "acceptance.payment_session.void_succeeded",
+  acceptancepayment_sessionvoid_failed: "acceptance.payment_session.void_failed",
+  acceptancedisbursementpending: "acceptance.disbursement.pending",
+  acceptancedisbursementsucceeded: "acceptance.disbursement.succeeded",
+  acceptancedisbursementfailed: "acceptance.disbursement.failed",
+  customerscapabilitychanged: "customers.capability.changed",
+  customerscustomerdeleted: "customers.customer.deleted",
 } as const;
 
 /**
@@ -4190,8 +6747,7 @@ export interface WebhookSubscriptionResponse {
   createdAt: string;
   /** When the subscription was last updated. */
   updatedAt?: string;
-  /** Description of the webhook subscription. */
-  description?: Description;
+  description?: WebhookDescription;
   /** Types of events to subscribe to. Event types follow a dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 "acceptance.payment_session.authorization_succeeded").
@@ -4246,8 +6802,7 @@ export type WebhookSubscriptionRequestLabels = { [key: string]: string };
 
  */
 export interface WebhookSubscriptionRequest {
-  /** Description of the webhook subscription. */
-  description?: Description;
+  description?: WebhookDescription;
   /** Types of events to subscribe to. Event types follow a dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
 "acceptance.payment_session.authorization_succeeded").
@@ -4299,8 +6854,7 @@ export type WebhookSubscriptionUpdateRequestLabels = { [key: string]: string };
 
  */
 export interface WebhookSubscriptionUpdateRequest {
-  /** Description of the webhook subscription. */
-  description?: Description;
+  description?: WebhookDescription;
   /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
@@ -4381,700 +6935,6 @@ export interface WebhookEventListResponse {
   /** The list of webhook event delivery attempts. */
   events: WebhookEventResponse[];
 }
-
-/**
- * The version of the x402 protocol.
- */
-export type X402Version = (typeof X402Version)[keyof typeof X402Version];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402Version = {
-  NUMBER_1: 1,
-  NUMBER_2: 2,
-} as const;
-
-/**
- * The authorization data for the ERC-3009 authorization message.
- */
-export type X402ExactEvmPayloadAuthorization = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the sender of the payment.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  from: string;
-  /**
-   * The 0x-prefixed, checksum EVM address of the recipient of the payment.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  to: string;
-  /** The value of the payment, in atomic units of the payment asset. */
-  value: string;
-  /** The unix timestamp after which the payment is valid. */
-  validAfter: string;
-  /** The unix timestamp before which the payment is valid. */
-  validBefore: string;
-  /**
-   * The hex-encoded nonce of the payment (bytes32).
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  nonce: string;
-};
-
-/**
- * The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
- */
-export interface X402ExactEvmPayload {
-  /**
-   * The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
-   * @pattern ^0x[0-9a-fA-F]{130,}$
-   */
-  signature: string;
-  /** The authorization data for the ERC-3009 authorization message. */
-  authorization: X402ExactEvmPayloadAuthorization;
-}
-
-/**
- * The token permissions for the transfer.
- */
-export type X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the token to transfer.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  token: string;
-  /** The amount to transfer in atomic units. */
-  amount: string;
-};
-
-/**
- * The witness data containing payment details.
- */
-export type X402ExactEvmPermit2PayloadPermit2AuthorizationWitness = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the recipient.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  to: string;
-  /** The unix timestamp after which the payment is valid. */
-  validAfter: string;
-  /**
-   * Optional hex-encoded extra data.
-   * @pattern ^0x[0-9a-fA-F]*$
-   */
-  extra?: string;
-};
-
-/**
- * The authorization data for the Permit2 PermitWitnessTransferFrom message.
- */
-export type X402ExactEvmPermit2PayloadPermit2Authorization = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the sender of the payment.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  from: string;
-  /** The token permissions for the transfer. */
-  permitted: X402ExactEvmPermit2PayloadPermit2AuthorizationPermitted;
-  /**
-   * The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  spender: string;
-  /**
-   * The Permit2 nonce as a decimal string (uint256).
-   * @pattern ^[0-9]+$
-   */
-  nonce: string;
-  /** The unix timestamp before which the permit is valid. */
-  deadline: string;
-  /** The witness data containing payment details. */
-  witness: X402ExactEvmPermit2PayloadPermit2AuthorizationWitness;
-};
-
-/**
- * The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.
- */
-export interface X402ExactEvmPermit2Payload {
-  /**
-   * The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
-   * @pattern ^0x[0-9a-fA-F]{130,}$
-   */
-  signature: string;
-  /** The authorization data for the Permit2 PermitWitnessTransferFrom message. */
-  permit2Authorization: X402ExactEvmPermit2PayloadPermit2Authorization;
-}
-
-/**
- * The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
- */
-export interface X402ExactSolanaPayload {
-  /** The base64-encoded Solana transaction. */
-  transaction: string;
-}
-
-/**
- * The token permissions for the transfer.
- */
-export type X402UptoEvmPermit2PayloadPermit2AuthorizationPermitted = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the token to transfer.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  token: string;
-  /** The maximum amount the client authorizes to transfer in atomic units. */
-  amount: string;
-};
-
-/**
- * The witness data containing payment details. Includes a `facilitator` field to bind the authorization to a specific facilitator address.
- */
-export type X402UptoEvmPermit2PayloadPermit2AuthorizationWitness = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the recipient.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  to: string;
-  /**
-   * The 0x-prefixed, checksum EVM address of the facilitator authorized to settle this payment. MUST match the `facilitatorAddress` advertised in the payment requirements `extra` field.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  facilitator: string;
-  /** The unix timestamp after which the payment is valid. */
-  validAfter: string;
-};
-
-/**
- * The authorization data for the Permit2 PermitWitnessTransferFrom message. The `permitted.amount` is the maximum the client authorizes; the actual settled amount is decided by the resource server at settle time and MUST be less than or equal to it.
- */
-export type X402UptoEvmPermit2PayloadPermit2Authorization = {
-  /**
-   * The 0x-prefixed, checksum EVM address of the sender of the payment.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  from: string;
-  /** The token permissions for the transfer. */
-  permitted: X402UptoEvmPermit2PayloadPermit2AuthorizationPermitted;
-  /**
-   * The 0x-prefixed, checksum EVM address of the spender (the x402 Upto Permit2 proxy contract).
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  spender: string;
-  /**
-   * The Permit2 nonce as a decimal string (uint256).
-   * @pattern ^[0-9]+$
-   */
-  nonce: string;
-  /** The unix timestamp before which the permit is valid. */
-  deadline: string;
-  /** The witness data containing payment details. Includes a `facilitator` field to bind the authorization to a specific facilitator address. */
-  witness: X402UptoEvmPermit2PayloadPermit2AuthorizationWitness;
-};
-
-/**
- * The x402 protocol upto scheme payload for EVM networks using Permit2. The `upto` scheme authorizes a maximum amount and lets the facilitator settle for the actual amount used. Structurally identical to `x402ExactEvmPermit2Payload` except `permit2Authorization.witness` carries an additional `facilitator` address that binds the authorization to a specific facilitator (the one announced via `extra.facilitatorAddress` in the payment requirements). For more details, see [EVM Upto Scheme Details](https://github.com/x402-foundation/x402/blob/main/specs/schemes/upto/scheme_upto_evm.md).
- */
-export interface X402UptoEvmPermit2Payload {
-  /**
-   * The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
-   * @pattern ^0x[0-9a-fA-F]{130,}$
-   */
-  signature: string;
-  /** The authorization data for the Permit2 PermitWitnessTransferFrom message. The `permitted.amount` is the maximum the client authorizes; the actual settled amount is decided by the resource server at settle time and MUST be less than or equal to it. */
-  permit2Authorization: X402UptoEvmPermit2PayloadPermit2Authorization;
-}
-
-/**
- * Immutable configuration for an x402 batch-settlement payment channel. The EIP-712 hash of this struct produces the `channelId` used by all batch-settlement payloads.
- */
-export interface X402BatchSettlementChannelConfig {
-  /**
-   * The 0x-prefixed, checksum EVM address of the payer (channel funder).
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  payer: string;
-  /**
-   * The 0x-prefixed, checksum EVM address authorized to sign vouchers on behalf of the payer.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  payerAuthorizer: string;
-  /**
-   * The 0x-prefixed, checksum EVM address of the receiver (resource server / merchant).
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  receiver: string;
-  /**
-   * The 0x-prefixed, checksum EVM address authorized to sign claim batches on behalf of the receiver (typically the facilitator).
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  receiverAuthorizer: string;
-  /**
-   * The 0x-prefixed, checksum EVM address of the ERC-20 payment token.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  token: string;
-  /**
-   * The non-cooperative withdraw delay in seconds. Must be between 900 (15 minutes) and 2,592,000 (30 days).
-   * @minimum 900
-   * @maximum 2592000
-   */
-  withdrawDelay: number;
-  /**
-   * A 32-byte salt used to differentiate channels between the same payer/receiver pair.
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  salt: string;
-}
-
-/**
- * A signed cumulative-ceiling voucher for an x402 batch-settlement channel. `maxClaimableAmount` is monotonically increasing across requests in the same channel; the receiver may claim any amount up to this ceiling.
- */
-export interface X402BatchSettlementVoucher {
-  /**
-   * The 32-byte EIP-712 hash of the `channelConfig` for this voucher's channel.
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  channelId: string;
-  /**
-   * The cumulative maximum amount (uint128 as decimal string) the receiver is authorized to claim from this channel as of this voucher.
-   * @pattern ^[0-9]+$
-   */
-  maxClaimableAmount: string;
-  /**
-   * The EIP-712 hex-encoded signature of the voucher by `payerAuthorizer`.
-   * @pattern ^0x[0-9a-fA-F]+$
-   */
-  signature: string;
-}
-
-export type X402BatchSettlementDepositPayloadType =
-  (typeof X402BatchSettlementDepositPayloadType)[keyof typeof X402BatchSettlementDepositPayloadType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402BatchSettlementDepositPayloadType = {
-  deposit: "deposit",
-} as const;
-
-/**
- * An ERC-3009 receiveWithAuthorization message authorizing the channel-funding transfer.
- */
-export type X402BatchSettlementDepositPayloadDepositAuthorizationErc3009Authorization = {
-  /** The unix timestamp after which the authorization is valid. */
-  validAfter: string;
-  /** The unix timestamp before which the authorization is valid. */
-  validBefore: string;
-  /**
-   * The 32-byte ERC-3009 nonce/salt for replay protection.
-   * @pattern ^0x[0-9a-fA-F]{64}$
-   */
-  salt: string;
-  /**
-   * The EIP-712 hex-encoded signature of the ERC-3009 authorization.
-   * @pattern ^0x[0-9a-fA-F]+$
-   */
-  signature: string;
-};
-
-/**
- * The asset-transfer authorization for the deposit. Currently only ERC-3009 is supported.
- */
-export type X402BatchSettlementDepositPayloadDepositAuthorization = {
-  /** An ERC-3009 receiveWithAuthorization message authorizing the channel-funding transfer. */
-  erc3009Authorization?: X402BatchSettlementDepositPayloadDepositAuthorizationErc3009Authorization;
-};
-
-/**
- * The deposit amount and asset-transfer authorization that funds the channel.
- */
-export type X402BatchSettlementDepositPayloadDeposit = {
-  /**
-   * The deposit amount in atomic units of `channelConfig.token`.
-   * @pattern ^[0-9]+$
-   */
-  amount: string;
-  /** The asset-transfer authorization for the deposit. Currently only ERC-3009 is supported. */
-  authorization: X402BatchSettlementDepositPayloadDepositAuthorization;
-};
-
-/**
- * Sent on the first request to fund a channel via an ERC-3009 receiveWithAuthorization deposit.
- */
-export interface X402BatchSettlementDepositPayload {
-  type: X402BatchSettlementDepositPayloadType;
-  channelConfig: X402BatchSettlementChannelConfig;
-  voucher: X402BatchSettlementVoucher;
-  /** The deposit amount and asset-transfer authorization that funds the channel. */
-  deposit: X402BatchSettlementDepositPayloadDeposit;
-}
-
-export type X402BatchSettlementVoucherPayloadType =
-  (typeof X402BatchSettlementVoucherPayloadType)[keyof typeof X402BatchSettlementVoucherPayloadType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402BatchSettlementVoucherPayloadType = {
-  voucher: "voucher",
-} as const;
-
-/**
- * Sent on subsequent requests against an already-funded channel; carries only the latest cumulative voucher.
- */
-export interface X402BatchSettlementVoucherPayload {
-  type: X402BatchSettlementVoucherPayloadType;
-  channelConfig: X402BatchSettlementChannelConfig;
-  voucher: X402BatchSettlementVoucher;
-}
-
-/**
- * The voucher to claim, identified by the channel config it was signed against and its cumulative ceiling. Field shape mirrors the on-chain claim struct.
- */
-export type X402BatchSettlementClaimVoucher = {
-  channel: X402BatchSettlementChannelConfig;
-  /**
-   * The cumulative maximum claimable amount (uint128 as decimal string) signed by the payer authorizer.
-   * @pattern ^[0-9]+$
-   */
-  maxClaimableAmount: string;
-};
-
-/**
- * A single voucher claim within a batched on-chain claim transaction. Used by `x402BatchSettlementClaimPayload.claims` and by the server-enriched shape of `x402BatchSettlementRefundPayload.claims`.
-NOTE: the nested `voucher` here has a **different shape** from the top-level `x402BatchSettlementVoucher` schema. The top-level voucher is the signed cumulative-ceiling message sent by a client (`{channelId, maxClaimableAmount, signature}`). This nested `voucher` mirrors the on-chain claim struct (`{channel: ChannelConfig, maxClaimableAmount}`) that participates in the EIP-712 hash, with `signature` and `totalClaimed` as siblings rather than nested fields. The field names match the upstream x402 protocol and the on-chain Solidity struct; they cannot be renamed without breaking wire and EIP-712 compatibility.
- */
-export interface X402BatchSettlementClaim {
-  /** The voucher to claim, identified by the channel config it was signed against and its cumulative ceiling. Field shape mirrors the on-chain claim struct. */
-  voucher: X402BatchSettlementClaimVoucher;
-  /**
-   * The voucher signature from `payerAuthorizer`.
-   * @pattern ^0x[0-9a-fA-F]+$
-   */
-  signature: string;
-  /**
-   * The cumulative amount already claimed from this channel as of this claim.
-   * @pattern ^[0-9]+$
-   */
-  totalClaimed: string;
-}
-
-export type X402BatchSettlementRefundPayloadType =
-  (typeof X402BatchSettlementRefundPayloadType)[keyof typeof X402BatchSettlementRefundPayloadType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402BatchSettlementRefundPayloadType = {
-  refund: "refund",
-} as const;
-
-/**
- * A cooperative refund request. The client emits the minimal shape (just `channelConfig` and `voucher`, with an optional `amount`). A mediating server enriches the payload with `amount`, `refundNonce`, and `claims` before forwarding to the facilitator. Authorizer signatures are optional — the facilitator auto-signs when absent. Field presence determines which shape was sent; the facilitator dispatches accordingly.
- */
-export interface X402BatchSettlementRefundPayload {
-  type: X402BatchSettlementRefundPayloadType;
-  channelConfig: X402BatchSettlementChannelConfig;
-  voucher: X402BatchSettlementVoucher;
-  /**
-   * The refund amount in atomic units of `channelConfig.token`. Optional in the client-emitted shape (defaults to the full remaining channel balance). Required when the payload is enriched by a mediating server.
-   * @pattern ^[0-9]+$
-   */
-  amount?: string;
-  /**
-   * The on-chain refund nonce for replay protection (uint256 as decimal string). Only present on the server-enriched shape.
-   * @pattern ^[0-9]+$
-   */
-  refundNonce?: string;
-  /** Voucher claims to include atomically with the refund. Only present on the server-enriched shape. */
-  claims?: X402BatchSettlementClaim[];
-  /**
-   * Optional EIP-712 signature from the receiver authorizer over the refund. When omitted, the facilitator auto-signs.
-   * @pattern ^0x[0-9a-fA-F]+$
-   */
-  refundAuthorizerSignature?: string;
-  /**
-   * Optional EIP-712 signature from the receiver authorizer over the included claims. When omitted, the facilitator auto-signs.
-   * @pattern ^0x[0-9a-fA-F]+$
-   */
-  claimAuthorizerSignature?: string;
-}
-
-export type X402BatchSettlementClaimPayloadType =
-  (typeof X402BatchSettlementClaimPayloadType)[keyof typeof X402BatchSettlementClaimPayloadType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402BatchSettlementClaimPayloadType = {
-  claim: "claim",
-} as const;
-
-/**
- * Server-to-facilitator request to batch on-chain claims of accumulated vouchers. `claimAuthorizerSignature` is optional; when absent the facilitator auto-signs with its receiver-authorizer key.
- */
-export interface X402BatchSettlementClaimPayload {
-  type: X402BatchSettlementClaimPayloadType;
-  /** The list of voucher claims to batch in a single on-chain `claim` call. */
-  claims: X402BatchSettlementClaim[];
-  /**
-   * Optional EIP-712 signature from the receiver authorizer over the claim batch. When omitted, the facilitator auto-signs.
-   * @pattern ^0x[0-9a-fA-F]+$
-   */
-  claimAuthorizerSignature?: string;
-}
-
-export type X402BatchSettlementSettlePayloadType =
-  (typeof X402BatchSettlementSettlePayloadType)[keyof typeof X402BatchSettlementSettlePayloadType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402BatchSettlementSettlePayloadType = {
-  settle: "settle",
-} as const;
-
-/**
- * Server-to-facilitator request to transfer claimed funds for a `(receiver, token)` pair to the receiver wallet.
- */
-export interface X402BatchSettlementSettlePayload {
-  type: X402BatchSettlementSettlePayloadType;
-  /**
-   * The 0x-prefixed, checksum EVM address of the receiver to settle to.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  receiver: string;
-  /**
-   * The 0x-prefixed, checksum EVM address of the token to settle.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  token: string;
-}
-
-/**
- * The x402 protocol batch-settlement scheme payload for EVM networks. The `batch-settlement` scheme uses pre-funded payment channels with off-chain cumulative-ceiling vouchers, allowing servers to batch-claim accumulated value in a single on-chain transaction. The payload is a discriminated union on the `type` field with five variants:
-
-  - `deposit`: client-initiated channel funding via ERC-3009.
-  - `voucher`: client-side cumulative voucher against an already-funded channel.
-  - `refund`: cooperative refund request. The client emits a minimal shape (just channelConfig + voucher, with an optional `amount`); a mediating server enriches it with `amount`, `refundNonce`, and `claims` before forwarding to the facilitator. Authorizer signatures are optional — the facilitator auto-signs when absent.
-  - `claim`: server-to-facilitator request to batch on-chain voucher claims.
-  - `settle`: server-to-facilitator request to transfer claimed funds to the receiver.
-
-For more details, see [batch-settlement specs](https://github.com/x402-foundation/x402/tree/main/specs/schemes/batch-settlement).
- */
-export type X402BatchSettlementEvmPayload =
-  | X402BatchSettlementDepositPayload
-  | X402BatchSettlementVoucherPayload
-  | X402BatchSettlementRefundPayload
-  | X402BatchSettlementClaimPayload
-  | X402BatchSettlementSettlePayload;
-
-/**
- * The x402 v2 network identifier in CAIP-2 format. x402 v2 identifies networks by their CAIP-2 chain ID (e.g. `eip155:<chainId>` for EVM networks, `solana:<genesisHash>` for Solana). Supported networks: Base, Polygon, Arbitrum One, World Chain (EVM), and Solana.
- */
-export type X402V2Network = (typeof X402V2Network)[keyof typeof X402V2Network];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402V2Network = {
-  "eip155:8453": "eip155:8453",
-  "eip155:84532": "eip155:84532",
-  "eip155:137": "eip155:137",
-  "eip155:42161": "eip155:42161",
-  "eip155:480": "eip155:480",
-  "eip155:4801": "eip155:4801",
-  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-  "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-} as const;
-
-/**
- * The scheme of the payment protocol to use. Supported schemes are `exact`, `upto`, and `batch-settlement`.
- */
-export type X402V2PaymentRequirementsScheme =
-  (typeof X402V2PaymentRequirementsScheme)[keyof typeof X402V2PaymentRequirementsScheme];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402V2PaymentRequirementsScheme = {
-  exact: "exact",
-  upto: "upto",
-  "batch-settlement": "batch-settlement",
-} as const;
-
-/**
- * The optional additional scheme-specific payment info.
- */
-export type X402V2PaymentRequirementsExtra = { [key: string]: unknown };
-
-/**
- * The x402 v2 payment requirements. Uses CAIP-2 network identifiers and supports `exact`, `upto`, and `batch-settlement` schemes. Carries only the payment fields (no resource metadata — that is in the enclosing `x402V2PaymentPayload.resource`).
- */
-export interface X402V2PaymentRequirements {
-  /** The scheme of the payment protocol to use. Supported schemes are `exact`, `upto`, and `batch-settlement`. */
-  scheme: X402V2PaymentRequirementsScheme;
-  /** The network of the blockchain to send payment on in CAIP-2 format. */
-  network: X402V2Network;
-  /** The asset to pay with.
-
-For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, the asset will be a base58-encoded Solana address. */
-  asset: BlockchainAddress;
-  /** The amount to pay for the resource in atomic units of the payment asset. */
-  amount: string;
-  /** The destination to pay value to.
-
-For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, payTo will be a base58-encoded Solana address. */
-  payTo: BlockchainAddress;
-  /** The maximum time in seconds for the resource server to respond. */
-  maxTimeoutSeconds: number;
-  /** The optional additional scheme-specific payment info. */
-  extra?: X402V2PaymentRequirementsExtra;
-}
-
-/**
- * Describes the resource being accessed in x402 protocol.
- */
-export interface X402ResourceInfo {
-  /** The URL of the resource. */
-  url?: string;
-  /** A human-readable description of the resource. */
-  description?: Description;
-  /** The MIME type of the resource response. */
-  mimeType?: string;
-}
-
-/**
- * The payload of the payment depending on the x402Version, scheme, and network. Discriminated by scheme-specific fields: exact-EVM/upto-EVM payloads carry a `signature`; exact-Solana carries a `transaction`; batch-settlement carries a `type` discriminator. See `x402BatchSettlementEvmPayload` for the documented batch-settlement variants.
- */
-export type X402V2PaymentPayloadPayload =
-  | X402ExactEvmPayload
-  | X402ExactEvmPermit2Payload
-  | X402ExactSolanaPayload
-  | X402UptoEvmPermit2Payload
-  | X402BatchSettlementEvmPayload;
-
-/**
- * Optional protocol extensions.
- */
-export type X402V2PaymentPayloadExtensions = { [key: string]: unknown };
-
-/**
- * The x402 v2 protocol payment payload. Uses CAIP-2 network identifiers. The `accepted` field carries the full payment requirements; `scheme` and `network` are not top-level fields (they are on the nested `accepted` object).
- */
-export interface X402V2PaymentPayload {
-  /** The x402 protocol version. Must be `2` for this payload shape. */
-  x402Version: X402Version;
-  /** The payload of the payment depending on the x402Version, scheme, and network. Discriminated by scheme-specific fields: exact-EVM/upto-EVM payloads carry a `signature`; exact-Solana carries a `transaction`; batch-settlement carries a `type` discriminator. See `x402BatchSettlementEvmPayload` for the documented batch-settlement variants. */
-  payload: X402V2PaymentPayloadPayload;
-  accepted: X402V2PaymentRequirements;
-  resource?: X402ResourceInfo;
-  /** Optional protocol extensions. */
-  extensions?: X402V2PaymentPayloadExtensions;
-}
-
-/**
- * The x402 v1 network identifier. x402 v1 uses human-readable network names. Supported networks: Base mainnet and testnet, Solana mainnet and devnet.
- */
-export type X402V1Network = (typeof X402V1Network)[keyof typeof X402V1Network];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402V1Network = {
-  base: "base",
-  "base-sepolia": "base-sepolia",
-  solana: "solana",
-  "solana-devnet": "solana-devnet",
-} as const;
-
-/**
- * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
- */
-export type X402V1PaymentPayloadScheme =
-  (typeof X402V1PaymentPayloadScheme)[keyof typeof X402V1PaymentPayloadScheme];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402V1PaymentPayloadScheme = {
-  exact: "exact",
-} as const;
-
-/**
- * The payload of the payment depending on the x402Version, scheme, and network.
- */
-export type X402V1PaymentPayloadPayload =
-  | X402ExactEvmPayload
-  | X402ExactEvmPermit2Payload
-  | X402ExactSolanaPayload;
-
-/**
- * The x402 v1 protocol payment payload. Uses human-readable network names and requires `scheme` and `network` alongside the inner `payload` object.
- */
-export interface X402V1PaymentPayload {
-  /** The x402 protocol version. Must be `1` for this payload shape. */
-  x402Version: X402Version;
-  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
-  scheme: X402V1PaymentPayloadScheme;
-  /** The network of the blockchain to send payment on. */
-  network: X402V1Network;
-  /** The payload of the payment depending on the x402Version, scheme, and network. */
-  payload: X402V1PaymentPayloadPayload;
-}
-
-/**
- * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
-For EVM networks, smart account signatures can be longer than 65 bytes.
- */
-export type X402PaymentPayload = X402V2PaymentPayload | X402V1PaymentPayload;
-
-/**
- * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
- */
-export type X402V1PaymentRequirementsScheme =
-  (typeof X402V1PaymentRequirementsScheme)[keyof typeof X402V1PaymentRequirementsScheme];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402V1PaymentRequirementsScheme = {
-  exact: "exact",
-} as const;
-
-/**
- * The optional JSON schema describing the resource output.
- */
-export type X402V1PaymentRequirementsOutputSchema = { [key: string]: unknown };
-
-/**
- * The optional additional scheme-specific payment info.
- */
-export type X402V1PaymentRequirementsExtra = { [key: string]: unknown };
-
-/**
- * The x402 v1 payment requirements. Uses human-readable network names, and carries resource metadata (`resource`, `description`, `mimeType`) alongside the payment fields. The only supported scheme is `exact`.
- */
-export interface X402V1PaymentRequirements {
-  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
-  scheme: X402V1PaymentRequirementsScheme;
-  /** The network of the blockchain to send payment on. */
-  network: X402V1Network;
-  /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
-  maxAmountRequired: string;
-  /** The URL of the resource to pay for. */
-  resource: string;
-  /** A human-readable description of the resource. */
-  description: Description;
-  /** The MIME type of the resource response. */
-  mimeType: string;
-  /** The optional JSON schema describing the resource output. */
-  outputSchema?: X402V1PaymentRequirementsOutputSchema;
-  /** The destination to pay value to.
-
-For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, payTo will be a base58-encoded Solana address. */
-  payTo: BlockchainAddress;
-  /** The maximum time in seconds for the resource server to respond. */
-  maxTimeoutSeconds: number;
-  /** The asset to pay with.
-
-For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, the asset will be a base58-encoded Solana address. */
-  asset: BlockchainAddress;
-  /** The optional additional scheme-specific payment info. */
-  extra?: X402V1PaymentRequirementsExtra;
-}
-
-/**
- * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
- */
-export type X402PaymentRequirements = X402V2PaymentRequirements | X402V1PaymentRequirements;
 
 /**
  * The reason the payment is invalid on the x402 protocol.
@@ -5459,6 +7319,7 @@ export const X402SettleErrorReason = {
   settle_exact_svm_block_height_exceeded: "settle_exact_svm_block_height_exceeded",
   settle_exact_svm_transaction_confirmation_timed_out:
     "settle_exact_svm_transaction_confirmation_timed_out",
+  settlement_pending: "settlement_pending",
   invalid_batch_settlement_evm_unknown_settle_action:
     "invalid_batch_settlement_evm_unknown_settle_action",
   invalid_batch_settlement_evm_claim_payload: "invalid_batch_settlement_evm_claim_payload",
@@ -5711,6 +7572,7 @@ For Solana-based networks, the payer will be a base58-encoded Solana address. */
    * The transaction of the settlement.
 For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
 For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+Populated even though `success` is `false` when `errorReason` is `settlement_pending`: the transaction broadcast successfully but its receipt could not be retrieved, so the hash is returned for the caller to reconcile before retrying.
    * @pattern ^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$
    */
   transaction?: string;
@@ -5809,7 +7671,16 @@ export const X402DiscoveryResourceType = {
 export type X402DiscoveryResourceExtensions = { [key: string]: unknown };
 
 /**
- * A single discovered x402 resource.
+ * A single discovered x402 resource. Its fields come from three sources:
+
+- **x402 protocol** — negotiated from the resource's payment-required response: `resource`,
+  `type`, `x402Version`, `accepts`, `extensions`.
+- **Provider-supplied** — metadata published by the resource owner: `description`,
+  `serviceName`, `tags`.
+- **Coinbase-derived** — added during ingestion and curation: `iconUrl`, `quality`,
+  `lastUpdated`, and (for Coinbase-curated endpoints only) `curated`, `skillUrl` (a
+  Coinbase-authored SKILL.md), and `bundleSlugs`.
+
  */
 export interface X402DiscoveryResource {
   /** The URL of the resource. */
@@ -5826,16 +7697,21 @@ export interface X402DiscoveryResource {
   /** Map of x402 protocol extensions supported by the resource, keyed by extension name. */
   extensions?: X402DiscoveryResourceExtensions;
   quality?: X402ResourceQuality;
-  /** Provider-supplied display name of the service this resource belongs to. This is a free-form
+  /** Display name of the service this resource belongs to. This is a free-form
 label for grouping and presentation only — it is not a stable identifier, and two resources
 sharing the same `serviceName` are not guaranteed to belong to the same logical service.
  */
   serviceName?: string;
-  /** Provider-supplied, low-cardinality string labels associated with the resource for client-side
+  /** Low-cardinality string labels associated with the resource for client-side
 filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive.
 Order is not significant and duplicates are not expected.
  */
   tags?: string[];
+  /**
+   * Slugs of the curated x402 bundles this resource belongs to. A bundle is an ordered, named grouping of curated resources covering a common agent workflow. Present only for Coinbase-curated resources (`curated: true`); omitted when the resource is not curated or is not a member of any bundle.
+   * @maxItems 50
+   */
+  bundleSlugs?: string[];
   /** URL of a square icon representing the service this resource belongs to. Distinct from a
 brand logo: this is intended for compact, list-view rendering (favicon-style) and is
 normalized to a square aspect ratio at ingestion. The image is moderated and re-hosted by
@@ -5844,6 +7720,15 @@ provider did not supply an icon, when the supplied icon failed moderation, or wh
 processing was unavailable at ingestion time.
  */
   iconUrl?: Url;
+  /** Whether this resource is a Coinbase-curated endpoint. Curated endpoints have passed the
+partner-admission and verification bar and surface higher in search and listing results.
+Omitted (treated as `false`) when the resource is not curated.
+ */
+  curated?: boolean;
+  /** URL of the SKILL.md document describing how to use this resource. Omitted when the resource
+has no associated skill document.
+ */
+  skillUrl?: Url;
 }
 
 /**
@@ -6008,6 +7893,46 @@ export interface X402McpResponse {
   result?: X402McpResponseResult;
   error?: X402McpError;
 }
+
+/**
+ * A curated workflow bundle: an ordered, named grouping of curated x402 resources that together cover a common agent workflow. This metadata shape is returned by the bundle list endpoint; the per-bundle detail endpoint additionally returns the joined member resources.
+ */
+export interface X402Bundle {
+  /**
+   * The stable, unique, URL-safe identifier for the bundle. Used as the path segment in `GET /v2/x402/discovery/bundles/{bundleSlug}`.
+   * @maxLength 64
+   * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+   */
+  slug: string;
+  /** The human-readable display name of the bundle. */
+  name: string;
+  /** A human-readable description of the workflow the bundle covers. */
+  description?: string;
+}
+
+/**
+ * Response containing the available curated x402 bundles. Unlike x402 protocol discovery and search responses, bundle responses omit `x402Version` because bundles are CDP-curated metadata, not protocol negotiation payloads.
+ */
+export interface X402BundlesResponse {
+  /**
+   * The list of available curated bundles. This list is empty when no bundles are defined.
+   * @maxItems 50
+   */
+  bundles: X402Bundle[];
+}
+
+export type X402BundleResponseAllOf = {
+  /**
+   * The bundle's member resources in bundle-defined order. Each entry is the full discovery metadata for a curated endpoint belonging to this bundle. Bundle membership is capped at 50 resources.
+   * @maxItems 50
+   */
+  resources: X402DiscoveryResource[];
+};
+
+/**
+ * Response containing a single curated bundle's metadata and its ordered member resources. Members are the bundle's curated endpoints joined to their full discovery metadata, in bundle-defined order. Unlike x402 protocol discovery and search responses, bundle responses omit `x402Version` because bundles are CDP-curated metadata, not protocol negotiation payloads.
+ */
+export type X402BundleResponse = X402Bundle & X402BundleResponseAllOf;
 
 /**
  * A valid HTTPS URL.
@@ -6251,6 +8176,13 @@ export const OnrampOrderPaymentMethodTypeId = {
 } as const;
 
 /**
+ * A reusable, PII-free token issued after a user completes verification in the embedded onramp flow. It encodes only the underlying verification IDs, no personal information. Pass it on subsequent orders to take a returning user straight to the pay button, skipping OTP when checking out to the same wallet.
+
+In the embedded flow, `phoneNumber`, `email`, `phoneNumberVerifiedAt`, and `agreementAcceptedAt` are handled by Coinbase in the hosted popup and may be omitted from the request even though they are required for the standard partner-verified flow. Reuse is best-effort: an invalid, expired, or different-wallet token still requires the user to verify. Valid for 60 days.
+ */
+export type OnrampUserAuthToken = string;
+
+/**
  * The type of fee.
  */
 export type OnrampOrderFeeType = (typeof OnrampOrderFeeType)[keyof typeof OnrampOrderFeeType];
@@ -6281,6 +8213,7 @@ export type OnrampOrderStatus = (typeof OnrampOrderStatus)[keyof typeof OnrampOr
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OnrampOrderStatus = {
   ONRAMP_ORDER_STATUS_PENDING_AUTH: "ONRAMP_ORDER_STATUS_PENDING_AUTH",
+  ONRAMP_ORDER_STATUS_PENDING_VERIFICATION: "ONRAMP_ORDER_STATUS_PENDING_VERIFICATION",
   ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "ONRAMP_ORDER_STATUS_PENDING_PAYMENT",
   ONRAMP_ORDER_STATUS_PROCESSING: "ONRAMP_ORDER_STATUS_PROCESSING",
   ONRAMP_ORDER_STATUS_COMPLETED: "ONRAMP_ORDER_STATUS_COMPLETED",
@@ -6332,6 +8265,8 @@ export type OnrampPaymentLinkType =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OnrampPaymentLinkType = {
   PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON: "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON",
+  PAYMENT_LINK_TYPE_GOOGLE_PAY_BUTTON: "PAYMENT_LINK_TYPE_GOOGLE_PAY_BUTTON",
+  PAYMENT_LINK_TYPE_EMBEDDED_ORDER: "PAYMENT_LINK_TYPE_EMBEDDED_ORDER",
 } as const;
 
 /**
@@ -6478,6 +8413,78 @@ export interface OnrampUserLimit {
 }
 
 /**
+ * The status of verification:
+- `unrequested`: The limit upgrade has not been submitted.
+- `resubmit`: One or more identity fields must be resubmitted.
+- `pending`: The submitted identity fields are pending review.
+- `active`: The limit upgrade is active.
+- `inactive`: The limit upgrade was rejected and cannot be resubmitted.
+
+ */
+export type OnrampLimitUpgradeStatus =
+  (typeof OnrampLimitUpgradeStatus)[keyof typeof OnrampLimitUpgradeStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampLimitUpgradeStatus = {
+  unrequested: "unrequested",
+  resubmit: "resubmit",
+  pending: "pending",
+  active: "active",
+  inactive: "inactive",
+} as const;
+
+/**
+ * The identity field key for limit upgrades. These keys correspond to the fields
+in the limits upgrade request:
+- `ssnLast4`: Last 4 digits of the Social Security Number
+- `dateOfBirth`: Date of birth
+
+ */
+export type OnrampLimitUpgradeIdentityFieldKey =
+  (typeof OnrampLimitUpgradeIdentityFieldKey)[keyof typeof OnrampLimitUpgradeIdentityFieldKey];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampLimitUpgradeIdentityFieldKey = {
+  ssnLast4: "ssnLast4",
+  dateOfBirth: "dateOfBirth",
+} as const;
+
+/**
+ * Describes a limit value associated with an upgrade.
+ */
+export interface OnrampLimitUpgrade {
+  limitType: OnrampLimitType;
+  /** The maximum limit value possible after completing the upgrade. Risk factors may impact the actual limit value that takes effect. For `lifetime_transactions`, `2147483647` represents an unlimited number of transactions. */
+  maxUpgrade: string;
+}
+
+/**
+ * Describes the current status and potential limit changes for a limit upgrade.
+ */
+export interface OnrampLimitUpgradeOption {
+  status: OnrampLimitUpgradeStatus;
+  /** The identity fields associated with the current status. Contains fields to submit for `unrequested` and `resubmit`, fields pending review for `pending`, and is empty for `active` and `inactive`. */
+  fields: OnrampLimitUpgradeIdentityFieldKey[];
+  /** The limit values associated with this upgrade. */
+  limitUpgrades: OnrampLimitUpgrade[];
+}
+
+/**
+ * The interaction mode for the limit upgrade request:
+- `api`: Submit identity fields directly in the API request.
+- `embedded`: Return a Coinbase-hosted URL where the user enters identity fields.
+
+ */
+export type OnrampLimitUpgradeInteractionMode =
+  (typeof OnrampLimitUpgradeInteractionMode)[keyof typeof OnrampLimitUpgradeInteractionMode];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampLimitUpgradeInteractionMode = {
+  OnrampLimitUpgradeInteractionModeAPI: "api",
+  OnrampLimitUpgradeInteractionModeEmbedded: "embedded",
+} as const;
+
+/**
  * Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
  */
 export interface OnrampLimitUpgradeIdentityFields {
@@ -6494,15 +8501,21 @@ export interface OnrampLimitUpgradeRequest {
   /** The user identifier value. For `phone_number` type, this must be in E.164 format. */
   userId: string;
   userIdType: OnrampUserIdType;
-  /** Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. These fields are required; a request without them is rejected. */
+  /** The interaction mode for the limit upgrade request. Defaults to `api`. */
+  interactionMode?: OnrampLimitUpgradeInteractionMode;
+  /** Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. Required in `api` mode. Omit in `embedded` mode — the user enters their identity information on the Coinbase-hosted upgrade page (see `interactionMode`), so any value sent here is rejected. */
   fields?: OnrampLimitUpgradeIdentityFields;
 }
 
 /**
- * The ID of the Payment Method, which is a UUID prefixed by the string `paymentMethod_`.
- * @pattern ^paymentMethod_[a-f0-9\-]{36}$
+ * A Coinbase-hosted URL for collecting limit upgrade identity fields.
  */
-export type PaymentMethodId = string;
+export interface OnrampLimitUpgradeEmbeddedResponse {
+  /** The Coinbase-hosted URL where the user enters identity information for the limit upgrade. Treat the session token in this URL as opaque. */
+  upgradeUrl: Url;
+  /** The time at which the hosted limit upgrade URL expires. Request a new upgrade URL after this time. */
+  expiresAt: string;
+}
 
 /**
  * Common properties shared by all payment method types.
@@ -7269,6 +9282,152 @@ export type WalletHashSignedEvent =
   | WalletHashSignedEventOneOfSix;
 
 /**
+ * Common envelope fields included in every payments transfers webhook event payload.
+ */
+export interface PaymentsTransfersEventBase {
+  /** Unique identifier for this webhook event. Use this for idempotency. */
+  eventID: string;
+  /** The type of webhook event. */
+  eventType: string;
+  /** The UTC ISO 8601 timestamp at which the underlying state change occurred, not the time at which this webhook was delivered. */
+  timestamp: string;
+  data: Transfer;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersQuotedEventAllOfEventType =
+  (typeof PaymentsTransfersQuotedEventAllOfEventType)[keyof typeof PaymentsTransfersQuotedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersQuotedEventAllOfEventType = {
+  paymentstransfersquoted: "payments.transfers.quoted",
+} as const;
+
+export type PaymentsTransfersQuotedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersQuotedEventAllOfEventType;
+};
+
+export type PaymentsTransfersQuotedEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersQuotedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersProcessingEventAllOfEventType =
+  (typeof PaymentsTransfersProcessingEventAllOfEventType)[keyof typeof PaymentsTransfersProcessingEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersProcessingEventAllOfEventType = {
+  paymentstransfersprocessing: "payments.transfers.processing",
+} as const;
+
+export type PaymentsTransfersProcessingEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersProcessingEventAllOfEventType;
+};
+
+export type PaymentsTransfersProcessingEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersProcessingEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersCompletedEventAllOfEventType =
+  (typeof PaymentsTransfersCompletedEventAllOfEventType)[keyof typeof PaymentsTransfersCompletedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersCompletedEventAllOfEventType = {
+  paymentstransferscompleted: "payments.transfers.completed",
+} as const;
+
+export type PaymentsTransfersCompletedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersCompletedEventAllOfEventType;
+};
+
+export type PaymentsTransfersCompletedEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersCompletedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersFailedEventAllOfEventType =
+  (typeof PaymentsTransfersFailedEventAllOfEventType)[keyof typeof PaymentsTransfersFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersFailedEventAllOfEventType = {
+  paymentstransfersfailed: "payments.transfers.failed",
+} as const;
+
+export type PaymentsTransfersFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersFailedEventAllOfEventType;
+};
+
+export type PaymentsTransfersFailedEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersFailedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersExpiredEventAllOfEventType =
+  (typeof PaymentsTransfersExpiredEventAllOfEventType)[keyof typeof PaymentsTransfersExpiredEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersExpiredEventAllOfEventType = {
+  paymentstransfersexpired: "payments.transfers.expired",
+} as const;
+
+export type PaymentsTransfersExpiredEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersExpiredEventAllOfEventType;
+};
+
+export type PaymentsTransfersExpiredEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersExpiredEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersTravelRuleIncompleteEventAllOfEventType =
+  (typeof PaymentsTransfersTravelRuleIncompleteEventAllOfEventType)[keyof typeof PaymentsTransfersTravelRuleIncompleteEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersTravelRuleIncompleteEventAllOfEventType = {
+  paymentstransferstravel_rule_incomplete: "payments.transfers.travel_rule_incomplete",
+} as const;
+
+export type PaymentsTransfersTravelRuleIncompleteEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersTravelRuleIncompleteEventAllOfEventType;
+};
+
+export type PaymentsTransfersTravelRuleIncompleteEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersTravelRuleIncompleteEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type PaymentsTransfersTravelRuleCompletedEventAllOfEventType =
+  (typeof PaymentsTransfersTravelRuleCompletedEventAllOfEventType)[keyof typeof PaymentsTransfersTravelRuleCompletedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentsTransfersTravelRuleCompletedEventAllOfEventType = {
+  paymentstransferstravel_rule_completed: "payments.transfers.travel_rule_completed",
+} as const;
+
+export type PaymentsTransfersTravelRuleCompletedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: PaymentsTransfersTravelRuleCompletedEventAllOfEventType;
+};
+
+export type PaymentsTransfersTravelRuleCompletedEvent = PaymentsTransfersEventBase &
+  PaymentsTransfersTravelRuleCompletedEventAllOf;
+
+/**
  * A monetary amount with currency.
  */
 export interface MoneyAmount {
@@ -7461,6 +9620,7 @@ export type OnrampOrderPayloadStatus =
 export const OnrampOrderPayloadStatus = {
   ONRAMP_ORDER_STATUS_UNSPECIFIED: "ONRAMP_ORDER_STATUS_UNSPECIFIED",
   ONRAMP_ORDER_STATUS_PENDING_AUTH: "ONRAMP_ORDER_STATUS_PENDING_AUTH",
+  ONRAMP_ORDER_STATUS_PENDING_VERIFICATION: "ONRAMP_ORDER_STATUS_PENDING_VERIFICATION",
   ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "ONRAMP_ORDER_STATUS_PENDING_PAYMENT",
   ONRAMP_ORDER_STATUS_PROCESSING: "ONRAMP_ORDER_STATUS_PROCESSING",
   ONRAMP_ORDER_STATUS_COMPLETED: "ONRAMP_ORDER_STATUS_COMPLETED",
@@ -7592,6 +9752,8 @@ export interface OfframpTransactionPayload {
   redirectUrl?: string;
   /** The payment method type used for cashout. */
   paymentMethod?: OfframpTransactionPayloadPaymentMethod;
+  /** The partnerUserId provided when initializing the offramp session. */
+  partnerUserRef?: string;
 }
 
 export type OfframpTransactionCreatedEvent = OfframpTransactionPayload;
@@ -7603,6 +9765,579 @@ export type OfframpTransactionSuccessEvent = OfframpTransactionPayload;
 export type OfframpTransactionFailedEvent = OfframpTransactionPayload;
 
 /**
+ * A summary of the payment session included in webhook payloads. Contains the session identity, amount, asset, payer and recipient information, execution behavior, expiry deadlines, current status, running balance totals, and any metadata originally provided when the session was created.
+ */
+export interface PaymentSessionSummary {
+  /** The unique identifier of the payment session. */
+  paymentSessionId: PaymentSessionId;
+  /** The ID of the entity that owns the payment session. */
+  entityId: string;
+  /** A decimal representation of the payment amount, denominated in `asset`. */
+  amount: string;
+  /** The symbol of the asset for the payment amount. */
+  asset: Asset;
+  /** The payer's address and network. Set after a successful authorization. Not present before authorization. */
+  source?: PaymentSessionSource;
+  /** The recipient of the payment. */
+  target: PaymentSessionTarget;
+  /** When true, a capture is automatically created after a successful authorization. */
+  autoCapture: boolean;
+  /** Deadline timestamps for authorization, capture, and refund windows. */
+  expiries: PaymentExpiries;
+  /** The current status of the payment session at the time the event was emitted. */
+  status: PaymentSessionStatus;
+  /** Running balance totals for the payment session at the time the event was emitted. */
+  balances: PaymentSessionBalances;
+  /**
+   * A merchant-provided internal identifier for this payment session, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+   * @maxLength 256
+   */
+  externalReferenceId?: string;
+  customerDisplay?: CustomerDisplay;
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the payment session was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the payment session was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * Present when the event was triggered by an authorization status transition (`pending`, `succeeded`, or `failed`).
+ */
+export type PaymentSessionEventDataAuthorization = {
+  /** The unique identifier of the authorization. */
+  authorizationId: AuthorizationId;
+  /** The current status of the authorization. */
+  status: PaymentActionStatus;
+  /** A decimal representation of the authorized amount, denominated in the session's `asset`. */
+  amount: string;
+  /** Error details, present only when the authorization failed. */
+  error?: PaymentError;
+  /** The onchain transactions associated with this authorization. */
+  onchainTransactions?: OnchainTransaction[];
+  metadata?: Metadata;
+  /** The payer for this authorization. For wallet authorizations, this is the blockchain address that signed the payloads. For Coinbase authorizations, this is the authenticated Coinbase account. */
+  source?: PaymentSessionSource;
+  /** The UTC ISO 8601 timestamp at which the authorization was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the authorization was last updated. */
+  updatedAt: string;
+};
+
+/**
+ * Present when the event was triggered by a capture status transition (`pending`, `succeeded`, or `failed`).
+ */
+export type PaymentSessionEventDataCapture = {
+  /** The unique identifier of the capture. */
+  captureId: CaptureId;
+  /** The current status of the capture. */
+  status: PaymentActionStatus;
+  /** A decimal representation of the captured amount, denominated in the session's `asset`. */
+  amount: string;
+  /** When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release. */
+  finalCapture: boolean;
+  /** Error details, present only when the capture failed. */
+  error?: PaymentError;
+  /** The onchain transactions associated with this capture. */
+  onchainTransactions?: OnchainTransaction[];
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the capture was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the capture was last updated. */
+  updatedAt: string;
+};
+
+/**
+ * Present when the event was triggered by a void status transition (`pending`, `succeeded`, or `failed`).
+ */
+export type PaymentSessionEventDataVoid = {
+  /** The unique identifier of the void. */
+  voidId: VoidId;
+  /** The current status of the void. */
+  status: PaymentActionStatus;
+  /** A decimal representation of the voided amount, denominated in the session's `asset`. */
+  amount: string;
+  /** Error details, present only when the void failed. */
+  error?: PaymentError;
+  /** The onchain transactions associated with this void. */
+  onchainTransactions?: OnchainTransaction[];
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the void was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the void was last updated. */
+  updatedAt: string;
+};
+
+/**
+ * Present when the event was triggered by a refund status transition (`pending`, `succeeded`, or `failed`).
+ */
+export type PaymentSessionEventDataRefund = {
+  /** The unique identifier of the refund. */
+  refundId: RefundId;
+  /** The current status of the refund. */
+  status: PaymentActionStatus;
+  /** A decimal representation of the refunded amount, denominated in the session's `asset`. */
+  amount: string;
+  /** The reason for the refund, if provided when the refund was created. */
+  reason?: string;
+  /** Error details, present only when the refund failed. */
+  error?: PaymentError;
+  /** The onchain transactions associated with this refund. */
+  onchainTransactions?: OnchainTransaction[];
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the refund was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the refund was last updated. */
+  updatedAt: string;
+};
+
+/**
+ * The data payload for a payment session webhook event. Always contains the `paymentSession` summary reflecting the session's current state. When the event was triggered by an action (authorization, capture, void, or refund), the corresponding optional field is present with the action details. For session-level events (created, canceled) no action field is included — the `paymentSession.status` value is sufficient.
+ */
+export interface PaymentSessionEventData {
+  paymentSession: PaymentSessionSummary;
+  /** Present when the event was triggered by an authorization status transition (`pending`, `succeeded`, or `failed`). */
+  authorization?: PaymentSessionEventDataAuthorization;
+  /** Present when the event was triggered by a capture status transition (`pending`, `succeeded`, or `failed`). */
+  capture?: PaymentSessionEventDataCapture;
+  /** Present when the event was triggered by a void status transition (`pending`, `succeeded`, or `failed`). */
+  void?: PaymentSessionEventDataVoid;
+  /** Present when the event was triggered by a refund status transition (`pending`, `succeeded`, or `failed`). */
+  refund?: PaymentSessionEventDataRefund;
+}
+
+/**
+ * Common fields included in every PaymentSessionEvent payload.
+ */
+export interface PaymentSessionEventBase {
+  /** Unique identifier for this webhook event. Use this for idempotency. */
+  eventId: string;
+  /** When this event occurred (ISO 8601 format). */
+  timestamp: string;
+  data: PaymentSessionEventData;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionCreatedEventAllOfEventType =
+  (typeof AcceptancePaymentSessionCreatedEventAllOfEventType)[keyof typeof AcceptancePaymentSessionCreatedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionCreatedEventAllOfEventType = {
+  acceptancepayment_sessioncreated: "acceptance.payment_session.created",
+} as const;
+
+export type AcceptancePaymentSessionCreatedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionCreatedEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionCreatedEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionCreatedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionCanceledEventAllOfEventType =
+  (typeof AcceptancePaymentSessionCanceledEventAllOfEventType)[keyof typeof AcceptancePaymentSessionCanceledEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionCanceledEventAllOfEventType = {
+  acceptancepayment_sessioncanceled: "acceptance.payment_session.canceled",
+} as const;
+
+export type AcceptancePaymentSessionCanceledEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionCanceledEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionCanceledEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionCanceledEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionAuthorizationPendingEventAllOfEventType =
+  (typeof AcceptancePaymentSessionAuthorizationPendingEventAllOfEventType)[keyof typeof AcceptancePaymentSessionAuthorizationPendingEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionAuthorizationPendingEventAllOfEventType = {
+  acceptancepayment_sessionauthorization_pending:
+    "acceptance.payment_session.authorization_pending",
+} as const;
+
+export type AcceptancePaymentSessionAuthorizationPendingEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionAuthorizationPendingEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionAuthorizationPendingEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionAuthorizationPendingEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionAuthorizationSucceededEventAllOfEventType =
+  (typeof AcceptancePaymentSessionAuthorizationSucceededEventAllOfEventType)[keyof typeof AcceptancePaymentSessionAuthorizationSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionAuthorizationSucceededEventAllOfEventType = {
+  acceptancepayment_sessionauthorization_succeeded:
+    "acceptance.payment_session.authorization_succeeded",
+} as const;
+
+export type AcceptancePaymentSessionAuthorizationSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionAuthorizationSucceededEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionAuthorizationSucceededEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionAuthorizationSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionAuthorizationFailedEventAllOfEventType =
+  (typeof AcceptancePaymentSessionAuthorizationFailedEventAllOfEventType)[keyof typeof AcceptancePaymentSessionAuthorizationFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionAuthorizationFailedEventAllOfEventType = {
+  acceptancepayment_sessionauthorization_failed: "acceptance.payment_session.authorization_failed",
+} as const;
+
+export type AcceptancePaymentSessionAuthorizationFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionAuthorizationFailedEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionAuthorizationFailedEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionAuthorizationFailedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionCapturePendingEventAllOfEventType =
+  (typeof AcceptancePaymentSessionCapturePendingEventAllOfEventType)[keyof typeof AcceptancePaymentSessionCapturePendingEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionCapturePendingEventAllOfEventType = {
+  acceptancepayment_sessioncapture_pending: "acceptance.payment_session.capture_pending",
+} as const;
+
+export type AcceptancePaymentSessionCapturePendingEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionCapturePendingEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionCapturePendingEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionCapturePendingEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionCaptureSucceededEventAllOfEventType =
+  (typeof AcceptancePaymentSessionCaptureSucceededEventAllOfEventType)[keyof typeof AcceptancePaymentSessionCaptureSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionCaptureSucceededEventAllOfEventType = {
+  acceptancepayment_sessioncapture_succeeded: "acceptance.payment_session.capture_succeeded",
+} as const;
+
+export type AcceptancePaymentSessionCaptureSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionCaptureSucceededEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionCaptureSucceededEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionCaptureSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionCaptureFailedEventAllOfEventType =
+  (typeof AcceptancePaymentSessionCaptureFailedEventAllOfEventType)[keyof typeof AcceptancePaymentSessionCaptureFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionCaptureFailedEventAllOfEventType = {
+  acceptancepayment_sessioncapture_failed: "acceptance.payment_session.capture_failed",
+} as const;
+
+export type AcceptancePaymentSessionCaptureFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionCaptureFailedEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionCaptureFailedEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionCaptureFailedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionRefundPendingEventAllOfEventType =
+  (typeof AcceptancePaymentSessionRefundPendingEventAllOfEventType)[keyof typeof AcceptancePaymentSessionRefundPendingEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionRefundPendingEventAllOfEventType = {
+  acceptancepayment_sessionrefund_pending: "acceptance.payment_session.refund_pending",
+} as const;
+
+export type AcceptancePaymentSessionRefundPendingEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionRefundPendingEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionRefundPendingEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionRefundPendingEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionRefundSucceededEventAllOfEventType =
+  (typeof AcceptancePaymentSessionRefundSucceededEventAllOfEventType)[keyof typeof AcceptancePaymentSessionRefundSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionRefundSucceededEventAllOfEventType = {
+  acceptancepayment_sessionrefund_succeeded: "acceptance.payment_session.refund_succeeded",
+} as const;
+
+export type AcceptancePaymentSessionRefundSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionRefundSucceededEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionRefundSucceededEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionRefundSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionRefundFailedEventAllOfEventType =
+  (typeof AcceptancePaymentSessionRefundFailedEventAllOfEventType)[keyof typeof AcceptancePaymentSessionRefundFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionRefundFailedEventAllOfEventType = {
+  acceptancepayment_sessionrefund_failed: "acceptance.payment_session.refund_failed",
+} as const;
+
+export type AcceptancePaymentSessionRefundFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionRefundFailedEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionRefundFailedEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionRefundFailedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionVoidPendingEventAllOfEventType =
+  (typeof AcceptancePaymentSessionVoidPendingEventAllOfEventType)[keyof typeof AcceptancePaymentSessionVoidPendingEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionVoidPendingEventAllOfEventType = {
+  acceptancepayment_sessionvoid_pending: "acceptance.payment_session.void_pending",
+} as const;
+
+export type AcceptancePaymentSessionVoidPendingEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionVoidPendingEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionVoidPendingEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionVoidPendingEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionVoidSucceededEventAllOfEventType =
+  (typeof AcceptancePaymentSessionVoidSucceededEventAllOfEventType)[keyof typeof AcceptancePaymentSessionVoidSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionVoidSucceededEventAllOfEventType = {
+  acceptancepayment_sessionvoid_succeeded: "acceptance.payment_session.void_succeeded",
+} as const;
+
+export type AcceptancePaymentSessionVoidSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionVoidSucceededEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionVoidSucceededEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionVoidSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptancePaymentSessionVoidFailedEventAllOfEventType =
+  (typeof AcceptancePaymentSessionVoidFailedEventAllOfEventType)[keyof typeof AcceptancePaymentSessionVoidFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptancePaymentSessionVoidFailedEventAllOfEventType = {
+  acceptancepayment_sessionvoid_failed: "acceptance.payment_session.void_failed",
+} as const;
+
+export type AcceptancePaymentSessionVoidFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptancePaymentSessionVoidFailedEventAllOfEventType;
+};
+
+export type AcceptancePaymentSessionVoidFailedEvent = PaymentSessionEventBase &
+  AcceptancePaymentSessionVoidFailedEventAllOf;
+
+/**
+ * Common fields included in every DisbursementEvent payload.
+ */
+export interface DisbursementEventBase {
+  /** Unique identifier for this webhook event. Use this for idempotency. */
+  eventId: string;
+  /** When this event occurred (ISO 8601 format). */
+  timestamp: string;
+  data: Disbursement;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceDisbursementPendingEventAllOfEventType =
+  (typeof AcceptanceDisbursementPendingEventAllOfEventType)[keyof typeof AcceptanceDisbursementPendingEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceDisbursementPendingEventAllOfEventType = {
+  acceptancedisbursementpending: "acceptance.disbursement.pending",
+} as const;
+
+export type AcceptanceDisbursementPendingEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceDisbursementPendingEventAllOfEventType;
+};
+
+export type AcceptanceDisbursementPendingEvent = DisbursementEventBase &
+  AcceptanceDisbursementPendingEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceDisbursementSucceededEventAllOfEventType =
+  (typeof AcceptanceDisbursementSucceededEventAllOfEventType)[keyof typeof AcceptanceDisbursementSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceDisbursementSucceededEventAllOfEventType = {
+  acceptancedisbursementsucceeded: "acceptance.disbursement.succeeded",
+} as const;
+
+export type AcceptanceDisbursementSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceDisbursementSucceededEventAllOfEventType;
+};
+
+export type AcceptanceDisbursementSucceededEvent = DisbursementEventBase &
+  AcceptanceDisbursementSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceDisbursementFailedEventAllOfEventType =
+  (typeof AcceptanceDisbursementFailedEventAllOfEventType)[keyof typeof AcceptanceDisbursementFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceDisbursementFailedEventAllOfEventType = {
+  acceptancedisbursementfailed: "acceptance.disbursement.failed",
+} as const;
+
+export type AcceptanceDisbursementFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceDisbursementFailedEventAllOfEventType;
+};
+
+export type AcceptanceDisbursementFailedEvent = DisbursementEventBase &
+  AcceptanceDisbursementFailedEventAllOf;
+
+/**
+ * Common envelope fields included in every Customers webhook event payload.
+ */
+export interface CustomersEventBase {
+  /** Unique identifier for this logical webhook event. Webhooks are delivered at least once, so your endpoint may receive duplicate deliveries for the same event. Use this `eventId` as the idempotency/deduplication key. */
+  eventId: string;
+  /** The type of webhook event. */
+  eventType: string;
+  /** The UTC ISO 8601 timestamp at which the underlying state change occurred, not the time at which this webhook was delivered. */
+  timestamp: string;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type CustomersCapabilityChangedEventAllOfEventType =
+  (typeof CustomersCapabilityChangedEventAllOfEventType)[keyof typeof CustomersCapabilityChangedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CustomersCapabilityChangedEventAllOfEventType = {
+  customerscapabilitychanged: "customers.capability.changed",
+} as const;
+
+/**
+ * A single capability whose status changed. Carries only `{code, status}`.
+ */
+export type CustomersCapabilityChangedEventAllOfDataCapabilitiesItem = {
+  /** The capability whose status changed. */
+  code: CapabilityName;
+  /** The new status of the capability after the change. */
+  status: CapabilityStatus;
+};
+
+/**
+ * Payload body for the `customers.capability.changed` event. Emitted when the status of a capability changes. Several capabilities may change in a single event, with each change represented by a distinct entry in the `capabilities` array.
+ */
+export type CustomersCapabilityChangedEventAllOfData = {
+  /** The CDP Customer ID the event applies to. */
+  customerId: CustomerId;
+  /**
+   * The set of capabilities whose status changed in this event.
+   * @minItems 1
+   */
+  capabilities: CustomersCapabilityChangedEventAllOfDataCapabilitiesItem[];
+};
+
+export type CustomersCapabilityChangedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: CustomersCapabilityChangedEventAllOfEventType;
+  /** Payload body for the `customers.capability.changed` event. Emitted when the status of a capability changes. Several capabilities may change in a single event, with each change represented by a distinct entry in the `capabilities` array. */
+  data: CustomersCapabilityChangedEventAllOfData;
+};
+
+export type CustomersCapabilityChangedEvent = CustomersEventBase &
+  CustomersCapabilityChangedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type CustomersCustomerDeletedEventAllOfEventType =
+  (typeof CustomersCustomerDeletedEventAllOfEventType)[keyof typeof CustomersCustomerDeletedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CustomersCustomerDeletedEventAllOfEventType = {
+  customerscustomerdeleted: "customers.customer.deleted",
+} as const;
+
+/**
+ * Payload body for the `customers.customer.deleted` event. Emitted when the Customer record is deleted; this transition is terminal.
+ */
+export type CustomersCustomerDeletedEventAllOfData = {
+  /** The ID of the deleted Customer. */
+  customerId: CustomerId;
+};
+
+export type CustomersCustomerDeletedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: CustomersCustomerDeletedEventAllOfEventType;
+  /** Payload body for the `customers.customer.deleted` event. Emitted when the Customer record is deleted; this transition is terminal. */
+  data: CustomersCustomerDeletedEventAllOfData;
+};
+
+export type CustomersCustomerDeletedEvent = CustomersEventBase & CustomersCustomerDeletedEventAllOf;
+
+/**
  * Idempotency key conflict.
  */
 export type IdempotencyErrorResponse = Error;
@@ -7611,6 +10346,11 @@ export type IdempotencyErrorResponse = Error;
  * The endpoint cannot serve the request right now, either because the API is in an unintended outage (`service_unavailable` — dependency failure, deploy issue) or because an operator has intentionally disabled this specific endpoint via a kill switch (`endpoint_unavailable`). Clients should dispatch on `errorType`: `service_unavailable` is typically transient and safe to retry, while `endpoint_unavailable` may persist until an operator re-enables the endpoint.
  */
 export type EndpointUnavailableErrorResponse = Error;
+
+/**
+ * Unauthorized.
+ */
+export type UnauthorizedErrorResponse = Error;
 
 /**
  * Internal server error.
@@ -7628,9 +10368,14 @@ export type BadGatewayErrorResponse = Error;
 export type ServiceUnavailableErrorResponse = Error;
 
 /**
- * Unauthorized.
+ * Rate limit exceeded.
  */
-export type UnauthorizedErrorResponse = Error;
+export type RateLimitExceededResponse = Error;
+
+/**
+ * Payment is required to complete this operation.
+ */
+export type PaymentRequiredResponse = Error;
 
 /**
  * A payment method is required to complete this operation.
@@ -7745,11 +10490,6 @@ export type X402SupportedPaymentKindsResponseResponse = {
 export type ForbiddenErrorResponse = Error;
 
 /**
- * Rate limit exceeded.
- */
-export type RateLimitExceededResponse = Error;
-
-/**
  * The number of resources to return per page.
  */
 export type PageSizeParameter = number;
@@ -7806,6 +10546,24 @@ export type ListFoundationAccountsParams = {
    */
   pageToken?: PageTokenParameter;
   /**
+ * Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.
+
+**Specific Owner IDs:**
+* `entity_<uuid>` - Accounts owned by a specific entity
+* `customer_<uuid>` - Accounts owned by a specific customer
+
+**Owner type wildcards:**
+* `entity` - All entity-owned accounts
+* `customer` - All customer-owned accounts
+
+**Examples:**
+* `owner=customer_af29...` - A specific customer's accounts
+* `owner=customer` - All customer accounts
+* `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts
+* When omitted, accounts with any owner are returned.
+ */
+  owner?: string[];
+  /**
    * Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.
    */
   type?: AccountType;
@@ -7830,6 +10588,24 @@ export type ListBalancesParams = {
 };
 
 export type ListBalances200 = Balances & ListResponse;
+
+export type ListCustomersParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListCustomers200AllOf = {
+  /** The list of customers. */
+  customers: Customer[];
+};
+
+export type ListCustomers200 = ListCustomers200AllOf & ListResponse;
 
 export type ListDepositDestinationsParams = {
   /**
@@ -7899,11 +10675,11 @@ export type ListTransfersParams = {
    */
   updatedBefore?: string;
   /**
-   * Filter transfers by source asset symbol (e.g., `usd`, `usdc`).
+   * Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).
    */
   sourceAsset?: string;
   /**
-   * Filter transfers by target asset symbol (e.g., `usdc`, `eth`).
+   * Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
    */
   targetAsset?: string;
   /**
@@ -7939,6 +10715,144 @@ export type ListTransfers200AllOf = {
 };
 
 export type ListTransfers200 = ListTransfers200AllOf & ListResponse;
+
+export type ListPaymentSessionsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListPaymentSessions200AllOf = {
+  /** The list of payment sessions. */
+  paymentSessions: PaymentSession[];
+};
+
+export type ListPaymentSessions200 = ListPaymentSessions200AllOf & ListResponse;
+
+export type GetWalletAuthorizationOptionsParams = {
+  /**
+   * The payer wallet addresses to generate authorization options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible authorization options, it appears in `ineligibleAddresses` with a `code` explaining why.
+   * @minItems 1
+   * @maxItems 5
+   */
+  addresses: BlockchainAddress[];
+  /**
+   * Optional filter to restrict options to a specific blockchain network.
+   */
+  network?: PaymentSourceNetwork;
+  /**
+   * Optional filter to restrict options to a specific asset.
+   */
+  asset?: Asset;
+};
+
+export type ListPaymentSessionAuthorizationsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListPaymentSessionAuthorizations200AllOf = {
+  /** The list of authorizations. */
+  authorizations: Authorization[];
+};
+
+export type ListPaymentSessionAuthorizations200 = ListPaymentSessionAuthorizations200AllOf &
+  ListResponse;
+
+export type ListPaymentSessionCapturesParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListPaymentSessionCaptures200AllOf = {
+  /** The list of captures. */
+  captures: Capture[];
+};
+
+export type ListPaymentSessionCaptures200 = ListPaymentSessionCaptures200AllOf & ListResponse;
+
+export type ListPaymentSessionVoidsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListPaymentSessionVoids200AllOf = {
+  /** The list of voids. */
+  voids: Void[];
+};
+
+export type ListPaymentSessionVoids200 = ListPaymentSessionVoids200AllOf & ListResponse;
+
+export type ListPaymentSessionRefundsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListPaymentSessionRefunds200AllOf = {
+  /** The list of refunds. */
+  refunds: Refund[];
+};
+
+export type ListPaymentSessionRefunds200 = ListPaymentSessionRefunds200AllOf & ListResponse;
+
+export type ListDisbursementsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+  /**
+   * Filter disbursements by status.
+   */
+  status?: PaymentActionStatus;
+  /**
+   * Filter disbursements by the source CDP account ID.
+   */
+  sourceAccountId?: string;
+  /**
+   * Filter disbursements by the client-supplied external reference ID.
+   */
+  externalReferenceId?: string;
+};
+
+export type ListDisbursements200AllOf = {
+  /** The list of disbursements. */
+  disbursements: Disbursement[];
+};
+
+export type ListDisbursements200 = ListDisbursements200AllOf & ListResponse;
 
 /**
  * Configuration for creating an EVM account for the end user.
@@ -8482,6 +11396,39 @@ export type SignSolanaTransactionWithEndUserAccountBody = {
 export type SignSolanaTransactionWithEndUserAccount200 = {
   /** The base64 encoded signed transaction. */
   signedTransaction: string;
+};
+
+export type SignSolanaX402PaymentWithEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type SignSolanaX402PaymentWithEndUserAccountBody = {
+  /** The complete x402 payment required response body from the resource server. Top-level fields (x402Version, resource, error, extensions) are preserved in the signed payment payload; acceptsIndex selects which entry from accepts is signed as paymentPayload.accepted. */
+  paymentRequired: X402PaymentRequired;
+  /**
+   * Zero-based index into paymentRequired.accepts selecting which payment option to sign. Must be less than the length of accepts. The entry at this index must be a Solana network payment option for this endpoint.
+   * @minimum 0
+   */
+  acceptsIndex: number;
+  /**
+   * The base58 encoded address of the end user's Solana account to sign with.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  address: string;
+  /**
+   * Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
+export type SignSolanaX402PaymentWithEndUserAccount200 = {
+  /** The signed x402 payment payload. Base64-encode this and send it in the PAYMENT-SIGNATURE header of the resource request. */
+  paymentPayload: X402PaymentPayload;
 };
 
 export type SendSolanaTransactionWithEndUserAccountParams = {
@@ -9337,6 +12284,20 @@ Tip: include enough of the URL to disambiguate (e.g. `api.example.com` rather th
    */
   extensions?: string[];
   /**
+   * Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).
+   * @maxItems 5
+   */
+  tags?: string[];
+  /**
+   * Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).
+   * @maxItems 5
+   */
+  bundleSlugs?: string[];
+  /**
+   * When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.
+   */
+  curatedOnly?: boolean;
+  /**
  * Maximum number of resources to return. Must be a positive integer no greater than 20.
 Defaults to 20.
  * @minimum 1
@@ -9346,8 +12307,8 @@ Defaults to 20.
 };
 
 export type CreateOnrampOrderBody = {
-  /** The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy). */
-  agreementAcceptedAt: string;
+  /** The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy). */
+  agreementAcceptedAt?: string;
   /** The address the purchased crypto will be sent to. */
   destinationAddress: BlockchainAddress;
   /** The name of the crypto network the purchased currency will be sent on.
@@ -9355,7 +12316,7 @@ export type CreateOnrampOrderBody = {
 Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
   destinationNetwork: string;
   /** The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API. */
-  email: string;
+  email?: string;
   /** If true, this API will return a quote without creating any transaction. */
   isQuote?: boolean;
   /** Optional partner order reference ID. */
@@ -9370,11 +12331,10 @@ This value can be used with with [Onramp User Transactions API](https://docs.cdp
   paymentCurrency: string;
   paymentMethod: OnrampOrderPaymentMethodTypeId;
   /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
-
-Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */
-  phoneNumber: string;
-  /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
-  phoneNumberVerifiedAt: string;
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview) for more details on phone number verification requirements and best practices. */
+  phoneNumber?: string;
+  /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified every 60 days. If this timestamp is older than 60 days, an error will be returned. */
+  phoneNumberVerifiedAt?: string;
   /** The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user's phone number. When provided, Onramp validates the server-side verification record instead of trusting `phoneNumberVerifiedAt`. */
   smsVerificationId?: OnrampVerificationId;
   /** The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user's email address. */
@@ -9387,13 +12347,22 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
   purchaseCurrency: string;
   /** The IP address of the end user requesting the onramp transaction. */
   clientIp?: string;
-  /** The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe. */
+  /** The domain that the Apple Pay or Google Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY` or `GUEST_CHECKOUT_GOOGLE_PAY` payment method and embedding the payment link in an iframe. Omit this field entirely for mobile iOS Apple Pay via WebView integration. */
   domain?: string;
+  /**
+   * Optional [BCP-47](https://www.rfc-editor.org/info/bcp47) locale tag (e.g. `es-ES`, `pt-BR`, `en`) used to localize the hosted payment page. When provided, it is appended to the returned `paymentLink` URL and mapped to the closest locale supported by the Apple Pay and Google Pay buttons; unsupported locales fall back to the user's browser language. Any well-formed BCP-47 tag is accepted.
+   * @pattern ^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$
+   */
+  locale?: string;
+  /** Optional. A reusable token returned by a previous verified order. When provided, a returning user checking out to the same wallet is taken straight to the pay button, skipping OTP (best-effort — an invalid, expired, or different-wallet token still requires verification). */
+  userAuthToken?: OnrampUserAuthToken;
 };
 
 export type CreateOnrampOrder201 = {
   order: OnrampOrder;
   paymentLink?: OnrampPaymentLink;
+  /** Present for embedded orders once the user has verified. Store this and pass it on future orders for the same user to skip OTP verification. Valid for 60 days. */
+  userAuthToken?: OnrampUserAuthToken;
 };
 
 export type GetOnrampOrderById200 = {
@@ -9415,6 +12384,8 @@ export type GetOnrampUserLimitsBody = {
 export type GetOnrampUserLimits200 = {
   /** The list of limits applicable to the user. */
   limits: OnrampUserLimit[];
+  /** The user's limit upgrade status and associated upgrade details. Omitted when limit upgrades are not available for the calling app or user. Use the [Request Limit Upgrade](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/request-limits-upgrade) endpoint to request a limit upgrade. */
+  limitUpgradeOptions?: OnrampLimitUpgradeOption[];
 };
 
 export type ListPaymentMethodsParams = {

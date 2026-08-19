@@ -16,6 +16,13 @@ type PublicOperation struct {
 // PublicOperations lists the operations that may be called without CDP API credentials,
 // per the `security` field in openapi.yaml.
 var PublicOperations = []PublicOperation{
+	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/coinbase\-accounts/balances$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/coinbase$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/wallet$`)},
+	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/wallet/options$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/x402$`)},
+	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/x402/discovery/bundles$`)},
+	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/x402/discovery/bundles/[^/]+$`)},
 	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/x402/discovery/mcp$`)},
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/x402/discovery/merchant$`)},
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/x402/discovery/resources$`)},
