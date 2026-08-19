@@ -58,6 +58,7 @@ client: check-openapi preprocess-openapi
 	@echo "Generating Java OpenAPI client..."
 	@command -v openapi-generator-cli >/dev/null 2>&1 || command -v openapi-generator >/dev/null 2>&1 || { echo "Error: openapi-generator is not installed. Install with: brew install openapi-generator"; exit 1; }
 	@rm -rf src/main/java/com/coinbase/cdp/openapi
+	@rm -rf build/generated
 	@mkdir -p src/main/java/com/coinbase/cdp/openapi
 	@if command -v openapi-generator-cli >/dev/null 2>&1; then \
 		openapi-generator-cli generate \
