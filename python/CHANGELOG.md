@@ -8,6 +8,10 @@
 
 - Added support for calling public OpenAPI endpoints without API credentials and reporting missing credentials for authenticated endpoints at request time. ([#745](https://github.com/coinbase/cdp-sdk/pull/745))
 
+### Bugfixes
+
+- Fixed swap quote response deserialization when the API returns nullable `gasFee`, `protocolFee`, allowance, balance, gas, or `permit2` values. ([#780](https://github.com/coinbase/cdp-sdk/pull/780))
+
 
 ## [1.47.1] - 2026-06-18
 
