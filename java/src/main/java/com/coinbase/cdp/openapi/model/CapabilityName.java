@@ -30,21 +30,21 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum CapabilityName {
   
-  CUSTODY_CRYPTO("custodyCrypto"),
+  CustodyCrypto("custodyCrypto"),
   
-  CUSTODY_FIAT("custodyFiat"),
+  CustodyFiat("custodyFiat"),
   
-  CUSTODY_STABLECOIN("custodyStablecoin"),
+  CustodyStablecoin("custodyStablecoin"),
   
-  TRADE_CRYPTO("tradeCrypto"),
+  TradeCrypto("tradeCrypto"),
   
-  TRADE_STABLECOIN("tradeStablecoin"),
+  TradeStablecoin("tradeStablecoin"),
   
-  TRANSFER_CRYPTO("transferCrypto"),
+  TransferCrypto("transferCrypto"),
   
-  TRANSFER_FIAT("transferFiat"),
+  TransferFiat("transferFiat"),
   
-  TRANSFER_STABLECOIN("transferStablecoin");
+  TransferStablecoin("transferStablecoin");
 
   private String value;
 

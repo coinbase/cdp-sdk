@@ -36,15 +36,13 @@ class TestCreateTransferSource(unittest.TestCase):
         model = CreateTransferSource()
         if include_optional:
             return CreateTransferSource(
-                account_id = '',
-                asset = 'usd',
-                payment_method_id = ''
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
+                asset = 'usd'
             )
         else:
             return CreateTransferSource(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd',
-                payment_method_id = '',
         )
         """
 

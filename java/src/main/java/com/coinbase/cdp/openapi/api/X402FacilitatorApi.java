@@ -22,6 +22,8 @@ import com.coinbase.cdp.openapi.model.InlineObject;
 import com.coinbase.cdp.openapi.model.InlineObject1;
 import com.coinbase.cdp.openapi.model.InlineObject2;
 import com.coinbase.cdp.openapi.model.VerifyX402PaymentRequest;
+import com.coinbase.cdp.openapi.model.X402BundleResponse;
+import com.coinbase.cdp.openapi.model.X402BundlesResponse;
 import com.coinbase.cdp.openapi.model.X402DiscoveryMerchantResponse;
 import com.coinbase.cdp.openapi.model.X402DiscoveryResourcesResponse;
 import com.coinbase.cdp.openapi.model.X402McpRequest;
@@ -92,6 +94,167 @@ public class X402FacilitatorApi {
       body = "[no body]";
     }
     return operationId + " call failed with: " + statusCode + " - " + body;
+  }
+
+  /**
+   * Get an x402 bundle
+   * Gets a single curated x402 workflow bundle by its bundle slug, including the bundle metadata and its ordered member resources joined to their full discovery metadata.
+   * @param bundleSlug The unique, URL-safe slug identifying the bundle (as returned by &#x60;GET /v2/x402/discovery/bundles&#x60;). (required)
+   * @return X402BundleResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402BundleResponse getX402Bundle(String bundleSlug) throws ApiException {
+    ApiResponse<X402BundleResponse> localVarResponse = getX402BundleWithHttpInfo(bundleSlug);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get an x402 bundle
+   * Gets a single curated x402 workflow bundle by its bundle slug, including the bundle metadata and its ordered member resources joined to their full discovery metadata.
+   * @param bundleSlug The unique, URL-safe slug identifying the bundle (as returned by &#x60;GET /v2/x402/discovery/bundles&#x60;). (required)
+   * @return ApiResponse&lt;X402BundleResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402BundleResponse> getX402BundleWithHttpInfo(String bundleSlug) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getX402BundleRequestBuilder(bundleSlug);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getX402Bundle", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402BundleResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402BundleResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402BundleResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getX402BundleRequestBuilder(String bundleSlug) throws ApiException {
+    // verify the required parameter 'bundleSlug' is set
+    if (bundleSlug == null) {
+      throw new ApiException(400, "Missing the required parameter 'bundleSlug' when calling getX402Bundle");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/discovery/bundles/{bundleSlug}"
+        .replace("{bundleSlug}", ApiClient.urlEncode(bundleSlug.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * List x402 bundles
+   * Lists the available curated x402 workflow bundles. A bundle is an ordered, named grouping of curated x402 resources that together cover a common agent workflow. The result set is small and server-controlled, so this endpoint is not paginated.
+   * @return X402BundlesResponse
+   * @throws ApiException if fails to make API call
+   */
+  public X402BundlesResponse listX402Bundles() throws ApiException {
+    ApiResponse<X402BundlesResponse> localVarResponse = listX402BundlesWithHttpInfo();
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List x402 bundles
+   * Lists the available curated x402 workflow bundles. A bundle is an ordered, named grouping of curated x402 resources that together cover a common agent workflow. The result set is small and server-controlled, so this endpoint is not paginated.
+   * @return ApiResponse&lt;X402BundlesResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<X402BundlesResponse> listX402BundlesWithHttpInfo() throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listX402BundlesRequestBuilder();
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listX402Bundles", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<X402BundlesResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<X402BundlesResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<X402BundlesResponse>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listX402BundlesRequestBuilder() throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/x402/discovery/bundles";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**
@@ -402,12 +565,15 @@ public class X402FacilitatorApi {
    * @param urlSubstring Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with &#x60;query&#x60; to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. &#x60;api.example.com&#x60; rather than &#x60;example&#x60;) — a short substring may also match resources whose path contains the same string. (optional)
    * @param maxUsdPrice Filter results to resources with a USD price at or below this value. (optional)
    * @param extensions Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions. (optional)
+   * @param tags Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR). (optional)
+   * @param bundleSlugs Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR). (optional)
+   * @param curatedOnly When &#x60;true&#x60;, restrict results to Coinbase-curated resources (those with &#x60;curated: true&#x60;). When &#x60;false&#x60; or omitted, both curated and non-curated resources are returned. (optional, default to false)
    * @param limit Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20. (optional, default to 20)
    * @return X402SearchResourcesResponse
    * @throws ApiException if fails to make API call
    */
-  public X402SearchResourcesResponse searchX402Resources(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, Integer limit) throws ApiException {
-    ApiResponse<X402SearchResourcesResponse> localVarResponse = searchX402ResourcesWithHttpInfo(query, network, asset, scheme, payTo, urlSubstring, maxUsdPrice, extensions, limit);
+  public X402SearchResourcesResponse searchX402Resources(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, List<String> tags, List<String> bundleSlugs, Boolean curatedOnly, Integer limit) throws ApiException {
+    ApiResponse<X402SearchResourcesResponse> localVarResponse = searchX402ResourcesWithHttpInfo(query, network, asset, scheme, payTo, urlSubstring, maxUsdPrice, extensions, tags, bundleSlugs, curatedOnly, limit);
     return localVarResponse.getData();
   }
 
@@ -422,12 +588,15 @@ public class X402FacilitatorApi {
    * @param urlSubstring Filter results to resources whose URL contains this value (case-insensitive substring match against the resource URL). Useful for narrowing results to a specific domain, subdomain, or path segment. Combine with &#x60;query&#x60; to perform semantic search restricted to a URL subset. Tip: include enough of the URL to disambiguate (e.g. &#x60;api.example.com&#x60; rather than &#x60;example&#x60;) — a short substring may also match resources whose path contains the same string. (optional)
    * @param maxUsdPrice Filter results to resources with a USD price at or below this value. (optional)
    * @param extensions Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions. (optional)
+   * @param tags Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR). (optional)
+   * @param bundleSlugs Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR). (optional)
+   * @param curatedOnly When &#x60;true&#x60;, restrict results to Coinbase-curated resources (those with &#x60;curated: true&#x60;). When &#x60;false&#x60; or omitted, both curated and non-curated resources are returned. (optional, default to false)
    * @param limit Maximum number of resources to return. Must be a positive integer no greater than 20. Defaults to 20. (optional, default to 20)
    * @return ApiResponse&lt;X402SearchResourcesResponse&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<X402SearchResourcesResponse> searchX402ResourcesWithHttpInfo(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, Integer limit) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = searchX402ResourcesRequestBuilder(query, network, asset, scheme, payTo, urlSubstring, maxUsdPrice, extensions, limit);
+  public ApiResponse<X402SearchResourcesResponse> searchX402ResourcesWithHttpInfo(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, List<String> tags, List<String> bundleSlugs, Boolean curatedOnly, Integer limit) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = searchX402ResourcesRequestBuilder(query, network, asset, scheme, payTo, urlSubstring, maxUsdPrice, extensions, tags, bundleSlugs, curatedOnly, limit);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -466,7 +635,7 @@ public class X402FacilitatorApi {
     }
   }
 
-  private HttpRequest.Builder searchX402ResourcesRequestBuilder(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, Integer limit) throws ApiException {
+  private HttpRequest.Builder searchX402ResourcesRequestBuilder(String query, String network, String asset, String scheme, String payTo, String urlSubstring, String maxUsdPrice, List<String> extensions, List<String> tags, List<String> bundleSlugs, Boolean curatedOnly, Integer limit) throws ApiException {
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
@@ -491,6 +660,12 @@ public class X402FacilitatorApi {
     localVarQueryParams.addAll(ApiClient.parameterToPairs("maxUsdPrice", maxUsdPrice));
     localVarQueryParameterBaseName = "extensions";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "extensions", extensions));
+    localVarQueryParameterBaseName = "tags";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "tags", tags));
+    localVarQueryParameterBaseName = "bundleSlugs";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "bundleSlugs", bundleSlugs));
+    localVarQueryParameterBaseName = "curatedOnly";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("curatedOnly", curatedOnly));
     localVarQueryParameterBaseName = "limit";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
 

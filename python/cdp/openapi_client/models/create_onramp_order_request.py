@@ -30,25 +30,27 @@ class CreateOnrampOrderRequest(BaseModel):
     """
     CreateOnrampOrderRequest
     """ # noqa: E501
-    agreement_accepted_at: datetime = Field(description="The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).", alias="agreementAcceptedAt")
+    agreement_accepted_at: Optional[datetime] = Field(default=None, description="The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).", alias="agreementAcceptedAt")
     destination_address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The address the purchased crypto will be sent to.", alias="destinationAddress")
     destination_network: StrictStr = Field(description="The name of the crypto network the purchased currency will be sent on.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.", alias="destinationNetwork")
-    email: StrictStr = Field(description="The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.")
+    email: Optional[StrictStr] = Field(default=None, description="The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.")
     is_quote: Optional[StrictBool] = Field(default=False, description="If true, this API will return a quote without creating any transaction.", alias="isQuote")
     partner_order_ref: Optional[StrictStr] = Field(default=None, description="Optional partner order reference ID.", alias="partnerOrderRef")
     partner_user_ref: StrictStr = Field(description="A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.  This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.", alias="partnerUserRef")
     payment_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.", alias="paymentAmount")
     payment_currency: StrictStr = Field(description="The fiat currency to be converted to crypto.", alias="paymentCurrency")
     payment_method: OnrampOrderPaymentMethodTypeId = Field(alias="paymentMethod")
-    phone_number: StrictStr = Field(description="The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.  Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.", alias="phoneNumber")
-    phone_number_verified_at: datetime = Field(description="Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.", alias="phoneNumberVerifiedAt")
+    phone_number: Optional[StrictStr] = Field(default=None, description="The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API. Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview) for more details on phone number verification requirements and best practices.", alias="phoneNumber")
+    phone_number_verified_at: Optional[datetime] = Field(default=None, description="Timestamp of when the user's phone number was verified via OTP. User phone number must be verified every 60 days. If this timestamp is older than 60 days, an error will be returned.", alias="phoneNumberVerifiedAt")
     sms_verification_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user's phone number. When provided, Onramp validates the server-side verification record instead of trusting `phoneNumberVerifiedAt`.", alias="smsVerificationId")
     email_verification_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user's email address.", alias="emailVerificationId")
     purchase_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.", alias="purchaseAmount")
     purchase_currency: StrictStr = Field(description="The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.", alias="purchaseCurrency")
     client_ip: Optional[StrictStr] = Field(default=None, description="The IP address of the end user requesting the onramp transaction.", alias="clientIp")
-    domain: Optional[StrictStr] = Field(default=None, description="The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.")
-    __properties: ClassVar[List[str]] = ["agreementAcceptedAt", "destinationAddress", "destinationNetwork", "email", "isQuote", "partnerOrderRef", "partnerUserRef", "paymentAmount", "paymentCurrency", "paymentMethod", "phoneNumber", "phoneNumberVerifiedAt", "smsVerificationId", "emailVerificationId", "purchaseAmount", "purchaseCurrency", "clientIp", "domain"]
+    domain: Optional[StrictStr] = Field(default=None, description="The domain that the Apple Pay or Google Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY` or `GUEST_CHECKOUT_GOOGLE_PAY` payment method and embedding the payment link in an iframe. Omit this field entirely for mobile iOS Apple Pay via WebView integration.")
+    locale: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Optional [BCP-47](https://www.rfc-editor.org/info/bcp47) locale tag (e.g. `es-ES`, `pt-BR`, `en`) used to localize the hosted payment page. When provided, it is appended to the returned `paymentLink` URL and mapped to the closest locale supported by the Apple Pay and Google Pay buttons; unsupported locales fall back to the user's browser language. Any well-formed BCP-47 tag is accepted.")
+    user_auth_token: Optional[StrictStr] = Field(default=None, description="Optional. A reusable token returned by a previous verified order. When provided, a returning user checking out to the same wallet is taken straight to the pay button, skipping OTP (best-effort — an invalid, expired, or different-wallet token still requires verification).", alias="userAuthToken")
+    __properties: ClassVar[List[str]] = ["agreementAcceptedAt", "destinationAddress", "destinationNetwork", "email", "isQuote", "partnerOrderRef", "partnerUserRef", "paymentAmount", "paymentCurrency", "paymentMethod", "phoneNumber", "phoneNumberVerifiedAt", "smsVerificationId", "emailVerificationId", "purchaseAmount", "purchaseCurrency", "clientIp", "domain", "locale", "userAuthToken"]
 
     @field_validator('sms_verification_id')
     def sms_verification_id_validate_regular_expression(cls, value):
@@ -68,6 +70,16 @@ class CreateOnrampOrderRequest(BaseModel):
 
         if not re.match(r"^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", value):
             raise ValueError(r"must validate the regular expression /^onramp_verification_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/")
+        return value
+
+    @field_validator('locale')
+    def locale_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$/")
         return value
 
     model_config = ConfigDict(
@@ -138,7 +150,9 @@ class CreateOnrampOrderRequest(BaseModel):
             "purchaseAmount": obj.get("purchaseAmount"),
             "purchaseCurrency": obj.get("purchaseCurrency"),
             "clientIp": obj.get("clientIp"),
-            "domain": obj.get("domain")
+            "domain": obj.get("domain"),
+            "locale": obj.get("locale"),
+            "userAuthToken": obj.get("userAuthToken")
         })
         return _obj
 

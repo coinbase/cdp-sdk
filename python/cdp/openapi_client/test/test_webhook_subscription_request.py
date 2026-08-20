@@ -36,7 +36,7 @@ class TestWebhookSubscriptionRequest(unittest.TestCase):
         model = WebhookSubscriptionRequest()
         if include_optional:
             return WebhookSubscriptionRequest(
-                description = 'A description of the resource.',
+                description = 'Subscription for token transfer events',
                 event_types = [onchain.activity.detected],
                 is_enabled = True,
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},

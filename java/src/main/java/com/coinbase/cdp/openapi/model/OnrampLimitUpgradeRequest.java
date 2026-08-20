@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeIdentityFields;
+import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeInteractionMode;
 import com.coinbase.cdp.openapi.model.OnrampUserIdType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,6 +38,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   OnrampLimitUpgradeRequest.JSON_PROPERTY_USER_ID,
   OnrampLimitUpgradeRequest.JSON_PROPERTY_USER_ID_TYPE,
+  OnrampLimitUpgradeRequest.JSON_PROPERTY_INTERACTION_MODE,
   OnrampLimitUpgradeRequest.JSON_PROPERTY_FIELDS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -48,6 +50,10 @@ public class OnrampLimitUpgradeRequest {
   public static final String JSON_PROPERTY_USER_ID_TYPE = "userIdType";
   @jakarta.annotation.Nonnull
   private OnrampUserIdType userIdType;
+
+  public static final String JSON_PROPERTY_INTERACTION_MODE = "interactionMode";
+  @jakarta.annotation.Nullable
+  private OnrampLimitUpgradeInteractionMode interactionMode = OnrampLimitUpgradeInteractionMode.OnrampLimitUpgradeInteractionModeAPI;
 
   public static final String JSON_PROPERTY_FIELDS = "fields";
   @jakarta.annotation.Nullable
@@ -104,13 +110,37 @@ public class OnrampLimitUpgradeRequest {
   }
 
 
+  public OnrampLimitUpgradeRequest interactionMode(@jakarta.annotation.Nullable OnrampLimitUpgradeInteractionMode interactionMode) {
+    this.interactionMode = interactionMode;
+    return this;
+  }
+
+  /**
+   * The interaction mode for the limit upgrade request. Defaults to &#x60;api&#x60;.
+   * @return interactionMode
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_INTERACTION_MODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OnrampLimitUpgradeInteractionMode getInteractionMode() {
+    return interactionMode;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_INTERACTION_MODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInteractionMode(@jakarta.annotation.Nullable OnrampLimitUpgradeInteractionMode interactionMode) {
+    this.interactionMode = interactionMode;
+  }
+
+
   public OnrampLimitUpgradeRequest fields(@jakarta.annotation.Nullable OnrampLimitUpgradeIdentityFields fields) {
     this.fields = fields;
     return this;
   }
 
   /**
-   * Populate the properties that correspond to the &#x60;fields&#x60; array from the user&#39;s &#x60;OnrampLimitUpgradeOption&#x60;. These fields are required; a request without them is rejected.
+   * Populate the properties that correspond to the &#x60;fields&#x60; array from the user&#39;s &#x60;OnrampLimitUpgradeOption&#x60;. Required in &#x60;api&#x60; mode. Omit in &#x60;embedded&#x60; mode — the user enters their identity information on the Coinbase-hosted upgrade page (see &#x60;interactionMode&#x60;), so any value sent here is rejected.
    * @return fields
    */
   @jakarta.annotation.Nullable
@@ -142,12 +172,13 @@ public class OnrampLimitUpgradeRequest {
     OnrampLimitUpgradeRequest onrampLimitUpgradeRequest = (OnrampLimitUpgradeRequest) o;
     return Objects.equals(this.userId, onrampLimitUpgradeRequest.userId) &&
         Objects.equals(this.userIdType, onrampLimitUpgradeRequest.userIdType) &&
+        Objects.equals(this.interactionMode, onrampLimitUpgradeRequest.interactionMode) &&
         Objects.equals(this.fields, onrampLimitUpgradeRequest.fields);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId, userIdType, fields);
+    return Objects.hash(userId, userIdType, interactionMode, fields);
   }
 
   @Override
@@ -156,6 +187,7 @@ public class OnrampLimitUpgradeRequest {
     sb.append("class OnrampLimitUpgradeRequest {\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    userIdType: ").append(toIndentedString(userIdType)).append("\n");
+    sb.append("    interactionMode: ").append(toIndentedString(interactionMode)).append("\n");
     sb.append("    fields: ").append(toIndentedString(fields)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -214,6 +246,11 @@ public class OnrampLimitUpgradeRequest {
       joiner.add(String.format("%suserIdType%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getUserIdType()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `interactionMode` to the URL query string
+    if (getInteractionMode() != null) {
+      joiner.add(String.format("%sinteractionMode%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getInteractionMode()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `fields` to the URL query string
     if (getFields() != null) {
       joiner.add(getFields().toUrlQueryString(prefix + "fields" + suffix));
@@ -240,6 +277,10 @@ public class OnrampLimitUpgradeRequest {
     }
     public OnrampLimitUpgradeRequest.Builder userIdType(OnrampUserIdType userIdType) {
       this.instance.userIdType = userIdType;
+      return this;
+    }
+    public OnrampLimitUpgradeRequest.Builder interactionMode(OnrampLimitUpgradeInteractionMode interactionMode) {
+      this.instance.interactionMode = interactionMode;
       return this;
     }
     public OnrampLimitUpgradeRequest.Builder fields(OnrampLimitUpgradeIdentityFields fields) {
@@ -282,6 +323,7 @@ public class OnrampLimitUpgradeRequest {
     return new OnrampLimitUpgradeRequest.Builder()
       .userId(getUserId())
       .userIdType(getUserIdType())
+      .interactionMode(getInteractionMode())
       .fields(getFields());
   }
 

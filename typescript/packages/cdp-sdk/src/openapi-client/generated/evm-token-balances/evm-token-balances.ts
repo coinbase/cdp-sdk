@@ -17,7 +17,14 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
  * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.
- **Note:** This endpoint is still under development and does not yet provide strong freshness guarantees. Specifically, balances of new tokens can, on occasion, take up to ~30 seconds to appear, while balances of tokens already belonging to an address will generally be close to chain tip. Freshness of new token balances will improve over the coming weeks.
+
+Calls to the `base` and `base-sepolia` networks offer:
+  * 99.5% < 2 second freshness from chain tip for new tokens on an address.
+  * 99.5% < 2 second freshness from chain tip for balance data.
+
+Calls to the `ethereum` network offer:
+  * 99% < 30 second freshness from chain tip for new tokens on an address.
+  * 99% < 2 second freshness from chain tip for balance data.
  * @summary List EVM token balances
  */
 export const listEvmTokenBalances = (

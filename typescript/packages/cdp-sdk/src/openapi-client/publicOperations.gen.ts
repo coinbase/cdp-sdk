@@ -10,6 +10,22 @@ export interface PublicOperation {
 
 /** Operations that may be called without CDP API credentials, per openapi.yaml. */
 export const PUBLIC_OPERATIONS: PublicOperation[] = [
+  { method: "GET", pathPattern: new RegExp("/v2/coinbase\\-accounts/balances$") },
+  {
+    method: "POST",
+    pathPattern: new RegExp("/v2/payment\\-sessions/[^/]+/authorizations/coinbase$"),
+  },
+  {
+    method: "POST",
+    pathPattern: new RegExp("/v2/payment\\-sessions/[^/]+/authorizations/wallet$"),
+  },
+  {
+    method: "GET",
+    pathPattern: new RegExp("/v2/payment\\-sessions/[^/]+/authorizations/wallet/options$"),
+  },
+  { method: "POST", pathPattern: new RegExp("/v2/payment\\-sessions/[^/]+/authorizations/x402$") },
+  { method: "GET", pathPattern: new RegExp("/v2/x402/discovery/bundles$") },
+  { method: "GET", pathPattern: new RegExp("/v2/x402/discovery/bundles/[^/]+$") },
   { method: "POST", pathPattern: new RegExp("/v2/x402/discovery/mcp$") },
   { method: "GET", pathPattern: new RegExp("/v2/x402/discovery/merchant$") },
   { method: "GET", pathPattern: new RegExp("/v2/x402/discovery/resources$") },

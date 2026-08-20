@@ -32,7 +32,7 @@ class Account(BaseModel):
     """ # noqa: E501
     account_id: Annotated[str, Field(strict=True)] = Field(description="The ID of the Account, which is a UUID prefixed by the string `account_`.", alias="accountId")
     type: AccountType
-    owner: Annotated[str, Field(strict=True)] = Field(description="The Owner ID of the Account. Owner IDs are UUIDs prefixed with the Owner Type as follows: * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`. Support for Customer-owned accounts (`customer_` prefix) is in development.")
+    owner: Annotated[str, Field(strict=True)] = Field(description="The Owner ID of the Account.  Owner IDs are UUIDs prefixed with the Owner Type as follows:  * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`.  * **Customer**: `customer_` - If the Owner is one of your Customers,   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`. Customer ownership requires the   Customer to have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled.")
     name: Optional[Annotated[str, Field(strict=True, max_length=64)]] = Field(default=None, description="An optional name for the account. Must be 1-64 characters and can only contain alphanumeric characters, hyphens, and spaces.")
     created_at: datetime = Field(description="The timestamp when the account was created.", alias="createdAt")
     updated_at: datetime = Field(description="The timestamp when the account was last updated.", alias="updatedAt")

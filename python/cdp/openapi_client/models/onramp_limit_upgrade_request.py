@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.onramp_limit_upgrade_identity_fields import OnrampLimitUpgradeIdentityFields
+from cdp.openapi_client.models.onramp_limit_upgrade_interaction_mode import OnrampLimitUpgradeInteractionMode
 from cdp.openapi_client.models.onramp_user_id_type import OnrampUserIdType
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,8 +32,9 @@ class OnrampLimitUpgradeRequest(BaseModel):
     """ # noqa: E501
     user_id: StrictStr = Field(description="The user identifier value. For `phone_number` type, this must be in E.164 format.", alias="userId")
     user_id_type: OnrampUserIdType = Field(alias="userIdType")
-    fields: Optional[OnrampLimitUpgradeIdentityFields] = Field(default=None, description="Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. These fields are required; a request without them is rejected.")
-    __properties: ClassVar[List[str]] = ["userId", "userIdType", "fields"]
+    interaction_mode: Optional[OnrampLimitUpgradeInteractionMode] = Field(default=None, description="The interaction mode for the limit upgrade request. Defaults to `api`.", alias="interactionMode")
+    fields: Optional[OnrampLimitUpgradeIdentityFields] = Field(default=None, description="Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`. Required in `api` mode. Omit in `embedded` mode — the user enters their identity information on the Coinbase-hosted upgrade page (see `interactionMode`), so any value sent here is rejected.")
+    __properties: ClassVar[List[str]] = ["userId", "userIdType", "interactionMode", "fields"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -90,6 +92,7 @@ class OnrampLimitUpgradeRequest(BaseModel):
         _obj = cls.model_validate({
             "userId": obj.get("userId"),
             "userIdType": obj.get("userIdType"),
+            "interactionMode": obj.get("interactionMode"),
             "fields": OnrampLimitUpgradeIdentityFields.from_dict(obj["fields"]) if obj.get("fields") is not None else None
         })
         return _obj

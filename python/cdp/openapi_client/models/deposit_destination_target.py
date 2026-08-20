@@ -19,11 +19,12 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from cdp.openapi_client.models.deposit_destination_target_account import DepositDestinationTargetAccount
+from cdp.openapi_client.models.deposit_destination_target_onchain_address import DepositDestinationTargetOnchainAddress
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-DEPOSITDESTINATIONTARGET_ONE_OF_SCHEMAS = ["DepositDestinationTargetAccount"]
+DEPOSITDESTINATIONTARGET_ONE_OF_SCHEMAS = ["DepositDestinationTargetAccount", "DepositDestinationTargetOnchainAddress"]
 
 class DepositDestinationTarget(BaseModel):
     """
@@ -31,8 +32,10 @@ class DepositDestinationTarget(BaseModel):
     """
     # data type: DepositDestinationTargetAccount
     oneof_schema_1_validator: Optional[DepositDestinationTargetAccount] = None
-    actual_instance: Optional[Union[DepositDestinationTargetAccount]] = None
-    one_of_schemas: Set[str] = { "DepositDestinationTargetAccount" }
+    # data type: DepositDestinationTargetOnchainAddress
+    oneof_schema_2_validator: Optional[DepositDestinationTargetOnchainAddress] = None
+    actual_instance: Optional[Union[DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress]] = None
+    one_of_schemas: Set[str] = { "DepositDestinationTargetAccount", "DepositDestinationTargetOnchainAddress" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -60,12 +63,17 @@ class DepositDestinationTarget(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `DepositDestinationTargetAccount`")
         else:
             match += 1
+        # validate data type: DepositDestinationTargetOnchainAddress
+        if not isinstance(v, DepositDestinationTargetOnchainAddress):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `DepositDestinationTargetOnchainAddress`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -86,13 +94,19 @@ class DepositDestinationTarget(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into DepositDestinationTargetOnchainAddress
+        try:
+            instance.actual_instance = DepositDestinationTargetOnchainAddress.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into DepositDestinationTarget with oneOf schemas: DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -106,7 +120,7 @@ class DepositDestinationTarget(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], DepositDestinationTargetAccount]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], DepositDestinationTargetAccount, DepositDestinationTargetOnchainAddress]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

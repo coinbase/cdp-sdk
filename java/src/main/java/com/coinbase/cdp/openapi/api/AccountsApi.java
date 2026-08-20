@@ -89,7 +89,7 @@ public class AccountsApi {
 
   /**
    * Create account
-   * Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+   * Create an account. Two ownership modes are supported:  - **Entity-owned**: when &#x60;owner&#x60; is omitted, the account is owned by the   Entity making the request. Returns an account with &#x60;owner: entity_&lt;uuid&gt;&#x60;.  - **Customer-owned**: pass a Customer ID as &#x60;owner&#x60;   (e.g. &#x60;customer_af2937b0-9846-4fe7-bfe9-ccc22d935114&#x60;). The Customer   must have the &#x60;custodyCrypto&#x60;, &#x60;custodyFiat&#x60;, and &#x60;custodyStablecoin&#x60;   capabilities enabled, otherwise the request is rejected with   &#x60;customer_not_authorized&#x60; (HTTP 403).
    * @param createAccountRequest  (required)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return Account
@@ -102,7 +102,7 @@ public class AccountsApi {
 
   /**
    * Create account
-   * Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+   * Create an account. Two ownership modes are supported:  - **Entity-owned**: when &#x60;owner&#x60; is omitted, the account is owned by the   Entity making the request. Returns an account with &#x60;owner: entity_&lt;uuid&gt;&#x60;.  - **Customer-owned**: pass a Customer ID as &#x60;owner&#x60;   (e.g. &#x60;customer_af2937b0-9846-4fe7-bfe9-ccc22d935114&#x60;). The Customer   must have the &#x60;custodyCrypto&#x60;, &#x60;custodyFiat&#x60;, and &#x60;custodyStablecoin&#x60;   capabilities enabled, otherwise the request is rejected with   &#x60;customer_not_authorized&#x60; (HTTP 403).
    * @param createAccountRequest  (required)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;Account&gt;
@@ -466,12 +466,13 @@ public class AccountsApi {
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    * @param pageSize The number of resources to return per page. (optional, default to 20)
    * @param pageToken The token for the next page of resources, if any. (optional)
+   * @param owner Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * &#x60;entity_&lt;uuid&gt;&#x60; - Accounts owned by a specific entity * &#x60;customer_&lt;uuid&gt;&#x60; - Accounts owned by a specific customer  **Owner type wildcards:** * &#x60;entity&#x60; - All entity-owned accounts * &#x60;customer&#x60; - All customer-owned accounts  **Examples:** * &#x60;owner&#x3D;customer_af29...&#x60; - A specific customer&#39;s accounts * &#x60;owner&#x3D;customer&#x60; - All customer accounts * &#x60;owner&#x3D;entity,customer_af29...&#x60; - Entity accounts and a specific customer&#39;s accounts * When omitted, accounts with any owner are returned. (optional)
    * @param type Filter accounts by account type. When omitted, accounts of any type are returned. Combined with &#x60;owner&#x60; using AND. (optional)
    * @return ListFoundationAccounts200Response
    * @throws ApiException if fails to make API call
    */
-  public ListFoundationAccounts200Response listFoundationAccounts(Integer pageSize, String pageToken, AccountType type) throws ApiException {
-    ApiResponse<ListFoundationAccounts200Response> localVarResponse = listFoundationAccountsWithHttpInfo(pageSize, pageToken, type);
+  public ListFoundationAccounts200Response listFoundationAccounts(Integer pageSize, String pageToken, List<String> owner, AccountType type) throws ApiException {
+    ApiResponse<ListFoundationAccounts200Response> localVarResponse = listFoundationAccountsWithHttpInfo(pageSize, pageToken, owner, type);
     return localVarResponse.getData();
   }
 
@@ -480,12 +481,13 @@ public class AccountsApi {
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    * @param pageSize The number of resources to return per page. (optional, default to 20)
    * @param pageToken The token for the next page of resources, if any. (optional)
+   * @param owner Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.  **Specific Owner IDs:** * &#x60;entity_&lt;uuid&gt;&#x60; - Accounts owned by a specific entity * &#x60;customer_&lt;uuid&gt;&#x60; - Accounts owned by a specific customer  **Owner type wildcards:** * &#x60;entity&#x60; - All entity-owned accounts * &#x60;customer&#x60; - All customer-owned accounts  **Examples:** * &#x60;owner&#x3D;customer_af29...&#x60; - A specific customer&#39;s accounts * &#x60;owner&#x3D;customer&#x60; - All customer accounts * &#x60;owner&#x3D;entity,customer_af29...&#x60; - Entity accounts and a specific customer&#39;s accounts * When omitted, accounts with any owner are returned. (optional)
    * @param type Filter accounts by account type. When omitted, accounts of any type are returned. Combined with &#x60;owner&#x60; using AND. (optional)
    * @return ApiResponse&lt;ListFoundationAccounts200Response&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<ListFoundationAccounts200Response> listFoundationAccountsWithHttpInfo(Integer pageSize, String pageToken, AccountType type) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = listFoundationAccountsRequestBuilder(pageSize, pageToken, type);
+  public ApiResponse<ListFoundationAccounts200Response> listFoundationAccountsWithHttpInfo(Integer pageSize, String pageToken, List<String> owner, AccountType type) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listFoundationAccountsRequestBuilder(pageSize, pageToken, owner, type);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -524,7 +526,7 @@ public class AccountsApi {
     }
   }
 
-  private HttpRequest.Builder listFoundationAccountsRequestBuilder(Integer pageSize, String pageToken, AccountType type) throws ApiException {
+  private HttpRequest.Builder listFoundationAccountsRequestBuilder(Integer pageSize, String pageToken, List<String> owner, AccountType type) throws ApiException {
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
@@ -537,6 +539,8 @@ public class AccountsApi {
     localVarQueryParams.addAll(ApiClient.parameterToPairs("pageSize", pageSize));
     localVarQueryParameterBaseName = "pageToken";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("pageToken", pageToken));
+    localVarQueryParameterBaseName = "owner";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("csv", "owner", owner));
     localVarQueryParameterBaseName = "type";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("type", type));
 

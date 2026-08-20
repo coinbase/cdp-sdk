@@ -44,10 +44,11 @@ class TestDepositTravelRuleOriginator(unittest.TestCase):
                     state = 'CA', 
                     post_code = '94105', 
                     country_code = 'US', ),
-                wallet_type = 'custodial',
+                financial_institution = 'PayPal, Inc.',
                 virtual_asset_service_provider = {identifier=5493001KJTIIGC8Y1R17, name=Fidelity Digital Asset Services, LLC},
                 personal_id = '123-45-6789',
-                date_of_birth = {day=15, month=08, year=1990}
+                date_of_birth = {day=15, month=08, year=1990},
+                wallet_type = 'custodial'
             )
         else:
             return DepositTravelRuleOriginator(

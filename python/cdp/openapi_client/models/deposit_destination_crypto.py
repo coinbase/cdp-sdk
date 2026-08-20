@@ -21,7 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
-from cdp.openapi_client.models.network import Network
+from cdp.openapi_client.models.payment_network import PaymentNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +29,7 @@ class DepositDestinationCrypto(BaseModel):
     """
     Crypto-specific deposit destination details. In responses, this object is always present. Contains the network and address for the deposit destination.
     """ # noqa: E501
-    network: Network
+    network: PaymentNetwork
     address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).")
     __properties: ClassVar[List[str]] = ["network", "address"]
 

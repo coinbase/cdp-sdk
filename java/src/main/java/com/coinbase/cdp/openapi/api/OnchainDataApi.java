@@ -86,7 +86,7 @@ public class OnchainDataApi {
 
   /**
    * List EVM token balances
-   * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides &lt;1 second freshness from chain tip, &lt;500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+   * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  Calls to the &#x60;base&#x60; and &#x60;base-sepolia&#x60; networks offer:   * 99.5% &lt; 2 second freshness from chain tip for new tokens on an address.   * 99.5% &lt; 2 second freshness from chain tip for balance data.  Calls to the &#x60;ethereum&#x60; network offer:   * 99% &lt; 30 second freshness from chain tip for new tokens on an address.   * 99% &lt; 2 second freshness from chain tip for balance data.
    * @param address The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
    * @param network The human-readable network name to get the balances for. (required)
    * @param pageSize The number of resources to return per page. (optional, default to 20)
@@ -101,7 +101,7 @@ public class OnchainDataApi {
 
   /**
    * List EVM token balances
-   * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  **Note:** This endpoint provides &lt;1 second freshness from chain tip, &lt;500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+   * Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.  Calls to the &#x60;base&#x60; and &#x60;base-sepolia&#x60; networks offer:   * 99.5% &lt; 2 second freshness from chain tip for new tokens on an address.   * 99.5% &lt; 2 second freshness from chain tip for balance data.  Calls to the &#x60;ethereum&#x60; network offer:   * 99% &lt; 30 second freshness from chain tip for new tokens on an address.   * 99% &lt; 2 second freshness from chain tip for balance data.
    * @param address The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed. (required)
    * @param network The human-readable network name to get the balances for. (required)
    * @param pageSize The number of resources to return per page. (optional, default to 20)

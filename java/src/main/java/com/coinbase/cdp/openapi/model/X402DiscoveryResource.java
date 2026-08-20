@@ -37,7 +37,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * A single discovered x402 resource.
+ * A single discovered x402 resource. Its fields come from three sources:  - **x402 protocol** — negotiated from the resource&#39;s payment-required response: &#x60;resource&#x60;,   &#x60;type&#x60;, &#x60;x402Version&#x60;, &#x60;accepts&#x60;, &#x60;extensions&#x60;. - **Provider-supplied** — metadata published by the resource owner: &#x60;description&#x60;,   &#x60;serviceName&#x60;, &#x60;tags&#x60;. - **Coinbase-derived** — added during ingestion and curation: &#x60;iconUrl&#x60;, &#x60;quality&#x60;,   &#x60;lastUpdated&#x60;, and (for Coinbase-curated endpoints only) &#x60;curated&#x60;, &#x60;skillUrl&#x60; (a   Coinbase-authored SKILL.md), and &#x60;bundleSlugs&#x60;. 
  */
 @JsonPropertyOrder({
   X402DiscoveryResource.JSON_PROPERTY_RESOURCE,
@@ -50,7 +50,10 @@ import com.coinbase.cdp.openapi.ApiClient;
   X402DiscoveryResource.JSON_PROPERTY_QUALITY,
   X402DiscoveryResource.JSON_PROPERTY_SERVICE_NAME,
   X402DiscoveryResource.JSON_PROPERTY_TAGS,
-  X402DiscoveryResource.JSON_PROPERTY_ICON_URL
+  X402DiscoveryResource.JSON_PROPERTY_BUNDLE_SLUGS,
+  X402DiscoveryResource.JSON_PROPERTY_ICON_URL,
+  X402DiscoveryResource.JSON_PROPERTY_CURATED,
+  X402DiscoveryResource.JSON_PROPERTY_SKILL_URL
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class X402DiscoveryResource {
@@ -129,9 +132,21 @@ public class X402DiscoveryResource {
   @jakarta.annotation.Nullable
   private List<String> tags = new ArrayList<>();
 
+  public static final String JSON_PROPERTY_BUNDLE_SLUGS = "bundleSlugs";
+  @jakarta.annotation.Nullable
+  private List<String> bundleSlugs = new ArrayList<>();
+
   public static final String JSON_PROPERTY_ICON_URL = "iconUrl";
   @jakarta.annotation.Nullable
   private URI iconUrl;
+
+  public static final String JSON_PROPERTY_CURATED = "curated";
+  @jakarta.annotation.Nullable
+  private Boolean curated;
+
+  public static final String JSON_PROPERTY_SKILL_URL = "skillUrl";
+  @jakarta.annotation.Nullable
+  private URI skillUrl;
 
   public X402DiscoveryResource() { 
   }
@@ -342,7 +357,7 @@ public class X402DiscoveryResource {
   }
 
   /**
-   * Provider-supplied display name of the service this resource belongs to. This is a free-form label for grouping and presentation only — it is not a stable identifier, and two resources sharing the same &#x60;serviceName&#x60; are not guaranteed to belong to the same logical service. 
+   * Display name of the service this resource belongs to. This is a free-form label for grouping and presentation only — it is not a stable identifier, and two resources sharing the same &#x60;serviceName&#x60; are not guaranteed to belong to the same logical service. 
    * @return serviceName
    */
   @jakarta.annotation.Nullable
@@ -374,7 +389,7 @@ public class X402DiscoveryResource {
   }
 
   /**
-   * Provider-supplied, low-cardinality string labels associated with the resource for client-side filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive. Order is not significant and duplicates are not expected. 
+   * Low-cardinality string labels associated with the resource for client-side filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive. Order is not significant and duplicates are not expected. 
    * @return tags
    */
   @jakarta.annotation.Nullable
@@ -389,6 +404,38 @@ public class X402DiscoveryResource {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setTags(@jakarta.annotation.Nullable List<String> tags) {
     this.tags = tags;
+  }
+
+
+  public X402DiscoveryResource bundleSlugs(@jakarta.annotation.Nullable List<String> bundleSlugs) {
+    this.bundleSlugs = bundleSlugs;
+    return this;
+  }
+
+  public X402DiscoveryResource addBundleSlugsItem(String bundleSlugsItem) {
+    if (this.bundleSlugs == null) {
+      this.bundleSlugs = new ArrayList<>();
+    }
+    this.bundleSlugs.add(bundleSlugsItem);
+    return this;
+  }
+
+  /**
+   * Slugs of the curated x402 bundles this resource belongs to. A bundle is an ordered, named grouping of curated resources covering a common agent workflow. Present only for Coinbase-curated resources (&#x60;curated: true&#x60;); omitted when the resource is not curated or is not a member of any bundle.
+   * @return bundleSlugs
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_BUNDLE_SLUGS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<String> getBundleSlugs() {
+    return bundleSlugs;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_BUNDLE_SLUGS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setBundleSlugs(@jakarta.annotation.Nullable List<String> bundleSlugs) {
+    this.bundleSlugs = bundleSlugs;
   }
 
 
@@ -416,6 +463,54 @@ public class X402DiscoveryResource {
   }
 
 
+  public X402DiscoveryResource curated(@jakarta.annotation.Nullable Boolean curated) {
+    this.curated = curated;
+    return this;
+  }
+
+  /**
+   * Whether this resource is a Coinbase-curated endpoint. Curated endpoints have passed the partner-admission and verification bar and surface higher in search and listing results. Omitted (treated as &#x60;false&#x60;) when the resource is not curated. 
+   * @return curated
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CURATED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getCurated() {
+    return curated;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CURATED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCurated(@jakarta.annotation.Nullable Boolean curated) {
+    this.curated = curated;
+  }
+
+
+  public X402DiscoveryResource skillUrl(@jakarta.annotation.Nullable URI skillUrl) {
+    this.skillUrl = skillUrl;
+    return this;
+  }
+
+  /**
+   * URL of the SKILL.md document describing how to use this resource. Omitted when the resource has no associated skill document. 
+   * @return skillUrl
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SKILL_URL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public URI getSkillUrl() {
+    return skillUrl;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SKILL_URL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSkillUrl(@jakarta.annotation.Nullable URI skillUrl) {
+    this.skillUrl = skillUrl;
+  }
+
+
   /**
    * Return true if this x402DiscoveryResource object is equal to o.
    */
@@ -438,12 +533,15 @@ public class X402DiscoveryResource {
         Objects.equals(this.quality, x402DiscoveryResource.quality) &&
         Objects.equals(this.serviceName, x402DiscoveryResource.serviceName) &&
         Objects.equals(this.tags, x402DiscoveryResource.tags) &&
-        Objects.equals(this.iconUrl, x402DiscoveryResource.iconUrl);
+        Objects.equals(this.bundleSlugs, x402DiscoveryResource.bundleSlugs) &&
+        Objects.equals(this.iconUrl, x402DiscoveryResource.iconUrl) &&
+        Objects.equals(this.curated, x402DiscoveryResource.curated) &&
+        Objects.equals(this.skillUrl, x402DiscoveryResource.skillUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(resource, description, type, x402Version, lastUpdated, accepts, extensions, quality, serviceName, tags, iconUrl);
+    return Objects.hash(resource, description, type, x402Version, lastUpdated, accepts, extensions, quality, serviceName, tags, bundleSlugs, iconUrl, curated, skillUrl);
   }
 
   @Override
@@ -460,7 +558,10 @@ public class X402DiscoveryResource {
     sb.append("    quality: ").append(toIndentedString(quality)).append("\n");
     sb.append("    serviceName: ").append(toIndentedString(serviceName)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
+    sb.append("    bundleSlugs: ").append(toIndentedString(bundleSlugs)).append("\n");
     sb.append("    iconUrl: ").append(toIndentedString(iconUrl)).append("\n");
+    sb.append("    curated: ").append(toIndentedString(curated)).append("\n");
+    sb.append("    skillUrl: ").append(toIndentedString(skillUrl)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -567,9 +668,28 @@ public class X402DiscoveryResource {
       }
     }
 
+    // add `bundleSlugs` to the URL query string
+    if (getBundleSlugs() != null) {
+      for (int i = 0; i < getBundleSlugs().size(); i++) {
+        joiner.add(String.format("%sbundleSlugs%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
+            URLEncoder.encode(ApiClient.valueToString(getBundleSlugs().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+      }
+    }
+
     // add `iconUrl` to the URL query string
     if (getIconUrl() != null) {
       joiner.add(String.format("%siconUrl%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIconUrl()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `curated` to the URL query string
+    if (getCurated() != null) {
+      joiner.add(String.format("%scurated%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getCurated()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `skillUrl` to the URL query string
+    if (getSkillUrl() != null) {
+      joiner.add(String.format("%sskillUrl%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getSkillUrl()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -627,8 +747,20 @@ public class X402DiscoveryResource {
       this.instance.tags = tags;
       return this;
     }
+    public X402DiscoveryResource.Builder bundleSlugs(List<String> bundleSlugs) {
+      this.instance.bundleSlugs = bundleSlugs;
+      return this;
+    }
     public X402DiscoveryResource.Builder iconUrl(URI iconUrl) {
       this.instance.iconUrl = iconUrl;
+      return this;
+    }
+    public X402DiscoveryResource.Builder curated(Boolean curated) {
+      this.instance.curated = curated;
+      return this;
+    }
+    public X402DiscoveryResource.Builder skillUrl(URI skillUrl) {
+      this.instance.skillUrl = skillUrl;
       return this;
     }
 
@@ -675,7 +807,10 @@ public class X402DiscoveryResource {
       .quality(getQuality())
       .serviceName(getServiceName())
       .tags(getTags())
-      .iconUrl(getIconUrl());
+      .bundleSlugs(getBundleSlugs())
+      .iconUrl(getIconUrl())
+      .curated(getCurated())
+      .skillUrl(getSkillUrl());
   }
 
 }

@@ -36,9 +36,11 @@ class TestDepositTravelRuleRequest(unittest.TestCase):
         model = DepositTravelRuleRequest()
         if include_optional:
             return DepositTravelRuleRequest(
-                originator = {name=John Doe, address={line1=123 Main St, city=San Francisco, state=CA, postCode=94105, countryCode=US}, walletType=custodial, vasp={identifier=5493001KJTIIGC8Y1R17, name=Fidelity Digital Asset Services, LLC}},
-                beneficiary = {name=Jane Smith},
-                is_self = False
+                is_self = False,
+                is_intermediary = True,
+                attest_verified_wallet_ownership = True,
+                originator = {name=John Doe, address={line1=123 Main St, city=San Francisco, state=CA, postCode=94105, countryCode=US}, financialInstitution=PayPal, Inc., virtualAssetServiceProvider={identifier=5493001KJTIIGC8Y1R17, name=Fidelity Digital Asset Services, LLC}, personalId=123-45-6789, dateOfBirth={day=15, month=08, year=1990}, walletType=custodial},
+                beneficiary = {name=Jane Smith}
             )
         else:
             return DepositTravelRuleRequest(

@@ -25,6 +25,7 @@ import com.coinbase.cdp.openapi.model.GetOnrampOrderById200Response;
 import com.coinbase.cdp.openapi.model.GetOnrampUserLimits200Response;
 import com.coinbase.cdp.openapi.model.GetOnrampUserLimitsRequest;
 import com.coinbase.cdp.openapi.model.InitiateOnrampVerificationRequest;
+import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeEmbeddedResponse;
 import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeRequest;
 import com.coinbase.cdp.openapi.model.OnrampSessionRequest;
 import com.coinbase.cdp.openapi.model.OnrampVerificationConfirmation;
@@ -95,7 +96,7 @@ public class OnrampApi {
 
   /**
    * Create an onramp order
-   * Create a new Onramp order or get a quote for an Onramp order. Either &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; must be provided.  This API currently only supports the payment method &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60;.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/onramp-apis/apple-pay-onramp-api).
+   * Create a new Onramp order or get a quote for an Onramp order. Either &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; must be provided.  This API supports two modes:  **Headless mode (standard)**: returns a seamless Apple Pay or Google Pay button that you integrate directly into your app. Your app collects and verifies the user&#39;s contact details before calling this endpoint — &#x60;phoneNumber&#x60;, &#x60;email&#x60;, &#x60;phoneNumberVerifiedAt&#x60;, and &#x60;agreementAcceptedAt&#x60; are required and enforced server-side.  **Embedded mode**: returns a webview that collects and verifies the user&#39;s contact and identity information, then shows the payment screen. Omit both &#x60;phoneNumber&#x60; and &#x60;email&#x60; from the request to select this mode. Embedded mode requires account enablement; contact the Onramp team for access.  Read more about the difference between the two modes in the [Headless Onramp overview](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).  This API supports the &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; and &#x60;GUEST_CHECKOUT_GOOGLE_PAY&#x60; payment methods.  For detailed integration instructions and to get access to this API, refer to the  [Guest Checkout Onramp API docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
    * @param createOnrampOrderRequest  (optional)
    * @return CreateOnrampOrder201Response
    * @throws ApiException if fails to make API call
@@ -107,7 +108,7 @@ public class OnrampApi {
 
   /**
    * Create an onramp order
-   * Create a new Onramp order or get a quote for an Onramp order. Either &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; must be provided.  This API currently only supports the payment method &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60;.  For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&amp;-offramp/onramp-apis/apple-pay-onramp-api).
+   * Create a new Onramp order or get a quote for an Onramp order. Either &#x60;paymentAmount&#x60; or &#x60;purchaseAmount&#x60; must be provided.  This API supports two modes:  **Headless mode (standard)**: returns a seamless Apple Pay or Google Pay button that you integrate directly into your app. Your app collects and verifies the user&#39;s contact details before calling this endpoint — &#x60;phoneNumber&#x60;, &#x60;email&#x60;, &#x60;phoneNumberVerifiedAt&#x60;, and &#x60;agreementAcceptedAt&#x60; are required and enforced server-side.  **Embedded mode**: returns a webview that collects and verifies the user&#39;s contact and identity information, then shows the payment screen. Omit both &#x60;phoneNumber&#x60; and &#x60;email&#x60; from the request to select this mode. Embedded mode requires account enablement; contact the Onramp team for access.  Read more about the difference between the two modes in the [Headless Onramp overview](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).  This API supports the &#x60;GUEST_CHECKOUT_APPLE_PAY&#x60; and &#x60;GUEST_CHECKOUT_GOOGLE_PAY&#x60; payment methods.  For detailed integration instructions and to get access to this API, refer to the  [Guest Checkout Onramp API docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
    * @param createOnrampOrderRequest  (optional)
    * @return ApiResponse&lt;CreateOnrampOrder201Response&gt;
    * @throws ApiException if fails to make API call
@@ -524,22 +525,24 @@ public class OnrampApi {
 
   /**
    * Request limit upgrade
-   * Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
+   * Requests a limit upgrade for an onramp user. Only phone number is currently supported as a userId.  The default API mode submits identity information directly and returns HTTP 202 when the request is accepted. Embedded mode (&#x60;interactionMode: embedded&#x60;) returns a Coinbase-hosted &#x60;upgradeUrl&#x60; where the user enters identity information.  The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
    * @param onrampLimitUpgradeRequest  (optional)
+   * @return OnrampLimitUpgradeEmbeddedResponse
    * @throws ApiException if fails to make API call
    */
-  public void requestLimitsUpgrade(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
-    requestLimitsUpgradeWithHttpInfo(onrampLimitUpgradeRequest);
+  public OnrampLimitUpgradeEmbeddedResponse requestLimitsUpgrade(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
+    ApiResponse<OnrampLimitUpgradeEmbeddedResponse> localVarResponse = requestLimitsUpgradeWithHttpInfo(onrampLimitUpgradeRequest);
+    return localVarResponse.getData();
   }
 
   /**
    * Request limit upgrade
-   * Requests a limit upgrade for an onramp user by submitting identity information. Only phone number is currently supported as a userId.   The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
+   * Requests a limit upgrade for an onramp user. Only phone number is currently supported as a userId.  The default API mode submits identity information directly and returns HTTP 202 when the request is accepted. Embedded mode (&#x60;interactionMode: embedded&#x60;) returns a Coinbase-hosted &#x60;upgradeUrl&#x60; where the user enters identity information.  The verification process is asynchronous. After calling this endpoint, use the [Get Onramp User Limits](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-onramp-user-limits) endpoint to check the status in the &#x60;limitUpgradeOptions&#x60; array.  **Prerequisites:** - The phone number must have been previously verified by your app via OTP. - Upgrades may not be available until a certain number of successful transactions by the user.  **Supported fields:** - &#x60;ssnLast4&#x60;: Last 4 digits of the Social Security Number (no dashes or spaces). - &#x60;dateOfBirth&#x60;: Date of birth (day, month, year as zero-padded strings).
    * @param onrampLimitUpgradeRequest  (optional)
-   * @return ApiResponse&lt;Void&gt;
+   * @return ApiResponse&lt;OnrampLimitUpgradeEmbeddedResponse&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> requestLimitsUpgradeWithHttpInfo(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
+  public ApiResponse<OnrampLimitUpgradeEmbeddedResponse> requestLimitsUpgradeWithHttpInfo(OnrampLimitUpgradeRequest onrampLimitUpgradeRequest) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = requestLimitsUpgradeRequestBuilder(onrampLimitUpgradeRequest);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -552,17 +555,23 @@ public class OnrampApi {
         if (localVarResponse.statusCode()/ 100 != 2) {
           throw getApiException("requestLimitsUpgrade", localVarResponse);
         }
-        return new ApiResponse<>(
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<OnrampLimitUpgradeEmbeddedResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<OnrampLimitUpgradeEmbeddedResponse>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            null
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<OnrampLimitUpgradeEmbeddedResponse>() {})
         );
       } finally {
-        // Drain the InputStream
-        while (localVarResponse.body().read() != -1) {
-          // Ignore
-        }
-        localVarResponse.body().close();
       }
     } catch (IOException e) {
       throw new ApiException(e);

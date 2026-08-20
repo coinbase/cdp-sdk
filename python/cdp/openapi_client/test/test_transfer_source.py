@@ -36,26 +36,34 @@ class TestTransferSource(unittest.TestCase):
         model = TransferSource()
         if include_optional:
             return TransferSource(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd',
-                payment_method_id = '',
+                payment_method_id = 'paymentMethod_8e03978e-40d5-43e8-bc93-6894a57f9324',
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 network = 'base',
                 destination_tag = '',
-                bank_name = 'Citibank, N.A.',
-                account_last4 = '6789',
-                currency = 'usd'
+                currency = 'usd',
+                company_name = 'Acme Corp',
+                company_entry_description = 'PAYROLL',
+                individual_identification_number = 'JANE DOE',
+                omad = '20240101MMQFMP2P000001',
+                account_number = '89770098',
+                originator_name = 'Acme Corp',
+                originator_to_beneficiary = [Invoice 1234, Payment for services rendered]
             )
         else:
             return TransferSource(
-                account_id = '',
+                account_id = 'account_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 asset = 'usd',
-                payment_method_id = '',
+                payment_method_id = 'paymentMethod_8e03978e-40d5-43e8-bc93-6894a57f9324',
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 network = 'base',
-                bank_name = 'Citibank, N.A.',
-                account_last4 = '6789',
                 currency = 'usd',
+                company_name = 'Acme Corp',
+                company_entry_description = 'PAYROLL',
+                omad = '20240101MMQFMP2P000001',
+                account_number = '89770098',
+                originator_name = 'Acme Corp',
         )
         """
 

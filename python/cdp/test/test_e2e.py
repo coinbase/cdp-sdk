@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import json
 import os
 import random
 import string
@@ -23,14 +24,19 @@ from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.authentication_method import AuthenticationMethod
+from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
 from cdp.openapi_client.models.create_end_user_request_evm_account import (
     CreateEndUserRequestEvmAccount,
 )
 from cdp.openapi_client.models.create_end_user_request_solana_account import (
     CreateEndUserRequestSolanaAccount,
 )
+from cdp.openapi_client.models.create_evm_swap_quote_request import (
+    CreateEvmSwapQuoteRequest,
+)
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.email_authentication import EmailAuthentication
+from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -152,6 +158,37 @@ async def test_create_get_and_list_accounts(cdp_client):
     assert account is not None
     assert account.address == server_account.address
     assert account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_swap_quote_accepts_nullable_gas_fee(cdp_client):
+    """Test that a live swap quote accepts the nullable gasFee response field."""
+    accounts = await cdp_client.evm.list_accounts(page_size=1)
+    assert accounts.accounts
+
+    request = CreateEvmSwapQuoteRequest(
+        network=EvmSwapsNetwork("base"),
+        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        to_token="0x4200000000000000000000000000000000000006",  # WETH
+        from_amount="1000000",  # 1 USDC in atomic units
+        taker=accounts.accounts[0].address,
+        slippage_bps=100,
+    )
+    response = await cdp_client.api_clients.evm_swaps.create_evm_swap_quote_without_preload_content(
+        request
+    )
+    assert response.status == 201
+
+    response_data = json.loads((await response.read()).decode("utf-8"))
+    if response_data.get("liquidityAvailable") is not True:
+        pytest.skip("Swap quote was unavailable for the E2E account.")
+
+    if response_data.get("fees", {}).get("gasFee") is not None:
+        pytest.skip("Swap API did not return a nullable gasFee for this quote.")
+
+    fees = CommonSwapResponseFees.from_dict(response_data["fees"])
+    assert fees.gas_fee is None
 
 
 @pytest.mark.e2e

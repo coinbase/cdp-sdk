@@ -37,6 +37,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   TravelRule.JSON_PROPERTY_IS_SELF,
   TravelRule.JSON_PROPERTY_IS_INTERMEDIARY,
+  TravelRule.JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP,
   TravelRule.JSON_PROPERTY_ORIGINATOR,
   TravelRule.JSON_PROPERTY_BENEFICIARY
 })
@@ -49,6 +50,10 @@ public class TravelRule {
   public static final String JSON_PROPERTY_IS_INTERMEDIARY = "isIntermediary";
   @jakarta.annotation.Nullable
   private Boolean isIntermediary;
+
+  public static final String JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP = "attestVerifiedWalletOwnership";
+  @jakarta.annotation.Nullable
+  private Boolean attestVerifiedWalletOwnership;
 
   public static final String JSON_PROPERTY_ORIGINATOR = "originator";
   @jakarta.annotation.Nullable
@@ -91,7 +96,7 @@ public class TravelRule {
   }
 
   /**
-   * Indicates whether Coinbase is being used as an intermediary Virtual Asset Service Provider (VASP) to send crypto on behalf of your customer.  **Background:**  The Travel Rule (FATF Recommendation 16) requires VASPs to share originator and beneficiary information for virtual asset transfers. When Coinbase acts as an intermediary, additional Travel Rule data must be provided to satisfy compliance requirements.  **Set to &#x60;true&#x60; when:**  - Your organization is a VASP using Coinbase to send crypto **on behalf of your end customer** - In this scenario, Coinbase acts as an intermediary in the transfer chain and handles Travel Rule data exchange with the beneficiary VASP  **Set to &#x60;false&#x60; (or omit) when:**  - You are transferring funds directly from your own Coinbase account, where **Coinbase is your primary VASP** rather than an intermediary for another institution  **Impact on required fields:**  When &#x60;isIntermediary&#x60; is &#x60;true&#x60;, you must provide the &#x60;originator&#x60; object with details about the **original sender**, including: - Originator name - Originator address - Your VASP information (&#x60;virtualAssetServiceProvider&#x60; object with &#x60;name&#x60;, &#x60;address&#x60;, and &#x60;identifier&#x60;)  For jurisdictions that require them (such as Coinbase Luxembourg), &#x60;personalIdentification&#x60; and &#x60;dateOfBirth&#x60; must also reflect the **original sender&#39;s** identity — not the intermediary&#39;s. These fields will not be auto-populated from any internal KYC data when &#x60;isIntermediary&#x60; is &#x60;true&#x60;. 
+   * Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.  **Background:**  The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.  **Set to &#x60;true&#x60; when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).  **Set to &#x60;false&#x60; (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization&#39;s own funds.  **Impact on required fields:**  When &#x60;isIntermediary&#x60; is &#x60;true&#x60;, you must provide the &#x60;originator&#x60; object with the following details: - The originator&#39;s (i.e. your end customer&#39;s) name - The originator&#39;s address - Your organization&#39;s VASP information (&#x60;virtualAssetServiceProvider&#x60; object with &#x60;identifier&#x60;, &#x60;name&#x60;, and &#x60;address&#x60;)  In certain jurisdictions, &#x60;personalId&#x60; and &#x60;dateOfBirth&#x60; must also reflect the **original sender&#39;s** identity — not your organization&#39;s. These fields will not be auto-populated from any internal KYC data when &#x60;isIntermediary&#x60; is &#x60;true&#x60;. 
    * @return isIntermediary
    */
   @jakarta.annotation.Nullable
@@ -106,6 +111,30 @@ public class TravelRule {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setIsIntermediary(@jakarta.annotation.Nullable Boolean isIntermediary) {
     this.isIntermediary = isIntermediary;
+  }
+
+
+  public TravelRule attestVerifiedWalletOwnership(@jakarta.annotation.Nullable Boolean attestVerifiedWalletOwnership) {
+    this.attestVerifiedWalletOwnership = attestVerifiedWalletOwnership;
+    return this;
+  }
+
+  /**
+   * When &#x60;true&#x60;, you attest that the beneficiary&#39;s wallet ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this transfer.  **Only valid when &#x60;isIntermediary&#x60; is &#x60;true&#x60;.** You can only attest to the beneficiary&#39;s wallet ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a &#x60;400&#x60; error if set to &#x60;true&#x60; when &#x60;isIntermediary&#x60; is &#x60;false&#x60; or omitted.
+   * @return attestVerifiedWalletOwnership
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getAttestVerifiedWalletOwnership() {
+    return attestVerifiedWalletOwnership;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ATTEST_VERIFIED_WALLET_OWNERSHIP)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAttestVerifiedWalletOwnership(@jakarta.annotation.Nullable Boolean attestVerifiedWalletOwnership) {
+    this.attestVerifiedWalletOwnership = attestVerifiedWalletOwnership;
   }
 
 
@@ -171,13 +200,14 @@ public class TravelRule {
     TravelRule travelRule = (TravelRule) o;
     return Objects.equals(this.isSelf, travelRule.isSelf) &&
         Objects.equals(this.isIntermediary, travelRule.isIntermediary) &&
+        Objects.equals(this.attestVerifiedWalletOwnership, travelRule.attestVerifiedWalletOwnership) &&
         Objects.equals(this.originator, travelRule.originator) &&
         Objects.equals(this.beneficiary, travelRule.beneficiary);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isSelf, isIntermediary, originator, beneficiary);
+    return Objects.hash(isSelf, isIntermediary, attestVerifiedWalletOwnership, originator, beneficiary);
   }
 
   @Override
@@ -186,6 +216,7 @@ public class TravelRule {
     sb.append("class TravelRule {\n");
     sb.append("    isSelf: ").append(toIndentedString(isSelf)).append("\n");
     sb.append("    isIntermediary: ").append(toIndentedString(isIntermediary)).append("\n");
+    sb.append("    attestVerifiedWalletOwnership: ").append(toIndentedString(attestVerifiedWalletOwnership)).append("\n");
     sb.append("    originator: ").append(toIndentedString(originator)).append("\n");
     sb.append("    beneficiary: ").append(toIndentedString(beneficiary)).append("\n");
     sb.append("}");
@@ -245,6 +276,11 @@ public class TravelRule {
       joiner.add(String.format("%sisIntermediary%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIsIntermediary()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `attestVerifiedWalletOwnership` to the URL query string
+    if (getAttestVerifiedWalletOwnership() != null) {
+      joiner.add(String.format("%sattestVerifiedWalletOwnership%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAttestVerifiedWalletOwnership()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `originator` to the URL query string
     if (getOriginator() != null) {
       joiner.add(getOriginator().toUrlQueryString(prefix + "originator" + suffix));
@@ -276,6 +312,10 @@ public class TravelRule {
     }
     public TravelRule.Builder isIntermediary(Boolean isIntermediary) {
       this.instance.isIntermediary = isIntermediary;
+      return this;
+    }
+    public TravelRule.Builder attestVerifiedWalletOwnership(Boolean attestVerifiedWalletOwnership) {
+      this.instance.attestVerifiedWalletOwnership = attestVerifiedWalletOwnership;
       return this;
     }
     public TravelRule.Builder originator(TravelRuleOriginator originator) {
@@ -322,6 +362,7 @@ public class TravelRule {
     return new TravelRule.Builder()
       .isSelf(getIsSelf())
       .isIntermediary(getIsIntermediary())
+      .attestVerifiedWalletOwnership(getAttestVerifiedWalletOwnership())
       .originator(getOriginator())
       .beneficiary(getBeneficiary());
   }

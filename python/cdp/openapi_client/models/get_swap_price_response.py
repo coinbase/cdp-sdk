@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
 from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
@@ -39,7 +39,7 @@ class GetSwapPriceResponse(BaseModel):
     min_to_amount: Annotated[str, Field(strict=True)] = Field(description="The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.", alias="minToAmount")
     from_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.", alias="fromAmount")
     from_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be sent.", alias="fromToken")
-    gas: Annotated[str, Field(strict=True)] = Field(description="The estimated gas limit that should be used to send the transaction to guarantee settlement.")
+    gas: Optional[Annotated[str, Field(strict=True)]]
     gas_price: Annotated[str, Field(strict=True)] = Field(description="The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.", alias="gasPrice")
     __properties: ClassVar[List[str]] = ["blockNumber", "toAmount", "toToken", "fees", "issues", "liquidityAvailable", "minToAmount", "fromAmount", "fromToken", "gas", "gasPrice"]
 
@@ -95,6 +95,9 @@ class GetSwapPriceResponse(BaseModel):
     @field_validator('gas')
     def gas_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return value
+
         if not re.match(r"^\d+$", value):
             raise ValueError(r"must validate the regular expression /^\d+$/")
         return value
@@ -151,6 +154,11 @@ class GetSwapPriceResponse(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of issues
         if self.issues:
             _dict['issues'] = self.issues.to_dict()
+        # set to None if gas (nullable) is None
+        # and model_fields_set contains the field
+        if self.gas is None and "gas" in self.model_fields_set:
+            _dict['gas'] = None
+
         return _dict
 
     @classmethod

@@ -21,7 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from cdp.openapi_client.models.network import Network
+from cdp.openapi_client.models.payment_network import PaymentNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,9 +30,9 @@ class OnchainAddress(BaseModel):
     The target of the payment is an onchain address.
     """ # noqa: E501
     address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The onchain crypto address of the recipient.  Examples: - EVM address: 0xabc1234567890abcdef1234567890abcdef123456 - Solana address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT - XRP address: rhccc5p23aKiCGFcEqqnjEfLRZ6xEvfy3s ")
-    network: Network
+    network: PaymentNetwork
     destination_tag: Optional[StrictStr] = Field(default=None, description="The destination tag of the onchain address. Destination tags are used by certain networks (primarily XRP/Ripple) to identify specific recipients when multiple users share a single address. The tag ensures funds are credited to the correct account within the shared address.  Examples by network: - XRP/Ripple: Numeric values like \"1234567890\" or \"123456\" - Stellar (XLM): Memos which can be text, ID, or hash format  Note: Most networks (Ethereum, Bitcoin, Solana) do not use destination tags. ", alias="destinationTag")
-    asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="Asset symbol of the payment received by the recipient.")
+    asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="Asset symbol of the payment received by the recipient. Supported values are `usdc` and `eurc`.")
     __properties: ClassVar[List[str]] = ["address", "network", "destinationTag", "asset"]
 
     model_config = ConfigDict(

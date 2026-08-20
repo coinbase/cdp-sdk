@@ -36,7 +36,9 @@ class TestCreateAccountRequest(unittest.TestCase):
         model = CreateAccountRequest()
         if include_optional:
             return CreateAccountRequest(
-                name = 'My Business Account'
+                owner = 'entity_af2937b0-9846-4fe7-bfe9-ccc22d935114',
+                name = 'My Business Account',
+                compliance = {requesterIpAddress=203.0.113.42}
             )
         else:
             return CreateAccountRequest(

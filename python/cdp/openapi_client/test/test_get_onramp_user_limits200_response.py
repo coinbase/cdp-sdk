@@ -42,6 +42,12 @@ class TestGetOnrampUserLimits200Response(unittest.TestCase):
                         currency = 'USD', 
                         limit = '2500', 
                         remaining = '2000', )
+                    ],
+                limit_upgrade_options = [
+                    cdp.openapi_client.models.onramp_limit_upgrade_option.OnrampLimitUpgradeOption(
+                        status = 'unrequested', 
+                        fields = [ssnLast4, dateOfBirth], 
+                        limit_upgrades = [{limitType=weekly_spending, maxUpgrade=2500}, {limitType=lifetime_transactions, maxUpgrade=2147483647}], )
                     ]
             )
         else:

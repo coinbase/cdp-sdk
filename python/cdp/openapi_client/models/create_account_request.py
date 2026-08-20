@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.compliance import Compliance
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,8 +29,20 @@ class CreateAccountRequest(BaseModel):
     """
     CreateAccountRequest
     """ # noqa: E501
+    owner: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The Owner of the Account to create. * If omitted, the account will be owned by the Entity making the request. * If the account is for a customer, the value will be a Customer ID,   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`.  * Further, the corresponding Customer must have all of the following capabilities enabled:   - `custodyCrypto`   - `custodyFiat`   - `custodyStablecoin`.")
     name: Optional[Annotated[str, Field(strict=True, max_length=64)]] = Field(default=None, description="An optional name for the account. Must be 1-64 characters and can only contain alphanumeric characters, hyphens, and spaces.")
-    __properties: ClassVar[List[str]] = ["name"]
+    compliance: Optional[Compliance] = None
+    __properties: ClassVar[List[str]] = ["owner", "name", "compliance"]
+
+    @field_validator('owner')
+    def owner_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^(entity|customer)_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", value):
+            raise ValueError(r"must validate the regular expression /^(entity|customer)_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/")
+        return value
 
     @field_validator('name')
     def name_validate_regular_expression(cls, value):
@@ -80,6 +93,9 @@ class CreateAccountRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of compliance
+        if self.compliance:
+            _dict['compliance'] = self.compliance.to_dict()
         return _dict
 
     @classmethod
@@ -92,7 +108,9 @@ class CreateAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name")
+            "owner": obj.get("owner"),
+            "name": obj.get("name"),
+            "compliance": Compliance.from_dict(obj["compliance"]) if obj.get("compliance") is not None else None
         })
         return _obj
 

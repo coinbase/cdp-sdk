@@ -31,7 +31,33 @@ export const listDepositDestinations = (
   );
 };
 /**
- * Create a new deposit destination for an account. A deposit destination is a cryptocurrency address that can be used to receive funds. The address will be generated for the specified network.
+ * Create a new deposit destination for an account. Two types are supported:
+
+- `crypto` (public): provisions a cryptocurrency address on the requested
+  network. The returned `crypto.address` is the deposit address; funds
+  sent to it are credited to the `target` account in the specified asset.
+  For Customer-owned accounts, the Customer must have the `custodyCrypto`
+  and `custodyStablecoin` capabilities enabled.
+
+
+- `fiat` (private-beta): provisions a bank
+  account at a CDP banking partner. The server picks the account type
+  (e.g. `us_bank`) and supported payment rails based on the account's
+  eligibility; pass `fiat.paymentRail` to influence partner selection.
+  The returned `fiat` object contains the bank account details the
+  depositor needs to send funds. For Customer-owned accounts, the Customer
+  must have the `custodyFiat` capability enabled. Requires account
+  enablement — contact your Coinbase representative for access. Fields
+  and behavior may change before general availability.
+
+
+For Customer-owned accounts not authorized for the required capabilities,
+the request is rejected with `customer_not_authorized` (HTTP 403).
+
+
+The created destination's `status` starts as `pending` for fiat (it
+becomes `active` once the partner provisioning callback completes) and
+`active` for crypto.
  * @summary Create deposit destination
  */
 export const createDepositDestination = (

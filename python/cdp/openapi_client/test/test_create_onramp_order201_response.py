@@ -55,7 +55,8 @@ class TestCreateOnrampOrder201Response(unittest.TestCase):
                     partner_user_ref = 'user123', ),
                 payment_link = cdp.openapi_client.models.onramp_payment_link.OnrampPaymentLink(
                     url = https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3, 
-                    payment_link_type = 'PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON', )
+                    payment_link_type = 'PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON', ),
+                user_auth_token = 'eyJ2ZXJpZmljYXRpb25JZHMiOlsidl9hYmMxMjMiLCJ2X2RlZjQ1NiJdfQ=='
             )
         else:
             return CreateOnrampOrder201Response(
