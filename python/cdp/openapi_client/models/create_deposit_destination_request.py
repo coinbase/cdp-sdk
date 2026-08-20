@@ -19,11 +19,12 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from cdp.openapi_client.models.create_crypto_deposit_destination_request import CreateCryptoDepositDestinationRequest
+from cdp.openapi_client.models.create_fiat_deposit_destination_request import CreateFiatDepositDestinationRequest
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATEDEPOSITDESTINATIONREQUEST_ONE_OF_SCHEMAS = ["CreateCryptoDepositDestinationRequest"]
+CREATEDEPOSITDESTINATIONREQUEST_ONE_OF_SCHEMAS = ["CreateCryptoDepositDestinationRequest", "CreateFiatDepositDestinationRequest"]
 
 class CreateDepositDestinationRequest(BaseModel):
     """
@@ -31,8 +32,10 @@ class CreateDepositDestinationRequest(BaseModel):
     """
     # data type: CreateCryptoDepositDestinationRequest
     oneof_schema_1_validator: Optional[CreateCryptoDepositDestinationRequest] = None
-    actual_instance: Optional[Union[CreateCryptoDepositDestinationRequest]] = None
-    one_of_schemas: Set[str] = { "CreateCryptoDepositDestinationRequest" }
+    # data type: CreateFiatDepositDestinationRequest
+    oneof_schema_2_validator: Optional[CreateFiatDepositDestinationRequest] = None
+    actual_instance: Optional[Union[CreateCryptoDepositDestinationRequest, CreateFiatDepositDestinationRequest]] = None
+    one_of_schemas: Set[str] = { "CreateCryptoDepositDestinationRequest", "CreateFiatDepositDestinationRequest" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -63,12 +66,17 @@ class CreateDepositDestinationRequest(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateCryptoDepositDestinationRequest`")
         else:
             match += 1
+        # validate data type: CreateFiatDepositDestinationRequest
+        if not isinstance(v, CreateFiatDepositDestinationRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateFiatDepositDestinationRequest`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest, CreateFiatDepositDestinationRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest, CreateFiatDepositDestinationRequest. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -89,13 +97,19 @@ class CreateDepositDestinationRequest(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CreateFiatDepositDestinationRequest
+        try:
+            instance.actual_instance = CreateFiatDepositDestinationRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest, CreateFiatDepositDestinationRequest. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateDepositDestinationRequest with oneOf schemas: CreateCryptoDepositDestinationRequest, CreateFiatDepositDestinationRequest. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -109,7 +123,7 @@ class CreateDepositDestinationRequest(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCryptoDepositDestinationRequest]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCryptoDepositDestinationRequest, CreateFiatDepositDestinationRequest]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

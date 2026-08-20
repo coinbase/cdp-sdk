@@ -28,11 +28,11 @@ class TravelRuleBeneficiary(BaseModel):
     """
     Beneficiary (receiver) party.
     """ # noqa: E501
-    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
     name: Optional[StrictStr] = Field(default=None, description="Full name of the party.")
     address: Optional[PhysicalAddress] = None
+    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
     wallet_type: Optional[StrictStr] = Field(default=None, description="The type of the beneficiary's wallet.", alias="walletType")
-    __properties: ClassVar[List[str]] = ["financialInstitution", "name", "address", "walletType"]
+    __properties: ClassVar[List[str]] = ["name", "address", "financialInstitution", "walletType"]
 
     @field_validator('wallet_type')
     def wallet_type_validate_enum(cls, value):
@@ -98,9 +98,9 @@ class TravelRuleBeneficiary(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "financialInstitution": obj.get("financialInstitution"),
             "name": obj.get("name"),
             "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
+            "financialInstitution": obj.get("financialInstitution"),
             "walletType": obj.get("walletType")
         })
         return _obj

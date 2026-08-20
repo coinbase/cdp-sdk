@@ -34,16 +34,12 @@ import com.coinbase.cdp.openapi.ApiClient;
  * Information about a party (originator or beneficiary) for travel rule compliance.
  */
 @JsonPropertyOrder({
-  TravelRuleParty.JSON_PROPERTY_FINANCIAL_INSTITUTION,
   TravelRuleParty.JSON_PROPERTY_NAME,
-  TravelRuleParty.JSON_PROPERTY_ADDRESS
+  TravelRuleParty.JSON_PROPERTY_ADDRESS,
+  TravelRuleParty.JSON_PROPERTY_FINANCIAL_INSTITUTION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class TravelRuleParty {
-  public static final String JSON_PROPERTY_FINANCIAL_INSTITUTION = "financialInstitution";
-  @jakarta.annotation.Nullable
-  private String financialInstitution;
-
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nullable
   private String name;
@@ -52,32 +48,12 @@ public class TravelRuleParty {
   @jakarta.annotation.Nullable
   private PhysicalAddress address;
 
+  public static final String JSON_PROPERTY_FINANCIAL_INSTITUTION = "financialInstitution";
+  @jakarta.annotation.Nullable
+  private String financialInstitution;
+
   public TravelRuleParty() { 
   }
-
-  public TravelRuleParty financialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
-    this.financialInstitution = financialInstitution;
-    return this;
-  }
-
-  /**
-   * Name of the financial institution.
-   * @return financialInstitution
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getFinancialInstitution() {
-    return financialInstitution;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setFinancialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
-    this.financialInstitution = financialInstitution;
-  }
-
 
   public TravelRuleParty name(@jakarta.annotation.Nullable String name) {
     this.name = name;
@@ -127,6 +103,30 @@ public class TravelRuleParty {
   }
 
 
+  public TravelRuleParty financialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
+    this.financialInstitution = financialInstitution;
+    return this;
+  }
+
+  /**
+   * Name of the financial institution.
+   * @return financialInstitution
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getFinancialInstitution() {
+    return financialInstitution;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FINANCIAL_INSTITUTION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFinancialInstitution(@jakarta.annotation.Nullable String financialInstitution) {
+    this.financialInstitution = financialInstitution;
+  }
+
+
   /**
    * Return true if this TravelRuleParty object is equal to o.
    */
@@ -139,23 +139,23 @@ public class TravelRuleParty {
       return false;
     }
     TravelRuleParty travelRuleParty = (TravelRuleParty) o;
-    return Objects.equals(this.financialInstitution, travelRuleParty.financialInstitution) &&
-        Objects.equals(this.name, travelRuleParty.name) &&
-        Objects.equals(this.address, travelRuleParty.address);
+    return Objects.equals(this.name, travelRuleParty.name) &&
+        Objects.equals(this.address, travelRuleParty.address) &&
+        Objects.equals(this.financialInstitution, travelRuleParty.financialInstitution);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(financialInstitution, name, address);
+    return Objects.hash(name, address, financialInstitution);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TravelRuleParty {\n");
-    sb.append("    financialInstitution: ").append(toIndentedString(financialInstitution)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
+    sb.append("    financialInstitution: ").append(toIndentedString(financialInstitution)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -203,11 +203,6 @@ public class TravelRuleParty {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `financialInstitution` to the URL query string
-    if (getFinancialInstitution() != null) {
-      joiner.add(String.format("%sfinancialInstitution%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getFinancialInstitution()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-    }
-
     // add `name` to the URL query string
     if (getName() != null) {
       joiner.add(String.format("%sname%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getName()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -216,6 +211,11 @@ public class TravelRuleParty {
     // add `address` to the URL query string
     if (getAddress() != null) {
       joiner.add(getAddress().toUrlQueryString(prefix + "address" + suffix));
+    }
+
+    // add `financialInstitution` to the URL query string
+    if (getFinancialInstitution() != null) {
+      joiner.add(String.format("%sfinancialInstitution%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getFinancialInstitution()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -233,16 +233,16 @@ public class TravelRuleParty {
       this.instance = instance;
     }
 
-    public TravelRuleParty.Builder financialInstitution(String financialInstitution) {
-      this.instance.financialInstitution = financialInstitution;
-      return this;
-    }
     public TravelRuleParty.Builder name(String name) {
       this.instance.name = name;
       return this;
     }
     public TravelRuleParty.Builder address(PhysicalAddress address) {
       this.instance.address = address;
+      return this;
+    }
+    public TravelRuleParty.Builder financialInstitution(String financialInstitution) {
+      this.instance.financialInstitution = financialInstitution;
       return this;
     }
 
@@ -279,9 +279,9 @@ public class TravelRuleParty {
   */
   public TravelRuleParty.Builder toBuilder() {
     return new TravelRuleParty.Builder()
-      .financialInstitution(getFinancialInstitution())
       .name(getName())
-      .address(getAddress());
+      .address(getAddress())
+      .financialInstitution(getFinancialInstitution());
   }
 
 }

@@ -53,7 +53,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   OfframpTransactionFailedEvent.JSON_PROPERTY_UPDATED_AT,
   OfframpTransactionFailedEvent.JSON_PROPERTY_TX_HASH,
   OfframpTransactionFailedEvent.JSON_PROPERTY_REDIRECT_URL,
-  OfframpTransactionFailedEvent.JSON_PROPERTY_PAYMENT_METHOD
+  OfframpTransactionFailedEvent.JSON_PROPERTY_PAYMENT_METHOD,
+  OfframpTransactionFailedEvent.JSON_PROPERTY_PARTNER_USER_REF
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class OfframpTransactionFailedEvent {
@@ -228,6 +229,10 @@ public class OfframpTransactionFailedEvent {
   public static final String JSON_PROPERTY_PAYMENT_METHOD = "paymentMethod";
   @jakarta.annotation.Nullable
   private PaymentMethodEnum paymentMethod;
+
+  public static final String JSON_PROPERTY_PARTNER_USER_REF = "partnerUserRef";
+  @jakarta.annotation.Nullable
+  private String partnerUserRef;
 
   public OfframpTransactionFailedEvent() { 
   }
@@ -688,6 +693,30 @@ public class OfframpTransactionFailedEvent {
   }
 
 
+  public OfframpTransactionFailedEvent partnerUserRef(@jakarta.annotation.Nullable String partnerUserRef) {
+    this.partnerUserRef = partnerUserRef;
+    return this;
+  }
+
+  /**
+   * The partnerUserId provided when initializing the offramp session.
+   * @return partnerUserRef
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PARTNER_USER_REF)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getPartnerUserRef() {
+    return partnerUserRef;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PARTNER_USER_REF)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPartnerUserRef(@jakarta.annotation.Nullable String partnerUserRef) {
+    this.partnerUserRef = partnerUserRef;
+  }
+
+
   /**
    * Return true if this OfframpTransactionFailedEvent object is equal to o.
    */
@@ -718,12 +747,13 @@ public class OfframpTransactionFailedEvent {
         Objects.equals(this.updatedAt, offrampTransactionFailedEvent.updatedAt) &&
         Objects.equals(this.txHash, offrampTransactionFailedEvent.txHash) &&
         Objects.equals(this.redirectUrl, offrampTransactionFailedEvent.redirectUrl) &&
-        Objects.equals(this.paymentMethod, offrampTransactionFailedEvent.paymentMethod);
+        Objects.equals(this.paymentMethod, offrampTransactionFailedEvent.paymentMethod) &&
+        Objects.equals(this.partnerUserRef, offrampTransactionFailedEvent.partnerUserRef);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(eventType, transactionId, status, asset, network, sellAmount, total, minimumTotal, subtotal, coinbaseFee, exchangeRate, unitPrice, fromAddress, toAddress, createdAt, updatedAt, txHash, redirectUrl, paymentMethod);
+    return Objects.hash(eventType, transactionId, status, asset, network, sellAmount, total, minimumTotal, subtotal, coinbaseFee, exchangeRate, unitPrice, fromAddress, toAddress, createdAt, updatedAt, txHash, redirectUrl, paymentMethod, partnerUserRef);
   }
 
   @Override
@@ -749,6 +779,7 @@ public class OfframpTransactionFailedEvent {
     sb.append("    txHash: ").append(toIndentedString(txHash)).append("\n");
     sb.append("    redirectUrl: ").append(toIndentedString(redirectUrl)).append("\n");
     sb.append("    paymentMethod: ").append(toIndentedString(paymentMethod)).append("\n");
+    sb.append("    partnerUserRef: ").append(toIndentedString(partnerUserRef)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -891,6 +922,11 @@ public class OfframpTransactionFailedEvent {
       joiner.add(String.format("%spaymentMethod%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPaymentMethod()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `partnerUserRef` to the URL query string
+    if (getPartnerUserRef() != null) {
+      joiner.add(String.format("%spartnerUserRef%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPartnerUserRef()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -982,6 +1018,10 @@ public class OfframpTransactionFailedEvent {
       this.instance.paymentMethod = paymentMethod;
       return this;
     }
+    public OfframpTransactionFailedEvent.Builder partnerUserRef(String partnerUserRef) {
+      this.instance.partnerUserRef = partnerUserRef;
+      return this;
+    }
 
 
     /**
@@ -1034,7 +1074,8 @@ public class OfframpTransactionFailedEvent {
       .updatedAt(getUpdatedAt())
       .txHash(getTxHash())
       .redirectUrl(getRedirectUrl())
-      .paymentMethod(getPaymentMethod());
+      .paymentMethod(getPaymentMethod())
+      .partnerUserRef(getPartnerUserRef());
   }
 
 }

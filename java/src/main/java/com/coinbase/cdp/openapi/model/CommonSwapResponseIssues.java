@@ -42,11 +42,11 @@ import com.coinbase.cdp.openapi.ApiClient;
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CommonSwapResponseIssues {
   public static final String JSON_PROPERTY_ALLOWANCE = "allowance";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private CommonSwapResponseIssuesAllowance allowance;
 
   public static final String JSON_PROPERTY_BALANCE = "balance";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private CommonSwapResponseIssuesBalance balance;
 
   public static final String JSON_PROPERTY_SIMULATION_INCOMPLETE = "simulationIncomplete";
@@ -56,7 +56,7 @@ public class CommonSwapResponseIssues {
   public CommonSwapResponseIssues() { 
   }
 
-  public CommonSwapResponseIssues allowance(@jakarta.annotation.Nonnull CommonSwapResponseIssuesAllowance allowance) {
+  public CommonSwapResponseIssues allowance(@jakarta.annotation.Nullable CommonSwapResponseIssuesAllowance allowance) {
     this.allowance = allowance;
     return this;
   }
@@ -65,7 +65,7 @@ public class CommonSwapResponseIssues {
    * Get allowance
    * @return allowance
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_ALLOWANCE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public CommonSwapResponseIssuesAllowance getAllowance() {
@@ -75,12 +75,12 @@ public class CommonSwapResponseIssues {
 
   @JsonProperty(JSON_PROPERTY_ALLOWANCE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAllowance(@jakarta.annotation.Nonnull CommonSwapResponseIssuesAllowance allowance) {
+  public void setAllowance(@jakarta.annotation.Nullable CommonSwapResponseIssuesAllowance allowance) {
     this.allowance = allowance;
   }
 
 
-  public CommonSwapResponseIssues balance(@jakarta.annotation.Nonnull CommonSwapResponseIssuesBalance balance) {
+  public CommonSwapResponseIssues balance(@jakarta.annotation.Nullable CommonSwapResponseIssuesBalance balance) {
     this.balance = balance;
     return this;
   }
@@ -89,7 +89,7 @@ public class CommonSwapResponseIssues {
    * Get balance
    * @return balance
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_BALANCE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public CommonSwapResponseIssuesBalance getBalance() {
@@ -99,7 +99,7 @@ public class CommonSwapResponseIssues {
 
   @JsonProperty(JSON_PROPERTY_BALANCE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setBalance(@jakarta.annotation.Nonnull CommonSwapResponseIssuesBalance balance) {
+  public void setBalance(@jakarta.annotation.Nullable CommonSwapResponseIssuesBalance balance) {
     this.balance = balance;
   }
 

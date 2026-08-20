@@ -19,17 +19,20 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.coinbase.cdp.openapi.model.Network;
+import com.coinbase.cdp.openapi.model.AchDepositSource;
+import com.coinbase.cdp.openapi.model.FedwireDepositSource;
 import com.coinbase.cdp.openapi.model.OnchainAddress;
-import com.coinbase.cdp.openapi.model.OriginatingBankAccountUS;
 import com.coinbase.cdp.openapi.model.PaymentMethod;
+import com.coinbase.cdp.openapi.model.PaymentNetwork;
 import com.coinbase.cdp.openapi.model.TransfersAccount;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -93,6 +96,58 @@ public class TransferSource extends AbstractOpenApiSchema {
             boolean typeCoercion = ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS);
             int match = 0;
             JsonToken token = tree.traverse(jp.getCodec()).nextToken();
+            // deserialize AchDepositSource
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (AchDepositSource.class.equals(Integer.class) || AchDepositSource.class.equals(Long.class) || AchDepositSource.class.equals(Float.class) || AchDepositSource.class.equals(Double.class) || AchDepositSource.class.equals(Boolean.class) || AchDepositSource.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((AchDepositSource.class.equals(Integer.class) || AchDepositSource.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((AchDepositSource.class.equals(Float.class) || AchDepositSource.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (AchDepositSource.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (AchDepositSource.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(AchDepositSource.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'AchDepositSource'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'AchDepositSource'", e);
+            }
+
+            // deserialize FedwireDepositSource
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (FedwireDepositSource.class.equals(Integer.class) || FedwireDepositSource.class.equals(Long.class) || FedwireDepositSource.class.equals(Float.class) || FedwireDepositSource.class.equals(Double.class) || FedwireDepositSource.class.equals(Boolean.class) || FedwireDepositSource.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((FedwireDepositSource.class.equals(Integer.class) || FedwireDepositSource.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((FedwireDepositSource.class.equals(Float.class) || FedwireDepositSource.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (FedwireDepositSource.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (FedwireDepositSource.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(FedwireDepositSource.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'FedwireDepositSource'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'FedwireDepositSource'", e);
+            }
+
             // deserialize OnchainAddress
             try {
                 boolean attemptParsing = true;
@@ -117,32 +172,6 @@ public class TransferSource extends AbstractOpenApiSchema {
             } catch (Exception e) {
                 // deserialization failed, continue
                 log.log(Level.FINER, "Input data does not match schema 'OnchainAddress'", e);
-            }
-
-            // deserialize OriginatingBankAccountUS
-            try {
-                boolean attemptParsing = true;
-                // ensure that we respect type coercion as set on the client ObjectMapper
-                if (OriginatingBankAccountUS.class.equals(Integer.class) || OriginatingBankAccountUS.class.equals(Long.class) || OriginatingBankAccountUS.class.equals(Float.class) || OriginatingBankAccountUS.class.equals(Double.class) || OriginatingBankAccountUS.class.equals(Boolean.class) || OriginatingBankAccountUS.class.equals(String.class)) {
-                    attemptParsing = typeCoercion;
-                    if (!attemptParsing) {
-                        attemptParsing |= ((OriginatingBankAccountUS.class.equals(Integer.class) || OriginatingBankAccountUS.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
-                        attemptParsing |= ((OriginatingBankAccountUS.class.equals(Float.class) || OriginatingBankAccountUS.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
-                        attemptParsing |= (OriginatingBankAccountUS.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
-                        attemptParsing |= (OriginatingBankAccountUS.class.equals(String.class) && token == JsonToken.VALUE_STRING);
-                    }
-                }
-                if (attemptParsing) {
-                    deserialized = tree.traverse(jp.getCodec()).readValueAs(OriginatingBankAccountUS.class);
-                    // TODO: there is no validation against JSON schema constraints
-                    // (min, max, enum, pattern...), this does not perform a strict JSON
-                    // validation, which means the 'match' count may be higher than it should be.
-                    match++;
-                    log.log(Level.FINER, "Input data matches schema 'OriginatingBankAccountUS'");
-                }
-            } catch (Exception e) {
-                // deserialization failed, continue
-                log.log(Level.FINER, "Input data does not match schema 'OriginatingBankAccountUS'", e);
             }
 
             // deserialize PaymentMethod
@@ -221,12 +250,17 @@ public class TransferSource extends AbstractOpenApiSchema {
         super("oneOf", Boolean.FALSE);
     }
 
-    public TransferSource(OnchainAddress o) {
+    public TransferSource(AchDepositSource o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
 
-    public TransferSource(OriginatingBankAccountUS o) {
+    public TransferSource(FedwireDepositSource o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
+    public TransferSource(OnchainAddress o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
@@ -242,8 +276,9 @@ public class TransferSource extends AbstractOpenApiSchema {
     }
 
     static {
+        schemas.put("AchDepositSource", AchDepositSource.class);
+        schemas.put("FedwireDepositSource", FedwireDepositSource.class);
         schemas.put("OnchainAddress", OnchainAddress.class);
-        schemas.put("OriginatingBankAccountUS", OriginatingBankAccountUS.class);
         schemas.put("PaymentMethod", PaymentMethod.class);
         schemas.put("TransfersAccount", TransfersAccount.class);
         JSON.registerDescendants(TransferSource.class, Collections.unmodifiableMap(schemas));
@@ -257,19 +292,24 @@ public class TransferSource extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * OnchainAddress, OriginatingBankAccountUS, PaymentMethod, TransfersAccount
+     * AchDepositSource, FedwireDepositSource, OnchainAddress, PaymentMethod, TransfersAccount
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
      */
     @Override
     public void setActualInstance(Object instance) {
-        if (JSON.isInstanceOf(OnchainAddress.class, instance, new HashSet<Class<?>>())) {
+        if (JSON.isInstanceOf(AchDepositSource.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
 
-        if (JSON.isInstanceOf(OriginatingBankAccountUS.class, instance, new HashSet<Class<?>>())) {
+        if (JSON.isInstanceOf(FedwireDepositSource.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        if (JSON.isInstanceOf(OnchainAddress.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
@@ -284,18 +324,40 @@ public class TransferSource extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be OnchainAddress, OriginatingBankAccountUS, PaymentMethod, TransfersAccount");
+        throw new RuntimeException("Invalid instance type. Must be AchDepositSource, FedwireDepositSource, OnchainAddress, PaymentMethod, TransfersAccount");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * OnchainAddress, OriginatingBankAccountUS, PaymentMethod, TransfersAccount
+     * AchDepositSource, FedwireDepositSource, OnchainAddress, PaymentMethod, TransfersAccount
      *
-     * @return The actual instance (OnchainAddress, OriginatingBankAccountUS, PaymentMethod, TransfersAccount)
+     * @return The actual instance (AchDepositSource, FedwireDepositSource, OnchainAddress, PaymentMethod, TransfersAccount)
      */
     @Override
     public Object getActualInstance() {
         return super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `AchDepositSource`. If the actual instance is not `AchDepositSource`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `AchDepositSource`
+     * @throws ClassCastException if the instance is not `AchDepositSource`
+     */
+    public AchDepositSource getAchDepositSource() throws ClassCastException {
+        return (AchDepositSource)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `FedwireDepositSource`. If the actual instance is not `FedwireDepositSource`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `FedwireDepositSource`
+     * @throws ClassCastException if the instance is not `FedwireDepositSource`
+     */
+    public FedwireDepositSource getFedwireDepositSource() throws ClassCastException {
+        return (FedwireDepositSource)super.getActualInstance();
     }
 
     /**
@@ -307,17 +369,6 @@ public class TransferSource extends AbstractOpenApiSchema {
      */
     public OnchainAddress getOnchainAddress() throws ClassCastException {
         return (OnchainAddress)super.getActualInstance();
-    }
-
-    /**
-     * Get the actual instance of `OriginatingBankAccountUS`. If the actual instance is not `OriginatingBankAccountUS`,
-     * the ClassCastException will be thrown.
-     *
-     * @return The actual instance of `OriginatingBankAccountUS`
-     * @throws ClassCastException if the instance is not `OriginatingBankAccountUS`
-     */
-    public OriginatingBankAccountUS getOriginatingBankAccountUS() throws ClassCastException {
-        return (OriginatingBankAccountUS)super.getActualInstance();
     }
 
     /**
@@ -394,9 +445,15 @@ public class TransferSource extends AbstractOpenApiSchema {
         }
         return joiner.toString();
     }
-    if (getActualInstance() instanceof OriginatingBankAccountUS) {
+    if (getActualInstance() instanceof AchDepositSource) {
         if (getActualInstance() != null) {
-          joiner.add(((OriginatingBankAccountUS)getActualInstance()).toUrlQueryString(prefix + "one_of_3" + suffix));
+          joiner.add(((AchDepositSource)getActualInstance()).toUrlQueryString(prefix + "one_of_3" + suffix));
+        }
+        return joiner.toString();
+    }
+    if (getActualInstance() instanceof FedwireDepositSource) {
+        if (getActualInstance() != null) {
+          joiner.add(((FedwireDepositSource)getActualInstance()).toUrlQueryString(prefix + "one_of_4" + suffix));
         }
         return joiner.toString();
     }

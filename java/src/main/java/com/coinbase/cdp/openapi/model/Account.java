@@ -125,7 +125,7 @@ public class Account {
   }
 
   /**
-   * The Owner ID of the Account. Owner IDs are UUIDs prefixed with the Owner Type as follows: * **Entity**: &#x60;entity_&#x60; - If the Owner is your Entity, e.g. &#x60;entity_af2937b0-9846-4fe7-bfe9-ccc22d935114&#x60;. Support for Customer-owned accounts (&#x60;customer_&#x60; prefix) is in development.
+   * The Owner ID of the Account.  Owner IDs are UUIDs prefixed with the Owner Type as follows:  * **Entity**: &#x60;entity_&#x60; - If the Owner is your Entity, e.g. &#x60;entity_af2937b0-9846-4fe7-bfe9-ccc22d935114&#x60;.  * **Customer**: &#x60;customer_&#x60; - If the Owner is one of your Customers,   e.g. &#x60;customer_af2937b0-9846-4fe7-bfe9-ccc22d935114&#x60;. Customer ownership requires the   Customer to have the &#x60;custodyCrypto&#x60;, &#x60;custodyFiat&#x60;, and &#x60;custodyStablecoin&#x60;   capabilities enabled.
    * @return owner
    */
   @jakarta.annotation.Nonnull

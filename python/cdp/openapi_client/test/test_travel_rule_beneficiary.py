@@ -36,7 +36,6 @@ class TestTravelRuleBeneficiary(unittest.TestCase):
         model = TravelRuleBeneficiary()
         if include_optional:
             return TravelRuleBeneficiary(
-                financial_institution = 'PayPal, Inc.',
                 name = 'John Doe',
                 address = cdp.openapi_client.models.physical_address.PhysicalAddress(
                     line1 = '123 Market St', 
@@ -45,6 +44,7 @@ class TestTravelRuleBeneficiary(unittest.TestCase):
                     state = 'CA', 
                     post_code = '94105', 
                     country_code = 'US', ),
+                financial_institution = 'PayPal, Inc.',
                 wallet_type = 'custodial'
             )
         else:

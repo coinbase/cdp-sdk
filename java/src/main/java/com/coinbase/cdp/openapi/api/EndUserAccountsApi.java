@@ -42,6 +42,8 @@ import com.coinbase.cdp.openapi.model.SignSolanaMessageWithEndUserAccount200Resp
 import com.coinbase.cdp.openapi.model.SignSolanaMessageWithEndUserAccountRequest;
 import com.coinbase.cdp.openapi.model.SignSolanaTransactionWithEndUserAccount200Response;
 import com.coinbase.cdp.openapi.model.SignSolanaTransactionWithEndUserAccountRequest;
+import com.coinbase.cdp.openapi.model.SignSolanaX402PaymentWithEndUserAccount200Response;
+import com.coinbase.cdp.openapi.model.SignSolanaX402PaymentWithEndUserAccountRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -2081,6 +2083,134 @@ public class EndUserAccountsApi {
 
     try {
       byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(signSolanaTransactionWithEndUserAccountRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Sign x402 payment via end user Solana account
+   * Signs an x402 payment payload using the end user&#39;s given Solana account. Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope&#39;s x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted. Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request. If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
+   * @param userId The ID of the end user. (required)
+   * @param signSolanaX402PaymentWithEndUserAccountRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return SignSolanaX402PaymentWithEndUserAccount200Response
+   * @throws ApiException if fails to make API call
+   */
+  public SignSolanaX402PaymentWithEndUserAccount200Response signSolanaX402PaymentWithEndUserAccount(String userId, SignSolanaX402PaymentWithEndUserAccountRequest signSolanaX402PaymentWithEndUserAccountRequest, String xWalletAuth, String xIdempotencyKey, String xDeveloperAuth, String projectID) throws ApiException {
+    ApiResponse<SignSolanaX402PaymentWithEndUserAccount200Response> localVarResponse = signSolanaX402PaymentWithEndUserAccountWithHttpInfo(userId, signSolanaX402PaymentWithEndUserAccountRequest, xWalletAuth, xIdempotencyKey, xDeveloperAuth, projectID);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Sign x402 payment via end user Solana account
+   * Signs an x402 payment payload using the end user&#39;s given Solana account. Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope&#39;s x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted. Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request. If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
+   * @param userId The ID of the end user. (required)
+   * @param signSolanaX402PaymentWithEndUserAccountRequest  (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param xDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param projectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider). (optional)
+   * @return ApiResponse&lt;SignSolanaX402PaymentWithEndUserAccount200Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<SignSolanaX402PaymentWithEndUserAccount200Response> signSolanaX402PaymentWithEndUserAccountWithHttpInfo(String userId, SignSolanaX402PaymentWithEndUserAccountRequest signSolanaX402PaymentWithEndUserAccountRequest, String xWalletAuth, String xIdempotencyKey, String xDeveloperAuth, String projectID) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = signSolanaX402PaymentWithEndUserAccountRequestBuilder(userId, signSolanaX402PaymentWithEndUserAccountRequest, xWalletAuth, xIdempotencyKey, xDeveloperAuth, projectID);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("signSolanaX402PaymentWithEndUserAccount", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<SignSolanaX402PaymentWithEndUserAccount200Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<SignSolanaX402PaymentWithEndUserAccount200Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<SignSolanaX402PaymentWithEndUserAccount200Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder signSolanaX402PaymentWithEndUserAccountRequestBuilder(String userId, SignSolanaX402PaymentWithEndUserAccountRequest signSolanaX402PaymentWithEndUserAccountRequest, String xWalletAuth, String xIdempotencyKey, String xDeveloperAuth, String projectID) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling signSolanaX402PaymentWithEndUserAccount");
+    }
+    // verify the required parameter 'signSolanaX402PaymentWithEndUserAccountRequest' is set
+    if (signSolanaX402PaymentWithEndUserAccountRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'signSolanaX402PaymentWithEndUserAccountRequest' when calling signSolanaX402PaymentWithEndUserAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/embedded-wallet-api/end-users/{userId}/solana/sign/x402-payment"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "projectID";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("projectID", projectID));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    if (xDeveloperAuth != null) {
+      localVarRequestBuilder.header("X-Developer-Auth", xDeveloperAuth.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(signSolanaX402PaymentWithEndUserAccountRequest);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);

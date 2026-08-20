@@ -79,7 +79,7 @@ public class TransfersAccount {
   }
 
   /**
-   * The symbol of the asset (e.g., eth, usd, usdc, usdt).
+   * The asset symbol. Supported values are &#x60;usdc&#x60;, &#x60;eurc&#x60;, &#x60;usd&#x60;, and &#x60;eur&#x60;.
    * @return asset
    */
   @jakarta.annotation.Nonnull

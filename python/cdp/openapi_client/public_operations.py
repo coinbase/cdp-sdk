@@ -13,6 +13,13 @@ class PublicOperation:
 
 
 PUBLIC_OPERATIONS: list[PublicOperation] = [
+    PublicOperation(method="GET", path_pattern=re.compile(r"/v2/coinbase\-accounts/balances$")),
+    PublicOperation(method="POST", path_pattern=re.compile(r"/v2/payment\-sessions/[^/]+/authorizations/coinbase$")),
+    PublicOperation(method="POST", path_pattern=re.compile(r"/v2/payment\-sessions/[^/]+/authorizations/wallet$")),
+    PublicOperation(method="GET", path_pattern=re.compile(r"/v2/payment\-sessions/[^/]+/authorizations/wallet/options$")),
+    PublicOperation(method="POST", path_pattern=re.compile(r"/v2/payment\-sessions/[^/]+/authorizations/x402$")),
+    PublicOperation(method="GET", path_pattern=re.compile(r"/v2/x402/discovery/bundles$")),
+    PublicOperation(method="GET", path_pattern=re.compile(r"/v2/x402/discovery/bundles/[^/]+$")),
     PublicOperation(method="POST", path_pattern=re.compile(r"/v2/x402/discovery/mcp$")),
     PublicOperation(method="GET", path_pattern=re.compile(r"/v2/x402/discovery/merchant$")),
     PublicOperation(method="GET", path_pattern=re.compile(r"/v2/x402/discovery/resources$")),

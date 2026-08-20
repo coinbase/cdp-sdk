@@ -19,7 +19,8 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.onramp_limit_upgrade_option import OnrampLimitUpgradeOption
 from cdp.openapi_client.models.onramp_user_limit import OnrampUserLimit
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,7 +30,8 @@ class GetOnrampUserLimits200Response(BaseModel):
     GetOnrampUserLimits200Response
     """ # noqa: E501
     limits: List[OnrampUserLimit] = Field(description="The list of limits applicable to the user.")
-    __properties: ClassVar[List[str]] = ["limits"]
+    limit_upgrade_options: Optional[List[OnrampLimitUpgradeOption]] = Field(default=None, description="The user's limit upgrade status and associated upgrade details. Omitted when limit upgrades are not available for the calling app or user. Use the [Request Limit Upgrade](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/request-limits-upgrade) endpoint to request a limit upgrade.", alias="limitUpgradeOptions")
+    __properties: ClassVar[List[str]] = ["limits", "limitUpgradeOptions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -77,6 +79,13 @@ class GetOnrampUserLimits200Response(BaseModel):
                 if _item_limits:
                     _items.append(_item_limits.to_dict())
             _dict['limits'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in limit_upgrade_options (list)
+        _items = []
+        if self.limit_upgrade_options:
+            for _item_limit_upgrade_options in self.limit_upgrade_options:
+                if _item_limit_upgrade_options:
+                    _items.append(_item_limit_upgrade_options.to_dict())
+            _dict['limitUpgradeOptions'] = _items
         return _dict
 
     @classmethod
@@ -89,7 +98,8 @@ class GetOnrampUserLimits200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "limits": [OnrampUserLimit.from_dict(_item) for _item in obj["limits"]] if obj.get("limits") is not None else None
+            "limits": [OnrampUserLimit.from_dict(_item) for _item in obj["limits"]] if obj.get("limits") is not None else None,
+            "limitUpgradeOptions": [OnrampLimitUpgradeOption.from_dict(_item) for _item in obj["limitUpgradeOptions"]] if obj.get("limitUpgradeOptions") is not None else None
         })
         return _obj
 

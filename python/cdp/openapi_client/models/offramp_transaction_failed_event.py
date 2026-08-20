@@ -48,7 +48,8 @@ class OfframpTransactionFailedEvent(BaseModel):
     tx_hash: Optional[StrictStr] = Field(default=None, description="The onchain transaction hash of the crypto send.", alias="txHash")
     redirect_url: Optional[StrictStr] = Field(default=None, description="The URL the user was redirected to after confirming the offramp.", alias="redirectUrl")
     payment_method: Optional[StrictStr] = Field(default=None, description="The payment method type used for cashout.", alias="paymentMethod")
-    __properties: ClassVar[List[str]] = ["eventType", "transactionId", "status", "asset", "network", "sellAmount", "total", "minimumTotal", "subtotal", "coinbaseFee", "exchangeRate", "unitPrice", "fromAddress", "toAddress", "createdAt", "updatedAt", "txHash", "redirectUrl", "paymentMethod"]
+    partner_user_ref: Optional[StrictStr] = Field(default=None, description="The partnerUserId provided when initializing the offramp session.", alias="partnerUserRef")
+    __properties: ClassVar[List[str]] = ["eventType", "transactionId", "status", "asset", "network", "sellAmount", "total", "minimumTotal", "subtotal", "coinbaseFee", "exchangeRate", "unitPrice", "fromAddress", "toAddress", "createdAt", "updatedAt", "txHash", "redirectUrl", "paymentMethod", "partnerUserRef"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -157,7 +158,8 @@ class OfframpTransactionFailedEvent(BaseModel):
             "updatedAt": obj.get("updatedAt"),
             "txHash": obj.get("txHash"),
             "redirectUrl": obj.get("redirectUrl"),
-            "paymentMethod": obj.get("paymentMethod")
+            "paymentMethod": obj.get("paymentMethod"),
+            "partnerUserRef": obj.get("partnerUserRef")
         })
         return _obj
 

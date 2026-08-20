@@ -45,7 +45,7 @@ class TestCreateSwapQuoteResponse(unittest.TestCase):
                 min_to_amount = '900000000000000000',
                 from_amount = '1000000000000000000',
                 from_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-                permit2 = cdp.openapi_client.models.create_swap_quote_response_all_of_permit2.CreateSwapQuoteResponse_allOf_permit2(
+                permit2 = cdp.openapi_client.models.swap_permit2_approval.SwapPermit2Approval(
                     hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', 
                     eip712 = {domain={name=Permit2, chainId=1, verifyingContract=0x000000000022D473030F116dDEE9F6B43aC78BA3}, types={EIP712Domain=[{name=name, type=string}, {name=chainId, type=uint256}, {name=verifyingContract, type=address}], PermitTransferFrom=[{name=permitted, type=TokenPermissions}, {name=spender, type=address}, {name=nonce, type=uint256}, {name=deadline, type=uint256}], TokenPermissions=[{name=token, type=address}, {name=amount, type=uint256}]}, primaryType=PermitTransferFrom, message={permitted={token=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, amount=1000000}, spender=0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf, nonce=123456, deadline=1717123200}}, ),
                 transaction = cdp.openapi_client.models.create_swap_quote_response_all_of_transaction.CreateSwapQuoteResponse_allOf_transaction(
@@ -66,7 +66,7 @@ class TestCreateSwapQuoteResponse(unittest.TestCase):
                 min_to_amount = '900000000000000000',
                 from_amount = '1000000000000000000',
                 from_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-                permit2 = cdp.openapi_client.models.create_swap_quote_response_all_of_permit2.CreateSwapQuoteResponse_allOf_permit2(
+                permit2 = cdp.openapi_client.models.swap_permit2_approval.SwapPermit2Approval(
                     hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', 
                     eip712 = {domain={name=Permit2, chainId=1, verifyingContract=0x000000000022D473030F116dDEE9F6B43aC78BA3}, types={EIP712Domain=[{name=name, type=string}, {name=chainId, type=uint256}, {name=verifyingContract, type=address}], PermitTransferFrom=[{name=permitted, type=TokenPermissions}, {name=spender, type=address}, {name=nonce, type=uint256}, {name=deadline, type=uint256}], TokenPermissions=[{name=token, type=address}, {name=amount, type=uint256}]}, primaryType=PermitTransferFrom, message={permitted={token=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, amount=1000000}, spender=0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf, nonce=123456, deadline=1717123200}}, ),
                 transaction = cdp.openapi_client.models.create_swap_quote_response_all_of_transaction.CreateSwapQuoteResponse_allOf_transaction(

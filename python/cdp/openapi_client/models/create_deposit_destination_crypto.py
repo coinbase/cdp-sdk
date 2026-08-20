@@ -20,7 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.network import Network
+from cdp.openapi_client.models.payment_network import PaymentNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class CreateDepositDestinationCrypto(BaseModel):
     """
     Crypto-specific details for creating a deposit destination.
     """ # noqa: E501
-    network: Network
+    network: PaymentNetwork
     __properties: ClassVar[List[str]] = ["network"]
 
     model_config = ConfigDict(

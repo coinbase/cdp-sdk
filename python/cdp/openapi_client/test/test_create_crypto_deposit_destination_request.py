@@ -40,6 +40,7 @@ class TestCreateCryptoDepositDestinationRequest(unittest.TestCase):
                 type = 'crypto',
                 target = None,
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
+                compliance = {requesterIpAddress=203.0.113.42},
                 crypto = {network=base}
             )
         else:

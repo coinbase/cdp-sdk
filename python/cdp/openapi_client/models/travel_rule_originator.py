@@ -30,13 +30,13 @@ class TravelRuleOriginator(BaseModel):
     """
     Originator (sender) party.
     """ # noqa: E501
-    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
     name: Optional[StrictStr] = Field(default=None, description="Full name of the party.")
     address: Optional[PhysicalAddress] = None
+    financial_institution: Optional[StrictStr] = Field(default=None, description="Name of the financial institution.", alias="financialInstitution")
     virtual_asset_service_provider: Optional[TravelRuleOriginatorAllOfVirtualAssetServiceProvider] = Field(default=None, alias="virtualAssetServiceProvider")
     personal_id: Optional[StrictStr] = Field(default=None, description="Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier).", alias="personalId")
     date_of_birth: Optional[DateOfBirth] = Field(default=None, description="Date of birth of the originator. Required by certain jurisdictions (such as Coinbase Luxembourg) to satisfy Travel Rule reporting obligations.", alias="dateOfBirth")
-    __properties: ClassVar[List[str]] = ["financialInstitution", "name", "address", "virtualAssetServiceProvider", "personalId", "dateOfBirth"]
+    __properties: ClassVar[List[str]] = ["name", "address", "financialInstitution", "virtualAssetServiceProvider", "personalId", "dateOfBirth"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -98,9 +98,9 @@ class TravelRuleOriginator(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "financialInstitution": obj.get("financialInstitution"),
             "name": obj.get("name"),
             "address": PhysicalAddress.from_dict(obj["address"]) if obj.get("address") is not None else None,
+            "financialInstitution": obj.get("financialInstitution"),
             "virtualAssetServiceProvider": TravelRuleOriginatorAllOfVirtualAssetServiceProvider.from_dict(obj["virtualAssetServiceProvider"]) if obj.get("virtualAssetServiceProvider") is not None else None,
             "personalId": obj.get("personalId"),
             "dateOfBirth": DateOfBirth.from_dict(obj["dateOfBirth"]) if obj.get("dateOfBirth") is not None else None

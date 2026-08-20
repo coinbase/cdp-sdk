@@ -29,10 +29,12 @@ class DepositTravelRuleRequest(BaseModel):
     """
     Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
     """ # noqa: E501
+    is_self: Optional[StrictBool] = Field(default=None, description="Indicates whether the user attests that the originating wallet belongs to them.", alias="isSelf")
+    is_intermediary: Optional[StrictBool] = Field(default=None, description="Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.  **Background:**  The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.  **Set to `true` when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).  **Set to `false` (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization's own funds.  **Impact on required fields:**  When `isIntermediary` is `true`, you must provide the `originator` object with the following details: - The originator's (i.e. your end customer's) name - The originator's address - Your organization's VASP information (`virtualAssetServiceProvider` object with `identifier`, `name`, and `address`)  In certain jurisdictions, `personalId` and `dateOfBirth` must also reflect the **original sender's** identity — not your organization's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`. ", alias="isIntermediary")
+    attest_verified_wallet_ownership: Optional[StrictBool] = Field(default=None, description="When `true`, you attest that the originating wallet's ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this travel-rule submission.  **Only valid when `isIntermediary` is `true`.** You can only attest to the originating wallet's ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted.", alias="attestVerifiedWalletOwnership")
     originator: Optional[DepositTravelRuleOriginator] = Field(default=None, description="Originator information for the travel rule submission.")
     beneficiary: Optional[DepositTravelRuleBeneficiary] = Field(default=None, description="Beneficiary information for the travel rule submission.")
-    is_self: Optional[StrictBool] = Field(default=None, description="Indicates whether the user attests that the originating wallet belongs to them.", alias="isSelf")
-    __properties: ClassVar[List[str]] = ["originator", "beneficiary", "isSelf"]
+    __properties: ClassVar[List[str]] = ["isSelf", "isIntermediary", "attestVerifiedWalletOwnership", "originator", "beneficiary"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,9 +93,11 @@ class DepositTravelRuleRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "isSelf": obj.get("isSelf"),
+            "isIntermediary": obj.get("isIntermediary"),
+            "attestVerifiedWalletOwnership": obj.get("attestVerifiedWalletOwnership"),
             "originator": DepositTravelRuleOriginator.from_dict(obj["originator"]) if obj.get("originator") is not None else None,
-            "beneficiary": DepositTravelRuleBeneficiary.from_dict(obj["beneficiary"]) if obj.get("beneficiary") is not None else None,
-            "isSelf": obj.get("isSelf")
+            "beneficiary": DepositTravelRuleBeneficiary.from_dict(obj["beneficiary"]) if obj.get("beneficiary") is not None else None
         })
         return _obj
 

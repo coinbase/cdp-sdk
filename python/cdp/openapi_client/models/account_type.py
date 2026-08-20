@@ -21,7 +21,7 @@ from typing_extensions import Self
 
 class AccountType(str, Enum):
     """
-    The type of the Account.
+    The type of the Account.  - `prime`: a linked Coinbase Prime account. - `business`: a linked Coinbase Business account. - `cdp`: a CDP-native account created via this API. Used for accounts created on   behalf of an Entity and for Customer-owned accounts.
     """
 
     """

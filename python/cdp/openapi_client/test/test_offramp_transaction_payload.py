@@ -54,7 +54,8 @@ class TestOfframpTransactionPayload(unittest.TestCase):
                 updated_at = '2025-09-02T02:40:00Z',
                 tx_hash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
                 redirect_url = 'https://partner.com/offramp/complete',
-                payment_method = 'ACH_BANK_ACCOUNT'
+                payment_method = 'ACH_BANK_ACCOUNT',
+                partner_user_ref = 'example_user_ref'
             )
         else:
             return OfframpTransactionPayload(

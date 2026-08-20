@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.compliance import Compliance
 from cdp.openapi_client.models.create_deposit_destination_crypto import CreateDepositDestinationCrypto
 from cdp.openapi_client.models.deposit_destination_target import DepositDestinationTarget
 from typing import Optional, Set
@@ -34,8 +35,9 @@ class CreateCryptoDepositDestinationRequest(BaseModel):
     type: StrictStr
     target: Optional[DepositDestinationTarget] = None
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
+    compliance: Optional[Compliance] = None
     crypto: CreateDepositDestinationCrypto = Field(description="Crypto-specific details. Required when `type` is `crypto`.")
-    __properties: ClassVar[List[str]] = ["accountId", "type", "target", "metadata", "crypto"]
+    __properties: ClassVar[List[str]] = ["accountId", "type", "target", "metadata", "compliance", "crypto"]
 
     @field_validator('account_id')
     def account_id_validate_regular_expression(cls, value):
@@ -93,6 +95,9 @@ class CreateCryptoDepositDestinationRequest(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of target
         if self.target:
             _dict['target'] = self.target.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of compliance
+        if self.compliance:
+            _dict['compliance'] = self.compliance.to_dict()
         # override the default output from pydantic by calling `to_dict()` of crypto
         if self.crypto:
             _dict['crypto'] = self.crypto.to_dict()
@@ -112,6 +117,7 @@ class CreateCryptoDepositDestinationRequest(BaseModel):
             "type": obj.get("type"),
             "target": DepositDestinationTarget.from_dict(obj["target"]) if obj.get("target") is not None else None,
             "metadata": obj.get("metadata"),
+            "compliance": Compliance.from_dict(obj["compliance"]) if obj.get("compliance") is not None else None,
             "crypto": CreateDepositDestinationCrypto.from_dict(obj["crypto"]) if obj.get("crypto") is not None else None
         })
         return _obj

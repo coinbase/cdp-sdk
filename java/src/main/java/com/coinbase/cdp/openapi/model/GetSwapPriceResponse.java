@@ -119,7 +119,7 @@ public class GetSwapPriceResponse {
   private String fromToken;
 
   public static final String JSON_PROPERTY_GAS = "gas";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String gas;
 
   public static final String JSON_PROPERTY_GAS_PRICE = "gasPrice";
@@ -345,16 +345,16 @@ public class GetSwapPriceResponse {
   }
 
 
-  public GetSwapPriceResponse gas(@jakarta.annotation.Nonnull String gas) {
+  public GetSwapPriceResponse gas(@jakarta.annotation.Nullable String gas) {
     this.gas = gas;
     return this;
   }
 
   /**
-   * The estimated gas limit that should be used to send the transaction to guarantee settlement.
+   * Get gas
    * @return gas
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_GAS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getGas() {
@@ -364,7 +364,7 @@ public class GetSwapPriceResponse {
 
   @JsonProperty(JSON_PROPERTY_GAS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setGas(@jakarta.annotation.Nonnull String gas) {
+  public void setGas(@jakarta.annotation.Nullable String gas) {
     this.gas = gas;
   }
 

@@ -60,6 +60,7 @@ Providing `accountId` together with `sourceAccountId` or `targetAccountId` is a 
 **Asset Filtering**: Filter by source or target asset symbol:
 * `?sourceAsset=usd` - Transfers funded from a USD account.
 * `?targetAsset=usdc` - Transfers delivering USDC to the target.
+Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.
 
 **Other Filters**:
 * `?sourceAddress=0x...` - Transfers from a specific on-chain source address.

@@ -43,8 +43,9 @@ class TestDepositDestination(unittest.TestCase):
                 target = None,
                 status = 'active',
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
-                created_at = '2023-10-08T14:30:00Z',
-                updated_at = '2023-10-08T14:30:00Z'
+                created_at = '2025-06-01T00:00:00Z',
+                updated_at = '2025-06-01T00:00:00Z',
+                fiat = None
             )
         else:
             return DepositDestination(
@@ -53,8 +54,9 @@ class TestDepositDestination(unittest.TestCase):
                 type = 'crypto',
                 crypto = {network=base, address=0x742d35Cc6634C0532925a3b844Bc454e4438f44e},
                 status = 'active',
-                created_at = '2023-10-08T14:30:00Z',
-                updated_at = '2023-10-08T14:30:00Z',
+                created_at = '2025-06-01T00:00:00Z',
+                updated_at = '2025-06-01T00:00:00Z',
+                fiat = None,
         )
         """
 

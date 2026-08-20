@@ -49,15 +49,25 @@ const (
 
 // Defines values for AccountType.
 const (
-	Business AccountType = "business"
-	Cdp      AccountType = "cdp"
-	Prime    AccountType = "prime"
+	AccountTypeBusiness AccountType = "business"
+	AccountTypeCdp      AccountType = "cdp"
+	AccountTypePrime    AccountType = "prime"
 )
 
 // Defines values for AssetType.
 const (
 	AssetTypeCrypto AssetType = "crypto"
 	AssetTypeFiat   AssetType = "fiat"
+)
+
+// Defines values for BankAccountUSAccountType.
+const (
+	UsBank BankAccountUSAccountType = "us_bank"
+)
+
+// Defines values for BankAccountUSCurrency.
+const (
+	BankAccountUSCurrencyUsd BankAccountUSCurrency = "usd"
 )
 
 // Defines values for CapabilityName.
@@ -72,6 +82,14 @@ const (
 	TransferStablecoin CapabilityName = "transferStablecoin"
 )
 
+// Defines values for CapabilityStatus.
+const (
+	CapabilityStatusActive      CapabilityStatus = "active"
+	CapabilityStatusInactive    CapabilityStatus = "inactive"
+	CapabilityStatusPending     CapabilityStatus = "pending"
+	CapabilityStatusUnrequested CapabilityStatus = "unrequested"
+)
+
 // Defines values for CommonSwapResponseLiquidityAvailable.
 const (
 	CommonSwapResponseLiquidityAvailableTrue CommonSwapResponseLiquidityAvailable = true
@@ -80,6 +98,11 @@ const (
 // Defines values for CreateCryptoDepositDestinationRequestType.
 const (
 	CreateCryptoDepositDestinationRequestTypeCrypto CreateCryptoDepositDestinationRequestType = "crypto"
+)
+
+// Defines values for CreateDepositDestinationFiatCurrency.
+const (
+	CreateDepositDestinationFiatCurrencyUsd CreateDepositDestinationFiatCurrency = "usd"
 )
 
 // Defines values for CreateEndUserEvmSwapRuleAction.
@@ -93,6 +116,11 @@ const (
 	CreateEndUserEvmSwap CreateEndUserEvmSwapRuleOperation = "createEndUserEvmSwap"
 )
 
+// Defines values for CreateFiatDepositDestinationRequestType.
+const (
+	CreateFiatDepositDestinationRequestTypeFiat CreateFiatDepositDestinationRequestType = "fiat"
+)
+
 // Defines values for CreateSwapQuoteResponseLiquidityAvailable.
 const (
 	CreateSwapQuoteResponseLiquidityAvailableTrue CreateSwapQuoteResponseLiquidityAvailable = true
@@ -101,6 +129,17 @@ const (
 // Defines values for CryptoDepositDestinationType.
 const (
 	Crypto CryptoDepositDestinationType = "crypto"
+)
+
+// Defines values for CustomerType.
+const (
+	CustomerTypeIndividual CustomerType = "individual"
+)
+
+// Defines values for DepositDestinationPaymentRail.
+const (
+	DepositDestinationPaymentRailAch     DepositDestinationPaymentRail = "ach"
+	DepositDestinationPaymentRailFedwire DepositDestinationPaymentRail = "fedwire"
 )
 
 // Defines values for DepositDestinationStatus.
@@ -121,9 +160,19 @@ const (
 	Jwt DeveloperJWTAuthenticationType = "jwt"
 )
 
+// Defines values for EIP3009PayloadType.
+const (
+	Eip3009 EIP3009PayloadType = "eip3009"
+)
+
 // Defines values for EmailAuthenticationType.
 const (
 	EmailAuthenticationTypeEmail EmailAuthenticationType = "email"
+)
+
+// Defines values for Erc20ApprovalPayloadType.
+const (
+	Erc20Approval Erc20ApprovalPayloadType = "erc20_approval"
 )
 
 // Defines values for ErrorType.
@@ -238,29 +287,55 @@ const (
 
 // Defines values for EventType.
 const (
-	OfframpTransactionCreated  EventType = "offramp.transaction.created"
-	OfframpTransactionFailed   EventType = "offramp.transaction.failed"
-	OfframpTransactionSuccess  EventType = "offramp.transaction.success"
-	OfframpTransactionUpdated  EventType = "offramp.transaction.updated"
-	OnchainActivityDetected    EventType = "onchain.activity.detected"
-	OnrampTransactionCreated   EventType = "onramp.transaction.created"
-	OnrampTransactionFailed    EventType = "onramp.transaction.failed"
-	OnrampTransactionSuccess   EventType = "onramp.transaction.success"
-	OnrampTransactionUpdated   EventType = "onramp.transaction.updated"
-	WalletActivityDetected     EventType = "wallet.activity.detected"
-	WalletActivityMulti        EventType = "wallet.activity.multi"
-	WalletDelegationCreated    EventType = "wallet.delegation.created"
-	WalletDelegationRevoked    EventType = "wallet.delegation.revoked"
-	WalletHashSigned           EventType = "wallet.hash.signed"
-	WalletMessageSigned        EventType = "wallet.message.signed"
-	WalletTransactionBroadcast EventType = "wallet.transaction.broadcast"
-	WalletTransactionConfirmed EventType = "wallet.transaction.confirmed"
-	WalletTransactionCreated   EventType = "wallet.transaction.created"
-	WalletTransactionFailed    EventType = "wallet.transaction.failed"
-	WalletTransactionPending   EventType = "wallet.transaction.pending"
-	WalletTransactionReplaced  EventType = "wallet.transaction.replaced"
-	WalletTransactionSigned    EventType = "wallet.transaction.signed"
-	WalletTypedDataSigned      EventType = "wallet.typed_data.signed"
+	AcceptanceDisbursementFailed                   EventType = "acceptance.disbursement.failed"
+	AcceptanceDisbursementPending                  EventType = "acceptance.disbursement.pending"
+	AcceptanceDisbursementSucceeded                EventType = "acceptance.disbursement.succeeded"
+	AcceptancePaymentSessionAuthorizationFailed    EventType = "acceptance.payment_session.authorization_failed"
+	AcceptancePaymentSessionAuthorizationPending   EventType = "acceptance.payment_session.authorization_pending"
+	AcceptancePaymentSessionAuthorizationSucceeded EventType = "acceptance.payment_session.authorization_succeeded"
+	AcceptancePaymentSessionCanceled               EventType = "acceptance.payment_session.canceled"
+	AcceptancePaymentSessionCaptureFailed          EventType = "acceptance.payment_session.capture_failed"
+	AcceptancePaymentSessionCapturePending         EventType = "acceptance.payment_session.capture_pending"
+	AcceptancePaymentSessionCaptureSucceeded       EventType = "acceptance.payment_session.capture_succeeded"
+	AcceptancePaymentSessionCreated                EventType = "acceptance.payment_session.created"
+	AcceptancePaymentSessionRefundFailed           EventType = "acceptance.payment_session.refund_failed"
+	AcceptancePaymentSessionRefundPending          EventType = "acceptance.payment_session.refund_pending"
+	AcceptancePaymentSessionRefundSucceeded        EventType = "acceptance.payment_session.refund_succeeded"
+	AcceptancePaymentSessionVoidFailed             EventType = "acceptance.payment_session.void_failed"
+	AcceptancePaymentSessionVoidPending            EventType = "acceptance.payment_session.void_pending"
+	AcceptancePaymentSessionVoidSucceeded          EventType = "acceptance.payment_session.void_succeeded"
+	CustomersCapabilityChanged                     EventType = "customers.capability.changed"
+	CustomersCustomerDeleted                       EventType = "customers.customer.deleted"
+	OfframpTransactionCreated                      EventType = "offramp.transaction.created"
+	OfframpTransactionFailed                       EventType = "offramp.transaction.failed"
+	OfframpTransactionSuccess                      EventType = "offramp.transaction.success"
+	OfframpTransactionUpdated                      EventType = "offramp.transaction.updated"
+	OnchainActivityDetected                        EventType = "onchain.activity.detected"
+	OnrampTransactionCreated                       EventType = "onramp.transaction.created"
+	OnrampTransactionFailed                        EventType = "onramp.transaction.failed"
+	OnrampTransactionSuccess                       EventType = "onramp.transaction.success"
+	OnrampTransactionUpdated                       EventType = "onramp.transaction.updated"
+	PaymentsTransfersCompleted                     EventType = "payments.transfers.completed"
+	PaymentsTransfersExpired                       EventType = "payments.transfers.expired"
+	PaymentsTransfersFailed                        EventType = "payments.transfers.failed"
+	PaymentsTransfersProcessing                    EventType = "payments.transfers.processing"
+	PaymentsTransfersQuoted                        EventType = "payments.transfers.quoted"
+	PaymentsTransfersTravelRuleCompleted           EventType = "payments.transfers.travel_rule_completed"
+	PaymentsTransfersTravelRuleIncomplete          EventType = "payments.transfers.travel_rule_incomplete"
+	WalletActivityDetected                         EventType = "wallet.activity.detected"
+	WalletActivityMulti                            EventType = "wallet.activity.multi"
+	WalletDelegationCreated                        EventType = "wallet.delegation.created"
+	WalletDelegationRevoked                        EventType = "wallet.delegation.revoked"
+	WalletHashSigned                               EventType = "wallet.hash.signed"
+	WalletMessageSigned                            EventType = "wallet.message.signed"
+	WalletTransactionBroadcast                     EventType = "wallet.transaction.broadcast"
+	WalletTransactionConfirmed                     EventType = "wallet.transaction.confirmed"
+	WalletTransactionCreated                       EventType = "wallet.transaction.created"
+	WalletTransactionFailed                        EventType = "wallet.transaction.failed"
+	WalletTransactionPending                       EventType = "wallet.transaction.pending"
+	WalletTransactionReplaced                      EventType = "wallet.transaction.replaced"
+	WalletTransactionSigned                        EventType = "wallet.transaction.signed"
+	WalletTypedDataSigned                          EventType = "wallet.typed_data.signed"
 )
 
 // Defines values for EvmAddressCriterionOperator.
@@ -397,12 +472,140 @@ const (
 
 // Defines values for FedwirePaymentMethodPaymentRail.
 const (
-	Fedwire FedwirePaymentMethodPaymentRail = "fedwire"
+	FedwirePaymentMethodPaymentRailFedwire FedwirePaymentMethodPaymentRail = "fedwire"
+)
+
+// Defines values for FiatDepositDestinationType.
+const (
+	FiatDepositDestinationTypeFiat FiatDepositDestinationType = "fiat"
 )
 
 // Defines values for GetSwapPriceResponseLiquidityAvailable.
 const (
 	True GetSwapPriceResponseLiquidityAvailable = true
+)
+
+// Defines values for IndividualInputEmploymentStatus.
+const (
+	CryptoMiner                         IndividualInputEmploymentStatus = "crypto_miner"
+	Dependent                           IndividualInputEmploymentStatus = "dependent"
+	EmployedCompanyOfficerOrBoardMember IndividualInputEmploymentStatus = "employed_company_officer_or_board_member"
+	EmployedCryptoRelatedBusiness       IndividualInputEmploymentStatus = "employed_crypto_related_business"
+	EmployedFulltime                    IndividualInputEmploymentStatus = "employed_fulltime"
+	EmployedGovernmentOfficial          IndividualInputEmploymentStatus = "employed_government_official"
+	EmployedParttime                    IndividualInputEmploymentStatus = "employed_parttime"
+	Homemaker                           IndividualInputEmploymentStatus = "homemaker"
+	PersonalTraderOrAngelInvestor       IndividualInputEmploymentStatus = "personal_trader_or_angel_investor"
+	Retired                             IndividualInputEmploymentStatus = "retired"
+	SelfEmployed                        IndividualInputEmploymentStatus = "self_employed"
+	Student                             IndividualInputEmploymentStatus = "student"
+	Unemployed                          IndividualInputEmploymentStatus = "unemployed"
+)
+
+// Defines values for IndividualInputExpectedVolume.
+const (
+	N100kTo250k IndividualInputExpectedVolume = "100k_to_250k"
+	N10kTo100k  IndividualInputExpectedVolume = "10k_to_100k"
+	N15mPlus    IndividualInputExpectedVolume = "1_5m_plus"
+	N1kTo10k    IndividualInputExpectedVolume = "1k_to_10k"
+	N250kTo750k IndividualInputExpectedVolume = "250k_to_750k"
+	N750kTo15m  IndividualInputExpectedVolume = "750k_to_1_5m"
+	Under1k     IndividualInputExpectedVolume = "under_1k"
+)
+
+// Defines values for IndividualInputOccupation.
+const (
+	IndividualInputOccupationAgriculture                                      IndividualInputOccupation = "agriculture"
+	IndividualInputOccupationAllOtherIndustriesAndServices                    IndividualInputOccupation = "all_other_industries_and_services"
+	IndividualInputOccupationArtsAndMedia                                     IndividualInputOccupation = "arts_and_media"
+	IndividualInputOccupationCasinosAndGaming                                 IndividualInputOccupation = "casinos_and_gaming"
+	IndividualInputOccupationConstruction                                     IndividualInputOccupation = "construction"
+	IndividualInputOccupationCryptocurrency                                   IndividualInputOccupation = "cryptocurrency"
+	IndividualInputOccupationDefense                                          IndividualInputOccupation = "defense"
+	IndividualInputOccupationDependentStudentUnemployed                       IndividualInputOccupation = "dependent_student_unemployed"
+	IndividualInputOccupationEducation                                        IndividualInputOccupation = "education"
+	IndividualInputOccupationEnergyOilAndGas                                  IndividualInputOccupation = "energy_oil_and_gas"
+	IndividualInputOccupationEnergyOther                                      IndividualInputOccupation = "energy_other"
+	IndividualInputOccupationEntertainment                                    IndividualInputOccupation = "entertainment"
+	IndividualInputOccupationFinance                                          IndividualInputOccupation = "finance"
+	IndividualInputOccupationFinancialServicesNonCrypto                       IndividualInputOccupation = "financial_services_non_crypto"
+	IndividualInputOccupationFintechNonCryptoInternetOnlyFinancialInstitution IndividualInputOccupation = "fintech_non_crypto_internet_only_financial_institution"
+	IndividualInputOccupationFintechNonCryptoOther                            IndividualInputOccupation = "fintech_non_crypto_other"
+	IndividualInputOccupationFintechNonCryptoSoftwareDevelopment              IndividualInputOccupation = "fintech_non_crypto_software_development"
+	IndividualInputOccupationFoodAndHospitality                               IndividualInputOccupation = "food_and_hospitality"
+	IndividualInputOccupationGovernment                                       IndividualInputOccupation = "government"
+	IndividualInputOccupationHealthAndFitness                                 IndividualInputOccupation = "health_and_fitness"
+	IndividualInputOccupationHealthcare                                       IndividualInputOccupation = "healthcare"
+	IndividualInputOccupationHealthcareOther                                  IndividualInputOccupation = "healthcare_other"
+	IndividualInputOccupationHealthcarePharmaceuticals                        IndividualInputOccupation = "healthcare_pharmaceuticals"
+	IndividualInputOccupationMining                                           IndividualInputOccupation = "mining"
+	IndividualInputOccupationMiningCrypto                                     IndividualInputOccupation = "mining_crypto"
+	IndividualInputOccupationNonProfitAndCharity                              IndividualInputOccupation = "non_profit_and_charity"
+	IndividualInputOccupationOther                                            IndividualInputOccupation = "other"
+	IndividualInputOccupationPharmaIndustry                                   IndividualInputOccupation = "pharma_industry"
+	IndividualInputOccupationPolitics                                         IndividualInputOccupation = "politics"
+	IndividualInputOccupationProfessionalServices                             IndividualInputOccupation = "professional_services"
+	IndividualInputOccupationPropertyAndConstructionBuildingWork              IndividualInputOccupation = "property_and_construction_building_work"
+	IndividualInputOccupationPropertyAndConstructionCommercialAndManagement   IndividualInputOccupation = "property_and_construction_commercial_and_management"
+	IndividualInputOccupationPropertyAndConstructionDesign                    IndividualInputOccupation = "property_and_construction_design"
+	IndividualInputOccupationRealEstate                                       IndividualInputOccupation = "real_estate"
+	IndividualInputOccupationRetailFashion                                    IndividualInputOccupation = "retail_fashion"
+	IndividualInputOccupationRetailFoodAndBeverage                            IndividualInputOccupation = "retail_food_and_beverage"
+	IndividualInputOccupationRetailJewelryAndAntiques                         IndividualInputOccupation = "retail_jewelry_and_antiques"
+	IndividualInputOccupationRetailOther                                      IndividualInputOccupation = "retail_other"
+	IndividualInputOccupationRetailPharmacy                                   IndividualInputOccupation = "retail_pharmacy"
+	IndividualInputOccupationTechnology                                       IndividualInputOccupation = "technology"
+	IndividualInputOccupationTechnologyAndIt                                  IndividualInputOccupation = "technology_and_it"
+	IndividualInputOccupationTransportation                                   IndividualInputOccupation = "transportation"
+)
+
+// Defines values for IndividualInputPurposeOfAccount.
+const (
+	IndividualInputPurposeOfAccountArbitrageTrading          IndividualInputPurposeOfAccount = "arbitrage_trading"
+	IndividualInputPurposeOfAccountBusiness                  IndividualInputPurposeOfAccount = "business"
+	IndividualInputPurposeOfAccountDayTrading                IndividualInputPurposeOfAccount = "day_trading"
+	IndividualInputPurposeOfAccountInvesting                 IndividualInputPurposeOfAccount = "investing"
+	IndividualInputPurposeOfAccountInvestingOnOtherExchanges IndividualInputPurposeOfAccount = "investing_on_other_exchanges"
+	IndividualInputPurposeOfAccountLongTermInvestment        IndividualInputPurposeOfAccount = "long_term_investment"
+	IndividualInputPurposeOfAccountOnlinePayments            IndividualInputPurposeOfAccount = "online_payments"
+	IndividualInputPurposeOfAccountOnlinePurchases           IndividualInputPurposeOfAccount = "online_purchases"
+	IndividualInputPurposeOfAccountOther                     IndividualInputPurposeOfAccount = "other"
+	IndividualInputPurposeOfAccountPaymentsOrGifts           IndividualInputPurposeOfAccount = "payments_or_gifts"
+	IndividualInputPurposeOfAccountPaymentsToFriends         IndividualInputPurposeOfAccount = "payments_to_friends"
+	IndividualInputPurposeOfAccountShortTermInvestment       IndividualInputPurposeOfAccount = "short_term_investment"
+	IndividualInputPurposeOfAccountTrading                   IndividualInputPurposeOfAccount = "trading"
+	IndividualInputPurposeOfAccountTradingOnCoinbase         IndividualInputPurposeOfAccount = "trading_on_coinbase"
+	IndividualInputPurposeOfAccountTradingOnOtherExchanges   IndividualInputPurposeOfAccount = "trading_on_other_exchanges"
+	IndividualInputPurposeOfAccountTransferCrypto            IndividualInputPurposeOfAccount = "transfer_crypto"
+)
+
+// Defines values for IndividualInputSourceOfFunds.
+const (
+	IndividualInputSourceOfFundsBusinessEarnings               IndividualInputSourceOfFunds = "business_earnings"
+	IndividualInputSourceOfFundsCreditOrLoan                   IndividualInputSourceOfFunds = "credit_or_loan"
+	IndividualInputSourceOfFundsCryptoAssets                   IndividualInputSourceOfFunds = "crypto_assets"
+	IndividualInputSourceOfFundsCryptoMining                   IndividualInputSourceOfFunds = "crypto_mining"
+	IndividualInputSourceOfFundsEmploymentBusinessIncome       IndividualInputSourceOfFunds = "employment_business_income"
+	IndividualInputSourceOfFundsFamilyOrThirdParty             IndividualInputSourceOfFunds = "family_or_third_party"
+	IndividualInputSourceOfFundsGovernmentBenefitsOrCredits    IndividualInputSourceOfFunds = "government_benefits_or_credits"
+	IndividualInputSourceOfFundsInheritance                    IndividualInputSourceOfFunds = "inheritance"
+	IndividualInputSourceOfFundsInvestments                    IndividualInputSourceOfFunds = "investments"
+	IndividualInputSourceOfFundsLegalSettlement                IndividualInputSourceOfFunds = "legal_settlement"
+	IndividualInputSourceOfFundsLotteryOrGambling              IndividualInputSourceOfFunds = "lottery_or_gambling"
+	IndividualInputSourceOfFundsOther                          IndividualInputSourceOfFunds = "other"
+	IndividualInputSourceOfFundsPension                        IndividualInputSourceOfFunds = "pension"
+	IndividualInputSourceOfFundsSalary                         IndividualInputSourceOfFunds = "salary"
+	IndividualInputSourceOfFundsSaleOfAssets                   IndividualInputSourceOfFunds = "sale_of_assets"
+	IndividualInputSourceOfFundsSaleOfCompanySharesOrDividends IndividualInputSourceOfFunds = "sale_of_company_shares_or_dividends"
+	IndividualInputSourceOfFundsSaleOfOtherAssets              IndividualInputSourceOfFunds = "sale_of_other_assets"
+	IndividualInputSourceOfFundsSaleOfProperty                 IndividualInputSourceOfFunds = "sale_of_property"
+	IndividualInputSourceOfFundsSavings                        IndividualInputSourceOfFunds = "savings"
+)
+
+// Defines values for IneligibleWalletAuthorizationAddressCode.
+const (
+	IneligibleWalletAuthorizationAddressCodeInsufficientFunds           IneligibleWalletAuthorizationAddressCode = "insufficient_funds"
+	IneligibleWalletAuthorizationAddressCodeSupersededByPreferredOption IneligibleWalletAuthorizationAddressCode = "superseded_by_preferred_option"
 )
 
 // Defines values for InitiateOnrampVerificationRequestChannel.
@@ -516,6 +719,27 @@ const (
 	WeeklySpending       OnrampLimitType = "weekly_spending"
 )
 
+// Defines values for OnrampLimitUpgradeIdentityFieldKey.
+const (
+	OnrampLimitUpgradeIdentityFieldKeyDateOfBirth OnrampLimitUpgradeIdentityFieldKey = "dateOfBirth"
+	OnrampLimitUpgradeIdentityFieldKeySsnLast4    OnrampLimitUpgradeIdentityFieldKey = "ssnLast4"
+)
+
+// Defines values for OnrampLimitUpgradeInteractionMode.
+const (
+	OnrampLimitUpgradeInteractionModeAPI      OnrampLimitUpgradeInteractionMode = "api"
+	OnrampLimitUpgradeInteractionModeEmbedded OnrampLimitUpgradeInteractionMode = "embedded"
+)
+
+// Defines values for OnrampLimitUpgradeStatus.
+const (
+	OnrampLimitUpgradeStatusActive      OnrampLimitUpgradeStatus = "active"
+	OnrampLimitUpgradeStatusInactive    OnrampLimitUpgradeStatus = "inactive"
+	OnrampLimitUpgradeStatusPending     OnrampLimitUpgradeStatus = "pending"
+	OnrampLimitUpgradeStatusResubmit    OnrampLimitUpgradeStatus = "resubmit"
+	OnrampLimitUpgradeStatusUnrequested OnrampLimitUpgradeStatus = "unrequested"
+)
+
 // Defines values for OnrampOrderFeeType.
 const (
 	FEETYPEEXCHANGE OnrampOrderFeeType = "FEE_TYPE_EXCHANGE"
@@ -530,16 +754,19 @@ const (
 
 // Defines values for OnrampOrderStatus.
 const (
-	ONRAMPORDERSTATUSCOMPLETED      OnrampOrderStatus = "ONRAMP_ORDER_STATUS_COMPLETED"
-	ONRAMPORDERSTATUSFAILED         OnrampOrderStatus = "ONRAMP_ORDER_STATUS_FAILED"
-	ONRAMPORDERSTATUSPENDINGAUTH    OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_AUTH"
-	ONRAMPORDERSTATUSPENDINGPAYMENT OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_PAYMENT"
-	ONRAMPORDERSTATUSPROCESSING     OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PROCESSING"
+	ONRAMPORDERSTATUSCOMPLETED           OnrampOrderStatus = "ONRAMP_ORDER_STATUS_COMPLETED"
+	ONRAMPORDERSTATUSFAILED              OnrampOrderStatus = "ONRAMP_ORDER_STATUS_FAILED"
+	ONRAMPORDERSTATUSPENDINGAUTH         OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_AUTH"
+	ONRAMPORDERSTATUSPENDINGPAYMENT      OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_PAYMENT"
+	ONRAMPORDERSTATUSPENDINGVERIFICATION OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_VERIFICATION"
+	ONRAMPORDERSTATUSPROCESSING          OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PROCESSING"
 )
 
 // Defines values for OnrampPaymentLinkType.
 const (
-	PAYMENTLINKTYPEAPPLEPAYBUTTON OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON"
+	PAYMENTLINKTYPEAPPLEPAYBUTTON  OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON"
+	PAYMENTLINKTYPEEMBEDDEDORDER   OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_EMBEDDED_ORDER"
+	PAYMENTLINKTYPEGOOGLEPAYBUTTON OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_GOOGLE_PAY_BUTTON"
 )
 
 // Defines values for OnrampQuotePaymentMethodTypeId.
@@ -555,6 +782,68 @@ const (
 // Defines values for OnrampUserIdType.
 const (
 	OnrampUserIdTypePhoneNumber OnrampUserIdType = "phone_number"
+)
+
+// Defines values for PaymentActionStatus.
+const (
+	PaymentActionStatusFailed    PaymentActionStatus = "failed"
+	PaymentActionStatusPending   PaymentActionStatus = "pending"
+	PaymentActionStatusSucceeded PaymentActionStatus = "succeeded"
+)
+
+// Defines values for PaymentNetwork.
+const (
+	PaymentNetworkArbitrum  PaymentNetwork = "arbitrum"
+	PaymentNetworkAvacchain PaymentNetwork = "avacchain"
+	PaymentNetworkBase      PaymentNetwork = "base"
+	PaymentNetworkEthereum  PaymentNetwork = "ethereum"
+	PaymentNetworkMonad     PaymentNetwork = "monad"
+	PaymentNetworkOptimism  PaymentNetwork = "optimism"
+	PaymentNetworkSolana    PaymentNetwork = "solana"
+	PaymentNetworkSui       PaymentNetwork = "sui"
+)
+
+// Defines values for PaymentSessionStatus.
+const (
+	PaymentSessionStatusAuthorizationFailed    PaymentSessionStatus = "authorization_failed"
+	PaymentSessionStatusAuthorizationPending   PaymentSessionStatus = "authorization_pending"
+	PaymentSessionStatusAuthorizationSucceeded PaymentSessionStatus = "authorization_succeeded"
+	PaymentSessionStatusCanceled               PaymentSessionStatus = "canceled"
+	PaymentSessionStatusCaptureFailed          PaymentSessionStatus = "capture_failed"
+	PaymentSessionStatusCapturePending         PaymentSessionStatus = "capture_pending"
+	PaymentSessionStatusCaptureSucceeded       PaymentSessionStatus = "capture_succeeded"
+	PaymentSessionStatusCreated                PaymentSessionStatus = "created"
+	PaymentSessionStatusRefundFailed           PaymentSessionStatus = "refund_failed"
+	PaymentSessionStatusRefundPending          PaymentSessionStatus = "refund_pending"
+	PaymentSessionStatusRefundSucceeded        PaymentSessionStatus = "refund_succeeded"
+	PaymentSessionStatusVoidFailed             PaymentSessionStatus = "void_failed"
+	PaymentSessionStatusVoidPending            PaymentSessionStatus = "void_pending"
+	PaymentSessionStatusVoidSucceeded          PaymentSessionStatus = "void_succeeded"
+)
+
+// Defines values for PaymentSourceNetwork.
+const (
+	PaymentSourceNetworkArbitrum        PaymentSourceNetwork = "arbitrum"
+	PaymentSourceNetworkArbitrumSepolia PaymentSourceNetwork = "arbitrum-sepolia"
+	PaymentSourceNetworkBase            PaymentSourceNetwork = "base"
+	PaymentSourceNetworkBaseSepolia     PaymentSourceNetwork = "base-sepolia"
+	PaymentSourceNetworkEthereum        PaymentSourceNetwork = "ethereum"
+	PaymentSourceNetworkEthereumSepolia PaymentSourceNetwork = "ethereum-sepolia"
+	PaymentSourceNetworkOptimism        PaymentSourceNetwork = "optimism"
+	PaymentSourceNetworkOptimismSepolia PaymentSourceNetwork = "optimism-sepolia"
+	PaymentSourceNetworkPolygon         PaymentSourceNetwork = "polygon"
+	PaymentSourceNetworkPolygonAmoy     PaymentSourceNetwork = "polygon-amoy"
+)
+
+// Defines values for PaymentTargetNetwork.
+const (
+	PaymentTargetNetworkBase        PaymentTargetNetwork = "base"
+	PaymentTargetNetworkBaseSepolia PaymentTargetNetwork = "base-sepolia"
+)
+
+// Defines values for Permit2PayloadType.
+const (
+	Permit2 Permit2PayloadType = "permit2"
 )
 
 // Defines values for PolicyScope.
@@ -583,6 +872,13 @@ const (
 // Defines values for ProgramIdCriterionType.
 const (
 	ProgramId ProgramIdCriterionType = "programId"
+)
+
+// Defines values for RequirementStatus.
+const (
+	RequirementStatusDue      RequirementStatus = "due"
+	RequirementStatusPending  RequirementStatus = "pending"
+	RequirementStatusRejected RequirementStatus = "rejected"
 )
 
 // Defines values for SendEndUserEvmAssetRuleAction.
@@ -915,6 +1211,11 @@ const (
 	SpendPermissionNetworkPolygon         SpendPermissionNetwork = "polygon"
 )
 
+// Defines values for SpendPermissionPayloadType.
+const (
+	SpendPermissionPayloadTypeSpendPermission SpendPermissionPayloadType = "spend_permission"
+)
+
 // Defines values for SplAddressCriterionOperator.
 const (
 	In    SplAddressCriterionOperator = "in"
@@ -948,6 +1249,11 @@ const (
 // Defines values for SwiftPaymentMethodPaymentRail.
 const (
 	Swift SwiftPaymentMethodPaymentRail = "swift"
+)
+
+// Defines values for TaxForm.
+const (
+	TaxFormUsW9 TaxForm = "us_w9"
 )
 
 // Defines values for TransferFeeType.
@@ -984,6 +1290,11 @@ const (
 	TravelRuleStatusIncomplete TravelRuleStatus = "incomplete"
 )
 
+// Defines values for UsW9AttestationForm.
+const (
+	UsW9AttestationFormUsW9 UsW9AttestationForm = "us_w9"
+)
+
 // Defines values for WebhookEventResponseStatus.
 const (
 	WebhookEventResponseStatusFailed     WebhookEventResponseStatus = "failed"
@@ -1003,14 +1314,14 @@ const (
 
 // Defines values for X402V2Network.
 const (
-	X402V2NetworkEip155137                              X402V2Network = "eip155:137"
-	X402V2NetworkEip15542161                            X402V2Network = "eip155:42161"
-	X402V2NetworkEip155480                              X402V2Network = "eip155:480"
-	X402V2NetworkEip1554801                             X402V2Network = "eip155:4801"
-	X402V2NetworkEip1558453                             X402V2Network = "eip155:8453"
-	X402V2NetworkEip15584532                            X402V2Network = "eip155:84532"
-	X402V2NetworkSolana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402V2Network = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
-	X402V2NetworkSolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402V2Network = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+	Eip155137                              X402V2Network = "eip155:137"
+	Eip15542161                            X402V2Network = "eip155:42161"
+	Eip155480                              X402V2Network = "eip155:480"
+	Eip1554801                             X402V2Network = "eip155:4801"
+	Eip1558453                             X402V2Network = "eip155:8453"
+	Eip15584532                            X402V2Network = "eip155:84532"
+	Solana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402V2Network = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+	SolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402V2Network = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
 )
 
 // Defines values for X402Version.
@@ -1031,7 +1342,7 @@ const (
 
 // Defines values for X402BatchSettlementRefundPayloadType.
 const (
-	Refund X402BatchSettlementRefundPayloadType = "refund"
+	X402BatchSettlementRefundPayloadTypeRefund X402BatchSettlementRefundPayloadType = "refund"
 )
 
 // Defines values for X402BatchSettlementSettlePayloadType.
@@ -1280,6 +1591,7 @@ const (
 	X402SettleErrorReasonSettleExactNodeFailure                                                         X402SettleErrorReason = "settle_exact_node_failure"
 	X402SettleErrorReasonSettleExactSvmBlockHeightExceeded                                              X402SettleErrorReason = "settle_exact_svm_block_height_exceeded"
 	X402SettleErrorReasonSettleExactSvmTransactionConfirmationTimedOut                                  X402SettleErrorReason = "settle_exact_svm_transaction_confirmation_timed_out"
+	X402SettleErrorReasonSettlementPending                                                              X402SettleErrorReason = "settlement_pending"
 	X402SettleErrorReasonSmartWalletDeploymentFailed                                                    X402SettleErrorReason = "smart_wallet_deployment_failed"
 	X402SettleErrorReasonUnknownError                                                                   X402SettleErrorReason = "unknown_error"
 	X402SettleErrorReasonUnsupportedPayloadType                                                         X402SettleErrorReason = "unsupported_payload_type"
@@ -1353,201 +1665,201 @@ const (
 
 // Defines values for X402VerifyInvalidReason.
 const (
-	X402VerifyInvalidReasonAmountTooLow                                                                   X402VerifyInvalidReason = "amount_too_low"
-	X402VerifyInvalidReasonBatchSettlementChannelBusy                                                     X402VerifyInvalidReason = "batch_settlement_channel_busy"
-	X402VerifyInvalidReasonBatchSettlementChargeExceedsSignedCumulative                                   X402VerifyInvalidReason = "batch_settlement_charge_exceeds_signed_cumulative"
-	X402VerifyInvalidReasonBatchSettlementCumulativeAmountMismatch                                        X402VerifyInvalidReason = "batch_settlement_cumulative_amount_mismatch"
-	X402VerifyInvalidReasonBatchSettlementRefundAmountExceedsBalance                                      X402VerifyInvalidReason = "batch_settlement_refund_amount_exceeds_balance"
-	X402VerifyInvalidReasonBatchSettlementRefundAmountInvalid                                             X402VerifyInvalidReason = "batch_settlement_refund_amount_invalid"
-	X402VerifyInvalidReasonBatchSettlementRefundNoBalance                                                 X402VerifyInvalidReason = "batch_settlement_refund_no_balance"
-	X402VerifyInvalidReasonDuplicateSettlement                                                            X402VerifyInvalidReason = "duplicate_settlement"
-	X402VerifyInvalidReasonErc20ApprovalAssetMismatch                                                     X402VerifyInvalidReason = "erc20_approval_asset_mismatch"
-	X402VerifyInvalidReasonErc20ApprovalBroadcastFailed                                                   X402VerifyInvalidReason = "erc20_approval_broadcast_failed"
-	X402VerifyInvalidReasonErc20ApprovalFromMismatch                                                      X402VerifyInvalidReason = "erc20_approval_from_mismatch"
-	X402VerifyInvalidReasonErc20ApprovalInsufficientEthForGas                                             X402VerifyInvalidReason = "erc20_approval_insufficient_eth_for_gas"
-	X402VerifyInvalidReasonErc20ApprovalSpenderNotPermit2                                                 X402VerifyInvalidReason = "erc20_approval_spender_not_permit2"
-	X402VerifyInvalidReasonErc20ApprovalTxFailed                                                          X402VerifyInvalidReason = "erc20_approval_tx_failed"
-	X402VerifyInvalidReasonErc20ApprovalTxInvalidSignature                                                X402VerifyInvalidReason = "erc20_approval_tx_invalid_signature"
-	X402VerifyInvalidReasonErc20ApprovalTxParseFailed                                                     X402VerifyInvalidReason = "erc20_approval_tx_parse_failed"
-	X402VerifyInvalidReasonErc20ApprovalTxSignerMismatch                                                  X402VerifyInvalidReason = "erc20_approval_tx_signer_mismatch"
-	X402VerifyInvalidReasonErc20ApprovalTxWrongSelector                                                   X402VerifyInvalidReason = "erc20_approval_tx_wrong_selector"
-	X402VerifyInvalidReasonErc20ApprovalTxWrongSpender                                                    X402VerifyInvalidReason = "erc20_approval_tx_wrong_spender"
-	X402VerifyInvalidReasonErc20ApprovalTxWrongTarget                                                     X402VerifyInvalidReason = "erc20_approval_tx_wrong_target"
-	X402VerifyInvalidReasonInsufficientFunds                                                              X402VerifyInvalidReason = "insufficient_funds"
-	X402VerifyInvalidReasonInvalidAmount                                                                  X402VerifyInvalidReason = "invalid_amount"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmChannelIdMismatch                                     X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_id_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmChannelNotFound                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_not_found"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmChannelStateReadFailed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_state_read_failed"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmCumulativeBelowClaimed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_below_claimed"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmCumulativeExceedsBalance                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_exceeds_balance"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmDepositPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_payload"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmDepositSimulationFailed                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_simulation_failed"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_amount_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612AssetMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_asset_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_deadline_expired"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612InvalidFormat                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_format"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_signature"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612OwnerMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_owner_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612SpenderMismatch                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_spender_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalAssetMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_asset_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalFromMismatch                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_from_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalInvalidFormat                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_invalid_format"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalUnavailable                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_unavailable"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalWrongSpender                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_wrong_spender"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc3009AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc3009_authorization_required"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmInsufficientBalance                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_insufficient_balance"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmMissingEip712Domain                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_missing_eip712_domain"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmNetworkMismatch                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_network_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPayloadAuthorizationValidAfter                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_after"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPayloadAuthorizationValidBefore                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_before"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPayloadType                                           X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_type"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2AllowanceRequired                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_allowance_required"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_amount_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_authorization_required"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_deadline_expired"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_signature"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2InvalidSpender                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_spender"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmReceiveAuthorizationSignature                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_receive_authorization_signature"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmReceiverAuthorizerMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_authorizer_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmReceiverMismatch                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmRefundPayload                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_refund_payload"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmRpcReadFailed                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_rpc_read_failed"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmScheme                                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_scheme"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmTokenMismatch                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_token_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmVoucherPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_payload"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmVoucherSignature                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_signature"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmWithdrawDelayMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_mismatch"
-	X402VerifyInvalidReasonInvalidBatchSettlementEvmWithdrawDelayOutOfRange                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_out_of_range"
-	X402VerifyInvalidReasonInvalidBazaarExtension                                                         X402VerifyInvalidReason = "invalid_bazaar_extension"
-	X402VerifyInvalidReasonInvalidErc20ApprovalExtensionFormat                                            X402VerifyInvalidReason = "invalid_erc20_approval_extension_format"
-	X402VerifyInvalidReasonInvalidExactEvmAuthorizationValue                                              X402VerifyInvalidReason = "invalid_exact_evm_authorization_value"
-	X402VerifyInvalidReasonInvalidExactEvmEip3009NotSupported                                             X402VerifyInvalidReason = "invalid_exact_evm_eip3009_not_supported"
-	X402VerifyInvalidReasonInvalidExactEvmExtraField                                                      X402VerifyInvalidReason = "invalid_exact_evm_extra_field"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToCheckDeployment                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_deployment"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToCheckNonce                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_nonce"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToExecuteTransfer                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_execute_transfer"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToGetBalance                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_balance"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToGetNetworkConfig                                        X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_network_config"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToGetReceipt                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_receipt"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToParseSignature                                          X402VerifyInvalidReason = "invalid_exact_evm_failed_to_parse_signature"
-	X402VerifyInvalidReasonInvalidExactEvmFailedToVerifySignature                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_verify_signature"
-	X402VerifyInvalidReasonInvalidExactEvmInsufficientBalance                                             X402VerifyInvalidReason = "invalid_exact_evm_insufficient_balance"
-	X402VerifyInvalidReasonInvalidExactEvmInsufficientFunds                                               X402VerifyInvalidReason = "invalid_exact_evm_insufficient_funds"
-	X402VerifyInvalidReasonInvalidExactEvmMissingEip712Domain                                             X402VerifyInvalidReason = "invalid_exact_evm_missing_eip712_domain"
-	X402VerifyInvalidReasonInvalidExactEvmNetworkMismatch                                                 X402VerifyInvalidReason = "invalid_exact_evm_network_mismatch"
-	X402VerifyInvalidReasonInvalidExactEvmNonceAlreadyUsed                                                X402VerifyInvalidReason = "invalid_exact_evm_nonce_already_used"
-	X402VerifyInvalidReasonInvalidExactEvmPayload                                                         X402VerifyInvalidReason = "invalid_exact_evm_payload"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationFromAddressKyt                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationToAddressKyt                                X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationTypedDataMessage                            X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter                                  X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue                                       X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueMismatch                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_mismatch"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueTooLow                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadMissingSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_missing_signature"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadRecipientMismatch                                        X402VerifyInvalidReason = "invalid_exact_evm_payload_recipient_mismatch"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                                                X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadUndeployedSmartWallet                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_undeployed_smart_wallet"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadAllowanceRequired                                 X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_allowance_required"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadAmount                                            X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_amount"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadDeadline                                          X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_deadline"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadRecipient                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_recipient"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_signature"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadSpender                                           X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_spender"
-	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadValidAfter                                        X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_valid_after"
-	X402VerifyInvalidReasonInvalidExactEvmRecipientMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_recipient_mismatch"
-	X402VerifyInvalidReasonInvalidExactEvmRequiredAmount                                                  X402VerifyInvalidReason = "invalid_exact_evm_required_amount"
-	X402VerifyInvalidReasonInvalidExactEvmScheme                                                          X402VerifyInvalidReason = "invalid_exact_evm_scheme"
-	X402VerifyInvalidReasonInvalidExactEvmSignature                                                       X402VerifyInvalidReason = "invalid_exact_evm_signature"
-	X402VerifyInvalidReasonInvalidExactEvmSignatureFormat                                                 X402VerifyInvalidReason = "invalid_exact_evm_signature_format"
-	X402VerifyInvalidReasonInvalidExactEvmTokenNameMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_token_name_mismatch"
-	X402VerifyInvalidReasonInvalidExactEvmTokenVersionMismatch                                            X402VerifyInvalidReason = "invalid_exact_evm_token_version_mismatch"
-	X402VerifyInvalidReasonInvalidExactEvmTransactionFailed                                               X402VerifyInvalidReason = "invalid_exact_evm_transaction_failed"
-	X402VerifyInvalidReasonInvalidExactEvmTransactionSimulationFailed                                     X402VerifyInvalidReason = "invalid_exact_evm_transaction_simulation_failed"
-	X402VerifyInvalidReasonInvalidExactEvmTransactionState                                                X402VerifyInvalidReason = "invalid_exact_evm_transaction_state"
-	X402VerifyInvalidReasonInvalidExactEvmUnsupportedScheme                                               X402VerifyInvalidReason = "invalid_exact_evm_unsupported_scheme"
-	X402VerifyInvalidReasonInvalidExactEvmVerificationFailed                                              X402VerifyInvalidReason = "invalid_exact_evm_verification_failed"
-	X402VerifyInvalidReasonInvalidExactSolanaExtraField                                                   X402VerifyInvalidReason = "invalid_exact_solana_extra_field"
-	X402VerifyInvalidReasonInvalidExactSolanaFeePayerMismatch                                             X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_mismatch"
-	X402VerifyInvalidReasonInvalidExactSolanaFeePayerNotManagedByFacilitator                              X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_not_managed_by_facilitator"
-	X402VerifyInvalidReasonInvalidExactSolanaInvalidFeePayer                                              X402VerifyInvalidReason = "invalid_exact_solana_invalid_fee_payer"
-	X402VerifyInvalidReasonInvalidExactSolanaNetworkMismatch                                              X402VerifyInvalidReason = "invalid_exact_solana_network_mismatch"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadAmountInsufficient                                    X402VerifyInvalidReason = "invalid_exact_solana_payload_amount_insufficient"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadMemoCount                                             X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_count"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadMemoMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_mismatch"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadMintMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_mint_mismatch"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadMissingFeePayer                                       X402VerifyInvalidReason = "invalid_exact_solana_payload_missing_fee_payer"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadNoTransferInstruction                                 X402VerifyInvalidReason = "invalid_exact_solana_payload_no_transfer_instruction"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadRecipientMismatch                                     X402VerifyInvalidReason = "invalid_exact_solana_payload_recipient_mismatch"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionCouldNotBeDecoded                          X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_could_not_be_decoded"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionFeePayerTransferringFunds                  X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_fee_payer_transferring_funds"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsComputeLimitInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_limit_instruction"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsComputePriceInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsComputePriceInstructionTooHigh X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction_too_high"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsLength                         X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_length"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadUnknownFifthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fifth_instruction"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadUnknownFourthInstruction                              X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fourth_instruction"
-	X402VerifyInvalidReasonInvalidExactSolanaPayloadUnknownSixthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_sixth_instruction"
-	X402VerifyInvalidReasonInvalidExactSolanaTransactionConfirmationFailed                                X402VerifyInvalidReason = "invalid_exact_solana_transaction_confirmation_failed"
-	X402VerifyInvalidReasonInvalidExactSolanaTransactionFailed                                            X402VerifyInvalidReason = "invalid_exact_solana_transaction_failed"
-	X402VerifyInvalidReasonInvalidExactSolanaTransactionSigningFailed                                     X402VerifyInvalidReason = "invalid_exact_solana_transaction_signing_failed"
-	X402VerifyInvalidReasonInvalidExactSolanaTransactionSimulationFailed                                  X402VerifyInvalidReason = "invalid_exact_solana_transaction_simulation_failed"
-	X402VerifyInvalidReasonInvalidExactSolanaUnsupportedScheme                                            X402VerifyInvalidReason = "invalid_exact_solana_unsupported_scheme"
-	X402VerifyInvalidReasonInvalidExactSolanaVerificationFailed                                           X402VerifyInvalidReason = "invalid_exact_solana_verification_failed"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransaction                                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionAmountMismatch                                X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstruction                          X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerTransferringFunds                     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructions                                  X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsLength                            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_length"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionNotATransferInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionReceiverAtaNotFound                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_receiver_ata_not_found"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionSenderAtaNotFound                             X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_sender_ata_not_found"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionSimulationFailed                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_simulation_failed"
-	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionTransferToIncorrectAta                        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata"
-	X402VerifyInvalidReasonInvalidNetwork                                                                 X402VerifyInvalidReason = "invalid_network"
-	X402VerifyInvalidReasonInvalidPayload                                                                 X402VerifyInvalidReason = "invalid_payload"
-	X402VerifyInvalidReasonInvalidPaymentRequirements                                                     X402VerifyInvalidReason = "invalid_payment_requirements"
-	X402VerifyInvalidReasonInvalidPermit2RecipientMismatch                                                X402VerifyInvalidReason = "invalid_permit2_recipient_mismatch"
-	X402VerifyInvalidReasonInvalidPermit2Signature                                                        X402VerifyInvalidReason = "invalid_permit2_signature"
-	X402VerifyInvalidReasonInvalidPermit2Spender                                                          X402VerifyInvalidReason = "invalid_permit2_spender"
-	X402VerifyInvalidReasonInvalidScheme                                                                  X402VerifyInvalidReason = "invalid_scheme"
-	X402VerifyInvalidReasonInvalidX402Version                                                             X402VerifyInvalidReason = "invalid_x402_version"
-	X402VerifyInvalidReasonKytRiskDetected                                                                X402VerifyInvalidReason = "kyt_risk_detected"
-	X402VerifyInvalidReasonMissingBatchSettlementChannel                                                  X402VerifyInvalidReason = "missing_batch_settlement_channel"
-	X402VerifyInvalidReasonPermit22612AmountMismatch                                                      X402VerifyInvalidReason = "permit2_2612_amount_mismatch"
-	X402VerifyInvalidReasonPermit2AllowanceRequired                                                       X402VerifyInvalidReason = "permit2_allowance_required"
-	X402VerifyInvalidReasonPermit2AmountMismatch                                                          X402VerifyInvalidReason = "permit2_amount_mismatch"
-	X402VerifyInvalidReasonPermit2DeadlineExpired                                                         X402VerifyInvalidReason = "permit2_deadline_expired"
-	X402VerifyInvalidReasonPermit2Disabled                                                                X402VerifyInvalidReason = "permit2_disabled"
-	X402VerifyInvalidReasonPermit2InsufficientBalance                                                     X402VerifyInvalidReason = "permit2_insufficient_balance"
-	X402VerifyInvalidReasonPermit2InvalidAmount                                                           X402VerifyInvalidReason = "permit2_invalid_amount"
-	X402VerifyInvalidReasonPermit2InvalidDestination                                                      X402VerifyInvalidReason = "permit2_invalid_destination"
-	X402VerifyInvalidReasonPermit2InvalidNonce                                                            X402VerifyInvalidReason = "permit2_invalid_nonce"
-	X402VerifyInvalidReasonPermit2InvalidOwner                                                            X402VerifyInvalidReason = "permit2_invalid_owner"
-	X402VerifyInvalidReasonPermit2NotYetValid                                                             X402VerifyInvalidReason = "permit2_not_yet_valid"
-	X402VerifyInvalidReasonPermit2PaymentTooEarly                                                         X402VerifyInvalidReason = "permit2_payment_too_early"
-	X402VerifyInvalidReasonPermit2ProxyNotDeployed                                                        X402VerifyInvalidReason = "permit2_proxy_not_deployed"
-	X402VerifyInvalidReasonPermit2SimulationFailed                                                        X402VerifyInvalidReason = "permit2_simulation_failed"
-	X402VerifyInvalidReasonPermit2TokenMismatch                                                           X402VerifyInvalidReason = "permit2_token_mismatch"
-	X402VerifyInvalidReasonPreflightValidationFailed                                                      X402VerifyInvalidReason = "preflight_validation_failed"
-	X402VerifyInvalidReasonRequestBlockedByLocation                                                       X402VerifyInvalidReason = "request_blocked_by_location"
-	X402VerifyInvalidReasonSelfSendNotAllowed                                                             X402VerifyInvalidReason = "self_send_not_allowed"
-	X402VerifyInvalidReasonSmartWalletDeploymentFailed                                                    X402VerifyInvalidReason = "smart_wallet_deployment_failed"
-	X402VerifyInvalidReasonUnknownError                                                                   X402VerifyInvalidReason = "unknown_error"
-	X402VerifyInvalidReasonUnsupportedPayloadType                                                         X402VerifyInvalidReason = "unsupported_payload_type"
+	AmountTooLow                                                                   X402VerifyInvalidReason = "amount_too_low"
+	BatchSettlementChannelBusy                                                     X402VerifyInvalidReason = "batch_settlement_channel_busy"
+	BatchSettlementChargeExceedsSignedCumulative                                   X402VerifyInvalidReason = "batch_settlement_charge_exceeds_signed_cumulative"
+	BatchSettlementCumulativeAmountMismatch                                        X402VerifyInvalidReason = "batch_settlement_cumulative_amount_mismatch"
+	BatchSettlementRefundAmountExceedsBalance                                      X402VerifyInvalidReason = "batch_settlement_refund_amount_exceeds_balance"
+	BatchSettlementRefundAmountInvalid                                             X402VerifyInvalidReason = "batch_settlement_refund_amount_invalid"
+	BatchSettlementRefundNoBalance                                                 X402VerifyInvalidReason = "batch_settlement_refund_no_balance"
+	DuplicateSettlement                                                            X402VerifyInvalidReason = "duplicate_settlement"
+	Erc20ApprovalAssetMismatch                                                     X402VerifyInvalidReason = "erc20_approval_asset_mismatch"
+	Erc20ApprovalBroadcastFailed                                                   X402VerifyInvalidReason = "erc20_approval_broadcast_failed"
+	Erc20ApprovalFromMismatch                                                      X402VerifyInvalidReason = "erc20_approval_from_mismatch"
+	Erc20ApprovalInsufficientEthForGas                                             X402VerifyInvalidReason = "erc20_approval_insufficient_eth_for_gas"
+	Erc20ApprovalSpenderNotPermit2                                                 X402VerifyInvalidReason = "erc20_approval_spender_not_permit2"
+	Erc20ApprovalTxFailed                                                          X402VerifyInvalidReason = "erc20_approval_tx_failed"
+	Erc20ApprovalTxInvalidSignature                                                X402VerifyInvalidReason = "erc20_approval_tx_invalid_signature"
+	Erc20ApprovalTxParseFailed                                                     X402VerifyInvalidReason = "erc20_approval_tx_parse_failed"
+	Erc20ApprovalTxSignerMismatch                                                  X402VerifyInvalidReason = "erc20_approval_tx_signer_mismatch"
+	Erc20ApprovalTxWrongSelector                                                   X402VerifyInvalidReason = "erc20_approval_tx_wrong_selector"
+	Erc20ApprovalTxWrongSpender                                                    X402VerifyInvalidReason = "erc20_approval_tx_wrong_spender"
+	Erc20ApprovalTxWrongTarget                                                     X402VerifyInvalidReason = "erc20_approval_tx_wrong_target"
+	InsufficientFunds                                                              X402VerifyInvalidReason = "insufficient_funds"
+	InvalidAmount                                                                  X402VerifyInvalidReason = "invalid_amount"
+	InvalidBatchSettlementEvmChannelIdMismatch                                     X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_id_mismatch"
+	InvalidBatchSettlementEvmChannelNotFound                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_not_found"
+	InvalidBatchSettlementEvmChannelStateReadFailed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_state_read_failed"
+	InvalidBatchSettlementEvmCumulativeBelowClaimed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_below_claimed"
+	InvalidBatchSettlementEvmCumulativeExceedsBalance                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_exceeds_balance"
+	InvalidBatchSettlementEvmDepositPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_payload"
+	InvalidBatchSettlementEvmDepositSimulationFailed                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_simulation_failed"
+	InvalidBatchSettlementEvmEip2612AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_amount_mismatch"
+	InvalidBatchSettlementEvmEip2612AssetMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_asset_mismatch"
+	InvalidBatchSettlementEvmEip2612DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_deadline_expired"
+	InvalidBatchSettlementEvmEip2612InvalidFormat                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_format"
+	InvalidBatchSettlementEvmEip2612InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_signature"
+	InvalidBatchSettlementEvmEip2612OwnerMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_owner_mismatch"
+	InvalidBatchSettlementEvmEip2612SpenderMismatch                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_spender_mismatch"
+	InvalidBatchSettlementEvmErc20ApprovalAssetMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_asset_mismatch"
+	InvalidBatchSettlementEvmErc20ApprovalFromMismatch                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_from_mismatch"
+	InvalidBatchSettlementEvmErc20ApprovalInvalidFormat                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_invalid_format"
+	InvalidBatchSettlementEvmErc20ApprovalUnavailable                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_unavailable"
+	InvalidBatchSettlementEvmErc20ApprovalWrongSpender                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_wrong_spender"
+	InvalidBatchSettlementEvmErc3009AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc3009_authorization_required"
+	InvalidBatchSettlementEvmInsufficientBalance                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_insufficient_balance"
+	InvalidBatchSettlementEvmMissingEip712Domain                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_missing_eip712_domain"
+	InvalidBatchSettlementEvmNetworkMismatch                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_network_mismatch"
+	InvalidBatchSettlementEvmPayloadAuthorizationValidAfter                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_after"
+	InvalidBatchSettlementEvmPayloadAuthorizationValidBefore                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_before"
+	InvalidBatchSettlementEvmPayloadType                                           X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_type"
+	InvalidBatchSettlementEvmPermit2AllowanceRequired                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_allowance_required"
+	InvalidBatchSettlementEvmPermit2AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_amount_mismatch"
+	InvalidBatchSettlementEvmPermit2AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_authorization_required"
+	InvalidBatchSettlementEvmPermit2DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_deadline_expired"
+	InvalidBatchSettlementEvmPermit2InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_signature"
+	InvalidBatchSettlementEvmPermit2InvalidSpender                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_spender"
+	InvalidBatchSettlementEvmReceiveAuthorizationSignature                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_receive_authorization_signature"
+	InvalidBatchSettlementEvmReceiverAuthorizerMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_authorizer_mismatch"
+	InvalidBatchSettlementEvmReceiverMismatch                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_mismatch"
+	InvalidBatchSettlementEvmRefundPayload                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_refund_payload"
+	InvalidBatchSettlementEvmRpcReadFailed                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_rpc_read_failed"
+	InvalidBatchSettlementEvmScheme                                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_scheme"
+	InvalidBatchSettlementEvmTokenMismatch                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_token_mismatch"
+	InvalidBatchSettlementEvmVoucherPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_payload"
+	InvalidBatchSettlementEvmVoucherSignature                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_signature"
+	InvalidBatchSettlementEvmWithdrawDelayMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_mismatch"
+	InvalidBatchSettlementEvmWithdrawDelayOutOfRange                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_out_of_range"
+	InvalidBazaarExtension                                                         X402VerifyInvalidReason = "invalid_bazaar_extension"
+	InvalidErc20ApprovalExtensionFormat                                            X402VerifyInvalidReason = "invalid_erc20_approval_extension_format"
+	InvalidExactEvmAuthorizationValue                                              X402VerifyInvalidReason = "invalid_exact_evm_authorization_value"
+	InvalidExactEvmEip3009NotSupported                                             X402VerifyInvalidReason = "invalid_exact_evm_eip3009_not_supported"
+	InvalidExactEvmExtraField                                                      X402VerifyInvalidReason = "invalid_exact_evm_extra_field"
+	InvalidExactEvmFailedToCheckDeployment                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_deployment"
+	InvalidExactEvmFailedToCheckNonce                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_nonce"
+	InvalidExactEvmFailedToExecuteTransfer                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_execute_transfer"
+	InvalidExactEvmFailedToGetBalance                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_balance"
+	InvalidExactEvmFailedToGetNetworkConfig                                        X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_network_config"
+	InvalidExactEvmFailedToGetReceipt                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_receipt"
+	InvalidExactEvmFailedToParseSignature                                          X402VerifyInvalidReason = "invalid_exact_evm_failed_to_parse_signature"
+	InvalidExactEvmFailedToVerifySignature                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_verify_signature"
+	InvalidExactEvmInsufficientBalance                                             X402VerifyInvalidReason = "invalid_exact_evm_insufficient_balance"
+	InvalidExactEvmInsufficientFunds                                               X402VerifyInvalidReason = "invalid_exact_evm_insufficient_funds"
+	InvalidExactEvmMissingEip712Domain                                             X402VerifyInvalidReason = "invalid_exact_evm_missing_eip712_domain"
+	InvalidExactEvmNetworkMismatch                                                 X402VerifyInvalidReason = "invalid_exact_evm_network_mismatch"
+	InvalidExactEvmNonceAlreadyUsed                                                X402VerifyInvalidReason = "invalid_exact_evm_nonce_already_used"
+	InvalidExactEvmPayload                                                         X402VerifyInvalidReason = "invalid_exact_evm_payload"
+	InvalidExactEvmPayloadAuthorizationFromAddressKyt                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
+	InvalidExactEvmPayloadAuthorizationToAddressKyt                                X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
+	InvalidExactEvmPayloadAuthorizationTypedDataMessage                            X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
+	InvalidExactEvmPayloadAuthorizationValidAfter                                  X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
+	InvalidExactEvmPayloadAuthorizationValidBefore                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
+	InvalidExactEvmPayloadAuthorizationValue                                       X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
+	InvalidExactEvmPayloadAuthorizationValueMismatch                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_mismatch"
+	InvalidExactEvmPayloadAuthorizationValueTooLow                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
+	InvalidExactEvmPayloadMissingSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_missing_signature"
+	InvalidExactEvmPayloadRecipientMismatch                                        X402VerifyInvalidReason = "invalid_exact_evm_payload_recipient_mismatch"
+	InvalidExactEvmPayloadSignature                                                X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
+	InvalidExactEvmPayloadSignatureAddress                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
+	InvalidExactEvmPayloadUndeployedSmartWallet                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_undeployed_smart_wallet"
+	InvalidExactEvmPermit2PayloadAllowanceRequired                                 X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_allowance_required"
+	InvalidExactEvmPermit2PayloadAmount                                            X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_amount"
+	InvalidExactEvmPermit2PayloadDeadline                                          X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_deadline"
+	InvalidExactEvmPermit2PayloadRecipient                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_recipient"
+	InvalidExactEvmPermit2PayloadSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_signature"
+	InvalidExactEvmPermit2PayloadSpender                                           X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_spender"
+	InvalidExactEvmPermit2PayloadValidAfter                                        X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_valid_after"
+	InvalidExactEvmRecipientMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_recipient_mismatch"
+	InvalidExactEvmRequiredAmount                                                  X402VerifyInvalidReason = "invalid_exact_evm_required_amount"
+	InvalidExactEvmScheme                                                          X402VerifyInvalidReason = "invalid_exact_evm_scheme"
+	InvalidExactEvmSignature                                                       X402VerifyInvalidReason = "invalid_exact_evm_signature"
+	InvalidExactEvmSignatureFormat                                                 X402VerifyInvalidReason = "invalid_exact_evm_signature_format"
+	InvalidExactEvmTokenNameMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_token_name_mismatch"
+	InvalidExactEvmTokenVersionMismatch                                            X402VerifyInvalidReason = "invalid_exact_evm_token_version_mismatch"
+	InvalidExactEvmTransactionFailed                                               X402VerifyInvalidReason = "invalid_exact_evm_transaction_failed"
+	InvalidExactEvmTransactionSimulationFailed                                     X402VerifyInvalidReason = "invalid_exact_evm_transaction_simulation_failed"
+	InvalidExactEvmTransactionState                                                X402VerifyInvalidReason = "invalid_exact_evm_transaction_state"
+	InvalidExactEvmUnsupportedScheme                                               X402VerifyInvalidReason = "invalid_exact_evm_unsupported_scheme"
+	InvalidExactEvmVerificationFailed                                              X402VerifyInvalidReason = "invalid_exact_evm_verification_failed"
+	InvalidExactSolanaExtraField                                                   X402VerifyInvalidReason = "invalid_exact_solana_extra_field"
+	InvalidExactSolanaFeePayerMismatch                                             X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_mismatch"
+	InvalidExactSolanaFeePayerNotManagedByFacilitator                              X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_not_managed_by_facilitator"
+	InvalidExactSolanaInvalidFeePayer                                              X402VerifyInvalidReason = "invalid_exact_solana_invalid_fee_payer"
+	InvalidExactSolanaNetworkMismatch                                              X402VerifyInvalidReason = "invalid_exact_solana_network_mismatch"
+	InvalidExactSolanaPayloadAmountInsufficient                                    X402VerifyInvalidReason = "invalid_exact_solana_payload_amount_insufficient"
+	InvalidExactSolanaPayloadMemoCount                                             X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_count"
+	InvalidExactSolanaPayloadMemoMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_mismatch"
+	InvalidExactSolanaPayloadMintMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_mint_mismatch"
+	InvalidExactSolanaPayloadMissingFeePayer                                       X402VerifyInvalidReason = "invalid_exact_solana_payload_missing_fee_payer"
+	InvalidExactSolanaPayloadNoTransferInstruction                                 X402VerifyInvalidReason = "invalid_exact_solana_payload_no_transfer_instruction"
+	InvalidExactSolanaPayloadRecipientMismatch                                     X402VerifyInvalidReason = "invalid_exact_solana_payload_recipient_mismatch"
+	InvalidExactSolanaPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction"
+	InvalidExactSolanaPayloadTransactionCouldNotBeDecoded                          X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_could_not_be_decoded"
+	InvalidExactSolanaPayloadTransactionFeePayerTransferringFunds                  X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_fee_payer_transferring_funds"
+	InvalidExactSolanaPayloadTransactionInstructionsComputeLimitInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_limit_instruction"
+	InvalidExactSolanaPayloadTransactionInstructionsComputePriceInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction"
+	InvalidExactSolanaPayloadTransactionInstructionsComputePriceInstructionTooHigh X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction_too_high"
+	InvalidExactSolanaPayloadTransactionInstructionsLength                         X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_length"
+	InvalidExactSolanaPayloadUnknownFifthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fifth_instruction"
+	InvalidExactSolanaPayloadUnknownFourthInstruction                              X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fourth_instruction"
+	InvalidExactSolanaPayloadUnknownSixthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_sixth_instruction"
+	InvalidExactSolanaTransactionConfirmationFailed                                X402VerifyInvalidReason = "invalid_exact_solana_transaction_confirmation_failed"
+	InvalidExactSolanaTransactionFailed                                            X402VerifyInvalidReason = "invalid_exact_solana_transaction_failed"
+	InvalidExactSolanaTransactionSigningFailed                                     X402VerifyInvalidReason = "invalid_exact_solana_transaction_signing_failed"
+	InvalidExactSolanaTransactionSimulationFailed                                  X402VerifyInvalidReason = "invalid_exact_solana_transaction_simulation_failed"
+	InvalidExactSolanaUnsupportedScheme                                            X402VerifyInvalidReason = "invalid_exact_solana_unsupported_scheme"
+	InvalidExactSolanaVerificationFailed                                           X402VerifyInvalidReason = "invalid_exact_solana_verification_failed"
+	InvalidExactSvmPayloadTransaction                                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
+	InvalidExactSvmPayloadTransactionAmountMismatch                                X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
+	InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
+	InvalidExactSvmPayloadTransactionCreateAtaInstruction                          X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
+	InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
+	InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+	InvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
+	InvalidExactSvmPayloadTransactionFeePayerTransferringFunds                     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
+	InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
+	InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
+	InvalidExactSvmPayloadTransactionInstructions                                  X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
+	InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
+	InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
+	InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
+	InvalidExactSvmPayloadTransactionInstructionsLength                            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_length"
+	InvalidExactSvmPayloadTransactionNotATransferInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction"
+	InvalidExactSvmPayloadTransactionReceiverAtaNotFound                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_receiver_ata_not_found"
+	InvalidExactSvmPayloadTransactionSenderAtaNotFound                             X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_sender_ata_not_found"
+	InvalidExactSvmPayloadTransactionSimulationFailed                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_simulation_failed"
+	InvalidExactSvmPayloadTransactionTransferToIncorrectAta                        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata"
+	InvalidNetwork                                                                 X402VerifyInvalidReason = "invalid_network"
+	InvalidPayload                                                                 X402VerifyInvalidReason = "invalid_payload"
+	InvalidPaymentRequirements                                                     X402VerifyInvalidReason = "invalid_payment_requirements"
+	InvalidPermit2RecipientMismatch                                                X402VerifyInvalidReason = "invalid_permit2_recipient_mismatch"
+	InvalidPermit2Signature                                                        X402VerifyInvalidReason = "invalid_permit2_signature"
+	InvalidPermit2Spender                                                          X402VerifyInvalidReason = "invalid_permit2_spender"
+	InvalidScheme                                                                  X402VerifyInvalidReason = "invalid_scheme"
+	InvalidX402Version                                                             X402VerifyInvalidReason = "invalid_x402_version"
+	KytRiskDetected                                                                X402VerifyInvalidReason = "kyt_risk_detected"
+	MissingBatchSettlementChannel                                                  X402VerifyInvalidReason = "missing_batch_settlement_channel"
+	Permit22612AmountMismatch                                                      X402VerifyInvalidReason = "permit2_2612_amount_mismatch"
+	Permit2AllowanceRequired                                                       X402VerifyInvalidReason = "permit2_allowance_required"
+	Permit2AmountMismatch                                                          X402VerifyInvalidReason = "permit2_amount_mismatch"
+	Permit2DeadlineExpired                                                         X402VerifyInvalidReason = "permit2_deadline_expired"
+	Permit2Disabled                                                                X402VerifyInvalidReason = "permit2_disabled"
+	Permit2InsufficientBalance                                                     X402VerifyInvalidReason = "permit2_insufficient_balance"
+	Permit2InvalidAmount                                                           X402VerifyInvalidReason = "permit2_invalid_amount"
+	Permit2InvalidDestination                                                      X402VerifyInvalidReason = "permit2_invalid_destination"
+	Permit2InvalidNonce                                                            X402VerifyInvalidReason = "permit2_invalid_nonce"
+	Permit2InvalidOwner                                                            X402VerifyInvalidReason = "permit2_invalid_owner"
+	Permit2NotYetValid                                                             X402VerifyInvalidReason = "permit2_not_yet_valid"
+	Permit2PaymentTooEarly                                                         X402VerifyInvalidReason = "permit2_payment_too_early"
+	Permit2ProxyNotDeployed                                                        X402VerifyInvalidReason = "permit2_proxy_not_deployed"
+	Permit2SimulationFailed                                                        X402VerifyInvalidReason = "permit2_simulation_failed"
+	Permit2TokenMismatch                                                           X402VerifyInvalidReason = "permit2_token_mismatch"
+	PreflightValidationFailed                                                      X402VerifyInvalidReason = "preflight_validation_failed"
+	RequestBlockedByLocation                                                       X402VerifyInvalidReason = "request_blocked_by_location"
+	SelfSendNotAllowed                                                             X402VerifyInvalidReason = "self_send_not_allowed"
+	SmartWalletDeploymentFailed                                                    X402VerifyInvalidReason = "smart_wallet_deployment_failed"
+	UnknownError                                                                   X402VerifyInvalidReason = "unknown_error"
+	UnsupportedPayloadType                                                         X402VerifyInvalidReason = "unsupported_payload_type"
 )
 
 // Defines values for ListTokensForAccountParamsNetwork.
@@ -1753,12 +2065,23 @@ type Account struct {
 	Name *AccountName `json:"name,omitempty"`
 
 	// Owner The Owner ID of the Account.
+	//
 	// Owner IDs are UUIDs prefixed with the Owner Type as follows:
+	//
 	// * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
-	// Support for Customer-owned accounts (`customer_` prefix) is in development.
+	//
+	// * **Customer**: `customer_` - If the Owner is one of your Customers,
+	//   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`. Customer ownership requires the
+	//   Customer to have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
+	//   capabilities enabled.
 	Owner Owner `json:"owner"`
 
 	// Type The type of the Account.
+	//
+	// - `prime`: a linked Coinbase Prime account.
+	// - `business`: a linked Coinbase Business account.
+	// - `cdp`: a CDP-native account created via this API. Used for accounts created on
+	//   behalf of an Entity and for Customer-owned accounts.
 	Type AccountType `json:"type"`
 
 	// UpdatedAt The timestamp when the account was last updated.
@@ -1784,7 +2107,27 @@ type AccountTokenAddressesResponse struct {
 }
 
 // AccountType The type of the Account.
+//
+//   - `prime`: a linked Coinbase Prime account.
+//   - `business`: a linked Coinbase Business account.
+//   - `cdp`: a CDP-native account created via this API. Used for accounts created on
+//     behalf of an Entity and for Customer-owned accounts.
 type AccountType string
+
+// AchDepositSource The originating ACH deposit details for the transfer source. Present when funds were deposited via ACH into a deposit destination.
+type AchDepositSource struct {
+	// CompanyEntryDescription The company entry description from the ACH batch header record.
+	CompanyEntryDescription string `json:"companyEntryDescription"`
+
+	// CompanyName The company name from the ACH batch header record. Masked on webhook payloads.
+	CompanyName string `json:"companyName"`
+
+	// Currency The fiat currency of the ACH deposit (e.g., `usd`).
+	Currency Asset `json:"currency"`
+
+	// IndividualIdentificationNumber The individual identification number from the ACH entry detail record. For Person-to-Person WEB credit Entries, this field is required and contains the name of the consumer Originator. Masked on webhook payloads.
+	IndividualIdentificationNumber *string `json:"individualIdentificationNumber,omitempty"`
+}
 
 // AmountDetail Available and total amounts for a specific currency.
 type AmountDetail struct {
@@ -1809,6 +2152,45 @@ type AuthenticationMethod struct {
 // AuthenticationMethods The list of valid authentication methods linked to the end user.
 type AuthenticationMethods = []AuthenticationMethod
 
+// Authorization A hold placed on the payer's funds. Once authorized, the merchant can capture (collect) the funds. Only one authorization is allowed per session.
+type Authorization struct {
+	// Amount A decimal representation of the authorized amount, denominated in the session's `asset`.
+	Amount *string `json:"amount,omitempty"`
+
+	// AuthorizationId The unique identifier of the authorization.
+	AuthorizationId *AuthorizationId `json:"authorizationId,omitempty"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the authorization was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// Error An error that occurred during a payment operation.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// Message A human-readable message describing the outcome or status for display. Returned for x402 authorizations; omitted for other authorization flows unless documented otherwise.
+	Message *string `json:"message,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions The onchain transactions associated with this authorization.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// PaymentSessionId The ID of the payment session this authorization belongs to.
+	PaymentSessionId *PaymentSessionId `json:"paymentSessionId,omitempty"`
+
+	// Source The payer for this authorization. For wallet authorizations, this is the blockchain address that signed the payloads. For Coinbase authorizations, this is the authenticated Coinbase account. This value is also reflected on the parent payment session's `source` field after a successful authorization.
+	Source *PaymentSessionSource `json:"source,omitempty"`
+
+	// Status The current status of the authorization.
+	Status *PaymentActionStatus `json:"status,omitempty"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the authorization was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// AuthorizationId The ID of the authorization, a UUID prefixed by `authorization_`.
+type AuthorizationId = string
+
 // Balance A balance of an asset.
 type Balance struct {
 	// Amount Amount details denominated in different assets.
@@ -1825,13 +2207,178 @@ type Balances struct {
 	Balances []Balance `json:"balances"`
 }
 
+// BankAccountUS A US bank account identified by ABA routing number and account number.
+type BankAccountUS struct {
+	// AccountNumber The bank account number.
+	AccountNumber string `json:"accountNumber"`
+
+	// AccountType The type of bank account, based on the account identification scheme (e.g., `us_bank`).
+	AccountType BankAccountUSAccountType `json:"accountType"`
+
+	// BankAddress The address of the bank. Present when required by the receiving institution.
+	BankAddress *string `json:"bankAddress,omitempty"`
+
+	// BankName The name of the bank holding the account.
+	BankName string `json:"bankName"`
+
+	// BeneficiaryName The name of the account beneficiary.
+	BeneficiaryName string `json:"beneficiaryName"`
+
+	// Currency The fiat currency for the deposit destination.
+	Currency BankAccountUSCurrency `json:"currency"`
+
+	// ReferenceCode A reference code that must be included in the payment memo or reference field so the receiving institution can route the deposit to the correct account. Only present when required by the receiving institution.
+	ReferenceCode *string `json:"referenceCode,omitempty"`
+
+	// RoutingNumber The ABA routing number of the bank.
+	RoutingNumber string `json:"routingNumber"`
+
+	// SupportedRails The payment rails this account can receive deposits on.
+	SupportedRails []DepositDestinationPaymentRail `json:"supportedRails"`
+}
+
+// BankAccountUSAccountType The type of bank account, based on the account identification scheme (e.g., `us_bank`).
+type BankAccountUSAccountType string
+
+// BankAccountUSCurrency The fiat currency for the deposit destination.
+type BankAccountUSCurrency string
+
 // BlockchainAddress A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
 type BlockchainAddress = string
+
+// CancelPaymentSessionRequest A request to cancel a payment session.
+type CancelPaymentSessionRequest struct {
+	// CancellationReason The reason for cancelling the payment session.
+	CancellationReason *string `json:"cancellationReason,omitempty"`
+}
+
+// CapabilitiesMap The current state of each capability for a Customer. Each capability shows
+// whether it has been requested and its current status.
+type CapabilitiesMap struct {
+	// CustodyCrypto Hold cryptocurrency in a Coinbase custodial account.
+	CustodyCrypto *Capability `json:"custodyCrypto,omitempty"`
+
+	// CustodyFiat Hold fiat currency in a Coinbase custodial account.
+	CustodyFiat *Capability `json:"custodyFiat,omitempty"`
+
+	// CustodyStablecoin Hold stablecoin in a Coinbase custodial account.
+	CustodyStablecoin *Capability `json:"custodyStablecoin,omitempty"`
+
+	// TradeCrypto Trade cryptocurrency.
+	TradeCrypto *Capability `json:"tradeCrypto,omitempty"`
+
+	// TradeStablecoin Trade stablecoin.
+	TradeStablecoin *Capability `json:"tradeStablecoin,omitempty"`
+
+	// TransferCrypto Transfer cryptocurrency to another party.
+	TransferCrypto *Capability `json:"transferCrypto,omitempty"`
+
+	// TransferFiat Transfer fiat currency to another party.
+	TransferFiat *Capability `json:"transferFiat,omitempty"`
+
+	// TransferStablecoin Transfer stablecoin to another party.
+	TransferStablecoin *Capability `json:"transferStablecoin,omitempty"`
+}
+
+// CapabilitiesMapInput The capabilities to request for a Customer. Each capability can be
+// individually requested. The requirements to enable each capability
+// will be returned in the response.
+type CapabilitiesMapInput struct {
+	// CustodyCrypto Hold cryptocurrency in a Coinbase custodial account.
+	CustodyCrypto *CapabilityInput `json:"custodyCrypto,omitempty"`
+
+	// CustodyFiat Hold fiat currency in a Coinbase custodial account.
+	CustodyFiat *CapabilityInput `json:"custodyFiat,omitempty"`
+
+	// CustodyStablecoin Hold stablecoin in a Coinbase custodial account.
+	CustodyStablecoin *CapabilityInput `json:"custodyStablecoin,omitempty"`
+
+	// TradeCrypto Trade cryptocurrency.
+	TradeCrypto *CapabilityInput `json:"tradeCrypto,omitempty"`
+
+	// TradeStablecoin Trade stablecoin.
+	TradeStablecoin *CapabilityInput `json:"tradeStablecoin,omitempty"`
+
+	// TransferCrypto Transfer cryptocurrency to another party.
+	TransferCrypto *CapabilityInput `json:"transferCrypto,omitempty"`
+
+	// TransferFiat Transfer fiat currency to another party.
+	TransferFiat *CapabilityInput `json:"transferFiat,omitempty"`
+
+	// TransferStablecoin Transfer stablecoin to another party.
+	TransferStablecoin *CapabilityInput `json:"transferStablecoin,omitempty"`
+}
+
+// Capability The current state of a capability for a customer. The `status` field is always
+// present. When `requested` is `false`, the status will be `unrequested`.
+type Capability struct {
+	// Requested Whether the customer has explicitly requested this capability.
+	Requested bool `json:"requested"`
+
+	// Status Current status of the capability. When `requested` is `false`, status is `unrequested`.
+	// When `requested` is `true`, status is one of `pending`, `active`, or `inactive`.
+	Status CapabilityStatus `json:"status"`
+}
+
+// CapabilityInput Request to enable or disable a capability.
+type CapabilityInput struct {
+	// Requested Whether to request this capability.
+	Requested bool `json:"requested"`
+}
 
 // CapabilityName The name of a capability. Capabilities represent granular functional permissions
 // that determine what actions a customer can perform. Each capability must be
 // explicitly requested before use.
 type CapabilityName string
+
+// CapabilityStatus The status of a capability. Based on recoverability:
+// - `unrequested`: Capability has not been requested by the customer
+// - `pending`: Customer can take action to resolve (requirements `due` or `rejected`)
+// - `active`: Capability is enabled and can be used
+// - `inactive`: Permanently blocked - no customer action possible
+type CapabilityStatus string
+
+// Capture A collection of authorized funds. Multiple partial captures are allowed up to the authorized amount. Each capture settles funds to the merchant's target.
+type Capture struct {
+	// Amount A decimal representation of the captured amount, denominated in the session's `asset`.
+	Amount *string `json:"amount,omitempty"`
+
+	// CaptureId The unique identifier of the capture.
+	CaptureId *CaptureId `json:"captureId,omitempty"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the capture was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// Error An error that occurred during a payment operation.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// FinalCapture When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.
+	FinalCapture bool `json:"finalCapture"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions The onchain transactions associated with this capture.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// PaymentSessionId The ID of the payment session this capture belongs to.
+	PaymentSessionId *PaymentSessionId `json:"paymentSessionId,omitempty"`
+
+	// Status The current status of the capture.
+	Status *PaymentActionStatus `json:"status,omitempty"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the capture was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// CaptureId The ID of the capture, a UUID prefixed by `capture_`.
+type CaptureId = string
+
+// CoinbaseAuthorizationRequest A request to authorize a payment session using the payer's Coinbase account authenticated via OAuth.
+type CoinbaseAuthorizationRequest struct {
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+}
 
 // CommonSwapResponse defines model for CommonSwapResponse.
 type CommonSwapResponse struct {
@@ -1856,25 +2403,10 @@ type CommonSwapResponse struct {
 	// Issues An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
 	Issues struct {
 		// Allowance Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
-		Allowance *struct {
-			// CurrentAllowance The current allowance of the `fromToken` by the `taker`.
-			CurrentAllowance string `json:"currentAllowance"`
-
-			// Spender The 0x-prefixed address of to set the allowance on.
-			Spender string `json:"spender"`
-		} `json:"allowance"`
+		Allowance *CommonSwapResponseIssuesAllowance `json:"allowance"`
 
 		// Balance Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
-		Balance *struct {
-			// CurrentBalance The current balance of the `fromToken` by the `taker`.
-			CurrentBalance string `json:"currentBalance"`
-
-			// RequiredBalance The amount of the token that the `taker` must hold.
-			RequiredBalance string `json:"requiredBalance"`
-
-			// Token The 0x-prefixed contract address of the token.
-			Token string `json:"token"`
-		} `json:"balance"`
+		Balance *CommonSwapResponseIssuesBalance `json:"balance"`
 
 		// SimulationIncomplete This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.
 		SimulationIncomplete bool `json:"simulationIncomplete"`
@@ -1896,16 +2428,92 @@ type CommonSwapResponse struct {
 // CommonSwapResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
 type CommonSwapResponseLiquidityAvailable bool
 
+// CommonSwapResponseIssuesAllowance defines model for CommonSwapResponseIssuesAllowance.
+type CommonSwapResponseIssuesAllowance struct {
+	// CurrentAllowance The current allowance of the `fromToken` by the `taker`.
+	CurrentAllowance string `json:"currentAllowance"`
+
+	// Spender The 0x-prefixed address of to set the allowance on.
+	Spender string `json:"spender"`
+}
+
+// CommonSwapResponseIssuesBalance defines model for CommonSwapResponseIssuesBalance.
+type CommonSwapResponseIssuesBalance struct {
+	// CurrentBalance The current balance of the `fromToken` by the `taker`.
+	CurrentBalance string `json:"currentBalance"`
+
+	// RequiredBalance The amount of the token that the `taker` must hold.
+	RequiredBalance string `json:"requiredBalance"`
+
+	// Token The 0x-prefixed contract address of the token.
+	Token string `json:"token"`
+}
+
+// Compliance Compliance context for a request. Carries per-request compliance signals,
+// such as the IP address of the individual (i.e., end-customer) that
+// initiated the request.
+//
+// This object is request-only — it is never echoed back in responses.
+// Inner fields are write-only.
+type Compliance struct {
+	// RequesterIpAddress IPv4 or IPv6 address of the individual (i.e., end-customer) that
+	// initiated this request. NOT the IP of the partner server making the
+	// API call.
+	RequesterIpAddress *string `json:"requesterIpAddress,omitempty"`
+}
+
+// CountryCode An ISO 3166-1 alpha-2 country code.
+type CountryCode = string
+
 // CreateAccountRequest defines model for CreateAccountRequest.
 type CreateAccountRequest struct {
+	// Compliance Compliance context for a request. Carries per-request compliance signals,
+	// such as the IP address of the individual (i.e., end-customer) that
+	// initiated the request.
+	//
+	// This object is request-only — it is never echoed back in responses.
+	// Inner fields are write-only.
+	Compliance *Compliance `json:"compliance,omitempty"`
+
 	// Name An optional name for the account. Must be 1-64 characters and can only contain alphanumeric characters, hyphens, and spaces.
 	Name *AccountName `json:"name,omitempty"`
+
+	// Owner The Owner of the Account to create.
+	// * If omitted, the account will be owned by the Entity making the request.
+	// * If the account is for a customer, the value will be a Customer ID,
+	//   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
+	//
+	// * Further, the corresponding Customer must have all of the following capabilities enabled:
+	//   - `custodyCrypto`
+	//   - `custodyFiat`
+	//   - `custodyStablecoin`.
+	Owner *Owner `json:"owner,omitempty"`
+}
+
+// CreateCaptureRequest A request to create a capture for a payment session.
+type CreateCaptureRequest struct {
+	// Amount A decimal representation of the amount to capture, denominated in the session's `asset`. If omitted, the full remaining capturable amount is captured.
+	Amount *string `json:"amount,omitempty"`
+
+	// FinalCapture When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.
+	FinalCapture bool `json:"finalCapture"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
 }
 
 // CreateCryptoDepositDestinationRequest defines model for CreateCryptoDepositDestinationRequest.
 type CreateCryptoDepositDestinationRequest struct {
 	// AccountId The ID of the Account, which is a UUID prefixed by the string `account_`.
 	AccountId AccountId `json:"accountId"`
+
+	// Compliance Compliance context for a request. Carries per-request compliance signals,
+	// such as the IP address of the individual (i.e., end-customer) that
+	// initiated the request.
+	//
+	// This object is request-only — it is never echoed back in responses.
+	// Inner fields are write-only.
+	Compliance *Compliance `json:"compliance,omitempty"`
 
 	// Crypto Crypto-specific details. Required when `type` is `crypto`.
 	Crypto CreateDepositDestinationCrypto `json:"crypto"`
@@ -1921,11 +2529,84 @@ type CreateCryptoDepositDestinationRequest struct {
 // CreateCryptoDepositDestinationRequestType defines model for CreateCryptoDepositDestinationRequest.Type.
 type CreateCryptoDepositDestinationRequestType string
 
+// CreateCustomerRequest defines model for CreateCustomerRequest.
+type CreateCustomerRequest struct {
+	// Capabilities Capabilities to request for the customer.
+	Capabilities *CapabilitiesMapInput `json:"capabilities,omitempty"`
+
+	// Compliance Compliance context for a request. Carries per-request compliance signals,
+	// such as the IP address of the individual (i.e., end-customer) that
+	// initiated the request.
+	//
+	// This object is request-only — it is never echoed back in responses.
+	// Inner fields are write-only.
+	Compliance *Compliance `json:"compliance,omitempty"`
+
+	// Individual Information about an Individual customer. Not all fields are required
+	// for all customers; the requirements depend on which capabilities are
+	// requested. Submit only fields that are required by the capabilities
+	// that have been requested.
+	Individual *IndividualInput `json:"individual,omitempty"`
+
+	// ProjectIds The project IDs that this customer is associated with.
+	ProjectIds *[]ProjectId `json:"projectIds,omitempty"`
+
+	// TaxAttestations Tax attestations to record on the customer. Submit one entry per
+	// required form surfaced inline on
+	// `requirements.taxAttestation.taxForms[]` (returned by `Get Customer`,
+	// `Create Customer`, and `Update Customer` whenever a `taxAttestation`
+	// requirement is unsatisfied). The required fields per entry depend on
+	// `form`; see `TaxAttestation`. This field is ingestion-only and is
+	// never returned on read.
+	//
+	// Omit `taxAttestations` on a partial update to leave previously
+	// recorded attestations unchanged. Sending `taxAttestations: []` is
+	// invalid (`errorType: "invalid_request"`) because it would clear all
+	// attestations without replacing them; omit the field entirely when you
+	// are not updating tax attestations.
+	TaxAttestations *[]TaxAttestation `json:"taxAttestations,omitempty"`
+
+	// TosAcceptances Terms of Service acceptances to record on the customer. Submit one
+	// entry per required version surfaced inline on
+	// `requirements.tos.tosVersions[]` (returned by `Get Customer`,
+	// `Create Customer`, and `Update Customer` whenever a `tos` requirement
+	// is unsatisfied). The server rejects each acceptance whose `language`
+	// is not listed under `languages` on the matching required version with
+	// `errorType: "unsupported_tos_language"`.
+	//
+	// When new required Terms of Service versions are published, only the
+	// new `versionId`s appear in `requirements.tos.tosVersions[]`; submit
+	// acceptances for only those new version(s).
+	//
+	// Omit `tosAcceptances` on a partial update to leave previously recorded
+	// acceptances unchanged. Sending `tosAcceptances: []` is invalid
+	// (`errorType: "invalid_request"`) because it would clear all acceptances
+	// without replacing them; omit the field entirely when you are not
+	// updating Terms of Service acceptances.
+	TosAcceptances *[]TosAcceptance `json:"tosAcceptances,omitempty"`
+
+	// Type The type of the customer. Required on create; accepted but ignored on
+	// update.
+	Type CustomerType `json:"type"`
+}
+
 // CreateDepositDestinationCrypto Crypto-specific details for creating a deposit destination.
 type CreateDepositDestinationCrypto struct {
-	// Network The blockchain network for the payment. Supported networks depend on the account type. See [API and Network Support](https://docs.cdp.coinbase.com/api-reference/payment-apis/supported-networks-assets#by-asset-and-network) for more details.
-	Network Network `json:"network"`
+	// Network The blockchain network for crypto payments, transfers, and deposit destinations.
+	Network PaymentNetwork `json:"network"`
 }
+
+// CreateDepositDestinationFiat Fiat-specific request fields for creating a deposit destination. The server determines the account type and provisioning method based on the account's eligibility. Optionally specify a `paymentRail` to target a specific payment rail, which may influence banking partner selection.
+type CreateDepositDestinationFiat struct {
+	// Currency The fiat currency for the deposit destination.
+	Currency CreateDepositDestinationFiatCurrency `json:"currency"`
+
+	// PaymentRail Optional. The desired payment rail. When omitted, the server provisions the default banking partner and returns all rails the account supports. When specified, the server selects a banking partner that supports the requested rail.
+	PaymentRail *DepositDestinationPaymentRail `json:"paymentRail,omitempty"`
+}
+
+// CreateDepositDestinationFiatCurrency The fiat currency for the deposit destination.
+type CreateDepositDestinationFiatCurrency string
 
 // CreateDepositDestinationRequest Request to create a new deposit destination. Provide the type-specific details matching the chosen `type`.
 type CreateDepositDestinationRequest struct {
@@ -1937,6 +2618,14 @@ type CreateDepositDestinationRequestBase struct {
 	// AccountId The ID of the Account, which is a UUID prefixed by the string `account_`.
 	AccountId AccountId `json:"accountId"`
 
+	// Compliance Compliance context for a request. Carries per-request compliance signals,
+	// such as the IP address of the individual (i.e., end-customer) that
+	// initiated the request.
+	//
+	// This object is request-only — it is never echoed back in responses.
+	// Inner fields are write-only.
+	Compliance *Compliance `json:"compliance,omitempty"`
+
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 
@@ -1945,6 +2634,33 @@ type CreateDepositDestinationRequestBase struct {
 
 	// Type The type of deposit destination.
 	Type DepositDestinationType `json:"type"`
+}
+
+// CreateDisbursementRequest A request to create a disbursement.
+type CreateDisbursementRequest struct {
+	// Amount A decimal representation of the amount to disburse, denominated in `asset`.
+	Amount string `json:"amount"`
+
+	// Asset The symbol of the asset for the disbursement amount.
+	Asset Asset `json:"asset"`
+
+	// Compliance Compliance context for this disbursement. Carries recipient information required by some entity configurations to meet regulatory requirements.
+	Compliance *DisbursementCompliance `json:"compliance,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Reason Human-readable reason for the disbursement.
+	Reason *string `json:"reason,omitempty"`
+
+	// Source The source from which to fund the disbursement.
+	Source DisbursementSource `json:"source"`
+
+	// Target The target receiving the disbursement.
+	Target DisbursementTarget `json:"target"`
 }
 
 // CreateEndUserEvmSwapCriteria A schema for specifying criteria for the createEndUserEvmSwap operation.
@@ -1972,6 +2688,85 @@ type CreateEndUserEvmSwapRuleAction string
 
 // CreateEndUserEvmSwapRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type CreateEndUserEvmSwapRuleOperation string
+
+// CreateFiatDepositDestinationRequest defines model for CreateFiatDepositDestinationRequest.
+type CreateFiatDepositDestinationRequest struct {
+	// AccountId The ID of the Account, which is a UUID prefixed by the string `account_`.
+	AccountId AccountId `json:"accountId"`
+
+	// Compliance Compliance context for a request. Carries per-request compliance signals,
+	// such as the IP address of the individual (i.e., end-customer) that
+	// initiated the request.
+	//
+	// This object is request-only — it is never echoed back in responses.
+	// Inner fields are write-only.
+	Compliance *Compliance `json:"compliance,omitempty"`
+
+	// Fiat Fiat-specific details. Required when `type` is `fiat`.
+	Fiat CreateDepositDestinationFiat `json:"fiat"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Target The intended target for deposited funds.
+	Target *DepositDestinationTarget               `json:"target,omitempty"`
+	Type   CreateFiatDepositDestinationRequestType `json:"type"`
+}
+
+// CreateFiatDepositDestinationRequestType defines model for CreateFiatDepositDestinationRequest.Type.
+type CreateFiatDepositDestinationRequestType string
+
+// CreatePaymentSessionRequest A request to create a new payment session.
+type CreatePaymentSessionRequest struct {
+	// Amount A decimal representation of the payment amount, denominated in `asset`.
+	Amount string `json:"amount"`
+
+	// Asset The symbol of the asset for the payment amount.
+	Asset Asset `json:"asset"`
+
+	// AutoCapture When true, a capture is automatically created after a successful authorization. When false or omitted, the merchant must create captures manually via the captures endpoint.
+	AutoCapture *bool `json:"autoCapture,omitempty"`
+
+	// Compliance Compliance context for this payment session. Carries buyer information required by some entity configurations to meet regulatory requirements.
+	Compliance *PaymentSessionCompliance `json:"compliance,omitempty"`
+
+	// CustomerDisplay Merchant-provided display data shown to the payer during checkout. All fields are informational only — stored and returned as-is, with no effect on payment processing, settlement, or validation.
+	CustomerDisplay *CustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// Expiries Deadlines for each stage of the payment session lifecycle. All fields are optional; when omitted from a create request, the following defaults apply: `authorizationExpiresAt` = now + 1 day, `captureExpiresAt` = now + 7 days, `refundExpiresAt` = now + 30 days.
+	//
+	// Expiries must satisfy `authorizationExpiresAt` ≤ `captureExpiresAt` ≤ `refundExpiresAt`. The API returns a 400 error if this constraint is violated.
+	//
+	// Each deadline acts as a guard — after it passes, the corresponding action is rejected, but the session remains in its current status. No automatic state transitions occur; the merchant must take explicit action (e.g., cancel or void) to move the session to a terminal state.
+	Expiries *PaymentExpiries `json:"expiries,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this payment session, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Redirect Redirect URLs used to direct the payer after a web-based payment flow completes or fails.
+	Redirect *PaymentRedirect `json:"redirect,omitempty"`
+
+	// Target The target of the payment session.
+	Target PaymentSessionTarget `json:"target"`
+}
+
+// CreateRefundRequest A request to create a refund for a payment session.
+type CreateRefundRequest struct {
+	// Amount A decimal representation of the amount to refund, denominated in the session's `asset`. If omitted, the full remaining refundable amount is refunded.
+	Amount *string `json:"amount,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Reason The reason for the refund.
+	Reason *string `json:"reason,omitempty"`
+
+	// Source The source from which to fund the refund. Can be a CDP account or an onchain address.
+	Source RefundSource `json:"source"`
+}
 
 // CreateSpendPermissionRequest Request parameters for creating a Spend Permission.
 type CreateSpendPermissionRequest struct {
@@ -2029,25 +2824,10 @@ type CreateSwapQuoteResponse struct {
 	// Issues An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
 	Issues struct {
 		// Allowance Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
-		Allowance *struct {
-			// CurrentAllowance The current allowance of the `fromToken` by the `taker`.
-			CurrentAllowance string `json:"currentAllowance"`
-
-			// Spender The 0x-prefixed address of to set the allowance on.
-			Spender string `json:"spender"`
-		} `json:"allowance"`
+		Allowance *CommonSwapResponseIssuesAllowance `json:"allowance"`
 
 		// Balance Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
-		Balance *struct {
-			// CurrentBalance The current balance of the `fromToken` by the `taker`.
-			CurrentBalance string `json:"currentBalance"`
-
-			// RequiredBalance The amount of the token that the `taker` must hold.
-			RequiredBalance string `json:"requiredBalance"`
-
-			// Token The 0x-prefixed contract address of the token.
-			Token string `json:"token"`
-		} `json:"balance"`
+		Balance *CommonSwapResponseIssuesBalance `json:"balance"`
 
 		// SimulationIncomplete This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.
 		SimulationIncomplete bool `json:"simulationIncomplete"`
@@ -2060,13 +2840,7 @@ type CreateSwapQuoteResponse struct {
 	MinToAmount string `json:"minToAmount"`
 
 	// Permit2 The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
-	Permit2 *struct {
-		// Eip712 The message to sign using EIP-712.
-		Eip712 EIP712Message `json:"eip712"`
-
-		// Hash The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
-		Hash string `json:"hash"`
-	} `json:"permit2"`
+	Permit2 *SwapPermit2Approval `json:"permit2"`
 
 	// ToAmount The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.
 	ToAmount string `json:"toAmount"`
@@ -2106,6 +2880,12 @@ type CreateTransferSource struct {
 	union json.RawMessage
 }
 
+// CreateVoidRequest A request to create a void for a payment session. A void releases all remaining capturable funds back to the payer, including after partial refunds as long as a capturableAmount remains.
+type CreateVoidRequest struct {
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+}
+
 // CryptoDepositDestination A cryptocurrency deposit destination.
 type CryptoDepositDestination struct {
 	// AccountId The ID of the Account, which is a UUID prefixed by the string `account_`.
@@ -2139,12 +2919,146 @@ type CryptoDepositDestination struct {
 // CryptoDepositDestinationType The type of deposit destination.
 type CryptoDepositDestinationType string
 
+// Customer A customer record returned on read (Get / Create / Update Customer).
+type Customer struct {
+	// Capabilities Current state of each capability for this customer. Each capability
+	// shows whether it has been requested and its current status.
+	Capabilities *CapabilitiesMap `json:"capabilities,omitempty"`
+
+	// CreatedAt Timestamp when the customer was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// CustomerId The ID of the Customer, which is a UUID prefixed by `customer_`.
+	CustomerId CustomerId `json:"customerId"`
+
+	// Individual Individual customer data returned on read — the `individual` object on
+	// Get / Create / Update Customer responses. Only contact-identity fields are
+	// echoed back; every other field accepted on the `IndividualInput` object
+	// (`address`, `ssnLast4`, `dateOfBirth`, `fullSsn`, `citizenship`,
+	// `phoneNumber`, and the CDD fields) is ingestion-only and never returned.
+	Individual *Individual `json:"individual,omitempty"`
+
+	// ProjectIds The project IDs that this customer is associated with.
+	ProjectIds *[]ProjectId `json:"projectIds,omitempty"`
+
+	// Requirements Map of requirements to be submitted. Each key is the field name, with
+	// values to describe its state. Requirements are only shown for requested
+	// capabilities. When a requirement is fulfilled, it disappears from this map.
+	Requirements *RequirementsMap `json:"requirements,omitempty"`
+
+	// TosAcceptances Terms of Service acceptances recorded for the customer.
+	TosAcceptances *[]TosAcceptance `json:"tosAcceptances,omitempty"`
+
+	// Type The type of the customer. Required on create; accepted but ignored on update.
+	Type CustomerType `json:"type"`
+
+	// UpdatedAt Timestamp when the customer was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// CustomerDisplay Merchant-provided display data shown to the payer during checkout. All fields are informational only — stored and returned as-is, with no effect on payment processing, settlement, or validation.
+type CustomerDisplay struct {
+	// DisplayAmount The amount to present to the payer, which may differ from the authoritative settlement amount and asset. Commonly used when the payer's local currency differs from the settlement currency (e.g., charging in USD but displaying the equivalent in CAD). Stored and returned as-is — no cross-validation is performed against the authoritative `amount` and `asset`. Both `amount` and `currency` must be provided together.
+	DisplayAmount *struct {
+		// Amount The display amount as a decimal string (e.g., `"1.37"`).
+		Amount string `json:"amount"`
+
+		// Currency An ISO 4217 currency code in lowercase for the display amount (e.g., `cad`, `usd`).
+		Currency string `json:"currency"`
+	} `json:"displayAmount,omitempty"`
+
+	// MerchantName The merchant name to display on the payment UI. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
+	MerchantName *string `json:"merchantName,omitempty"`
+}
+
+// CustomerId The ID of the Customer, which is a UUID prefixed by `customer_`.
+type CustomerId = string
+
+// CustomerType The type of the customer. Required on create; accepted but ignored on update.
+type CustomerType string
+
+// CustomerWriteBase Fields accepted on customer create and update requests. Shared by
+// `CreateCustomerRequest` and `UpdateCustomerRequest`; excludes the
+// server-managed response-only fields that appear on `Customer`.
+type CustomerWriteBase struct {
+	// Capabilities Capabilities to request for the customer.
+	Capabilities *CapabilitiesMapInput `json:"capabilities,omitempty"`
+
+	// Compliance Compliance context for a request. Carries per-request compliance signals,
+	// such as the IP address of the individual (i.e., end-customer) that
+	// initiated the request.
+	//
+	// This object is request-only — it is never echoed back in responses.
+	// Inner fields are write-only.
+	Compliance *Compliance `json:"compliance,omitempty"`
+
+	// Individual Information about an Individual customer. Not all fields are required
+	// for all customers; the requirements depend on which capabilities are
+	// requested. Submit only fields that are required by the capabilities
+	// that have been requested.
+	Individual *IndividualInput `json:"individual,omitempty"`
+
+	// ProjectIds The project IDs that this customer is associated with.
+	ProjectIds *[]ProjectId `json:"projectIds,omitempty"`
+
+	// TaxAttestations Tax attestations to record on the customer. Submit one entry per
+	// required form surfaced inline on
+	// `requirements.taxAttestation.taxForms[]` (returned by `Get Customer`,
+	// `Create Customer`, and `Update Customer` whenever a `taxAttestation`
+	// requirement is unsatisfied). The required fields per entry depend on
+	// `form`; see `TaxAttestation`. This field is ingestion-only and is
+	// never returned on read.
+	//
+	// Omit `taxAttestations` on a partial update to leave previously
+	// recorded attestations unchanged. Sending `taxAttestations: []` is
+	// invalid (`errorType: "invalid_request"`) because it would clear all
+	// attestations without replacing them; omit the field entirely when you
+	// are not updating tax attestations.
+	TaxAttestations *[]TaxAttestation `json:"taxAttestations,omitempty"`
+
+	// TosAcceptances Terms of Service acceptances to record on the customer. Submit one
+	// entry per required version surfaced inline on
+	// `requirements.tos.tosVersions[]` (returned by `Get Customer`,
+	// `Create Customer`, and `Update Customer` whenever a `tos` requirement
+	// is unsatisfied). The server rejects each acceptance whose `language`
+	// is not listed under `languages` on the matching required version with
+	// `errorType: "unsupported_tos_language"`.
+	//
+	// When new required Terms of Service versions are published, only the
+	// new `versionId`s appear in `requirements.tos.tosVersions[]`; submit
+	// acceptances for only those new version(s).
+	//
+	// Omit `tosAcceptances` on a partial update to leave previously recorded
+	// acceptances unchanged. Sending `tosAcceptances: []` is invalid
+	// (`errorType: "invalid_request"`) because it would clear all acceptances
+	// without replacing them; omit the field entirely when you are not
+	// updating Terms of Service acceptances.
+	TosAcceptances *[]TosAcceptance `json:"tosAcceptances,omitempty"`
+
+	// Type The type of the customer. Required on create; accepted but ignored on
+	// update.
+	Type *CustomerType `json:"type,omitempty"`
+}
+
 // DateOfBirth Date of birth.
 type DateOfBirth struct {
 	// Day Day of birth (01-31).
 	Day *string `json:"day,omitempty"`
 
 	// Month Month of birth (01-12).
+	Month *string `json:"month,omitempty"`
+
+	// Year Year of birth (four digits).
+	Year *string `json:"year,omitempty"`
+}
+
+// DateOfBirthLenient Date of birth with lenient formatting. Accepts both zero-padded ("04", "07")
+// and single-digit ("4", "7") values for day and month.
+type DateOfBirthLenient struct {
+	// Day Day of birth (1-31). Both single-digit ("7") and zero-padded ("07") formats are accepted.
+	Day *string `json:"day,omitempty"`
+
+	// Month Month of birth (1-12). Both single-digit ("4") and zero-padded ("04") formats are accepted.
 	Month *string `json:"month,omitempty"`
 
 	// Year Year of birth (four digits).
@@ -2161,12 +3075,20 @@ type DepositDestinationCrypto struct {
 	// Address A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
 	Address BlockchainAddress `json:"address"`
 
-	// Network The blockchain network for the payment. Supported networks depend on the account type. See [API and Network Support](https://docs.cdp.coinbase.com/api-reference/payment-apis/supported-networks-assets#by-asset-and-network) for more details.
-	Network Network `json:"network"`
+	// Network The blockchain network for crypto payments, transfers, and deposit destinations.
+	Network PaymentNetwork `json:"network"`
+}
+
+// DepositDestinationFiat Fiat bank account details for a deposit destination. The `accountType` field indicates the account identification scheme and determines which fields are present.
+type DepositDestinationFiat struct {
+	union json.RawMessage
 }
 
 // DepositDestinationId The ID of the Deposit Destination, which is a UUID prefixed by the string `depositDestination_`.
 type DepositDestinationId = string
+
+// DepositDestinationPaymentRail A payment rail supported by a fiat deposit destination.
+type DepositDestinationPaymentRail string
 
 // DepositDestinationReference A reference to the deposit destination associated with the transfer.
 type DepositDestinationReference struct {
@@ -2191,6 +3113,9 @@ type DepositDestinationTargetAccount struct {
 	Asset Asset `json:"asset"`
 }
 
+// DepositDestinationTargetOnchainAddress The target of the payment is an onchain address.
+type DepositDestinationTargetOnchainAddress = OnchainAddress
+
 // DepositDestinationType The type of deposit destination.
 type DepositDestinationType = string
 
@@ -2207,6 +3132,9 @@ type DepositTravelRuleOriginator struct {
 
 	// DateOfBirth Date of birth of the originator.
 	DateOfBirth *DateOfBirth `json:"dateOfBirth,omitempty"`
+
+	// FinancialInstitution Name of the financial institution.
+	FinancialInstitution *string `json:"financialInstitution,omitempty"`
 
 	// Name Full name of the originator.
 	Name *string `json:"name,omitempty"`
@@ -2226,8 +3154,33 @@ type DepositTravelRuleOriginatorWalletType string
 
 // DepositTravelRuleRequest Request body for submitting travel rule information for a deposit transfer. Required fields vary by jurisdiction.
 type DepositTravelRuleRequest struct {
+	// AttestVerifiedWalletOwnership When `true`, you attest that the originating wallet's ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this travel-rule submission.
+	//
+	// **Only valid when `isIntermediary` is `true`.** You can only attest to the originating wallet's ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted.
+	AttestVerifiedWalletOwnership *bool `json:"attestVerifiedWalletOwnership,omitempty"`
+
 	// Beneficiary Beneficiary information for the travel rule submission.
 	Beneficiary *DepositTravelRuleBeneficiary `json:"beneficiary,omitempty"`
+
+	// IsIntermediary Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.
+	//
+	// **Background:**
+	//
+	// The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.
+	//
+	// **Set to `true` when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).
+	//
+	// **Set to `false` (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization's own funds.
+	//
+	// **Impact on required fields:**
+	//
+	// When `isIntermediary` is `true`, you must provide the `originator` object with the following details:
+	// - The originator's (i.e. your end customer's) name
+	// - The originator's address
+	// - Your organization's VASP information (`virtualAssetServiceProvider` object with `identifier`, `name`, and `address`)
+	//
+	// In certain jurisdictions, `personalId` and `dateOfBirth` must also reflect the **original sender's** identity — not your organization's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
+	IsIntermediary *IsIntermediary `json:"isIntermediary,omitempty"`
 
 	// IsSelf Indicates whether the user attests that the originating wallet belongs to them.
 	IsSelf *bool `json:"isSelf,omitempty"`
@@ -2274,6 +3227,104 @@ type DeveloperJWTAuthentication struct {
 
 // DeveloperJWTAuthenticationType The type of authentication information.
 type DeveloperJWTAuthenticationType string
+
+// Disbursement A Disbursement represents a merchant-initiated payment of funds from a CDP account they own to a Coinbase account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.
+//
+// Disbursements are asynchronous: the resource is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+type Disbursement struct {
+	// Amount A decimal representation of the disbursed amount, denominated in `asset`.
+	Amount string `json:"amount"`
+
+	// Asset The symbol of the asset for the disbursement amount.
+	Asset Asset `json:"asset"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the disbursement was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// DisbursementId The unique identifier of the disbursement.
+	DisbursementId DisbursementId `json:"disbursementId"`
+
+	// Error Error details, present only when the disbursement failed.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions The onchain transactions associated with this disbursement.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// Reason Human-readable reason for the disbursement.
+	Reason *string `json:"reason,omitempty"`
+
+	// Source The source from which the disbursement is funded.
+	Source DisbursementSource `json:"source"`
+
+	// Status The current status of the disbursement.
+	Status PaymentActionStatus `json:"status"`
+
+	// Target The target receiving the disbursement.
+	Target DisbursementTarget `json:"target"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the disbursement was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// DisbursementCoinbaseTarget A Coinbase-user target for the disbursement.
+type DisbursementCoinbaseTarget struct {
+	// CoinbaseUserId The unique identifier of the recipient within Coinbase.
+	CoinbaseUserId string `json:"coinbaseUserId"`
+}
+
+// DisbursementCompliance defines model for DisbursementCompliance.
+type DisbursementCompliance struct {
+	// Recipient Information about the person receiving this disbursement. Required by some entity configurations to meet regulatory requirements for fund transfers. When required, omitting this field or leaving required sub-fields empty returns a 400 listing the specific fields needed.
+	Recipient *Person `json:"recipient,omitempty"`
+
+	// RequesterIpAddress IPv4 or IPv6 address of the individual (i.e., end-customer) that
+	// initiated this request. NOT the IP of the partner server making the
+	// API call.
+	RequesterIpAddress *string `json:"requesterIpAddress,omitempty"`
+}
+
+// DisbursementId The ID of the disbursement, a UUID prefixed by `disbursement_`.
+type DisbursementId = string
+
+// DisbursementSource The source from which the disbursement is funded. Currently restricted to a CDP account owned by the merchant. Modeled as a `oneOf` so additional source types (e.g. a merchant-controlled onchain wallet) can be added without a breaking change.
+type DisbursementSource struct {
+	union json.RawMessage
+}
+
+// DisbursementTarget The target of the disbursement. Can be either a Coinbase user account or an onchain blockchain address.
+type DisbursementTarget struct {
+	union json.RawMessage
+}
+
+// DisbursementWalletTarget An onchain address target for the disbursement.
+type DisbursementWalletTarget struct {
+	// Address The onchain crypto address of the recipient.
+	Address BlockchainAddress `json:"address"`
+
+	// Network The blockchain network on which the target receives funds.
+	Network Network `json:"network"`
+}
+
+// EIP3009Payload An EIP-3009 TransferWithAuthorization typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
+type EIP3009Payload struct {
+	// Data EIP-712 typed data for a TransferWithAuthorization. Pass to `eth_signTypedData_v4`.
+	Data EIP712Message `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type EIP3009PayloadType `json:"type"`
+}
+
+// EIP3009PayloadType The payload type.
+type EIP3009PayloadType string
 
 // EIP712Domain The domain of the EIP-712 typed data.
 type EIP712Domain struct {
@@ -2386,6 +3437,12 @@ type EndUserEvmAccount struct {
 
 	// CreatedAt The date and time when the account was created, in ISO 8601 format.
 	CreatedAt time.Time `json:"createdAt"`
+
+	// EjectedAt The date and time when the account's key was ejected (marked for deletion), in ISO 8601 format. Populated when the account has been ejected. The account record remains queryable after this timestamp is set; it reflects when ejection was requested, not when the key material is purged.
+	EjectedAt *time.Time `json:"ejectedAt"`
+
+	// ExportedAt The date and time when the account's private key was first exported, in ISO 8601 format. This is set on the first export and preserved on subsequent exports; it is not updated on re-export.
+	ExportedAt *time.Time `json:"exportedAt"`
 }
 
 // EndUserEvmSmartAccount Information about an EVM smart account associated with an end user.
@@ -2407,7 +3464,49 @@ type EndUserSolanaAccount struct {
 
 	// CreatedAt The date and time when the account was created, in ISO 8601 format.
 	CreatedAt time.Time `json:"createdAt"`
+
+	// EjectedAt The date and time when the account's key was ejected (marked for deletion), in ISO 8601 format. Populated when the account has been ejected. The account record remains queryable after this timestamp is set; it reflects when ejection was requested, not when the key material is purged.
+	EjectedAt *time.Time `json:"ejectedAt"`
+
+	// ExportedAt The date and time when the account's private key was first exported, in ISO 8601 format. This is set on the first export and preserved on subsequent exports; it is not updated on re-export.
+	ExportedAt *time.Time `json:"exportedAt"`
 }
+
+// Erc20ApprovalPayload An ERC-20 approval transaction payload. The payer must send `data` as an EVM transaction via `eth_sendTransaction` and return the resulting transaction hash.
+type Erc20ApprovalPayload struct {
+	// Data An EVM transaction object. Send via `eth_sendTransaction`.
+	Data struct {
+		// ChainId The EVM chain ID for the transaction.
+		ChainId int `json:"chainId"`
+
+		// Data The ABI-encoded `approve()` calldata.
+		Data string `json:"data"`
+
+		// Gas The estimated gas limit for the transaction.
+		Gas *string `json:"gas,omitempty"`
+
+		// MaxFeePerGas The maximum fee per gas unit (EIP-1559).
+		MaxFeePerGas *string `json:"maxFeePerGas,omitempty"`
+
+		// MaxPriorityFeePerGas The maximum priority fee per gas unit (EIP-1559).
+		MaxPriorityFeePerGas *string `json:"maxPriorityFeePerGas,omitempty"`
+
+		// To The 0x-prefixed address of the ERC-20 token contract to approve.
+		To string `json:"to"`
+
+		// Value The native token value to send (always `"0"` for approvals).
+		Value string `json:"value"`
+	} `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type Erc20ApprovalPayloadType `json:"type"`
+}
+
+// Erc20ApprovalPayloadType The payload type.
+type Erc20ApprovalPayloadType string
 
 // Error An error response including the code for the type of error and a human-readable message describing the error.
 type Error struct {
@@ -2730,6 +3829,24 @@ type EvmUserOperationStatus string
 // EvmUserOperationNetwork The network the user operation is for.
 type EvmUserOperationNetwork string
 
+// FedwireDepositSource The originating Fedwire deposit details for the transfer source. Present when funds were deposited via Fedwire into a deposit destination.
+type FedwireDepositSource struct {
+	// AccountNumber The originator's bank account number. Masked on webhook payloads.
+	AccountNumber string `json:"accountNumber"`
+
+	// Currency The fiat currency of the Fedwire deposit (e.g., `usd`).
+	Currency Asset `json:"currency"`
+
+	// Omad The Output Message Accountability Data (OMAD), a unique identifier assigned by the Fedwire network to the wire transfer message.
+	Omad string `json:"omad"`
+
+	// OriginatorName The name of the originator. Masked on webhook payloads.
+	OriginatorName string `json:"originatorName"`
+
+	// OriginatorToBeneficiary The Originator to Beneficiary Information (OBI) lines from the Fedwire message. Up to 4 lines, each up to 35 characters. Free-form and may contain identifying information about the originator. Masked on webhook payloads.
+	OriginatorToBeneficiary *[]string `json:"originatorToBeneficiary,omitempty"`
+}
+
 // FedwireDetails Details specific to Fedwire (domestic USD wire) payment methods.
 type FedwireDetails struct {
 	// AccountLast4 The last 4 digits of the bank account number.
@@ -2769,6 +3886,39 @@ type FedwirePaymentMethod struct {
 // FedwirePaymentMethodPaymentRail The payment rail for this payment method.
 type FedwirePaymentMethodPaymentRail string
 
+// FiatDepositDestination A fiat deposit destination. Represents a single bank account provisioned at a single banking partner. Each deposit destination has one status and one lifecycle. The `fiat` object contains the bank account details, keyed by account type.
+type FiatDepositDestination struct {
+	// AccountId The ID of the Account, which is a UUID prefixed by the string `account_`.
+	AccountId AccountId `json:"accountId"`
+
+	// CreatedAt The timestamp when the deposit destination was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// DepositDestinationId The ID of the Deposit Destination, which is a UUID prefixed by the string `depositDestination_`.
+	DepositDestinationId DepositDestinationId `json:"depositDestinationId"`
+
+	// Fiat Fiat bank account details for a deposit destination. The `accountType` field indicates the account identification scheme and determines which fields are present.
+	Fiat DepositDestinationFiat `json:"fiat"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Status The status of the deposit destination.
+	Status DepositDestinationStatus `json:"status"`
+
+	// Target The intended target for deposited funds.
+	Target *DepositDestinationTarget `json:"target,omitempty"`
+
+	// Type The type of deposit destination.
+	Type FiatDepositDestinationType `json:"type"`
+
+	// UpdatedAt The timestamp when the deposit destination was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// FiatDepositDestinationType The type of deposit destination.
+type FiatDepositDestinationType string
+
 // GetSwapPriceResponse defines model for GetSwapPriceResponse.
 type GetSwapPriceResponse struct {
 	// BlockNumber The block number at which the liquidity conditions were examined.
@@ -2798,25 +3948,10 @@ type GetSwapPriceResponse struct {
 	// Issues An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
 	Issues struct {
 		// Allowance Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
-		Allowance *struct {
-			// CurrentAllowance The current allowance of the `fromToken` by the `taker`.
-			CurrentAllowance string `json:"currentAllowance"`
-
-			// Spender The 0x-prefixed address of to set the allowance on.
-			Spender string `json:"spender"`
-		} `json:"allowance"`
+		Allowance *CommonSwapResponseIssuesAllowance `json:"allowance"`
 
 		// Balance Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
-		Balance *struct {
-			// CurrentBalance The current balance of the `fromToken` by the `taker`.
-			CurrentBalance string `json:"currentBalance"`
-
-			// RequiredBalance The amount of the token that the `taker` must hold.
-			RequiredBalance string `json:"requiredBalance"`
-
-			// Token The 0x-prefixed contract address of the token.
-			Token string `json:"token"`
-		} `json:"balance"`
+		Balance *CommonSwapResponseIssuesBalance `json:"balance"`
 
 		// SimulationIncomplete This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.
 		SimulationIncomplete bool `json:"simulationIncomplete"`
@@ -2897,6 +4032,143 @@ type Idl struct {
 	Types *[]map[string]interface{} `json:"types,omitempty"`
 }
 
+// Individual Individual customer data returned on read — the `individual` object on
+// Get / Create / Update Customer responses. Only contact-identity fields are
+// echoed back; every other field accepted on the `IndividualInput` object
+// (`address`, `ssnLast4`, `dateOfBirth`, `fullSsn`, `citizenship`,
+// `phoneNumber`, and the CDD fields) is ingestion-only and never returned.
+type Individual struct {
+	// Email Email address for the customer.
+	Email *Email `json:"email,omitempty"`
+
+	// FirstName First name (given name).
+	FirstName *string `json:"firstName,omitempty"`
+
+	// LastName Last name (family name/surname).
+	LastName *string `json:"lastName,omitempty"`
+}
+
+// IndividualInput Individual customer data submitted on create / update requests. Fields are
+// organized by the capabilities they unlock; not all are required for all
+// customers (the requirements depend on which capabilities are requested).
+// Read responses return the narrower `Individual` object (only `firstName`,
+// `lastName`, and `email`), not this full request shape.
+type IndividualInput struct {
+	// Address Primary residential address. Only US addresses are currently
+	// supported. Non-US `countryCode` values are rejected with a 400.
+	Address *struct {
+		// City City or locality.
+		City *string `json:"city,omitempty"`
+
+		// CountryCode ISO 3166-1 alpha-2 country code. Only US addresses
+		// are currently supported.
+		CountryCode *interface{} `json:"countryCode,omitempty"`
+
+		// Line1 Primary street address.
+		Line1 *string `json:"line1,omitempty"`
+
+		// Line2 Secondary address information.
+		Line2 *string `json:"line2,omitempty"`
+
+		// PostCode Postal or ZIP code.
+		PostCode *string `json:"postCode,omitempty"`
+
+		// State State, province, or region.
+		State *string `json:"state,omitempty"`
+	} `json:"address,omitempty"`
+
+	// Citizenship ISO 3166-1 alpha-2 country code representing the customer's citizenship.
+	Citizenship *CountryCode `json:"citizenship,omitempty"`
+
+	// DateOfBirth Date of birth.
+	DateOfBirth *DateOfBirthLenient `json:"dateOfBirth,omitempty"`
+
+	// Email Email address for the customer.
+	Email *Email `json:"email,omitempty"`
+
+	// EmploymentStatus Current employment status.
+	EmploymentStatus *IndividualInputEmploymentStatus `json:"employmentStatus,omitempty"`
+
+	// ExpectedVolume Expected annual volume of activity on the account, expressed as a
+	// dollar range. Use the dollar-honest ids below:
+	//
+	// - `under_1k`: $0 – $1,000
+	// - `1k_to_10k`: $1,000 – $10,000
+	// - `10k_to_100k`: $10,000 – $100,000
+	// - `100k_to_250k`: $100,000 – $250,000
+	// - `250k_to_750k`: $250,000 – $750,000
+	// - `750k_to_1_5m`: $750,000 – $1.5M
+	// - `1_5m_plus`: $1.5M+
+	ExpectedVolume *IndividualInputExpectedVolume `json:"expectedVolume,omitempty"`
+
+	// FirstName First name (given name).
+	FirstName *string `json:"firstName,omitempty"`
+
+	// FullSsn Full Social Security Number (US only).
+	FullSsn *string `json:"fullSsn,omitempty"`
+
+	// LastName Last name (family name/surname).
+	LastName *string `json:"lastName,omitempty"`
+
+	// Occupation Industry or occupation.
+	Occupation *IndividualInputOccupation `json:"occupation,omitempty"`
+
+	// PhoneNumber Phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.
+	PhoneNumber *PhoneNumber `json:"phoneNumber,omitempty"`
+
+	// PurposeOfAccount Primary purpose for using Coinbase services.
+	PurposeOfAccount *IndividualInputPurposeOfAccount `json:"purposeOfAccount,omitempty"`
+
+	// SourceOfFunds Primary source of funds for the account.
+	SourceOfFunds *IndividualInputSourceOfFunds `json:"sourceOfFunds,omitempty"`
+
+	// SsnLast4 Last 4 digits of the Social Security Number (US only).
+	// Used for identity verification.
+	SsnLast4 *string `json:"ssnLast4,omitempty"`
+}
+
+// IndividualInputEmploymentStatus Current employment status.
+type IndividualInputEmploymentStatus string
+
+// IndividualInputExpectedVolume Expected annual volume of activity on the account, expressed as a
+// dollar range. Use the dollar-honest ids below:
+//
+// - `under_1k`: $0 – $1,000
+// - `1k_to_10k`: $1,000 – $10,000
+// - `10k_to_100k`: $10,000 – $100,000
+// - `100k_to_250k`: $100,000 – $250,000
+// - `250k_to_750k`: $250,000 – $750,000
+// - `750k_to_1_5m`: $750,000 – $1.5M
+// - `1_5m_plus`: $1.5M+
+type IndividualInputExpectedVolume string
+
+// IndividualInputOccupation Industry or occupation.
+type IndividualInputOccupation string
+
+// IndividualInputPurposeOfAccount Primary purpose for using Coinbase services.
+type IndividualInputPurposeOfAccount string
+
+// IndividualInputSourceOfFunds Primary source of funds for the account.
+type IndividualInputSourceOfFunds string
+
+// IneligibleWalletAuthorizationAddress A requested payer wallet address that has no eligible authorization option for this payment session, along with a machine- and human-readable reason.
+type IneligibleWalletAuthorizationAddress struct {
+	// Address The requested payer wallet address that has no eligible authorization option.
+	Address BlockchainAddress `json:"address"`
+
+	// Code A machine-readable code indicating why this address has no eligible authorization option. The enum is closed — any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+	Code IneligibleWalletAuthorizationAddressCode `json:"code"`
+
+	// FundsRequired The funding options for this address, one entry per (network, asset) combination the payer could fund to become eligible. Only present when `code` is `insufficient_funds`, and honors the request's `network` and `asset` filters. May be an empty array.
+	FundsRequired *[]WalletAuthorizationFundsRequirement `json:"fundsRequired,omitempty"`
+
+	// Message A human-readable, English-language description of why this address has no eligible authorization option. Suitable for surfacing in product UIs — does not contain personally identifiable information or internal infrastructure details. Clients that need localized strings should dispatch on `code` and provide their own translations.
+	Message string `json:"message"`
+}
+
+// IneligibleWalletAuthorizationAddressCode A machine-readable code indicating why this address has no eligible authorization option. The enum is closed — any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+type IneligibleWalletAuthorizationAddressCode string
+
 // InitiateOnrampVerificationRequest Request body for initiating an onramp OTP verification.
 type InitiateOnrampVerificationRequest struct {
 	// Channel The OTP delivery channel.
@@ -2913,6 +4185,26 @@ type InitiateOnrampVerificationRequestChannel string
 type InitiateOnrampVerificationRequest_Destination struct {
 	union json.RawMessage
 }
+
+// IsIntermediary Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.
+//
+// **Background:**
+//
+// The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.
+//
+// **Set to `true` when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).
+//
+// **Set to `false` (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization's own funds.
+//
+// **Impact on required fields:**
+//
+// When `isIntermediary` is `true`, you must provide the `originator` object with the following details:
+// - The originator's (i.e. your end customer's) name
+// - The originator's address
+// - Your organization's VASP information (`virtualAssetServiceProvider` object with `identifier`, `name`, and `address`)
+//
+// In certain jurisdictions, `personalId` and `dateOfBirth` must also reflect the **original sender's** identity — not your organization's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
+type IsIntermediary = bool
 
 // KnownAbiType A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
 //   - [erc20 - Token Standard](https://eips.ethereum.org/EIPS/eip-20).
@@ -2995,7 +4287,7 @@ type NetUSDChangeCriterionOperator string
 // NetUSDChangeCriterionType The type of criterion to use. This should be `netUSDChange`.
 type NetUSDChangeCriterionType string
 
-// Network The blockchain network for the payment. Supported networks depend on the account type. See [API and Network Support](https://docs.cdp.coinbase.com/api-reference/payment-apis/supported-networks-assets#by-asset-and-network) for more details.
+// Network The blockchain network for the payment. Supported networks depend on the account type.
 type Network string
 
 // OAuth2Authentication Information about an end user who authenticates using a third-party provider.
@@ -3029,7 +4321,7 @@ type OnchainAddress struct {
 	// - XRP address: rhccc5p23aKiCGFcEqqnjEfLRZ6xEvfy3s
 	Address BlockchainAddress `json:"address"`
 
-	// Asset Asset symbol of the payment received by the recipient.
+	// Asset Asset symbol of the payment received by the recipient. Supported values are `usdc` and `eurc`.
 	Asset Asset `json:"asset"`
 
 	// DestinationTag The destination tag of the onchain address. Destination tags are used by certain networks
@@ -3043,8 +4335,8 @@ type OnchainAddress struct {
 	// Note: Most networks (Ethereum, Bitcoin, Solana) do not use destination tags.
 	DestinationTag *string `json:"destinationTag,omitempty"`
 
-	// Network The blockchain network for the payment. Supported networks depend on the account type. See [API and Network Support](https://docs.cdp.coinbase.com/api-reference/payment-apis/supported-networks-assets#by-asset-and-network) for more details.
-	Network Network `json:"network"`
+	// Network The blockchain network for crypto payments, transfers, and deposit destinations.
+	Network PaymentNetwork `json:"network"`
 }
 
 // OnchainDataColumnSchema Schema definition for a table column.
@@ -3133,6 +4425,35 @@ type OnchainDataTableSchema struct {
 	Table *string `json:"table,omitempty"`
 }
 
+// OnchainSignaturePayload A single onchain payload the payer must process to complete an onchain payment option. Inspect `type` to determine how to handle the `data` field:
+// - `eip3009` — pass `data` to `eth_signTypedData_v4`, return the signature.
+// - `permit2` — pass `data` to `eth_signTypedData_v4`, return the signature.
+// - `erc20_approval` — send `data` via `eth_sendTransaction`, return the transaction hash.
+// - `spend_permission` — pass `data` to `eth_signTypedData_v4`, return the signature.
+type OnchainSignaturePayload struct {
+	union json.RawMessage
+}
+
+// OnchainSignedPayload A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:
+// - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.
+// - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+type OnchainSignedPayload struct {
+	// PayloadId The unique identifier of the signed payload.
+	PayloadId *string `json:"payloadId,omitempty"`
+
+	// Signature The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`.
+	Signature *string `json:"signature,omitempty"`
+}
+
+// OnchainTransaction An onchain transaction associated with a payment action.
+type OnchainTransaction struct {
+	// Network The blockchain network the transaction occurred on.
+	Network PaymentSourceNetwork `json:"network"`
+
+	// TransactionHash The blockchain transaction hash.
+	TransactionHash string `json:"transactionHash"`
+}
+
 // OnrampLimitType The type of limit:
 //   - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
 //     within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
@@ -3141,6 +4462,36 @@ type OnchainDataTableSchema struct {
 //     across the user's entire history with no time-based expiration. Once the limit is reached, no further
 //     transactions are allowed. 15 is the default limit.
 type OnrampLimitType string
+
+// OnrampLimitUpgrade Describes a limit value associated with an upgrade.
+type OnrampLimitUpgrade struct {
+	// LimitType The type of limit:
+	// - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
+	//   within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
+	//   $500 is the default limit.
+	// - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions
+	//   across the user's entire history with no time-based expiration. Once the limit is reached, no further
+	//   transactions are allowed. 15 is the default limit.
+	LimitType OnrampLimitType `json:"limitType"`
+
+	// MaxUpgrade The maximum limit value possible after completing the upgrade. Risk factors may impact the actual limit value that takes effect. For `lifetime_transactions`, `2147483647` represents an unlimited number of transactions.
+	MaxUpgrade string `json:"maxUpgrade"`
+}
+
+// OnrampLimitUpgradeEmbeddedResponse A Coinbase-hosted URL for collecting limit upgrade identity fields.
+type OnrampLimitUpgradeEmbeddedResponse struct {
+	// ExpiresAt The time at which the hosted limit upgrade URL expires. Request a new upgrade URL after this time.
+	ExpiresAt time.Time `json:"expiresAt"`
+
+	// UpgradeUrl The Coinbase-hosted URL where the user enters identity information for the limit upgrade. Treat the session token in this URL as opaque.
+	UpgradeUrl Url `json:"upgradeUrl"`
+}
+
+// OnrampLimitUpgradeIdentityFieldKey The identity field key for limit upgrades. These keys correspond to the fields
+// in the limits upgrade request:
+// - `ssnLast4`: Last 4 digits of the Social Security Number
+// - `dateOfBirth`: Date of birth
+type OnrampLimitUpgradeIdentityFieldKey string
 
 // OnrampLimitUpgradeIdentityFields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
 type OnrampLimitUpgradeIdentityFields struct {
@@ -3151,10 +4502,35 @@ type OnrampLimitUpgradeIdentityFields struct {
 	SsnLast4 *string `json:"ssnLast4,omitempty"`
 }
 
+// OnrampLimitUpgradeInteractionMode The interaction mode for the limit upgrade request:
+// - `api`: Submit identity fields directly in the API request.
+// - `embedded`: Return a Coinbase-hosted URL where the user enters identity fields.
+type OnrampLimitUpgradeInteractionMode string
+
+// OnrampLimitUpgradeOption Describes the current status and potential limit changes for a limit upgrade.
+type OnrampLimitUpgradeOption struct {
+	// Fields The identity fields associated with the current status. Contains fields to submit for `unrequested` and `resubmit`, fields pending review for `pending`, and is empty for `active` and `inactive`.
+	Fields []OnrampLimitUpgradeIdentityFieldKey `json:"fields"`
+
+	// LimitUpgrades The limit values associated with this upgrade.
+	LimitUpgrades []OnrampLimitUpgrade `json:"limitUpgrades"`
+
+	// Status The status of verification:
+	// - `unrequested`: The limit upgrade has not been submitted.
+	// - `resubmit`: One or more identity fields must be resubmitted.
+	// - `pending`: The submitted identity fields are pending review.
+	// - `active`: The limit upgrade is active.
+	// - `inactive`: The limit upgrade was rejected and cannot be resubmitted.
+	Status OnrampLimitUpgradeStatus `json:"status"`
+}
+
 // OnrampLimitUpgradeRequest Request to request a limits upgrade for a user.
 type OnrampLimitUpgradeRequest struct {
 	// Fields Populate the properties that correspond to the `fields` array from the user's `OnrampLimitUpgradeOption`.
 	Fields *OnrampLimitUpgradeIdentityFields `json:"fields,omitempty"`
+
+	// InteractionMode The interaction mode for the limit upgrade request. Defaults to `api`.
+	InteractionMode *OnrampLimitUpgradeInteractionMode `json:"interactionMode,omitempty"`
 
 	// UserId The user identifier value. For `phone_number` type, this must be in E.164 format.
 	UserId string `json:"userId"`
@@ -3163,6 +4539,14 @@ type OnrampLimitUpgradeRequest struct {
 	// - `phone_number`: A phone number in E.164 format associated with an onramp user.
 	UserIdType OnrampUserIdType `json:"userIdType"`
 }
+
+// OnrampLimitUpgradeStatus The status of verification:
+// - `unrequested`: The limit upgrade has not been submitted.
+// - `resubmit`: One or more identity fields must be resubmitted.
+// - `pending`: The submitted identity fields are pending review.
+// - `active`: The limit upgrade is active.
+// - `inactive`: The limit upgrade was rejected and cannot be resubmitted.
+type OnrampLimitUpgradeStatus string
 
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
@@ -3331,6 +4715,11 @@ type OnrampSessionRequest struct {
 	Subdivision *string `json:"subdivision,omitempty"`
 }
 
+// OnrampUserAuthToken A reusable, PII-free token issued after a user completes verification in the embedded onramp flow. It encodes only the underlying verification IDs, no personal information. Pass it on subsequent orders to take a returning user straight to the pay button, skipping OTP when checking out to the same wallet.
+//
+// In the embedded flow, `phoneNumber`, `email`, `phoneNumberVerifiedAt`, and `agreementAcceptedAt` are handled by Coinbase in the hosted popup and may be omitted from the request even though they are required for the standard partner-verified flow. Reuse is best-effort: an invalid, expired, or different-wallet token still requires the user to verify. Valid for 60 days.
+type OnrampUserAuthToken = string
+
 // OnrampUserIdType The type of user identifier:
 // - `phone_number`: A phone number in E.164 format associated with an onramp user.
 type OnrampUserIdType string
@@ -3377,34 +4766,59 @@ type OnrampVerificationInitiation struct {
 	VerificationId OnrampVerificationId `json:"verificationId"`
 }
 
-// OriginatingBankAccountUS The originating US bank account details for the transfer source. Present when funds were deposited from an external bank account into a deposit destination. Only the last 4 digits of the account number are exposed.
-type OriginatingBankAccountUS struct {
-	// AccountLast4 The last 4 digits of the originating bank account number.
-	AccountLast4 string `json:"accountLast4"`
-
-	// BankName The name of the bank that originated the deposit.
-	BankName string `json:"bankName"`
-
-	// Currency The fiat currency of the deposit (e.g., `usd`).
-	Currency string `json:"currency"`
-}
-
 // Owner The Owner ID of the Account.
+//
 // Owner IDs are UUIDs prefixed with the Owner Type as follows:
+//
 // * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
-// Support for Customer-owned accounts (`customer_` prefix) is in development.
+//
+//   - **Customer**: `customer_` - If the Owner is one of your Customers,
+//     e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`. Customer ownership requires the
+//     Customer to have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
+//     capabilities enabled.
 type Owner = string
 
 // PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
 type PaymasterContext map[string]interface{}
 
+// PaymentActionStatus The current status of a payment action (authorization, capture, void, or refund).
+type PaymentActionStatus string
+
+// PaymentError An error that occurred during a payment operation.
+type PaymentError struct {
+	// Code A machine-readable error code.
+	Code *string `json:"code,omitempty"`
+
+	// Message A human-readable description of the error.
+	Message *string `json:"message,omitempty"`
+
+	// OccurredAt The UTC ISO 8601 timestamp at which the error occurred.
+	OccurredAt *time.Time `json:"occurredAt,omitempty"`
+}
+
+// PaymentExpiries Deadlines for each stage of the payment session lifecycle. All fields are optional; when omitted from a create request, the following defaults apply: `authorizationExpiresAt` = now + 1 day, `captureExpiresAt` = now + 7 days, `refundExpiresAt` = now + 30 days.
+//
+// Expiries must satisfy `authorizationExpiresAt` ≤ `captureExpiresAt` ≤ `refundExpiresAt`. The API returns a 400 error if this constraint is violated.
+//
+// Each deadline acts as a guard — after it passes, the corresponding action is rejected, but the session remains in its current status. No automatic state transitions occur; the merchant must take explicit action (e.g., cancel or void) to move the session to a terminal state.
+type PaymentExpiries struct {
+	// AuthorizationExpiresAt The UTC ISO 8601 timestamp after which authorization attempts are rejected. Defaults to now + 1 day if omitted. The session remains in its current pre-authorization status; the merchant must explicitly cancel the session.
+	AuthorizationExpiresAt *time.Time `json:"authorizationExpiresAt,omitempty"`
+
+	// CaptureExpiresAt The UTC ISO 8601 timestamp after which capture attempts are rejected. Defaults to now + 7 days if omitted. The session remains in its current status; the merchant must explicitly void to release uncaptured funds.
+	CaptureExpiresAt *time.Time `json:"captureExpiresAt,omitempty"`
+
+	// RefundExpiresAt The UTC ISO 8601 timestamp after which refund attempts are rejected. Defaults to now + 30 days if omitted. The session remains in its current status; the refund window is simply closed.
+	RefundExpiresAt *time.Time `json:"refundExpiresAt,omitempty"`
+}
+
 // PaymentMethod The Payment Method specific details for the transfer.
 type PaymentMethod struct {
-	// Asset The symbol of the asset (e.g., eth, usd, usdc, usdt).
+	// Asset The asset symbol. Supported values are `usd` and `eur`.
 	Asset Asset `json:"asset"`
 
 	// PaymentMethodId The ID of the Payment Method.
-	PaymentMethodId string `json:"paymentMethodId"`
+	PaymentMethodId PaymentMethodId `json:"paymentMethodId"`
 }
 
 // PaymentMethodBase Common properties shared by all payment method types.
@@ -3424,6 +4838,194 @@ type PaymentMethodBase struct {
 
 // PaymentMethodId The ID of the Payment Method, which is a UUID prefixed by the string `paymentMethod_`.
 type PaymentMethodId = string
+
+// PaymentNetwork The blockchain network for crypto payments, transfers, and deposit destinations.
+type PaymentNetwork string
+
+// PaymentRedirect Redirect URLs used to direct the payer after a web-based payment flow completes or fails.
+type PaymentRedirect struct {
+	// FailureUrl The URL to redirect the payer to on payment failure.
+	FailureUrl *Url `json:"failureUrl,omitempty"`
+
+	// SuccessUrl The URL to redirect the payer to on payment success.
+	SuccessUrl *Url `json:"successUrl,omitempty"`
+}
+
+// PaymentSession Tracks the full lifecycle of a payment from creation through settlement. Typical flow: **Create** → **Authorize** (via payment method) → **Capture**. Optional: **Void** to release uncaptured funds, or **Refund** to return captured funds.
+type PaymentSession struct {
+	// Amount A decimal representation of the payment amount, denominated in `asset`.
+	Amount *string `json:"amount,omitempty"`
+
+	// Asset The symbol of the asset for the payment amount.
+	Asset *Asset `json:"asset,omitempty"`
+
+	// Authorizations The authorizations for this payment session.
+	Authorizations *[]Authorization `json:"authorizations,omitempty"`
+
+	// AutoCapture When true, a capture is automatically created after a successful authorization. When false or omitted, the merchant must create captures manually via the captures endpoint.
+	AutoCapture *bool `json:"autoCapture,omitempty"`
+
+	// Balances Running totals tracking how funds move through the session. All amounts are decimal representations denominated in the session's `asset`.
+	Balances *PaymentSessionBalances `json:"balances,omitempty"`
+
+	// CancellationReason The reason the payment session was canceled. Only present when the session has been canceled.
+	CancellationReason *string `json:"cancellationReason,omitempty"`
+
+	// Captures The captures for this payment session.
+	Captures *[]Capture `json:"captures,omitempty"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the payment session was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// CustomerDisplay Merchant-provided display data shown to the payer during checkout. All fields are informational only — stored and returned as-is, with no effect on payment processing, settlement, or validation.
+	CustomerDisplay *CustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// EntityId The ID of the entity that owns the payment session.
+	EntityId *string `json:"entityId,omitempty"`
+
+	// Expiries Deadlines for each stage of the payment session lifecycle. All fields are optional; when omitted from a create request, the following defaults apply: `authorizationExpiresAt` = now + 1 day, `captureExpiresAt` = now + 7 days, `refundExpiresAt` = now + 30 days.
+	//
+	// Expiries must satisfy `authorizationExpiresAt` ≤ `captureExpiresAt` ≤ `refundExpiresAt`. The API returns a 400 error if this constraint is violated.
+	//
+	// Each deadline acts as a guard — after it passes, the corresponding action is rejected, but the session remains in its current status. No automatic state transitions occur; the merchant must take explicit action (e.g., cancel or void) to move the session to a terminal state.
+	Expiries *PaymentExpiries `json:"expiries,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this payment session, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// PaymentSessionId The unique identifier of the payment session.
+	PaymentSessionId *PaymentSessionId `json:"paymentSessionId,omitempty"`
+
+	// Redirect Redirect URLs used to direct the payer after a web-based payment flow completes or fails.
+	Redirect *PaymentRedirect `json:"redirect,omitempty"`
+
+	// Refunds The refunds for this payment session.
+	Refunds *[]Refund `json:"refunds,omitempty"`
+
+	// Source The source of the payment session. Set after a successful authorization. Not present before authorization.
+	Source *PaymentSessionSource `json:"source,omitempty"`
+
+	// Status The most recent meaningful event on the payment session.
+	Status *PaymentSessionStatus `json:"status,omitempty"`
+
+	// Target The target of the payment session.
+	Target *PaymentSessionTarget `json:"target,omitempty"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the payment session was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+
+	// Url A URL to the hosted payment page where the payer can complete this payment session.
+	Url *Url `json:"url,omitempty"`
+
+	// Voids The voids for this payment session.
+	Voids *[]Void `json:"voids,omitempty"`
+
+	// X402Url URL for the hosted x402 payment flow. This endpoint expects an HTTP **POST** request (for example, submitting the x402 payment via request headers); do not treat it as a page opened with GET alone. Only present when the payment target supports a wallet source.
+	X402Url *Url `json:"x402Url,omitempty"`
+}
+
+// PaymentSessionBalances Running totals tracking how funds move through the session. All amounts are decimal representations denominated in the session's `asset`.
+type PaymentSessionBalances struct {
+	// Capturable Authorized funds not yet captured or voided. Decreases with each capture or void.
+	Capturable *string `json:"capturable,omitempty"`
+
+	// Captured Total funds captured across all captures.
+	Captured *string `json:"captured,omitempty"`
+
+	// Refundable Captured funds not yet refunded. Equals `captured` minus `refunded`.
+	Refundable *string `json:"refundable,omitempty"`
+
+	// Refunded Total funds refunded across all refunds.
+	Refunded *string `json:"refunded,omitempty"`
+}
+
+// PaymentSessionCompliance defines model for PaymentSessionCompliance.
+type PaymentSessionCompliance struct {
+	// Buyer Information about the person paying. Required by some entity configurations to meet regulatory requirements for fund transfers. When required, omitting this field or leaving required sub-fields empty returns a 400 listing the specific fields needed.
+	Buyer *Person `json:"buyer,omitempty"`
+
+	// RequesterIpAddress IPv4 or IPv6 address of the individual (i.e., end-customer) that
+	// initiated this request. NOT the IP of the partner server making the
+	// API call.
+	RequesterIpAddress *string `json:"requesterIpAddress,omitempty"`
+}
+
+// PaymentSessionId The ID of the payment session, a UUID prefixed by `paymentSession_`.
+type PaymentSessionId = string
+
+// PaymentSessionSource The source of the payment. Can be either an onchain wallet address or a Coinbase account authenticated via OAuth.
+type PaymentSessionSource struct {
+	union json.RawMessage
+}
+
+// PaymentSessionStatus The most recent meaningful event on the payment session.
+// For session-level milestones the value is one of `created` or `canceled`. For action outcomes the value follows the pattern `{action}_{result}` — e.g. `authorization_succeeded`, `capture_pending`, `refund_failed`.
+type PaymentSessionStatus string
+
+// PaymentSessionTarget The target of the payment.
+type PaymentSessionTarget struct {
+	union json.RawMessage
+}
+
+// PaymentSourceCoinbase A Coinbase account authenticated via OAuth, used as a payment source.
+type PaymentSourceCoinbase struct {
+	// CoinbaseUserId The unique identifier of the payer within Coinbase.
+	CoinbaseUserId string `json:"coinbaseUserId"`
+}
+
+// PaymentSourceNetwork The blockchain network supported for payment session sources. Testnet networks are only available in sandbox environments.
+type PaymentSourceNetwork string
+
+// PaymentSourceWallet A blockchain wallet address used as a payment source.
+type PaymentSourceWallet struct {
+	// Address The blockchain address of the payer.
+	Address BlockchainAddress `json:"address"`
+
+	// Asset The asset used for the payment.
+	Asset *Asset `json:"asset,omitempty"`
+
+	// Network The blockchain network for the payment.
+	Network *PaymentSourceNetwork `json:"network,omitempty"`
+}
+
+// PaymentTargetNetwork The blockchain network supported for payment session targets. Testnet networks are only available in sandbox environments.
+type PaymentTargetNetwork string
+
+// PaymentTargetWallet A blockchain wallet address used as a payment target (merchant recipient).
+type PaymentTargetWallet struct {
+	// Address The blockchain address of the recipient.
+	Address BlockchainAddress `json:"address"`
+
+	// Network The blockchain network for the payment.
+	Network *PaymentTargetNetwork `json:"network,omitempty"`
+}
+
+// Permit2Payload A Permit2 PermitTransferFrom typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
+type Permit2Payload struct {
+	// Data EIP-712 typed data for a Permit2 PermitTransferFrom. Pass to `eth_signTypedData_v4`.
+	Data EIP712Message `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type Permit2PayloadType `json:"type"`
+}
+
+// Permit2PayloadType The payload type.
+type Permit2PayloadType string
+
+// Person A natural person, identified by name and physical address.
+type Person struct {
+	// Address Physical address of the person.
+	Address *PhysicalAddress `json:"address,omitempty"`
+
+	// Name Full legal name of the person.
+	Name *string `json:"name,omitempty"`
+}
 
 // PhoneNumber A phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.
 type PhoneNumber = string
@@ -3474,6 +5076,9 @@ type Policy struct {
 // PolicyScope The scope of the policy. Only one project-level policy can exist at any time.
 type PolicyScope string
 
+// PositiveDecimal A positive decimal string without scientific notation or whitespace.
+type PositiveDecimal = string
+
 // PrepareUserOperationCriteria A schema for specifying criteria for the PrepareUserOperation operation.
 type PrepareUserOperationCriteria = []PrepareUserOperationCriteria_Item
 
@@ -3517,6 +5122,119 @@ type ProgramIdCriterionOperator string
 
 // ProgramIdCriterionType The type of criterion to use. This should be `programId`.
 type ProgramIdCriterionType string
+
+// ProjectId The ID of the Project, a UUID v4.
+type ProjectId = openapi_types.UUID
+
+// Refund A return of previously captured funds to the payer. Multiple partial refunds are allowed up to the total captured amount.
+type Refund struct {
+	// Amount A decimal representation of the refunded amount, denominated in the session's `asset`.
+	Amount *string `json:"amount,omitempty"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the refund was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// Error An error that occurred during a payment operation.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions The onchain transactions associated with this refund.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// PaymentSessionId The ID of the payment session this refund belongs to.
+	PaymentSessionId *PaymentSessionId `json:"paymentSessionId,omitempty"`
+
+	// Reason The reason for the refund.
+	Reason *string `json:"reason,omitempty"`
+
+	// RefundId The unique identifier of the refund.
+	RefundId *RefundId `json:"refundId,omitempty"`
+
+	// Source The source from which the refund is funded. Can be a CDP account or an onchain address.
+	Source *RefundSource `json:"source,omitempty"`
+
+	// Status The current status of the refund.
+	Status *PaymentActionStatus `json:"status,omitempty"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the refund was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// RefundId The ID of the refund, a UUID prefixed by `refund_`.
+type RefundId = string
+
+// RefundSource The source from which a refund is funded.
+type RefundSource struct {
+	union json.RawMessage
+}
+
+// RefundWallet An onchain address from which funds are pulled to fund the refund. Network and asset are inferred from the payment session.
+type RefundWallet struct {
+	// Address The onchain crypto address from which to fund the refund.
+	Address BlockchainAddress `json:"address"`
+}
+
+// Requirement A single requirement that a customer must submit to enable capabilities.
+// Requirements are only shown for requested capabilities.
+type Requirement struct {
+	// Deadline Optional deadline by which this requirement must be satisfied.
+	//
+	// For the `tos` requirement, when present, `deadline` is the earliest
+	// deadline among the unaccepted required Terms of Service versions.
+	Deadline *time.Time `json:"deadline,omitempty"`
+
+	// Impact List of capabilities affected by this requirement, sorted alphabetically.
+	// Only present for `due`, `pending`, or `rejected` statuses.
+	Impact *[]CapabilityName `json:"impact,omitempty"`
+
+	// Status The current status of a requirement:
+	// - `due`: Must be submitted
+	// - `pending`: Submitted, awaiting verification
+	// - `rejected`: Verification failed - customer must resubmit
+	//
+	// When verification passes, the requirement disappears from the response entirely.
+	Status RequirementStatus `json:"status"`
+
+	// TaxForms Required tax attestation forms the Customer has not yet completed.
+	// This field appears only under the requirement key `taxAttestation`.
+	// Submit each `form` back via `taxAttestations[].form` on
+	// `Update Customer` (or `Create Customer`) together with the other
+	// fields required for that form to clear the requirement.
+	TaxForms *[]TaxForm `json:"taxForms,omitempty"`
+
+	// TosVersions Required Terms of Service versions the Customer has not yet
+	// accepted, with the metadata needed to render an acceptance UI
+	// (each entry carries a stable `versionId`, the BCP 47
+	// `languages` the version is published in, and a
+	// language-agnostic `url`). This field appears only under the
+	// requirement key `tos`; do not infer meaning from `tosVersions`
+	// on other requirement keys. Only populated for the `tos`
+	// requirement; omitted on every other requirement key. Submit each
+	// `versionId` back via `tosAcceptances[].versionId` on `Update Customer` (or
+	// `Create Customer`) together with `language` and `acceptedAt` to clear the requirement.
+	TosVersions *[]TermsOfService `json:"tosVersions,omitempty"`
+}
+
+// RequirementStatus The current status of a requirement:
+// - `due`: Must be submitted
+// - `pending`: Submitted, awaiting verification
+// - `rejected`: Verification failed - customer must resubmit
+//
+// When verification passes, the requirement disappears from the response entirely.
+type RequirementStatus string
+
+// RequirementsMap Map of requirements to be submitted. Each key is the field name
+// (e.g., "ssnLast4"), with values to describe its state. Requirements
+// are only shown for requested capabilities. When a requirement is
+// verified, it disappears from this map.
+//
+// When comparing deadlines across keys, note that `requirements.tos.deadline`
+// is an aggregate: the earliest deadline among unaccepted required Terms of
+// Service versions listed in `requirements.tos.tosVersions[]` (not a separate
+// clock from those version rows).
+type RequirementsMap map[string]Requirement
 
 // RevokeSpendPermissionRequest Request parameters for revoking a Spend Permission.
 type RevokeSpendPermissionRequest struct {
@@ -4370,6 +6088,21 @@ type SpendPermission struct {
 // SpendPermissionNetwork The network the spend permission is on.
 type SpendPermissionNetwork string
 
+// SpendPermissionPayload A spend permission EIP-712 typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. This grants a spender the ability to transfer tokens from the payer's smart account under the specified constraints (allowance, period, expiry).
+type SpendPermissionPayload struct {
+	// Data EIP-712 typed data for a SpendPermission approval. Pass to `eth_signTypedData_v4`.
+	Data EIP712Message `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type SpendPermissionPayloadType `json:"type"`
+}
+
+// SpendPermissionPayloadType The payload type.
+type SpendPermissionPayloadType string
+
 // SpendPermissionResponseObject defines model for SpendPermissionResponseObject.
 type SpendPermissionResponseObject struct {
 	// CreatedAt The UTC ISO 8601 timestamp when the permission was created.
@@ -4433,6 +6166,15 @@ type SubmitOnrampVerificationRequest struct {
 	OtpCode string `json:"otpCode"`
 }
 
+// SwapPermit2Approval defines model for SwapPermit2Approval.
+type SwapPermit2Approval struct {
+	// Eip712 The message to sign using EIP-712.
+	Eip712 EIP712Message `json:"eip712"`
+
+	// Hash The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
+	Hash string `json:"hash"`
+}
+
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
 type SwapUnavailableResponse struct {
 	// LiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
@@ -4485,6 +6227,22 @@ type SwiftPaymentMethod struct {
 // SwiftPaymentMethodPaymentRail The payment rail for this payment method.
 type SwiftPaymentMethodPaymentRail string
 
+// TaxAttestation A single tax attestation recorded for a Customer. Submit one entry per
+// required form listed in `Customer.requirements.taxAttestation.taxForms[]`
+// (returned on `Get Customer`, `Create Customer`, and `Update Customer`
+// whenever a `taxAttestation` requirement is unsatisfied). The `form` field
+// selects the variant and determines which additional fields are required.
+type TaxAttestation struct {
+	union json.RawMessage
+}
+
+// TaxForm Identifier for a tax attestation form a Customer may need to
+// complete. The same identifier is surfaced on
+// `Customer.requirements.taxAttestation.taxForms[]` (the forms a
+// Customer still needs to attest to) and submitted back as `form` on
+// `Customer.taxAttestations[]` to record the attestation.
+type TaxForm string
+
 // TelegramAuthentication Information about an end user who authenticates using Telegram.
 type TelegramAuthentication struct {
 	// AuthDate The Telegram user's last login as a Unix timestamp.
@@ -4507,6 +6265,38 @@ type TelegramAuthentication struct {
 
 	// Username The Telegram user's username.
 	Username *string `json:"username,omitempty"`
+}
+
+// TermsOfService Metadata for one Terms of Service document a Customer may need to
+// accept. Each entry represents one logical document (identified by
+// `versionId`) that may be published in multiple languages —
+// `languages` lists the BCP 47 language tags the document is available
+// to view and accept in. `url` is the canonical, language-agnostic
+// document URL; partners append `?lang=<tag>` (where `<tag>` is one of
+// `languages`) to retrieve a specific translation, and omit the
+// parameter to let the documentation site choose a default. This API
+// does not serve Terms of Service body content; this schema describes
+// metadata only.
+type TermsOfService struct {
+	// Languages BCP 47 language tags this Terms of Service document can be viewed
+	// and accepted in. The list is non-empty (every published document
+	// carries at least one language). Append the chosen tag to `url` as
+	// `?lang=<tag>` to fetch the localized document, and submit the same
+	// tag as `language` on the corresponding `TosAcceptance` to record
+	// which translation the Customer reviewed.
+	Languages []string `json:"languages"`
+
+	// Url Canonical, language-agnostic URL where the Terms of Service
+	// document is hosted (for example,
+	// `https://docs.cdp.coinbase.com/legal/terms/us_individual`).
+	// Append `?lang=<tag>` (where `<tag>` is one of `languages`) to
+	// retrieve a specific translation; without the parameter, the
+	// documentation site renders a default translation.
+	Url Url `json:"url"`
+
+	// VersionId Stable identifier for this Terms of Service document. Submit this
+	// value as `versionId` on a `TosAcceptance` to record acceptance.
+	VersionId TosVersionId `json:"versionId"`
 }
 
 // Token General information about a token. Includes the type, the network, and other identifying information.
@@ -4562,6 +6352,46 @@ type TokenFee struct {
 	// Token The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
 	Token string `json:"token"`
 }
+
+// TosAcceptance A single Terms of Service acceptance recorded for a Customer. Submit
+// one entry per required document listed in
+// `Customer.requirements.tos.tosVersions[]` (returned on `Get Customer`,
+// `Create Customer`, and `Update Customer`). `language` records the
+// single translation the Customer actually reviewed.
+//
+// When new required Terms of Service versions are published, only the
+// new `versionId`s appear in `Customer.requirements.tos.tosVersions[]`;
+// submit acceptances for only those new version(s).
+type TosAcceptance struct {
+	// AcceptedAt Timestamp at which the Customer accepted the Terms of Service,
+	// in ISO 8601 / RFC 3339 format. The server may validate or reject
+	// obviously non-credible timestamps; when enforcement tightens,
+	// the authoritative acceptance time may be recorded server-side
+	// instead of trusting client-supplied values alone.
+	AcceptedAt time.Time `json:"acceptedAt"`
+
+	// Language BCP 47 language tag of the Terms of Service translation the
+	// Customer reviewed. At write time the server rejects values that
+	// are not listed under `languages` on the matching required
+	// document for this Customer (same `versionId` as listed in
+	// `Customer.requirements.tos.tosVersions[]`).
+	Language string `json:"language"`
+
+	// VersionId The `versionId` of the Terms of Service document being accepted,
+	// as listed in `Customer.requirements.tos.tosVersions[]`.
+	VersionId TosVersionId `json:"versionId"`
+}
+
+// TosVersionId Stable, opaque identifier for a specific Terms of Service version
+// (for example, `us_individual_2026-05-29`). The same identifier is
+// surfaced on `Customer.requirements.tos.tosVersions[].versionId` (the
+// versions a Customer still needs to accept) and on
+// `Customer.tosAcceptances[].versionId` (the versions the Customer has
+// accepted). Treat the value as opaque and submit it verbatim; the
+// identifier format is stable across API versions, but the set of
+// valid values grows over time as new Terms of Service versions are
+// published.
+type TosVersionId = string
 
 // Transfer A Transfer represents all the information needed to execute a transfer and tracks the lifecycle of a transfer from initiation through completion or failure.
 type Transfer struct {
@@ -4642,8 +6472,8 @@ type TransferDetails struct {
 
 	// OnchainTransactions The onchain transactions associated with the transfer.
 	OnchainTransactions *[]struct {
-		// Network The blockchain network for the payment. Supported networks depend on the account type. See [API and Network Support](https://docs.cdp.coinbase.com/api-reference/payment-apis/supported-networks-assets#by-asset-and-network) for more details.
-		Network Network `json:"network"`
+		// Network The blockchain network for crypto payments, transfers, and deposit destinations.
+		Network PaymentNetwork `json:"network"`
 
 		// TransactionHash The transaction hash.
 		TransactionHash string `json:"transactionHash"`
@@ -4730,7 +6560,7 @@ type TransferFees = []TransferFee
 // TransferRequest A request to create a transfer.
 type TransferRequest struct {
 	// Amount The amount of the transfer, as a decimal string in standard unit denomination of the asset specified by `asset` (e.g., "100.00" for 100 USD, "0.05" for 0.05 ETH).
-	Amount string `json:"amount"`
+	Amount PositiveDecimal `json:"amount"`
 
 	// AmountType Specifies whether the given amount is to be received by the target or taken from the source.
 	//
@@ -4781,33 +6611,33 @@ type TransferTarget struct {
 
 // TravelRule Required Travel Rule fields differ by region. These requirements are determined based on which Coinbase entity the customer has signed the service agreement for.
 type TravelRule struct {
+	// AttestVerifiedWalletOwnership When `true`, you attest that the beneficiary's wallet ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this transfer.
+	//
+	// **Only valid when `isIntermediary` is `true`.** You can only attest to the beneficiary's wallet ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted.
+	AttestVerifiedWalletOwnership *bool `json:"attestVerifiedWalletOwnership,omitempty"`
+
 	// Beneficiary Beneficiary (receiver) party.
 	Beneficiary *TravelRuleBeneficiary `json:"beneficiary,omitempty"`
 
-	// IsIntermediary Indicates whether Coinbase is being used as an intermediary Virtual Asset Service Provider (VASP) to send crypto on behalf of your customer.
+	// IsIntermediary Indicates whether **Coinbase is acting as the intermediary Virtual Asset Service Provider (VASP)**, and your organization is acting as an originating VASP on behalf of your own end customer.
 	//
 	// **Background:**
 	//
-	// The Travel Rule (FATF Recommendation 16) requires VASPs to share originator and beneficiary information for virtual asset transfers. When Coinbase acts as an intermediary, additional Travel Rule data must be provided to satisfy compliance requirements.
+	// The Travel Rule (FATF Recommendation 16) requires VASPs to collect and share certain information about virtual asset transfers. If your organization is a VASP, and you are acting on behalf of your end customer, you must provide additional Travel Rule data to satisfy compliance requirements.
 	//
-	// **Set to `true` when:**
+	// **Set to `true` when** your organization is itself a VASP acting on behalf of your own end customer (the true originator).
 	//
-	// - Your organization is a VASP using Coinbase to send crypto **on behalf of your end customer**
-	// - In this scenario, Coinbase acts as an intermediary in the transfer chain and handles Travel Rule data exchange with the beneficiary VASP
-	//
-	// **Set to `false` (or omit) when:**
-	//
-	// - You are transferring funds directly from your own Coinbase account, where **Coinbase is your primary VASP** rather than an intermediary for another institution
+	// **Set to `false` (or omit) when** your organization is not itself a VASP acting on behalf of an end customer — for example, if the virtual assets involved are your organization's own funds.
 	//
 	// **Impact on required fields:**
 	//
-	// When `isIntermediary` is `true`, you must provide the `originator` object with details about the **original sender**, including:
-	// - Originator name
-	// - Originator address
-	// - Your VASP information (`virtualAssetServiceProvider` object with `name`, `address`, and `identifier`)
+	// When `isIntermediary` is `true`, you must provide the `originator` object with the following details:
+	// - The originator's (i.e. your end customer's) name
+	// - The originator's address
+	// - Your organization's VASP information (`virtualAssetServiceProvider` object with `identifier`, `name`, and `address`)
 	//
-	// For jurisdictions that require them (such as Coinbase Luxembourg), `personalIdentification` and `dateOfBirth` must also reflect the **original sender's** identity — not the intermediary's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
-	IsIntermediary *bool `json:"isIntermediary,omitempty"`
+	// In certain jurisdictions, `personalId` and `dateOfBirth` must also reflect the **original sender's** identity — not your organization's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
+	IsIntermediary *IsIntermediary `json:"isIntermediary,omitempty"`
 
 	// IsSelf Indicates whether the user attests that the receiving wallet belongs to them.
 	IsSelf *bool `json:"isSelf,omitempty"`
@@ -4879,11 +6709,44 @@ type TravelRuleParty struct {
 // TravelRuleStatus The status of a travel rule submission.
 type TravelRuleStatus string
 
+// UpdateCustomerRequest Fields accepted on customer create and update requests. Shared by
+// `CreateCustomerRequest` and `UpdateCustomerRequest`; excludes the
+// server-managed response-only fields that appear on `Customer`.
+type UpdateCustomerRequest = CustomerWriteBase
+
 // Uri A valid URI.
 type Uri = string
 
 // Url A valid HTTP or HTTPS URL.
 type Url = string
+
+// UsW9Attestation Tax attestation for IRS Form W-9, used for US persons. Carries the
+// W-9-specific backup withholding certification alongside the fields common
+// to every form (`edeliveryConsent`, `acceptedAt`).
+type UsW9Attestation struct {
+	// AcceptedAt Timestamp at which the Customer completed the tax attestation, in
+	// ISO 8601 / RFC 3339 format. The server may reject obviously
+	// non-credible timestamps.
+	AcceptedAt time.Time `json:"acceptedAt"`
+
+	// EdeliveryConsent Whether the Customer consents to electronic delivery (e-delivery) of
+	// tax documents. Both `true` and `false` are recorded as submitted.
+	EdeliveryConsent bool `json:"edeliveryConsent"`
+
+	// Form The tax form being attested to, as listed in
+	// `Customer.requirements.taxAttestation.taxForms[]`. Must be `us_w9`
+	// for this variant.
+	Form UsW9AttestationForm `json:"form"`
+
+	// IsExemptBackupWithholding Whether the Customer is exempt from backup withholding, as certified
+	// on IRS Form W-9.
+	IsExemptBackupWithholding bool `json:"isExemptBackupWithholding"`
+}
+
+// UsW9AttestationForm The tax form being attested to, as listed in
+// `Customer.requirements.taxAttestation.taxForms[]`. Must be `us_w9`
+// for this variant.
+type UsW9AttestationForm string
 
 // UserOperationReceipt The receipt that contains information about the execution of user operation.
 type UserOperationReceipt struct {
@@ -4911,6 +6774,100 @@ type UserOperationReceiptRevert struct {
 	// Message Human-readable revert reason if able to decode.
 	Message string `json:"message"`
 }
+
+// Void A release of uncaptured authorized funds back to the payer. Voids release all remaining capturable funds in a single operation, including after partial refunds as long as a capturableAmount remains.
+type Void struct {
+	// Amount A decimal representation of the voided amount, denominated in the session's `asset`.
+	Amount *string `json:"amount,omitempty"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the void was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// Error An error that occurred during a payment operation.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions The onchain transactions associated with this void.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// PaymentSessionId The ID of the payment session this void belongs to.
+	PaymentSessionId *PaymentSessionId `json:"paymentSessionId,omitempty"`
+
+	// Status The current status of the void.
+	Status *PaymentActionStatus `json:"status,omitempty"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the void was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+
+	// VoidId The unique identifier of the void.
+	VoidId *VoidId `json:"voidId,omitempty"`
+}
+
+// VoidId The ID of the void, a UUID prefixed by `void_`.
+type VoidId = string
+
+// WalletAuthorizationFundsRequirement Describes, for one enabled (network, asset) combination, what the payer would need to fund a source address with so that it becomes eligible to authorize the payment. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings, formatted the same way as `WalletAuthorizationOption.amount`.
+type WalletAuthorizationFundsRequirement struct {
+	// Asset The symbol of the asset the payer would fund on this network.
+	Asset Asset `json:"asset"`
+
+	// CurrentBalance A decimal representation of the address's current balance of `asset` on this `network`.
+	CurrentBalance string `json:"currentBalance"`
+
+	// Network The blockchain network this funding requirement applies to.
+	Network PaymentSourceNetwork `json:"network"`
+
+	// RequiredBalance A decimal representation of the balance of `asset` the payer must hold on this `network` to become eligible to authorize the payment.
+	RequiredBalance string `json:"requiredBalance"`
+}
+
+// WalletAuthorizationOption An authorization option for completing payment via a wallet. Specifies the currency, amount, and network the payer would pay on, and the payloads the payer must sign or submit.
+type WalletAuthorizationOption struct {
+	// Amount A decimal representation of the amount the payer would pay if they choose this option, denominated in `asset`. May differ from the session amount when paying in a different asset.
+	Amount string `json:"amount"`
+
+	// Asset The symbol of the asset the payer would pay in for this option.
+	Asset Asset `json:"asset"`
+
+	// Network The blockchain network the transaction will occur on for this option.
+	Network PaymentSourceNetwork `json:"network"`
+
+	// OptionId The unique identifier of the authorization option.
+	OptionId string `json:"optionId"`
+
+	// Payloads The payloads the payer must sign or submit to authorize the payment via this option.
+	Payloads []OnchainSignaturePayload `json:"payloads"`
+
+	// Source The source address this authorization option applies to.
+	Source PaymentSourceWallet `json:"source"`
+}
+
+// WalletAuthorizationOptionsResponse The available wallet authorization options for a payment session. Each option describes one way the payer can authorize the payment from their wallet. Present the options to the payer and let them choose one. Requested addresses with no eligible option appear in `ineligibleAddresses` with a `code` explaining why.
+type WalletAuthorizationOptionsResponse struct {
+	// IneligibleAddresses Requested payer addresses that have no eligible authorization option, each with a `code` explaining why. Empty when every requested address can authorize the payment.
+	IneligibleAddresses []IneligibleWalletAuthorizationAddress `json:"ineligibleAddresses"`
+
+	// Options The available wallet authorization options.
+	Options []WalletAuthorizationOption `json:"options"`
+}
+
+// WalletAuthorizationRequest A request to authorize a payment session using a wallet. The payer selects one of the options returned by the wallet authorization options endpoint and submits the signed payloads.
+type WalletAuthorizationRequest struct {
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OptionId The identifier of the chosen authorization option. Must match an `optionId` from the wallet authorization options response.
+	OptionId string `json:"optionId"`
+
+	// SignedPayloads The processed payloads from the payer, corresponding to the payloads in the selected authorization option.
+	SignedPayloads []OnchainSignedPayload `json:"signedPayloads"`
+}
+
+// WebhookDescription A human-readable description of the webhook subscription.
+// Must be at most 100 characters.
+type WebhookDescription = string
 
 // WebhookEventListResponse Response containing a list of webhook event delivery attempts.
 type WebhookEventListResponse struct {
@@ -4971,8 +6928,9 @@ type WebhookSubscriptionListResponse struct {
 
 // WebhookSubscriptionRequest Request to create a new webhook subscription with support for multi-label filtering.
 type WebhookSubscriptionRequest struct {
-	// Description Description of the webhook subscription.
-	Description *Description `json:"description,omitempty"`
+	// Description A human-readable description of the webhook subscription.
+	// Must be at most 100 characters.
+	Description *WebhookDescription `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
@@ -5012,8 +6970,9 @@ type WebhookSubscriptionResponse struct {
 	// CreatedAt When the subscription was created.
 	CreatedAt time.Time `json:"createdAt"`
 
-	// Description Description of the webhook subscription.
-	Description *Description `json:"description,omitempty"`
+	// Description A human-readable description of the webhook subscription.
+	// Must be at most 100 characters.
+	Description *WebhookDescription `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created",
@@ -5054,8 +7013,9 @@ type WebhookSubscriptionResponse_Metadata struct {
 
 // WebhookSubscriptionUpdateRequest Request to update an existing webhook subscription.
 type WebhookSubscriptionUpdateRequest struct {
-	// Description Description of the webhook subscription.
-	Description *Description `json:"description,omitempty"`
+	// Description A human-readable description of the webhook subscription.
+	// Must be at most 100 characters.
+	Description *WebhookDescription `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
@@ -5152,9 +7112,9 @@ type ToToken = string
 // TransfersAccount The Account specific details for the transfer.
 type TransfersAccount struct {
 	// AccountId The ID of the Account.
-	AccountId string `json:"accountId"`
+	AccountId AccountId `json:"accountId"`
 
-	// Asset The symbol of the asset (e.g., eth, usd, usdc, usdt).
+	// Asset The asset symbol. Supported values are `usdc`, `eurc`, `usd`, and `eur`.
 	Asset Asset `json:"asset"`
 }
 
@@ -5340,6 +7300,39 @@ type X402BatchSettlementVoucherPayload struct {
 // X402BatchSettlementVoucherPayloadType The payload-type discriminator. Must be `"voucher"` for a voucher-only payment against an already-funded channel.
 type X402BatchSettlementVoucherPayloadType string
 
+// X402Bundle A curated workflow bundle: an ordered, named grouping of curated x402 resources that together cover a common agent workflow. This metadata shape is returned by the bundle list endpoint; the per-bundle detail endpoint additionally returns the joined member resources.
+type X402Bundle struct {
+	// Description A human-readable description of the workflow the bundle covers.
+	Description *string `json:"description,omitempty"`
+
+	// Name The human-readable display name of the bundle.
+	Name string `json:"name"`
+
+	// Slug The stable, unique, URL-safe identifier for the bundle. Used as the path segment in `GET /v2/x402/discovery/bundles/{bundleSlug}`.
+	Slug string `json:"slug"`
+}
+
+// X402BundleResponse defines model for x402BundleResponse.
+type X402BundleResponse struct {
+	// Description A human-readable description of the workflow the bundle covers.
+	Description *string `json:"description,omitempty"`
+
+	// Name The human-readable display name of the bundle.
+	Name string `json:"name"`
+
+	// Resources The bundle's member resources in bundle-defined order. Each entry is the full discovery metadata for a curated endpoint belonging to this bundle. Bundle membership is capped at 50 resources.
+	Resources []X402DiscoveryResource `json:"resources"`
+
+	// Slug The stable, unique, URL-safe identifier for the bundle. Used as the path segment in `GET /v2/x402/discovery/bundles/{bundleSlug}`.
+	Slug string `json:"slug"`
+}
+
+// X402BundlesResponse Response containing the available curated x402 bundles. Unlike x402 protocol discovery and search responses, bundle responses omit `x402Version` because bundles are CDP-curated metadata, not protocol negotiation payloads.
+type X402BundlesResponse struct {
+	// Bundles The list of available curated bundles. This list is empty when no bundles are defined.
+	Bundles []X402Bundle `json:"bundles"`
+}
+
 // X402DiscoveryMerchantResponse Response containing x402 resources associated with a merchant payment address. The resources list is empty when no active resources are found.
 type X402DiscoveryMerchantResponse struct {
 	// Pagination Pagination information for the response.
@@ -5364,10 +7357,26 @@ type X402DiscoveryMerchantResponse struct {
 	X402Version X402Version `json:"x402Version"`
 }
 
-// X402DiscoveryResource A single discovered x402 resource.
+// X402DiscoveryResource A single discovered x402 resource. Its fields come from three sources:
+//
+//   - **x402 protocol** — negotiated from the resource's payment-required response: `resource`,
+//     `type`, `x402Version`, `accepts`, `extensions`.
+//   - **Provider-supplied** — metadata published by the resource owner: `description`,
+//     `serviceName`, `tags`.
+//   - **Coinbase-derived** — added during ingestion and curation: `iconUrl`, `quality`,
+//     `lastUpdated`, and (for Coinbase-curated endpoints only) `curated`, `skillUrl` (a
+//     Coinbase-authored SKILL.md), and `bundleSlugs`.
 type X402DiscoveryResource struct {
 	// Accepts Payment requirements accepted by the resource.
 	Accepts *[]X402PaymentRequirements `json:"accepts,omitempty"`
+
+	// BundleSlugs Slugs of the curated x402 bundles this resource belongs to. A bundle is an ordered, named grouping of curated resources covering a common agent workflow. Present only for Coinbase-curated resources (`curated: true`); omitted when the resource is not curated or is not a member of any bundle.
+	BundleSlugs *[]string `json:"bundleSlugs,omitempty"`
+
+	// Curated Whether this resource is a Coinbase-curated endpoint. Curated endpoints have passed the
+	// partner-admission and verification bar and surface higher in search and listing results.
+	// Omitted (treated as `false`) when the resource is not curated.
+	Curated *bool `json:"curated,omitempty"`
 
 	// Description A human-readable description of the resource.
 	Description *string `json:"description,omitempty"`
@@ -5392,12 +7401,16 @@ type X402DiscoveryResource struct {
 	// Resource The URL of the resource.
 	Resource string `json:"resource"`
 
-	// ServiceName Provider-supplied display name of the service this resource belongs to. This is a free-form
+	// ServiceName Display name of the service this resource belongs to. This is a free-form
 	// label for grouping and presentation only — it is not a stable identifier, and two resources
 	// sharing the same `serviceName` are not guaranteed to belong to the same logical service.
 	ServiceName *string `json:"serviceName,omitempty"`
 
-	// Tags Provider-supplied, low-cardinality string labels associated with the resource for client-side
+	// SkillUrl URL of the SKILL.md document describing how to use this resource. Omitted when the resource
+	// has no associated skill document.
+	SkillUrl *Url `json:"skillUrl,omitempty"`
+
+	// Tags Low-cardinality string labels associated with the resource for client-side
 	// filtering and display. Values are free-form (no controlled vocabulary) and case-sensitive.
 	// Order is not significant and duplicates are not expected.
 	Tags *[]string `json:"tags,omitempty"`
@@ -5578,10 +7591,28 @@ type X402McpResponse_Id struct {
 // X402McpResponseJsonrpc JSON-RPC version.
 type X402McpResponseJsonrpc string
 
-// X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+// X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the PAYMENT-SIGNATURE header.
 // For EVM networks, smart account signatures can be longer than 65 bytes.
 type X402PaymentPayload struct {
 	union json.RawMessage
+}
+
+// X402PaymentRequired The x402 protocol payment required response body, returned by a resource server when a request lacks valid payment. Contains the accepted payment options, optional resource metadata, and an optional error message from the resource server.
+type X402PaymentRequired struct {
+	// Accepts The list of payment options the resource server accepts. At least one option must be present.
+	Accepts []X402PaymentRequirements `json:"accepts"`
+
+	// Error An optional error message from the resource server describing why payment is required.
+	Error *string `json:"error,omitempty"`
+
+	// Extensions Optional protocol extensions. Unknown keys are forwarded as-is into the signed payment payload.
+	Extensions *map[string]interface{} `json:"extensions,omitempty"`
+
+	// Resource Optional metadata about the resource being paid for.
+	Resource *X402ResourceInfo `json:"resource,omitempty"`
+
+	// X402Version The x402 protocol version.
+	X402Version X402Version `json:"x402Version"`
 }
 
 // X402PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -5658,6 +7689,7 @@ type X402SettlePaymentRejection struct {
 	// Transaction The transaction of the settlement.
 	// For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
 	// For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+	// Populated even though `success` is `false` when `errorReason` is `settlement_pending`: the transaction broadcast successfully but its receipt could not be retrieved, so the hash is returned for the caller to reconcile before retrying.
 	Transaction *string `json:"transaction,omitempty"`
 }
 
@@ -5968,6 +8000,9 @@ type X402VerifyPaymentRejection struct {
 	Payer *BlockchainAddress `json:"payer,omitempty"`
 }
 
+// EndUserUserId defines model for EndUserUserId.
+type EndUserUserId = string
+
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
@@ -6018,6 +8053,9 @@ type InvalidSQLQueryError = Error
 
 // PaymentMethodRequiredError An error response including the code for the type of error and a human-readable message describing the error.
 type PaymentMethodRequiredError = Error
+
+// PaymentRequired An error response including the code for the type of error and a human-readable message describing the error.
+type PaymentRequired = Error
 
 // RateLimitExceeded An error response including the code for the type of error and a human-readable message describing the error.
 type RateLimitExceeded = Error
@@ -6112,6 +8150,23 @@ type ListFoundationAccountsParams struct {
 	// PageToken The token for the next page of resources, if any.
 	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 
+	// Owner Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.
+	//
+	// **Specific Owner IDs:**
+	// * `entity_<uuid>` - Accounts owned by a specific entity
+	// * `customer_<uuid>` - Accounts owned by a specific customer
+	//
+	// **Owner type wildcards:**
+	// * `entity` - All entity-owned accounts
+	// * `customer` - All customer-owned accounts
+	//
+	// **Examples:**
+	// * `owner=customer_af29...` - A specific customer's accounts
+	// * `owner=customer` - All customer accounts
+	// * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts
+	// * When omitted, accounts with any owner are returned.
+	Owner *[]string `form:"owner,omitempty" json:"owner,omitempty"`
+
 	// Type Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.
 	Type *AccountType `form:"type,omitempty" json:"type,omitempty"`
 }
@@ -6131,6 +8186,39 @@ type ListBalancesParams struct {
 
 	// PageToken The token for the next page of resources, if any.
 	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ListCustomersParams defines parameters for ListCustomers.
+type ListCustomersParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// CreateCustomerParams defines parameters for CreateCustomer.
+type CreateCustomerParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// DeleteCustomerByIdParams defines parameters for DeleteCustomerById.
+type DeleteCustomerByIdParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// UpdateCustomerByIdParams defines parameters for UpdateCustomerById.
+type UpdateCustomerByIdParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
 // ListDataTokenBalancesParams defines parameters for ListDataTokenBalances.
@@ -6204,6 +8292,32 @@ type ListDepositDestinationsParams struct {
 
 // CreateDepositDestinationParams defines parameters for CreateDepositDestination.
 type CreateDepositDestinationParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListDisbursementsParams defines parameters for ListDisbursements.
+type ListDisbursementsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+
+	// Status Filter disbursements by status.
+	Status *PaymentActionStatus `form:"status,omitempty" json:"status,omitempty"`
+
+	// SourceAccountId Filter disbursements by the source CDP account ID.
+	SourceAccountId *string `form:"sourceAccountId,omitempty" json:"sourceAccountId,omitempty"`
+
+	// ExternalReferenceId Filter disbursements by the client-supplied external reference ID.
+	ExternalReferenceId *string `form:"externalReferenceId,omitempty" json:"externalReferenceId,omitempty"`
+}
+
+// CreateDisbursementParams defines parameters for CreateDisbursement.
+type CreateDisbursementParams struct {
 	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
@@ -6657,6 +8771,42 @@ type SignSolanaTransactionWithEndUserAccountJSONBody struct {
 
 // SignSolanaTransactionWithEndUserAccountParams defines parameters for SignSolanaTransactionWithEndUserAccount.
 type SignSolanaTransactionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// SignSolanaX402PaymentWithEndUserAccountJSONBody defines parameters for SignSolanaX402PaymentWithEndUserAccount.
+type SignSolanaX402PaymentWithEndUserAccountJSONBody struct {
+	// AcceptsIndex Zero-based index into paymentRequired.accepts selecting which payment option to sign. Must be less than the length of accepts. The entry at this index must be a Solana network payment option for this endpoint.
+	AcceptsIndex int `json:"acceptsIndex"`
+
+	// Address The base58 encoded address of the end user's Solana account to sign with.
+	Address string `json:"address"`
+
+	// PaymentRequired The complete x402 payment required response body from the resource server. Top-level fields (x402Version, resource, error, extensions) are preserved in the signed payment payload; acceptsIndex selects which entry from accepts is signed as paymentPayload.accepted.
+	PaymentRequired X402PaymentRequired `json:"paymentRequired"`
+
+	// WalletSecretId Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// SignSolanaX402PaymentWithEndUserAccountParams defines parameters for SignSolanaX402PaymentWithEndUserAccount.
+type SignSolanaX402PaymentWithEndUserAccountParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -7327,8 +9477,8 @@ type GetOnrampUserLimitsJSONBody struct {
 
 // CreateOnrampOrderJSONBody defines parameters for CreateOnrampOrder.
 type CreateOnrampOrderJSONBody struct {
-	// AgreementAcceptedAt The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
-	AgreementAcceptedAt time.Time `json:"agreementAcceptedAt"`
+	// AgreementAcceptedAt The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
+	AgreementAcceptedAt *time.Time `json:"agreementAcceptedAt,omitempty"`
 
 	// ClientIp The IP address of the end user requesting the onramp transaction.
 	ClientIp *string `json:"clientIp,omitempty"`
@@ -7341,17 +9491,20 @@ type CreateOnrampOrderJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
 	DestinationNetwork string `json:"destinationNetwork"`
 
-	// Domain The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.
+	// Domain The domain that the Apple Pay or Google Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY` or `GUEST_CHECKOUT_GOOGLE_PAY` payment method and embedding the payment link in an iframe. Omit this field entirely for mobile iOS Apple Pay via WebView integration.
 	Domain *string `json:"domain,omitempty"`
 
 	// Email The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
-	Email string `json:"email"`
+	Email *string `json:"email,omitempty"`
 
 	// EmailVerificationId The email verification ID returned by the Submit Onramp Verification endpoint after verifying the user's email address.
 	EmailVerificationId *OnrampVerificationId `json:"emailVerificationId,omitempty"`
 
 	// IsQuote If true, this API will return a quote without creating any transaction.
 	IsQuote *bool `json:"isQuote,omitempty"`
+
+	// Locale Optional [BCP-47](https://www.rfc-editor.org/info/bcp47) locale tag (e.g. `es-ES`, `pt-BR`, `en`) used to localize the hosted payment page. When provided, it is appended to the returned `paymentLink` URL and mapped to the closest locale supported by the Apple Pay and Google Pay buttons; unsupported locales fall back to the user's browser language. Any well-formed BCP-47 tag is accepted.
+	Locale *string `json:"locale,omitempty"`
 
 	// PartnerOrderRef Optional partner order reference ID.
 	PartnerOrderRef *string `json:"partnerOrderRef,omitempty"`
@@ -7371,12 +9524,11 @@ type CreateOnrampOrderJSONBody struct {
 	PaymentMethod OnrampOrderPaymentMethodTypeId `json:"paymentMethod"`
 
 	// PhoneNumber The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
-	//
-	// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.
-	PhoneNumber string `json:"phoneNumber"`
+	// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview) for more details on phone number verification requirements and best practices.
+	PhoneNumber *string `json:"phoneNumber,omitempty"`
 
-	// PhoneNumberVerifiedAt Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.
-	PhoneNumberVerifiedAt time.Time `json:"phoneNumberVerifiedAt"`
+	// PhoneNumberVerifiedAt Timestamp of when the user's phone number was verified via OTP. User phone number must be verified every 60 days. If this timestamp is older than 60 days, an error will be returned.
+	PhoneNumberVerifiedAt *time.Time `json:"phoneNumberVerifiedAt,omitempty"`
 
 	// PurchaseAmount A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.
 	PurchaseAmount *string `json:"purchaseAmount,omitempty"`
@@ -7388,6 +9540,9 @@ type CreateOnrampOrderJSONBody struct {
 
 	// SmsVerificationId The SMS verification ID returned by the Submit Onramp Verification endpoint after verifying the user's phone number. When provided, Onramp validates the server-side verification record instead of trusting `phoneNumberVerifiedAt`.
 	SmsVerificationId *OnrampVerificationId `json:"smsVerificationId,omitempty"`
+
+	// UserAuthToken Optional. A reusable token returned by a previous verified order. When provided, a returning user checking out to the same wallet is taken straight to the pay button, skipping OTP (best-effort — an invalid, expired, or different-wallet token still requires verification).
+	UserAuthToken *OnrampUserAuthToken `json:"userAuthToken,omitempty"`
 }
 
 // InitiateOnrampVerificationParams defines parameters for InitiateOnrampVerification.
@@ -7413,6 +9568,133 @@ type ListPaymentMethodsParams struct {
 
 	// PageToken The token for the next page of resources, if any.
 	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ListPaymentSessionsParams defines parameters for ListPaymentSessions.
+type ListPaymentSessionsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// CreatePaymentSessionParams defines parameters for CreatePaymentSession.
+type CreatePaymentSessionParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListPaymentSessionAuthorizationsParams defines parameters for ListPaymentSessionAuthorizations.
+type ListPaymentSessionAuthorizationsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// AuthorizeCoinbasePaymentSessionParams defines parameters for AuthorizeCoinbasePaymentSession.
+type AuthorizeCoinbasePaymentSessionParams struct {
+	// CbAuthzId The `authorizationId` returned from a successful `POST https://login.coinbase.com/api/v1/authorization-challenges` step. Identifies the MFA challenge that gates this authorization. Must be a lowercase UUID v4.
+	CbAuthzId openapi_types.UUID `json:"cb-authz-id"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// AuthorizeWalletPaymentSessionParams defines parameters for AuthorizeWalletPaymentSession.
+type AuthorizeWalletPaymentSessionParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// GetWalletAuthorizationOptionsParams defines parameters for GetWalletAuthorizationOptions.
+type GetWalletAuthorizationOptionsParams struct {
+	// Addresses The payer wallet addresses to generate authorization options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible authorization options, it appears in `ineligibleAddresses` with a `code` explaining why.
+	Addresses []BlockchainAddress `form:"addresses" json:"addresses"`
+
+	// Network Optional filter to restrict options to a specific blockchain network.
+	Network *PaymentSourceNetwork `form:"network,omitempty" json:"network,omitempty"`
+
+	// Asset Optional filter to restrict options to a specific asset.
+	Asset *Asset `form:"asset,omitempty" json:"asset,omitempty"`
+}
+
+// AuthorizeX402PaymentSessionParams defines parameters for AuthorizeX402PaymentSession.
+type AuthorizeX402PaymentSessionParams struct {
+	// PAYMENTSIGNATURE Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.
+	PAYMENTSIGNATURE *string `json:"PAYMENT-SIGNATURE,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// CancelPaymentSessionParams defines parameters for CancelPaymentSession.
+type CancelPaymentSessionParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListPaymentSessionCapturesParams defines parameters for ListPaymentSessionCaptures.
+type ListPaymentSessionCapturesParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// CapturePaymentSessionParams defines parameters for CapturePaymentSession.
+type CapturePaymentSessionParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListPaymentSessionRefundsParams defines parameters for ListPaymentSessionRefunds.
+type ListPaymentSessionRefundsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// RefundPaymentSessionParams defines parameters for RefundPaymentSession.
+type RefundPaymentSessionParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListPaymentSessionVoidsParams defines parameters for ListPaymentSessionVoids.
+type ListPaymentSessionVoidsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// VoidPaymentSessionParams defines parameters for VoidPaymentSession.
+type VoidPaymentSessionParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
 // ListPoliciesParams defines parameters for ListPolicies.
@@ -7706,10 +9988,10 @@ type ListTransfersParams struct {
 	// UpdatedBefore Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format.
 	UpdatedBefore *time.Time `form:"updatedBefore,omitempty" json:"updatedBefore,omitempty"`
 
-	// SourceAsset Filter transfers by source asset symbol (e.g., `usd`, `usdc`).
+	// SourceAsset Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).
 	SourceAsset *string `form:"sourceAsset,omitempty" json:"sourceAsset,omitempty"`
 
-	// TargetAsset Filter transfers by target asset symbol (e.g., `usdc`, `eth`).
+	// TargetAsset Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
 	TargetAsset *string `form:"targetAsset,omitempty" json:"targetAsset,omitempty"`
 
 	// SourceAddress Filter transfers by the on-chain address of the source.
@@ -7813,6 +10095,15 @@ type SearchX402ResourcesParams struct {
 	// Extensions Filter results to resources that support the specified protocol extensions. Can be specified multiple times to filter by multiple extensions.
 	Extensions *[]string `form:"extensions,omitempty" json:"extensions,omitempty"`
 
+	// Tags Filter results to resources published with any of the specified provider tags (case-sensitive exact match). Can be specified multiple times to filter by multiple tags; a resource matches if it carries at least one of the supplied tags (OR).
+	Tags *[]string `form:"tags,omitempty" json:"tags,omitempty"`
+
+	// BundleSlugs Filter results to resources that belong to any of the specified curated bundles (by bundle slug). Can be specified multiple times to filter by multiple bundles; a resource matches if it belongs to at least one of the supplied bundles (OR).
+	BundleSlugs *[]string `form:"bundleSlugs,omitempty" json:"bundleSlugs,omitempty"`
+
+	// CuratedOnly When `true`, restrict results to Coinbase-curated resources (those with `curated: true`). When `false` or omitted, both curated and non-curated resources are returned.
+	CuratedOnly *bool `form:"curatedOnly,omitempty" json:"curatedOnly,omitempty"`
+
 	// Limit Maximum number of resources to return. Must be a positive integer no greater than 20.
 	// Defaults to 20.
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
@@ -7820,7 +10111,7 @@ type SearchX402ResourcesParams struct {
 
 // SettleX402PaymentJSONBody defines parameters for SettleX402Payment.
 type SettleX402PaymentJSONBody struct {
-	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the PAYMENT-SIGNATURE header.
 	// For EVM networks, smart account signatures can be longer than 65 bytes.
 	PaymentPayload X402PaymentPayload `json:"paymentPayload"`
 
@@ -7833,7 +10124,7 @@ type SettleX402PaymentJSONBody struct {
 
 // VerifyX402PaymentJSONBody defines parameters for VerifyX402Payment.
 type VerifyX402PaymentJSONBody struct {
-	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the PAYMENT-SIGNATURE header.
 	// For EVM networks, smart account signatures can be longer than 65 bytes.
 	PaymentPayload X402PaymentPayload `json:"paymentPayload"`
 
@@ -7847,6 +10138,12 @@ type VerifyX402PaymentJSONBody struct {
 // CreateFoundationAccountJSONRequestBody defines body for CreateFoundationAccount for application/json ContentType.
 type CreateFoundationAccountJSONRequestBody = CreateAccountRequest
 
+// CreateCustomerJSONRequestBody defines body for CreateCustomer for application/json ContentType.
+type CreateCustomerJSONRequestBody = CreateCustomerRequest
+
+// UpdateCustomerByIdJSONRequestBody defines body for UpdateCustomerById for application/json ContentType.
+type UpdateCustomerByIdJSONRequestBody = UpdateCustomerRequest
+
 // RunSQLQueryJSONRequestBody defines body for RunSQLQuery for application/json ContentType.
 type RunSQLQueryJSONRequestBody = OnchainDataQuery
 
@@ -7858,6 +10155,9 @@ type UpdateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionUpdateRequest
 
 // CreateDepositDestinationJSONRequestBody defines body for CreateDepositDestination for application/json ContentType.
 type CreateDepositDestinationJSONRequestBody = CreateDepositDestinationRequest
+
+// CreateDisbursementJSONRequestBody defines body for CreateDisbursement for application/json ContentType.
+type CreateDisbursementJSONRequestBody = CreateDisbursementRequest
 
 // RevokeDelegationForEndUserAccountJSONRequestBody defines body for RevokeDelegationForEndUserAccount for application/json ContentType.
 type RevokeDelegationForEndUserAccountJSONRequestBody RevokeDelegationForEndUserAccountJSONBody
@@ -7897,6 +10197,9 @@ type SignSolanaMessageWithEndUserAccountJSONRequestBody SignSolanaMessageWithEnd
 
 // SignSolanaTransactionWithEndUserAccountJSONRequestBody defines body for SignSolanaTransactionWithEndUserAccount for application/json ContentType.
 type SignSolanaTransactionWithEndUserAccountJSONRequestBody SignSolanaTransactionWithEndUserAccountJSONBody
+
+// SignSolanaX402PaymentWithEndUserAccountJSONRequestBody defines body for SignSolanaX402PaymentWithEndUserAccount for application/json ContentType.
+type SignSolanaX402PaymentWithEndUserAccountJSONRequestBody SignSolanaX402PaymentWithEndUserAccountJSONBody
 
 // SendSolanaAssetWithEndUserAccountJSONRequestBody defines body for SendSolanaAssetWithEndUserAccount for application/json ContentType.
 type SendSolanaAssetWithEndUserAccountJSONRequestBody SendSolanaAssetWithEndUserAccountJSONBody
@@ -7996,6 +10299,27 @@ type InitiateOnrampVerificationJSONRequestBody = InitiateOnrampVerificationReque
 
 // SubmitOnrampVerificationJSONRequestBody defines body for SubmitOnrampVerification for application/json ContentType.
 type SubmitOnrampVerificationJSONRequestBody = SubmitOnrampVerificationRequest
+
+// CreatePaymentSessionJSONRequestBody defines body for CreatePaymentSession for application/json ContentType.
+type CreatePaymentSessionJSONRequestBody = CreatePaymentSessionRequest
+
+// AuthorizeCoinbasePaymentSessionJSONRequestBody defines body for AuthorizeCoinbasePaymentSession for application/json ContentType.
+type AuthorizeCoinbasePaymentSessionJSONRequestBody = CoinbaseAuthorizationRequest
+
+// AuthorizeWalletPaymentSessionJSONRequestBody defines body for AuthorizeWalletPaymentSession for application/json ContentType.
+type AuthorizeWalletPaymentSessionJSONRequestBody = WalletAuthorizationRequest
+
+// CancelPaymentSessionJSONRequestBody defines body for CancelPaymentSession for application/json ContentType.
+type CancelPaymentSessionJSONRequestBody = CancelPaymentSessionRequest
+
+// CapturePaymentSessionJSONRequestBody defines body for CapturePaymentSession for application/json ContentType.
+type CapturePaymentSessionJSONRequestBody = CreateCaptureRequest
+
+// RefundPaymentSessionJSONRequestBody defines body for RefundPaymentSession for application/json ContentType.
+type RefundPaymentSessionJSONRequestBody = CreateRefundRequest
+
+// VoidPaymentSessionJSONRequestBody defines body for VoidPaymentSession for application/json ContentType.
+type VoidPaymentSessionJSONRequestBody = CreateVoidRequest
 
 // CreatePolicyJSONRequestBody defines body for CreatePolicy for application/json ContentType.
 type CreatePolicyJSONRequestBody CreatePolicyJSONBody
@@ -8372,6 +10696,34 @@ func (t *CreateDepositDestinationRequest) MergeCreateCryptoDepositDestinationReq
 	return err
 }
 
+// AsCreateFiatDepositDestinationRequest returns the union data inside the CreateDepositDestinationRequest as a CreateFiatDepositDestinationRequest
+func (t CreateDepositDestinationRequest) AsCreateFiatDepositDestinationRequest() (CreateFiatDepositDestinationRequest, error) {
+	var body CreateFiatDepositDestinationRequest
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromCreateFiatDepositDestinationRequest overwrites any union data inside the CreateDepositDestinationRequest as the provided CreateFiatDepositDestinationRequest
+func (t *CreateDepositDestinationRequest) FromCreateFiatDepositDestinationRequest(v CreateFiatDepositDestinationRequest) error {
+	v.Type = "fiat"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeCreateFiatDepositDestinationRequest performs a merge with any union data inside the CreateDepositDestinationRequest, using the provided CreateFiatDepositDestinationRequest
+func (t *CreateDepositDestinationRequest) MergeCreateFiatDepositDestinationRequest(v CreateFiatDepositDestinationRequest) error {
+	v.Type = "fiat"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t CreateDepositDestinationRequest) Discriminator() (string, error) {
 	var discriminator struct {
 		Discriminator string `json:"type"`
@@ -8388,6 +10740,8 @@ func (t CreateDepositDestinationRequest) ValueByDiscriminator() (interface{}, er
 	switch discriminator {
 	case "crypto":
 		return t.AsCreateCryptoDepositDestinationRequest()
+	case "fiat":
+		return t.AsCreateFiatDepositDestinationRequest()
 	default:
 		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
@@ -8579,32 +10933,6 @@ func (t *CreateTransferSource) MergeTransfersAccount(v TransfersAccount) error {
 	return err
 }
 
-// AsPaymentMethod returns the union data inside the CreateTransferSource as a PaymentMethod
-func (t CreateTransferSource) AsPaymentMethod() (PaymentMethod, error) {
-	var body PaymentMethod
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromPaymentMethod overwrites any union data inside the CreateTransferSource as the provided PaymentMethod
-func (t *CreateTransferSource) FromPaymentMethod(v PaymentMethod) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergePaymentMethod performs a merge with any union data inside the CreateTransferSource, using the provided PaymentMethod
-func (t *CreateTransferSource) MergePaymentMethod(v PaymentMethod) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
 func (t CreateTransferSource) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -8643,6 +10971,34 @@ func (t *DepositDestination) MergeCryptoDepositDestination(v CryptoDepositDestin
 	return err
 }
 
+// AsFiatDepositDestination returns the union data inside the DepositDestination as a FiatDepositDestination
+func (t DepositDestination) AsFiatDepositDestination() (FiatDepositDestination, error) {
+	var body FiatDepositDestination
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromFiatDepositDestination overwrites any union data inside the DepositDestination as the provided FiatDepositDestination
+func (t *DepositDestination) FromFiatDepositDestination(v FiatDepositDestination) error {
+	v.Type = "fiat"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeFiatDepositDestination performs a merge with any union data inside the DepositDestination, using the provided FiatDepositDestination
+func (t *DepositDestination) MergeFiatDepositDestination(v FiatDepositDestination) error {
+	v.Type = "fiat"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t DepositDestination) Discriminator() (string, error) {
 	var discriminator struct {
 		Discriminator string `json:"type"`
@@ -8659,6 +11015,8 @@ func (t DepositDestination) ValueByDiscriminator() (interface{}, error) {
 	switch discriminator {
 	case "crypto":
 		return t.AsCryptoDepositDestination()
+	case "fiat":
+		return t.AsFiatDepositDestination()
 	default:
 		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
@@ -8670,6 +11028,65 @@ func (t DepositDestination) MarshalJSON() ([]byte, error) {
 }
 
 func (t *DepositDestination) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsBankAccountUS returns the union data inside the DepositDestinationFiat as a BankAccountUS
+func (t DepositDestinationFiat) AsBankAccountUS() (BankAccountUS, error) {
+	var body BankAccountUS
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromBankAccountUS overwrites any union data inside the DepositDestinationFiat as the provided BankAccountUS
+func (t *DepositDestinationFiat) FromBankAccountUS(v BankAccountUS) error {
+	v.AccountType = "us_bank"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeBankAccountUS performs a merge with any union data inside the DepositDestinationFiat, using the provided BankAccountUS
+func (t *DepositDestinationFiat) MergeBankAccountUS(v BankAccountUS) error {
+	v.AccountType = "us_bank"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t DepositDestinationFiat) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"accountType"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t DepositDestinationFiat) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "us_bank":
+		return t.AsBankAccountUS()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t DepositDestinationFiat) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *DepositDestinationFiat) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -8700,12 +11117,136 @@ func (t *DepositDestinationTarget) MergeDepositDestinationTargetAccount(v Deposi
 	return err
 }
 
+// AsDepositDestinationTargetOnchainAddress returns the union data inside the DepositDestinationTarget as a DepositDestinationTargetOnchainAddress
+func (t DepositDestinationTarget) AsDepositDestinationTargetOnchainAddress() (DepositDestinationTargetOnchainAddress, error) {
+	var body DepositDestinationTargetOnchainAddress
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDepositDestinationTargetOnchainAddress overwrites any union data inside the DepositDestinationTarget as the provided DepositDestinationTargetOnchainAddress
+func (t *DepositDestinationTarget) FromDepositDestinationTargetOnchainAddress(v DepositDestinationTargetOnchainAddress) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDepositDestinationTargetOnchainAddress performs a merge with any union data inside the DepositDestinationTarget, using the provided DepositDestinationTargetOnchainAddress
+func (t *DepositDestinationTarget) MergeDepositDestinationTargetOnchainAddress(v DepositDestinationTargetOnchainAddress) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t DepositDestinationTarget) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
 func (t *DepositDestinationTarget) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsTransfersAccount returns the union data inside the DisbursementSource as a TransfersAccount
+func (t DisbursementSource) AsTransfersAccount() (TransfersAccount, error) {
+	var body TransfersAccount
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromTransfersAccount overwrites any union data inside the DisbursementSource as the provided TransfersAccount
+func (t *DisbursementSource) FromTransfersAccount(v TransfersAccount) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeTransfersAccount performs a merge with any union data inside the DisbursementSource, using the provided TransfersAccount
+func (t *DisbursementSource) MergeTransfersAccount(v TransfersAccount) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t DisbursementSource) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *DisbursementSource) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsDisbursementCoinbaseTarget returns the union data inside the DisbursementTarget as a DisbursementCoinbaseTarget
+func (t DisbursementTarget) AsDisbursementCoinbaseTarget() (DisbursementCoinbaseTarget, error) {
+	var body DisbursementCoinbaseTarget
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDisbursementCoinbaseTarget overwrites any union data inside the DisbursementTarget as the provided DisbursementCoinbaseTarget
+func (t *DisbursementTarget) FromDisbursementCoinbaseTarget(v DisbursementCoinbaseTarget) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDisbursementCoinbaseTarget performs a merge with any union data inside the DisbursementTarget, using the provided DisbursementCoinbaseTarget
+func (t *DisbursementTarget) MergeDisbursementCoinbaseTarget(v DisbursementCoinbaseTarget) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsDisbursementWalletTarget returns the union data inside the DisbursementTarget as a DisbursementWalletTarget
+func (t DisbursementTarget) AsDisbursementWalletTarget() (DisbursementWalletTarget, error) {
+	var body DisbursementWalletTarget
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDisbursementWalletTarget overwrites any union data inside the DisbursementTarget as the provided DisbursementWalletTarget
+func (t *DisbursementTarget) FromDisbursementWalletTarget(v DisbursementWalletTarget) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDisbursementWalletTarget performs a merge with any union data inside the DisbursementTarget, using the provided DisbursementWalletTarget
+func (t *DisbursementTarget) MergeDisbursementWalletTarget(v DisbursementWalletTarget) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t DisbursementTarget) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *DisbursementTarget) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -8958,6 +11499,244 @@ func (t *InitiateOnrampVerificationRequest_Destination) UnmarshalJSON(b []byte) 
 	return err
 }
 
+// AsEIP3009Payload returns the union data inside the OnchainSignaturePayload as a EIP3009Payload
+func (t OnchainSignaturePayload) AsEIP3009Payload() (EIP3009Payload, error) {
+	var body EIP3009Payload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEIP3009Payload overwrites any union data inside the OnchainSignaturePayload as the provided EIP3009Payload
+func (t *OnchainSignaturePayload) FromEIP3009Payload(v EIP3009Payload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEIP3009Payload performs a merge with any union data inside the OnchainSignaturePayload, using the provided EIP3009Payload
+func (t *OnchainSignaturePayload) MergeEIP3009Payload(v EIP3009Payload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPermit2Payload returns the union data inside the OnchainSignaturePayload as a Permit2Payload
+func (t OnchainSignaturePayload) AsPermit2Payload() (Permit2Payload, error) {
+	var body Permit2Payload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPermit2Payload overwrites any union data inside the OnchainSignaturePayload as the provided Permit2Payload
+func (t *OnchainSignaturePayload) FromPermit2Payload(v Permit2Payload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePermit2Payload performs a merge with any union data inside the OnchainSignaturePayload, using the provided Permit2Payload
+func (t *OnchainSignaturePayload) MergePermit2Payload(v Permit2Payload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsErc20ApprovalPayload returns the union data inside the OnchainSignaturePayload as a Erc20ApprovalPayload
+func (t OnchainSignaturePayload) AsErc20ApprovalPayload() (Erc20ApprovalPayload, error) {
+	var body Erc20ApprovalPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromErc20ApprovalPayload overwrites any union data inside the OnchainSignaturePayload as the provided Erc20ApprovalPayload
+func (t *OnchainSignaturePayload) FromErc20ApprovalPayload(v Erc20ApprovalPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeErc20ApprovalPayload performs a merge with any union data inside the OnchainSignaturePayload, using the provided Erc20ApprovalPayload
+func (t *OnchainSignaturePayload) MergeErc20ApprovalPayload(v Erc20ApprovalPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSpendPermissionPayload returns the union data inside the OnchainSignaturePayload as a SpendPermissionPayload
+func (t OnchainSignaturePayload) AsSpendPermissionPayload() (SpendPermissionPayload, error) {
+	var body SpendPermissionPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSpendPermissionPayload overwrites any union data inside the OnchainSignaturePayload as the provided SpendPermissionPayload
+func (t *OnchainSignaturePayload) FromSpendPermissionPayload(v SpendPermissionPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSpendPermissionPayload performs a merge with any union data inside the OnchainSignaturePayload, using the provided SpendPermissionPayload
+func (t *OnchainSignaturePayload) MergeSpendPermissionPayload(v SpendPermissionPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OnchainSignaturePayload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OnchainSignaturePayload) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsPaymentSourceWallet returns the union data inside the PaymentSessionSource as a PaymentSourceWallet
+func (t PaymentSessionSource) AsPaymentSourceWallet() (PaymentSourceWallet, error) {
+	var body PaymentSourceWallet
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPaymentSourceWallet overwrites any union data inside the PaymentSessionSource as the provided PaymentSourceWallet
+func (t *PaymentSessionSource) FromPaymentSourceWallet(v PaymentSourceWallet) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePaymentSourceWallet performs a merge with any union data inside the PaymentSessionSource, using the provided PaymentSourceWallet
+func (t *PaymentSessionSource) MergePaymentSourceWallet(v PaymentSourceWallet) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPaymentSourceCoinbase returns the union data inside the PaymentSessionSource as a PaymentSourceCoinbase
+func (t PaymentSessionSource) AsPaymentSourceCoinbase() (PaymentSourceCoinbase, error) {
+	var body PaymentSourceCoinbase
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPaymentSourceCoinbase overwrites any union data inside the PaymentSessionSource as the provided PaymentSourceCoinbase
+func (t *PaymentSessionSource) FromPaymentSourceCoinbase(v PaymentSourceCoinbase) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePaymentSourceCoinbase performs a merge with any union data inside the PaymentSessionSource, using the provided PaymentSourceCoinbase
+func (t *PaymentSessionSource) MergePaymentSourceCoinbase(v PaymentSourceCoinbase) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t PaymentSessionSource) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *PaymentSessionSource) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsPaymentTargetWallet returns the union data inside the PaymentSessionTarget as a PaymentTargetWallet
+func (t PaymentSessionTarget) AsPaymentTargetWallet() (PaymentTargetWallet, error) {
+	var body PaymentTargetWallet
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPaymentTargetWallet overwrites any union data inside the PaymentSessionTarget as the provided PaymentTargetWallet
+func (t *PaymentSessionTarget) FromPaymentTargetWallet(v PaymentTargetWallet) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePaymentTargetWallet performs a merge with any union data inside the PaymentSessionTarget, using the provided PaymentTargetWallet
+func (t *PaymentSessionTarget) MergePaymentTargetWallet(v PaymentTargetWallet) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsTransfersAccount returns the union data inside the PaymentSessionTarget as a TransfersAccount
+func (t PaymentSessionTarget) AsTransfersAccount() (TransfersAccount, error) {
+	var body TransfersAccount
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromTransfersAccount overwrites any union data inside the PaymentSessionTarget as the provided TransfersAccount
+func (t *PaymentSessionTarget) FromTransfersAccount(v TransfersAccount) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeTransfersAccount performs a merge with any union data inside the PaymentSessionTarget, using the provided TransfersAccount
+func (t *PaymentSessionTarget) MergeTransfersAccount(v TransfersAccount) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t PaymentSessionTarget) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *PaymentSessionTarget) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsEthValueCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a EthValueCriterion
 func (t PrepareUserOperationCriteria_Item) AsEthValueCriterion() (EthValueCriterion, error) {
 	var body EthValueCriterion
@@ -9094,6 +11873,68 @@ func (t PrepareUserOperationCriteria_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *PrepareUserOperationCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsTransfersAccount returns the union data inside the RefundSource as a TransfersAccount
+func (t RefundSource) AsTransfersAccount() (TransfersAccount, error) {
+	var body TransfersAccount
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromTransfersAccount overwrites any union data inside the RefundSource as the provided TransfersAccount
+func (t *RefundSource) FromTransfersAccount(v TransfersAccount) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeTransfersAccount performs a merge with any union data inside the RefundSource, using the provided TransfersAccount
+func (t *RefundSource) MergeTransfersAccount(v TransfersAccount) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRefundWallet returns the union data inside the RefundSource as a RefundWallet
+func (t RefundSource) AsRefundWallet() (RefundWallet, error) {
+	var body RefundWallet
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRefundWallet overwrites any union data inside the RefundSource as the provided RefundWallet
+func (t *RefundSource) FromRefundWallet(v RefundWallet) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRefundWallet performs a merge with any union data inside the RefundSource, using the provided RefundWallet
+func (t *RefundSource) MergeRefundWallet(v RefundWallet) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RefundSource) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RefundSource) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -11970,6 +14811,65 @@ func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsUsW9Attestation returns the union data inside the TaxAttestation as a UsW9Attestation
+func (t TaxAttestation) AsUsW9Attestation() (UsW9Attestation, error) {
+	var body UsW9Attestation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromUsW9Attestation overwrites any union data inside the TaxAttestation as the provided UsW9Attestation
+func (t *TaxAttestation) FromUsW9Attestation(v UsW9Attestation) error {
+	v.Form = "us_w9"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeUsW9Attestation performs a merge with any union data inside the TaxAttestation, using the provided UsW9Attestation
+func (t *TaxAttestation) MergeUsW9Attestation(v UsW9Attestation) error {
+	v.Form = "us_w9"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t TaxAttestation) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"form"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t TaxAttestation) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "us_w9":
+		return t.AsUsW9Attestation()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t TaxAttestation) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *TaxAttestation) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsTransfersAccount returns the union data inside the TransferSource as a TransfersAccount
 func (t TransferSource) AsTransfersAccount() (TransfersAccount, error) {
 	var body TransfersAccount
@@ -12048,22 +14948,48 @@ func (t *TransferSource) MergeOnchainAddress(v OnchainAddress) error {
 	return err
 }
 
-// AsOriginatingBankAccountUS returns the union data inside the TransferSource as a OriginatingBankAccountUS
-func (t TransferSource) AsOriginatingBankAccountUS() (OriginatingBankAccountUS, error) {
-	var body OriginatingBankAccountUS
+// AsAchDepositSource returns the union data inside the TransferSource as a AchDepositSource
+func (t TransferSource) AsAchDepositSource() (AchDepositSource, error) {
+	var body AchDepositSource
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOriginatingBankAccountUS overwrites any union data inside the TransferSource as the provided OriginatingBankAccountUS
-func (t *TransferSource) FromOriginatingBankAccountUS(v OriginatingBankAccountUS) error {
+// FromAchDepositSource overwrites any union data inside the TransferSource as the provided AchDepositSource
+func (t *TransferSource) FromAchDepositSource(v AchDepositSource) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOriginatingBankAccountUS performs a merge with any union data inside the TransferSource, using the provided OriginatingBankAccountUS
-func (t *TransferSource) MergeOriginatingBankAccountUS(v OriginatingBankAccountUS) error {
+// MergeAchDepositSource performs a merge with any union data inside the TransferSource, using the provided AchDepositSource
+func (t *TransferSource) MergeAchDepositSource(v AchDepositSource) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsFedwireDepositSource returns the union data inside the TransferSource as a FedwireDepositSource
+func (t TransferSource) AsFedwireDepositSource() (FedwireDepositSource, error) {
+	var body FedwireDepositSource
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromFedwireDepositSource overwrites any union data inside the TransferSource as the provided FedwireDepositSource
+func (t *TransferSource) FromFedwireDepositSource(v FedwireDepositSource) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeFedwireDepositSource performs a merge with any union data inside the TransferSource, using the provided FedwireDepositSource
+func (t *TransferSource) MergeFedwireDepositSource(v FedwireDepositSource) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -13062,6 +15988,28 @@ type ClientInterface interface {
 	// GetBalanceByAsset request
 	GetBalanceByAsset(ctx context.Context, accountId AccountId, asset Asset, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListCoinbaseAccountBalances request
+	ListCoinbaseAccountBalances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListCustomers request
+	ListCustomers(ctx context.Context, params *ListCustomersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateCustomerWithBody request with any body
+	CreateCustomerWithBody(ctx context.Context, params *CreateCustomerParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateCustomer(ctx context.Context, params *CreateCustomerParams, body CreateCustomerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteCustomerById request
+	DeleteCustomerById(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCustomerById request
+	GetCustomerById(ctx context.Context, customerId CustomerId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCustomerByIdWithBody request with any body
+	UpdateCustomerByIdWithBody(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateCustomerById(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, body UpdateCustomerByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListDataTokenBalances request
 	ListDataTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -13111,6 +16059,17 @@ type ClientInterface interface {
 
 	// GetDepositDestinationById request
 	GetDepositDestinationById(ctx context.Context, depositDestinationId DepositDestinationId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListDisbursements request
+	ListDisbursements(ctx context.Context, params *ListDisbursementsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDisbursementWithBody request with any body
+	CreateDisbursementWithBody(ctx context.Context, params *CreateDisbursementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateDisbursement(ctx context.Context, params *CreateDisbursementParams, body CreateDisbursementJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDisbursement request
+	GetDisbursement(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RevokeDelegationForEndUserAccountWithBody request with any body
 	RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13183,6 +16142,11 @@ type ClientInterface interface {
 
 	SignSolanaTransactionWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SignSolanaX402PaymentWithEndUserAccountWithBody request with any body
+	SignSolanaX402PaymentWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignSolanaX402PaymentWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, body SignSolanaX402PaymentWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SendSolanaAssetWithEndUserAccountWithBody request with any body
 	SendSolanaAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -13213,9 +16177,9 @@ type ClientInterface interface {
 	GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddEndUserEvmAccountWithBody request with any body
-	AddEndUserEvmAccountWithBody(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AddEndUserEvmAccountWithBody(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	AddEndUserEvmAccount(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AddEndUserEvmAccount(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddEndUserEvmSmartAccountWithBody request with any body
 	AddEndUserEvmSmartAccountWithBody(ctx context.Context, userId string, params *AddEndUserEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13223,9 +16187,9 @@ type ClientInterface interface {
 	AddEndUserEvmSmartAccount(ctx context.Context, userId string, params *AddEndUserEvmSmartAccountParams, body AddEndUserEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddEndUserSolanaAccountWithBody request with any body
-	AddEndUserSolanaAccountWithBody(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AddEndUserSolanaAccountWithBody(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	AddEndUserSolanaAccount(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AddEndUserSolanaAccount(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListEvmAccounts request
 	ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13399,6 +16363,77 @@ type ClientInterface interface {
 	// GetPaymentMethod request
 	GetPaymentMethod(ctx context.Context, paymentMethodId PaymentMethodId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListPaymentSessions request
+	ListPaymentSessions(ctx context.Context, params *ListPaymentSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreatePaymentSessionWithBody request with any body
+	CreatePaymentSessionWithBody(ctx context.Context, params *CreatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreatePaymentSession(ctx context.Context, params *CreatePaymentSessionParams, body CreatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPaymentSession request
+	GetPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPaymentSessionAuthorizations request
+	ListPaymentSessionAuthorizations(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionAuthorizationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AuthorizeCoinbasePaymentSessionWithBody request with any body
+	AuthorizeCoinbasePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AuthorizeCoinbasePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AuthorizeWalletPaymentSessionWithBody request with any body
+	AuthorizeWalletPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AuthorizeWalletPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, body AuthorizeWalletPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWalletAuthorizationOptions request
+	GetWalletAuthorizationOptions(ctx context.Context, paymentSessionId PaymentSessionId, params *GetWalletAuthorizationOptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AuthorizeX402PaymentSession request
+	AuthorizeX402PaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeX402PaymentSessionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPaymentSessionAuthorization request
+	GetPaymentSessionAuthorization(ctx context.Context, paymentSessionId PaymentSessionId, authorizationId AuthorizationId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CancelPaymentSessionWithBody request with any body
+	CancelPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CancelPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, body CancelPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPaymentSessionCaptures request
+	ListPaymentSessionCaptures(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionCapturesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CapturePaymentSessionWithBody request with any body
+	CapturePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CapturePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, body CapturePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPaymentSessionCapture request
+	GetPaymentSessionCapture(ctx context.Context, paymentSessionId PaymentSessionId, captureId CaptureId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPaymentSessionRefunds request
+	ListPaymentSessionRefunds(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionRefundsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RefundPaymentSessionWithBody request with any body
+	RefundPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RefundPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, body RefundPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPaymentSessionRefund request
+	GetPaymentSessionRefund(ctx context.Context, paymentSessionId PaymentSessionId, refundId RefundId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPaymentSessionVoids request
+	ListPaymentSessionVoids(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionVoidsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// VoidPaymentSessionWithBody request with any body
+	VoidPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	VoidPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, body VoidPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPaymentSessionVoid request
+	GetPaymentSessionVoid(ctx context.Context, paymentSessionId PaymentSessionId, voidId VoidId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPolicies request
 	ListPolicies(ctx context.Context, params *ListPoliciesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -13493,6 +16528,12 @@ type ClientInterface interface {
 	SubmitDepositTravelRuleWithBody(ctx context.Context, transferId string, params *SubmitDepositTravelRuleParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SubmitDepositTravelRule(ctx context.Context, transferId string, params *SubmitDepositTravelRuleParams, body SubmitDepositTravelRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListX402Bundles request
+	ListX402Bundles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetX402Bundle request
+	GetX402Bundle(ctx context.Context, bundleSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostX402DiscoveryMcpWithBody request with any body
 	PostX402DiscoveryMcpWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13589,6 +16630,102 @@ func (c *CDPClient) ListBalances(ctx context.Context, accountId AccountId, param
 
 func (c *CDPClient) GetBalanceByAsset(ctx context.Context, accountId AccountId, asset Asset, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetBalanceByAssetRequest(c.Server, accountId, asset)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListCoinbaseAccountBalances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListCoinbaseAccountBalancesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListCustomers(ctx context.Context, params *ListCustomersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListCustomersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateCustomerWithBody(ctx context.Context, params *CreateCustomerParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCustomerRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateCustomer(ctx context.Context, params *CreateCustomerParams, body CreateCustomerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCustomerRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) DeleteCustomerById(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteCustomerByIdRequest(c.Server, customerId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetCustomerById(ctx context.Context, customerId CustomerId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCustomerByIdRequest(c.Server, customerId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateCustomerByIdWithBody(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCustomerByIdRequestWithBody(c.Server, customerId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateCustomerById(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, body UpdateCustomerByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCustomerByIdRequest(c.Server, customerId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -13805,6 +16942,54 @@ func (c *CDPClient) CreateDepositDestination(ctx context.Context, params *Create
 
 func (c *CDPClient) GetDepositDestinationById(ctx context.Context, depositDestinationId DepositDestinationId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDepositDestinationByIdRequest(c.Server, depositDestinationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListDisbursements(ctx context.Context, params *ListDisbursementsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDisbursementsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateDisbursementWithBody(ctx context.Context, params *CreateDisbursementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDisbursementRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateDisbursement(ctx context.Context, params *CreateDisbursementParams, body CreateDisbursementJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDisbursementRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetDisbursement(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDisbursementRequest(c.Server, disbursementId)
 	if err != nil {
 		return nil, err
 	}
@@ -14151,6 +17336,30 @@ func (c *CDPClient) SignSolanaTransactionWithEndUserAccount(ctx context.Context,
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) SignSolanaX402PaymentWithEndUserAccountWithBody(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignSolanaX402PaymentWithEndUserAccountRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignSolanaX402PaymentWithEndUserAccount(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, body SignSolanaX402PaymentWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignSolanaX402PaymentWithEndUserAccountRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) SendSolanaAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendSolanaAssetWithEndUserAccountRequestWithBody(c.Server, userId, address, asset, params, contentType, body)
 	if err != nil {
@@ -14283,7 +17492,7 @@ func (c *CDPClient) GetEndUser(ctx context.Context, userId string, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) AddEndUserEvmAccountWithBody(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *CDPClient) AddEndUserEvmAccountWithBody(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAddEndUserEvmAccountRequestWithBody(c.Server, userId, params, contentType, body)
 	if err != nil {
 		return nil, err
@@ -14295,7 +17504,7 @@ func (c *CDPClient) AddEndUserEvmAccountWithBody(ctx context.Context, userId str
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) AddEndUserEvmAccount(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *CDPClient) AddEndUserEvmAccount(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAddEndUserEvmAccountRequest(c.Server, userId, params, body)
 	if err != nil {
 		return nil, err
@@ -14331,7 +17540,7 @@ func (c *CDPClient) AddEndUserEvmSmartAccount(ctx context.Context, userId string
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) AddEndUserSolanaAccountWithBody(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *CDPClient) AddEndUserSolanaAccountWithBody(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAddEndUserSolanaAccountRequestWithBody(c.Server, userId, params, contentType, body)
 	if err != nil {
 		return nil, err
@@ -14343,7 +17552,7 @@ func (c *CDPClient) AddEndUserSolanaAccountWithBody(ctx context.Context, userId 
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) AddEndUserSolanaAccount(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *CDPClient) AddEndUserSolanaAccount(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAddEndUserSolanaAccountRequest(c.Server, userId, params, body)
 	if err != nil {
 		return nil, err
@@ -15147,6 +18356,318 @@ func (c *CDPClient) GetPaymentMethod(ctx context.Context, paymentMethodId Paymen
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) ListPaymentSessions(ctx context.Context, params *ListPaymentSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPaymentSessionsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreatePaymentSessionWithBody(ctx context.Context, params *CreatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePaymentSessionRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreatePaymentSession(ctx context.Context, params *CreatePaymentSessionParams, body CreatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePaymentSessionRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentSessionRequest(c.Server, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListPaymentSessionAuthorizations(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionAuthorizationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPaymentSessionAuthorizationsRequest(c.Server, paymentSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeCoinbasePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeCoinbasePaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeCoinbasePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeCoinbasePaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeWalletPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeWalletPaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeWalletPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, body AuthorizeWalletPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeWalletPaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetWalletAuthorizationOptions(ctx context.Context, paymentSessionId PaymentSessionId, params *GetWalletAuthorizationOptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWalletAuthorizationOptionsRequest(c.Server, paymentSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeX402PaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeX402PaymentSessionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeX402PaymentSessionRequest(c.Server, paymentSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetPaymentSessionAuthorization(ctx context.Context, paymentSessionId PaymentSessionId, authorizationId AuthorizationId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentSessionAuthorizationRequest(c.Server, paymentSessionId, authorizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CancelPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelPaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CancelPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, body CancelPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelPaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListPaymentSessionCaptures(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionCapturesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPaymentSessionCapturesRequest(c.Server, paymentSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CapturePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCapturePaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CapturePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, body CapturePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCapturePaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetPaymentSessionCapture(ctx context.Context, paymentSessionId PaymentSessionId, captureId CaptureId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentSessionCaptureRequest(c.Server, paymentSessionId, captureId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListPaymentSessionRefunds(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionRefundsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPaymentSessionRefundsRequest(c.Server, paymentSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RefundPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRefundPaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RefundPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, body RefundPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRefundPaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetPaymentSessionRefund(ctx context.Context, paymentSessionId PaymentSessionId, refundId RefundId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentSessionRefundRequest(c.Server, paymentSessionId, refundId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListPaymentSessionVoids(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionVoidsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPaymentSessionVoidsRequest(c.Server, paymentSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) VoidPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVoidPaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) VoidPaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, body VoidPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVoidPaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetPaymentSessionVoid(ctx context.Context, paymentSessionId PaymentSessionId, voidId VoidId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentSessionVoidRequest(c.Server, paymentSessionId, voidId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) ListPolicies(ctx context.Context, params *ListPoliciesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPoliciesRequest(c.Server, params)
 	if err != nil {
@@ -15579,6 +19100,30 @@ func (c *CDPClient) SubmitDepositTravelRule(ctx context.Context, transferId stri
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) ListX402Bundles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListX402BundlesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetX402Bundle(ctx context.Context, bundleSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetX402BundleRequest(c.Server, bundleSlug)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) PostX402DiscoveryMcpWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostX402DiscoveryMcpRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -15764,6 +19309,22 @@ func NewListFoundationAccountsRequest(server string, params *ListFoundationAccou
 		if params.PageToken != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Owner != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "owner", runtime.ParamLocationQuery, *params.Owner); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -16001,6 +19562,298 @@ func NewGetBalanceByAssetRequest(server string, accountId AccountId, asset Asset
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListCoinbaseAccountBalancesRequest generates requests for ListCoinbaseAccountBalances
+func NewListCoinbaseAccountBalancesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/coinbase-accounts/balances")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListCustomersRequest generates requests for ListCustomers
+func NewListCustomersRequest(server string, params *ListCustomersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/customers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateCustomerRequest calls the generic CreateCustomer builder with application/json body
+func NewCreateCustomerRequest(server string, params *CreateCustomerParams, body CreateCustomerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateCustomerRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateCustomerRequestWithBody generates requests for CreateCustomer with any type of body
+func NewCreateCustomerRequestWithBody(server string, params *CreateCustomerParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/customers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewDeleteCustomerByIdRequest generates requests for DeleteCustomerById
+func NewDeleteCustomerByIdRequest(server string, customerId CustomerId, params *DeleteCustomerByIdParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "customerId", runtime.ParamLocationPath, customerId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/customers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetCustomerByIdRequest generates requests for GetCustomerById
+func NewGetCustomerByIdRequest(server string, customerId CustomerId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "customerId", runtime.ParamLocationPath, customerId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/customers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCustomerByIdRequest calls the generic UpdateCustomerById builder with application/json body
+func NewUpdateCustomerByIdRequest(server string, customerId CustomerId, params *UpdateCustomerByIdParams, body UpdateCustomerByIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCustomerByIdRequestWithBody(server, customerId, params, "application/json", bodyReader)
+}
+
+// NewUpdateCustomerByIdRequestWithBody generates requests for UpdateCustomerById with any type of body
+func NewUpdateCustomerByIdRequestWithBody(server string, customerId CustomerId, params *UpdateCustomerByIdParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "customerId", runtime.ParamLocationPath, customerId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/customers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
 	}
 
 	return req, nil
@@ -16783,6 +20636,208 @@ func NewGetDepositDestinationByIdRequest(server string, depositDestinationId Dep
 	}
 
 	operationPath := fmt.Sprintf("/v2/deposit-destinations/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListDisbursementsRequest generates requests for ListDisbursements
+func NewListDisbursementsRequest(server string, params *ListDisbursementsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/disbursements")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Status != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status", runtime.ParamLocationQuery, *params.Status); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.SourceAccountId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sourceAccountId", runtime.ParamLocationQuery, *params.SourceAccountId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.ExternalReferenceId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "externalReferenceId", runtime.ParamLocationQuery, *params.ExternalReferenceId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateDisbursementRequest calls the generic CreateDisbursement builder with application/json body
+func NewCreateDisbursementRequest(server string, params *CreateDisbursementParams, body CreateDisbursementJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateDisbursementRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateDisbursementRequestWithBody generates requests for CreateDisbursement with any type of body
+func NewCreateDisbursementRequestWithBody(server string, params *CreateDisbursementParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/disbursements")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetDisbursementRequest generates requests for GetDisbursement
+func NewGetDisbursementRequest(server string, disbursementId DisbursementId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "disbursementId", runtime.ParamLocationPath, disbursementId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/disbursements/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -18321,6 +22376,112 @@ func NewSignSolanaTransactionWithEndUserAccountRequestWithBody(server string, us
 	return req, nil
 }
 
+// NewSignSolanaX402PaymentWithEndUserAccountRequest calls the generic SignSolanaX402PaymentWithEndUserAccount builder with application/json body
+func NewSignSolanaX402PaymentWithEndUserAccountRequest(server string, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, body SignSolanaX402PaymentWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignSolanaX402PaymentWithEndUserAccountRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewSignSolanaX402PaymentWithEndUserAccountRequestWithBody generates requests for SignSolanaX402PaymentWithEndUserAccount with any type of body
+func NewSignSolanaX402PaymentWithEndUserAccountRequestWithBody(server string, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/solana/sign/x402-payment", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewSendSolanaAssetWithEndUserAccountRequest calls the generic SendSolanaAssetWithEndUserAccount builder with application/json body
 func NewSendSolanaAssetWithEndUserAccountRequest(server string, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -18842,7 +23003,7 @@ func NewGetEndUserRequest(server string, userId string) (*http.Request, error) {
 }
 
 // NewAddEndUserEvmAccountRequest calls the generic AddEndUserEvmAccount builder with application/json body
-func NewAddEndUserEvmAccountRequest(server string, userId string, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody) (*http.Request, error) {
+func NewAddEndUserEvmAccountRequest(server string, userId EndUserUserId, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
@@ -18853,7 +23014,7 @@ func NewAddEndUserEvmAccountRequest(server string, userId string, params *AddEnd
 }
 
 // NewAddEndUserEvmAccountRequestWithBody generates requests for AddEndUserEvmAccount with any type of body
-func NewAddEndUserEvmAccountRequestWithBody(server string, userId string, params *AddEndUserEvmAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewAddEndUserEvmAccountRequestWithBody(server string, userId EndUserUserId, params *AddEndUserEvmAccountParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18988,7 +23149,7 @@ func NewAddEndUserEvmSmartAccountRequestWithBody(server string, userId string, p
 }
 
 // NewAddEndUserSolanaAccountRequest calls the generic AddEndUserSolanaAccount builder with application/json body
-func NewAddEndUserSolanaAccountRequest(server string, userId string, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody) (*http.Request, error) {
+func NewAddEndUserSolanaAccountRequest(server string, userId EndUserUserId, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
@@ -18999,7 +23160,7 @@ func NewAddEndUserSolanaAccountRequest(server string, userId string, params *Add
 }
 
 // NewAddEndUserSolanaAccountRequestWithBody generates requests for AddEndUserSolanaAccount with any type of body
-func NewAddEndUserSolanaAccountRequestWithBody(server string, userId string, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewAddEndUserSolanaAccountRequestWithBody(server string, userId EndUserUserId, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -21398,6 +25559,1137 @@ func NewGetPaymentMethodRequest(server string, paymentMethodId PaymentMethodId) 
 	return req, nil
 }
 
+// NewListPaymentSessionsRequest generates requests for ListPaymentSessions
+func NewListPaymentSessionsRequest(server string, params *ListPaymentSessionsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreatePaymentSessionRequest calls the generic CreatePaymentSession builder with application/json body
+func NewCreatePaymentSessionRequest(server string, params *CreatePaymentSessionParams, body CreatePaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreatePaymentSessionRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreatePaymentSessionRequestWithBody generates requests for CreatePaymentSession with any type of body
+func NewCreatePaymentSessionRequestWithBody(server string, params *CreatePaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetPaymentSessionRequest generates requests for GetPaymentSession
+func NewGetPaymentSessionRequest(server string, paymentSessionId PaymentSessionId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListPaymentSessionAuthorizationsRequest generates requests for ListPaymentSessionAuthorizations
+func NewListPaymentSessionAuthorizationsRequest(server string, paymentSessionId PaymentSessionId, params *ListPaymentSessionAuthorizationsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAuthorizeCoinbasePaymentSessionRequest calls the generic AuthorizeCoinbasePaymentSession builder with application/json body
+func NewAuthorizeCoinbasePaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAuthorizeCoinbasePaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewAuthorizeCoinbasePaymentSessionRequestWithBody generates requests for AuthorizeCoinbasePaymentSession with any type of body
+func NewAuthorizeCoinbasePaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations/coinbase", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "cb-authz-id", runtime.ParamLocationHeader, params.CbAuthzId)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("cb-authz-id", headerParam0)
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewAuthorizeWalletPaymentSessionRequest calls the generic AuthorizeWalletPaymentSession builder with application/json body
+func NewAuthorizeWalletPaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, body AuthorizeWalletPaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAuthorizeWalletPaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewAuthorizeWalletPaymentSessionRequestWithBody generates requests for AuthorizeWalletPaymentSession with any type of body
+func NewAuthorizeWalletPaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations/wallet", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetWalletAuthorizationOptionsRequest generates requests for GetWalletAuthorizationOptions
+func NewGetWalletAuthorizationOptionsRequest(server string, paymentSessionId PaymentSessionId, params *GetWalletAuthorizationOptionsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations/wallet/options", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", false, "addresses", runtime.ParamLocationQuery, params.Addresses); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.Network != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, *params.Network); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Asset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "asset", runtime.ParamLocationQuery, *params.Asset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAuthorizeX402PaymentSessionRequest generates requests for AuthorizeX402PaymentSession
+func NewAuthorizeX402PaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *AuthorizeX402PaymentSessionParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations/x402", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.PAYMENTSIGNATURE != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "PAYMENT-SIGNATURE", runtime.ParamLocationHeader, *params.PAYMENTSIGNATURE)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("PAYMENT-SIGNATURE", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetPaymentSessionAuthorizationRequest generates requests for GetPaymentSessionAuthorization
+func NewGetPaymentSessionAuthorizationRequest(server string, paymentSessionId PaymentSessionId, authorizationId AuthorizationId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "authorizationId", runtime.ParamLocationPath, authorizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCancelPaymentSessionRequest calls the generic CancelPaymentSession builder with application/json body
+func NewCancelPaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, body CancelPaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCancelPaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewCancelPaymentSessionRequestWithBody generates requests for CancelPaymentSession with any type of body
+func NewCancelPaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/cancel", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewListPaymentSessionCapturesRequest generates requests for ListPaymentSessionCaptures
+func NewListPaymentSessionCapturesRequest(server string, paymentSessionId PaymentSessionId, params *ListPaymentSessionCapturesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/captures", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCapturePaymentSessionRequest calls the generic CapturePaymentSession builder with application/json body
+func NewCapturePaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, body CapturePaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCapturePaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewCapturePaymentSessionRequestWithBody generates requests for CapturePaymentSession with any type of body
+func NewCapturePaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/captures", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetPaymentSessionCaptureRequest generates requests for GetPaymentSessionCapture
+func NewGetPaymentSessionCaptureRequest(server string, paymentSessionId PaymentSessionId, captureId CaptureId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "captureId", runtime.ParamLocationPath, captureId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/captures/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListPaymentSessionRefundsRequest generates requests for ListPaymentSessionRefunds
+func NewListPaymentSessionRefundsRequest(server string, paymentSessionId PaymentSessionId, params *ListPaymentSessionRefundsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/refunds", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRefundPaymentSessionRequest calls the generic RefundPaymentSession builder with application/json body
+func NewRefundPaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, body RefundPaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRefundPaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewRefundPaymentSessionRequestWithBody generates requests for RefundPaymentSession with any type of body
+func NewRefundPaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/refunds", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetPaymentSessionRefundRequest generates requests for GetPaymentSessionRefund
+func NewGetPaymentSessionRefundRequest(server string, paymentSessionId PaymentSessionId, refundId RefundId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "refundId", runtime.ParamLocationPath, refundId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/refunds/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListPaymentSessionVoidsRequest generates requests for ListPaymentSessionVoids
+func NewListPaymentSessionVoidsRequest(server string, paymentSessionId PaymentSessionId, params *ListPaymentSessionVoidsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/voids", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewVoidPaymentSessionRequest calls the generic VoidPaymentSession builder with application/json body
+func NewVoidPaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, body VoidPaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewVoidPaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewVoidPaymentSessionRequestWithBody generates requests for VoidPaymentSession with any type of body
+func NewVoidPaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/voids", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetPaymentSessionVoidRequest generates requests for GetPaymentSessionVoid
+func NewGetPaymentSessionVoidRequest(server string, paymentSessionId PaymentSessionId, voidId VoidId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "voidId", runtime.ParamLocationPath, voidId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/voids/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListPoliciesRequest generates requests for ListPolicies
 func NewListPoliciesRequest(server string, params *ListPoliciesParams) (*http.Request, error) {
 	var err error
@@ -22972,6 +28264,67 @@ func NewSubmitDepositTravelRuleRequestWithBody(server string, transferId string,
 	return req, nil
 }
 
+// NewListX402BundlesRequest generates requests for ListX402Bundles
+func NewListX402BundlesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/discovery/bundles")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetX402BundleRequest generates requests for GetX402Bundle
+func NewGetX402BundleRequest(server string, bundleSlug string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "bundleSlug", runtime.ParamLocationPath, bundleSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/discovery/bundles/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostX402DiscoveryMcpRequest calls the generic PostX402DiscoveryMcp builder with application/json body
 func NewPostX402DiscoveryMcpRequest(server string, body PostX402DiscoveryMcpJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -23320,6 +28673,54 @@ func NewSearchX402ResourcesRequest(server string, params *SearchX402ResourcesPar
 
 		}
 
+		if params.Tags != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "tags", runtime.ParamLocationQuery, *params.Tags); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.BundleSlugs != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "bundleSlugs", runtime.ParamLocationQuery, *params.BundleSlugs); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.CuratedOnly != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "curatedOnly", runtime.ParamLocationQuery, *params.CuratedOnly); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
@@ -23554,6 +28955,28 @@ type ClientWithResponsesInterface interface {
 	// GetBalanceByAssetWithResponse request
 	GetBalanceByAssetWithResponse(ctx context.Context, accountId AccountId, asset Asset, reqEditors ...RequestEditorFn) (*GetBalanceByAssetResponse, error)
 
+	// ListCoinbaseAccountBalancesWithResponse request
+	ListCoinbaseAccountBalancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListCoinbaseAccountBalancesResponse, error)
+
+	// ListCustomersWithResponse request
+	ListCustomersWithResponse(ctx context.Context, params *ListCustomersParams, reqEditors ...RequestEditorFn) (*ListCustomersResponse, error)
+
+	// CreateCustomerWithBodyWithResponse request with any body
+	CreateCustomerWithBodyWithResponse(ctx context.Context, params *CreateCustomerParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCustomerResponse, error)
+
+	CreateCustomerWithResponse(ctx context.Context, params *CreateCustomerParams, body CreateCustomerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCustomerResponse, error)
+
+	// DeleteCustomerByIdWithResponse request
+	DeleteCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*DeleteCustomerByIdResponse, error)
+
+	// GetCustomerByIdWithResponse request
+	GetCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, reqEditors ...RequestEditorFn) (*GetCustomerByIdResponse, error)
+
+	// UpdateCustomerByIdWithBodyWithResponse request with any body
+	UpdateCustomerByIdWithBodyWithResponse(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCustomerByIdResponse, error)
+
+	UpdateCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, body UpdateCustomerByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCustomerByIdResponse, error)
+
 	// ListDataTokenBalancesWithResponse request
 	ListDataTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListDataTokenBalancesResponse, error)
 
@@ -23603,6 +29026,17 @@ type ClientWithResponsesInterface interface {
 
 	// GetDepositDestinationByIdWithResponse request
 	GetDepositDestinationByIdWithResponse(ctx context.Context, depositDestinationId DepositDestinationId, reqEditors ...RequestEditorFn) (*GetDepositDestinationByIdResponse, error)
+
+	// ListDisbursementsWithResponse request
+	ListDisbursementsWithResponse(ctx context.Context, params *ListDisbursementsParams, reqEditors ...RequestEditorFn) (*ListDisbursementsResponse, error)
+
+	// CreateDisbursementWithBodyWithResponse request with any body
+	CreateDisbursementWithBodyWithResponse(ctx context.Context, params *CreateDisbursementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDisbursementResponse, error)
+
+	CreateDisbursementWithResponse(ctx context.Context, params *CreateDisbursementParams, body CreateDisbursementJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDisbursementResponse, error)
+
+	// GetDisbursementWithResponse request
+	GetDisbursementWithResponse(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*GetDisbursementResponse, error)
 
 	// RevokeDelegationForEndUserAccountWithBodyWithResponse request with any body
 	RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
@@ -23675,6 +29109,11 @@ type ClientWithResponsesInterface interface {
 
 	SignSolanaTransactionWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaTransactionWithEndUserAccountParams, body SignSolanaTransactionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaTransactionWithEndUserAccountResponse, error)
 
+	// SignSolanaX402PaymentWithEndUserAccountWithBodyWithResponse request with any body
+	SignSolanaX402PaymentWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaX402PaymentWithEndUserAccountResponse, error)
+
+	SignSolanaX402PaymentWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, body SignSolanaX402PaymentWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaX402PaymentWithEndUserAccountResponse, error)
+
 	// SendSolanaAssetWithEndUserAccountWithBodyWithResponse request with any body
 	SendSolanaAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error)
 
@@ -23705,9 +29144,9 @@ type ClientWithResponsesInterface interface {
 	GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error)
 
 	// AddEndUserEvmAccountWithBodyWithResponse request with any body
-	AddEndUserEvmAccountWithBodyWithResponse(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error)
+	AddEndUserEvmAccountWithBodyWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error)
 
-	AddEndUserEvmAccountWithResponse(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error)
+	AddEndUserEvmAccountWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error)
 
 	// AddEndUserEvmSmartAccountWithBodyWithResponse request with any body
 	AddEndUserEvmSmartAccountWithBodyWithResponse(ctx context.Context, userId string, params *AddEndUserEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserEvmSmartAccountResponse, error)
@@ -23715,9 +29154,9 @@ type ClientWithResponsesInterface interface {
 	AddEndUserEvmSmartAccountWithResponse(ctx context.Context, userId string, params *AddEndUserEvmSmartAccountParams, body AddEndUserEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserEvmSmartAccountResponse, error)
 
 	// AddEndUserSolanaAccountWithBodyWithResponse request with any body
-	AddEndUserSolanaAccountWithBodyWithResponse(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error)
+	AddEndUserSolanaAccountWithBodyWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error)
 
-	AddEndUserSolanaAccountWithResponse(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error)
+	AddEndUserSolanaAccountWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error)
 
 	// ListEvmAccountsWithResponse request
 	ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error)
@@ -23891,6 +29330,77 @@ type ClientWithResponsesInterface interface {
 	// GetPaymentMethodWithResponse request
 	GetPaymentMethodWithResponse(ctx context.Context, paymentMethodId PaymentMethodId, reqEditors ...RequestEditorFn) (*GetPaymentMethodResponse, error)
 
+	// ListPaymentSessionsWithResponse request
+	ListPaymentSessionsWithResponse(ctx context.Context, params *ListPaymentSessionsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionsResponse, error)
+
+	// CreatePaymentSessionWithBodyWithResponse request with any body
+	CreatePaymentSessionWithBodyWithResponse(ctx context.Context, params *CreatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePaymentSessionResponse, error)
+
+	CreatePaymentSessionWithResponse(ctx context.Context, params *CreatePaymentSessionParams, body CreatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePaymentSessionResponse, error)
+
+	// GetPaymentSessionWithResponse request
+	GetPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, reqEditors ...RequestEditorFn) (*GetPaymentSessionResponse, error)
+
+	// ListPaymentSessionAuthorizationsWithResponse request
+	ListPaymentSessionAuthorizationsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionAuthorizationsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionAuthorizationsResponse, error)
+
+	// AuthorizeCoinbasePaymentSessionWithBodyWithResponse request with any body
+	AuthorizeCoinbasePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeCoinbasePaymentSessionResponse, error)
+
+	AuthorizeCoinbasePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeCoinbasePaymentSessionResponse, error)
+
+	// AuthorizeWalletPaymentSessionWithBodyWithResponse request with any body
+	AuthorizeWalletPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeWalletPaymentSessionResponse, error)
+
+	AuthorizeWalletPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, body AuthorizeWalletPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeWalletPaymentSessionResponse, error)
+
+	// GetWalletAuthorizationOptionsWithResponse request
+	GetWalletAuthorizationOptionsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *GetWalletAuthorizationOptionsParams, reqEditors ...RequestEditorFn) (*GetWalletAuthorizationOptionsResponse, error)
+
+	// AuthorizeX402PaymentSessionWithResponse request
+	AuthorizeX402PaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeX402PaymentSessionParams, reqEditors ...RequestEditorFn) (*AuthorizeX402PaymentSessionResponse, error)
+
+	// GetPaymentSessionAuthorizationWithResponse request
+	GetPaymentSessionAuthorizationWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, authorizationId AuthorizationId, reqEditors ...RequestEditorFn) (*GetPaymentSessionAuthorizationResponse, error)
+
+	// CancelPaymentSessionWithBodyWithResponse request with any body
+	CancelPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelPaymentSessionResponse, error)
+
+	CancelPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, body CancelPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CancelPaymentSessionResponse, error)
+
+	// ListPaymentSessionCapturesWithResponse request
+	ListPaymentSessionCapturesWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionCapturesParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionCapturesResponse, error)
+
+	// CapturePaymentSessionWithBodyWithResponse request with any body
+	CapturePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CapturePaymentSessionResponse, error)
+
+	CapturePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, body CapturePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CapturePaymentSessionResponse, error)
+
+	// GetPaymentSessionCaptureWithResponse request
+	GetPaymentSessionCaptureWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, captureId CaptureId, reqEditors ...RequestEditorFn) (*GetPaymentSessionCaptureResponse, error)
+
+	// ListPaymentSessionRefundsWithResponse request
+	ListPaymentSessionRefundsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionRefundsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionRefundsResponse, error)
+
+	// RefundPaymentSessionWithBodyWithResponse request with any body
+	RefundPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RefundPaymentSessionResponse, error)
+
+	RefundPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, body RefundPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*RefundPaymentSessionResponse, error)
+
+	// GetPaymentSessionRefundWithResponse request
+	GetPaymentSessionRefundWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, refundId RefundId, reqEditors ...RequestEditorFn) (*GetPaymentSessionRefundResponse, error)
+
+	// ListPaymentSessionVoidsWithResponse request
+	ListPaymentSessionVoidsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionVoidsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionVoidsResponse, error)
+
+	// VoidPaymentSessionWithBodyWithResponse request with any body
+	VoidPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VoidPaymentSessionResponse, error)
+
+	VoidPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, body VoidPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*VoidPaymentSessionResponse, error)
+
+	// GetPaymentSessionVoidWithResponse request
+	GetPaymentSessionVoidWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, voidId VoidId, reqEditors ...RequestEditorFn) (*GetPaymentSessionVoidResponse, error)
+
 	// ListPoliciesWithResponse request
 	ListPoliciesWithResponse(ctx context.Context, params *ListPoliciesParams, reqEditors ...RequestEditorFn) (*ListPoliciesResponse, error)
 
@@ -23986,6 +29496,12 @@ type ClientWithResponsesInterface interface {
 
 	SubmitDepositTravelRuleWithResponse(ctx context.Context, transferId string, params *SubmitDepositTravelRuleParams, body SubmitDepositTravelRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitDepositTravelRuleResponse, error)
 
+	// ListX402BundlesWithResponse request
+	ListX402BundlesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListX402BundlesResponse, error)
+
+	// GetX402BundleWithResponse request
+	GetX402BundleWithResponse(ctx context.Context, bundleSlug string, reqEditors ...RequestEditorFn) (*GetX402BundleResponse, error)
+
 	// PostX402DiscoveryMcpWithBodyWithResponse request with any body
 	PostX402DiscoveryMcpWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostX402DiscoveryMcpResponse, error)
 
@@ -24053,6 +29569,7 @@ type CreateFoundationAccountResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *Account
 	JSON400      *Error
+	JSON403      *Error
 	JSON422      *IdempotencyError
 	JSON503      *EndpointUnavailableError
 }
@@ -24151,6 +29668,180 @@ func (r GetBalanceByAssetResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetBalanceByAssetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListCoinbaseAccountBalancesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Balances
+	JSON401      *UnauthorizedError
+	JSON403      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListCoinbaseAccountBalancesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListCoinbaseAccountBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListCustomersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Customers The list of customers.
+		Customers []Customer `json:"customers"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListCustomersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListCustomersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateCustomerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Customer
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateCustomerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateCustomerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteCustomerByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteCustomerByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteCustomerByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetCustomerByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Customer
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCustomerByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCustomerByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateCustomerByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Customer
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON403      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCustomerByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCustomerByIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -24490,6 +30181,7 @@ type CreateDepositDestinationResponse struct {
 	JSON201      *DepositDestination
 	JSON400      *Error
 	JSON401      *Error
+	JSON403      *Error
 	JSON404      *Error
 	JSON422      *IdempotencyError
 	JSON500      *Error
@@ -24532,6 +30224,91 @@ func (r GetDepositDestinationByIdResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDepositDestinationByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListDisbursementsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Disbursements The list of disbursements.
+		Disbursements []Disbursement `json:"disbursements"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDisbursementsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDisbursementsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateDisbursementResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Disbursement
+	JSON400      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDisbursementResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDisbursementResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetDisbursementResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Disbursement
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDisbursementResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDisbursementResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -25025,6 +30802,41 @@ func (r SignSolanaTransactionWithEndUserAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SignSolanaTransactionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignSolanaX402PaymentWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// PaymentPayload The signed x402 payment payload. Base64-encode this and send it in the PAYMENT-SIGNATURE header of the resource request.
+		PaymentPayload X402PaymentPayload `json:"paymentPayload"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON402 *PaymentMethodRequiredError
+	JSON403 *DelegationForbiddenError
+	JSON404 *Error
+	JSON409 *AlreadyExistsError
+	JSON422 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignSolanaX402PaymentWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignSolanaX402PaymentWithEndUserAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -26272,6 +32084,9 @@ type GetOnrampUserLimitsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
+		// LimitUpgradeOptions The user's limit upgrade status and associated upgrade details. Omitted when limit upgrades are not available for the calling app or user. Use the [Request Limit Upgrade](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/request-limits-upgrade) endpoint to request a limit upgrade.
+		LimitUpgradeOptions *[]OnrampLimitUpgradeOption `json:"limitUpgradeOptions,omitempty"`
+
 		// Limits The list of limits applicable to the user.
 		Limits []OnrampUserLimit `json:"limits"`
 	}
@@ -26300,6 +32115,7 @@ func (r GetOnrampUserLimitsResponse) StatusCode() int {
 type RequestLimitsUpgradeResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *OnrampLimitUpgradeEmbeddedResponse
 	JSON400      *Error
 	JSON401      *UnauthorizedError
 	JSON429      *RateLimitExceeded
@@ -26333,6 +32149,9 @@ type CreateOnrampOrderResponse struct {
 		//
 		// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
 		PaymentLink *OnrampPaymentLink `json:"paymentLink,omitempty"`
+
+		// UserAuthToken Present for embedded orders once the user has verified. Store this and pass it on future orders for the same user to skip OTP verification. Valid for 60 days.
+		UserAuthToken *OnrampUserAuthToken `json:"userAuthToken,omitempty"`
 	}
 	JSON400 *Error
 	JSON401 *UnauthorizedError
@@ -26525,6 +32344,553 @@ func (r GetPaymentMethodResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetPaymentMethodResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListPaymentSessionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+
+		// PaymentSessions The list of payment sessions.
+		PaymentSessions []PaymentSession `json:"paymentSessions"`
+	}
+	JSON400 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPaymentSessionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPaymentSessionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreatePaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaymentSession
+	JSON400      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreatePaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreatePaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaymentSession
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListPaymentSessionAuthorizationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Authorizations The list of authorizations.
+		Authorizations []Authorization `json:"authorizations"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPaymentSessionAuthorizationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPaymentSessionAuthorizationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AuthorizeCoinbasePaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Authorization
+	JSON400      *Error
+	JSON403      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthorizeCoinbasePaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthorizeCoinbasePaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AuthorizeWalletPaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Authorization
+	JSON400      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthorizeWalletPaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthorizeWalletPaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetWalletAuthorizationOptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WalletAuthorizationOptionsResponse
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWalletAuthorizationOptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWalletAuthorizationOptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AuthorizeX402PaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Authorization
+	JSON400      *Error
+	JSON402      *PaymentRequired
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthorizeX402PaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthorizeX402PaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPaymentSessionAuthorizationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Authorization
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPaymentSessionAuthorizationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPaymentSessionAuthorizationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CancelPaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaymentSession
+	JSON400      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CancelPaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CancelPaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListPaymentSessionCapturesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Captures The list of captures.
+		Captures []Capture `json:"captures"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPaymentSessionCapturesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPaymentSessionCapturesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CapturePaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Capture
+	JSON400      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CapturePaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CapturePaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPaymentSessionCaptureResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Capture
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPaymentSessionCaptureResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPaymentSessionCaptureResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListPaymentSessionRefundsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+
+		// Refunds The list of refunds.
+		Refunds []Refund `json:"refunds"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPaymentSessionRefundsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPaymentSessionRefundsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RefundPaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Refund
+	JSON400      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RefundPaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RefundPaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPaymentSessionRefundResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Refund
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPaymentSessionRefundResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPaymentSessionRefundResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListPaymentSessionVoidsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+
+		// Voids The list of voids.
+		Voids []Void `json:"voids"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPaymentSessionVoidsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPaymentSessionVoidsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type VoidPaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Void
+	JSON400      *Error
+	JSON404      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r VoidPaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r VoidPaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPaymentSessionVoidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Void
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPaymentSessionVoidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPaymentSessionVoidResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27213,6 +33579,58 @@ func (r SubmitDepositTravelRuleResponse) StatusCode() int {
 	return 0
 }
 
+type ListX402BundlesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402BundlesResponse
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListX402BundlesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListX402BundlesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetX402BundleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402BundleResponse
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetX402BundleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetX402BundleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PostX402DiscoveryMcpResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27472,6 +33890,76 @@ func (c *ClientWithResponses) GetBalanceByAssetWithResponse(ctx context.Context,
 	return ParseGetBalanceByAssetResponse(rsp)
 }
 
+// ListCoinbaseAccountBalancesWithResponse request returning *ListCoinbaseAccountBalancesResponse
+func (c *ClientWithResponses) ListCoinbaseAccountBalancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListCoinbaseAccountBalancesResponse, error) {
+	rsp, err := c.ListCoinbaseAccountBalances(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListCoinbaseAccountBalancesResponse(rsp)
+}
+
+// ListCustomersWithResponse request returning *ListCustomersResponse
+func (c *ClientWithResponses) ListCustomersWithResponse(ctx context.Context, params *ListCustomersParams, reqEditors ...RequestEditorFn) (*ListCustomersResponse, error) {
+	rsp, err := c.ListCustomers(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListCustomersResponse(rsp)
+}
+
+// CreateCustomerWithBodyWithResponse request with arbitrary body returning *CreateCustomerResponse
+func (c *ClientWithResponses) CreateCustomerWithBodyWithResponse(ctx context.Context, params *CreateCustomerParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCustomerResponse, error) {
+	rsp, err := c.CreateCustomerWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCustomerResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateCustomerWithResponse(ctx context.Context, params *CreateCustomerParams, body CreateCustomerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCustomerResponse, error) {
+	rsp, err := c.CreateCustomer(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCustomerResponse(rsp)
+}
+
+// DeleteCustomerByIdWithResponse request returning *DeleteCustomerByIdResponse
+func (c *ClientWithResponses) DeleteCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*DeleteCustomerByIdResponse, error) {
+	rsp, err := c.DeleteCustomerById(ctx, customerId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteCustomerByIdResponse(rsp)
+}
+
+// GetCustomerByIdWithResponse request returning *GetCustomerByIdResponse
+func (c *ClientWithResponses) GetCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, reqEditors ...RequestEditorFn) (*GetCustomerByIdResponse, error) {
+	rsp, err := c.GetCustomerById(ctx, customerId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCustomerByIdResponse(rsp)
+}
+
+// UpdateCustomerByIdWithBodyWithResponse request with arbitrary body returning *UpdateCustomerByIdResponse
+func (c *ClientWithResponses) UpdateCustomerByIdWithBodyWithResponse(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCustomerByIdResponse, error) {
+	rsp, err := c.UpdateCustomerByIdWithBody(ctx, customerId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCustomerByIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, params *UpdateCustomerByIdParams, body UpdateCustomerByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCustomerByIdResponse, error) {
+	rsp, err := c.UpdateCustomerById(ctx, customerId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCustomerByIdResponse(rsp)
+}
+
 // ListDataTokenBalancesWithResponse request returning *ListDataTokenBalancesResponse
 func (c *ClientWithResponses) ListDataTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListDataTokenBalancesResponse, error) {
 	rsp, err := c.ListDataTokenBalances(ctx, network, address, params, reqEditors...)
@@ -27628,6 +34116,41 @@ func (c *ClientWithResponses) GetDepositDestinationByIdWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseGetDepositDestinationByIdResponse(rsp)
+}
+
+// ListDisbursementsWithResponse request returning *ListDisbursementsResponse
+func (c *ClientWithResponses) ListDisbursementsWithResponse(ctx context.Context, params *ListDisbursementsParams, reqEditors ...RequestEditorFn) (*ListDisbursementsResponse, error) {
+	rsp, err := c.ListDisbursements(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDisbursementsResponse(rsp)
+}
+
+// CreateDisbursementWithBodyWithResponse request with arbitrary body returning *CreateDisbursementResponse
+func (c *ClientWithResponses) CreateDisbursementWithBodyWithResponse(ctx context.Context, params *CreateDisbursementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDisbursementResponse, error) {
+	rsp, err := c.CreateDisbursementWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDisbursementResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateDisbursementWithResponse(ctx context.Context, params *CreateDisbursementParams, body CreateDisbursementJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDisbursementResponse, error) {
+	rsp, err := c.CreateDisbursement(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDisbursementResponse(rsp)
+}
+
+// GetDisbursementWithResponse request returning *GetDisbursementResponse
+func (c *ClientWithResponses) GetDisbursementWithResponse(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*GetDisbursementResponse, error) {
+	rsp, err := c.GetDisbursement(ctx, disbursementId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDisbursementResponse(rsp)
 }
 
 // RevokeDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountResponse
@@ -27869,6 +34392,23 @@ func (c *ClientWithResponses) SignSolanaTransactionWithEndUserAccountWithRespons
 	return ParseSignSolanaTransactionWithEndUserAccountResponse(rsp)
 }
 
+// SignSolanaX402PaymentWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SignSolanaX402PaymentWithEndUserAccountResponse
+func (c *ClientWithResponses) SignSolanaX402PaymentWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaX402PaymentWithEndUserAccountResponse, error) {
+	rsp, err := c.SignSolanaX402PaymentWithEndUserAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignSolanaX402PaymentWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignSolanaX402PaymentWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignSolanaX402PaymentWithEndUserAccountParams, body SignSolanaX402PaymentWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignSolanaX402PaymentWithEndUserAccountResponse, error) {
+	rsp, err := c.SignSolanaX402PaymentWithEndUserAccount(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignSolanaX402PaymentWithEndUserAccountResponse(rsp)
+}
+
 // SendSolanaAssetWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendSolanaAssetWithEndUserAccountResponse
 func (c *ClientWithResponses) SendSolanaAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error) {
 	rsp, err := c.SendSolanaAssetWithEndUserAccountWithBody(ctx, userId, address, asset, params, contentType, body, reqEditors...)
@@ -27965,7 +34505,7 @@ func (c *ClientWithResponses) GetEndUserWithResponse(ctx context.Context, userId
 }
 
 // AddEndUserEvmAccountWithBodyWithResponse request with arbitrary body returning *AddEndUserEvmAccountResponse
-func (c *ClientWithResponses) AddEndUserEvmAccountWithBodyWithResponse(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error) {
+func (c *ClientWithResponses) AddEndUserEvmAccountWithBodyWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error) {
 	rsp, err := c.AddEndUserEvmAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -27973,7 +34513,7 @@ func (c *ClientWithResponses) AddEndUserEvmAccountWithBodyWithResponse(ctx conte
 	return ParseAddEndUserEvmAccountResponse(rsp)
 }
 
-func (c *ClientWithResponses) AddEndUserEvmAccountWithResponse(ctx context.Context, userId string, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error) {
+func (c *ClientWithResponses) AddEndUserEvmAccountWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserEvmAccountParams, body AddEndUserEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserEvmAccountResponse, error) {
 	rsp, err := c.AddEndUserEvmAccount(ctx, userId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -27999,7 +34539,7 @@ func (c *ClientWithResponses) AddEndUserEvmSmartAccountWithResponse(ctx context.
 }
 
 // AddEndUserSolanaAccountWithBodyWithResponse request with arbitrary body returning *AddEndUserSolanaAccountResponse
-func (c *ClientWithResponses) AddEndUserSolanaAccountWithBodyWithResponse(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error) {
+func (c *ClientWithResponses) AddEndUserSolanaAccountWithBodyWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error) {
 	rsp, err := c.AddEndUserSolanaAccountWithBody(ctx, userId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -28007,7 +34547,7 @@ func (c *ClientWithResponses) AddEndUserSolanaAccountWithBodyWithResponse(ctx co
 	return ParseAddEndUserSolanaAccountResponse(rsp)
 }
 
-func (c *ClientWithResponses) AddEndUserSolanaAccountWithResponse(ctx context.Context, userId string, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error) {
+func (c *ClientWithResponses) AddEndUserSolanaAccountWithResponse(ctx context.Context, userId EndUserUserId, params *AddEndUserSolanaAccountParams, body AddEndUserSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AddEndUserSolanaAccountResponse, error) {
 	rsp, err := c.AddEndUserSolanaAccount(ctx, userId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -28583,6 +35123,233 @@ func (c *ClientWithResponses) GetPaymentMethodWithResponse(ctx context.Context, 
 	return ParseGetPaymentMethodResponse(rsp)
 }
 
+// ListPaymentSessionsWithResponse request returning *ListPaymentSessionsResponse
+func (c *ClientWithResponses) ListPaymentSessionsWithResponse(ctx context.Context, params *ListPaymentSessionsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionsResponse, error) {
+	rsp, err := c.ListPaymentSessions(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPaymentSessionsResponse(rsp)
+}
+
+// CreatePaymentSessionWithBodyWithResponse request with arbitrary body returning *CreatePaymentSessionResponse
+func (c *ClientWithResponses) CreatePaymentSessionWithBodyWithResponse(ctx context.Context, params *CreatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePaymentSessionResponse, error) {
+	rsp, err := c.CreatePaymentSessionWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreatePaymentSessionWithResponse(ctx context.Context, params *CreatePaymentSessionParams, body CreatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePaymentSessionResponse, error) {
+	rsp, err := c.CreatePaymentSession(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePaymentSessionResponse(rsp)
+}
+
+// GetPaymentSessionWithResponse request returning *GetPaymentSessionResponse
+func (c *ClientWithResponses) GetPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, reqEditors ...RequestEditorFn) (*GetPaymentSessionResponse, error) {
+	rsp, err := c.GetPaymentSession(ctx, paymentSessionId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPaymentSessionResponse(rsp)
+}
+
+// ListPaymentSessionAuthorizationsWithResponse request returning *ListPaymentSessionAuthorizationsResponse
+func (c *ClientWithResponses) ListPaymentSessionAuthorizationsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionAuthorizationsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionAuthorizationsResponse, error) {
+	rsp, err := c.ListPaymentSessionAuthorizations(ctx, paymentSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPaymentSessionAuthorizationsResponse(rsp)
+}
+
+// AuthorizeCoinbasePaymentSessionWithBodyWithResponse request with arbitrary body returning *AuthorizeCoinbasePaymentSessionResponse
+func (c *ClientWithResponses) AuthorizeCoinbasePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeCoinbasePaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeCoinbasePaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeCoinbasePaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) AuthorizeCoinbasePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeCoinbasePaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeCoinbasePaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeCoinbasePaymentSessionResponse(rsp)
+}
+
+// AuthorizeWalletPaymentSessionWithBodyWithResponse request with arbitrary body returning *AuthorizeWalletPaymentSessionResponse
+func (c *ClientWithResponses) AuthorizeWalletPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeWalletPaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeWalletPaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeWalletPaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) AuthorizeWalletPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, body AuthorizeWalletPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeWalletPaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeWalletPaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeWalletPaymentSessionResponse(rsp)
+}
+
+// GetWalletAuthorizationOptionsWithResponse request returning *GetWalletAuthorizationOptionsResponse
+func (c *ClientWithResponses) GetWalletAuthorizationOptionsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *GetWalletAuthorizationOptionsParams, reqEditors ...RequestEditorFn) (*GetWalletAuthorizationOptionsResponse, error) {
+	rsp, err := c.GetWalletAuthorizationOptions(ctx, paymentSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWalletAuthorizationOptionsResponse(rsp)
+}
+
+// AuthorizeX402PaymentSessionWithResponse request returning *AuthorizeX402PaymentSessionResponse
+func (c *ClientWithResponses) AuthorizeX402PaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeX402PaymentSessionParams, reqEditors ...RequestEditorFn) (*AuthorizeX402PaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeX402PaymentSession(ctx, paymentSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeX402PaymentSessionResponse(rsp)
+}
+
+// GetPaymentSessionAuthorizationWithResponse request returning *GetPaymentSessionAuthorizationResponse
+func (c *ClientWithResponses) GetPaymentSessionAuthorizationWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, authorizationId AuthorizationId, reqEditors ...RequestEditorFn) (*GetPaymentSessionAuthorizationResponse, error) {
+	rsp, err := c.GetPaymentSessionAuthorization(ctx, paymentSessionId, authorizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPaymentSessionAuthorizationResponse(rsp)
+}
+
+// CancelPaymentSessionWithBodyWithResponse request with arbitrary body returning *CancelPaymentSessionResponse
+func (c *ClientWithResponses) CancelPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelPaymentSessionResponse, error) {
+	rsp, err := c.CancelPaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelPaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CancelPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CancelPaymentSessionParams, body CancelPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CancelPaymentSessionResponse, error) {
+	rsp, err := c.CancelPaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelPaymentSessionResponse(rsp)
+}
+
+// ListPaymentSessionCapturesWithResponse request returning *ListPaymentSessionCapturesResponse
+func (c *ClientWithResponses) ListPaymentSessionCapturesWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionCapturesParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionCapturesResponse, error) {
+	rsp, err := c.ListPaymentSessionCaptures(ctx, paymentSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPaymentSessionCapturesResponse(rsp)
+}
+
+// CapturePaymentSessionWithBodyWithResponse request with arbitrary body returning *CapturePaymentSessionResponse
+func (c *ClientWithResponses) CapturePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CapturePaymentSessionResponse, error) {
+	rsp, err := c.CapturePaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCapturePaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CapturePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *CapturePaymentSessionParams, body CapturePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CapturePaymentSessionResponse, error) {
+	rsp, err := c.CapturePaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCapturePaymentSessionResponse(rsp)
+}
+
+// GetPaymentSessionCaptureWithResponse request returning *GetPaymentSessionCaptureResponse
+func (c *ClientWithResponses) GetPaymentSessionCaptureWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, captureId CaptureId, reqEditors ...RequestEditorFn) (*GetPaymentSessionCaptureResponse, error) {
+	rsp, err := c.GetPaymentSessionCapture(ctx, paymentSessionId, captureId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPaymentSessionCaptureResponse(rsp)
+}
+
+// ListPaymentSessionRefundsWithResponse request returning *ListPaymentSessionRefundsResponse
+func (c *ClientWithResponses) ListPaymentSessionRefundsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionRefundsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionRefundsResponse, error) {
+	rsp, err := c.ListPaymentSessionRefunds(ctx, paymentSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPaymentSessionRefundsResponse(rsp)
+}
+
+// RefundPaymentSessionWithBodyWithResponse request with arbitrary body returning *RefundPaymentSessionResponse
+func (c *ClientWithResponses) RefundPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RefundPaymentSessionResponse, error) {
+	rsp, err := c.RefundPaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRefundPaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) RefundPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *RefundPaymentSessionParams, body RefundPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*RefundPaymentSessionResponse, error) {
+	rsp, err := c.RefundPaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRefundPaymentSessionResponse(rsp)
+}
+
+// GetPaymentSessionRefundWithResponse request returning *GetPaymentSessionRefundResponse
+func (c *ClientWithResponses) GetPaymentSessionRefundWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, refundId RefundId, reqEditors ...RequestEditorFn) (*GetPaymentSessionRefundResponse, error) {
+	rsp, err := c.GetPaymentSessionRefund(ctx, paymentSessionId, refundId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPaymentSessionRefundResponse(rsp)
+}
+
+// ListPaymentSessionVoidsWithResponse request returning *ListPaymentSessionVoidsResponse
+func (c *ClientWithResponses) ListPaymentSessionVoidsWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *ListPaymentSessionVoidsParams, reqEditors ...RequestEditorFn) (*ListPaymentSessionVoidsResponse, error) {
+	rsp, err := c.ListPaymentSessionVoids(ctx, paymentSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPaymentSessionVoidsResponse(rsp)
+}
+
+// VoidPaymentSessionWithBodyWithResponse request with arbitrary body returning *VoidPaymentSessionResponse
+func (c *ClientWithResponses) VoidPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VoidPaymentSessionResponse, error) {
+	rsp, err := c.VoidPaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVoidPaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) VoidPaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *VoidPaymentSessionParams, body VoidPaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*VoidPaymentSessionResponse, error) {
+	rsp, err := c.VoidPaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVoidPaymentSessionResponse(rsp)
+}
+
+// GetPaymentSessionVoidWithResponse request returning *GetPaymentSessionVoidResponse
+func (c *ClientWithResponses) GetPaymentSessionVoidWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, voidId VoidId, reqEditors ...RequestEditorFn) (*GetPaymentSessionVoidResponse, error) {
+	rsp, err := c.GetPaymentSessionVoid(ctx, paymentSessionId, voidId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPaymentSessionVoidResponse(rsp)
+}
+
 // ListPoliciesWithResponse request returning *ListPoliciesResponse
 func (c *ClientWithResponses) ListPoliciesWithResponse(ctx context.Context, params *ListPoliciesParams, reqEditors ...RequestEditorFn) (*ListPoliciesResponse, error) {
 	rsp, err := c.ListPolicies(ctx, params, reqEditors...)
@@ -28894,6 +35661,24 @@ func (c *ClientWithResponses) SubmitDepositTravelRuleWithResponse(ctx context.Co
 	return ParseSubmitDepositTravelRuleResponse(rsp)
 }
 
+// ListX402BundlesWithResponse request returning *ListX402BundlesResponse
+func (c *ClientWithResponses) ListX402BundlesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListX402BundlesResponse, error) {
+	rsp, err := c.ListX402Bundles(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListX402BundlesResponse(rsp)
+}
+
+// GetX402BundleWithResponse request returning *GetX402BundleResponse
+func (c *ClientWithResponses) GetX402BundleWithResponse(ctx context.Context, bundleSlug string, reqEditors ...RequestEditorFn) (*GetX402BundleResponse, error) {
+	rsp, err := c.GetX402Bundle(ctx, bundleSlug, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetX402BundleResponse(rsp)
+}
+
 // PostX402DiscoveryMcpWithBodyWithResponse request with arbitrary body returning *PostX402DiscoveryMcpResponse
 func (c *ClientWithResponses) PostX402DiscoveryMcpWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostX402DiscoveryMcpResponse, error) {
 	rsp, err := c.PostX402DiscoveryMcpWithBody(ctx, contentType, body, reqEditors...)
@@ -29064,6 +35849,13 @@ func ParseCreateFoundationAccountResponse(rsp *http.Response) (*CreateFoundation
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
@@ -29242,6 +36034,420 @@ func ParseGetBalanceByAssetResponse(rsp *http.Response) (*GetBalanceByAssetRespo
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
 		var dest EndpointUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListCoinbaseAccountBalancesResponse parses an HTTP response from a ListCoinbaseAccountBalancesWithResponse call
+func ParseListCoinbaseAccountBalancesResponse(rsp *http.Response) (*ListCoinbaseAccountBalancesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListCoinbaseAccountBalancesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Balances
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListCustomersResponse parses an HTTP response from a ListCustomersWithResponse call
+func ParseListCustomersResponse(rsp *http.Response) (*ListCustomersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListCustomersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Customers The list of customers.
+			Customers []Customer `json:"customers"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateCustomerResponse parses an HTTP response from a CreateCustomerWithResponse call
+func ParseCreateCustomerResponse(rsp *http.Response) (*CreateCustomerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateCustomerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Customer
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteCustomerByIdResponse parses an HTTP response from a DeleteCustomerByIdWithResponse call
+func ParseDeleteCustomerByIdResponse(rsp *http.Response) (*DeleteCustomerByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteCustomerByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCustomerByIdResponse parses an HTTP response from a GetCustomerByIdWithResponse call
+func ParseGetCustomerByIdResponse(rsp *http.Response) (*GetCustomerByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCustomerByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Customer
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCustomerByIdResponse parses an HTTP response from a UpdateCustomerByIdWithResponse call
+func ParseUpdateCustomerByIdResponse(rsp *http.Response) (*UpdateCustomerByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCustomerByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Customer
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -29968,6 +37174,13 @@ func ParseCreateDepositDestinationResponse(rsp *http.Response) (*CreateDepositDe
 		}
 		response.JSON401 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -30049,6 +37262,181 @@ func ParseGetDepositDestinationByIdResponse(rsp *http.Response) (*GetDepositDest
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListDisbursementsResponse parses an HTTP response from a ListDisbursementsWithResponse call
+func ParseListDisbursementsResponse(rsp *http.Response) (*ListDisbursementsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDisbursementsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Disbursements The list of disbursements.
+			Disbursements []Disbursement `json:"disbursements"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDisbursementResponse parses an HTTP response from a CreateDisbursementWithResponse call
+func ParseCreateDisbursementResponse(rsp *http.Response) (*CreateDisbursementResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDisbursementResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Disbursement
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDisbursementResponse parses an HTTP response from a GetDisbursementWithResponse call
+func ParseGetDisbursementResponse(rsp *http.Response) (*GetDisbursementResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDisbursementResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Disbursement
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -31321,6 +38709,105 @@ func ParseSignSolanaTransactionWithEndUserAccountResponse(rsp *http.Response) (*
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignSolanaX402PaymentWithEndUserAccountResponse parses an HTTP response from a SignSolanaX402PaymentWithEndUserAccountWithResponse call
+func ParseSignSolanaX402PaymentWithEndUserAccountResponse(rsp *http.Response) (*SignSolanaX402PaymentWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignSolanaX402PaymentWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// PaymentPayload The signed x402 payment payload. Base64-encode this and send it in the PAYMENT-SIGNATURE header of the resource request.
+			PaymentPayload X402PaymentPayload `json:"paymentPayload"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DelegationForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -34341,6 +41828,9 @@ func ParseGetOnrampUserLimitsResponse(rsp *http.Response) (*GetOnrampUserLimitsR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
+			// LimitUpgradeOptions The user's limit upgrade status and associated upgrade details. Omitted when limit upgrades are not available for the calling app or user. Use the [Request Limit Upgrade](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/request-limits-upgrade) endpoint to request a limit upgrade.
+			LimitUpgradeOptions *[]OnrampLimitUpgradeOption `json:"limitUpgradeOptions,omitempty"`
+
 			// Limits The list of limits applicable to the user.
 			Limits []OnrampUserLimit `json:"limits"`
 		}
@@ -34396,6 +41886,13 @@ func ParseRequestLimitsUpgradeResponse(rsp *http.Response) (*RequestLimitsUpgrad
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OnrampLimitUpgradeEmbeddedResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -34452,6 +41949,9 @@ func ParseCreateOnrampOrderResponse(rsp *http.Response) (*CreateOnrampOrderRespo
 			//
 			// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
 			PaymentLink *OnrampPaymentLink `json:"paymentLink,omitempty"`
+
+			// UserAuthToken Present for embedded orders once the user has verified. Store this and pass it on future orders for the same user to skip OTP verification. Valid for 60 days.
+			UserAuthToken *OnrampUserAuthToken `json:"userAuthToken,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -34852,6 +42352,1223 @@ func ParseGetPaymentMethodResponse(rsp *http.Response) (*GetPaymentMethodRespons
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPaymentSessionsResponse parses an HTTP response from a ListPaymentSessionsWithResponse call
+func ParseListPaymentSessionsResponse(rsp *http.Response) (*ListPaymentSessionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPaymentSessionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+
+			// PaymentSessions The list of payment sessions.
+			PaymentSessions []PaymentSession `json:"paymentSessions"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreatePaymentSessionResponse parses an HTTP response from a CreatePaymentSessionWithResponse call
+func ParseCreatePaymentSessionResponse(rsp *http.Response) (*CreatePaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreatePaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaymentSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPaymentSessionResponse parses an HTTP response from a GetPaymentSessionWithResponse call
+func ParseGetPaymentSessionResponse(rsp *http.Response) (*GetPaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaymentSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPaymentSessionAuthorizationsResponse parses an HTTP response from a ListPaymentSessionAuthorizationsWithResponse call
+func ParseListPaymentSessionAuthorizationsResponse(rsp *http.Response) (*ListPaymentSessionAuthorizationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPaymentSessionAuthorizationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Authorizations The list of authorizations.
+			Authorizations []Authorization `json:"authorizations"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAuthorizeCoinbasePaymentSessionResponse parses an HTTP response from a AuthorizeCoinbasePaymentSessionWithResponse call
+func ParseAuthorizeCoinbasePaymentSessionResponse(rsp *http.Response) (*AuthorizeCoinbasePaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthorizeCoinbasePaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Authorization
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAuthorizeWalletPaymentSessionResponse parses an HTTP response from a AuthorizeWalletPaymentSessionWithResponse call
+func ParseAuthorizeWalletPaymentSessionResponse(rsp *http.Response) (*AuthorizeWalletPaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthorizeWalletPaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Authorization
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWalletAuthorizationOptionsResponse parses an HTTP response from a GetWalletAuthorizationOptionsWithResponse call
+func ParseGetWalletAuthorizationOptionsResponse(rsp *http.Response) (*GetWalletAuthorizationOptionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWalletAuthorizationOptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WalletAuthorizationOptionsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAuthorizeX402PaymentSessionResponse parses an HTTP response from a AuthorizeX402PaymentSessionWithResponse call
+func ParseAuthorizeX402PaymentSessionResponse(rsp *http.Response) (*AuthorizeX402PaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthorizeX402PaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Authorization
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentRequired
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPaymentSessionAuthorizationResponse parses an HTTP response from a GetPaymentSessionAuthorizationWithResponse call
+func ParseGetPaymentSessionAuthorizationResponse(rsp *http.Response) (*GetPaymentSessionAuthorizationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPaymentSessionAuthorizationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Authorization
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCancelPaymentSessionResponse parses an HTTP response from a CancelPaymentSessionWithResponse call
+func ParseCancelPaymentSessionResponse(rsp *http.Response) (*CancelPaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CancelPaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaymentSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPaymentSessionCapturesResponse parses an HTTP response from a ListPaymentSessionCapturesWithResponse call
+func ParseListPaymentSessionCapturesResponse(rsp *http.Response) (*ListPaymentSessionCapturesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPaymentSessionCapturesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Captures The list of captures.
+			Captures []Capture `json:"captures"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCapturePaymentSessionResponse parses an HTTP response from a CapturePaymentSessionWithResponse call
+func ParseCapturePaymentSessionResponse(rsp *http.Response) (*CapturePaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CapturePaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Capture
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPaymentSessionCaptureResponse parses an HTTP response from a GetPaymentSessionCaptureWithResponse call
+func ParseGetPaymentSessionCaptureResponse(rsp *http.Response) (*GetPaymentSessionCaptureResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPaymentSessionCaptureResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Capture
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPaymentSessionRefundsResponse parses an HTTP response from a ListPaymentSessionRefundsWithResponse call
+func ParseListPaymentSessionRefundsResponse(rsp *http.Response) (*ListPaymentSessionRefundsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPaymentSessionRefundsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+
+			// Refunds The list of refunds.
+			Refunds []Refund `json:"refunds"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRefundPaymentSessionResponse parses an HTTP response from a RefundPaymentSessionWithResponse call
+func ParseRefundPaymentSessionResponse(rsp *http.Response) (*RefundPaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RefundPaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Refund
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPaymentSessionRefundResponse parses an HTTP response from a GetPaymentSessionRefundWithResponse call
+func ParseGetPaymentSessionRefundResponse(rsp *http.Response) (*GetPaymentSessionRefundResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPaymentSessionRefundResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Refund
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPaymentSessionVoidsResponse parses an HTTP response from a ListPaymentSessionVoidsWithResponse call
+func ParseListPaymentSessionVoidsResponse(rsp *http.Response) (*ListPaymentSessionVoidsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPaymentSessionVoidsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+
+			// Voids The list of voids.
+			Voids []Void `json:"voids"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseVoidPaymentSessionResponse parses an HTTP response from a VoidPaymentSessionWithResponse call
+func ParseVoidPaymentSessionResponse(rsp *http.Response) (*VoidPaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &VoidPaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Void
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPaymentSessionVoidResponse parses an HTTP response from a GetPaymentSessionVoidWithResponse call
+func ParseGetPaymentSessionVoidResponse(rsp *http.Response) (*GetPaymentSessionVoidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPaymentSessionVoidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Void
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -36430,6 +45147,114 @@ func ParseSubmitDepositTravelRuleResponse(rsp *http.Response) (*SubmitDepositTra
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListX402BundlesResponse parses an HTTP response from a ListX402BundlesWithResponse call
+func ParseListX402BundlesResponse(rsp *http.Response) (*ListX402BundlesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListX402BundlesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402BundlesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetX402BundleResponse parses an HTTP response from a GetX402BundleWithResponse call
+func ParseGetX402BundleResponse(rsp *http.Response) (*GetX402BundleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetX402BundleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402BundleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 

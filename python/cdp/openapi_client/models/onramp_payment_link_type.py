@@ -28,6 +28,8 @@ class OnrampPaymentLinkType(str, Enum):
     allowed enum values
     """
     PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON = 'PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON'
+    PAYMENT_LINK_TYPE_GOOGLE_PAY_BUTTON = 'PAYMENT_LINK_TYPE_GOOGLE_PAY_BUTTON'
+    PAYMENT_LINK_TYPE_EMBEDDED_ORDER = 'PAYMENT_LINK_TYPE_EMBEDDED_ORDER'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

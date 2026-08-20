@@ -36,7 +36,6 @@ class TestTravelRuleOriginator(unittest.TestCase):
         model = TravelRuleOriginator()
         if include_optional:
             return TravelRuleOriginator(
-                financial_institution = 'PayPal, Inc.',
                 name = 'John Doe',
                 address = cdp.openapi_client.models.physical_address.PhysicalAddress(
                     line1 = '123 Market St', 
@@ -45,7 +44,9 @@ class TestTravelRuleOriginator(unittest.TestCase):
                     state = 'CA', 
                     post_code = '94105', 
                     country_code = 'US', ),
+                financial_institution = 'PayPal, Inc.',
                 virtual_asset_service_provider = cdp.openapi_client.models.travel_rule_originator_all_of_virtual_asset_service_provider.TravelRuleOriginator_allOf_virtualAssetServiceProvider(
+                    identifier = '5493001KJTIIGC8Y1R17', 
                     name = 'Fidelity Digital Asset Services, LLC', 
                     address = cdp.openapi_client.models.physical_address.PhysicalAddress(
                         line1 = '123 Market St', 
@@ -53,8 +54,7 @@ class TestTravelRuleOriginator(unittest.TestCase):
                         city = 'San Francisco', 
                         state = 'CA', 
                         post_code = '94105', 
-                        country_code = 'US', ), 
-                    identifier = '5493001KJTIIGC8Y1R17', ),
+                        country_code = 'US', ), ),
                 personal_id = '123-45-6789',
                 date_of_birth = {day=15, month=08, year=1990}
             )

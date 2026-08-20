@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.Compliance;
 import com.coinbase.cdp.openapi.model.DepositDestinationTarget;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,7 +39,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   CreateDepositDestinationRequestBase.JSON_PROPERTY_ACCOUNT_ID,
   CreateDepositDestinationRequestBase.JSON_PROPERTY_TYPE,
   CreateDepositDestinationRequestBase.JSON_PROPERTY_TARGET,
-  CreateDepositDestinationRequestBase.JSON_PROPERTY_METADATA
+  CreateDepositDestinationRequestBase.JSON_PROPERTY_METADATA,
+  CreateDepositDestinationRequestBase.JSON_PROPERTY_COMPLIANCE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CreateDepositDestinationRequestBase {
@@ -57,6 +59,10 @@ public class CreateDepositDestinationRequestBase {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_COMPLIANCE = "compliance";
+  @jakarta.annotation.Nullable
+  private Compliance compliance;
 
   public CreateDepositDestinationRequestBase() { 
   }
@@ -157,6 +163,30 @@ public class CreateDepositDestinationRequestBase {
   }
 
 
+  public CreateDepositDestinationRequestBase compliance(@jakarta.annotation.Nullable Compliance compliance) {
+    this.compliance = compliance;
+    return this;
+  }
+
+  /**
+   * Get compliance
+   * @return compliance
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_COMPLIANCE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Compliance getCompliance() {
+    return compliance;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_COMPLIANCE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCompliance(@jakarta.annotation.Nullable Compliance compliance) {
+    this.compliance = compliance;
+  }
+
+
   /**
    * Return true if this CreateDepositDestinationRequestBase object is equal to o.
    */
@@ -172,12 +202,13 @@ public class CreateDepositDestinationRequestBase {
     return Objects.equals(this.accountId, createDepositDestinationRequestBase.accountId) &&
         Objects.equals(this.type, createDepositDestinationRequestBase.type) &&
         Objects.equals(this.target, createDepositDestinationRequestBase.target) &&
-        Objects.equals(this.metadata, createDepositDestinationRequestBase.metadata);
+        Objects.equals(this.metadata, createDepositDestinationRequestBase.metadata) &&
+        Objects.equals(this.compliance, createDepositDestinationRequestBase.compliance);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(accountId, type, target, metadata);
+    return Objects.hash(accountId, type, target, metadata, compliance);
   }
 
   @Override
@@ -188,6 +219,7 @@ public class CreateDepositDestinationRequestBase {
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    target: ").append(toIndentedString(target)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    compliance: ").append(toIndentedString(compliance)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -255,6 +287,11 @@ public class CreateDepositDestinationRequestBase {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `compliance` to the URL query string
+    if (getCompliance() != null) {
+      joiner.add(getCompliance().toUrlQueryString(prefix + "compliance" + suffix));
+    }
+
     return joiner.toString();
   }
 
@@ -284,6 +321,10 @@ public class CreateDepositDestinationRequestBase {
     }
     public CreateDepositDestinationRequestBase.Builder metadata(Metadata metadata) {
       this.instance.metadata = metadata;
+      return this;
+    }
+    public CreateDepositDestinationRequestBase.Builder compliance(Compliance compliance) {
+      this.instance.compliance = compliance;
       return this;
     }
 
@@ -323,7 +364,8 @@ public class CreateDepositDestinationRequestBase {
       .accountId(getAccountId())
       .type(getType())
       .target(getTarget())
-      .metadata(getMetadata());
+      .metadata(getMetadata())
+      .compliance(getCompliance());
   }
 
 }

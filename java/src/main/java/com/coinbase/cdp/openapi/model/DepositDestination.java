@@ -21,8 +21,10 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.CryptoDepositDestination;
 import com.coinbase.cdp.openapi.model.DepositDestinationCrypto;
+import com.coinbase.cdp.openapi.model.DepositDestinationFiat;
 import com.coinbase.cdp.openapi.model.DepositDestinationStatus;
 import com.coinbase.cdp.openapi.model.DepositDestinationTarget;
+import com.coinbase.cdp.openapi.model.FiatDepositDestination;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -123,6 +125,32 @@ public class DepositDestination extends AbstractOpenApiSchema {
                 log.log(Level.FINER, "Input data does not match schema 'CryptoDepositDestination'", e);
             }
 
+            // deserialize FiatDepositDestination
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (FiatDepositDestination.class.equals(Integer.class) || FiatDepositDestination.class.equals(Long.class) || FiatDepositDestination.class.equals(Float.class) || FiatDepositDestination.class.equals(Double.class) || FiatDepositDestination.class.equals(Boolean.class) || FiatDepositDestination.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((FiatDepositDestination.class.equals(Integer.class) || FiatDepositDestination.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((FiatDepositDestination.class.equals(Float.class) || FiatDepositDestination.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (FiatDepositDestination.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (FiatDepositDestination.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(FiatDepositDestination.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'FiatDepositDestination'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'FiatDepositDestination'", e);
+            }
+
             if (match == 1) {
                 DepositDestination ret = new DepositDestination();
                 ret.setActualInstance(deserialized);
@@ -152,13 +180,21 @@ public class DepositDestination extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
+    public DepositDestination(FiatDepositDestination o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
     static {
         schemas.put("CryptoDepositDestination", CryptoDepositDestination.class);
+        schemas.put("FiatDepositDestination", FiatDepositDestination.class);
         JSON.registerDescendants(DepositDestination.class, Collections.unmodifiableMap(schemas));
         // Initialize and register the discriminator mappings.
         Map<String, Class<?>> mappings = new HashMap<String, Class<?>>();
         mappings.put("crypto", CryptoDepositDestination.class);
+        mappings.put("fiat", FiatDepositDestination.class);
         mappings.put("CryptoDepositDestination", CryptoDepositDestination.class);
+        mappings.put("FiatDepositDestination", FiatDepositDestination.class);
         mappings.put("DepositDestination", DepositDestination.class);
         JSON.registerDiscriminator(DepositDestination.class, "type", mappings);
     }
@@ -171,7 +207,7 @@ public class DepositDestination extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * CryptoDepositDestination
+     * CryptoDepositDestination, FiatDepositDestination
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
@@ -183,14 +219,19 @@ public class DepositDestination extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be CryptoDepositDestination");
+        if (JSON.isInstanceOf(FiatDepositDestination.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        throw new RuntimeException("Invalid instance type. Must be CryptoDepositDestination, FiatDepositDestination");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * CryptoDepositDestination
+     * CryptoDepositDestination, FiatDepositDestination
      *
-     * @return The actual instance (CryptoDepositDestination)
+     * @return The actual instance (CryptoDepositDestination, FiatDepositDestination)
      */
     @Override
     public Object getActualInstance() {
@@ -206,6 +247,17 @@ public class DepositDestination extends AbstractOpenApiSchema {
      */
     public CryptoDepositDestination getCryptoDepositDestination() throws ClassCastException {
         return (CryptoDepositDestination)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `FiatDepositDestination`. If the actual instance is not `FiatDepositDestination`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `FiatDepositDestination`
+     * @throws ClassCastException if the instance is not `FiatDepositDestination`
+     */
+    public FiatDepositDestination getFiatDepositDestination() throws ClassCastException {
+        return (FiatDepositDestination)super.getActualInstance();
     }
 
 
@@ -245,6 +297,12 @@ public class DepositDestination extends AbstractOpenApiSchema {
     if (getActualInstance() instanceof CryptoDepositDestination) {
         if (getActualInstance() != null) {
           joiner.add(((CryptoDepositDestination)getActualInstance()).toUrlQueryString(prefix + "one_of_0" + suffix));
+        }
+        return joiner.toString();
+    }
+    if (getActualInstance() instanceof FiatDepositDestination) {
+        if (getActualInstance() != null) {
+          joiner.add(((FiatDepositDestination)getActualInstance()).toUrlQueryString(prefix + "one_of_1" + suffix));
         }
         return joiner.toString();
     }

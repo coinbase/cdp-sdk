@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The type of the Account.
+ * The type of the Account.  - &#x60;prime&#x60;: a linked Coinbase Prime account. - &#x60;business&#x60;: a linked Coinbase Business account. - &#x60;cdp&#x60;: a CDP-native account created via this API. Used for accounts created on   behalf of an Entity and for Customer-owned accounts.
  */
 public enum AccountType {
   

@@ -20,7 +20,7 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,9 @@ class EndUserSolanaAccount(BaseModel):
     """ # noqa: E501
     address: Annotated[str, Field(strict=True)] = Field(description="The base58 encoded address of the Solana account.")
     created_at: datetime = Field(description="The date and time when the account was created, in ISO 8601 format.", alias="createdAt")
-    __properties: ClassVar[List[str]] = ["address", "createdAt"]
+    exported_at: Optional[datetime] = Field(default=None, description="The date and time when the account's private key was first exported, in ISO 8601 format. This is set on the first export and preserved on subsequent exports; it is not updated on re-export.", alias="exportedAt")
+    ejected_at: Optional[datetime] = Field(default=None, description="The date and time when the account's key was ejected (marked for deletion), in ISO 8601 format. Populated when the account has been ejected. The account record remains queryable after this timestamp is set; it reflects when ejection was requested, not when the key material is purged.", alias="ejectedAt")
+    __properties: ClassVar[List[str]] = ["address", "createdAt", "exportedAt", "ejectedAt"]
 
     @field_validator('address')
     def address_validate_regular_expression(cls, value):
@@ -92,7 +94,9 @@ class EndUserSolanaAccount(BaseModel):
 
         _obj = cls.model_validate({
             "address": obj.get("address"),
-            "createdAt": obj.get("createdAt")
+            "createdAt": obj.get("createdAt"),
+            "exportedAt": obj.get("exportedAt"),
+            "ejectedAt": obj.get("ejectedAt")
         })
         return _obj
 

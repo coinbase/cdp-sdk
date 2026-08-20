@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.OnrampLimitUpgradeOption;
 import com.coinbase.cdp.openapi.model.OnrampUserLimit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,13 +37,18 @@ import com.coinbase.cdp.openapi.ApiClient;
  * GetOnrampUserLimits200Response
  */
 @JsonPropertyOrder({
-  GetOnrampUserLimits200Response.JSON_PROPERTY_LIMITS
+  GetOnrampUserLimits200Response.JSON_PROPERTY_LIMITS,
+  GetOnrampUserLimits200Response.JSON_PROPERTY_LIMIT_UPGRADE_OPTIONS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class GetOnrampUserLimits200Response {
   public static final String JSON_PROPERTY_LIMITS = "limits";
   @jakarta.annotation.Nonnull
   private List<OnrampUserLimit> limits = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_LIMIT_UPGRADE_OPTIONS = "limitUpgradeOptions";
+  @jakarta.annotation.Nullable
+  private List<OnrampLimitUpgradeOption> limitUpgradeOptions = new ArrayList<>();
 
   public GetOnrampUserLimits200Response() { 
   }
@@ -79,6 +85,38 @@ public class GetOnrampUserLimits200Response {
   }
 
 
+  public GetOnrampUserLimits200Response limitUpgradeOptions(@jakarta.annotation.Nullable List<OnrampLimitUpgradeOption> limitUpgradeOptions) {
+    this.limitUpgradeOptions = limitUpgradeOptions;
+    return this;
+  }
+
+  public GetOnrampUserLimits200Response addLimitUpgradeOptionsItem(OnrampLimitUpgradeOption limitUpgradeOptionsItem) {
+    if (this.limitUpgradeOptions == null) {
+      this.limitUpgradeOptions = new ArrayList<>();
+    }
+    this.limitUpgradeOptions.add(limitUpgradeOptionsItem);
+    return this;
+  }
+
+  /**
+   * The user&#39;s limit upgrade status and associated upgrade details. Omitted when limit upgrades are not available for the calling app or user. Use the [Request Limit Upgrade](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/request-limits-upgrade) endpoint to request a limit upgrade.
+   * @return limitUpgradeOptions
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_LIMIT_UPGRADE_OPTIONS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<OnrampLimitUpgradeOption> getLimitUpgradeOptions() {
+    return limitUpgradeOptions;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_LIMIT_UPGRADE_OPTIONS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLimitUpgradeOptions(@jakarta.annotation.Nullable List<OnrampLimitUpgradeOption> limitUpgradeOptions) {
+    this.limitUpgradeOptions = limitUpgradeOptions;
+  }
+
+
   /**
    * Return true if this getOnrampUserLimits_200_response object is equal to o.
    */
@@ -91,12 +129,13 @@ public class GetOnrampUserLimits200Response {
       return false;
     }
     GetOnrampUserLimits200Response getOnrampUserLimits200Response = (GetOnrampUserLimits200Response) o;
-    return Objects.equals(this.limits, getOnrampUserLimits200Response.limits);
+    return Objects.equals(this.limits, getOnrampUserLimits200Response.limits) &&
+        Objects.equals(this.limitUpgradeOptions, getOnrampUserLimits200Response.limitUpgradeOptions);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(limits);
+    return Objects.hash(limits, limitUpgradeOptions);
   }
 
   @Override
@@ -104,6 +143,7 @@ public class GetOnrampUserLimits200Response {
     StringBuilder sb = new StringBuilder();
     sb.append("class GetOnrampUserLimits200Response {\n");
     sb.append("    limits: ").append(toIndentedString(limits)).append("\n");
+    sb.append("    limitUpgradeOptions: ").append(toIndentedString(limitUpgradeOptions)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -161,6 +201,16 @@ public class GetOnrampUserLimits200Response {
       }
     }
 
+    // add `limitUpgradeOptions` to the URL query string
+    if (getLimitUpgradeOptions() != null) {
+      for (int i = 0; i < getLimitUpgradeOptions().size(); i++) {
+        if (getLimitUpgradeOptions().get(i) != null) {
+          joiner.add(getLimitUpgradeOptions().get(i).toUrlQueryString(String.format("%slimitUpgradeOptions%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
+    }
+
     return joiner.toString();
   }
 
@@ -178,6 +228,10 @@ public class GetOnrampUserLimits200Response {
 
     public GetOnrampUserLimits200Response.Builder limits(List<OnrampUserLimit> limits) {
       this.instance.limits = limits;
+      return this;
+    }
+    public GetOnrampUserLimits200Response.Builder limitUpgradeOptions(List<OnrampLimitUpgradeOption> limitUpgradeOptions) {
+      this.instance.limitUpgradeOptions = limitUpgradeOptions;
       return this;
     }
 
@@ -214,7 +268,8 @@ public class GetOnrampUserLimits200Response {
   */
   public GetOnrampUserLimits200Response.Builder toBuilder() {
     return new GetOnrampUserLimits200Response.Builder()
-      .limits(getLimits());
+      .limits(getLimits())
+      .limitUpgradeOptions(getLimitUpgradeOptions());
   }
 
 }

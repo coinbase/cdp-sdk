@@ -31,7 +31,7 @@ class CreateEvmEip7702DelegationWithEndUserAccountRequest(BaseModel):
     """ # noqa: E501
     address: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed address of the EVM account to delegate.")
     network: EvmEip7702DelegationNetwork
-    enable_spend_permissions: Optional[StrictBool] = Field(default=False, description="Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.", alias="enableSpendPermissions")
+    enable_spend_permissions: Optional[StrictBool] = Field(default=None, description="Whether to configure spend permissions for the upgraded, delegated account. When enabled, the account can grant permissions for third parties to spend on its behalf.", alias="enableSpendPermissions")
     wallet_secret_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.", alias="walletSecretId")
     __properties: ClassVar[List[str]] = ["address", "network", "enableSpendPermissions", "walletSecretId"]
 
@@ -105,7 +105,7 @@ class CreateEvmEip7702DelegationWithEndUserAccountRequest(BaseModel):
         _obj = cls.model_validate({
             "address": obj.get("address"),
             "network": obj.get("network"),
-            "enableSpendPermissions": obj.get("enableSpendPermissions") if obj.get("enableSpendPermissions") is not None else False,
+            "enableSpendPermissions": obj.get("enableSpendPermissions"),
             "walletSecretId": obj.get("walletSecretId")
         })
         return _obj

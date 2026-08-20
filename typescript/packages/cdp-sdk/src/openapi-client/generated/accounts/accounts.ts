@@ -35,7 +35,16 @@ export const listFoundationAccounts = (
   );
 };
 /**
- * Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+ * Create an account. Two ownership modes are supported:
+
+- **Entity-owned**: when `owner` is omitted, the account is owned by the
+  Entity making the request. Returns an account with `owner: entity_<uuid>`.
+
+- **Customer-owned**: pass a Customer ID as `owner`
+  (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer
+  must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
+  capabilities enabled, otherwise the request is rejected with
+  `customer_not_authorized` (HTTP 403).
  * @summary Create account
  */
 export const createFoundationAccount = (
