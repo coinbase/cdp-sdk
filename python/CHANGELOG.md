@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.48.1] - 2026-08-25
+
+### Bugfixes
+
+- Fixed swap quote response deserialization when the API returns a boolean `liquidityAvailable` value. ([#788](https://github.com/coinbase/cdp-sdk/pull/788))
+
+
 ## [1.48.0] - 2026-08-20
 
 ### Features
