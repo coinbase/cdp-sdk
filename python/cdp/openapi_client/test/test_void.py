@@ -42,6 +42,8 @@ class TestVoid(unittest.TestCase):
                 amount = '1.00',
                 error = {code=insufficient_funds, message=The payer does not have sufficient funds., occurredAt=2025-06-15T12:00:00.000Z},
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
+                external_reference_id = 'merchant-reference-abc123',
+                customer_display = {referenceCode=REF-ABC123},
                 onchain_transactions = [{transactionHash=0x789012345678901234567890abcdef1234567890abcdef1234567890abcdef12, network=base}],
                 created_at = '2025-06-15T12:30:00.000Z',
                 updated_at = '2025-06-15T12:31:00.000Z'

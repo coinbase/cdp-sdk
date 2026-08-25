@@ -2114,6 +2114,26 @@ export interface PaymentError {
 }
 
 /**
+ * A merchant-provided internal identifier for a resource from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+ * @maxLength 256
+ */
+export type ExternalReferenceId = string;
+
+/**
+ * A short customer-facing reference for an operation, visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+ * @maxLength 128
+ */
+export type CustomerReferenceCode = string;
+
+/**
+ * Customer-facing display data for a payment operation, shown to the payer.
+ */
+export interface OperationCustomerDisplay {
+  /** A short reference code for this payment operation, visible to the payer. */
+  referenceCode?: CustomerReferenceCode;
+}
+
+/**
  * An onchain transaction associated with a payment action.
  */
 export interface OnchainTransaction {
@@ -2139,6 +2159,10 @@ export interface Authorization {
   /** A human-readable message describing the outcome or status for display. Returned for x402 authorizations; omitted for other authorization flows unless documented otherwise. */
   message?: string;
   metadata?: Metadata;
+  /** A merchant-provided internal identifier for this authorization, from the merchant's own system—not visible to the payer. Present only when supplied on the authorization request. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session's `orderCode` fallback applies; otherwise omitted. */
+  customerDisplay?: OperationCustomerDisplay;
   /** The payer for this authorization. For wallet authorizations, this is the blockchain address that signed the payloads. For Coinbase authorizations, this is the authenticated Coinbase account. This value is also reflected on the parent payment session's `source` field after a successful authorization. */
   source?: PaymentSessionSource;
   /** The onchain transactions associated with this authorization. */
@@ -2171,6 +2195,10 @@ export interface Capture {
   finalCapture: boolean;
   error?: PaymentError;
   metadata?: Metadata;
+  /** A merchant-provided internal identifier for this capture, from the merchant's own system—not visible to the payer. A manual capture uses the caller-provided value; an auto-capture reuses the authorization's value and omits it when the authorization omitted it. It never falls back to `PaymentSession.externalReferenceId`. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this capture, shown to the payer. A manual capture falls back to the session's `orderCode` when `referenceCode` is omitted; an auto-capture reuses the authorization's `referenceCode`. */
+  customerDisplay?: OperationCustomerDisplay;
   /** The onchain transactions associated with this capture. */
   onchainTransactions?: OnchainTransaction[];
   /** The UTC ISO 8601 timestamp at which the capture was created. */
@@ -2199,6 +2227,10 @@ export interface Void {
   amount?: string;
   error?: PaymentError;
   metadata?: Metadata;
+  /** A merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. Present only when supplied on the create void request. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session's `orderCode` fallback applies; otherwise omitted. */
+  customerDisplay?: OperationCustomerDisplay;
   /** The onchain transactions associated with this void. */
   onchainTransactions?: OnchainTransaction[];
   /** The UTC ISO 8601 timestamp at which the void was created. */
@@ -2244,6 +2276,10 @@ export interface Refund {
   reason?: string;
   error?: PaymentError;
   metadata?: Metadata;
+  /** A merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer. Present only when supplied on the create refund request. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this refund, shown to the payer. Present when supplied on the create refund request or when the session's `orderCode` fallback applies; otherwise omitted. */
+  customerDisplay?: OperationCustomerDisplay;
   /** The onchain transactions associated with this refund. */
   onchainTransactions?: OnchainTransaction[];
   /** The UTC ISO 8601 timestamp at which the refund was created. */
@@ -2283,6 +2319,11 @@ export interface CustomerDisplay {
   merchantName?: string;
   /** The amount to present to the payer, which may differ from the authoritative settlement amount and asset. Commonly used when the payer's local currency differs from the settlement currency (e.g., charging in USD but displaying the equivalent in CAD). Stored and returned as-is — no cross-validation is performed against the authoritative `amount` and `asset`. Both `amount` and `currency` must be provided together. */
   displayAmount?: CustomerDisplayDisplayAmount;
+  /**
+   * A customer-visible code for the overall order. When omitted, CDP generates one and returns it. It must not contain personally identifiable information (PII) or payment credentials.
+   * @maxLength 128
+   */
+  orderCode?: string;
 }
 
 /**
@@ -2654,6 +2695,10 @@ export interface WalletAuthorizationRequest {
   /** The processed payloads from the payer, corresponding to the payloads in the selected authorization option. */
   signedPayloads: OnchainSignedPayload[];
   metadata?: Metadata;
+  /** Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
+  customerDisplay?: OperationCustomerDisplay;
+  /** An optional merchant-provided internal identifier for this wallet authorization, from the merchant's own system—not visible to the payer. */
+  externalReferenceId?: ExternalReferenceId;
 }
 
 /**
@@ -2661,6 +2706,10 @@ export interface WalletAuthorizationRequest {
  */
 export interface CoinbaseAuthorizationRequest {
   metadata?: Metadata;
+  /** Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
+  customerDisplay?: OperationCustomerDisplay;
+  /** An optional merchant-provided internal identifier for this Coinbase authorization, from the merchant's own system—not visible to the payer. */
+  externalReferenceId?: ExternalReferenceId;
 }
 
 /**
@@ -2672,6 +2721,10 @@ export interface CreateCaptureRequest {
   /** When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release. */
   finalCapture: boolean;
   metadata?: Metadata;
+  /** An optional merchant-provided internal identifier for this manual capture, from the merchant's own system—not visible to the payer. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Optional customer-facing display data for this manual capture, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
+  customerDisplay?: OperationCustomerDisplay;
 }
 
 /**
@@ -2679,6 +2732,10 @@ export interface CreateCaptureRequest {
  */
 export interface CreateVoidRequest {
   metadata?: Metadata;
+  /** An optional merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Optional customer-facing display data for this void, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
+  customerDisplay?: OperationCustomerDisplay;
 }
 
 /**
@@ -2692,6 +2749,10 @@ export interface CreateRefundRequest {
   /** The reason for the refund. */
   reason?: string;
   metadata?: Metadata;
+  /** An optional merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Optional customer-facing display data for this refund, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
+  customerDisplay?: OperationCustomerDisplay;
 }
 
 /**
@@ -2772,6 +2833,8 @@ export interface Disbursement {
    * @maxLength 256
    */
   externalReferenceId?: string;
+  /** Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits `referenceCode`, one is auto-generated, since disbursements have no payment session to fall back to. */
+  customerDisplay?: OperationCustomerDisplay;
   metadata?: Metadata;
   /** Error details, present only when the disbursement failed. */
   error?: PaymentError;
@@ -2813,6 +2876,8 @@ export interface CreateDisbursementRequest {
    * @maxLength 256
    */
   externalReferenceId?: string;
+  /** Optional customer-facing display data for this disbursement, shown to the payer. If `referenceCode` is omitted, one is auto-generated — disbursements have no payment session to fall back to, unlike every other action type. */
+  customerDisplay?: OperationCustomerDisplay;
   metadata?: Metadata;
   /** Compliance context for this disbursement. Carries recipient information required by some entity configurations to meet regulatory requirements. */
   compliance?: DisbursementCompliance;
@@ -3205,6 +3270,9 @@ export const EvmUserOperationStatus = {
   failed: "failed",
 } as const;
 
+/**
+ * A smart account operation response.
+ */
 export interface EvmUserOperation {
   network: EvmUserOperationNetwork;
   /**
@@ -9811,6 +9879,10 @@ export type PaymentSessionEventDataAuthorization = {
   status: PaymentActionStatus;
   /** A decimal representation of the authorized amount, denominated in the session's `asset`. */
   amount: string;
+  /** An optional merchant-provided internal identifier for this authorization, from the merchant's own system—not visible to the payer. Present only when supplied on the authorization request. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session's `orderCode` fallback applies; otherwise omitted. */
+  customerDisplay?: OperationCustomerDisplay;
   /** Error details, present only when the authorization failed. */
   error?: PaymentError;
   /** The onchain transactions associated with this authorization. */
@@ -9834,6 +9906,10 @@ export type PaymentSessionEventDataCapture = {
   status: PaymentActionStatus;
   /** A decimal representation of the captured amount, denominated in the session's `asset`. */
   amount: string;
+  /** An optional merchant-provided internal identifier for this capture, from the merchant's own system—not visible to the payer. For an auto-capture, it is copied from the authorization. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this capture, shown to the payer. An auto-capture reuses the authorization's `referenceCode`. */
+  customerDisplay?: OperationCustomerDisplay;
   /** When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release. */
   finalCapture: boolean;
   /** Error details, present only when the capture failed. */
@@ -9857,6 +9933,10 @@ export type PaymentSessionEventDataVoid = {
   status: PaymentActionStatus;
   /** A decimal representation of the voided amount, denominated in the session's `asset`. */
   amount: string;
+  /** An optional merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. Present only when supplied on the create void request. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session's `orderCode` fallback applies; otherwise omitted. */
+  customerDisplay?: OperationCustomerDisplay;
   /** Error details, present only when the void failed. */
   error?: PaymentError;
   /** The onchain transactions associated with this void. */
@@ -9878,6 +9958,10 @@ export type PaymentSessionEventDataRefund = {
   status: PaymentActionStatus;
   /** A decimal representation of the refunded amount, denominated in the session's `asset`. */
   amount: string;
+  /** An optional merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer. Present only when supplied on the create refund request. */
+  externalReferenceId?: ExternalReferenceId;
+  /** Customer-facing display data for this refund, shown to the payer. Present when supplied on the create refund request or when the session's `orderCode` fallback applies; otherwise omitted. */
+  customerDisplay?: OperationCustomerDisplay;
   /** The reason for the refund, if provided when the refund was created. */
   reason?: string;
   /** Error details, present only when the refund failed. */

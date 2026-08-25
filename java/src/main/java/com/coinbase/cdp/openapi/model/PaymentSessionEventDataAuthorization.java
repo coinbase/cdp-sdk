@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainTransaction;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.coinbase.cdp.openapi.model.PaymentActionStatus;
 import com.coinbase.cdp.openapi.model.PaymentError;
 import com.coinbase.cdp.openapi.model.PaymentSessionSource;
@@ -44,6 +45,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   PaymentSessionEventDataAuthorization.JSON_PROPERTY_AUTHORIZATION_ID,
   PaymentSessionEventDataAuthorization.JSON_PROPERTY_STATUS,
   PaymentSessionEventDataAuthorization.JSON_PROPERTY_AMOUNT,
+  PaymentSessionEventDataAuthorization.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  PaymentSessionEventDataAuthorization.JSON_PROPERTY_CUSTOMER_DISPLAY,
   PaymentSessionEventDataAuthorization.JSON_PROPERTY_ERROR,
   PaymentSessionEventDataAuthorization.JSON_PROPERTY_ONCHAIN_TRANSACTIONS,
   PaymentSessionEventDataAuthorization.JSON_PROPERTY_METADATA,
@@ -64,6 +67,14 @@ public class PaymentSessionEventDataAuthorization {
   public static final String JSON_PROPERTY_AMOUNT = "amount";
   @jakarta.annotation.Nonnull
   private String amount;
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_ERROR = "error";
   @jakarta.annotation.Nullable
@@ -161,6 +172,54 @@ public class PaymentSessionEventDataAuthorization {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setAmount(@jakarta.annotation.Nonnull String amount) {
     this.amount = amount;
+  }
+
+
+  public PaymentSessionEventDataAuthorization externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * An optional merchant-provided internal identifier for this authorization, from the merchant&#39;s own system—not visible to the payer. Present only when supplied on the authorization request.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
+  public PaymentSessionEventDataAuthorization customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session&#39;s &#x60;orderCode&#x60; fallback applies; otherwise omitted.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
   }
 
 
@@ -331,6 +390,8 @@ public class PaymentSessionEventDataAuthorization {
     return Objects.equals(this.authorizationId, paymentSessionEventDataAuthorization.authorizationId) &&
         Objects.equals(this.status, paymentSessionEventDataAuthorization.status) &&
         Objects.equals(this.amount, paymentSessionEventDataAuthorization.amount) &&
+        Objects.equals(this.externalReferenceId, paymentSessionEventDataAuthorization.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, paymentSessionEventDataAuthorization.customerDisplay) &&
         Objects.equals(this.error, paymentSessionEventDataAuthorization.error) &&
         Objects.equals(this.onchainTransactions, paymentSessionEventDataAuthorization.onchainTransactions) &&
         Objects.equals(this.metadata, paymentSessionEventDataAuthorization.metadata) &&
@@ -341,7 +402,7 @@ public class PaymentSessionEventDataAuthorization {
 
   @Override
   public int hashCode() {
-    return Objects.hash(authorizationId, status, amount, error, onchainTransactions, metadata, source, createdAt, updatedAt);
+    return Objects.hash(authorizationId, status, amount, externalReferenceId, customerDisplay, error, onchainTransactions, metadata, source, createdAt, updatedAt);
   }
 
   @Override
@@ -351,6 +412,8 @@ public class PaymentSessionEventDataAuthorization {
     sb.append("    authorizationId: ").append(toIndentedString(authorizationId)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    onchainTransactions: ").append(toIndentedString(onchainTransactions)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
@@ -419,6 +482,16 @@ public class PaymentSessionEventDataAuthorization {
       joiner.add(String.format("%samount%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAmount()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `error` to the URL query string
     if (getError() != null) {
       joiner.add(getError().toUrlQueryString(prefix + "error" + suffix));
@@ -479,6 +552,14 @@ public class PaymentSessionEventDataAuthorization {
     }
     public PaymentSessionEventDataAuthorization.Builder amount(String amount) {
       this.instance.amount = amount;
+      return this;
+    }
+    public PaymentSessionEventDataAuthorization.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public PaymentSessionEventDataAuthorization.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
       return this;
     }
     public PaymentSessionEventDataAuthorization.Builder error(PaymentError error) {
@@ -542,6 +623,8 @@ public class PaymentSessionEventDataAuthorization {
       .authorizationId(getAuthorizationId())
       .status(getStatus())
       .amount(getAmount())
+      .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .error(getError())
       .onchainTransactions(getOnchainTransactions())
       .metadata(getMetadata())

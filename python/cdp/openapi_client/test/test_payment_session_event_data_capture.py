@@ -39,6 +39,8 @@ class TestPaymentSessionEventDataCapture(unittest.TestCase):
                 capture_id = 'capture_82c879c1-84e1-44ed-a8c2-1ac239cf09ad',
                 status = 'pending',
                 amount = '1.00',
+                external_reference_id = 'merchant-reference-abc123',
+                customer_display = {referenceCode=REF-ABC123},
                 final_capture = True,
                 error = {code=insufficient_funds, message=The payer does not have sufficient funds., occurredAt=2025-06-15T12:00:00.000Z},
                 onchain_transactions = [{transactionHash=0xdef456abc789012345678901234567890abcdef1234567890abcdef12345678, network=base}],

@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.onchain_transaction import OnchainTransaction
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from cdp.openapi_client.models.payment_action_status import PaymentActionStatus
 from cdp.openapi_client.models.payment_error import PaymentError
 from cdp.openapi_client.models.payment_session_source import PaymentSessionSource
@@ -36,13 +37,15 @@ class PaymentSessionEventDataAuthorization(BaseModel):
     authorization_id: Annotated[str, Field(strict=True)] = Field(description="The unique identifier of the authorization.", alias="authorizationId")
     status: PaymentActionStatus = Field(description="The current status of the authorization.")
     amount: StrictStr = Field(description="A decimal representation of the authorized amount, denominated in the session's `asset`.")
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An optional merchant-provided internal identifier for this authorization, from the merchant's own system—not visible to the payer. Present only when supplied on the authorization request.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session's `orderCode` fallback applies; otherwise omitted.", alias="customerDisplay")
     error: Optional[PaymentError] = Field(default=None, description="Error details, present only when the authorization failed.")
     onchain_transactions: Optional[List[OnchainTransaction]] = Field(default=None, description="The onchain transactions associated with this authorization.", alias="onchainTransactions")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     source: Optional[PaymentSessionSource] = Field(default=None, description="The payer for this authorization. For wallet authorizations, this is the blockchain address that signed the payloads. For Coinbase authorizations, this is the authenticated Coinbase account.")
     created_at: datetime = Field(description="The UTC ISO 8601 timestamp at which the authorization was created.", alias="createdAt")
     updated_at: datetime = Field(description="The UTC ISO 8601 timestamp at which the authorization was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["authorizationId", "status", "amount", "error", "onchainTransactions", "metadata", "source", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["authorizationId", "status", "amount", "externalReferenceId", "customerDisplay", "error", "onchainTransactions", "metadata", "source", "createdAt", "updatedAt"]
 
     @field_validator('authorization_id')
     def authorization_id_validate_regular_expression(cls, value):
@@ -90,6 +93,9 @@ class PaymentSessionEventDataAuthorization(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         # override the default output from pydantic by calling `to_dict()` of error
         if self.error:
             _dict['error'] = self.error.to_dict()
@@ -118,6 +124,8 @@ class PaymentSessionEventDataAuthorization(BaseModel):
             "authorizationId": obj.get("authorizationId"),
             "status": obj.get("status"),
             "amount": obj.get("amount"),
+            "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
             "error": PaymentError.from_dict(obj["error"]) if obj.get("error") is not None else None,
             "onchainTransactions": [OnchainTransaction.from_dict(_item) for _item in obj["onchainTransactions"]] if obj.get("onchainTransactions") is not None else None,
             "metadata": obj.get("metadata"),

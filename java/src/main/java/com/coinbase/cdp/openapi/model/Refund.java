@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainTransaction;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.coinbase.cdp.openapi.model.PaymentActionStatus;
 import com.coinbase.cdp.openapi.model.PaymentError;
 import com.coinbase.cdp.openapi.model.RefundSource;
@@ -49,6 +50,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   Refund.JSON_PROPERTY_REASON,
   Refund.JSON_PROPERTY_ERROR,
   Refund.JSON_PROPERTY_METADATA,
+  Refund.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  Refund.JSON_PROPERTY_CUSTOMER_DISPLAY,
   Refund.JSON_PROPERTY_ONCHAIN_TRANSACTIONS,
   Refund.JSON_PROPERTY_CREATED_AT,
   Refund.JSON_PROPERTY_UPDATED_AT
@@ -86,6 +89,14 @@ public class Refund {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_ONCHAIN_TRANSACTIONS = "onchainTransactions";
   @jakarta.annotation.Nullable
@@ -294,6 +305,54 @@ public class Refund {
   }
 
 
+  public Refund externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * A merchant-provided internal identifier for this refund, from the merchant&#39;s own system—not visible to the payer. Present only when supplied on the create refund request.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
+  public Refund customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Customer-facing display data for this refund, shown to the payer. Present when supplied on the create refund request or when the session&#39;s &#x60;orderCode&#x60; fallback applies; otherwise omitted.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
   public Refund onchainTransactions(@jakarta.annotation.Nullable List<OnchainTransaction> onchainTransactions) {
     this.onchainTransactions = onchainTransactions;
     return this;
@@ -394,6 +453,8 @@ public class Refund {
         Objects.equals(this.reason, refund.reason) &&
         Objects.equals(this.error, refund.error) &&
         Objects.equals(this.metadata, refund.metadata) &&
+        Objects.equals(this.externalReferenceId, refund.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, refund.customerDisplay) &&
         Objects.equals(this.onchainTransactions, refund.onchainTransactions) &&
         Objects.equals(this.createdAt, refund.createdAt) &&
         Objects.equals(this.updatedAt, refund.updatedAt);
@@ -401,7 +462,7 @@ public class Refund {
 
   @Override
   public int hashCode() {
-    return Objects.hash(refundId, paymentSessionId, source, status, amount, reason, error, metadata, onchainTransactions, createdAt, updatedAt);
+    return Objects.hash(refundId, paymentSessionId, source, status, amount, reason, error, metadata, externalReferenceId, customerDisplay, onchainTransactions, createdAt, updatedAt);
   }
 
   @Override
@@ -416,6 +477,8 @@ public class Refund {
     sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    onchainTransactions: ").append(toIndentedString(onchainTransactions)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
@@ -506,6 +569,16 @@ public class Refund {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `onchainTransactions` to the URL query string
     if (getOnchainTransactions() != null) {
       for (int i = 0; i < getOnchainTransactions().size(); i++) {
@@ -573,6 +646,14 @@ public class Refund {
       this.instance.metadata = metadata;
       return this;
     }
+    public Refund.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public Refund.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
+      return this;
+    }
     public Refund.Builder onchainTransactions(List<OnchainTransaction> onchainTransactions) {
       this.instance.onchainTransactions = onchainTransactions;
       return this;
@@ -627,6 +708,8 @@ public class Refund {
       .reason(getReason())
       .error(getError())
       .metadata(getMetadata())
+      .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .onchainTransactions(getOnchainTransactions())
       .createdAt(getCreatedAt())
       .updatedAt(getUpdatedAt());

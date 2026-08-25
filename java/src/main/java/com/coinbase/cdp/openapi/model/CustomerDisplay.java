@@ -35,7 +35,8 @@ import com.coinbase.cdp.openapi.ApiClient;
  */
 @JsonPropertyOrder({
   CustomerDisplay.JSON_PROPERTY_MERCHANT_NAME,
-  CustomerDisplay.JSON_PROPERTY_DISPLAY_AMOUNT
+  CustomerDisplay.JSON_PROPERTY_DISPLAY_AMOUNT,
+  CustomerDisplay.JSON_PROPERTY_ORDER_CODE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CustomerDisplay {
@@ -46,6 +47,10 @@ public class CustomerDisplay {
   public static final String JSON_PROPERTY_DISPLAY_AMOUNT = "displayAmount";
   @jakarta.annotation.Nullable
   private CustomerDisplayDisplayAmount displayAmount;
+
+  public static final String JSON_PROPERTY_ORDER_CODE = "orderCode";
+  @jakarta.annotation.Nullable
+  private String orderCode;
 
   public CustomerDisplay() { 
   }
@@ -98,6 +103,30 @@ public class CustomerDisplay {
   }
 
 
+  public CustomerDisplay orderCode(@jakarta.annotation.Nullable String orderCode) {
+    this.orderCode = orderCode;
+    return this;
+  }
+
+  /**
+   * A customer-visible code for the overall order. When omitted, CDP generates one and returns it. It must not contain personally identifiable information (PII) or payment credentials.
+   * @return orderCode
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ORDER_CODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getOrderCode() {
+    return orderCode;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ORDER_CODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOrderCode(@jakarta.annotation.Nullable String orderCode) {
+    this.orderCode = orderCode;
+  }
+
+
   /**
    * Return true if this CustomerDisplay object is equal to o.
    */
@@ -111,12 +140,13 @@ public class CustomerDisplay {
     }
     CustomerDisplay customerDisplay = (CustomerDisplay) o;
     return Objects.equals(this.merchantName, customerDisplay.merchantName) &&
-        Objects.equals(this.displayAmount, customerDisplay.displayAmount);
+        Objects.equals(this.displayAmount, customerDisplay.displayAmount) &&
+        Objects.equals(this.orderCode, customerDisplay.orderCode);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(merchantName, displayAmount);
+    return Objects.hash(merchantName, displayAmount, orderCode);
   }
 
   @Override
@@ -125,6 +155,7 @@ public class CustomerDisplay {
     sb.append("class CustomerDisplay {\n");
     sb.append("    merchantName: ").append(toIndentedString(merchantName)).append("\n");
     sb.append("    displayAmount: ").append(toIndentedString(displayAmount)).append("\n");
+    sb.append("    orderCode: ").append(toIndentedString(orderCode)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -182,6 +213,11 @@ public class CustomerDisplay {
       joiner.add(getDisplayAmount().toUrlQueryString(prefix + "displayAmount" + suffix));
     }
 
+    // add `orderCode` to the URL query string
+    if (getOrderCode() != null) {
+      joiner.add(String.format("%sorderCode%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getOrderCode()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -203,6 +239,10 @@ public class CustomerDisplay {
     }
     public CustomerDisplay.Builder displayAmount(CustomerDisplayDisplayAmount displayAmount) {
       this.instance.displayAmount = displayAmount;
+      return this;
+    }
+    public CustomerDisplay.Builder orderCode(String orderCode) {
+      this.instance.orderCode = orderCode;
       return this;
     }
 
@@ -240,7 +280,8 @@ public class CustomerDisplay {
   public CustomerDisplay.Builder toBuilder() {
     return new CustomerDisplay.Builder()
       .merchantName(getMerchantName())
-      .displayAmount(getDisplayAmount());
+      .displayAmount(getDisplayAmount())
+      .orderCode(getOrderCode());
   }
 
 }

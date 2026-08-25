@@ -30,46 +30,46 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * SwapUnavailableResponse
+ * Customer-facing display data for a payment operation, shown to the payer.
  */
 @JsonPropertyOrder({
-  SwapUnavailableResponse.JSON_PROPERTY_LIQUIDITY_AVAILABLE
+  OperationCustomerDisplay.JSON_PROPERTY_REFERENCE_CODE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SwapUnavailableResponse {
-  public static final String JSON_PROPERTY_LIQUIDITY_AVAILABLE = "liquidityAvailable";
-  @jakarta.annotation.Nonnull
-  private Boolean liquidityAvailable;
+public class OperationCustomerDisplay {
+  public static final String JSON_PROPERTY_REFERENCE_CODE = "referenceCode";
+  @jakarta.annotation.Nullable
+  private String referenceCode;
 
-  public SwapUnavailableResponse() { 
+  public OperationCustomerDisplay() { 
   }
 
-  public SwapUnavailableResponse liquidityAvailable(@jakarta.annotation.Nonnull Boolean liquidityAvailable) {
-    this.liquidityAvailable = liquidityAvailable;
+  public OperationCustomerDisplay referenceCode(@jakarta.annotation.Nullable String referenceCode) {
+    this.referenceCode = referenceCode;
     return this;
   }
 
   /**
-   * Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-   * @return liquidityAvailable
+   * A short reference code for this payment operation, visible to the payer.
+   * @return referenceCode
    */
-  @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_LIQUIDITY_AVAILABLE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public Boolean getLiquidityAvailable() {
-    return liquidityAvailable;
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REFERENCE_CODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getReferenceCode() {
+    return referenceCode;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_LIQUIDITY_AVAILABLE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLiquidityAvailable(@jakarta.annotation.Nonnull Boolean liquidityAvailable) {
-    this.liquidityAvailable = liquidityAvailable;
+  @JsonProperty(JSON_PROPERTY_REFERENCE_CODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReferenceCode(@jakarta.annotation.Nullable String referenceCode) {
+    this.referenceCode = referenceCode;
   }
 
 
   /**
-   * Return true if this SwapUnavailableResponse object is equal to o.
+   * Return true if this OperationCustomerDisplay object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -79,20 +79,20 @@ public class SwapUnavailableResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SwapUnavailableResponse swapUnavailableResponse = (SwapUnavailableResponse) o;
-    return Objects.equals(this.liquidityAvailable, swapUnavailableResponse.liquidityAvailable);
+    OperationCustomerDisplay operationCustomerDisplay = (OperationCustomerDisplay) o;
+    return Objects.equals(this.referenceCode, operationCustomerDisplay.referenceCode);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(liquidityAvailable);
+    return Objects.hash(referenceCode);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SwapUnavailableResponse {\n");
-    sb.append("    liquidityAvailable: ").append(toIndentedString(liquidityAvailable)).append("\n");
+    sb.append("class OperationCustomerDisplay {\n");
+    sb.append("    referenceCode: ").append(toIndentedString(referenceCode)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -140,9 +140,9 @@ public class SwapUnavailableResponse {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `liquidityAvailable` to the URL query string
-    if (getLiquidityAvailable() != null) {
-      joiner.add(String.format("%sliquidityAvailable%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getLiquidityAvailable()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `referenceCode` to the URL query string
+    if (getReferenceCode() != null) {
+      joiner.add(String.format("%sreferenceCode%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getReferenceCode()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
     return joiner.toString();
@@ -150,28 +150,28 @@ public class SwapUnavailableResponse {
 
     public static class Builder {
 
-    private SwapUnavailableResponse instance;
+    private OperationCustomerDisplay instance;
 
     public Builder() {
-      this(new SwapUnavailableResponse());
+      this(new OperationCustomerDisplay());
     }
 
-    protected Builder(SwapUnavailableResponse instance) {
+    protected Builder(OperationCustomerDisplay instance) {
       this.instance = instance;
     }
 
-    public SwapUnavailableResponse.Builder liquidityAvailable(Boolean liquidityAvailable) {
-      this.instance.liquidityAvailable = liquidityAvailable;
+    public OperationCustomerDisplay.Builder referenceCode(String referenceCode) {
+      this.instance.referenceCode = referenceCode;
       return this;
     }
 
 
     /**
-    * returns a built SwapUnavailableResponse instance.
+    * returns a built OperationCustomerDisplay instance.
     *
     * The builder is not reusable.
     */
-    public SwapUnavailableResponse build() {
+    public OperationCustomerDisplay build() {
       try {
         return this.instance;
       } finally {
@@ -189,16 +189,16 @@ public class SwapUnavailableResponse {
   /**
   * Create a builder with no initialized field.
   */
-  public static SwapUnavailableResponse.Builder builder() {
-    return new SwapUnavailableResponse.Builder();
+  public static OperationCustomerDisplay.Builder builder() {
+    return new OperationCustomerDisplay.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public SwapUnavailableResponse.Builder toBuilder() {
-    return new SwapUnavailableResponse.Builder()
-      .liquidityAvailable(getLiquidityAvailable());
+  public OperationCustomerDisplay.Builder toBuilder() {
+    return new OperationCustomerDisplay.Builder()
+      .referenceCode(getReferenceCode());
   }
 
 }

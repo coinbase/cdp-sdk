@@ -90,11 +90,6 @@ const (
 	CapabilityStatusUnrequested CapabilityStatus = "unrequested"
 )
 
-// Defines values for CommonSwapResponseLiquidityAvailable.
-const (
-	CommonSwapResponseLiquidityAvailableTrue CommonSwapResponseLiquidityAvailable = true
-)
-
 // Defines values for CreateCryptoDepositDestinationRequestType.
 const (
 	CreateCryptoDepositDestinationRequestTypeCrypto CreateCryptoDepositDestinationRequestType = "crypto"
@@ -119,11 +114,6 @@ const (
 // Defines values for CreateFiatDepositDestinationRequestType.
 const (
 	CreateFiatDepositDestinationRequestTypeFiat CreateFiatDepositDestinationRequestType = "fiat"
-)
-
-// Defines values for CreateSwapQuoteResponseLiquidityAvailable.
-const (
-	CreateSwapQuoteResponseLiquidityAvailableTrue CreateSwapQuoteResponseLiquidityAvailable = true
 )
 
 // Defines values for CryptoDepositDestinationType.
@@ -478,11 +468,6 @@ const (
 // Defines values for FiatDepositDestinationType.
 const (
 	FiatDepositDestinationTypeFiat FiatDepositDestinationType = "fiat"
-)
-
-// Defines values for GetSwapPriceResponseLiquidityAvailable.
-const (
-	True GetSwapPriceResponseLiquidityAvailable = true
 )
 
 // Defines values for IndividualInputEmploymentStatus.
@@ -1239,11 +1224,6 @@ const (
 // Defines values for SplValueCriterionType.
 const (
 	SplValue SplValueCriterionType = "splValue"
-)
-
-// Defines values for SwapUnavailableResponseLiquidityAvailable.
-const (
-	False SwapUnavailableResponseLiquidityAvailable = false
 )
 
 // Defines values for SwiftPaymentMethodPaymentRail.
@@ -2163,8 +2143,14 @@ type Authorization struct {
 	// CreatedAt The UTC ISO 8601 timestamp at which the authorization was created.
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
+	// CustomerDisplay Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session's `orderCode` fallback applies; otherwise omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
 	// Error An error that occurred during a payment operation.
 	Error *PaymentError `json:"error,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this authorization, from the merchant's own system—not visible to the payer. Present only when supplied on the authorization request.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
 
 	// Message A human-readable message describing the outcome or status for display. Returned for x402 authorizations; omitted for other authorization flows unless documented otherwise.
 	Message *string `json:"message,omitempty"`
@@ -2349,8 +2335,14 @@ type Capture struct {
 	// CreatedAt The UTC ISO 8601 timestamp at which the capture was created.
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
+	// CustomerDisplay Customer-facing display data for this capture, shown to the payer. A manual capture falls back to the session's `orderCode` when `referenceCode` is omitted; an auto-capture reuses the authorization's `referenceCode`.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
 	// Error An error that occurred during a payment operation.
 	Error *PaymentError `json:"error,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this capture, from the merchant's own system—not visible to the payer. A manual capture uses the caller-provided value; an auto-capture reuses the authorization's value and omits it when the authorization omitted it. It never falls back to `PaymentSession.externalReferenceId`.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
 
 	// FinalCapture When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.
 	FinalCapture bool `json:"finalCapture"`
@@ -2376,6 +2368,12 @@ type CaptureId = string
 
 // CoinbaseAuthorizationRequest A request to authorize a payment session using the payer's Coinbase account authenticated via OAuth.
 type CoinbaseAuthorizationRequest struct {
+	// CustomerDisplay Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An optional merchant-provided internal identifier for this Coinbase authorization, from the merchant's own system—not visible to the payer.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
+
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 }
@@ -2413,7 +2411,7 @@ type CommonSwapResponse struct {
 	} `json:"issues"`
 
 	// LiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-	LiquidityAvailable CommonSwapResponseLiquidityAvailable `json:"liquidityAvailable"`
+	LiquidityAvailable bool `json:"liquidityAvailable"`
 
 	// MinToAmount The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
 	MinToAmount string `json:"minToAmount"`
@@ -2424,9 +2422,6 @@ type CommonSwapResponse struct {
 	// ToToken The 0x-prefixed contract address of the token that will be received.
 	ToToken string `json:"toToken"`
 }
-
-// CommonSwapResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-type CommonSwapResponseLiquidityAvailable bool
 
 // CommonSwapResponseIssuesAllowance defines model for CommonSwapResponseIssuesAllowance.
 type CommonSwapResponseIssuesAllowance struct {
@@ -2494,6 +2489,12 @@ type CreateAccountRequest struct {
 type CreateCaptureRequest struct {
 	// Amount A decimal representation of the amount to capture, denominated in the session's `asset`. If omitted, the full remaining capturable amount is captured.
 	Amount *string `json:"amount,omitempty"`
+
+	// CustomerDisplay Optional customer-facing display data for this manual capture, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An optional merchant-provided internal identifier for this manual capture, from the merchant's own system—not visible to the payer.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
 
 	// FinalCapture When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.
 	FinalCapture bool `json:"finalCapture"`
@@ -2647,6 +2648,9 @@ type CreateDisbursementRequest struct {
 	// Compliance Compliance context for this disbursement. Carries recipient information required by some entity configurations to meet regulatory requirements.
 	Compliance *DisbursementCompliance `json:"compliance,omitempty"`
 
+	// CustomerDisplay Optional customer-facing display data for this disbursement, shown to the payer. If `referenceCode` is omitted, one is auto-generated — disbursements have no payment session to fall back to, unlike every other action type.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
 	// ExternalReferenceId A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
 	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
 
@@ -2758,6 +2762,12 @@ type CreateRefundRequest struct {
 	// Amount A decimal representation of the amount to refund, denominated in the session's `asset`. If omitted, the full remaining refundable amount is refunded.
 	Amount *string `json:"amount,omitempty"`
 
+	// CustomerDisplay Optional customer-facing display data for this refund, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An optional merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
+
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 
@@ -2834,7 +2844,7 @@ type CreateSwapQuoteResponse struct {
 	} `json:"issues"`
 
 	// LiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-	LiquidityAvailable CreateSwapQuoteResponseLiquidityAvailable `json:"liquidityAvailable"`
+	LiquidityAvailable bool `json:"liquidityAvailable"`
 
 	// MinToAmount The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
 	MinToAmount string `json:"minToAmount"`
@@ -2867,9 +2877,6 @@ type CreateSwapQuoteResponse struct {
 	} `json:"transaction"`
 }
 
-// CreateSwapQuoteResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-type CreateSwapQuoteResponseLiquidityAvailable bool
-
 // CreateSwapQuoteResponseWrapper A wrapper for the response of a swap quote operation.
 type CreateSwapQuoteResponseWrapper struct {
 	union json.RawMessage
@@ -2882,6 +2889,12 @@ type CreateTransferSource struct {
 
 // CreateVoidRequest A request to create a void for a payment session. A void releases all remaining capturable funds back to the payer, including after partial refunds as long as a capturableAmount remains.
 type CreateVoidRequest struct {
+	// CustomerDisplay Optional customer-facing display data for this void, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An optional merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
+
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 }
@@ -2969,10 +2982,16 @@ type CustomerDisplay struct {
 
 	// MerchantName The merchant name to display on the payment UI. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
 	MerchantName *string `json:"merchantName,omitempty"`
+
+	// OrderCode A customer-visible code for the overall order. When omitted, CDP generates one and returns it. It must not contain personally identifiable information (PII) or payment credentials.
+	OrderCode *string `json:"orderCode,omitempty"`
 }
 
 // CustomerId The ID of the Customer, which is a UUID prefixed by `customer_`.
 type CustomerId = string
+
+// CustomerReferenceCode A short customer-facing reference for an operation, visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+type CustomerReferenceCode = string
 
 // CustomerType The type of the customer. Required on create; accepted but ignored on update.
 type CustomerType string
@@ -3240,6 +3259,9 @@ type Disbursement struct {
 
 	// CreatedAt The UTC ISO 8601 timestamp at which the disbursement was created.
 	CreatedAt time.Time `json:"createdAt"`
+
+	// CustomerDisplay Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits `referenceCode`, one is auto-generated, since disbursements have no payment session to fall back to.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
 
 	// DisbursementId The unique identifier of the disbursement.
 	DisbursementId DisbursementId `json:"disbursementId"`
@@ -3799,7 +3821,7 @@ type EvmTypedStringCondition struct {
 	Path string `json:"path"`
 }
 
-// EvmUserOperation defines model for EvmUserOperation.
+// EvmUserOperation A smart account operation response.
 type EvmUserOperation struct {
 	// Calls The list of calls in the user operation.
 	Calls []EvmCall `json:"calls"`
@@ -3828,6 +3850,9 @@ type EvmUserOperationStatus string
 
 // EvmUserOperationNetwork The network the user operation is for.
 type EvmUserOperationNetwork string
+
+// ExternalReferenceId A merchant-provided internal identifier for a resource from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+type ExternalReferenceId = string
 
 // FedwireDepositSource The originating Fedwire deposit details for the transfer source. Present when funds were deposited via Fedwire into a deposit destination.
 type FedwireDepositSource struct {
@@ -3958,7 +3983,7 @@ type GetSwapPriceResponse struct {
 	} `json:"issues"`
 
 	// LiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-	LiquidityAvailable GetSwapPriceResponseLiquidityAvailable `json:"liquidityAvailable"`
+	LiquidityAvailable bool `json:"liquidityAvailable"`
 
 	// MinToAmount The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
 	MinToAmount string `json:"minToAmount"`
@@ -3969,9 +3994,6 @@ type GetSwapPriceResponse struct {
 	// ToToken The 0x-prefixed contract address of the token that will be received.
 	ToToken string `json:"toToken"`
 }
-
-// GetSwapPriceResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-type GetSwapPriceResponseLiquidityAvailable bool
 
 // GetSwapPriceResponseWrapper A wrapper for the response of a swap price operation.
 type GetSwapPriceResponseWrapper struct {
@@ -4766,6 +4788,12 @@ type OnrampVerificationInitiation struct {
 	VerificationId OnrampVerificationId `json:"verificationId"`
 }
 
+// OperationCustomerDisplay Customer-facing display data for a payment operation, shown to the payer.
+type OperationCustomerDisplay struct {
+	// ReferenceCode A short reference code for this payment operation, visible to the payer.
+	ReferenceCode *CustomerReferenceCode `json:"referenceCode,omitempty"`
+}
+
 // Owner The Owner ID of the Account.
 //
 // Owner IDs are UUIDs prefixed with the Owner Type as follows:
@@ -5134,8 +5162,14 @@ type Refund struct {
 	// CreatedAt The UTC ISO 8601 timestamp at which the refund was created.
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
+	// CustomerDisplay Customer-facing display data for this refund, shown to the payer. Present when supplied on the create refund request or when the session's `orderCode` fallback applies; otherwise omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
 	// Error An error that occurred during a payment operation.
 	Error *PaymentError `json:"error,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer. Present only when supplied on the create refund request.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
@@ -6178,11 +6212,8 @@ type SwapPermit2Approval struct {
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
 type SwapUnavailableResponse struct {
 	// LiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-	LiquidityAvailable SwapUnavailableResponseLiquidityAvailable `json:"liquidityAvailable"`
+	LiquidityAvailable bool `json:"liquidityAvailable"`
 }
-
-// SwapUnavailableResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-type SwapUnavailableResponseLiquidityAvailable bool
 
 // SwiftDetails Details specific to SWIFT (international wire) payment methods.
 type SwiftDetails struct {
@@ -6783,8 +6814,14 @@ type Void struct {
 	// CreatedAt The UTC ISO 8601 timestamp at which the void was created.
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
+	// CustomerDisplay Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session's `orderCode` fallback applies; otherwise omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
 	// Error An error that occurred during a payment operation.
 	Error *PaymentError `json:"error,omitempty"`
+
+	// ExternalReferenceId A merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. Present only when supplied on the create void request.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
@@ -6855,6 +6892,12 @@ type WalletAuthorizationOptionsResponse struct {
 
 // WalletAuthorizationRequest A request to authorize a payment session using a wallet. The payer selects one of the options returned by the wallet authorization options endpoint and submits the signed payloads.
 type WalletAuthorizationRequest struct {
+	// CustomerDisplay Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An optional merchant-provided internal identifier for this wallet authorization, from the merchant's own system—not visible to the payer.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
+
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 	Metadata *Metadata `json:"metadata,omitempty"`
 
@@ -9631,6 +9674,12 @@ type GetWalletAuthorizationOptionsParams struct {
 type AuthorizeX402PaymentSessionParams struct {
 	// PAYMENTSIGNATURE Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.
 	PAYMENTSIGNATURE *string `json:"PAYMENT-SIGNATURE,omitempty"`
+
+	// XExternalReferenceId An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.
+	XExternalReferenceId *ExternalReferenceId `json:"X-External-Reference-Id,omitempty"`
+
+	// XCustomerDisplayReferenceCode A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.
+	XCustomerDisplayReferenceCode *CustomerReferenceCode `json:"X-Customer-Display-Reference-Code,omitempty"`
 
 	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
@@ -26046,15 +26095,37 @@ func NewAuthorizeX402PaymentSessionRequest(server string, paymentSessionId Payme
 			req.Header.Set("PAYMENT-SIGNATURE", headerParam0)
 		}
 
-		if params.XIdempotencyKey != nil {
+		if params.XExternalReferenceId != nil {
 			var headerParam1 string
 
-			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-External-Reference-Id", runtime.ParamLocationHeader, *params.XExternalReferenceId)
 			if err != nil {
 				return nil, err
 			}
 
-			req.Header.Set("X-Idempotency-Key", headerParam1)
+			req.Header.Set("X-External-Reference-Id", headerParam1)
+		}
+
+		if params.XCustomerDisplayReferenceCode != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Customer-Display-Reference-Code", runtime.ParamLocationHeader, *params.XCustomerDisplayReferenceCode)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Customer-Display-Reference-Code", headerParam2)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam3 string
+
+			headerParam3, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam3)
 		}
 
 	}

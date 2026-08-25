@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -36,7 +37,9 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   CreateCaptureRequest.JSON_PROPERTY_AMOUNT,
   CreateCaptureRequest.JSON_PROPERTY_FINAL_CAPTURE,
-  CreateCaptureRequest.JSON_PROPERTY_METADATA
+  CreateCaptureRequest.JSON_PROPERTY_METADATA,
+  CreateCaptureRequest.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  CreateCaptureRequest.JSON_PROPERTY_CUSTOMER_DISPLAY
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class CreateCaptureRequest {
@@ -51,6 +54,14 @@ public class CreateCaptureRequest {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public CreateCaptureRequest() { 
   }
@@ -127,6 +138,54 @@ public class CreateCaptureRequest {
   }
 
 
+  public CreateCaptureRequest externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * An optional merchant-provided internal identifier for this manual capture, from the merchant&#39;s own system—not visible to the payer.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
+  public CreateCaptureRequest customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Optional customer-facing display data for this manual capture, shown to the payer. Falls back to the session&#39;s &#x60;orderCode&#x60; when &#x60;referenceCode&#x60; is omitted.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
   /**
    * Return true if this CreateCaptureRequest object is equal to o.
    */
@@ -141,12 +200,14 @@ public class CreateCaptureRequest {
     CreateCaptureRequest createCaptureRequest = (CreateCaptureRequest) o;
     return Objects.equals(this.amount, createCaptureRequest.amount) &&
         Objects.equals(this.finalCapture, createCaptureRequest.finalCapture) &&
-        Objects.equals(this.metadata, createCaptureRequest.metadata);
+        Objects.equals(this.metadata, createCaptureRequest.metadata) &&
+        Objects.equals(this.externalReferenceId, createCaptureRequest.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, createCaptureRequest.customerDisplay);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(amount, finalCapture, metadata);
+    return Objects.hash(amount, finalCapture, metadata, externalReferenceId, customerDisplay);
   }
 
   @Override
@@ -156,6 +217,8 @@ public class CreateCaptureRequest {
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("    finalCapture: ").append(toIndentedString(finalCapture)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -218,6 +281,16 @@ public class CreateCaptureRequest {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     return joiner.toString();
   }
 
@@ -243,6 +316,14 @@ public class CreateCaptureRequest {
     }
     public CreateCaptureRequest.Builder metadata(Metadata metadata) {
       this.instance.metadata = metadata;
+      return this;
+    }
+    public CreateCaptureRequest.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public CreateCaptureRequest.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
       return this;
     }
 
@@ -281,7 +362,9 @@ public class CreateCaptureRequest {
     return new CreateCaptureRequest.Builder()
       .amount(getAmount())
       .finalCapture(getFinalCapture())
-      .metadata(getMetadata());
+      .metadata(getMetadata())
+      .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay());
   }
 
 }

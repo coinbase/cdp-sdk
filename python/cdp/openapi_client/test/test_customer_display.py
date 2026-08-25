@@ -37,7 +37,8 @@ class TestCustomerDisplay(unittest.TestCase):
         if include_optional:
             return CustomerDisplay(
                 merchant_name = 'Acme Store',
-                display_amount = {amount=1.37, currency=cad}
+                display_amount = {amount=1.37, currency=cad},
+                order_code = 'ORDER-ABC123'
             )
         else:
             return CustomerDisplay(

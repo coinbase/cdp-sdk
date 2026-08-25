@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainTransaction;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.coinbase.cdp.openapi.model.PaymentActionStatus;
 import com.coinbase.cdp.openapi.model.PaymentError;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -43,6 +44,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   PaymentSessionEventDataCapture.JSON_PROPERTY_CAPTURE_ID,
   PaymentSessionEventDataCapture.JSON_PROPERTY_STATUS,
   PaymentSessionEventDataCapture.JSON_PROPERTY_AMOUNT,
+  PaymentSessionEventDataCapture.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  PaymentSessionEventDataCapture.JSON_PROPERTY_CUSTOMER_DISPLAY,
   PaymentSessionEventDataCapture.JSON_PROPERTY_FINAL_CAPTURE,
   PaymentSessionEventDataCapture.JSON_PROPERTY_ERROR,
   PaymentSessionEventDataCapture.JSON_PROPERTY_ONCHAIN_TRANSACTIONS,
@@ -63,6 +66,14 @@ public class PaymentSessionEventDataCapture {
   public static final String JSON_PROPERTY_AMOUNT = "amount";
   @jakarta.annotation.Nonnull
   private String amount;
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_FINAL_CAPTURE = "finalCapture";
   @jakarta.annotation.Nonnull
@@ -160,6 +171,54 @@ public class PaymentSessionEventDataCapture {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setAmount(@jakarta.annotation.Nonnull String amount) {
     this.amount = amount;
+  }
+
+
+  public PaymentSessionEventDataCapture externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * An optional merchant-provided internal identifier for this capture, from the merchant&#39;s own system—not visible to the payer. For an auto-capture, it is copied from the authorization.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
+  public PaymentSessionEventDataCapture customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Customer-facing display data for this capture, shown to the payer. An auto-capture reuses the authorization&#39;s &#x60;referenceCode&#x60;.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
   }
 
 
@@ -330,6 +389,8 @@ public class PaymentSessionEventDataCapture {
     return Objects.equals(this.captureId, paymentSessionEventDataCapture.captureId) &&
         Objects.equals(this.status, paymentSessionEventDataCapture.status) &&
         Objects.equals(this.amount, paymentSessionEventDataCapture.amount) &&
+        Objects.equals(this.externalReferenceId, paymentSessionEventDataCapture.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, paymentSessionEventDataCapture.customerDisplay) &&
         Objects.equals(this.finalCapture, paymentSessionEventDataCapture.finalCapture) &&
         Objects.equals(this.error, paymentSessionEventDataCapture.error) &&
         Objects.equals(this.onchainTransactions, paymentSessionEventDataCapture.onchainTransactions) &&
@@ -340,7 +401,7 @@ public class PaymentSessionEventDataCapture {
 
   @Override
   public int hashCode() {
-    return Objects.hash(captureId, status, amount, finalCapture, error, onchainTransactions, metadata, createdAt, updatedAt);
+    return Objects.hash(captureId, status, amount, externalReferenceId, customerDisplay, finalCapture, error, onchainTransactions, metadata, createdAt, updatedAt);
   }
 
   @Override
@@ -350,6 +411,8 @@ public class PaymentSessionEventDataCapture {
     sb.append("    captureId: ").append(toIndentedString(captureId)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    finalCapture: ").append(toIndentedString(finalCapture)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    onchainTransactions: ").append(toIndentedString(onchainTransactions)).append("\n");
@@ -418,6 +481,16 @@ public class PaymentSessionEventDataCapture {
       joiner.add(String.format("%samount%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getAmount()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `finalCapture` to the URL query string
     if (getFinalCapture() != null) {
       joiner.add(String.format("%sfinalCapture%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getFinalCapture()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -478,6 +551,14 @@ public class PaymentSessionEventDataCapture {
     }
     public PaymentSessionEventDataCapture.Builder amount(String amount) {
       this.instance.amount = amount;
+      return this;
+    }
+    public PaymentSessionEventDataCapture.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public PaymentSessionEventDataCapture.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
       return this;
     }
     public PaymentSessionEventDataCapture.Builder finalCapture(Boolean finalCapture) {
@@ -541,6 +622,8 @@ public class PaymentSessionEventDataCapture {
       .captureId(getCaptureId())
       .status(getStatus())
       .amount(getAmount())
+      .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .finalCapture(getFinalCapture())
       .error(getError())
       .onchainTransactions(getOnchainTransactions())

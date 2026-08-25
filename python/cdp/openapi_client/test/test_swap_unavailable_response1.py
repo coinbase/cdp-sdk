@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.coinbase_authorization_request import CoinbaseAuthorizationRequest
+from cdp.openapi_client.models.swap_unavailable_response1 import SwapUnavailableResponse1
 
-class TestCoinbaseAuthorizationRequest(unittest.TestCase):
-    """CoinbaseAuthorizationRequest unit test stubs"""
+class TestSwapUnavailableResponse1(unittest.TestCase):
+    """SwapUnavailableResponse1 unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,27 +26,25 @@ class TestCoinbaseAuthorizationRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CoinbaseAuthorizationRequest:
-        """Test CoinbaseAuthorizationRequest
+    def make_instance(self, include_optional) -> SwapUnavailableResponse1:
+        """Test SwapUnavailableResponse1
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CoinbaseAuthorizationRequest`
+        # uncomment below to create an instance of `SwapUnavailableResponse1`
         """
-        model = CoinbaseAuthorizationRequest()
+        model = SwapUnavailableResponse1()
         if include_optional:
-            return CoinbaseAuthorizationRequest(
-                metadata = {customer_id=cust_12345, order_reference=order-67890},
-                customer_display = {referenceCode=REF-ABC123},
-                external_reference_id = 'merchant-reference-abc123'
+            return SwapUnavailableResponse1(
+                liquidity_available = true
             )
         else:
-            return CoinbaseAuthorizationRequest(
+            return SwapUnavailableResponse1(
         )
         """
 
-    def testCoinbaseAuthorizationRequest(self):
-        """Test CoinbaseAuthorizationRequest"""
+    def testSwapUnavailableResponse1(self):
+        """Test SwapUnavailableResponse1"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

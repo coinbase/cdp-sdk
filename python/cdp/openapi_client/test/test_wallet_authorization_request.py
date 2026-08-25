@@ -38,7 +38,9 @@ class TestWalletAuthorizationRequest(unittest.TestCase):
             return WalletAuthorizationRequest(
                 option_id = 'opt_a1b2c3d4-e5f6-7890-abcd-ef1234567890',
                 signed_payloads = [{payloadId=payload_af2937b0-9846-4fe7-bfe9-ccc22d935114, signature=0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab}],
-                metadata = {customer_id=cust_12345, order_reference=order-67890}
+                metadata = {customer_id=cust_12345, order_reference=order-67890},
+                customer_display = {referenceCode=REF-ABC123},
+                external_reference_id = 'merchant-reference-abc123'
             )
         else:
             return WalletAuthorizationRequest(

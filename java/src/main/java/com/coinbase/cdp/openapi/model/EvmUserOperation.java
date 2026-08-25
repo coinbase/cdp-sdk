@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * EvmUserOperation
+ * A smart account operation response.
  */
 @JsonPropertyOrder({
   EvmUserOperation.JSON_PROPERTY_NETWORK,

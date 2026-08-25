@@ -42,6 +42,7 @@ class TestCreateDisbursementRequest(unittest.TestCase):
                 asset = 'usd',
                 reason = 'Goodwill disbursement for delayed shipment.',
                 external_reference_id = 'disbursement-2026-04-1234',
+                customer_display = {referenceCode=REF-ABC123},
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
                 compliance = {recipient={name=Jane Smith, address={line1=456 Oak Ave, city=Austin, state=TX, postCode=78701, countryCode=US}}}
             )

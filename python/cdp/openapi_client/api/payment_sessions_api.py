@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictInt, StrictStr, field_validator
-from typing import List, Optional
+from typing import Any, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.authorization import Authorization
 from cdp.openapi_client.models.balances import Balances
@@ -725,6 +725,8 @@ class PaymentSessionsApi:
         self,
         payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session to authorize with x402.")],
         payment_signature: Annotated[Optional[StrictStr], Field(description="Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.")] = None,
+        x_external_reference_id: Annotated[Optional[Any], Field(description="An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.")] = None,
+        x_customer_display_reference_code: Annotated[Optional[Any], Field(description="A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
             None,
@@ -747,6 +749,10 @@ class PaymentSessionsApi:
         :type payment_session_id: str
         :param payment_signature: Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.
         :type payment_signature: str
+        :param x_external_reference_id: An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.
+        :type x_external_reference_id: str
+        :param x_customer_display_reference_code: A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.
+        :type x_customer_display_reference_code: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
@@ -774,6 +780,8 @@ class PaymentSessionsApi:
         _param = self._authorize_x402_payment_session_serialize(
             payment_session_id=payment_session_id,
             payment_signature=payment_signature,
+            x_external_reference_id=x_external_reference_id,
+            x_customer_display_reference_code=x_customer_display_reference_code,
             x_idempotency_key=x_idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -807,6 +815,8 @@ class PaymentSessionsApi:
         self,
         payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session to authorize with x402.")],
         payment_signature: Annotated[Optional[StrictStr], Field(description="Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.")] = None,
+        x_external_reference_id: Annotated[Optional[Any], Field(description="An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.")] = None,
+        x_customer_display_reference_code: Annotated[Optional[Any], Field(description="A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
             None,
@@ -829,6 +839,10 @@ class PaymentSessionsApi:
         :type payment_session_id: str
         :param payment_signature: Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.
         :type payment_signature: str
+        :param x_external_reference_id: An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.
+        :type x_external_reference_id: str
+        :param x_customer_display_reference_code: A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.
+        :type x_customer_display_reference_code: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
@@ -856,6 +870,8 @@ class PaymentSessionsApi:
         _param = self._authorize_x402_payment_session_serialize(
             payment_session_id=payment_session_id,
             payment_signature=payment_signature,
+            x_external_reference_id=x_external_reference_id,
+            x_customer_display_reference_code=x_customer_display_reference_code,
             x_idempotency_key=x_idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -889,6 +905,8 @@ class PaymentSessionsApi:
         self,
         payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session to authorize with x402.")],
         payment_signature: Annotated[Optional[StrictStr], Field(description="Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.")] = None,
+        x_external_reference_id: Annotated[Optional[Any], Field(description="An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.")] = None,
+        x_customer_display_reference_code: Annotated[Optional[Any], Field(description="A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
             None,
@@ -911,6 +929,10 @@ class PaymentSessionsApi:
         :type payment_session_id: str
         :param payment_signature: Optional. Base64-encoded (RFC 4648) x402-compliant payment payload.
         :type payment_signature: str
+        :param x_external_reference_id: An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.
+        :type x_external_reference_id: str
+        :param x_customer_display_reference_code: A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.
+        :type x_customer_display_reference_code: str
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
@@ -938,6 +960,8 @@ class PaymentSessionsApi:
         _param = self._authorize_x402_payment_session_serialize(
             payment_session_id=payment_session_id,
             payment_signature=payment_signature,
+            x_external_reference_id=x_external_reference_id,
+            x_customer_display_reference_code=x_customer_display_reference_code,
             x_idempotency_key=x_idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -966,6 +990,8 @@ class PaymentSessionsApi:
         self,
         payment_session_id,
         payment_signature,
+        x_external_reference_id,
+        x_customer_display_reference_code,
         x_idempotency_key,
         _request_auth,
         _content_type,
@@ -994,6 +1020,10 @@ class PaymentSessionsApi:
         # process the header parameters
         if payment_signature is not None:
             _header_params['PAYMENT-SIGNATURE'] = payment_signature
+        if x_external_reference_id is not None:
+            _header_params['X-External-Reference-Id'] = x_external_reference_id
+        if x_customer_display_reference_code is not None:
+            _header_params['X-Customer-Display-Reference-Code'] = x_customer_display_reference_code
         if x_idempotency_key is not None:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters

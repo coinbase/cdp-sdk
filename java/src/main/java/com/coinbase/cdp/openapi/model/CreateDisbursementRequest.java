@@ -23,6 +23,7 @@ import com.coinbase.cdp.openapi.model.DisbursementCompliance;
 import com.coinbase.cdp.openapi.model.DisbursementSource;
 import com.coinbase.cdp.openapi.model.DisbursementTarget;
 import com.coinbase.cdp.openapi.model.Metadata;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -43,6 +44,7 @@ import com.coinbase.cdp.openapi.ApiClient;
   CreateDisbursementRequest.JSON_PROPERTY_ASSET,
   CreateDisbursementRequest.JSON_PROPERTY_REASON,
   CreateDisbursementRequest.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  CreateDisbursementRequest.JSON_PROPERTY_CUSTOMER_DISPLAY,
   CreateDisbursementRequest.JSON_PROPERTY_METADATA,
   CreateDisbursementRequest.JSON_PROPERTY_COMPLIANCE
 })
@@ -71,6 +73,10 @@ public class CreateDisbursementRequest {
   public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
   @jakarta.annotation.Nullable
   private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
@@ -227,6 +233,30 @@ public class CreateDisbursementRequest {
   }
 
 
+  public CreateDisbursementRequest customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Optional customer-facing display data for this disbursement, shown to the payer. If &#x60;referenceCode&#x60; is omitted, one is auto-generated — disbursements have no payment session to fall back to, unlike every other action type.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
   public CreateDisbursementRequest metadata(@jakarta.annotation.Nullable Metadata metadata) {
     this.metadata = metadata;
     return this;
@@ -293,13 +323,14 @@ public class CreateDisbursementRequest {
         Objects.equals(this.asset, createDisbursementRequest.asset) &&
         Objects.equals(this.reason, createDisbursementRequest.reason) &&
         Objects.equals(this.externalReferenceId, createDisbursementRequest.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, createDisbursementRequest.customerDisplay) &&
         Objects.equals(this.metadata, createDisbursementRequest.metadata) &&
         Objects.equals(this.compliance, createDisbursementRequest.compliance);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(source, target, amount, asset, reason, externalReferenceId, metadata, compliance);
+    return Objects.hash(source, target, amount, asset, reason, externalReferenceId, customerDisplay, metadata, compliance);
   }
 
   @Override
@@ -312,6 +343,7 @@ public class CreateDisbursementRequest {
     sb.append("    asset: ").append(toIndentedString(asset)).append("\n");
     sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
     sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("    compliance: ").append(toIndentedString(compliance)).append("\n");
     sb.append("}");
@@ -391,6 +423,11 @@ public class CreateDisbursementRequest {
       joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `metadata` to the URL query string
     if (getMetadata() != null) {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -438,6 +475,10 @@ public class CreateDisbursementRequest {
     }
     public CreateDisbursementRequest.Builder externalReferenceId(String externalReferenceId) {
       this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public CreateDisbursementRequest.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
       return this;
     }
     public CreateDisbursementRequest.Builder metadata(Metadata metadata) {
@@ -488,6 +529,7 @@ public class CreateDisbursementRequest {
       .asset(getAsset())
       .reason(getReason())
       .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .metadata(getMetadata())
       .compliance(getCompliance());
   }

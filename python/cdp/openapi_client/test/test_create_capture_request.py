@@ -38,7 +38,9 @@ class TestCreateCaptureRequest(unittest.TestCase):
             return CreateCaptureRequest(
                 amount = '1.00',
                 final_capture = True,
-                metadata = {customer_id=cust_12345, order_reference=order-67890}
+                metadata = {customer_id=cust_12345, order_reference=order-67890},
+                external_reference_id = 'merchant-reference-abc123',
+                customer_display = {referenceCode=REF-ABC123}
             )
         else:
             return CreateCaptureRequest(
