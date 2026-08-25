@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from cdp.openapi_client.models.refund_source import RefundSource
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,7 +34,9 @@ class CreateRefundRequest(BaseModel):
     amount: Optional[StrictStr] = Field(default=None, description="A decimal representation of the amount to refund, denominated in the session's `asset`. If omitted, the full remaining refundable amount is refunded.")
     reason: Optional[StrictStr] = Field(default=None, description="The reason for the refund.")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
-    __properties: ClassVar[List[str]] = ["source", "amount", "reason", "metadata"]
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An optional merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Optional customer-facing display data for this refund, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.", alias="customerDisplay")
+    __properties: ClassVar[List[str]] = ["source", "amount", "reason", "metadata", "externalReferenceId", "customerDisplay"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -77,6 +80,9 @@ class CreateRefundRequest(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of source
         if self.source:
             _dict['source'] = self.source.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         return _dict
 
     @classmethod
@@ -92,7 +98,9 @@ class CreateRefundRequest(BaseModel):
             "source": RefundSource.from_dict(obj["source"]) if obj.get("source") is not None else None,
             "amount": obj.get("amount"),
             "reason": obj.get("reason"),
-            "metadata": obj.get("metadata")
+            "metadata": obj.get("metadata"),
+            "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None
         })
         return _obj
 

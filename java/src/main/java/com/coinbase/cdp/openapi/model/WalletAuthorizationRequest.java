@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainSignedPayload;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -39,7 +40,9 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   WalletAuthorizationRequest.JSON_PROPERTY_OPTION_ID,
   WalletAuthorizationRequest.JSON_PROPERTY_SIGNED_PAYLOADS,
-  WalletAuthorizationRequest.JSON_PROPERTY_METADATA
+  WalletAuthorizationRequest.JSON_PROPERTY_METADATA,
+  WalletAuthorizationRequest.JSON_PROPERTY_CUSTOMER_DISPLAY,
+  WalletAuthorizationRequest.JSON_PROPERTY_EXTERNAL_REFERENCE_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
 public class WalletAuthorizationRequest {
@@ -54,6 +57,14 @@ public class WalletAuthorizationRequest {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
 
   public WalletAuthorizationRequest() { 
   }
@@ -138,6 +149,54 @@ public class WalletAuthorizationRequest {
   }
 
 
+  public WalletAuthorizationRequest customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session&#39;s &#x60;orderCode&#x60; when &#x60;referenceCode&#x60; is omitted.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
+  public WalletAuthorizationRequest externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * An optional merchant-provided internal identifier for this wallet authorization, from the merchant&#39;s own system—not visible to the payer.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
   /**
    * Return true if this WalletAuthorizationRequest object is equal to o.
    */
@@ -152,12 +211,14 @@ public class WalletAuthorizationRequest {
     WalletAuthorizationRequest walletAuthorizationRequest = (WalletAuthorizationRequest) o;
     return Objects.equals(this.optionId, walletAuthorizationRequest.optionId) &&
         Objects.equals(this.signedPayloads, walletAuthorizationRequest.signedPayloads) &&
-        Objects.equals(this.metadata, walletAuthorizationRequest.metadata);
+        Objects.equals(this.metadata, walletAuthorizationRequest.metadata) &&
+        Objects.equals(this.customerDisplay, walletAuthorizationRequest.customerDisplay) &&
+        Objects.equals(this.externalReferenceId, walletAuthorizationRequest.externalReferenceId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(optionId, signedPayloads, metadata);
+    return Objects.hash(optionId, signedPayloads, metadata, customerDisplay, externalReferenceId);
   }
 
   @Override
@@ -167,6 +228,8 @@ public class WalletAuthorizationRequest {
     sb.append("    optionId: ").append(toIndentedString(optionId)).append("\n");
     sb.append("    signedPayloads: ").append(toIndentedString(signedPayloads)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -234,6 +297,16 @@ public class WalletAuthorizationRequest {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     return joiner.toString();
   }
 
@@ -259,6 +332,14 @@ public class WalletAuthorizationRequest {
     }
     public WalletAuthorizationRequest.Builder metadata(Metadata metadata) {
       this.instance.metadata = metadata;
+      return this;
+    }
+    public WalletAuthorizationRequest.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
+      return this;
+    }
+    public WalletAuthorizationRequest.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
       return this;
     }
 
@@ -297,7 +378,9 @@ public class WalletAuthorizationRequest {
     return new WalletAuthorizationRequest.Builder()
       .optionId(getOptionId())
       .signedPayloads(getSignedPayloads())
-      .metadata(getMetadata());
+      .metadata(getMetadata())
+      .customerDisplay(getCustomerDisplay())
+      .externalReferenceId(getExternalReferenceId());
   }
 
 }

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainTransaction;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.coinbase.cdp.openapi.model.PaymentActionStatus;
 import com.coinbase.cdp.openapi.model.PaymentError;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,6 +47,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   ModelVoid.JSON_PROPERTY_AMOUNT,
   ModelVoid.JSON_PROPERTY_ERROR,
   ModelVoid.JSON_PROPERTY_METADATA,
+  ModelVoid.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  ModelVoid.JSON_PROPERTY_CUSTOMER_DISPLAY,
   ModelVoid.JSON_PROPERTY_ONCHAIN_TRANSACTIONS,
   ModelVoid.JSON_PROPERTY_CREATED_AT,
   ModelVoid.JSON_PROPERTY_UPDATED_AT
@@ -75,6 +78,14 @@ public class ModelVoid {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_ONCHAIN_TRANSACTIONS = "onchainTransactions";
   @jakarta.annotation.Nullable
@@ -235,6 +246,54 @@ public class ModelVoid {
   }
 
 
+  public ModelVoid externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * A merchant-provided internal identifier for this void, from the merchant&#39;s own system—not visible to the payer. Present only when supplied on the create void request.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
+  public ModelVoid customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session&#39;s &#x60;orderCode&#x60; fallback applies; otherwise omitted.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
   public ModelVoid onchainTransactions(@jakarta.annotation.Nullable List<OnchainTransaction> onchainTransactions) {
     this.onchainTransactions = onchainTransactions;
     return this;
@@ -333,6 +392,8 @@ public class ModelVoid {
         Objects.equals(this.amount, _void.amount) &&
         Objects.equals(this.error, _void.error) &&
         Objects.equals(this.metadata, _void.metadata) &&
+        Objects.equals(this.externalReferenceId, _void.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, _void.customerDisplay) &&
         Objects.equals(this.onchainTransactions, _void.onchainTransactions) &&
         Objects.equals(this.createdAt, _void.createdAt) &&
         Objects.equals(this.updatedAt, _void.updatedAt);
@@ -340,7 +401,7 @@ public class ModelVoid {
 
   @Override
   public int hashCode() {
-    return Objects.hash(voidId, paymentSessionId, status, amount, error, metadata, onchainTransactions, createdAt, updatedAt);
+    return Objects.hash(voidId, paymentSessionId, status, amount, error, metadata, externalReferenceId, customerDisplay, onchainTransactions, createdAt, updatedAt);
   }
 
   @Override
@@ -353,6 +414,8 @@ public class ModelVoid {
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    onchainTransactions: ").append(toIndentedString(onchainTransactions)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
@@ -433,6 +496,16 @@ public class ModelVoid {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `onchainTransactions` to the URL query string
     if (getOnchainTransactions() != null) {
       for (int i = 0; i < getOnchainTransactions().size(); i++) {
@@ -492,6 +565,14 @@ public class ModelVoid {
       this.instance.metadata = metadata;
       return this;
     }
+    public ModelVoid.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public ModelVoid.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
+      return this;
+    }
     public ModelVoid.Builder onchainTransactions(List<OnchainTransaction> onchainTransactions) {
       this.instance.onchainTransactions = onchainTransactions;
       return this;
@@ -544,6 +625,8 @@ public class ModelVoid {
       .amount(getAmount())
       .error(getError())
       .metadata(getMetadata())
+      .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .onchainTransactions(getOnchainTransactions())
       .createdAt(getCreatedAt())
       .updatedAt(getUpdatedAt());

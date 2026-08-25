@@ -311,12 +311,14 @@ public class PaymentSessionsApi {
    * Authorizes a payment session using x402. The session must be in &#x60;created&#x60; status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **&#x60;PAYMENT-SIGNATURE&#x60;** header.  On authorization, a hold is placed on the payer&#39;s funds. The authorization is returned in &#x60;pending&#x60; status and transitions asynchronously to &#x60;succeeded&#x60; or &#x60;failed&#x60;.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **&#x60;Error&#x60;** JSON body and may include a **&#x60;PAYMENT-REQUIRED&#x60;** header (see the **402** response) describing accepted networks, assets, and amounts.  If &#x60;autoCapture&#x60; is enabled on the session, a capture is automatically created after a successful authorization.
    * @param paymentSessionId The unique identifier of the payment session to authorize with x402. (required)
    * @param PAYMENT_SIGNATURE Optional. Base64-encoded (RFC 4648) x402-compliant payment payload. (optional)
+   * @param xExternalReferenceId An optional merchant-provided internal identifier for this x402 authorization, from the merchant&#39;s own system—not visible to the payer. (optional)
+   * @param xCustomerDisplayReferenceCode A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to &#x60;customerDisplay.referenceCode&#x60; on JSON authorization requests. Falls back to the session&#39;s &#x60;orderCode&#x60; when omitted. (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return Authorization
    * @throws ApiException if fails to make API call
    */
-  public Authorization authorizeX402PaymentSession(String paymentSessionId, String PAYMENT_SIGNATURE, String xIdempotencyKey) throws ApiException {
-    ApiResponse<Authorization> localVarResponse = authorizeX402PaymentSessionWithHttpInfo(paymentSessionId, PAYMENT_SIGNATURE, xIdempotencyKey);
+  public Authorization authorizeX402PaymentSession(String paymentSessionId, String PAYMENT_SIGNATURE, String xExternalReferenceId, String xCustomerDisplayReferenceCode, String xIdempotencyKey) throws ApiException {
+    ApiResponse<Authorization> localVarResponse = authorizeX402PaymentSessionWithHttpInfo(paymentSessionId, PAYMENT_SIGNATURE, xExternalReferenceId, xCustomerDisplayReferenceCode, xIdempotencyKey);
     return localVarResponse.getData();
   }
 
@@ -325,12 +327,14 @@ public class PaymentSessionsApi {
    * Authorizes a payment session using x402. The session must be in &#x60;created&#x60; status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **&#x60;PAYMENT-SIGNATURE&#x60;** header.  On authorization, a hold is placed on the payer&#39;s funds. The authorization is returned in &#x60;pending&#x60; status and transitions asynchronously to &#x60;succeeded&#x60; or &#x60;failed&#x60;.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **&#x60;Error&#x60;** JSON body and may include a **&#x60;PAYMENT-REQUIRED&#x60;** header (see the **402** response) describing accepted networks, assets, and amounts.  If &#x60;autoCapture&#x60; is enabled on the session, a capture is automatically created after a successful authorization.
    * @param paymentSessionId The unique identifier of the payment session to authorize with x402. (required)
    * @param PAYMENT_SIGNATURE Optional. Base64-encoded (RFC 4648) x402-compliant payment payload. (optional)
+   * @param xExternalReferenceId An optional merchant-provided internal identifier for this x402 authorization, from the merchant&#39;s own system—not visible to the payer. (optional)
+   * @param xCustomerDisplayReferenceCode A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to &#x60;customerDisplay.referenceCode&#x60; on JSON authorization requests. Falls back to the session&#39;s &#x60;orderCode&#x60; when omitted. (optional)
    * @param xIdempotencyKey An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
    * @return ApiResponse&lt;Authorization&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Authorization> authorizeX402PaymentSessionWithHttpInfo(String paymentSessionId, String PAYMENT_SIGNATURE, String xIdempotencyKey) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = authorizeX402PaymentSessionRequestBuilder(paymentSessionId, PAYMENT_SIGNATURE, xIdempotencyKey);
+  public ApiResponse<Authorization> authorizeX402PaymentSessionWithHttpInfo(String paymentSessionId, String PAYMENT_SIGNATURE, String xExternalReferenceId, String xCustomerDisplayReferenceCode, String xIdempotencyKey) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = authorizeX402PaymentSessionRequestBuilder(paymentSessionId, PAYMENT_SIGNATURE, xExternalReferenceId, xCustomerDisplayReferenceCode, xIdempotencyKey);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -369,7 +373,7 @@ public class PaymentSessionsApi {
     }
   }
 
-  private HttpRequest.Builder authorizeX402PaymentSessionRequestBuilder(String paymentSessionId, String PAYMENT_SIGNATURE, String xIdempotencyKey) throws ApiException {
+  private HttpRequest.Builder authorizeX402PaymentSessionRequestBuilder(String paymentSessionId, String PAYMENT_SIGNATURE, String xExternalReferenceId, String xCustomerDisplayReferenceCode, String xIdempotencyKey) throws ApiException {
     // verify the required parameter 'paymentSessionId' is set
     if (paymentSessionId == null) {
       throw new ApiException(400, "Missing the required parameter 'paymentSessionId' when calling authorizeX402PaymentSession");
@@ -384,6 +388,12 @@ public class PaymentSessionsApi {
 
     if (PAYMENT_SIGNATURE != null) {
       localVarRequestBuilder.header("PAYMENT-SIGNATURE", PAYMENT_SIGNATURE.toString());
+    }
+    if (xExternalReferenceId != null) {
+      localVarRequestBuilder.header("X-External-Reference-Id", xExternalReferenceId.toString());
+    }
+    if (xCustomerDisplayReferenceCode != null) {
+      localVarRequestBuilder.header("X-Customer-Display-Reference-Code", xCustomerDisplayReferenceCode.toString());
     }
     if (xIdempotencyKey != null) {
       localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());

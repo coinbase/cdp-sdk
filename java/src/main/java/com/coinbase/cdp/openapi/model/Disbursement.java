@@ -23,6 +23,7 @@ import com.coinbase.cdp.openapi.model.DisbursementSource;
 import com.coinbase.cdp.openapi.model.DisbursementTarget;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainTransaction;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.coinbase.cdp.openapi.model.PaymentActionStatus;
 import com.coinbase.cdp.openapi.model.PaymentError;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -50,6 +51,7 @@ import com.coinbase.cdp.openapi.ApiClient;
   Disbursement.JSON_PROPERTY_STATUS,
   Disbursement.JSON_PROPERTY_REASON,
   Disbursement.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  Disbursement.JSON_PROPERTY_CUSTOMER_DISPLAY,
   Disbursement.JSON_PROPERTY_METADATA,
   Disbursement.JSON_PROPERTY_ERROR,
   Disbursement.JSON_PROPERTY_ONCHAIN_TRANSACTIONS,
@@ -89,6 +91,10 @@ public class Disbursement {
   public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
   @jakarta.annotation.Nullable
   private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
@@ -305,6 +311,30 @@ public class Disbursement {
   }
 
 
+  public Disbursement customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits &#x60;referenceCode&#x60;, one is auto-generated, since disbursements have no payment session to fall back to.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
   public Disbursement metadata(@jakarta.annotation.Nullable Metadata metadata) {
     this.metadata = metadata;
     return this;
@@ -453,6 +483,7 @@ public class Disbursement {
         Objects.equals(this.status, disbursement.status) &&
         Objects.equals(this.reason, disbursement.reason) &&
         Objects.equals(this.externalReferenceId, disbursement.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, disbursement.customerDisplay) &&
         Objects.equals(this.metadata, disbursement.metadata) &&
         Objects.equals(this.error, disbursement.error) &&
         Objects.equals(this.onchainTransactions, disbursement.onchainTransactions) &&
@@ -462,7 +493,7 @@ public class Disbursement {
 
   @Override
   public int hashCode() {
-    return Objects.hash(disbursementId, source, target, amount, asset, status, reason, externalReferenceId, metadata, error, onchainTransactions, createdAt, updatedAt);
+    return Objects.hash(disbursementId, source, target, amount, asset, status, reason, externalReferenceId, customerDisplay, metadata, error, onchainTransactions, createdAt, updatedAt);
   }
 
   @Override
@@ -477,6 +508,7 @@ public class Disbursement {
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
     sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    onchainTransactions: ").append(toIndentedString(onchainTransactions)).append("\n");
@@ -569,6 +601,11 @@ public class Disbursement {
       joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `metadata` to the URL query string
     if (getMetadata() != null) {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -646,6 +683,10 @@ public class Disbursement {
       this.instance.externalReferenceId = externalReferenceId;
       return this;
     }
+    public Disbursement.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
+      return this;
+    }
     public Disbursement.Builder metadata(Metadata metadata) {
       this.instance.metadata = metadata;
       return this;
@@ -708,6 +749,7 @@ public class Disbursement {
       .status(getStatus())
       .reason(getReason())
       .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .metadata(getMetadata())
       .error(getError())
       .onchainTransactions(getOnchainTransactions())

@@ -30,7 +30,7 @@ from typing_extensions import Self
 
 class EvmUserOperation(BaseModel):
     """
-    EvmUserOperation
+    A smart account operation response.
     """ # noqa: E501
     network: EvmUserOperationNetwork
     user_op_hash: Annotated[str, Field(strict=True)] = Field(description="The hash of the user operation. This is not the transaction hash, as a transaction consists of multiple user operations. The user operation hash is the hash of this particular user operation which gets signed by the owner of the Smart Account.", alias="userOpHash")

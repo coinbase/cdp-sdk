@@ -39,6 +39,8 @@ class TestPaymentSessionEventDataAuthorization(unittest.TestCase):
                 authorization_id = 'authorization_82c879c1-84e1-44ed-a8c2-1ac239cf09ad',
                 status = 'pending',
                 amount = '1.00',
+                external_reference_id = 'merchant-reference-abc123',
+                customer_display = {referenceCode=REF-ABC123},
                 error = {code=insufficient_funds, message=The payer does not have sufficient funds., occurredAt=2025-06-15T12:00:00.000Z},
                 onchain_transactions = [{transactionHash=0xabc123def456789012345678901234567890abcdef1234567890abcdef123456, network=base}],
                 metadata = {customer_id=cust_12345, order_reference=order-67890},

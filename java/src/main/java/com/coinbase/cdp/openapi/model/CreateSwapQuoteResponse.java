@@ -71,42 +71,9 @@ public class CreateSwapQuoteResponse {
   @jakarta.annotation.Nonnull
   private CommonSwapResponseIssues issues;
 
-  /**
-   * Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
-   */
-  public enum LiquidityAvailableEnum {
-    TRUE(Boolean.valueOf("true"));
-
-    private Boolean value;
-
-    LiquidityAvailableEnum(Boolean value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public Boolean getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static LiquidityAvailableEnum fromValue(Boolean value) {
-      for (LiquidityAvailableEnum b : LiquidityAvailableEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_LIQUIDITY_AVAILABLE = "liquidityAvailable";
   @jakarta.annotation.Nonnull
-  private LiquidityAvailableEnum liquidityAvailable;
+  private Boolean liquidityAvailable;
 
   public static final String JSON_PROPERTY_MIN_TO_AMOUNT = "minToAmount";
   @jakarta.annotation.Nonnull
@@ -251,7 +218,7 @@ public class CreateSwapQuoteResponse {
   }
 
 
-  public CreateSwapQuoteResponse liquidityAvailable(@jakarta.annotation.Nonnull LiquidityAvailableEnum liquidityAvailable) {
+  public CreateSwapQuoteResponse liquidityAvailable(@jakarta.annotation.Nonnull Boolean liquidityAvailable) {
     this.liquidityAvailable = liquidityAvailable;
     return this;
   }
@@ -263,14 +230,14 @@ public class CreateSwapQuoteResponse {
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_LIQUIDITY_AVAILABLE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public LiquidityAvailableEnum getLiquidityAvailable() {
+  public Boolean getLiquidityAvailable() {
     return liquidityAvailable;
   }
 
 
   @JsonProperty(JSON_PROPERTY_LIQUIDITY_AVAILABLE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLiquidityAvailable(@jakarta.annotation.Nonnull LiquidityAvailableEnum liquidityAvailable) {
+  public void setLiquidityAvailable(@jakarta.annotation.Nonnull Boolean liquidityAvailable) {
     this.liquidityAvailable = liquidityAvailable;
   }
 
@@ -577,7 +544,7 @@ public class CreateSwapQuoteResponse {
       this.instance.issues = issues;
       return this;
     }
-    public CreateSwapQuoteResponse.Builder liquidityAvailable(LiquidityAvailableEnum liquidityAvailable) {
+    public CreateSwapQuoteResponse.Builder liquidityAvailable(Boolean liquidityAvailable) {
       this.instance.liquidityAvailable = liquidityAvailable;
       return this;
     }

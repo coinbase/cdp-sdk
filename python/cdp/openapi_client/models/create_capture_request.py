@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +32,9 @@ class CreateCaptureRequest(BaseModel):
     amount: Optional[StrictStr] = Field(default=None, description="A decimal representation of the amount to capture, denominated in the session's `asset`. If omitted, the full remaining capturable amount is captured.")
     final_capture: StrictBool = Field(description="When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.", alias="finalCapture")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
-    __properties: ClassVar[List[str]] = ["amount", "finalCapture", "metadata"]
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An optional merchant-provided internal identifier for this manual capture, from the merchant's own system—not visible to the payer.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Optional customer-facing display data for this manual capture, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.", alias="customerDisplay")
+    __properties: ClassVar[List[str]] = ["amount", "finalCapture", "metadata", "externalReferenceId", "customerDisplay"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -72,6 +75,9 @@ class CreateCaptureRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         return _dict
 
     @classmethod
@@ -86,7 +92,9 @@ class CreateCaptureRequest(BaseModel):
         _obj = cls.model_validate({
             "amount": obj.get("amount"),
             "finalCapture": obj.get("finalCapture"),
-            "metadata": obj.get("metadata")
+            "metadata": obj.get("metadata"),
+            "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None
         })
         return _obj
 

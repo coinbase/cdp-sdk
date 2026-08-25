@@ -21,6 +21,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +30,9 @@ class CreateVoidRequest(BaseModel):
     A request to create a void for a payment session. A void releases all remaining capturable funds back to the payer, including after partial refunds as long as a capturableAmount remains.
     """ # noqa: E501
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
-    __properties: ClassVar[List[str]] = ["metadata"]
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An optional merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Optional customer-facing display data for this void, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.", alias="customerDisplay")
+    __properties: ClassVar[List[str]] = ["metadata", "externalReferenceId", "customerDisplay"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -70,6 +73,9 @@ class CreateVoidRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         return _dict
 
     @classmethod
@@ -82,7 +88,9 @@ class CreateVoidRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "metadata": obj.get("metadata")
+            "metadata": obj.get("metadata"),
+            "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None
         })
         return _obj
 

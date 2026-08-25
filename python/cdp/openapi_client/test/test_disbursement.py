@@ -44,6 +44,7 @@ class TestDisbursement(unittest.TestCase):
                 status = 'pending',
                 reason = 'Goodwill disbursement for delayed shipment.',
                 external_reference_id = 'disbursement-2026-04-1234',
+                customer_display = {referenceCode=REF-ABC123},
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
                 error = {code=insufficient_funds, message=The payer does not have sufficient funds., occurredAt=2025-06-15T12:00:00.000Z},
                 onchain_transactions = [{transactionHash=0xabc123def456789012345678901234567890abcdef1234567890abcdef123456, network=base}],

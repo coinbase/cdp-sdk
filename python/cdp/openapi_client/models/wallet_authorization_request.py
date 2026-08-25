@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.onchain_signed_payload import OnchainSignedPayload
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -32,7 +33,9 @@ class WalletAuthorizationRequest(BaseModel):
     option_id: StrictStr = Field(description="The identifier of the chosen authorization option. Must match an `optionId` from the wallet authorization options response.", alias="optionId")
     signed_payloads: List[OnchainSignedPayload] = Field(description="The processed payloads from the payer, corresponding to the payloads in the selected authorization option.", alias="signedPayloads")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
-    __properties: ClassVar[List[str]] = ["optionId", "signedPayloads", "metadata"]
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.", alias="customerDisplay")
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An optional merchant-provided internal identifier for this wallet authorization, from the merchant's own system—not visible to the payer.", alias="externalReferenceId")
+    __properties: ClassVar[List[str]] = ["optionId", "signedPayloads", "metadata", "customerDisplay", "externalReferenceId"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -80,6 +83,9 @@ class WalletAuthorizationRequest(BaseModel):
                 if _item_signed_payloads:
                     _items.append(_item_signed_payloads.to_dict())
             _dict['signedPayloads'] = _items
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         return _dict
 
     @classmethod
@@ -94,7 +100,9 @@ class WalletAuthorizationRequest(BaseModel):
         _obj = cls.model_validate({
             "optionId": obj.get("optionId"),
             "signedPayloads": [OnchainSignedPayload.from_dict(_item) for _item in obj["signedPayloads"]] if obj.get("signedPayloads") is not None else None,
-            "metadata": obj.get("metadata")
+            "metadata": obj.get("metadata"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
+            "externalReferenceId": obj.get("externalReferenceId")
         })
         return _obj
 

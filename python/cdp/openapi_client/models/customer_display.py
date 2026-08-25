@@ -31,7 +31,8 @@ class CustomerDisplay(BaseModel):
     """ # noqa: E501
     merchant_name: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, description="The merchant name to display on the payment UI. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.", alias="merchantName")
     display_amount: Optional[CustomerDisplayDisplayAmount] = Field(default=None, alias="displayAmount")
-    __properties: ClassVar[List[str]] = ["merchantName", "displayAmount"]
+    order_code: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, description="A customer-visible code for the overall order. When omitted, CDP generates one and returns it. It must not contain personally identifiable information (PII) or payment credentials.", alias="orderCode")
+    __properties: ClassVar[List[str]] = ["merchantName", "displayAmount", "orderCode"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -88,7 +89,8 @@ class CustomerDisplay(BaseModel):
 
         _obj = cls.model_validate({
             "merchantName": obj.get("merchantName"),
-            "displayAmount": CustomerDisplayDisplayAmount.from_dict(obj["displayAmount"]) if obj.get("displayAmount") is not None else None
+            "displayAmount": CustomerDisplayDisplayAmount.from_dict(obj["displayAmount"]) if obj.get("displayAmount") is not None else None,
+            "orderCode": obj.get("orderCode")
         })
         return _obj
 

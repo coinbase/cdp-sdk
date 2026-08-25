@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.OnchainTransaction;
+import com.coinbase.cdp.openapi.model.OperationCustomerDisplay;
 import com.coinbase.cdp.openapi.model.PaymentActionStatus;
 import com.coinbase.cdp.openapi.model.PaymentError;
 import com.coinbase.cdp.openapi.model.PaymentSessionSource;
@@ -48,6 +49,8 @@ import com.coinbase.cdp.openapi.ApiClient;
   Authorization.JSON_PROPERTY_ERROR,
   Authorization.JSON_PROPERTY_MESSAGE,
   Authorization.JSON_PROPERTY_METADATA,
+  Authorization.JSON_PROPERTY_EXTERNAL_REFERENCE_ID,
+  Authorization.JSON_PROPERTY_CUSTOMER_DISPLAY,
   Authorization.JSON_PROPERTY_SOURCE,
   Authorization.JSON_PROPERTY_ONCHAIN_TRANSACTIONS,
   Authorization.JSON_PROPERTY_CREATED_AT,
@@ -82,6 +85,14 @@ public class Authorization {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
   private Metadata metadata = new Metadata();
+
+  public static final String JSON_PROPERTY_EXTERNAL_REFERENCE_ID = "externalReferenceId";
+  @jakarta.annotation.Nullable
+  private String externalReferenceId;
+
+  public static final String JSON_PROPERTY_CUSTOMER_DISPLAY = "customerDisplay";
+  @jakarta.annotation.Nullable
+  private OperationCustomerDisplay customerDisplay;
 
   public static final String JSON_PROPERTY_SOURCE = "source";
   @jakarta.annotation.Nullable
@@ -270,6 +281,54 @@ public class Authorization {
   }
 
 
+  public Authorization externalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+    return this;
+  }
+
+  /**
+   * A merchant-provided internal identifier for this authorization, from the merchant&#39;s own system—not visible to the payer. Present only when supplied on the authorization request.
+   * @return externalReferenceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXTERNAL_REFERENCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExternalReferenceId(@jakarta.annotation.Nullable String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
+  }
+
+
+  public Authorization customerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+    return this;
+  }
+
+  /**
+   * Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session&#39;s &#x60;orderCode&#x60; fallback applies; otherwise omitted.
+   * @return customerDisplay
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OperationCustomerDisplay getCustomerDisplay() {
+    return customerDisplay;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CUSTOMER_DISPLAY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCustomerDisplay(@jakarta.annotation.Nullable OperationCustomerDisplay customerDisplay) {
+    this.customerDisplay = customerDisplay;
+  }
+
+
   public Authorization source(@jakarta.annotation.Nullable PaymentSessionSource source) {
     this.source = source;
     return this;
@@ -393,6 +452,8 @@ public class Authorization {
         Objects.equals(this.error, authorization.error) &&
         Objects.equals(this.message, authorization.message) &&
         Objects.equals(this.metadata, authorization.metadata) &&
+        Objects.equals(this.externalReferenceId, authorization.externalReferenceId) &&
+        Objects.equals(this.customerDisplay, authorization.customerDisplay) &&
         Objects.equals(this.source, authorization.source) &&
         Objects.equals(this.onchainTransactions, authorization.onchainTransactions) &&
         Objects.equals(this.createdAt, authorization.createdAt) &&
@@ -401,7 +462,7 @@ public class Authorization {
 
   @Override
   public int hashCode() {
-    return Objects.hash(authorizationId, paymentSessionId, status, amount, error, message, metadata, source, onchainTransactions, createdAt, updatedAt);
+    return Objects.hash(authorizationId, paymentSessionId, status, amount, error, message, metadata, externalReferenceId, customerDisplay, source, onchainTransactions, createdAt, updatedAt);
   }
 
   @Override
@@ -415,6 +476,8 @@ public class Authorization {
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    externalReferenceId: ").append(toIndentedString(externalReferenceId)).append("\n");
+    sb.append("    customerDisplay: ").append(toIndentedString(customerDisplay)).append("\n");
     sb.append("    source: ").append(toIndentedString(source)).append("\n");
     sb.append("    onchainTransactions: ").append(toIndentedString(onchainTransactions)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
@@ -501,6 +564,16 @@ public class Authorization {
       joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `externalReferenceId` to the URL query string
+    if (getExternalReferenceId() != null) {
+      joiner.add(String.format("%sexternalReferenceId%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getExternalReferenceId()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `customerDisplay` to the URL query string
+    if (getCustomerDisplay() != null) {
+      joiner.add(getCustomerDisplay().toUrlQueryString(prefix + "customerDisplay" + suffix));
+    }
+
     // add `source` to the URL query string
     if (getSource() != null) {
       joiner.add(getSource().toUrlQueryString(prefix + "source" + suffix));
@@ -569,6 +642,14 @@ public class Authorization {
       this.instance.metadata = metadata;
       return this;
     }
+    public Authorization.Builder externalReferenceId(String externalReferenceId) {
+      this.instance.externalReferenceId = externalReferenceId;
+      return this;
+    }
+    public Authorization.Builder customerDisplay(OperationCustomerDisplay customerDisplay) {
+      this.instance.customerDisplay = customerDisplay;
+      return this;
+    }
     public Authorization.Builder source(PaymentSessionSource source) {
       this.instance.source = source;
       return this;
@@ -626,6 +707,8 @@ public class Authorization {
       .error(getError())
       .message(getMessage())
       .metadata(getMetadata())
+      .externalReferenceId(getExternalReferenceId())
+      .customerDisplay(getCustomerDisplay())
       .source(getSource())
       .onchainTransactions(getOnchainTransactions())
       .createdAt(getCreatedAt())

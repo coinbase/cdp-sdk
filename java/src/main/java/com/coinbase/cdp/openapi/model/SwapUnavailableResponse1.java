@@ -30,46 +30,79 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * SwapUnavailableResponse
+ * SwapUnavailableResponse1
  */
 @JsonPropertyOrder({
-  SwapUnavailableResponse.JSON_PROPERTY_LIQUIDITY_AVAILABLE
+  SwapUnavailableResponse1.JSON_PROPERTY_LIQUIDITY_AVAILABLE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
-public class SwapUnavailableResponse {
-  public static final String JSON_PROPERTY_LIQUIDITY_AVAILABLE = "liquidityAvailable";
-  @jakarta.annotation.Nonnull
-  private Boolean liquidityAvailable;
+public class SwapUnavailableResponse1 {
+  /**
+   * Gets or Sets liquidityAvailable
+   */
+  public enum LiquidityAvailableEnum {
+    TRUE(Boolean.valueOf("true"));
 
-  public SwapUnavailableResponse() { 
+    private Boolean value;
+
+    LiquidityAvailableEnum(Boolean value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public Boolean getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static LiquidityAvailableEnum fromValue(Boolean value) {
+      for (LiquidityAvailableEnum b : LiquidityAvailableEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
   }
 
-  public SwapUnavailableResponse liquidityAvailable(@jakarta.annotation.Nonnull Boolean liquidityAvailable) {
+  public static final String JSON_PROPERTY_LIQUIDITY_AVAILABLE = "liquidityAvailable";
+  @jakarta.annotation.Nullable
+  private LiquidityAvailableEnum liquidityAvailable;
+
+  public SwapUnavailableResponse1() { 
+  }
+
+  public SwapUnavailableResponse1 liquidityAvailable(@jakarta.annotation.Nullable LiquidityAvailableEnum liquidityAvailable) {
     this.liquidityAvailable = liquidityAvailable;
     return this;
   }
 
   /**
-   * Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
+   * Get liquidityAvailable
    * @return liquidityAvailable
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LIQUIDITY_AVAILABLE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public Boolean getLiquidityAvailable() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public LiquidityAvailableEnum getLiquidityAvailable() {
     return liquidityAvailable;
   }
 
 
   @JsonProperty(JSON_PROPERTY_LIQUIDITY_AVAILABLE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLiquidityAvailable(@jakarta.annotation.Nonnull Boolean liquidityAvailable) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLiquidityAvailable(@jakarta.annotation.Nullable LiquidityAvailableEnum liquidityAvailable) {
     this.liquidityAvailable = liquidityAvailable;
   }
 
 
   /**
-   * Return true if this SwapUnavailableResponse object is equal to o.
+   * Return true if this SwapUnavailableResponse_1 object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -79,8 +112,8 @@ public class SwapUnavailableResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SwapUnavailableResponse swapUnavailableResponse = (SwapUnavailableResponse) o;
-    return Objects.equals(this.liquidityAvailable, swapUnavailableResponse.liquidityAvailable);
+    SwapUnavailableResponse1 swapUnavailableResponse1 = (SwapUnavailableResponse1) o;
+    return Objects.equals(this.liquidityAvailable, swapUnavailableResponse1.liquidityAvailable);
   }
 
   @Override
@@ -91,7 +124,7 @@ public class SwapUnavailableResponse {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SwapUnavailableResponse {\n");
+    sb.append("class SwapUnavailableResponse1 {\n");
     sb.append("    liquidityAvailable: ").append(toIndentedString(liquidityAvailable)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -150,28 +183,28 @@ public class SwapUnavailableResponse {
 
     public static class Builder {
 
-    private SwapUnavailableResponse instance;
+    private SwapUnavailableResponse1 instance;
 
     public Builder() {
-      this(new SwapUnavailableResponse());
+      this(new SwapUnavailableResponse1());
     }
 
-    protected Builder(SwapUnavailableResponse instance) {
+    protected Builder(SwapUnavailableResponse1 instance) {
       this.instance = instance;
     }
 
-    public SwapUnavailableResponse.Builder liquidityAvailable(Boolean liquidityAvailable) {
+    public SwapUnavailableResponse1.Builder liquidityAvailable(LiquidityAvailableEnum liquidityAvailable) {
       this.instance.liquidityAvailable = liquidityAvailable;
       return this;
     }
 
 
     /**
-    * returns a built SwapUnavailableResponse instance.
+    * returns a built SwapUnavailableResponse1 instance.
     *
     * The builder is not reusable.
     */
-    public SwapUnavailableResponse build() {
+    public SwapUnavailableResponse1 build() {
       try {
         return this.instance;
       } finally {
@@ -189,15 +222,15 @@ public class SwapUnavailableResponse {
   /**
   * Create a builder with no initialized field.
   */
-  public static SwapUnavailableResponse.Builder builder() {
-    return new SwapUnavailableResponse.Builder();
+  public static SwapUnavailableResponse1.Builder builder() {
+    return new SwapUnavailableResponse1.Builder();
   }
 
   /**
   * Create a builder with a shallow copy of this instance.
   */
-  public SwapUnavailableResponse.Builder toBuilder() {
-    return new SwapUnavailableResponse.Builder()
+  public SwapUnavailableResponse1.Builder toBuilder() {
+    return new SwapUnavailableResponse1.Builder()
       .liquidityAvailable(getLiquidityAvailable());
   }
 

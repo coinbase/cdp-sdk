@@ -4008,6 +4008,22 @@ paths:
           schema:
             type: string
           example: eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vcHJlbWl1bS1kYXRhIiwiZGVzY3JpcHRpb24iOiJBY2Nlc3MgdG8gcHJlbWl1bSBtYXJrZXQgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6NjAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0sInBheWxvYWQiOnsic2lnbmF0dXJlIjoiMHgyZDZhNzU4OGQ2YWNjYTUwNWNiZjBkOWE0YTIyN2UwYzUyYzZjMzQwMDhjOGU4OTg2YTEyODMyNTk3NjQxNzM2MDhhMmNlNjQ5NjY0MmUzNzdkNmRhOGRiYmY1ODM2ZTliZDE1MDkyZjllY2FiMDVkZWQzZDYyOTNhZjE0OGI1NzFjIiwiYXV0aG9yaXphdGlvbiI6eyJmcm9tIjoiMHg4NTdiMDY1MTlFOTFlM0E1NDUzODc5MWJEYmIwRTIyMzczZTM2YjY2IiwidG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJ2YWx1ZSI6IjEwMDAwIiwidmFsaWRBZnRlciI6IjE3NDA2NzIwODkiLCJ2YWxpZEJlZm9yZSI6IjE3NDA2NzIxNTQiLCJub25jZSI6IjB4ZjM3NDY2MTNjMmQ5MjBiNWZkYWJjMDg1NmYyYWViMmQ0Zjg4ZWU2MDM3YjhjYzVkMDRhNzFhNDQ2MmYxMzQ4MCJ9fX0=
+        - name: X-External-Reference-Id
+          in: header
+          required: false
+          description: An optional merchant-provided internal identifier for this x402 authorization, from the merchant's own system—not visible to the payer.
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ExternalReferenceId'
+          example: merchant-authorization-x402abc
+        - name: X-Customer-Display-Reference-Code
+          in: header
+          required: false
+          description: A short customer-facing reference code for this x402 authorization, visible to the payer. Equivalent to `customerDisplay.referenceCode` on JSON authorization requests. Falls back to the session's `orderCode` when omitted.
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CustomerReferenceCode'
+          example: REF-ABC123
         - $ref: '#/components/parameters/IdempotencyKey'
       responses:
         '200':
@@ -20018,6 +20034,28 @@ components:
         code: insufficient_funds
         message: The payer does not have sufficient funds.
         occurredAt: '2025-06-15T12:00:00.000Z'
+    ExternalReferenceId:
+      type: string
+      maxLength: 256
+      description: A merchant-provided internal identifier for a resource from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+      example: merchant-reference-abc123
+    CustomerReferenceCode:
+      type: string
+      maxLength: 128
+      description: A short customer-facing reference for an operation, visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+      example: REF-ABC123
+    OperationCustomerDisplay:
+      type: object
+      title: Operation Customer Display
+      description: Customer-facing display data for a payment operation, shown to the payer.
+      properties:
+        referenceCode:
+          allOf:
+            - $ref: '#/components/schemas/CustomerReferenceCode'
+          description: A short reference code for this payment operation, visible to the payer.
+          example: REF-ABC123
+      example:
+        referenceCode: REF-ABC123
     OnchainTransaction:
       type: object
       description: An onchain transaction associated with a payment action.
@@ -20065,6 +20103,15 @@ components:
           example: Your payment was successfully submitted
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: A merchant-provided internal identifier for this authorization, from the merchant's own system—not visible to the payer. Present only when supplied on the authorization request.
+          example: merchant-authorization-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session's `orderCode` fallback applies; otherwise omitted.
         source:
           allOf:
             - $ref: '#/components/schemas/PaymentSessionSource'
@@ -20143,6 +20190,15 @@ components:
           $ref: '#/components/schemas/PaymentError'
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: A merchant-provided internal identifier for this capture, from the merchant's own system—not visible to the payer. A manual capture uses the caller-provided value; an auto-capture reuses the authorization's value and omits it when the authorization omitted it. It never falls back to `PaymentSession.externalReferenceId`.
+          example: merchant-capture-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Customer-facing display data for this capture, shown to the payer. A manual capture falls back to the session's `orderCode` when `referenceCode` is omitted; an auto-capture reuses the authorization's `referenceCode`.
         onchainTransactions:
           type: array
           description: The onchain transactions associated with this capture.
@@ -20208,6 +20264,15 @@ components:
           $ref: '#/components/schemas/PaymentError'
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: A merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. Present only when supplied on the create void request.
+          example: merchant-void-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session's `orderCode` fallback applies; otherwise omitted.
         onchainTransactions:
           type: array
           description: The onchain transactions associated with this void.
@@ -20298,6 +20363,15 @@ components:
           $ref: '#/components/schemas/PaymentError'
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: A merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer. Present only when supplied on the create refund request.
+          example: merchant-refund-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Customer-facing display data for this refund, shown to the payer. Present when supplied on the create refund request or when the session's `orderCode` fallback applies; otherwise omitted.
         onchainTransactions:
           type: array
           description: The onchain transactions associated with this refund.
@@ -20377,6 +20451,11 @@ components:
           example:
             amount: '1.37'
             currency: cad
+        orderCode:
+          type: string
+          maxLength: 128
+          description: A customer-visible code for the overall order. When omitted, CDP generates one and returns it. It must not contain personally identifiable information (PII) or payment credentials.
+          example: ORDER-ABC123
       example:
         merchantName: Acme Store
         displayAmount:
@@ -21481,6 +21560,17 @@ components:
               signature: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab'
         metadata:
           $ref: '#/components/schemas/Metadata'
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+          example:
+            referenceCode: REF-ABC123
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: An optional merchant-provided internal identifier for this wallet authorization, from the merchant's own system—not visible to the payer.
+          example: merchant-authorization-abc123
       required:
         - optionId
         - signedPayloads
@@ -21495,6 +21585,17 @@ components:
       properties:
         metadata:
           $ref: '#/components/schemas/Metadata'
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+          example:
+            referenceCode: REF-ABC123
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: An optional merchant-provided internal identifier for this Coinbase authorization, from the merchant's own system—not visible to the payer.
+          example: merchant-authorization-abc123
     CreateCaptureRequest:
       type: object
       description: A request to create a capture for a payment session.
@@ -21509,6 +21610,17 @@ components:
           example: true
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: An optional merchant-provided internal identifier for this manual capture, from the merchant's own system—not visible to the payer.
+          example: merchant-capture-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Optional customer-facing display data for this manual capture, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+          example:
+            referenceCode: REF-ABC123
       required:
         - finalCapture
       example:
@@ -21520,6 +21632,17 @@ components:
       properties:
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: An optional merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer.
+          example: merchant-void-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Optional customer-facing display data for this void, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+          example:
+            referenceCode: REF-ABC123
     CreateRefundRequest:
       type: object
       description: A request to create a refund for a payment session.
@@ -21541,6 +21664,17 @@ components:
           example: Customer returned the item.
         metadata:
           $ref: '#/components/schemas/Metadata'
+        externalReferenceId:
+          allOf:
+            - $ref: '#/components/schemas/ExternalReferenceId'
+          description: An optional merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer.
+          example: merchant-refund-abc123
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Optional customer-facing display data for this refund, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+          example:
+            referenceCode: REF-ABC123
       required:
         - source
       example:
@@ -21665,6 +21799,10 @@ components:
           maxLength: 256
           description: A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
           example: disbursement-2026-04-1234
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: 'Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits `referenceCode`, one is auto-generated, since disbursements have no payment session to fall back to.'
         metadata:
           $ref: '#/components/schemas/Metadata'
         error:
@@ -21777,6 +21915,10 @@ components:
           maxLength: 256
           description: A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
           example: disbursement-2026-04-1234
+        customerDisplay:
+          allOf:
+            - $ref: '#/components/schemas/OperationCustomerDisplay'
+          description: Optional customer-facing display data for this disbursement, shown to the payer. If `referenceCode` is omitted, one is auto-generated — disbursements have no payment session to fall back to, unlike every other action type.
         metadata:
           $ref: '#/components/schemas/Metadata'
         compliance:
@@ -22323,6 +22465,7 @@ components:
         gasUsed: '100000'
     EvmUserOperation:
       type: object
+      description: A smart account operation response.
       properties:
         network:
           $ref: '#/components/schemas/EvmUserOperationNetwork'
@@ -23922,8 +24065,6 @@ components:
             simulationIncomplete: false
         liquidityAvailable:
           type: boolean
-          enum:
-            - true
           description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
           example: true
         minToAmount:
@@ -23951,6 +24092,11 @@ components:
         - minToAmount
         - fromAmount
         - fromToken
+      not:
+        properties:
+          liquidityAvailable:
+            enum:
+              - false
       example:
         blockNumber: '17038723'
         toAmount: '1000000000000000000'
@@ -24000,15 +24146,19 @@ components:
     SwapUnavailableResponse:
       type: object
       title: SwapUnavailableResponse
+      additionalProperties: false
       properties:
         liquidityAvailable:
           type: boolean
-          enum:
-            - false
           description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
           example: false
       required:
         - liquidityAvailable
+      not:
+        properties:
+          liquidityAvailable:
+            enum:
+              - true
       example:
         liquidityAvailable: false
     GetSwapPriceResponseWrapper:
@@ -30810,6 +30960,15 @@ components:
               type: string
               description: A decimal representation of the authorized amount, denominated in the session's `asset`.
               example: '1.00'
+            externalReferenceId:
+              allOf:
+                - $ref: '#/components/schemas/ExternalReferenceId'
+              description: An optional merchant-provided internal identifier for this authorization, from the merchant's own system—not visible to the payer. Present only when supplied on the authorization request.
+              example: merchant-authorization-abc123
+            customerDisplay:
+              allOf:
+                - $ref: '#/components/schemas/OperationCustomerDisplay'
+              description: Customer-facing display data for this authorization, shown to the payer. Present when supplied on the authorization request or when the session's `orderCode` fallback applies; otherwise omitted.
             error:
               allOf:
                 - $ref: '#/components/schemas/PaymentError'
@@ -30883,6 +31042,15 @@ components:
               type: string
               description: A decimal representation of the captured amount, denominated in the session's `asset`.
               example: '1.00'
+            externalReferenceId:
+              allOf:
+                - $ref: '#/components/schemas/ExternalReferenceId'
+              description: An optional merchant-provided internal identifier for this capture, from the merchant's own system—not visible to the payer. For an auto-capture, it is copied from the authorization.
+              example: merchant-capture-abc123
+            customerDisplay:
+              allOf:
+                - $ref: '#/components/schemas/OperationCustomerDisplay'
+              description: Customer-facing display data for this capture, shown to the payer. An auto-capture reuses the authorization's `referenceCode`.
             finalCapture:
               type: boolean
               description: When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.
@@ -30950,6 +31118,15 @@ components:
               type: string
               description: A decimal representation of the voided amount, denominated in the session's `asset`.
               example: '1.00'
+            externalReferenceId:
+              allOf:
+                - $ref: '#/components/schemas/ExternalReferenceId'
+              description: An optional merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. Present only when supplied on the create void request.
+              example: merchant-void-abc123
+            customerDisplay:
+              allOf:
+                - $ref: '#/components/schemas/OperationCustomerDisplay'
+              description: Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session's `orderCode` fallback applies; otherwise omitted.
             error:
               allOf:
                 - $ref: '#/components/schemas/PaymentError'
@@ -31011,6 +31188,15 @@ components:
               type: string
               description: A decimal representation of the refunded amount, denominated in the session's `asset`.
               example: '0.50'
+            externalReferenceId:
+              allOf:
+                - $ref: '#/components/schemas/ExternalReferenceId'
+              description: An optional merchant-provided internal identifier for this refund, from the merchant's own system—not visible to the payer. Present only when supplied on the create refund request.
+              example: merchant-refund-abc123
+            customerDisplay:
+              allOf:
+                - $ref: '#/components/schemas/OperationCustomerDisplay'
+              description: Customer-facing display data for this refund, shown to the payer. Present when supplied on the create refund request or when the session's `orderCode` fallback applies; otherwise omitted.
             reason:
               type: string
               description: The reason for the refund, if provided when the refund was created.

@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.onchain_transaction import OnchainTransaction
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from cdp.openapi_client.models.payment_action_status import PaymentActionStatus
 from cdp.openapi_client.models.payment_error import PaymentError
 from typing import Optional, Set
@@ -38,10 +39,12 @@ class Void(BaseModel):
     amount: Optional[StrictStr] = Field(default=None, description="A decimal representation of the voided amount, denominated in the session's `asset`.")
     error: Optional[PaymentError] = None
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="A merchant-provided internal identifier for this void, from the merchant's own system—not visible to the payer. Present only when supplied on the create void request.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Customer-facing display data for this void, shown to the payer. Present when supplied on the create void request or when the session's `orderCode` fallback applies; otherwise omitted.", alias="customerDisplay")
     onchain_transactions: Optional[List[OnchainTransaction]] = Field(default=None, description="The onchain transactions associated with this void.", alias="onchainTransactions")
     created_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp at which the void was created.", alias="createdAt")
     updated_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp at which the void was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["voidId", "paymentSessionId", "status", "amount", "error", "metadata", "onchainTransactions", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["voidId", "paymentSessionId", "status", "amount", "error", "metadata", "externalReferenceId", "customerDisplay", "onchainTransactions", "createdAt", "updatedAt"]
 
     @field_validator('void_id')
     def void_id_validate_regular_expression(cls, value):
@@ -105,6 +108,9 @@ class Void(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of error
         if self.error:
             _dict['error'] = self.error.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in onchain_transactions (list)
         _items = []
         if self.onchain_transactions:
@@ -130,6 +136,8 @@ class Void(BaseModel):
             "amount": obj.get("amount"),
             "error": PaymentError.from_dict(obj["error"]) if obj.get("error") is not None else None,
             "metadata": obj.get("metadata"),
+            "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
             "onchainTransactions": [OnchainTransaction.from_dict(_item) for _item in obj["onchainTransactions"]] if obj.get("onchainTransactions") is not None else None,
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt")

@@ -25,6 +25,7 @@ from typing_extensions import Annotated
 from cdp.openapi_client.models.disbursement_source import DisbursementSource
 from cdp.openapi_client.models.disbursement_target import DisbursementTarget
 from cdp.openapi_client.models.onchain_transaction import OnchainTransaction
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from cdp.openapi_client.models.payment_action_status import PaymentActionStatus
 from cdp.openapi_client.models.payment_error import PaymentError
 from typing import Optional, Set
@@ -42,12 +43,13 @@ class Disbursement(BaseModel):
     status: PaymentActionStatus = Field(description="The current status of the disbursement.")
     reason: Optional[StrictStr] = Field(default=None, description="Human-readable reason for the disbursement.")
     external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits `referenceCode`, one is auto-generated, since disbursements have no payment session to fall back to.", alias="customerDisplay")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     error: Optional[PaymentError] = Field(default=None, description="Error details, present only when the disbursement failed.")
     onchain_transactions: Optional[List[OnchainTransaction]] = Field(default=None, description="The onchain transactions associated with this disbursement.", alias="onchainTransactions")
     created_at: datetime = Field(description="The UTC ISO 8601 timestamp at which the disbursement was created.", alias="createdAt")
     updated_at: datetime = Field(description="The UTC ISO 8601 timestamp at which the disbursement was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["disbursementId", "source", "target", "amount", "asset", "status", "reason", "externalReferenceId", "metadata", "error", "onchainTransactions", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["disbursementId", "source", "target", "amount", "asset", "status", "reason", "externalReferenceId", "customerDisplay", "metadata", "error", "onchainTransactions", "createdAt", "updatedAt"]
 
     @field_validator('disbursement_id')
     def disbursement_id_validate_regular_expression(cls, value):
@@ -101,6 +103,9 @@ class Disbursement(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of target
         if self.target:
             _dict['target'] = self.target.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         # override the default output from pydantic by calling `to_dict()` of error
         if self.error:
             _dict['error'] = self.error.to_dict()
@@ -131,6 +136,7 @@ class Disbursement(BaseModel):
             "status": obj.get("status"),
             "reason": obj.get("reason"),
             "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
             "metadata": obj.get("metadata"),
             "error": PaymentError.from_dict(obj["error"]) if obj.get("error") is not None else None,
             "onchainTransactions": [OnchainTransaction.from_dict(_item) for _item in obj["onchainTransactions"]] if obj.get("onchainTransactions") is not None else None,

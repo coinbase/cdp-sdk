@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.onchain_transaction import OnchainTransaction
+from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from cdp.openapi_client.models.payment_action_status import PaymentActionStatus
 from cdp.openapi_client.models.payment_error import PaymentError
 from typing import Optional, Set
@@ -35,13 +36,15 @@ class PaymentSessionEventDataCapture(BaseModel):
     capture_id: Annotated[str, Field(strict=True)] = Field(description="The unique identifier of the capture.", alias="captureId")
     status: PaymentActionStatus = Field(description="The current status of the capture.")
     amount: StrictStr = Field(description="A decimal representation of the captured amount, denominated in the session's `asset`.")
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An optional merchant-provided internal identifier for this capture, from the merchant's own system—not visible to the payer. For an auto-capture, it is copied from the authorization.", alias="externalReferenceId")
+    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Customer-facing display data for this capture, shown to the payer. An auto-capture reuses the authorization's `referenceCode`.", alias="customerDisplay")
     final_capture: StrictBool = Field(description="When `true`, this capture is treated as the final one for the authorization. Any remaining capturable balance is released back to the payer immediately after the capture settles. When `false`, the remaining capturable balance stays held and is available for subsequent partial captures (subject to `captureExpiresAt`). Has no effect if `amount` equals the full capturable balance, since no remaining balance exists to release.", alias="finalCapture")
     error: Optional[PaymentError] = Field(default=None, description="Error details, present only when the capture failed.")
     onchain_transactions: Optional[List[OnchainTransaction]] = Field(default=None, description="The onchain transactions associated with this capture.", alias="onchainTransactions")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     created_at: datetime = Field(description="The UTC ISO 8601 timestamp at which the capture was created.", alias="createdAt")
     updated_at: datetime = Field(description="The UTC ISO 8601 timestamp at which the capture was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["captureId", "status", "amount", "finalCapture", "error", "onchainTransactions", "metadata", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["captureId", "status", "amount", "externalReferenceId", "customerDisplay", "finalCapture", "error", "onchainTransactions", "metadata", "createdAt", "updatedAt"]
 
     @field_validator('capture_id')
     def capture_id_validate_regular_expression(cls, value):
@@ -89,6 +92,9 @@ class PaymentSessionEventDataCapture(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of customer_display
+        if self.customer_display:
+            _dict['customerDisplay'] = self.customer_display.to_dict()
         # override the default output from pydantic by calling `to_dict()` of error
         if self.error:
             _dict['error'] = self.error.to_dict()
@@ -114,6 +120,8 @@ class PaymentSessionEventDataCapture(BaseModel):
             "captureId": obj.get("captureId"),
             "status": obj.get("status"),
             "amount": obj.get("amount"),
+            "externalReferenceId": obj.get("externalReferenceId"),
+            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
             "finalCapture": obj.get("finalCapture"),
             "error": PaymentError.from_dict(obj["error"]) if obj.get("error") is not None else None,
             "onchainTransactions": [OnchainTransaction.from_dict(_item) for _item in obj["onchainTransactions"]] if obj.get("onchainTransactions") is not None else None,

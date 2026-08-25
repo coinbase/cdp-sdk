@@ -43,6 +43,8 @@ class TestAuthorization(unittest.TestCase):
                 error = {code=insufficient_funds, message=The payer does not have sufficient funds., occurredAt=2025-06-15T12:00:00.000Z},
                 message = 'Your payment was successfully submitted',
                 metadata = {customer_id=cust_12345, order_reference=order-67890},
+                external_reference_id = 'merchant-reference-abc123',
+                customer_display = {referenceCode=REF-ABC123},
                 source = {address=0xAbC1234567890aBcDeF1234567890AbCdEf123456, network=base, asset=usdc},
                 onchain_transactions = [{transactionHash=0xabc123def456789012345678901234567890abcdef1234567890abcdef123456, network=base}],
                 created_at = '2025-06-15T12:00:00.000Z',
