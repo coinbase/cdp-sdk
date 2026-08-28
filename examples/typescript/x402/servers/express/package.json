@@ -4,16 +4,17 @@
   "type": "module",
   "scripts": {
     "start": "tsx server.ts",
+    "start:batch-settlement": "tsx batchSettlement.ts",
     "build": "tsc"
   },
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",
     "@types/express": "^5.0.2",
-    "@x402/core": "^2.21.0",
-    "@x402/evm": "^2.21.0",
-    "@x402/express": "^2.21.0",
-    "@x402/extensions": "^2.21.0",
-    "@x402/svm": "^2.21.0",
+    "@x402/core": "^2.24.0",
+    "@x402/evm": "^2.24.0",
+    "@x402/express": "^2.24.0",
+    "@x402/extensions": "^2.24.0",
+    "@x402/svm": "^2.24.0",
     "dotenv": "^16.4.3",
     "express": "^5.2.1",
     "tsx": "^4.21.0"

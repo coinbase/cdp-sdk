@@ -1,14 +1,22 @@
 /*
  * Pure CDP-account-to-x402-signer adapters.
  */
+
 import { address as toSolanaAddress, getTransactionEncoder } from "@solana/kit";
 import { toClientEvmSigner } from "@x402/evm";
+import bs58 from "bs58";
 
 import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
 
 import type { EvmAccount } from "../accounts/evm/types.js";
 import type { SignTypedDataOptions } from "../client/evm/evm.types.js";
-import type { TransactionSigner } from "@solana/kit";
+import type {
+  MessagePartialSigner,
+  SignableMessage,
+  SignatureBytes,
+  SignatureDictionary,
+  TransactionSigner,
+} from "@solana/kit";
 import type { ClientEvmSigner } from "@x402/evm";
 import type { Address, Hex } from "viem";
 
@@ -194,4 +202,48 @@ export function cdpSolanaAccountToSvmSigner(account: CdpSolanaAccount): Transact
       return results;
     },
   } as TransactionSigner;
+}
+
+/**
+ * Minimal interface for a CDP Solana account capable of signing arbitrary
+ * messages. Matches the relevant method from CdpClient's SolanaAccount.
+ */
+export interface CdpSolanaMessageSigningAccount {
+  address: string;
+  signMessage(options: { message: string }): Promise<{ signature: string }>;
+}
+
+/**
+ * Converts a CDP Solana account into an x402-compatible `MessagePartialSigner`.
+ *
+ * This is used server-side by the `upto` scheme on Solana, where the resource
+ * server (not the payer) signs settlement vouchers as the
+ * `receiverAuthorizerSigner`. Each message's raw bytes are base64-encoded for
+ * CDP's message-signing endpoint, and the returned base58 signature is decoded
+ * back into raw bytes for the `SignatureDictionary` result `@x402/svm` expects.
+ *
+ * @param account - A CDP Solana account from `cdpClient.solana.getOrCreateAccount()`
+ * @returns A `MessagePartialSigner` compatible with `@x402/svm`'s `UptoSvmScheme` server
+ */
+export function cdpSolanaAccountToMessageSigner(
+  account: CdpSolanaMessageSigningAccount,
+): MessagePartialSigner {
+  const signerAddress = toSolanaAddress(account.address);
+  const signerAddressKey = signerAddress as string;
+
+  return {
+    address: signerAddress,
+    async signMessages(
+      messages: readonly SignableMessage[],
+    ): Promise<readonly SignatureDictionary[]> {
+      const results: SignatureDictionary[] = [];
+      for (const message of messages) {
+        const base64Message = Buffer.from(message.content).toString("base64");
+        const { signature } = await account.signMessage({ message: base64Message });
+        const signatureBytes = bs58.decode(signature) as SignatureBytes;
+        results.push({ [signerAddressKey]: signatureBytes } as SignatureDictionary);
+      }
+      return results;
+    },
+  };
 }

@@ -25,6 +25,12 @@
  * alongside the default `exact`-scheme `GET /report` route.
  *
  * Requires: CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET
+ *
+ * Set X402_ENABLE_SOLANA_UPTO=true to also add `GET /usage-solana` — the same
+ * `upto` scheme restricted to Solana Devnet. The CDP SDK's resource server
+ * supports it out of the box, but it's opt-in here because the CDP-hosted
+ * facilitator doesn't advertise `upto` support for Solana yet (only `exact`)
+ * — enabling it unconditionally would fail this server's startup validation.
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * APPROACH 3 — One-liner server loaded from a config file (configPath).
@@ -83,7 +89,14 @@ if (APPROACH === "1") {
     paymentMiddleware(
       {
         "GET /report": {
-          accepts: [{ scheme: "exact", price: "$0.01", network: "eip155:84532", payTo: PAY_TO }],
+          accepts: [
+            {
+              scheme: "exact",
+              price: "$0.01",
+              network: "eip155:84532",
+              payTo: PAY_TO,
+            },
+          ],
           description: "AI-generated report",
         },
       },
@@ -96,9 +109,22 @@ if (APPROACH === "1") {
     console.log(`Listening on http://localhost:${PORT}\nReceiving EVM payments at ${PAY_TO}`),
   );
 
-// ─── Approach 2: One-liner server with inline route config ──────────────────
-
+  // ─── Approach 2: One-liner server with inline route config ──────────────────
 } else if (APPROACH === "2") {
+  /*
+   * Solana "upto" is registered by the CDP SDK's resource server (see
+   * `getCdpDefaultSchemes` in `@coinbase/cdp-sdk/x402`), but `x402ResourceServer`
+   * validates every configured route against the facilitator's advertised
+   * `/supported` list at startup — and the CDP-hosted facilitator doesn't
+   * advertise `upto` support for any `solana:*` network yet, only `exact`.
+   * Configuring `GET /usage-solana` unconditionally would make this whole
+   * server fail to start today. Gate it behind an explicit opt-in so this
+   * demo keeps working out of the box; flip it on once the facilitator picks
+   * up Solana `upto` support to exercise the SDK's (already-implemented,
+   * unit-tested) side of it end-to-end.
+   */
+  const ENABLE_SOLANA_UPTO = process.env.X402_ENABLE_SOLANA_UPTO === "true";
+
   // createX402Server provisions a receiver wallet, wires the CDP facilitator,
   // and returns a fully initialized x402HTTPResourceServer — all in one call.
   const server = await createX402Server({
@@ -113,13 +139,23 @@ if (APPROACH === "1") {
       // Usage-based billing with the "upto" scheme: the client authorizes a
       // ceiling ($0.10 here) and the server settles only the amount actually
       // used (see the /usage handler below). createX402Server auto-registers
-      // the upto scheme, so the route config is all that's needed here. upto
-      // is EVM-only, so it resolves to Base Sepolia alone under "development".
+      // the upto scheme, so the route config is all that's needed here.
       "GET /usage": {
         price: "$0.10",
         scheme: "upto",
         description: "Usage-based billing — authorize up to $0.10, settle actual usage",
       },
+
+      // Same usage-based billing as /usage, restricted to Solana Devnet — see
+      // the ENABLE_SOLANA_UPTO comment above for why this is opt-in.
+      ...(ENABLE_SOLANA_UPTO && {
+        "GET /usage-solana": {
+          price: "$0.10",
+          scheme: "upto",
+          networks: ["solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"],
+          description: "Usage-based billing on Solana — authorize up to $0.10, settle actual usage",
+        },
+      }),
     },
     // Optional: bring your own addresses instead of provisioning a CDP wallet.
     // payToConfig: { type: "address", evm: "0x...", solana: "..." },
@@ -146,6 +182,80 @@ if (APPROACH === "1") {
     });
   });
 
+  if (ENABLE_SOLANA_UPTO) {
+    // Same handler shape as /usage — the "upto" scheme's settlement flow
+    // doesn't differ between EVM and Solana from the route handler's point of
+    // view.
+    app.get("/usage-solana", (_req, res) => {
+      const maxAtomic = 100_000;
+      const actualAtomic = 1 + Math.floor(Math.random() * maxAtomic);
+      setSettlementOverrides(res, { amount: String(actualAtomic) });
+      res.json({
+        result: "Here is your Solana usage-metered response...",
+        usage: {
+          authorizedMaxAtomic: String(maxAtomic),
+          actualChargedAtomic: String(actualAtomic),
+        },
+      });
+    });
+  }
+
+  /*
+   * ─── auth-capture smoke test — not a real payment route ───────────────────
+   *
+   * `AuthCaptureEvmScheme` is client-only server-side today (see the
+   * `@x402/evm` auth-capture README) — `createX402Server` deliberately never
+   * registers it. This hand-rolled route lets the CLI matrix prove
+   * `CdpX402Client` can sign and send an auth-capture payload end-to-end
+   * without a real facilitator settling it: it manually builds a v2
+   * `PaymentRequired` 402 (base64-encoded on the `PAYMENT-REQUIRED` header,
+   * since `wrapFetchWithPayment` only reads v2 payment-required data from
+   * headers, not the JSON body), then on retry just confirms a signed
+   * `PAYMENT-SIGNATURE` header arrived and returns 501 instead of settling.
+   */
+  const AUTH_CAPTURE_USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+
+  app.get("/auth-capture-mock", (req, res) => {
+    if (req.header("PAYMENT-SIGNATURE")) {
+      res.status(501).json({
+        error:
+          "auth-capture has no server/facilitator support yet — payload received, not settled.",
+      });
+      return;
+    }
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const paymentRequired = {
+      x402Version: 2,
+      resource: { url: "https://example.com/auth-capture-mock", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "auth-capture",
+          network: "eip155:84532",
+          asset: AUTH_CAPTURE_USDC_BASE_SEPOLIA,
+          amount: "10000",
+          payTo: server.payToEvmAddress,
+          maxTimeoutSeconds: 300,
+          extra: {
+            captureAuthorizer: server.payToEvmAddress,
+            feeRecipient: server.payToEvmAddress,
+            captureDeadline: nowSeconds + 3600,
+            refundDeadline: nowSeconds + 7200,
+            minFeeBps: 0,
+            maxFeeBps: 0,
+            name: "USDC",
+            version: "2",
+          },
+        },
+      ],
+    };
+
+    res
+      .status(402)
+      .set("PAYMENT-REQUIRED", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"))
+      .json(paymentRequired);
+  });
+
   app.listen(PORT, () =>
     console.log(
       `Listening on http://localhost:${PORT}\n` +
@@ -154,8 +264,7 @@ if (APPROACH === "1") {
     ),
   );
 
-// ─── Approach 3: One-liner server loaded from a config file ─────────────────
-
+  // ─── Approach 3: One-liner server loaded from a config file ─────────────────
 } else if (APPROACH === "3") {
   // Routes (and optionally credentials) live in a JSON config file.
   // Inline config always takes precedence when both are provided.

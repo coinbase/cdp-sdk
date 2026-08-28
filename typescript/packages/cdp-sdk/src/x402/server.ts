@@ -69,6 +69,7 @@ import { readFile } from "node:fs/promises";
 
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
 
+import { cdpSolanaAccountToMessageSigner } from "./account-signers.js";
 import { assertBuilderCode, declareServerBuilderCodeExtension } from "./builder-code.js";
 import {
   baseMainnetCaip2,
@@ -88,6 +89,7 @@ import {
 import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 import { CdpClient } from "../client/cdp.js";
 
+import type { CdpSolanaMessageSigningAccount } from "./account-signers.js";
 import type { RoutesConfig, RouteConfig } from "@x402/core/server";
 import type { Network } from "@x402/core/types";
 import type { BuilderCodeRequiredExtension } from "@x402/extensions/builder-code";
@@ -149,8 +151,13 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
  * - `"exact"` — (default) Transfer a fixed amount, locked at signing time.
  *   Supports EVM and Solana networks.
  * - `"upto"` — Usage-based billing: the client authorizes a maximum amount
- *   and the server settles the actual amount charged (≤ max) via Permit2.
- *   EVM-only (`eip155:*`).
+ *   and the server settles the actual amount charged (≤ max). Supports EVM
+ *   (via Permit2) by default. Solana is also supported (via a settlement
+ *   voucher signed by the provisioned CDP Solana receiver wallet —
+ *   unavailable with a bring-your-own `payToConfig: { type: "address" }`
+ *   Solana address) but must be requested explicitly via `networks` — it
+ *   isn't part of `"upto"`'s network defaults, since not every facilitator
+ *   advertises `upto` support for Solana yet.
  */
 export type CdpPaymentScheme = "exact" | "upto";
 
@@ -177,18 +184,22 @@ export interface CdpRouteConfig {
   /**
    * Payment scheme to use for this route.
    *
-   * Defaults to `"exact"`. The `"upto"` scheme is EVM-only — `networks` must
-   * not include Solana or other non-EVM chains when specified. When an
-   * EVM-only scheme is used without an explicit `networks` list the default
-   * falls back to the environment's EVM networks (Base mainnet or Base
-   * Sepolia depending on `environment`).
+   * Defaults to `"exact"`, which supports Base and Solana out of the box.
+   * `"upto"` defaults to Base only; pass an explicit `networks` including a
+   * `solana:*` entry to also accept `upto` on Solana — supported by the CDP
+   * SDK's resource server (a CDP-managed Solana receiver wallet signs
+   * settlement vouchers; unavailable with a bring-your-own
+   * `payToConfig: { type: "address" }` Solana address), but not every
+   * facilitator advertises `upto` support for Solana yet, so it isn't
+   * defaulted on.
    */
   scheme?: CdpPaymentScheme;
   /**
    * CAIP-2 network identifiers for which the route accepts payments.
    * Defaults to `CDP_SERVER_DEFAULT_NETWORKS` (Base mainnet + Solana mainnet)
-   * for the `"exact"` scheme, or `CDP_SERVER_DEFAULT_EVM_NETWORKS` (Base
-   * mainnet only) for `"upto"`.
+   * for `"exact"`, or `CDP_SERVER_DEFAULT_EVM_NETWORKS` (Base mainnet only)
+   * for `"upto"` — or their `CDP_SERVER_DEVELOPMENT_*` equivalents when
+   * `environment` is `"development"`.
    */
   networks?: string[];
   /**
@@ -358,6 +369,13 @@ interface ProvisionedAddresses {
   evmAddress: Address | "";
   svmAddress: string;
   ownerWallet?: string;
+  /**
+   * The raw CDP Solana account, present only when `need.svm` was true. Used to
+   * build the `receiverAuthorizerSigner` for Solana `upto` — bring-your-own
+   * addresses (`payToConfig.type === "address"`) never populate this, since
+   * there's no CDP-managed key to sign settlement vouchers with.
+   */
+  svmAccount?: CdpSolanaMessageSigningAccount;
 }
 
 /** Network families referenced by a route set, controlling which wallets to provision. */
@@ -421,12 +439,13 @@ async function provisionServerAccounts(
 
   const accountName = payToConfig.accountName ?? DEFAULT_SERVER_ACCOUNT_NAME;
 
-  const svmAddress = need.svm
-    ? (await cdpClient.solana.getOrCreateAccount({ name: accountName })).address
-    : "";
+  const svmAccount = need.svm
+    ? await cdpClient.solana.getOrCreateAccount({ name: accountName })
+    : undefined;
+  const svmAddress = svmAccount?.address ?? "";
 
   if (!need.evm) {
-    return { evmAddress: "", svmAddress };
+    return { evmAddress: "", svmAddress, svmAccount };
   }
 
   if (payToConfig.type === "smart") {
@@ -457,6 +476,7 @@ async function provisionServerAccounts(
       evmAddress: smartAccount.address as Address,
       svmAddress,
       ownerWallet: payToConfig.ownerAccountName,
+      svmAccount,
     };
   }
 
@@ -464,6 +484,7 @@ async function provisionServerAccounts(
   return {
     evmAddress: evmAccount.address as Address,
     svmAddress,
+    svmAccount,
   };
 }
 
@@ -474,13 +495,29 @@ async function provisionServerAccounts(
  */
 
 /**
- * Returns `true` when the given payment scheme only supports EVM networks.
+ * Payment schemes whose *default* network list (used only when a route omits
+ * `networks`) is EVM-only, even though the scheme is allowed on Solana when
+ * explicitly requested (see {@link assertSchemeSupportsNetwork}, which no
+ * longer rejects any current scheme/network combination).
+ *
+ * `"upto"` defaults to EVM-only because the CDP-hosted facilitator does not
+ * yet advertise `upto` support for any `solana:*` network (only `exact`) —
+ * defaulting an unscoped `upto` route onto Solana would fail that route's
+ * startup validation against a real facilitator today. The CDP SDK's
+ * resource server itself is ready for Solana `upto` (see
+ * `getCdpDefaultSchemes`'s `svmReceiverAuthorizerSigner`); opt in per route
+ * with an explicit `networks: ["solana:..."]` once your facilitator supports it.
+ */
+const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
+
+/**
+ * Returns `true` when the given payment scheme defaults to EVM-only networks.
  *
  * @param scheme - The payment scheme to check.
- * @returns `true` for EVM-only schemes (`"upto"`).
+ * @returns `true` for schemes in {@link EVM_DEFAULT_ONLY_SCHEMES}.
  */
-function isEvmOnlyScheme(scheme: CdpPaymentScheme): boolean {
-  return scheme === "upto";
+function isEvmDefaultOnlyScheme(scheme: CdpPaymentScheme): boolean {
+  return EVM_DEFAULT_ONLY_SCHEMES.has(scheme);
 }
 
 /**
@@ -497,7 +534,8 @@ function networkFamily(network: string): "evm" | "svm" | "other" {
 
 /**
  * Returns the default networks for a simplified route given its scheme and the
- * deployment environment. EVM-only schemes (`"upto"`) default to EVM networks only.
+ * deployment environment. Schemes in {@link EVM_DEFAULT_ONLY_SCHEMES} (`"upto"`)
+ * default to EVM networks only; all other schemes default to Base + Solana.
  *
  * @param scheme - Payment scheme for the route.
  * @param environment - Deployment environment controlling mainnet vs testnet defaults.
@@ -507,7 +545,7 @@ function getDefaultNetworksForScheme(
   scheme: CdpPaymentScheme,
   environment: "production" | "development",
 ): readonly string[] {
-  if (isEvmOnlyScheme(scheme)) {
+  if (isEvmDefaultOnlyScheme(scheme)) {
     return environment === "development"
       ? CDP_SERVER_DEVELOPMENT_EVM_NETWORKS
       : CDP_SERVER_DEFAULT_EVM_NETWORKS;
@@ -567,13 +605,26 @@ function requiredNetworkFamilies(
 }
 
 /**
- * Throws when a scheme is configured with an unsupported network family.
+ * Payment schemes that are never valid on a non-EVM network, even when
+ * explicitly requested via `networks`. Currently empty — both `"exact"` and
+ * `"upto"` are valid on Solana when explicitly configured, even though
+ * `"upto"` doesn't default onto it (see {@link EVM_DEFAULT_ONLY_SCHEMES}).
+ * Kept as an extension point for a future hard-EVM-only `CdpPaymentScheme`.
+ */
+const EVM_HARD_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set();
+
+/**
+ * Throws when a scheme is configured with a network family it can never
+ * support (see {@link EVM_HARD_ONLY_SCHEMES}).
  *
  * @param scheme - Payment scheme name (e.g. `"upto"`).
  * @param network - CAIP-2 network identifier (e.g. `"eip155:8453"`).
  */
 function assertSchemeSupportsNetwork(scheme: string, network: string): void {
-  if (isEvmOnlyScheme(scheme as CdpPaymentScheme) && !network.startsWith("eip155:")) {
+  if (
+    EVM_HARD_ONLY_SCHEMES.has(scheme as CdpPaymentScheme) &&
+    !network.startsWith("eip155:")
+  ) {
     throw new Error(
       `Scheme "${scheme}" only supports EVM (eip155:*) networks. ` +
         `Network "${network}" is not supported. ` +
@@ -972,25 +1023,23 @@ export class X402Server extends x402HTTPResourceServer {
     const credentials = resolveServerCredentials(merged);
     const { environment } = credentials;
 
-    // 4. Build the CDP facilitator client and x402ResourceServer.
+    // 4. Build the CDP facilitator client and x402ResourceServer (schemes registered in step 5b).
     const facilitatorClient = createCdpFacilitatorClient({
       apiKeyId: credentials.apiKeyId,
       apiKeySecret: credentials.apiKeySecret,
     });
 
     const resourceServer = new x402ResourceServer(facilitatorClient);
-    for (const scheme of getCdpDefaultSchemes()) {
-      resourceServer.register(scheme.network as Network, scheme.server);
-    }
     for (const ext of getCdpExtensionRegistrations()) {
       resourceServer.registerExtension(ext);
     }
 
-    // 5. Resolve payTo addresses — provision wallets or use provided addresses.
+    // 5a. Resolve payTo addresses — provision wallets or use provided addresses.
     const payToConfig = merged.payToConfig;
     let evmAddress: Address | "";
     let svmAddress: string;
     let ownerWallet: string | undefined;
+    let svmAccount: CdpSolanaMessageSigningAccount | undefined;
 
     if (payToConfig?.type === "address") {
       evmAddress = payToConfig.evm ?? "";
@@ -1024,9 +1073,23 @@ export class X402Server extends x402HTTPResourceServer {
         need,
       );
 
+      svmAccount = provisioned.svmAccount;
       evmAddress = provisioned.evmAddress;
       svmAddress = provisioned.svmAddress;
       ownerWallet = provisioned.ownerWallet;
+    }
+
+    /*
+     * 5b. Register default schemes now that the Solana account (if any) has
+     * been provisioned — Solana `upto` needs it as the `receiverAuthorizerSigner`.
+     * `payToConfig.type === "address"` never has a CDP-managed key, so Solana
+     * `upto` is skipped in that mode (only `exact` is registered for Solana).
+     */
+    const svmReceiverAuthorizerSigner = svmAccount
+      ? cdpSolanaAccountToMessageSigner(svmAccount)
+      : undefined;
+    for (const scheme of getCdpDefaultSchemes({ svmReceiverAuthorizerSigner })) {
+      resourceServer.register(scheme.network as Network, scheme.server);
     }
 
     // 6. Resolve routes (simplified CDP format or full x402 format).

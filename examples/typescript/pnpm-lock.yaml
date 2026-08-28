@@ -33,23 +33,23 @@ importers:
         specifier: 22.19.15
         version: 22.19.15
       '@x402/axios':
-        specifier: ^2.21.0
-        version: 2.21.0(axios@1.16.0)
+        specifier: ^2.24.0
+        version: 2.24.0(axios@1.16.0)
       '@x402/core':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/evm':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/fetch':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/mcp':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/svm':
-        specifier: ^2.21.0
-        version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
+        specifier: ^2.24.0
+        version: 2.24.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       axios:
         specifier: ^1.7.0
         version: 1.16.0
@@ -85,17 +85,17 @@ importers:
         specifier: ^5.5.1
         version: 5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/core':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/evm':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/extensions':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/svm':
-        specifier: ^2.21.0
-        version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
+        specifier: ^2.24.0
+        version: 2.24.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       abitype:
         specifier: 1.0.6
         version: 1.0.6(typescript@5.8.3)(zod@3.25.76)
@@ -133,20 +133,20 @@ importers:
         specifier: ^5.0.2
         version: 5.0.6
       '@x402/core':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/evm':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/express':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(express@5.2.1)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(express@5.2.1)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/extensions':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/svm':
-        specifier: ^2.21.0
-        version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
+        specifier: ^2.24.0
+        version: 2.24.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       dotenv:
         specifier: ^16.4.3
         version: 16.6.1
@@ -173,20 +173,20 @@ importers:
         specifier: ^1.14.0
         version: 1.19.14(hono@4.12.30)
       '@x402/core':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/evm':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/extensions':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/hono':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(hono@4.12.30)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(hono@4.12.30)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/svm':
-        specifier: ^2.21.0
-        version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
+        specifier: ^2.24.0
+        version: 2.24.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       dotenv:
         specifier: ^16.4.3
         version: 16.6.1
@@ -216,14 +216,14 @@ importers:
         specifier: ^5.0.2
         version: 5.0.6
       '@x402/core':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/evm':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/mcp':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       dotenv:
         specifier: ^16.4.3
         version: 16.6.1
@@ -250,20 +250,20 @@ importers:
         specifier: workspace:*
         version: link:../../../../../typescript/packages/cdp-sdk
       '@x402/core':
-        specifier: ^2.21.0
-        version: 2.21.0
+        specifier: ^2.24.0
+        version: 2.24.0
       '@x402/evm':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/extensions':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/next':
-        specifier: ^2.21.0
-        version: 2.21.0(bufferutil@4.1.0)(next@16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.8.3)(utf-8-validate@6.0.6)
+        specifier: ^2.24.0
+        version: 2.24.0(bufferutil@4.1.0)(next@16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.8.3)(utf-8-validate@6.0.6)
       '@x402/svm':
-        specifier: ^2.21.0
-        version: 2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
+        specifier: ^2.24.0
+        version: 2.24.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       next:
         specifier: ^16.2.6
         version: 16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1127,55 +1127,55 @@ packages:
   '@types/serve-static@2.2.0':
     resolution: {integrity: sha512-8mam4H1NHLtu7nmtalF7eyBH14QyOASmcxHhSfEoRyr0nP/YdoesEtU+uSRvMe96TW/HPTtkoKqQLl53N7UXMQ==}
 
-  '@x402/axios@2.21.0':
-    resolution: {integrity: sha512-CieZDe86DqJprvdsldae+4GF7ocLTYC+TgFZKBL1LzhgjxZsuALSmGbYlBcQOhP9nRcjYmxjYU+cKdOQeQH8DQ==}
+  '@x402/axios@2.24.0':
+    resolution: {integrity: sha512-8iZ9lDwHcPr6DtJ3LYle9PHOpWnidIgxRmeHuKV8pxgnf4pXhNK3ax+LL8geJUJYwccjtYiSG4a+pTZS5Xx+PA==}
     peerDependencies:
       axios: ^1.7.9
 
-  '@x402/core@2.21.0':
-    resolution: {integrity: sha512-0djKE7V5/JKDMrjRe5he3DoMFzlbVnUcvMmLAb2j6OoAJDamupkFh6fFrXeoHwjkBIxOFUzjGI4FVixz2dMxSA==}
+  '@x402/core@2.24.0':
+    resolution: {integrity: sha512-zKFbG+RgUhBXT9RcBQZGPW1cZXL9xpiTv68XSSuO1SMoobudmVvxYgP/bhoxJuAoqJjjEceeAhT4/EcA/wolrQ==}
 
-  '@x402/evm@2.21.0':
-    resolution: {integrity: sha512-VZtPz26IxhfAQbHHmyG7nCY/0jLH9QIgNqRztT1ae93dc9uSGUyn5bofzA3Wxq7lND3WDFir0QAQ2LBqoFeMrg==}
+  '@x402/evm@2.24.0':
+    resolution: {integrity: sha512-npH4A8P/HurcMOjIsri0VrHCb/TNbiIZgCrUrL2c+rbuwpyOtIT+6KT/yfwD53ckOttEE44yJqeK32MCvJ1Tug==}
 
-  '@x402/express@2.21.0':
-    resolution: {integrity: sha512-sEKRsHZLimWiaROrnm3G0LEXW/a5+7U5/TEMQ8+kmmePcPcMBg8jzBNDK6WXm2KOWnTWTRbKrdJMuT7eerYW0Q==}
+  '@x402/express@2.24.0':
+    resolution: {integrity: sha512-pL9zwFEOtITIxBR0J6nh4kbBPLDTunbZgyNn4CjfRH88Siem/JnkQAEcITF2Z1jd73Jk3r/oVSexhapuVBQ2Rw==}
     peerDependencies:
-      '@x402/paywall': ^2.21.0
+      '@x402/paywall': ^2.24.0
       express: ^4.0.0 || ^5.0.0
     peerDependenciesMeta:
       '@x402/paywall':
         optional: true
 
-  '@x402/extensions@2.21.0':
-    resolution: {integrity: sha512-0cZTRVtnWUUsp9KxBvbMERtLKo+57Ru1IhbAHtpgNdK08/LJWtK6CpqM4wgta8nMPth3jMvB/PdS3OdNaEPaBQ==}
+  '@x402/extensions@2.24.0':
+    resolution: {integrity: sha512-OSPywa8o46a2xIrh+nJqpvXQrppIPNimuPwf5zGRhRZEdjXfBAoSydB+rFj15rKR6Fd0iVjjqsrwUE1FnOuMvg==}
 
-  '@x402/fetch@2.21.0':
-    resolution: {integrity: sha512-LEiJ8jjb8fmCNgF1yMjLoVRtrg8gtb/zJgBDLW7t/KPbntDDqgru+nd1OLU1qyyp9D2I7ULYP420eHVyAVZ12w==}
+  '@x402/fetch@2.24.0':
+    resolution: {integrity: sha512-jhopac/aRWh3CYpDFjMxIzo/raH0ncmdDK2op6RzMoWsH3wj9/ejJylTv+Q22epReWLZ9AI35LEymN66B0MqNw==}
 
-  '@x402/hono@2.21.0':
-    resolution: {integrity: sha512-5OjD+jh0p0W4TvTmcwxYkRKfwgzldLE9PomOnVls6Gq6fsYYdajHuDxd8ZQXb8m9S/3JwOYK3Ay8v2hLv/Mv4A==}
+  '@x402/hono@2.24.0':
+    resolution: {integrity: sha512-E6SjHyIlvwrB+w3R4Xd74aQUtmBhLIEBYQymIKQbC254wfhm5Co+vmRWpWomVHUwZfvQN/XX9tR2V0yw9Kbtuw==}
     peerDependencies:
-      '@x402/paywall': ^2.21.0
+      '@x402/paywall': ^2.24.0
       hono: ^4.0.0
     peerDependenciesMeta:
       '@x402/paywall':
         optional: true
 
-  '@x402/mcp@2.21.0':
-    resolution: {integrity: sha512-UDZyOlW5AhtMFuqlXWUuITEzIiJ4EjyZtafceOapt2XyVWgvpWtCClgxQZk5Nkt0GO1fWnqI56YyYZqCan7dcw==}
+  '@x402/mcp@2.24.0':
+    resolution: {integrity: sha512-fUxrVZpScShsvrl/lTi3+guTSUDkB95MDWJEqoHywtTVx9e9N5w6v5rj6+ABdNEofSUyMAn+iFFx0MrI3pKndQ==}
 
-  '@x402/next@2.21.0':
-    resolution: {integrity: sha512-hTR98G7ItE/KE6GmOZ36LFaJMsjPF4cu4xWcVS3Uz4a4RxY9wOAlimQiLz8doETOWJduQSb98u0jR7IJ2Nl9Bg==}
+  '@x402/next@2.24.0':
+    resolution: {integrity: sha512-iMETf3OiRtw7cXc111t0ZQTJ7Jr4seFM0gzY8ddpSVYY49pKtJd58JTZxZeRdFLj2rDz/kTk/zMmvqJUPo+xrg==}
     peerDependencies:
-      '@x402/paywall': ^2.21.0
+      '@x402/paywall': ^2.24.0
       next: '>=16.2.6'
     peerDependenciesMeta:
       '@x402/paywall':
         optional: true
 
-  '@x402/svm@2.21.0':
-    resolution: {integrity: sha512-PdB+ALLXP5igMXiF8CaU0c7HBX52gs5sfLGlJ4iTtMKk11A1qvge46bIviGt9GcZkwbzBBFOHwkHJVUZum+vQA==}
+  '@x402/svm@2.24.0':
+    resolution: {integrity: sha512-j/2ARlUaDipqGyMuQOCbxSr+Pr7sANsksL1HXMCqYmTnNhX8BqZGIYTXNxbkNON47QKaojSdRckXwHwX0oIVrg==}
     peerDependencies:
       '@solana/kit': '>=5.1.0'
 
@@ -2666,18 +2666,18 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 22.19.15
 
-  '@x402/axios@2.21.0(axios@1.16.0)':
+  '@x402/axios@2.24.0(axios@1.16.0)':
     dependencies:
-      '@x402/core': 2.21.0
+      '@x402/core': 2.24.0
       axios: 1.16.0
 
-  '@x402/core@2.21.0':
+  '@x402/core@2.24.0':
     dependencies:
       zod: 3.25.76
 
-  '@x402/evm@2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)':
+  '@x402/evm@2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@x402/core': 2.21.0
+      '@x402/core': 2.24.0
       viem: 2.53.1(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
@@ -2685,10 +2685,10 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@x402/express@2.21.0(bufferutil@4.1.0)(express@5.2.1)(typescript@5.8.3)(utf-8-validate@6.0.6)':
+  '@x402/express@2.24.0(bufferutil@4.1.0)(express@5.2.1)(typescript@5.8.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@x402/core': 2.21.0
-      '@x402/extensions': 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/core': 2.24.0
+      '@x402/extensions': 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       express: 5.2.1
     transitivePeerDependencies:
       - bufferutil
@@ -2696,12 +2696,12 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@x402/extensions@2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)':
+  '@x402/extensions@2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@noble/curves': 1.9.7
       '@scure/base': 1.2.6
       '@signinwithethereum/siwe': 4.2.0(viem@2.53.1(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)(zod@3.25.76))
-      '@x402/core': 2.21.0
+      '@x402/core': 2.24.0
       ajv: 8.20.0
       jose: 5.10.0
       tweetnacl: 1.0.3
@@ -2713,14 +2713,14 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@x402/fetch@2.21.0':
+  '@x402/fetch@2.24.0':
     dependencies:
-      '@x402/core': 2.21.0
+      '@x402/core': 2.24.0
 
-  '@x402/hono@2.21.0(bufferutil@4.1.0)(hono@4.12.30)(typescript@5.8.3)(utf-8-validate@6.0.6)':
+  '@x402/hono@2.24.0(bufferutil@4.1.0)(hono@4.12.30)(typescript@5.8.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@x402/core': 2.21.0
-      '@x402/extensions': 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/core': 2.24.0
+      '@x402/extensions': 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       hono: 4.12.30
     transitivePeerDependencies:
       - bufferutil
@@ -2728,19 +2728,19 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@x402/mcp@2.21.0':
+  '@x402/mcp@2.24.0':
     dependencies:
       '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
-      '@x402/core': 2.21.0
+      '@x402/core': 2.24.0
       zod: 3.25.76
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@x402/next@2.21.0(bufferutil@4.1.0)(next@16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.8.3)(utf-8-validate@6.0.6)':
+  '@x402/next@2.24.0(bufferutil@4.1.0)(next@16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.8.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@x402/core': 2.21.0
-      '@x402/extensions': 2.21.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
+      '@x402/core': 2.24.0
+      '@x402/extensions': 2.24.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@6.0.6)
       next: 16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     transitivePeerDependencies:
       - bufferutil
@@ -2748,13 +2748,13 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@x402/svm@2.21.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))':
+  '@x402/svm@2.24.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))':
     dependencies:
       '@solana-program/compute-budget': 0.11.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))
       '@solana-program/token': 0.9.0(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))
       '@solana-program/token-2022': 0.6.1(@solana/kit@5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3))
       '@solana/kit': 5.5.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@6.0.6)
-      '@x402/core': 2.21.0
+      '@x402/core': 2.24.0
     transitivePeerDependencies:
       - '@solana/sysvars'
 

@@ -8,6 +8,7 @@
  * RPC URLs are supplied explicitly via config.
  */
 import { x402Client } from "@x402/core/client";
+import { AuthCaptureEvmScheme } from "@x402/evm/auth-capture/client";
 import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
@@ -15,6 +16,7 @@ import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
+import { UptoSvmScheme } from "@x402/svm/upto/client";
 
 import {
   cdpSolanaAccountToSvmSigner,
@@ -74,6 +76,14 @@ export type SchemesConfig = {
   exact?: boolean;
   upto?: boolean;
   batchSettlement?: boolean;
+  /**
+   * Registers the `auth-capture` scheme (EVM only): the client signs a
+   * payer-agnostic authorization that the resource server's captureAuthorizer
+   * can later capture, void, or let expire. Off by default — unlike `exact`
+   * and `upto`, funds are held in escrow rather than transferred immediately,
+   * so this is opt-in.
+   */
+  authCapture?: boolean;
 };
 
 export type NetworkConfig = {
@@ -145,9 +155,9 @@ export interface CdpX402ClientConfig {
    * the CDP-hosted default RPC injected for it.
    *
    * Solana has no CDP-hosted default RPC and no override is required for
-   * `exact` — it falls back to a public default RPC. `upto` and
-   * `batchSettlement` aren't yet supported for Solana (skipped with a
-   * warning), regardless of `rpcUrl`.
+   * `exact` or `upto` — both fall back to a public default RPC. `batchSettlement`
+   * and `authCapture` aren't supported for Solana (skipped with a warning),
+   * regardless of `rpcUrl` — they're EVM-only schemes upstream.
    */
   networkSchemes?: NetworkConfig[];
 }
@@ -338,14 +348,16 @@ const setupCdpSigners = async (
       }
     }
 
-    // `upto`'s Permit2 transfer method requires an initial approval transaction that cannot be sponsored; disabled for smart accounts at this time.
-    if (netConfig.scheme.upto && walletType !== "smart") {
+    if (netConfig.scheme.upto) {
       if (isSolana) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `CdpX402Client: skipping network "${network}": Solana Upto scheme is not yet supported.`,
-        );
-      } else {
+        client.register(caip2Network, new UptoSvmScheme(svmSigner, { rpcUrl: netConfig.rpcUrl }));
+        /*
+         * `upto`'s EVM Permit2 transfer method requires an initial approval
+         * transaction that cannot be sponsored; disabled for smart accounts at
+         * this time. Solana `upto` has no such restriction — CDP Solana
+         * accounts are never smart-wallet-typed, so it's unaffected either way.
+         */
+      } else if (walletType !== "smart") {
         client.register(caip2Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
       }
     }
@@ -361,6 +373,17 @@ const setupCdpSigners = async (
           caip2Network,
           new BatchSettlementEvmScheme(evmSigner, { rpcUrl: netConfig.rpcUrl }),
         );
+      }
+    }
+
+    if (netConfig.scheme.authCapture) {
+      if (isSolana) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `CdpX402Client: skipping network "${network}": Solana Auth Capture scheme is not supported (EVM-only upstream).`,
+        );
+      } else {
+        client.register(caip2Network, new AuthCaptureEvmScheme(evmSigner));
       }
     }
   }

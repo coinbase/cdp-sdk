@@ -88,7 +88,13 @@ export type { CdpSchemeRegistration } from "./server-extensions.js";
 
 // Main client
 export { CdpX402Client } from "./client.js";
-export type { CdpX402ClientConfig, CdpX402WalletAddresses, WalletConfig } from "./client.js";
+export type {
+  CdpX402ClientConfig,
+  CdpX402WalletAddresses,
+  WalletConfig,
+  NetworkConfig,
+  SchemesConfig,
+} from "./client.js";
 
 // Facilitator
 export { createCdpFacilitatorClient, CDP_FACILITATOR_URL } from "./facilitator.js";

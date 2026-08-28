@@ -1694,6 +1694,26 @@ const client = new CdpX402Client({
 });
 ```
 
+By default `CdpX402Client` registers `exact` and `upto` on Base (mainnet or Sepolia, depending on `environment`). Use `networkSchemes` to add Solana, other EVM networks, or opt into `batchSettlement`/`authCapture`:
+
+```typescript
+const client = new CdpX402Client({
+  networkSchemes: [
+    // Solana: `exact` and `upto` both fall back to a public RPC — no `rpcUrl` needed.
+    { network: "solana", scheme: { exact: true, upto: true } },
+    // Base: opt into batch-settlement (deferred, batched settlement) and
+    // auth-capture (payer-agnostic authorization, captured/voided later) on top
+    // of the exact/upto baseline.
+    {
+      network: "base",
+      scheme: { exact: true, upto: true, batchSettlement: true, authCapture: true },
+    },
+  ],
+});
+```
+
+`batchSettlement` and `authCapture` are EVM-only upstream — configuring them for a Solana network entry is skipped with a warning rather than throwing. `authCapture` holds funds in escrow instead of transferring them immediately, so it's opt-in only and never enabled by the Base/Base-Sepolia baseline.
+
 Every `CdpX402Client` always attaches its own `cdp_sdk_client` service code to the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, for on-chain attribution of payments made through the CDP SDK. To attribute payments to your own app or service too, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of up to four codes when several participants share attribution) — it's added to `s` alongside the SDK's own code:
 
 ```typescript
@@ -1743,6 +1763,8 @@ const server = await createX402Server({
 app.use(paymentMiddlewareFromHTTPServer(server));
 console.log("Receiving EVM payments at", server.payToEvmAddress);
 ```
+
+`exact` and `upto` are registered by default for both Base (`eip155:*`) and Solana (`solana:*`) — no extra configuration needed. Solana `upto` settlement vouchers are signed by the same CDP-managed Solana receiver wallet used for `exact`, so it's only available when a route provisions a CDP-managed Solana address (i.e. not when `payTo` is set to an explicit external address). `batchSettlement` and `authCapture` aren't prescribed server-side yet.
 
 Every route with an EVM payment option always advertises the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension with the SDK's own `cdp_sdk_server` service code, for on-chain attribution of payments received through the CDP SDK. Solana-only routes are skipped, since the attribution suffix is ERC-8021 EVM calldata. To additionally attribute settled payments to your own app, pass optional `builderCode` — it's declared as the app code (`a`) alongside the SDK's own service code:
 

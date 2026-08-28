@@ -25,7 +25,9 @@ import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
 import { BUILDER_CODE, builderCodeResourceServerExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
+import { UptoSvmScheme } from "@x402/svm/upto/server";
 
+import type { MessagePartialSigner } from "@solana/kit";
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
 
 /*
@@ -180,15 +182,46 @@ export interface CdpSchemeRegistration {
 }
 
 /**
+ * Options for {@link getCdpDefaultSchemes}, controlling optional Solana `upto`
+ * server registration.
+ */
+export interface CdpDefaultSchemesOptions {
+  /**
+   * Server hot key that signs Solana `upto` settlement vouchers as the
+   * channel's `authorized_signer`. When omitted, Solana `upto` is **not**
+   * registered — only `exact` is registered for `solana:*`, same as before.
+   * `X402Server.create()` supplies this automatically (the provisioned Solana
+   * receiver wallet, wrapped via `cdpSolanaAccountToMessageSigner`) whenever a
+   * CDP-managed Solana account was provisioned.
+   */
+  svmReceiverAuthorizerSigner?: MessagePartialSigner;
+  /**
+   * Channel `grace_period` for Solana `upto`. Defaults to
+   * `max(DEFAULT_GRACE_PERIOD_SECONDS, maxTimeoutSeconds)` when omitted.
+   * Ignored unless `svmReceiverAuthorizerSigner` is set.
+   */
+  svmWithdrawDelay?: number;
+  /**
+   * RPC endpoint used to embed a fresh blockhash/slot in Solana `upto` 402
+   * challenges. Ignored unless `svmReceiverAuthorizerSigner` is set.
+   */
+  svmRpcUrl?: string;
+}
+
+/**
  * Returns the default CDP scheme registrations:
  * - `exact` for all EVM networks (`eip155:*`)
  * - `upto` for all EVM networks (`eip155:*`)
  * - `exact` for all Solana networks (`solana:*`)
+ * - `upto` for all Solana networks (`solana:*`), only when
+ *   `options.svmReceiverAuthorizerSigner` is provided
  *
  * Pass the result to `paymentMiddlewareFromConfig` (Express / Hono) or
  * any other framework adapter to replicate the same scheme coverage
  * when building middleware manually.
  *
+ * @param options - Optional Solana `upto` registration settings. Omit entirely
+ *   to keep the previous behavior (`exact` + EVM `upto` only).
  * @example
  * ```typescript
  * import { getCdpDefaultSchemes, createCdpFacilitatorClient } from "@coinbase/cdp-sdk/x402";
@@ -196,14 +229,27 @@ export interface CdpSchemeRegistration {
  *
  * app.use(paymentMiddlewareFromConfig(routes, createCdpFacilitatorClient(), getCdpDefaultSchemes()));
  * ```
- * @returns Array of scheme+network registrations for EVM (exact+upto) and Solana (exact).
+ * @returns Array of scheme+network registrations for EVM (exact+upto) and Solana (exact, plus upto when configured).
  */
-export function getCdpDefaultSchemes(): CdpSchemeRegistration[] {
-  return [
+export function getCdpDefaultSchemes(options?: CdpDefaultSchemesOptions): CdpSchemeRegistration[] {
+  const schemes: CdpSchemeRegistration[] = [
     { network: "eip155:*" as Network, server: new ExactEvmScheme() },
     { network: "eip155:*" as Network, server: new UptoEvmScheme() },
     { network: "solana:*" as Network, server: new ExactSvmScheme() },
   ];
+
+  if (options?.svmReceiverAuthorizerSigner) {
+    schemes.push({
+      network: "solana:*" as Network,
+      server: new UptoSvmScheme({
+        receiverAuthorizerSigner: options.svmReceiverAuthorizerSigner,
+        withdrawDelay: options.svmWithdrawDelay,
+        rpcUrl: options.svmRpcUrl,
+      }),
+    });
+  }
+
+  return schemes;
 }
 
 /*
