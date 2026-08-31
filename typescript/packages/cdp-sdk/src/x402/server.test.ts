@@ -1652,7 +1652,7 @@ describe("X402Server auto-injects the builder-code extension", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fix 1: CDP_X402_SERVER_ENVIRONMENT
+// Development/production network defaults (CDP_X402_SERVER_ENVIRONMENT)
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("CDP_SERVER_DEVELOPMENT_NETWORKS constants", () => {
@@ -1795,7 +1795,7 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fix 3: empty payTo guard for address payToConfig
+// Empty payTo guard for address payToConfig
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("createX402Server — empty payTo guard", () => {
@@ -1918,7 +1918,7 @@ describe("createX402Server — empty payTo guard", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fix 4: configPath route deep-merge
+// configPath route deep-merge
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("createX402Server — configPath deep route merge", () => {

@@ -1076,11 +1076,7 @@ export class X402Server extends x402HTTPResourceServer {
    *   any framework middleware.
    */
   static async create(config: CdpX402ServerConfig): Promise<X402Server> {
-    /*
-     * 1. Merge file config (if any) with inline config; inline takes precedence.
-     *    Routes are deep-merged so both file and inline routes are preserved;
-     *    inline routes win on conflicting keys.
-     */
+    // Routes are deep-merged so file and inline routes both survive; inline wins on conflicts.
     let merged = config;
     if (config.configPath) {
       const fileConfig = await loadConfigFile(config.configPath);
@@ -1091,10 +1087,7 @@ export class X402Server extends x402HTTPResourceServer {
       };
     }
 
-    /*
-     * 2. Validate routes and builder code before doing any I/O (fail fast
-     *    before wallet provisioning).
-     */
+    // Validate before any I/O so a bad config fails before wallet provisioning.
     const routes = merged.routes;
     if (!routes || Object.keys(routes).length === 0) {
       throw new Error("createX402Server requires at least one payment route.");
@@ -1111,11 +1104,9 @@ export class X402Server extends x402HTTPResourceServer {
       merged.builderCode,
     );
 
-    // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).
     const credentials = resolveServerCredentials(merged);
     const { environment } = credentials;
 
-    // 4. Build the CDP facilitator client and x402ResourceServer (schemes registered in step 5b).
     const facilitatorClient = createCdpFacilitatorClient({
       apiKeyId: credentials.apiKeyId,
       apiKeySecret: credentials.apiKeySecret,
@@ -1126,7 +1117,6 @@ export class X402Server extends x402HTTPResourceServer {
       resourceServer.registerExtension(ext);
     }
 
-    // 5a. Resolve payTo addresses — provision wallets or use provided addresses.
     const payToConfig = merged.payToConfig;
     let evmAddress: Address | "";
     let svmAddress: string;
@@ -1172,9 +1162,9 @@ export class X402Server extends x402HTTPResourceServer {
     }
 
     /*
-     * 5b. Register default schemes now that the Solana account (if any) has
-     * been provisioned — Solana `upto` needs it as the `receiverAuthorizerSigner`.
-     * `payToConfig.type === "address"` never has a CDP-managed key, so Solana
+     * Registered only now that the Solana account (if any) is provisioned —
+     * Solana `upto` needs it as the `receiverAuthorizerSigner`. Bring-your-own
+     * `payToConfig: { type: "address" }` has no CDP-managed key, so Solana
      * `upto` is skipped in that mode (only `exact` is registered for Solana).
      */
     const svmReceiverAuthorizerSigner = svmAccount
@@ -1184,7 +1174,6 @@ export class X402Server extends x402HTTPResourceServer {
       resourceServer.register(scheme.network as Network, scheme.server);
     }
 
-    // 6. Resolve routes (simplified CDP format or full x402 format).
     const resolvedRoutes = resolveRoutes(
       routes,
       evmAddress,
@@ -1193,7 +1182,6 @@ export class X402Server extends x402HTTPResourceServer {
       builderCodeDeclaration,
     );
 
-    // 7. Construct and initialize — syncs supported schemes with the facilitator.
     const instance = new X402Server(
       resourceServer,
       resolvedRoutes,
