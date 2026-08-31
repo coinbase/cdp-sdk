@@ -41,20 +41,14 @@ const NETWORK = "eip155:84532" as const;
 const PORT = Number(process.env.PORT ?? 8404);
 
 const PAY_TO = process.env.PAY_TO as Address;
-if (!PAY_TO)
-  throw new Error(
-    "PAY_TO env var required (an EVM address to receive payments)",
-  );
+if (!PAY_TO) throw new Error("PAY_TO env var required (an EVM address to receive payments)");
 
 const facilitator = createCdpFacilitatorClient();
 // No receiverAuthorizerSigner -> delegates authorization to the facilitator's
 // advertised receiverAuthorizer (see the scheme's server README for the
 // self-managed alternative).
 const batchedScheme = new BatchSettlementEvmScheme(PAY_TO);
-const resourceServer = new x402ResourceServer(facilitator).register(
-  NETWORK,
-  batchedScheme,
-);
+const resourceServer = new x402ResourceServer(facilitator).register(NETWORK, batchedScheme);
 
 const httpServer = new x402HTTPResourceServer(resourceServer, {
   "GET /report": {
@@ -82,7 +76,7 @@ async function main() {
   );
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error("Startup failed:", err);
   process.exit(1);
 });

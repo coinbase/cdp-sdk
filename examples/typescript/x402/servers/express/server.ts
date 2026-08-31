@@ -165,39 +165,38 @@ if (APPROACH === "1") {
   app.use(paymentMiddlewareFromHTTPServer(server));
   app.get("/report", (_req, res) => res.json({ report: "..." }));
 
-  // upto route: compute a variable charge at or below the authorized max, then
-  // tell the middleware to settle only that amount via setSettlementOverrides.
-  // In production this would be real usage — LLM tokens, bytes served, etc.
-  app.get("/usage", (_req, res) => {
+  /**
+   * Computes a variable charge at or below the route's authorized max, then
+   * tells the middleware to settle only that amount via
+   * `setSettlementOverrides`. In production this would be real usage — LLM
+   * tokens, bytes served, etc. The "upto" scheme's settlement flow doesn't
+   * differ between EVM and Solana from the route handler's point of view, so
+   * `/usage` and `/usage-solana` share this same handler.
+   *
+   * @param res - The Express response to attach the settlement override to.
+   * @param resultLabel - Text describing the result, distinguishing the EVM vs Solana route in the response body.
+   */
+  function handleUsageRequest(res: express.Response, resultLabel: string) {
     const maxAtomic = 100_000; // the route's $0.10 price, in 6-decimal USDC atomic units
-    // Charge somewhere in (0, max]. Settling zero is legal but pointless here.
     const actualAtomic = 1 + Math.floor(Math.random() * maxAtomic);
     setSettlementOverrides(res, { amount: String(actualAtomic) });
     res.json({
-      result: "Here is your usage-metered response...",
+      result: resultLabel,
       usage: {
         authorizedMaxAtomic: String(maxAtomic),
         actualChargedAtomic: String(actualAtomic),
       },
     });
-  });
+  }
+
+  app.get("/usage", (_req, res) =>
+    handleUsageRequest(res, "Here is your usage-metered response..."),
+  );
 
   if (ENABLE_SOLANA_UPTO) {
-    // Same handler shape as /usage — the "upto" scheme's settlement flow
-    // doesn't differ between EVM and Solana from the route handler's point of
-    // view.
-    app.get("/usage-solana", (_req, res) => {
-      const maxAtomic = 100_000;
-      const actualAtomic = 1 + Math.floor(Math.random() * maxAtomic);
-      setSettlementOverrides(res, { amount: String(actualAtomic) });
-      res.json({
-        result: "Here is your Solana usage-metered response...",
-        usage: {
-          authorizedMaxAtomic: String(maxAtomic),
-          actualChargedAtomic: String(actualAtomic),
-        },
-      });
-    });
+    app.get("/usage-solana", (_req, res) =>
+      handleUsageRequest(res, "Here is your Solana usage-metered response..."),
+    );
   }
 
   /*
@@ -227,7 +226,10 @@ if (APPROACH === "1") {
     const nowSeconds = Math.floor(Date.now() / 1000);
     const paymentRequired = {
       x402Version: 2,
-      resource: { url: "https://example.com/auth-capture-mock", mimeType: "application/json" },
+      resource: {
+        url: "https://example.com/auth-capture-mock",
+        mimeType: "application/json",
+      },
       accepts: [
         {
           scheme: "auth-capture",

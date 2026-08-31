@@ -79,8 +79,6 @@ function preferNetworkPolicy(preferredNetwork: string): PaymentPolicy {
 }
 
 async function main() {
-  // Base schemes always include exact + upto; batchSettlement/authCapture are
-  // opt-in per `X402_SCHEMES` (see the SchemesConfig import above).
   const baseScheme: SchemesConfig = {
     exact: true,
     upto: true,
@@ -88,10 +86,9 @@ async function main() {
     authCapture: WANT_AUTH_CAPTURE,
   };
 
-  // "development" prescribes Base Sepolia as the baseline network; add Solana
-  // Devnet explicitly since CdpX402Client only prescribes Base by default.
-  // batchSettlement/authCapture are skipped with a warning for Solana — only
-  // exact/upto apply there regardless of what's requested via X402_SCHEMES.
+  // CdpX402Client only prescribes Base by default; add Solana Devnet
+  // explicitly. batchSettlement/authCapture are skipped with a warning for
+  // Solana regardless of X402_SCHEMES — both are Base-only upstream.
   const networkSchemes: NetworkConfig[] = [
     { network: "base-sepolia", scheme: baseScheme },
     { network: "solana-devnet", scheme: { exact: true, upto: true } },
@@ -130,7 +127,6 @@ async function main() {
       console.warn(
         "  Faucet request failed — you may already be funded, or hit the project limit.",
       );
-      // Fall through and attempt the payment anyway.
     }
   }
 

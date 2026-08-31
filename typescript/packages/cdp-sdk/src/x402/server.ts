@@ -621,10 +621,7 @@ const EVM_HARD_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set();
  * @param network - CAIP-2 network identifier (e.g. `"eip155:8453"`).
  */
 function assertSchemeSupportsNetwork(scheme: string, network: string): void {
-  if (
-    EVM_HARD_ONLY_SCHEMES.has(scheme as CdpPaymentScheme) &&
-    !network.startsWith("eip155:")
-  ) {
+  if (EVM_HARD_ONLY_SCHEMES.has(scheme as CdpPaymentScheme) && !network.startsWith("eip155:")) {
     throw new Error(
       `Scheme "${scheme}" only supports EVM (eip155:*) networks. ` +
         `Network "${network}" is not supported. ` +
