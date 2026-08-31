@@ -242,7 +242,8 @@ function lastEvmRpcMap(
   mockCtor: typeof ExactEvmScheme | typeof UptoEvmScheme,
 ): Record<number, { rpcUrl: string }> | undefined {
   return vi.mocked(mockCtor).mock.calls.at(-1)?.[1] as
-    Record<number, { rpcUrl: string }> | undefined;
+    | Record<number, { rpcUrl: string }>
+    | undefined;
 }
 
 /**
@@ -253,7 +254,8 @@ function lastEvmRpcMap(
  */
 async function enrichedServiceCodes(): Promise<string[] | undefined> {
   const extension = mockRegisterExtension.mock.calls.at(-1)?.[0] as
-    BuilderCodeClientExtension | undefined;
+    | BuilderCodeClientExtension
+    | undefined;
   if (!extension) return undefined;
 
   const enriched = await extension.enrichPaymentPayload(mockPayload, mockPaymentRequired);
