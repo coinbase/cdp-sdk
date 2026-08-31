@@ -214,13 +214,12 @@ export interface CdpSolanaMessageSigningAccount {
 }
 
 /**
- * Converts a CDP Solana account into an x402-compatible `MessagePartialSigner`.
+ * Converts a CDP Solana account into an x402-compatible `MessagePartialSigner`
+ * for signing arbitrary messages.
  *
- * This is used server-side by the `upto` scheme on Solana, where the resource
- * server (not the payer) signs settlement vouchers as the
- * `receiverAuthorizerSigner`. Each message's raw bytes are base64-encoded for
- * CDP's message-signing endpoint, and the returned base58 signature is decoded
- * back into raw bytes for the `SignatureDictionary` result `@x402/svm` expects.
+ * Each message's raw bytes are base64-encoded for CDP's message-signing
+ * endpoint, and the returned base58 signature is decoded back into raw bytes
+ * for the `SignatureDictionary` result `@solana/kit` expects.
  *
  * @param account - A CDP Solana account from `cdpClient.solana.getOrCreateAccount()`
  * @returns A `MessagePartialSigner` compatible with `@x402/svm`'s `UptoSvmScheme` server

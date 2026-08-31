@@ -610,13 +610,16 @@ describe("CdpX402Client", () => {
       expect(ExactEvmScheme).toHaveBeenCalled();
     });
 
-    it("does not register the upto EVM scheme for smart wallets", async () => {
+    it("does not register the upto EVM scheme for smart wallets, and warns", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const client = new CdpX402Client({
         walletConfig: { type: "smart", ownerAccountName: "my-owner" },
       });
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(UptoEvmScheme).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(/upto scheme is not supported/));
+      warnSpy.mockRestore();
     });
   });
 

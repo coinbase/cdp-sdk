@@ -136,13 +136,13 @@ a pass/fail check. `exact`, `upto`, and `authCapture` are all registered by defa
 | --- | --- | --- | --- |
 | `exact` | Base Sepolia | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
 | `exact` | Solana Devnet | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
-| `upto` | Base Sepolia | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage pnpm tsx x402/clients/payForSchemes.ts` |
-| `upto` | Solana Devnet | CDP Express (`GET /usage-solana`) | `X402_API_URL=http://localhost:8402/usage-solana pnpm tsx x402/clients/payForSchemes.ts` |
+| `upto` | Base Sepolia | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
+| `upto` | Solana Devnet | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
 | `auth-capture` | Base Sepolia | CDP Express (`GET /auth-capture-mock`, smoke test only) | `X402_API_URL=http://localhost:8402/auth-capture-mock pnpm tsx x402/clients/payForSchemes.ts` |
 
-`GET /report` accepts both Base Sepolia and Solana Devnet, so `X402_PREFERRED_NETWORK` forces the
-client's network choice via a registered `PaymentPolicy` — without it, `CdpX402Client` picks
-whichever the underlying `x402Client` selects first.
+`GET /report` and `GET /usage` both accept Base Sepolia and Solana Devnet by default, so
+`X402_PREFERRED_NETWORK` forces the client's network choice via a registered `PaymentPolicy` —
+without it, `CdpX402Client` picks whichever the underlying `x402Client` selects first.
 
 **`exact` and `upto` on Base + Solana** run against the CDP Express server from the [Servers](#servers)
 section above (`cd x402/servers/express && APPROACH=2 pnpm start`) — no extra setup beyond funding
@@ -150,11 +150,11 @@ the wallet (see [Funding](#funding); fund the Solana address too, via
 `cdp.solana.requestFaucet({ address, token: "usdc" | "sol" })`, for the Solana Devnet cases).
 
 **`upto` on Solana** is implemented end-to-end in the CDP SDK's resource server (see
-`getCdpDefaultSchemes` in `@coinbase/cdp-sdk/x402`) and registered unconditionally by the Express
-example's `GET /usage-solana`. The CDP-hosted facilitator hasn't finished settlement support for
-it yet, so paying that route currently fails at verification with
-`invalid_upto_svm_payload_voucher_signature` — expected until facilitator support lands, at which
-point this route starts working with no code changes needed.
+`getCdpDefaultSchemes` in `@coinbase/cdp-sdk/x402`) and is one of `GET /usage`'s default networks
+alongside Base. The CDP-hosted facilitator hasn't finished settlement support for it yet, so
+paying on Solana currently fails at verification with `invalid_upto_svm_payload_voucher_signature`
+— expected until facilitator support lands, at which point it starts working with no code changes
+needed.
 
 **`auth-capture` on Base** has no facilitator or resource-server support yet (client-only, on by
 default alongside `exact`/`upto`; see the CDP SDK's `README.md`). `GET /auth-capture-mock` on the

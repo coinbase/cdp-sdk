@@ -57,16 +57,11 @@ if (APPROACH === "1") {
     environment: "development", // Base Sepolia + Solana Devnet; "production" for mainnet
     routes: {
       "GET /report": { price: "$0.01", description: "AI-generated report" },
+      // "upto" defaults to Base + Solana — no explicit networks needed.
       "GET /usage": {
         price: "$0.10",
         scheme: "upto",
         description: "Usage-based billing — authorize up to $0.10, settle actual usage",
-      },
-      "GET /usage-solana": {
-        price: "$0.10",
-        scheme: "upto",
-        networks: ["solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"],
-        description: "Usage-based billing on Solana — authorize up to $0.10, settle actual usage",
       },
     },
   });
@@ -90,9 +85,6 @@ if (APPROACH === "1") {
 
   app.get("/usage", (_req, res) =>
     handleUsageRequest(res, "Here is your usage-metered response..."),
-  );
-  app.get("/usage-solana", (_req, res) =>
-    handleUsageRequest(res, "Here is your Solana usage-metered response..."),
   );
 
   // Smoke test only: createX402Server never registers auth-capture server-side (client-only

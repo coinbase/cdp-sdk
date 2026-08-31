@@ -736,7 +736,7 @@ describe("createX402Server", () => {
       expect(passedRoutes["GET /metered"].accepts.scheme).toBe("upto");
     });
 
-    it("defaults to EVM-only networks when 'upto' scheme is used without explicit networks", async () => {
+    it("defaults to Base + Solana networks when 'upto' scheme is used without explicit networks", async () => {
       const { x402HTTPResourceServer } = await import("@x402/core/server");
 
       await createX402Server({
@@ -749,8 +749,8 @@ describe("createX402Server", () => {
       ];
       const accepts = passedRoutes["GET /metered"].accepts;
       const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
-      expect(networks.every(n => n.startsWith("eip155:"))).toBe(true);
-      expect(networks).not.toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
+      expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]);
+      expect(networks).toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
     });
 
     it("accepts 'upto' scheme with an explicit Solana network", async () => {
@@ -1761,7 +1761,7 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
     expect(networks).not.toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
   });
 
-  it("upto with development environment defaults to development EVM networks only", async () => {
+  it("upto with development environment defaults to development Base + Solana networks", async () => {
     const { x402HTTPResourceServer } = await import("@x402/core/server");
 
     await createX402Server({
@@ -1775,8 +1775,8 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
     ];
     const accepts = passedRoutes["GET /metered"].accepts;
     const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
-    expect(networks.every(n => n.startsWith("eip155:"))).toBe(true);
     expect(networks).toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
+    expect(networks).toContain(CDP_SERVER_DEVELOPMENT_SVM_NETWORKS[0]);
   });
 
   it("unknown CDP_X402_SERVER_ENVIRONMENT value falls back to production", async () => {

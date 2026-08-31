@@ -10,13 +10,14 @@
  * replacement and can be passed anywhere an `x402HTTPResourceServer` is
  * expected (e.g. `paymentMiddlewareFromHTTPServer`, Hono / Next.js adapters).
  *
- * Routes may be supplied in either format:
+ * A route (`CdpRouteConfig`) may be supplied in either format:
  *
- * **Simplified CDP format** (`CdpRouteConfig`) — just `price` and optional
- * `description` / `networks` / `paymentFlow`. The server fills in `scheme`,
- * `payTo`, and all x402 internals automatically. `paymentFlow` is exact-scheme
- * only (`"authorization"` default, or `"upfront"`) and is applied to every
- * network the route expands to (Base and Solana when `networks` is omitted).
+ * **Simplified CDP format** (`CdpSimplifiedRouteConfig`) — just `price` and
+ * optional `description` / `networks` / `paymentFlow`. The server fills in
+ * `scheme`, `payTo`, and all x402 internals automatically. `paymentFlow` is
+ * exact-scheme only (`"authorization"` default, or `"upfront"`) and is
+ * applied to every network the route expands to (Base and Solana when
+ * `networks` is omitted).
  *
  * **Full x402 format** (`CdpX402RouteConfig`) — the same `accepts` /
  * `description` shape accepted by `x402HTTPResourceServer`, except `payTo`
@@ -155,12 +156,9 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
  *   Supports EVM and Solana networks.
  * - `"upto"` — Usage-based billing: the client authorizes a maximum amount
  *   and the server settles the actual amount charged (≤ max). Supports EVM
- *   (via Permit2) by default. Solana is also supported (via a settlement
- *   voucher signed by the provisioned CDP Solana receiver wallet —
- *   unavailable with a bring-your-own `payToConfig: { type: "address" }`
- *   Solana address) but must be requested explicitly via `networks` — it
- *   isn't part of `"upto"`'s network defaults, since not every facilitator
- *   advertises `upto` support for Solana yet.
+ *   (via Permit2) and Solana (via a settlement voucher signed by the
+ *   provisioned CDP Solana receiver wallet — unavailable with a
+ *   bring-your-own `payToConfig: { type: "address" }` Solana address) by default.
  */
 export type CdpPaymentScheme = "exact" | "upto";
 
@@ -185,9 +183,9 @@ const CDP_EXACT_PAYMENT_FLOWS: ReadonlySet<string> = new Set(["authorization", "
  *
  * For routes that need fine-grained control (custom scheme, `extra`, explicit
  * `payTo`, etc.) pass a {@link CdpX402RouteConfig} instead — both formats are
- * accepted in the same `routes` map.
+ * accepted in the same `routes` map under the {@link CdpRouteConfig} union.
  */
-export interface CdpRouteConfig {
+export interface CdpSimplifiedRouteConfig {
   /**
    * Payment amount required to access this route, e.g. `"$0.01"`.
    * Accepts any amount string supported by the x402 protocol.
@@ -198,14 +196,10 @@ export interface CdpRouteConfig {
   /**
    * Payment scheme to use for this route.
    *
-   * Defaults to `"exact"`, which supports Base and Solana out of the box.
-   * `"upto"` defaults to Base only; pass an explicit `networks` including a
-   * `solana:*` entry to also accept `upto` on Solana — supported by the CDP
-   * SDK's resource server (a CDP-managed Solana receiver wallet signs
-   * settlement vouchers; unavailable with a bring-your-own
-   * `payToConfig: { type: "address" }` Solana address), but not every
-   * facilitator advertises `upto` support for Solana yet, so it isn't
-   * defaulted on.
+   * Defaults to `"exact"`. Both `"exact"` and `"upto"` support Base and
+   * Solana out of the box — a CDP-managed Solana receiver wallet signs
+   * `"upto"` settlement vouchers, so it's unavailable with a bring-your-own
+   * `payToConfig: { type: "address" }` Solana address.
    */
   scheme?: CdpPaymentScheme;
   /**
@@ -222,9 +216,8 @@ export interface CdpRouteConfig {
   paymentFlow?: CdpPaymentFlow;
   /**
    * CAIP-2 network identifiers for which the route accepts payments.
-   * Defaults to `CDP_SERVER_DEFAULT_NETWORKS` (Base mainnet + Solana mainnet)
-   * for `"exact"`, or `CDP_SERVER_DEFAULT_EVM_NETWORKS` (Base mainnet only)
-   * for `"upto"` — or their `CDP_SERVER_DEVELOPMENT_*` equivalents when
+   * Defaults to `CDP_SERVER_DEFAULT_NETWORKS` (Base mainnet + Solana mainnet),
+   * or `CDP_SERVER_DEVELOPMENT_NETWORKS` (Base Sepolia + Solana Devnet) when
    * `environment` is `"development"`.
    */
   networks?: string[];
@@ -246,6 +239,10 @@ export interface CdpRouteConfig {
 
 /**
  * x402 `PaymentOption` as carried on `RouteConfig.accepts`.
+ *
+ * `@x402/core` doesn't export `PaymentOption` from any public entry point
+ * today, so it's extracted structurally from `RouteConfig["accepts"]` instead
+ * of imported directly.
  */
 type X402PaymentOption = Extract<RouteConfig["accepts"], unknown[]>[number];
 
@@ -271,6 +268,13 @@ export type CdpPaymentOption = Omit<X402PaymentOption, "payTo"> & {
 export type CdpX402RouteConfig = Omit<RouteConfig, "accepts"> & {
   accepts: CdpPaymentOption | CdpPaymentOption[];
 };
+
+/**
+ * A single route entry accepted by `createX402Server`'s `routes` map —
+ * either the {@link CdpSimplifiedRouteConfig} shorthand or a
+ * {@link CdpX402RouteConfig}. Discriminated by the presence of `accepts`.
+ */
+export type CdpRouteConfig = CdpSimplifiedRouteConfig | CdpX402RouteConfig;
 
 /**
  * Receiver wallet configuration for `createX402Server`.
@@ -310,6 +314,9 @@ export type PayToConfig =
        * needed for the CDP facilitator.
        * At least one of `evm` or `solana` should be provided, or all routes
        * must supply explicit `payTo` values in the full x402 `RouteConfig` format.
+       * Solana `upto` is unavailable in this mode (see `svmReceiverAuthorizerSigner`
+       * in `getCdpDefaultSchemes`): there's no CDP-managed key to sign settlement
+       * vouchers, and this option doesn't accept a bring-your-own signer today.
        */
       type: "address";
       /** EVM address to receive payments. */
@@ -381,8 +388,8 @@ export interface CdpX402ServerConfig {
    * Map of HTTP method + path pattern → route config.
    * Keys use the `"METHOD /path"` convention, e.g. `"GET /report"`.
    *
-   * Each value is either:
-   * - A `CdpRouteConfig` — simplified format, just `price` + optional fields.
+   * Each value (`CdpRouteConfig`) is either:
+   * - A `CdpSimplifiedRouteConfig` — simplified format, just `price` + optional fields.
    * - A `CdpX402RouteConfig` — full x402 format with an `accepts` array/object.
    *   `payTo` on each option is optional and is filled from the provisioned
    *   receiver when omitted or vacant (`""`).
@@ -390,7 +397,7 @@ export interface CdpX402ServerConfig {
    * Both formats can be mixed within the same map.
    * May be omitted when `configPath` supplies the routes.
    */
-  routes?: Record<string, CdpRouteConfig | CdpX402RouteConfig>;
+  routes?: Record<string, CdpRouteConfig>;
   /**
    * Path to a JSON file whose fields are merged with this inline config.
    * Inline config takes precedence over file config when both specify the
@@ -556,15 +563,14 @@ async function provisionServerAccounts(
  * explicitly requested (see {@link assertSchemeSupportsNetwork}, which no
  * longer rejects any current scheme/network combination).
  *
- * `"upto"` defaults to EVM-only because the CDP-hosted facilitator does not
- * yet advertise `upto` support for any `solana:*` network (only `exact`) —
- * defaulting an unscoped `upto` route onto Solana would fail that route's
- * startup validation against a real facilitator today. The CDP SDK's
- * resource server itself is ready for Solana `upto` (see
- * `getCdpDefaultSchemes`'s `svmReceiverAuthorizerSigner`); opt in per route
- * with an explicit `networks: ["solana:..."]` once your facilitator supports it.
+ * Currently empty: `"exact"` and `"upto"` both default to Base + Solana, since
+ * the CDP-hosted facilitator advertises both and the resource server always
+ * registers Solana `upto` when a CDP-managed Solana account is provisioned
+ * (see `getCdpDefaultSchemes`'s `svmReceiverAuthorizerSigner`). Kept as an
+ * extension point for a future scheme whose default network list should stay
+ * EVM-only.
  */
-const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
+const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set();
 
 /**
  * Returns `true` when the given payment scheme defaults to EVM-only networks.
@@ -616,12 +622,12 @@ function getDefaultNetworksForScheme(
  * resolving simplified routes against their scheme defaults so the answer
  * reflects the networks that will actually be served.
  *
- * @param route - Simplified CDP route config or full x402 `CdpX402RouteConfig`.
+ * @param route - Simplified or full x402 route config.
  * @param environment - Deployment environment controlling default network selection.
  * @returns The network families referenced by the route.
  */
 function routeNetworkFamilies(
-  route: CdpRouteConfig | CdpX402RouteConfig,
+  route: CdpRouteConfig,
   environment: "production" | "development",
 ): NetworkFamilies {
   const networks: string[] = [];
@@ -648,7 +654,7 @@ function routeNetworkFamilies(
  * @returns The union of network families referenced by the route set.
  */
 function requiredNetworkFamilies(
-  routes: Record<string, CdpRouteConfig | CdpX402RouteConfig>,
+  routes: Record<string, CdpRouteConfig>,
   environment: "production" | "development",
 ): NetworkFamilies {
   const result: NetworkFamilies = { evm: false, svm: false };
@@ -693,7 +699,10 @@ function assertSchemeSupportsNetwork(scheme: string, network: string): void {
  * @param route - Simplified CDP route config being converted.
  * @param scheme - Resolved scheme for the route (`"exact"` or `"upto"`).
  */
-function assertPaymentFlowCompatible(route: CdpRouteConfig, scheme: CdpPaymentScheme): void {
+function assertPaymentFlowCompatible(
+  route: CdpSimplifiedRouteConfig,
+  scheme: CdpPaymentScheme,
+): void {
   if (route.paymentFlow === undefined) return;
   if (!CDP_EXACT_PAYMENT_FLOWS.has(route.paymentFlow)) {
     throw new Error(
@@ -790,8 +799,8 @@ function fillX402RoutePayTo(
 }
 
 /**
- * Converts a simplified `CdpRouteConfig` into a full x402 `RouteConfig`, wiring
- * the provisioned receiver addresses into each payment option's `payTo`.
+ * Converts a {@link CdpSimplifiedRouteConfig} into a full x402 `RouteConfig`,
+ * wiring the provisioned receiver addresses into each payment option's `payTo`.
  *
  * @param route - Simplified CDP route config with `price` and optional fields.
  * @param evmAddress - EVM receiver address for `eip155:*` networks (`""` when none).
@@ -803,7 +812,7 @@ function fillX402RoutePayTo(
  * @returns A full x402 `RouteConfig` with `accepts`, `payTo`, and `scheme` resolved.
  */
 function convertCdpRoute(
-  route: CdpRouteConfig,
+  route: CdpSimplifiedRouteConfig,
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
@@ -934,9 +943,9 @@ function withAutoInjectedExtensions(
 }
 
 /**
- * Resolves a mixed `Record<string, CdpRouteConfig | CdpX402RouteConfig>` into
- * the x402 `RoutesConfig` format. Simplified routes are expanded; full x402
- * routes have omitted or vacant `payTo` fields filled. All CDP extensions are
+ * Resolves a mixed `Record<string, CdpRouteConfig>` into the x402
+ * `RoutesConfig` format. Simplified routes are expanded; full x402 routes
+ * have omitted or vacant `payTo` fields filled. All CDP extensions are
  * injected into every route.
  *
  * @param routes - Map of route patterns to simplified or full x402 route configs.
@@ -947,7 +956,7 @@ function withAutoInjectedExtensions(
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
-  routes: Record<string, CdpRouteConfig | CdpX402RouteConfig>,
+  routes: Record<string, CdpRouteConfig>,
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",

@@ -73,8 +73,19 @@ export type WalletConfig =
     };
 
 export type SchemesConfig = {
+  /** Registers the `exact` scheme: transfers a fixed amount. On by default. */
   exact?: boolean;
+  /**
+   * Registers the `upto` scheme: authorizes a maximum amount and lets the
+   * resource server settle the actual amount used. On by default — except on
+   * EVM for a `"smart"` {@link WalletConfig}, since `upto`'s Permit2 approval
+   * transaction can't be sponsored for Smart Contract Wallets.
+   */
   upto?: boolean;
+  /**
+   * Registers the `batch-settlement` scheme (EVM only): reuses an off-chain
+   * voucher channel across multiple payments. Opt-in.
+   */
   batchSettlement?: boolean;
   /**
    * Registers the `auth-capture` scheme (EVM only): the client signs a
@@ -360,7 +371,12 @@ const setupCdpSigners = async (
          * this time. Solana `upto` has no such restriction — CDP Solana
          * accounts are never smart-wallet-typed, so it's unaffected either way.
          */
-      } else if (walletType !== "smart") {
+      } else if (walletType === "smart") {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `CdpX402Client: skipping network "${network}": upto scheme is not supported for Smart Contract Wallets (Permit2 approval cannot be sponsored).`,
+        );
+      } else {
         client.register(caip2Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
       }
     }
