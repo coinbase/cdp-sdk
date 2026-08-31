@@ -4,7 +4,6 @@
   "type": "module",
   "scripts": {
     "start": "tsx server.ts",
-    "start:batch-settlement": "tsx batchSettlement.ts",
     "build": "tsc"
   },
   "dependencies": {

@@ -121,6 +121,11 @@
           "enum": ["exact", "upto"],
           "description": "Payment scheme. Defaults to \"exact\". \"upto\" is EVM-only."
         },
+        "paymentFlow": {
+          "type": "string",
+          "enum": ["authorization", "upfront"],
+          "description": "Payment flow. Exact-scheme only. Defaults to \"authorization\". \"upfront\" settles before the handler runs and is applied to every network the route expands to (Base and Solana when networks is omitted)."
+        },
         "networks": {
           "type": "array",
           "minItems": 1,
@@ -152,11 +157,11 @@
         "network": { "$ref": "#/definitions/caip2Network" },
         "payTo": {
           "type": "string",
-          "description": "Receiver address. Leave as \"\" (empty) to have createX402Server fill in the provisioned/configured address for the option's network family."
+          "description": "Receiver address. Omit or leave as \"\" (empty) to have createX402Server fill in the provisioned/configured address for the option's network family."
         },
         "maxTimeoutSeconds": { "type": "number", "minimum": 1 }
       },
-      "required": ["scheme", "price", "network", "payTo"]
+      "required": ["scheme", "price", "network"]
     },
     "x402RouteConfig": {
       "type": "object",

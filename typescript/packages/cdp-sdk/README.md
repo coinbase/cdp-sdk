@@ -1694,25 +1694,24 @@ const client = new CdpX402Client({
 });
 ```
 
-By default `CdpX402Client` registers `exact` and `upto` on Base (mainnet or Sepolia, depending on `environment`). Use `networkSchemes` to add Solana, other EVM networks, or opt into `batchSettlement`/`authCapture`:
+By default `CdpX402Client` registers `exact`, `upto`, and `authCapture` on Base (mainnet or Sepolia, depending on `environment`). Use `networkSchemes` to add Solana, other EVM networks, or opt into `batchSettlement`:
 
 ```typescript
 const client = new CdpX402Client({
   networkSchemes: [
     // Solana: `exact` and `upto` both fall back to a public RPC — no `rpcUrl` needed.
     { network: "solana", scheme: { exact: true, upto: true } },
-    // Base: opt into batch-settlement (deferred, batched settlement) and
-    // auth-capture (payer-agnostic authorization, captured/voided later) on top
-    // of the exact/upto baseline.
+    // Base: opt into batch-settlement (deferred, batched settlement) on top
+    // of the exact/upto/authCapture baseline.
     {
       network: "base",
-      scheme: { exact: true, upto: true, batchSettlement: true, authCapture: true },
+      scheme: { exact: true, upto: true, authCapture: true, batchSettlement: true },
     },
   ],
 });
 ```
 
-`batchSettlement` and `authCapture` are EVM-only upstream — configuring them for a Solana network entry is skipped with a warning rather than throwing. `authCapture` holds funds in escrow instead of transferring them immediately, so it's opt-in only and never enabled by the Base/Base-Sepolia baseline.
+`batchSettlement` and `authCapture` are EVM-only upstream — configuring either for a Solana network entry is skipped with a warning rather than throwing. `authCapture` holds funds in escrow instead of transferring them immediately, but a client only ever signs what a resource server's route actually requests, so it's registered by default alongside `exact`/`upto`. `batchSettlement` remains opt-in.
 
 Every `CdpX402Client` always attaches its own `cdp_sdk_client` service code to the [builder-code](https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md) extension, for on-chain attribution of payments made through the CDP SDK. To attribute payments to your own app or service too, pass an optional `builderCode` (1–32 lowercase alphanumeric / underscore characters, or an array of up to four codes when several participants share attribution) — it's added to `s` alongside the SDK's own code:
 

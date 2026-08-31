@@ -79,9 +79,11 @@ export type SchemesConfig = {
   /**
    * Registers the `auth-capture` scheme (EVM only): the client signs a
    * payer-agnostic authorization that the resource server's captureAuthorizer
-   * can later capture, void, or let expire. Off by default — unlike `exact`
-   * and `upto`, funds are held in escrow rather than transferred immediately,
-   * so this is opt-in.
+   * can later capture, void, or let expire. On by default, alongside `exact`
+   * and `upto` — a client only ever signs what a resource server's route
+   * actually requests, so registering it unconditionally is safe even though
+   * `auth-capture` holds funds in escrow rather than transferring them
+   * immediately.
    */
   authCapture?: boolean;
 };
@@ -144,7 +146,7 @@ export interface CdpX402ClientConfig {
    * baseline, regardless of this option, since CDP hosts a default RPC for it:
    *
    * Defaults to [
-   *    { network: "base", scheme: { exact: true, upto: true } },
+   *    { network: "base", scheme: { exact: true, upto: true, authCapture: true } },
    * ]
    * (or `"base-sepolia"` instead of `"base"` when `environment` is `"development"`)
    *
@@ -155,9 +157,10 @@ export interface CdpX402ClientConfig {
    * the CDP-hosted default RPC injected for it.
    *
    * Solana has no CDP-hosted default RPC and no override is required for
-   * `exact` or `upto` — both fall back to a public default RPC. `batchSettlement`
-   * and `authCapture` aren't supported for Solana (skipped with a warning),
-   * regardless of `rpcUrl` — they're EVM-only schemes upstream.
+   * `exact` or `upto` — both fall back to a public default RPC. `authCapture`
+   * isn't supported for Solana (skipped with a warning), regardless of
+   * `rpcUrl` — it's an EVM-only scheme upstream. `batchSettlement` is
+   * opt-in on top of the default baseline (EVM-only as well).
    */
   networkSchemes?: NetworkConfig[];
 }
@@ -304,14 +307,14 @@ const setupCdpSigners = async (
           {
             network: "base-sepolia",
             rpcUrl: defaultBaseSepoliaRpcUrl,
-            scheme: { exact: true, upto: true },
+            scheme: { exact: true, upto: true, authCapture: true },
           },
         ]
       : [
           {
             network: "base",
             rpcUrl: defaultBaseRpcUrl,
-            scheme: { exact: true, upto: true },
+            scheme: { exact: true, upto: true, authCapture: true },
           },
         ];
 

@@ -579,6 +579,128 @@ describe("createX402Server", () => {
     });
   });
 
+  describe("route conversion — paymentFlow shorthand", () => {
+    it("stamps upfront onto both default Base and Solana accepts when networks is omitted", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: { "GET /report": { price: "$0.01", paymentFlow: "upfront" } },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: Array<{ network: string; extra?: { paymentFlow?: string } }> }>,
+      ];
+      const accepts = passedRoutes["GET /report"].accepts;
+      expect(accepts).toHaveLength(2);
+      const evmOpt = accepts.find(a => a.network.startsWith("eip155:"));
+      const svmOpt = accepts.find(a => a.network.startsWith("solana:"));
+      expect(evmOpt!.extra?.paymentFlow).toBe("upfront");
+      expect(svmOpt!.extra?.paymentFlow).toBe("upfront");
+    });
+
+    it("stamps upfront onto an explicitly listed Base network", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /report": {
+            price: "$0.01",
+            paymentFlow: "upfront",
+            networks: ["eip155:8453"],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBe("upfront");
+    });
+
+    it("stamps upfront onto an explicitly listed Solana network", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /report": {
+            price: "$0.01",
+            paymentFlow: "upfront",
+            networks: ["solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBe("upfront");
+    });
+
+    it("omits extra.paymentFlow when paymentFlow is omitted", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBeUndefined();
+    });
+
+    it("omits extra.paymentFlow when paymentFlow is authorization", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /report": {
+            price: "$0.01",
+            paymentFlow: "authorization",
+            networks: ["eip155:8453"],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBeUndefined();
+    });
+
+    it("throws when paymentFlow is set on a non-exact scheme", async () => {
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /metered": {
+              price: "$0.01",
+              scheme: "upto" as CdpPaymentScheme,
+              paymentFlow: "upfront",
+            },
+          },
+        }),
+      ).rejects.toThrow('paymentFlow is only supported on the "exact" scheme');
+    });
+
+    it("throws when paymentFlow is not authorization or upfront", async () => {
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /report": {
+              price: "$0.01",
+              paymentFlow: "escrow" as unknown as "upfront",
+            },
+          },
+        }),
+      ).rejects.toThrow('Unsupported paymentFlow "escrow"');
+    });
+  });
+
   describe("route conversion — scheme field", () => {
     it("defaults to 'exact' when no scheme is specified", async () => {
       const { x402HTTPResourceServer } = await import("@x402/core/server");
@@ -826,6 +948,136 @@ describe("createX402Server", () => {
       ];
       expect(passedRoutes["GET /simple"].accepts.payTo).toBe(MOCK_EVM_ADDRESS);
       expect(passedRoutes["GET /x402"].accepts.payTo).toBe(MOCK_EVM_ADDRESS);
+    });
+
+    it("fills an omitted payTo in an eip155 x402-format route", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /evm": {
+            accepts: {
+              scheme: "exact" as const,
+              price: "$0.01",
+              network: "eip155:8453" as `${string}:${string}`,
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { payTo: string } }>,
+      ];
+      expect(passedRoutes["GET /evm"].accepts.payTo).toBe(MOCK_EVM_ADDRESS);
+    });
+
+    it("fills an omitted payTo in a solana x402-format route", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /svm": {
+            accepts: {
+              scheme: "exact" as const,
+              price: "$0.01",
+              network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" as `${string}:${string}`,
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { payTo: string } }>,
+      ];
+      expect(passedRoutes["GET /svm"].accepts.payTo).toBe(MOCK_SVM_ADDRESS);
+    });
+
+    it("fills omitted payTo across an array of accepts in an x402-format route", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /multi": {
+            accepts: [
+              {
+                scheme: "exact" as const,
+                price: "$0.01",
+                network: "eip155:84532" as `${string}:${string}`,
+                maxTimeoutSeconds: 300,
+              },
+              {
+                scheme: "exact" as const,
+                price: "$0.01",
+                network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" as `${string}:${string}`,
+                maxTimeoutSeconds: 300,
+              },
+            ],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: Array<{ payTo: string }> }>,
+      ];
+      const [evmOpt, svmOpt] = passedRoutes["GET /multi"].accepts;
+      expect(evmOpt!.payTo).toBe(MOCK_EVM_ADDRESS);
+      expect(svmOpt!.payTo).toBe(MOCK_SVM_ADDRESS);
+    });
+
+    it("does not overwrite an explicit payTo when a sibling option omits it", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /mixed": {
+            accepts: [
+              {
+                scheme: "exact" as const,
+                price: "$0.01",
+                network: "eip155:8453" as `${string}:${string}`,
+                maxTimeoutSeconds: 300,
+              },
+              {
+                scheme: "exact" as const,
+                price: "$0.01",
+                network: "eip155:8453" as `${string}:${string}`,
+                payTo: "0x1234" as `0x${string}`,
+                maxTimeoutSeconds: 300,
+              },
+            ],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: Array<{ payTo: string }> }>,
+      ];
+      const [filled, explicit] = passedRoutes["GET /mixed"].accepts;
+      expect(filled!.payTo).toBe(MOCK_EVM_ADDRESS);
+      expect(explicit!.payTo).toBe("0x1234");
+    });
+
+    it("throws when an omitted payTo has an unrecognised network family", async () => {
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /unknown": {
+              accepts: {
+                scheme: "exact" as const,
+                price: "$0.01",
+                network: "bitcoin:mainnet" as `${string}:${string}`,
+                maxTimeoutSeconds: 300,
+              },
+            },
+          },
+        }),
+      ).rejects.toThrow('Cannot fill vacant payTo for network "bitcoin:mainnet"');
     });
   });
 

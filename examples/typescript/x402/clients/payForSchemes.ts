@@ -14,9 +14,9 @@
  *     `GET /report`, which accepts both Base Sepolia and Solana Devnet) can
  *     be forced onto one network instead of taking the client's default
  *     selection.
- *   - `X402_SCHEMES`             (optional) comma-separated list of opt-in
- *     schemes to enable on top of the `exact`/`upto` baseline — currently
- *     `batchSettlement` and/or `authCapture`. Both are Base-only upstream.
+ *
+ * `exact`, `upto`, and `authCapture` are all registered by default (matching
+ * `CdpX402Client`'s own defaults on Base) — no scheme opt-in flag is needed.
  *
  * Exits non-zero (after printing the error) on any failure, so it can be
  * used as a pass/fail check in a shell script or CI matrix.
@@ -52,14 +52,14 @@ function requireEnv(name: string): string {
 const X402_API_URL = requireEnv("X402_API_URL");
 const PREFERRED_NETWORK = process.env.X402_PREFERRED_NETWORK;
 
-const OPT_IN_SCHEMES = new Set(
-  (process.env.X402_SCHEMES ?? "")
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean),
-);
-const WANT_BATCH_SETTLEMENT = OPT_IN_SCHEMES.has("batchSettlement");
-const WANT_AUTH_CAPTURE = OPT_IN_SCHEMES.has("authCapture");
+/*
+ * The auth-capture smoke test expects a non-2xx response: there is no live
+ * auth-capture server in either repo, so the mock route returns one after the
+ * client successfully signs and sends its payment payload (proving
+ * `CdpX402Client.createPaymentPayload` works for `authCapture`) without a
+ * real facilitator settling it. See the README for the full explanation.
+ */
+const IS_AUTH_CAPTURE_SMOKE_TEST = X402_API_URL.includes("/auth-capture-mock");
 
 /**
  * Restricts a dual-network `PaymentRequired.accepts` list down to a single
@@ -79,16 +79,11 @@ function preferNetworkPolicy(preferredNetwork: string): PaymentPolicy {
 }
 
 async function main() {
-  const baseScheme: SchemesConfig = {
-    exact: true,
-    upto: true,
-    batchSettlement: WANT_BATCH_SETTLEMENT,
-    authCapture: WANT_AUTH_CAPTURE,
-  };
+  const baseScheme: SchemesConfig = { exact: true, upto: true, authCapture: true };
 
   // CdpX402Client only prescribes Base by default; add Solana Devnet
-  // explicitly. batchSettlement/authCapture are skipped with a warning for
-  // Solana regardless of X402_SCHEMES — both are Base-only upstream.
+  // explicitly. authCapture is skipped with a warning for Solana regardless
+  // — it's Base-only upstream.
   const networkSchemes: NetworkConfig[] = [
     { network: "base-sepolia", scheme: baseScheme },
     { network: "solana-devnet", scheme: { exact: true, upto: true } },
@@ -147,17 +142,10 @@ async function main() {
   );
 
   if (!response.ok) {
-    /*
-     * The auth-capture smoke test expects this: there is no live auth-capture
-     * server in either repo, so the mock route returns a non-2xx after the
-     * client successfully signs and sends its payment payload (proving
-     * `CdpX402Client.createPaymentPayload` works for `authCapture`) without a
-     * real facilitator settling it. See the README for the full explanation.
-     */
-    if (WANT_AUTH_CAPTURE) {
+    if (IS_AUTH_CAPTURE_SMOKE_TEST) {
       console.log(
-        "Non-2xx response with authCapture opted in — expected for the auth-capture smoke " +
-          "test (payload signed and sent, no live settlement). Treating as success.",
+        "Non-2xx response from the auth-capture-mock route — expected for the auth-capture " +
+          "smoke test (payload signed and sent, no live settlement). Treating as success.",
       );
       return;
     }

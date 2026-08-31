@@ -242,8 +242,7 @@ function lastEvmRpcMap(
   mockCtor: typeof ExactEvmScheme | typeof UptoEvmScheme,
 ): Record<number, { rpcUrl: string }> | undefined {
   return vi.mocked(mockCtor).mock.calls.at(-1)?.[1] as
-    | Record<number, { rpcUrl: string }>
-    | undefined;
+    Record<number, { rpcUrl: string }> | undefined;
 }
 
 /**
@@ -254,8 +253,7 @@ function lastEvmRpcMap(
  */
 async function enrichedServiceCodes(): Promise<string[] | undefined> {
   const extension = mockRegisterExtension.mock.calls.at(-1)?.[0] as
-    | BuilderCodeClientExtension
-    | undefined;
+    BuilderCodeClientExtension | undefined;
   if (!extension) return undefined;
 
   const enriched = await extension.enrichPaymentPayload(mockPayload, mockPaymentRequired);
@@ -440,14 +438,28 @@ describe("CdpX402Client", () => {
       warnSpy.mockRestore();
     });
 
-    it("does not register authCapture by default (opt-in only)", async () => {
+    it("registers authCapture by default, alongside exact/upto", async () => {
       const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).toHaveBeenCalledWith(
+        expect.objectContaining({ address: "0xEvm" }),
+      );
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
+    });
+
+    it("does not register authCapture when explicitly disabled via networkSchemes", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          { network: "base", scheme: { exact: true, upto: true, authCapture: false } },
+        ],
+      });
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
     });
 
-    it("registers authCapture for an EOA wallet when opted in via networkSchemes", async () => {
+    it("registers authCapture for an EOA wallet via an explicit networkSchemes override", async () => {
       const client = new CdpX402Client({
         networkSchemes: [{ network: "base", scheme: { authCapture: true } }],
       });
@@ -459,7 +471,7 @@ describe("CdpX402Client", () => {
       expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
     });
 
-    it("registers authCapture for a smart wallet when opted in via networkSchemes", async () => {
+    it("registers authCapture for a smart wallet via an explicit networkSchemes override", async () => {
       mockGetOrCreateAccount
         .mockResolvedValueOnce({ address: "0xowner", signTypedData: vi.fn() })
         .mockResolvedValue(mockEvmAccount);
@@ -476,10 +488,13 @@ describe("CdpX402Client", () => {
       );
     });
 
-    it("skips authCapture for Solana even when opted in — EVM-only upstream", async () => {
+    it("skips authCapture for Solana even when explicitly requested — EVM-only upstream", async () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const client = new CdpX402Client({
-        networkSchemes: [{ network: "solana", scheme: { authCapture: true } }],
+        networkSchemes: [
+          { network: "base", scheme: { exact: true, upto: true, authCapture: false } },
+          { network: "solana", scheme: { authCapture: true } },
+        ],
       });
       await client.createPaymentPayload(mockPaymentRequired);
 

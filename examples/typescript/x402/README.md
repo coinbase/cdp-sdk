@@ -96,10 +96,6 @@ Every server listens on its own default port and honors `PORT`, so pass `PORT` o
 to run two at once. The Next.js example is the exception to the shared-`.env` fallback: Next loads
 env files itself, from `x402/servers/next`.
 
-The Express workspace also has `pnpm start:batch-settlement`, a separate entry point (not one of
-the three `APPROACH`es above) demonstrating the `batch-settlement` scheme against the CDP hosted
-facilitator — see [Scheme + network coverage matrix](#scheme--network-coverage-matrix) below.
-
 Every route declared through `createX402Server` — any of the three approaches above — is
 discoverable in the CDP Bazaar automatically once it settles a real payment through the CDP
 Facilitator; there's no separate wiring or registration step. See
@@ -131,9 +127,10 @@ it with `MCP_SERVER_URL` (defaults to `http://localhost:4022`).
 
 `x402/clients/payForSchemes.ts` is a CLI harness (not a fixed demo like `payForApi.ts`) for driving
 every scheme/network combination `CdpX402Client` supports against these example servers. It's
-entirely environment-variable driven — see `X402_API_URL`, `X402_PREFERRED_NETWORK`, and
-`X402_SCHEMES` in [Environment variables](#environment-variables) — and exits non-zero on failure,
-so it doubles as a pass/fail check.
+entirely environment-variable driven — see `X402_API_URL` and `X402_PREFERRED_NETWORK` in
+[Environment variables](#environment-variables) — and exits non-zero on failure, so it doubles as
+a pass/fail check. `exact`, `upto`, and `authCapture` are all registered by default (matching
+`CdpX402Client`'s own defaults), so no scheme opt-in flag is needed.
 
 | Scheme | Network | Server | Command |
 | --- | --- | --- | --- |
@@ -141,8 +138,7 @@ so it doubles as a pass/fail check.
 | `exact` | Solana Devnet | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
 | `upto` | Base Sepolia | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage pnpm tsx x402/clients/payForSchemes.ts` |
 | `upto` | Solana Devnet | CDP Express (`GET /usage-solana`, gated) | see below |
-| `batch-settlement` | Base Sepolia | CDP Express (`GET /report`, `start:batch-settlement`) | `X402_API_URL=http://localhost:8404/report X402_SCHEMES=batchSettlement pnpm tsx x402/clients/payForSchemes.ts` |
-| `auth-capture` | Base Sepolia | CDP Express (`GET /auth-capture-mock`, smoke test only) | `X402_API_URL=http://localhost:8402/auth-capture-mock X402_SCHEMES=authCapture pnpm tsx x402/clients/payForSchemes.ts` |
+| `auth-capture` | Base Sepolia | CDP Express (`GET /auth-capture-mock`, smoke test only) | `X402_API_URL=http://localhost:8402/auth-capture-mock pnpm tsx x402/clients/payForSchemes.ts` |
 
 `GET /report` accepts both Base Sepolia and Solana Devnet, so `X402_PREFERRED_NETWORK` forces the
 client's network choice via a registered `PaymentPolicy` — without it, `CdpX402Client` picks
@@ -169,37 +165,19 @@ With the facilitator as-is, this fails fast at startup with
 support lands. Flip the flag on then to exercise the SDK's side of it against
 `X402_API_URL=http://localhost:8402/usage-solana`.
 
-**`batch-settlement` on Base** has no server-side support in `createX402Server` yet (see the
-CDP SDK's `README.md`), so `batchSettlement.ts` wires `@x402/evm`'s `BatchSettlementEvmScheme`
-directly against `createCdpFacilitatorClient()` — the same "Approach 1" pattern as `server.ts`.
-The CDP-hosted facilitator already advertises a `receiverAuthorizer` for `batch-settlement` on
-Base Sepolia, so the scheme delegates authorization to it and no separate facilitator or funded
-relayer key is needed:
+**`auth-capture` on Base** has no facilitator or resource-server support yet (client-only, on by
+default alongside `exact`/`upto`; see the CDP SDK's `README.md`). `GET /auth-capture-mock` on the
+CDP Express server is a smoke test, not a real payment route: it returns `402` with hand-built
+`auth-capture` payment requirements, and once the client signs and retries with a
+`PAYMENT-SIGNATURE` header, responds `501` to confirm the payload was received without claiming
+settlement actually happened. `payForSchemes.ts` treats that `501` as a pass when the request URL
+targets `/auth-capture-mock` — it's proof `CdpX402Client.createPaymentPayload` produces a valid
+`auth-capture` payload, not an end-to-end settlement test.
 
-```bash
-cd x402/servers/express && PAY_TO=0x... pnpm start:batch-settlement   # http://localhost:8404
-```
-
-`PAY_TO` must be a *different* EVM address from the paying client's — the scheme rejects a
-channel where payer and receiver are the same address. A batch-settlement channel accumulates
-state across requests, so reuse the same client process for follow-up requests to the same
-`PAY_TO`; a fresh client run against a channel that already has server-side history (e.g. after
-restarting `payForSchemes.ts` without restarting the server) will fail with
-`invalid_batch_settlement_evm_cumulative_amount_mismatch` — restart the server (its channel
-storage is in-memory) or pick a new `PAY_TO` to start clean.
-
-For cross-SDK interop testing with a self-hosted facilitator instead (e.g. against the Go or
-Python resource servers), see the x402 repo's own
-`examples/typescript/servers/batch-settlement` + `facilitator/batch-settlement` examples.
-
-**`auth-capture` on Base** has no facilitator or resource-server support yet (client-only, opt-in
-via `authCapture: true`; see the CDP SDK's `README.md`). `GET /auth-capture-mock` on the CDP Express
-server is a smoke test, not a real payment route: it returns `402` with hand-built `auth-capture`
-payment requirements, and once the client signs and retries with a `PAYMENT-SIGNATURE` header,
-responds `501` to confirm the payload was received without claiming settlement actually happened.
-`payForSchemes.ts` treats that `501` as a pass when `X402_SCHEMES=authCapture` is set — it's proof
-`CdpX402Client.createPaymentPayload` produces a valid `auth-capture` payload, not an end-to-end
-settlement test.
+**`batch-settlement` on Base** is supported by `CdpX402Client` (opt-in via
+`scheme: { batchSettlement: true }`) but isn't covered by this CLI matrix yet — it needs a
+long-lived client process to exercise its off-chain voucher-channel reuse correctly, which doesn't
+fit this harness's one-shot-per-command model. Tracked separately.
 
 ## Environment variables
 
@@ -214,8 +192,6 @@ settlement test.
 - `X402_PREFERRED_NETWORK` — (`payForSchemes.ts` only) a CAIP-2 network id (e.g. `eip155:84532`,
   `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`) to force on a dual-network route like `GET /report`,
   via a registered `PaymentPolicy`. Omit to let the client pick its default.
-- `X402_SCHEMES` — (`payForSchemes.ts` only) comma-separated opt-in schemes to enable on top of the
-  `exact`/`upto` baseline: `batchSettlement` and/or `authCapture`. Both are Base-only upstream.
 - `X402_ENABLE_SOLANA_UPTO` — (Express server only) set to `true` to register `GET /usage-solana`
   (`upto` on Solana Devnet). Off by default because the CDP-hosted facilitator doesn't advertise
   `upto` support for Solana yet, which would otherwise fail server startup. See

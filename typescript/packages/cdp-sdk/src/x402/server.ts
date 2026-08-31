@@ -13,12 +13,15 @@
  * Routes may be supplied in either format:
  *
  * **Simplified CDP format** (`CdpRouteConfig`) — just `price` and optional
- * `description` / `networks`. The server fills in `scheme`, `payTo`, and
- * all x402 internals automatically.
+ * `description` / `networks` / `paymentFlow`. The server fills in `scheme`,
+ * `payTo`, and all x402 internals automatically. `paymentFlow` is exact-scheme
+ * only (`"authorization"` default, or `"upfront"`) and is applied to every
+ * network the route expands to (Base and Solana when `networks` is omitted).
  *
- * **Full x402 format** (`RouteConfig`) — the same `accepts` / `description`
- * shape accepted by `x402HTTPResourceServer`. Vacant `payTo` fields (`""`)
- * are filled with the provisioned receiver address for that network family.
+ * **Full x402 format** (`CdpX402RouteConfig`) — the same `accepts` /
+ * `description` shape accepted by `x402HTTPResourceServer`, except `payTo`
+ * is optional. Omitted or vacant (`""`) `payTo` fields are filled with the
+ * provisioned receiver address for that network family.
  *
  * Both formats can be mixed within the same `routes` map.
  *
@@ -56,8 +59,8 @@
  *   routes: {
  *     "GET /report": {
  *       accepts: [
- *         { scheme: "exact", price: "$0.01", network: "eip155:8453", payTo: "" },
- *         { scheme: "exact", price: "$0.01", network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp", payTo: "" },
+ *         { scheme: "exact", price: "$0.01", network: "eip155:8453" },
+ *         { scheme: "exact", price: "$0.01", network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" },
  *       ],
  *     },
  *   },
@@ -162,16 +165,27 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
 export type CdpPaymentScheme = "exact" | "upto";
 
 /**
+ * Payment flows supported on the simplified CDP route format.
+ *
+ * The shorthand is exact-scheme only:
+ * - `"authorization"` — (default) verify, run the handler, then settle.
+ * - `"upfront"` — settle on-chain before the handler runs.
+ */
+export type CdpPaymentFlow = "authorization" | "upfront";
+
+const CDP_EXACT_PAYMENT_FLOWS: ReadonlySet<string> = new Set(["authorization", "upfront"]);
+
+/**
  * Simplified CDP-owned route configuration.
  *
- * Specifying just `price` (and optionally `description` / `networks`) is
- * enough for most routes. `createX402Server` automatically expands this
- * into the full x402 `RouteConfig` format with `scheme`, `payTo`, and
- * `maxTimeoutSeconds` filled in.
+ * Specifying just `price` (and optionally `description` / `networks` /
+ * `paymentFlow`) is enough for most routes. `createX402Server` automatically
+ * expands this into the full x402 `RouteConfig` format with `scheme`, `payTo`,
+ * and `maxTimeoutSeconds` filled in.
  *
- * For routes that need fine-grained control (custom scheme, explicit `payTo`,
- * etc.) pass a full x402 `RouteConfig` instead — both formats are accepted
- * in the same `routes` map.
+ * For routes that need fine-grained control (custom scheme, `extra`, explicit
+ * `payTo`, etc.) pass a {@link CdpX402RouteConfig} instead — both formats are
+ * accepted in the same `routes` map.
  */
 export interface CdpRouteConfig {
   /**
@@ -195,6 +209,18 @@ export interface CdpRouteConfig {
    */
   scheme?: CdpPaymentScheme;
   /**
+   * Payment flow for this route. Exact-scheme only.
+   *
+   * Defaults to `"authorization"` (the x402 protocol default) when omitted.
+   * `"upfront"` settles on-chain before the route handler runs, and is
+   * stamped onto every payment option this route expands to — including the
+   * default Base and Solana networks when `networks` is omitted.
+   *
+   * Throws if set on a non-`"exact"` scheme. For other schemes, pass a
+   * {@link CdpX402RouteConfig} with `accepts[].extra.paymentFlow`.
+   */
+  paymentFlow?: CdpPaymentFlow;
+  /**
    * CAIP-2 network identifiers for which the route accepts payments.
    * Defaults to `CDP_SERVER_DEFAULT_NETWORKS` (Base mainnet + Solana mainnet)
    * for `"exact"`, or `CDP_SERVER_DEFAULT_EVM_NETWORKS` (Base mainnet only)
@@ -217,6 +243,34 @@ export interface CdpRouteConfig {
    */
   extensions?: Record<string, unknown>;
 }
+
+/**
+ * x402 `PaymentOption` as carried on `RouteConfig.accepts`.
+ */
+type X402PaymentOption = Extract<RouteConfig["accepts"], unknown[]>[number];
+
+/**
+ * A single payment option in the full x402 route format accepted by
+ * `createX402Server`.
+ *
+ * Identical to x402's `PaymentOption`, except `payTo` is optional. Omitted or
+ * vacant (`""`) values are filled with the provisioned receiver address for
+ * the option's network family. An explicit non-empty `payTo` is left untouched.
+ */
+export type CdpPaymentOption = Omit<X402PaymentOption, "payTo"> & {
+  payTo?: X402PaymentOption["payTo"];
+};
+
+/**
+ * Full x402 `RouteConfig` accepted by `createX402Server`.
+ *
+ * Same `accepts` / `description` shape as `@x402/core`'s `RouteConfig`, except
+ * each payment option's `payTo` is optional and is populated from the
+ * provisioned receiver when omitted or vacant.
+ */
+export type CdpX402RouteConfig = Omit<RouteConfig, "accepts"> & {
+  accepts: CdpPaymentOption | CdpPaymentOption[];
+};
 
 /**
  * Receiver wallet configuration for `createX402Server`.
@@ -329,12 +383,14 @@ export interface CdpX402ServerConfig {
    *
    * Each value is either:
    * - A `CdpRouteConfig` — simplified format, just `price` + optional fields.
-   * - A `RouteConfig` — full x402 format with an `accepts` array/object.
+   * - A `CdpX402RouteConfig` — full x402 format with an `accepts` array/object.
+   *   `payTo` on each option is optional and is filled from the provisioned
+   *   receiver when omitted or vacant (`""`).
    *
    * Both formats can be mixed within the same map.
    * May be omitted when `configPath` supplies the routes.
    */
-  routes?: Record<string, CdpRouteConfig | RouteConfig>;
+  routes?: Record<string, CdpRouteConfig | CdpX402RouteConfig>;
   /**
    * Path to a JSON file whose fields are merged with this inline config.
    * Inline config takes precedence over file config when both specify the
@@ -560,12 +616,12 @@ function getDefaultNetworksForScheme(
  * resolving simplified routes against their scheme defaults so the answer
  * reflects the networks that will actually be served.
  *
- * @param route - Simplified CDP route config or full x402 `RouteConfig`.
+ * @param route - Simplified CDP route config or full x402 `CdpX402RouteConfig`.
  * @param environment - Deployment environment controlling default network selection.
  * @returns The network families referenced by the route.
  */
 function routeNetworkFamilies(
-  route: CdpRouteConfig | RouteConfig,
+  route: CdpRouteConfig | CdpX402RouteConfig,
   environment: "production" | "development",
 ): NetworkFamilies {
   const networks: string[] = [];
@@ -592,7 +648,7 @@ function routeNetworkFamilies(
  * @returns The union of network families referenced by the route set.
  */
 function requiredNetworkFamilies(
-  routes: Record<string, CdpRouteConfig | RouteConfig>,
+  routes: Record<string, CdpRouteConfig | CdpX402RouteConfig>,
   environment: "production" | "development",
 ): NetworkFamilies {
   const result: NetworkFamilies = { evm: false, svm: false };
@@ -631,6 +687,30 @@ function assertSchemeSupportsNetwork(scheme: string, network: string): void {
 }
 
 /**
+ * Throws when `paymentFlow` is set on a simplified route that cannot use it:
+ * unknown flow names, or any scheme other than `"exact"`.
+ *
+ * @param route - Simplified CDP route config being converted.
+ * @param scheme - Resolved scheme for the route (`"exact"` or `"upto"`).
+ */
+function assertPaymentFlowCompatible(route: CdpRouteConfig, scheme: CdpPaymentScheme): void {
+  if (route.paymentFlow === undefined) return;
+  if (!CDP_EXACT_PAYMENT_FLOWS.has(route.paymentFlow)) {
+    throw new Error(
+      `Unsupported paymentFlow "${String(route.paymentFlow)}". ` +
+        `The simplified route format only supports "authorization" (default) and "upfront".`,
+    );
+  }
+  if (scheme !== "exact") {
+    throw new Error(
+      `paymentFlow is only supported on the "exact" scheme. ` +
+        `Route uses scheme "${scheme}". Omit paymentFlow, or pass a full x402 route ` +
+        `with accepts[].extra.paymentFlow to configure other schemes.`,
+    );
+  }
+}
+
+/**
  * Throws when the resolved `payTo` address for a network is empty. This can
  * happen when `payToConfig: { type: "address" }` is used without providing
  * an address for the given network family.
@@ -654,28 +734,40 @@ function assertNonEmptyPayTo(payTo: string, network: string): void {
 }
 
 /**
- * Fills vacant `payTo` fields (`""`) in a full x402 `RouteConfig` with the
+ * Returns true when `payTo` should be filled from the provisioned receiver:
+ * omitted, empty, or whitespace-only. Dynamic `payTo` functions and non-empty
+ * strings are left untouched.
+ *
+ * @param payTo - The payment option's `payTo`, which may be omitted.
+ * @returns Whether the field is vacant and should be populated.
+ */
+function isVacantPayTo(payTo: CdpPaymentOption["payTo"]): boolean {
+  return payTo === undefined || (typeof payTo === "string" && payTo.trim() === "");
+}
+
+/**
+ * Fills omitted or vacant `payTo` fields in a full x402 route config with the
  * provisioned receiver addresses for each network family. Returns a new object —
  * the original is not mutated. Non-vacant `payTo` values are left untouched.
  *
- * @param route - The x402 `RouteConfig` whose vacant `payTo` fields will be filled.
+ * @param route - The x402 route whose omitted or vacant `payTo` fields will be filled.
  * @param evmAddress - EVM receiver address for `eip155:*` payment options.
  * @param svmAddress - Solana receiver address for `solana:*` payment options.
  * @returns A new `RouteConfig` with all blank `payTo` fields resolved.
  */
 function fillX402RoutePayTo(
-  route: RouteConfig,
+  route: CdpX402RouteConfig,
   evmAddress: Address | "",
   svmAddress: string,
 ): RouteConfig {
   const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
 
-  const filled = accepts.map(option => {
+  const filled: X402PaymentOption[] = accepts.map(option => {
     const network = option.network as string;
     assertSchemeSupportsNetwork(option.scheme as string, network);
 
-    if (typeof option.payTo !== "string" || option.payTo.trim() !== "") {
-      return option;
+    if (!isVacantPayTo(option.payTo)) {
+      return { ...option, payTo: option.payTo } as X402PaymentOption;
     }
     if (network.startsWith("eip155:")) {
       assertNonEmptyPayTo(evmAddress, network);
@@ -718,6 +810,7 @@ function convertCdpRoute(
   available: NetworkFamilies,
 ): RouteConfig {
   const scheme = route.scheme ?? "exact";
+  assertPaymentFlowCompatible(route, scheme);
   const usingDefaultNetworks = route.networks === undefined;
   const defaultNetworks = getDefaultNetworksForScheme(scheme, environment);
   /*
@@ -763,6 +856,7 @@ function convertCdpRoute(
       network: network as `${string}:${string}`,
       payTo,
       maxTimeoutSeconds,
+      ...(route.paymentFlow === "upfront" ? { extra: { paymentFlow: "upfront" as const } } : {}),
     };
   });
 
@@ -840,9 +934,10 @@ function withAutoInjectedExtensions(
 }
 
 /**
- * Resolves a mixed `Record<string, CdpRouteConfig | RouteConfig>` into the x402
- * `RoutesConfig` format. Simplified routes are expanded; full x402 routes have
- * vacant `payTo` fields filled. All CDP extensions are injected into every route.
+ * Resolves a mixed `Record<string, CdpRouteConfig | CdpX402RouteConfig>` into
+ * the x402 `RoutesConfig` format. Simplified routes are expanded; full x402
+ * routes have omitted or vacant `payTo` fields filled. All CDP extensions are
+ * injected into every route.
  *
  * @param routes - Map of route patterns to simplified or full x402 route configs.
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
@@ -852,7 +947,7 @@ function withAutoInjectedExtensions(
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
-  routes: Record<string, CdpRouteConfig | RouteConfig>,
+  routes: Record<string, CdpRouteConfig | CdpX402RouteConfig>,
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
@@ -1177,12 +1272,21 @@ export class X402Server extends x402HTTPResourceServer {
  * });
  * ```
  *
- * @example Full x402 RouteConfig format with vacant payTo:
+ * @example Exact + upfront payment flow (shorthand; applies to Base and Solana):
+ * ```typescript
+ * const server = await createX402Server({
+ *   routes: {
+ *     "GET /report": { price: "$0.01", paymentFlow: "upfront" },
+ *   },
+ * });
+ * ```
+ *
+ * @example Full x402 RouteConfig format (payTo filled automatically):
  * ```typescript
  * const server = await createX402Server({
  *   routes: {
  *     "GET /report": {
- *       accepts: { scheme: "exact", price: "$0.01", network: "eip155:8453", payTo: "" },
+ *       accepts: { scheme: "exact", price: "$0.01", network: "eip155:8453" },
  *     },
  *   },
  * });
