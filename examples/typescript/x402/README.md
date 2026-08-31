@@ -137,7 +137,7 @@ a pass/fail check. `exact`, `upto`, and `authCapture` are all registered by defa
 | `exact` | Base Sepolia | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
 | `exact` | Solana Devnet | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
 | `upto` | Base Sepolia | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage pnpm tsx x402/clients/payForSchemes.ts` |
-| `upto` | Solana Devnet | CDP Express (`GET /usage-solana`, gated) | see below |
+| `upto` | Solana Devnet | CDP Express (`GET /usage-solana`) | `X402_API_URL=http://localhost:8402/usage-solana pnpm tsx x402/clients/payForSchemes.ts` |
 | `auth-capture` | Base Sepolia | CDP Express (`GET /auth-capture-mock`, smoke test only) | `X402_API_URL=http://localhost:8402/auth-capture-mock pnpm tsx x402/clients/payForSchemes.ts` |
 
 `GET /report` accepts both Base Sepolia and Solana Devnet, so `X402_PREFERRED_NETWORK` forces the
@@ -150,28 +150,19 @@ the wallet (see [Funding](#funding); fund the Solana address too, via
 `cdp.solana.requestFaucet({ address, token: "usdc" | "sol" })`, for the Solana Devnet cases).
 
 **`upto` on Solana** is implemented end-to-end in the CDP SDK's resource server (see
-`getCdpDefaultSchemes` in `@coinbase/cdp-sdk/x402`), but the CDP-hosted facilitator doesn't
-advertise `upto` support for any `solana:*` network yet — only `exact`. Configuring the route
-unconditionally would fail server startup (`x402ResourceServer` validates every route against the
-facilitator's `/supported` list). The Express example gates it behind `X402_ENABLE_SOLANA_UPTO=true`
-so the server keeps working out of the box:
-
-```bash
-cd x402/servers/express && APPROACH=2 X402_ENABLE_SOLANA_UPTO=true pnpm start
-```
-
-With the facilitator as-is, this fails fast at startup with
-`Facilitator does not support scheme "upto" on network "solana:..."` — expected until facilitator
-support lands. Flip the flag on then to exercise the SDK's side of it against
-`X402_API_URL=http://localhost:8402/usage-solana`.
+`getCdpDefaultSchemes` in `@coinbase/cdp-sdk/x402`) and registered unconditionally by the Express
+example's `GET /usage-solana`. The CDP-hosted facilitator hasn't finished settlement support for
+it yet, so paying that route currently fails at verification with
+`invalid_upto_svm_payload_voucher_signature` — expected until facilitator support lands, at which
+point this route starts working with no code changes needed.
 
 **`auth-capture` on Base** has no facilitator or resource-server support yet (client-only, on by
 default alongside `exact`/`upto`; see the CDP SDK's `README.md`). `GET /auth-capture-mock` on the
 CDP Express server is a smoke test, not a real payment route: it returns `402` with hand-built
 `auth-capture` payment requirements, and once the client signs and retries with a
 `PAYMENT-SIGNATURE` header, responds `501` to confirm the payload was received without claiming
-settlement actually happened. `payForSchemes.ts` treats that `501` as a pass when the request URL
-targets `/auth-capture-mock` — it's proof `CdpX402Client.createPaymentPayload` produces a valid
+settlement actually happened. Running `payForSchemes.ts` against it therefore exits non-zero on
+that `501` — that's expected; it's proof `CdpX402Client.createPaymentPayload` produces a valid
 `auth-capture` payload, not an end-to-end settlement test.
 
 **`batch-settlement` on Base** is supported by `CdpX402Client` (opt-in via
@@ -192,10 +183,6 @@ fit this harness's one-shot-per-command model. Tracked separately.
 - `X402_PREFERRED_NETWORK` — (`payForSchemes.ts` only) a CAIP-2 network id (e.g. `eip155:84532`,
   `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`) to force on a dual-network route like `GET /report`,
   via a registered `PaymentPolicy`. Omit to let the client pick its default.
-- `X402_ENABLE_SOLANA_UPTO` — (Express server only) set to `true` to register `GET /usage-solana`
-  (`upto` on Solana Devnet). Off by default because the CDP-hosted facilitator doesn't advertise
-  `upto` support for Solana yet, which would otherwise fail server startup. See
-  [Scheme + network coverage matrix](#scheme--network-coverage-matrix).
 - `MCP_SERVER_URL` — (MCP clients) the MCP server URL. Defaults to `http://localhost:4022`.
 - `CDP_X402_CLIENT_ENVIRONMENT` — `"production"` (default, Base mainnet) or `"development"` (Base
   Sepolia). Controls which Base network `CdpX402Client` prescribes by default; overridden by the

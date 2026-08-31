@@ -23,10 +23,6 @@ function requireEnv(name: string): string {
 const X402_API_URL = requireEnv("X402_API_URL");
 const PREFERRED_NETWORK = process.env.X402_PREFERRED_NETWORK;
 
-// No live auth-capture facilitator exists yet; the mock route returns a non-2xx after the
-// client signs and sends its payload, which we treat as a pass — see the README.
-const IS_AUTH_CAPTURE_SMOKE_TEST = X402_API_URL.includes("/auth-capture-mock");
-
 /**
  * Restricts a dual-network `accepts` list to a single CAIP-2 network, if present.
  *
@@ -35,9 +31,7 @@ const IS_AUTH_CAPTURE_SMOKE_TEST = X402_API_URL.includes("/auth-capture-mock");
  */
 function preferNetworkPolicy(preferredNetwork: string): PaymentPolicy {
   return (_x402Version, paymentRequirements) => {
-    const onlyPreferred = paymentRequirements.filter(
-      (req) => req.network === preferredNetwork,
-    );
+    const onlyPreferred = paymentRequirements.filter(req => req.network === preferredNetwork);
     return onlyPreferred.length > 0 ? onlyPreferred : paymentRequirements;
   };
 }
@@ -82,9 +76,7 @@ async function main() {
         token: "usdc",
       });
       console.log(`  Faucet tx: ${transactionHash}`);
-      console.log(
-        "  Wait for it to confirm, then re-run without the flag to pay.\n",
-      );
+      console.log("  Wait for it to confirm, then re-run without the flag to pay.\n");
       return;
     } catch {
       console.warn(
@@ -106,26 +98,15 @@ async function main() {
     : await response.text();
   console.log(
     "Response body:",
-    body.length > 1000
-      ? `${body.slice(0, 1000)}… (${body.length} bytes)`
-      : body,
+    body.length > 1000 ? `${body.slice(0, 1000)}… (${body.length} bytes)` : body,
   );
 
   if (!response.ok) {
-    if (IS_AUTH_CAPTURE_SMOKE_TEST) {
-      console.log(
-        "Non-2xx response from the auth-capture-mock route — expected for the auth-capture " +
-          "smoke test (payload signed and sent, no live settlement). Treating as success.",
-      );
-      return;
-    }
-    throw new Error(
-      `Request failed: ${response.status} ${response.statusText}`,
-    );
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
   }
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exit(1);
 });
