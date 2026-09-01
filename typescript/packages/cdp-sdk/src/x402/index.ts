@@ -71,8 +71,6 @@ export type {
   CdpX402ServerConfig,
   CdpRouteConfig,
   CdpSimplifiedRouteConfig,
-  CdpX402RouteConfig,
-  CdpPaymentOption,
   CdpPaymentScheme,
   CdpPaymentFlow,
   PayToConfig,

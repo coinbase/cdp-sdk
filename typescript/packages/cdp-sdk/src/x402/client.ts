@@ -90,11 +90,7 @@ export type SchemesConfig = {
   /**
    * Registers the `auth-capture` scheme (EVM only): the client signs a
    * payer-agnostic authorization that the resource server's captureAuthorizer
-   * can later capture, void, or let expire. On by default, alongside `exact`
-   * and `upto` — a client only ever signs what a resource server's route
-   * actually requests, so registering it unconditionally is safe even though
-   * `auth-capture` holds funds in escrow rather than transferring them
-   * immediately.
+   * can later capture, void, or let expire. On by default.
    */
   authCapture?: boolean;
 };
@@ -120,7 +116,8 @@ export interface CdpX402ClientConfig {
    */
   walletConfig?: WalletConfig;
   /**
-   * Optional SDK-managed spend controls.
+   * Optional SDK-managed spend controls. Unset by default — unlike upstream
+   * `x402Client`, `CdpX402Client` does not apply a default spend cap.
    */
   spendControls?: SpendControls;
 
@@ -490,6 +487,13 @@ export class CdpX402Client extends x402Client {
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
+    /*
+     * x402Client defaults `spendControls` to `{}`, which silently caps every
+     * payment at $1 (DEFAULT_MAX_AMOUNT_PER_PAYMENT) and is enforced before
+     * this SDK's own `applySpendControls` policy runs. Disable it so the only
+     * active spend controls are the ones set via `config.spendControls`, if any.
+     */
+    this.setSpendControls(false);
     this._serviceBuilderCodes = [
       ...(config?.builderCode !== undefined ? toServiceBuilderCodes(config.builderCode) : []),
       CDP_SDK_CLIENT_BUILDER_CODE,

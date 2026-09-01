@@ -57,7 +57,7 @@ import {
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
-import { HTTPFacilitatorClient } from "@x402/core/http";
+import { decodePaymentSignatureHeader, HTTPFacilitatorClient } from "@x402/core/http";
 import type { PaymentPayload, PaymentRequired, PaymentRequirements } from "@x402/core/types";
 import { VerifyError } from "@x402/core/types";
 import { wrapFetchWithPayment } from "@x402/fetch";
@@ -5725,15 +5725,21 @@ describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
  * Spins up a bare HTTP server that hand-builds an auth-capture `PaymentRequired`,
  * mirroring the Express example's `/auth-capture-mock` route. No facilitator or
  * resource server settles `auth-capture` yet, so this only proves `CdpX402Client`
- * can sign and send a valid payload — the mock responds 501 once a
- * `PAYMENT-SIGNATURE` header arrives instead of settling.
+ * can sign and send a valid payload — the mock decodes the `PAYMENT-SIGNATURE`
+ * header and responds 501 instead of settling.
  *
  * @param run - Callback invoked with the mock resource's URL.
- * @returns The value returned by `run`.
+ * @returns The value returned by `run`, alongside the decoded payload the mock received.
  */
-async function withLocalAuthCaptureMockResource<T>(run: (url: string) => Promise<T>): Promise<T> {
+async function withLocalAuthCaptureMockResource<T>(
+  run: (url: string) => Promise<T>,
+): Promise<{ result: T; paymentPayload: PaymentPayload }> {
+  let paymentPayload: PaymentPayload | undefined;
+
   const httpServer = createHttpServer((req: IncomingMessage, res: ServerResponse) => {
-    if (req.headers["payment-signature"]) {
+    const header = req.headers["payment-signature"];
+    if (typeof header === "string" && header.length > 0) {
+      paymentPayload = decodePaymentSignatureHeader(header) as PaymentPayload;
       res.writeHead(501, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "auth-capture has no server/facilitator support yet." }));
       return;
@@ -5784,7 +5790,8 @@ async function withLocalAuthCaptureMockResource<T>(run: (url: string) => Promise
         resolve(`http://localhost:${addr.port}/auth-capture-mock`);
       });
     });
-    return await run(url);
+    const result = await run(url);
+    return { result, paymentPayload: paymentPayload! };
   } finally {
     httpServer.close();
   }
@@ -5793,14 +5800,23 @@ async function withLocalAuthCaptureMockResource<T>(run: (url: string) => Promise
 describe("CdpX402Client auth-capture signing E2E Tests", () => {
   it("signs and sends an auth-capture payload a mock resource server accepts (no facilitator settlement yet)", async () => {
     await ensureX402DefaultEvmPayerFunded();
-    await withLocalAuthCaptureMockResource(async url => {
-      const client = new CdpX402Client({ environment: "development" });
+    const client = new CdpX402Client({ environment: "development" });
+    const { result: response, paymentPayload } = await withLocalAuthCaptureMockResource(url => {
       const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-      const response = await fetchWithPayment(url);
-
-      // 501 confirms the mock received a signed PAYMENT-SIGNATURE header —
-      // proof CdpX402Client produced a valid auth-capture payload end to end.
-      expect(response.status).toBe(501);
+      return fetchWithPayment(url);
     });
+
+    expect(response.status).toBe(501);
+
+    // Decode and validate the payload itself, not just that some header arrived.
+    expect(paymentPayload.accepted.scheme).toBe("auth-capture");
+    const { evmAddress } = await client.getAddresses();
+    const payload = paymentPayload.payload as {
+      authorization: { from: string; to: string; value: string; nonce: string };
+      signature: string;
+    };
+    expect(payload.authorization.from.toLowerCase()).toBe(evmAddress.toLowerCase());
+    expect(payload.authorization.value).toBe("10000");
+    expect(payload.signature).toMatch(/^0x[0-9a-fA-F]{130}$/);
   }, 60_000);
 });

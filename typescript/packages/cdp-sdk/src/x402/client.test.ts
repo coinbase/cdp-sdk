@@ -71,6 +71,13 @@ const {
 
 vi.mock("@x402/core/client", () => {
   class MockX402Client {
+    spendControls: unknown = {};
+
+    setSpendControls(controls: unknown) {
+      this.spendControls = controls;
+      return this;
+    }
+
     register(...args: unknown[]) {
       return mockRegister(...args);
     }
@@ -305,6 +312,12 @@ describe("CdpX402Client", () => {
             walletConfig: { type: "smart", ownerAccountName: "my-owner" },
           }),
       ).not.toThrow();
+    });
+
+    it("disables upstream x402Client's default spend controls", () => {
+      // x402Client defaults to `{}`, silently capping every payment at $1.
+      const client = new CdpX402Client();
+      expect((client as unknown as { spendControls: unknown }).spendControls).toBe(false);
     });
   });
 

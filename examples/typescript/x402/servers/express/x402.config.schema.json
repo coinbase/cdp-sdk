@@ -157,11 +157,11 @@
         "network": { "$ref": "#/definitions/caip2Network" },
         "payTo": {
           "type": "string",
-          "description": "Receiver address. Omit or leave as \"\" (empty) to have createX402Server fill in the provisioned/configured address for the option's network family."
+          "description": "Receiver address. Leave as \"\" (empty) to have createX402Server fill in the provisioned/configured address for the option's network family."
         },
         "maxTimeoutSeconds": { "type": "number", "minimum": 1 }
       },
-      "required": ["scheme", "price", "network"]
+      "required": ["scheme", "price", "network", "payTo"]
     },
     "x402RouteConfig": {
       "type": "object",
