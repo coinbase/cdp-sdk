@@ -44,6 +44,7 @@
  * });
  * app.use(paymentMiddlewareFromHTTPServer(server));
  * console.log("EVM receiver:", server.payToEvmAddress);
+ * console.log("Solana receiver:", server.payToSvmAddress);
  * ```
  *
  * @example Bring your own addresses (skip wallet provisioning):
@@ -73,7 +74,6 @@ import { readFile } from "node:fs/promises";
 
 import { x402ResourceServer, x402HTTPResourceServer } from "@x402/core/server";
 
-import { cdpSolanaAccountToMessageSigner } from "./account-signers.js";
 import { assertBuilderCode, declareServerBuilderCodeExtension } from "./builder-code.js";
 import {
   baseMainnetCaip2,
@@ -93,7 +93,6 @@ import {
 import { findSmartAccountByOwner, isOwnerAlreadyHasSmartWalletError } from "./smart-account.js";
 import { CdpClient } from "../client/cdp.js";
 
-import type { CdpSolanaMessageSigningAccount } from "./account-signers.js";
 import type { RoutesConfig, RouteConfig } from "@x402/core/server";
 import type { Network } from "@x402/core/types";
 import type { BuilderCodeRequiredExtension } from "@x402/extensions/builder-code";
@@ -155,10 +154,10 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
  * - `"exact"` — (default) Transfer a fixed amount, locked at signing time.
  *   Supports EVM and Solana networks.
  * - `"upto"` — Usage-based billing: the client authorizes a maximum amount
- *   and the server settles the actual amount charged (≤ max). Supports EVM
- *   (via Permit2) and Solana (via a settlement voucher signed by the
- *   provisioned CDP Solana receiver wallet — unavailable with a
- *   bring-your-own `payToConfig: { type: "address" }` Solana address) by default.
+ *   and the server settles the actual amount charged (≤ max). EVM only
+ *   (via Permit2) — Solana isn't supported today, since it requires the
+ *   resource server to sign an arbitrary-bytes settlement voucher and CDP's
+ *   Solana account signing API can't sign arbitrary bytes yet.
  */
 export type CdpPaymentScheme = "exact" | "upto";
 
@@ -196,10 +195,8 @@ export interface CdpSimplifiedRouteConfig {
   /**
    * Payment scheme to use for this route.
    *
-   * Defaults to `"exact"`. Both `"exact"` and `"upto"` support Base and
-   * Solana out of the box — a CDP-managed Solana receiver wallet signs
-   * `"upto"` settlement vouchers, so it's unavailable with a bring-your-own
-   * `payToConfig: { type: "address" }` Solana address.
+   * Defaults to `"exact"`, which supports Base and Solana out of the box.
+   * `"upto"` supports Base only — see {@link CdpPaymentScheme}.
    */
   scheme?: CdpPaymentScheme;
   /**
@@ -314,9 +311,6 @@ export type PayToConfig =
        * needed for the CDP facilitator.
        * At least one of `evm` or `solana` should be provided, or all routes
        * must supply explicit `payTo` values in the full x402 `RouteConfig` format.
-       * Solana `upto` is unavailable in this mode (see `svmReceiverAuthorizerSigner`
-       * in `getCdpDefaultSchemes`): there's no CDP-managed key to sign settlement
-       * vouchers, and this option doesn't accept a bring-your-own signer today.
        */
       type: "address";
       /** EVM address to receive payments. */
@@ -432,13 +426,6 @@ interface ProvisionedAddresses {
   evmAddress: Address | "";
   svmAddress: string;
   ownerWallet?: string;
-  /**
-   * The raw CDP Solana account, present only when `need.svm` was true. Used to
-   * build the `receiverAuthorizerSigner` for Solana `upto` — bring-your-own
-   * addresses (`payToConfig.type === "address"`) never populate this, since
-   * there's no CDP-managed key to sign settlement vouchers with.
-   */
-  svmAccount?: CdpSolanaMessageSigningAccount;
 }
 
 /** Network families referenced by a route set, controlling which wallets to provision. */
@@ -502,13 +489,12 @@ async function provisionServerAccounts(
 
   const accountName = payToConfig.accountName ?? DEFAULT_SERVER_ACCOUNT_NAME;
 
-  const svmAccount = need.svm
-    ? await cdpClient.solana.getOrCreateAccount({ name: accountName })
-    : undefined;
-  const svmAddress = svmAccount?.address ?? "";
+  const svmAddress = need.svm
+    ? (await cdpClient.solana.getOrCreateAccount({ name: accountName })).address
+    : "";
 
   if (!need.evm) {
-    return { evmAddress: "", svmAddress, svmAccount };
+    return { evmAddress: "", svmAddress };
   }
 
   if (payToConfig.type === "smart") {
@@ -539,7 +525,6 @@ async function provisionServerAccounts(
       evmAddress: smartAccount.address as Address,
       svmAddress,
       ownerWallet: payToConfig.ownerAccountName,
-      svmAccount,
     };
   }
 
@@ -547,7 +532,6 @@ async function provisionServerAccounts(
   return {
     evmAddress: evmAccount.address as Address,
     svmAddress,
-    svmAccount,
   };
 }
 
@@ -559,18 +543,15 @@ async function provisionServerAccounts(
 
 /**
  * Payment schemes whose *default* network list (used only when a route omits
- * `networks`) is EVM-only, even though the scheme is allowed on Solana when
- * explicitly requested (see {@link assertSchemeSupportsNetwork}, which no
- * longer rejects any current scheme/network combination).
+ * `networks`) is EVM-only.
  *
- * Currently empty: `"exact"` and `"upto"` both default to Base + Solana, since
- * the CDP-hosted facilitator advertises both and the resource server always
- * registers Solana `upto` when a CDP-managed Solana account is provisioned
- * (see `getCdpDefaultSchemes`'s `svmReceiverAuthorizerSigner`). Kept as an
- * extension point for a future scheme whose default network list should stay
- * EVM-only.
+ * `"upto"` defaults to Base only: the resource server has no way to hold its
+ * own Solana `receiverAuthorizerSigner` today (CDP's Solana account signing
+ * API can only sign UTF-8 text, not the arbitrary-bytes settlement voucher
+ * `@x402/svm`'s `upto` scheme requires), so `createX402Server` cannot support
+ * `upto` on Solana at all right now — see {@link EVM_HARD_ONLY_SCHEMES}.
  */
-const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set();
+const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
 
 /**
  * Returns `true` when the given payment scheme defaults to EVM-only networks.
@@ -597,7 +578,8 @@ function networkFamily(network: string): "evm" | "svm" | "other" {
 /**
  * Returns the default networks for a simplified route given its scheme and the
  * deployment environment. Schemes in {@link EVM_DEFAULT_ONLY_SCHEMES} (`"upto"`)
- * default to EVM networks only; all other schemes default to Base + Solana.
+ * default to EVM networks only; all other schemes (currently `"exact"`)
+ * default to Base + Solana.
  *
  * @param scheme - Payment scheme for the route.
  * @param environment - Deployment environment controlling mainnet vs testnet defaults.
@@ -668,12 +650,12 @@ function requiredNetworkFamilies(
 
 /**
  * Payment schemes that are never valid on a non-EVM network, even when
- * explicitly requested via `networks`. Currently empty — both `"exact"` and
- * `"upto"` are valid on Solana when explicitly configured, even though
- * `"upto"` doesn't default onto it (see {@link EVM_DEFAULT_ONLY_SCHEMES}).
- * Kept as an extension point for a future hard-EVM-only `CdpPaymentScheme`.
+ * explicitly requested via `networks`. `"upto"` is here for the same reason
+ * it's in {@link EVM_DEFAULT_ONLY_SCHEMES}: the resource server can't produce
+ * a Solana `receiverAuthorizerSigner` today, so there's no way to make it
+ * work even by opting in explicitly.
  */
-const EVM_HARD_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set();
+const EVM_HARD_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
 
 /**
  * Throws when a scheme is configured with a network family it can never
@@ -1130,7 +1112,6 @@ export class X402Server extends x402HTTPResourceServer {
     let evmAddress: Address | "";
     let svmAddress: string;
     let ownerWallet: string | undefined;
-    let svmAccount: CdpSolanaMessageSigningAccount | undefined;
 
     if (payToConfig?.type === "address") {
       evmAddress = payToConfig.evm ?? "";
@@ -1164,22 +1145,12 @@ export class X402Server extends x402HTTPResourceServer {
         need,
       );
 
-      svmAccount = provisioned.svmAccount;
       evmAddress = provisioned.evmAddress;
       svmAddress = provisioned.svmAddress;
       ownerWallet = provisioned.ownerWallet;
     }
 
-    /*
-     * Registered only now that the Solana account (if any) is provisioned —
-     * Solana `upto` needs it as the `receiverAuthorizerSigner`. Bring-your-own
-     * `payToConfig: { type: "address" }` has no CDP-managed key, so Solana
-     * `upto` is skipped in that mode (only `exact` is registered for Solana).
-     */
-    const svmReceiverAuthorizerSigner = svmAccount
-      ? cdpSolanaAccountToMessageSigner(svmAccount)
-      : undefined;
-    for (const scheme of getCdpDefaultSchemes({ svmReceiverAuthorizerSigner })) {
+    for (const scheme of getCdpDefaultSchemes()) {
       resourceServer.register(scheme.network as Network, scheme.server);
     }
 
@@ -1259,6 +1230,7 @@ export class X402Server extends x402HTTPResourceServer {
  * });
  * app.use(paymentMiddlewareFromHTTPServer(server));
  * console.log("EVM receiver:", server.payToEvmAddress);
+ * console.log("Solana receiver:", server.payToSvmAddress);
  * ```
  *
  * @example Bring your own addresses:

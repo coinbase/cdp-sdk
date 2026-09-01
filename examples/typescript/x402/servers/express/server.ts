@@ -57,7 +57,7 @@ if (APPROACH === "1") {
     environment: "development", // Base Sepolia + Solana Devnet; "production" for mainnet
     routes: {
       "GET /report": { price: "$0.01", description: "AI-generated report" },
-      // "upto" defaults to Base + Solana — no explicit networks needed.
+      // "upto" defaults to Base only — no explicit networks needed.
       "GET /usage": {
         price: "$0.10",
         scheme: "upto",

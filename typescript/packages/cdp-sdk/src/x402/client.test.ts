@@ -461,6 +461,18 @@ describe("CdpX402Client", () => {
       expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
     });
 
+    it("merges a partial networkSchemes override into the default baseline instead of replacing it", async () => {
+      // Only `authCapture` is set here — `exact`/`upto` must still come from base's default scheme.
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { authCapture: false } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
+      expect(ExactEvmScheme).toHaveBeenCalled();
+      expect(UptoEvmScheme).toHaveBeenCalled();
+    });
+
     it("registers authCapture for an EOA wallet via an explicit networkSchemes override", async () => {
       const client = new CdpX402Client({
         networkSchemes: [{ network: "base", scheme: { authCapture: true } }],

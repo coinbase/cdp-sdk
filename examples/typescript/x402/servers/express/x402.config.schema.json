@@ -119,7 +119,7 @@
         "scheme": {
           "type": "string",
           "enum": ["exact", "upto"],
-          "description": "Payment scheme. Defaults to \"exact\". Both schemes support Base and Solana."
+          "description": "Payment scheme. Defaults to \"exact\", which supports Base and Solana. \"upto\" supports Base only."
         },
         "paymentFlow": {
           "type": "string",
@@ -130,7 +130,7 @@
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/definitions/caip2Network" },
-          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet (or the environment's testnet equivalents)."
+          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet for \"exact\" (Base mainnet only for \"upto\"), or the environment's testnet equivalents."
         },
         "maxTimeoutSeconds": {
           "type": "number",

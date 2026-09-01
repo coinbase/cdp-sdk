@@ -23,6 +23,7 @@
  * });
  * app.use(paymentMiddlewareFromHTTPServer(server));
  * console.log("Receiving EVM payments at", server.payToEvmAddress);
+ * console.log("Receiving Solana payments at", server.payToSvmAddress);
  * ```
  *
  * ### Pay for an x402-protected API

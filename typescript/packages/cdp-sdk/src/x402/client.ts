@@ -329,11 +329,17 @@ const setupCdpSigners = async (
           },
         ];
 
-  // `networkSchemes` is additive on top of the default baseline: it overrides the prescribed network's scheme, or adds a new one.
+  /*
+   * `networkSchemes` merges into the default baseline per network: a partial `scheme` override
+   * (e.g. `{ authCapture: false }`) only touches the fields it sets — it doesn't disable the
+   * other schemes the network defaulted to (or a prior override already set).
+   */
   const networksByName = new Map(defaultNetworkSchemes.map(config => [config.network, config]));
   for (const override of config?.networkSchemes ?? []) {
-    const rpcUrl = override.rpcUrl ?? networksByName.get(override.network)?.rpcUrl;
-    networksByName.set(override.network, { ...override, rpcUrl });
+    const existing = networksByName.get(override.network);
+    const rpcUrl = override.rpcUrl ?? existing?.rpcUrl;
+    const scheme = { ...existing?.scheme, ...override.scheme };
+    networksByName.set(override.network, { ...override, rpcUrl, scheme });
   }
 
   // `normalizeNetwork` converts the v1-style plain names used here (e.g. "base") into the CAIP-2 form v2's `register` needs (e.g. "eip155:8453"); `registerV1` keeps using the plain name.

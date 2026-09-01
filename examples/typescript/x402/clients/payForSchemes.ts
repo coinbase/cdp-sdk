@@ -62,7 +62,7 @@ async function main() {
   console.log("CDP-managed x402 client ready");
   console.log("  EVM address:", evmAddress);
   console.log("  Solana address:", svmAddress);
-  console.log("  Schemes:", { ...baseScheme });
+  console.log("  Schemes:", networkSchemes);
   if (PREFERRED_NETWORK) console.log("  Preferred network:", PREFERRED_NETWORK);
   console.log();
 
