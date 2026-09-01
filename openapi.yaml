@@ -7665,7 +7665,9 @@ paths:
                   example: Default policy
                 rules:
                   type: array
-                  description: A list of rules that comprise the policy. There is a limit of 10 rules per policy.
+                  minItems: 1
+                  maxItems: 100
+                  description: A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
                   items:
                     $ref: '#/components/schemas/Rule'
               required:
@@ -7835,7 +7837,9 @@ paths:
                   example: Default policy
                 rules:
                   type: array
-                  description: A list of rules that comprise the policy. There is a limit of 10 rules per policy.
+                  minItems: 1
+                  maxItems: 100
+                  description: A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
                   items:
                     $ref: '#/components/schemas/Rule'
               required:
