@@ -1,11 +1,15 @@
+import { x402Client } from "@x402/core/client";
 import { describe, expect, it, vi } from "vitest";
 
 import { applySpendControls, getSpendControlsRegistry } from "./apply.js";
 
 import type { SchemeNetworkClient, x402Client as X402Client } from "@x402/core/client";
-import type { PaymentRequired, PaymentRequirements } from "@x402/core/types";
-
-import { x402Client } from "@x402/core/client";
+import type {
+  PaymentRequired,
+  PaymentRequirements,
+  PaymentRequiredV1,
+  PaymentRequirementsV1,
+} from "@x402/core/types";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -32,7 +36,15 @@ const makeClient = (): X402Client => {
   return client;
 };
 
-const makeRequired = (amount: string): PaymentRequired =>
+/**
+ * Builds a v2 PaymentRequired. `spoofedMaxAmountRequired`, when set, adds a
+ * v1-shaped `maxAmountRequired` field alongside the real `amount` field.
+ *
+ * @param amount - The real v2 atomic amount.
+ * @param spoofedMaxAmountRequired - Optional spoofed v1-shaped field to add alongside it.
+ * @returns A v2 PaymentRequired with one accepted requirement.
+ */
+const makeRequired = (amount: string, spoofedMaxAmountRequired?: string): PaymentRequired =>
   ({
     x402Version: 2,
     resource: { url: "https://example.com/report", mimeType: "application/json" },
@@ -45,12 +57,65 @@ const makeRequired = (amount: string): PaymentRequired =>
         payTo: PAY_TO,
         maxTimeoutSeconds: 300,
         extra: {},
+        ...(spoofedMaxAmountRequired !== undefined
+          ? { maxAmountRequired: spoofedMaxAmountRequired }
+          : {}),
       },
     ],
   }) as PaymentRequired;
 
 const totalFor = (resolved: ReturnType<typeof applySpendControls>, asset = USDC): Promise<bigint> =>
   resolved.tracker.total({ asset });
+
+/**
+ * v1 exact scheme mirroring `ExactEvmSchemeV1`: it signs `maxAmountRequired`
+ * as the authorized value, exactly as the real client-side scheme does.
+ */
+const NETWORK_V1 = "base-sepolia";
+const fakeExactSchemeV1: SchemeNetworkClient = {
+  scheme: "exact",
+  createPaymentPayload: async (_x402Version, req) => ({
+    x402Version: 1,
+    scheme: "exact",
+    network: NETWORK_V1,
+    payload: { signedValue: (req as unknown as PaymentRequirementsV1).maxAmountRequired },
+  }),
+};
+
+const makeClientV1 = (): X402Client => {
+  const client = new x402Client();
+  client.registerV1(NETWORK_V1, fakeExactSchemeV1);
+  return client;
+};
+
+/**
+ * Builds a v1 PaymentRequired. `spoofedAmount`, when set, adds a v2-shaped
+ * `amount` field alongside the real `maxAmountRequired` — the shape a
+ * malicious server would send to exploit field-presence-based selection.
+ *
+ * @param maxAmountRequired - The real v1 atomic amount.
+ * @param spoofedAmount - Optional spoofed v2-shaped field to add alongside it.
+ * @returns A v1 PaymentRequired with one accepted requirement.
+ */
+const makeRequiredV1 = (maxAmountRequired: string, spoofedAmount?: string): PaymentRequiredV1 => ({
+  x402Version: 1,
+  accepts: [
+    {
+      scheme: "exact",
+      network: NETWORK_V1,
+      maxAmountRequired,
+      resource: "https://example.com/report",
+      description: "",
+      mimeType: "application/json",
+      outputSchema: {},
+      payTo: PAY_TO,
+      maxTimeoutSeconds: 300,
+      asset: USDC,
+      extra: {},
+      ...(spoofedAmount !== undefined ? { amount: spoofedAmount } : {}),
+    } as PaymentRequirementsV1,
+  ],
+});
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -75,8 +140,10 @@ describe("applySpendControls settlement reconciliation", () => {
     const payload = await client.createPaymentPayload(makeRequired("10000"));
     expect(await totalFor(resolved)).toBe(10_000n);
 
-    // The same payload reference returned by createPaymentPayload is what
-    // @x402/fetch passes back into onPaymentResponse — confirm must reconcile it.
+    /*
+     * The same payload reference returned by createPaymentPayload is what
+     * @x402/fetch passes back into onPaymentResponse — confirm must reconcile it.
+     */
     await client.handlePaymentResponse({
       paymentPayload: payload,
       requirements: payload.accepted as PaymentRequirements,
@@ -86,7 +153,7 @@ describe("applySpendControls settlement reconciliation", () => {
     expect(await totalFor(resolved)).toBe(10_000n);
   });
 
-  it("rolls back spend when settlement fails", async () => {
+  it("keeps spend when settlement reports failure (already-transmitted authorization is redeemable regardless)", async () => {
     const client = makeClient();
     const resolved = applySpendControls(client, {
       maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
@@ -101,10 +168,10 @@ describe("applySpendControls settlement reconciliation", () => {
       settleResponse: { success: false } as never,
     });
 
-    expect(await totalFor(resolved)).toBe(0n);
+    expect(await totalFor(resolved)).toBe(10_000n);
   });
 
-  it("rolls back spend when the server responds with a fresh paymentRequired (verify failed)", async () => {
+  it("keeps spend when the server responds with a fresh paymentRequired (self-reported, untrustworthy)", async () => {
     const client = makeClient();
     const resolved = applySpendControls(client, {
       maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
@@ -119,7 +186,28 @@ describe("applySpendControls settlement reconciliation", () => {
       paymentRequired: makeRequired("10000"),
     });
 
-    expect(await totalFor(resolved)).toBe(0n);
+    expect(await totalFor(resolved)).toBe(10_000n);
+  });
+
+  it("a malicious server cannot reset the cumulative ledger by repeatedly reporting settlement failure", async () => {
+    const client = makeClient();
+    const resolved = applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 25_000n, asset: USDC },
+    });
+
+    for (let i = 0; i < 2; i++) {
+      const payload = await client.createPaymentPayload(makeRequired("10000"));
+      await client.handlePaymentResponse({
+        paymentPayload: payload,
+        requirements: payload.accepted as PaymentRequirements,
+        settleResponse: { success: false } as never,
+      });
+    }
+
+    expect(await totalFor(resolved)).toBe(20_000n);
+    await expect(client.createPaymentPayload(makeRequired("10000"))).rejects.toThrow(
+      /cumulative_cap|exceeding cap/,
+    );
   });
 
   it("keeps spend on an ambiguous response (no settlement header, no follow-up 402)", async () => {
@@ -161,18 +249,19 @@ describe("applySpendControls settlement reconciliation", () => {
     const resolved = applySpendControls(client, {
       maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
     });
+    const registry = getSpendControlsRegistry(client)!;
 
     const payload = await client.createPaymentPayload(makeRequired("10000"));
     expect(await totalFor(resolved)).toBe(10_000n);
 
-    // Some transports (JSON round-trip, shallow spread, MCP tool wrappers) clone
-    // the payload object before passing it back through onPaymentResponse.
-    // The fingerprint fallback must still correctly reconcile the spend.
-    await client.handlePaymentResponse({
-      paymentPayload: { ...payload },
-      requirements: payload.accepted as PaymentRequirements,
-      settleResponse: { success: false } as never,
-    });
+    /*
+     * Some transports (JSON round-trip, shallow spread, MCP tool wrappers) clone
+     * the payload object before passing it back to the registry. The fingerprint
+     * fallback must still correctly reconcile the spend. Rollback is exercised
+     * directly here (never via the untrusted settlement response) since it is
+     * only safe for a payload the caller independently knows was never sent.
+     */
+    await registry.rollback({ ...payload });
 
     expect(await totalFor(resolved)).toBe(0n);
   });
@@ -182,39 +271,89 @@ describe("applySpendControls settlement reconciliation", () => {
     const resolved = applySpendControls(client, {
       maxCumulativeSpend: { atomic: 100_000n, asset: USDC },
     });
+    const registry = getSpendControlsRegistry(client)!;
 
-    // Two separate payments — different amounts produce different fingerprints,
-    // so reconciling one must not accidentally affect the other.
+    /*
+     * Two separate payments — different amounts produce different fingerprints,
+     * so reconciling one must not accidentally affect the other.
+     */
     const payload1 = await client.createPaymentPayload(makeRequired("10000"));
     const payload2 = await client.createPaymentPayload(makeRequired("20000"));
     expect(await totalFor(resolved)).toBe(30_000n);
 
     // Roll back payment2 (via its clone). Payment1 must remain tracked.
-    await client.handlePaymentResponse({
-      paymentPayload: { ...payload2 },
-      requirements: payload2.accepted as PaymentRequirements,
-      settleResponse: { success: false } as never,
-    });
+    await registry.rollback({ ...payload2 });
 
     expect(await totalFor(resolved)).toBe(10_000n);
 
     // Confirm payment1. Final total should remain 10_000.
-    await client.handlePaymentResponse({
-      paymentPayload: payload1,
-      requirements: payload1.accepted as PaymentRequirements,
-      settleResponse: { success: true } as never,
-    });
+    await registry.confirm(payload1);
 
     expect(await totalFor(resolved)).toBe(10_000n);
   });
 });
 
+describe("applySpendControls field-precedence (spoofed amount/maxAmountRequired)", () => {
+  it("caps a v1 payment on maxAmountRequired even when a spoofed low amount is present", async () => {
+    const client = makeClientV1();
+    applySpendControls(client, {
+      maxAmountPerPayment: { atomic: 5_000n, asset: USDC },
+    });
+
+    // Real signed value (maxAmountRequired) exceeds the cap; spoofed `amount` is tiny.
+    await expect(client.createPaymentPayload(makeRequiredV1("1000000", "1"))).rejects.toThrow(
+      /per_payment_cap|exceeds per-payment cap/,
+    );
+  });
+
+  it("tracks a v1 payment's spend by maxAmountRequired, not a spoofed amount", async () => {
+    const client = makeClientV1();
+    const resolved = applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC },
+    });
+
+    await client.createPaymentPayload(makeRequiredV1("10000", "1"));
+
+    // Ledger must reflect the value that will actually be signed/transmitted.
+    expect(await totalFor(resolved)).toBe(10_000n);
+  });
+
+  it("caps a v2 payment on amount even when a spoofed low maxAmountRequired is present", async () => {
+    const client = makeClient();
+    applySpendControls(client, {
+      maxAmountPerPayment: { atomic: 5_000n, asset: USDC },
+    });
+
+    // Real signed value (amount) exceeds the cap; spoofed `maxAmountRequired` is tiny.
+    await expect(client.createPaymentPayload(makeRequired("1000000", "1"))).rejects.toThrow(
+      /per_payment_cap|exceeds per-payment cap/,
+    );
+  });
+
+  it("tracks and caps a legitimate v1 payment correctly (no spoofing)", async () => {
+    const client = makeClientV1();
+    const resolved = applySpendControls(client, {
+      maxAmountPerPayment: { atomic: 20_000n, asset: USDC },
+      maxCumulativeSpend: { atomic: 20_000n, asset: USDC },
+    });
+
+    await client.createPaymentPayload(makeRequiredV1("15000"));
+    expect(await totalFor(resolved)).toBe(15_000n);
+
+    await expect(client.createPaymentPayload(makeRequiredV1("10000"))).rejects.toThrow(
+      /cumulative_cap|exceeding cap/,
+    );
+  });
+});
+
 describe("@x402/core internal assumption", () => {
-  // applySpendControls pins its spend-cap hook last by reaching into the client's
-  // private `beforePaymentCreationHooks` array (see pinGuardrailsBeforeHookLast in
-  // apply.ts). This test documents that assumption: if a future @x402/core version
-  // renames or removes the field, this fails when the dependency is bumped, prompting
-  // us to revisit the pinning logic (which otherwise degrades to a runtime warning).
+  /*
+   * applySpendControls pins its spend-cap hook last by reaching into the client's
+   * private `beforePaymentCreationHooks` array (see pinGuardrailsBeforeHookLast in
+   * apply.ts). This test documents that assumption: if a future @x402/core version
+   * renames or removes the field, this fails when the dependency is bumped, prompting
+   * us to revisit the pinning logic (which otherwise degrades to a runtime warning).
+   */
   it("x402Client exposes a beforePaymentCreationHooks array that onBeforePaymentCreation appends to", () => {
     const client = new x402Client();
     const hooks = (client as unknown as { beforePaymentCreationHooks?: unknown[] })
