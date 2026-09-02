@@ -70,7 +70,6 @@ export {
 export type {
   CdpX402ServerConfig,
   CdpRouteConfig,
-  CdpSimplifiedRouteConfig,
   CdpPaymentScheme,
   CdpPaymentFlow,
   PayToConfig,

@@ -10,14 +10,13 @@
  * replacement and can be passed anywhere an `x402HTTPResourceServer` is
  * expected (e.g. `paymentMiddlewareFromHTTPServer`, Hono / Next.js adapters).
  *
- * A route (`CdpRouteConfig`) may be supplied in either format:
+ * Routes may be supplied in either format:
  *
- * **Simplified CDP format** (`CdpSimplifiedRouteConfig`) — just `price` and
- * optional `description` / `networks` / `paymentFlow`. The server fills in
- * `scheme`, `payTo`, and all x402 internals automatically. `paymentFlow` is
- * exact-scheme only (`"authorization"` default, or `"upfront"`) and is
- * applied to every network the route expands to (Base and Solana when
- * `networks` is omitted).
+ * **Simplified CDP format** (`CdpRouteConfig`) — just `price` and optional
+ * `description` / `networks` / `paymentFlow`. The server fills in `scheme`,
+ * `payTo`, and all x402 internals automatically. `paymentFlow` is exact-scheme
+ * only (`"authorization"` default, or `"upfront"`) and is applied to every
+ * network the route expands to (Base and Solana when `networks` is omitted).
  *
  * **Full x402 format** (`RouteConfig`) — the same `accepts` / `description`
  * shape accepted by `x402HTTPResourceServer`. Vacant `payTo` fields (`""`)
@@ -181,9 +180,9 @@ const CDP_EXACT_PAYMENT_FLOWS: ReadonlySet<string> = new Set(["authorization", "
  *
  * For routes that need fine-grained control (custom scheme, `extra`, explicit
  * `payTo`, etc.) pass a full x402 `RouteConfig` instead — both formats are
- * accepted in the same `routes` map under the {@link CdpRouteConfig} union.
+ * accepted in the same `routes` map.
  */
-export interface CdpSimplifiedRouteConfig {
+export interface CdpRouteConfig {
   /**
    * Payment amount required to access this route, e.g. `"$0.01"`.
    * Accepts any amount string supported by the x402 protocol.
@@ -232,13 +231,6 @@ export interface CdpSimplifiedRouteConfig {
    */
   extensions?: Record<string, unknown>;
 }
-
-/**
- * A single route entry accepted by `createX402Server`'s `routes` map —
- * either the {@link CdpSimplifiedRouteConfig} shorthand or a full x402
- * `RouteConfig`. Discriminated by the presence of `accepts`.
- */
-export type CdpRouteConfig = CdpSimplifiedRouteConfig | RouteConfig;
 
 /**
  * Receiver wallet configuration for `createX402Server`.
@@ -349,14 +341,14 @@ export interface CdpX402ServerConfig {
    * Map of HTTP method + path pattern → route config.
    * Keys use the `"METHOD /path"` convention, e.g. `"GET /report"`.
    *
-   * Each value (`CdpRouteConfig`) is either:
-   * - A `CdpSimplifiedRouteConfig` — simplified format, just `price` + optional fields.
+   * Each value is either:
+   * - A `CdpRouteConfig` — simplified format, just `price` + optional fields.
    * - A `RouteConfig` — full x402 format with an `accepts` array/object.
    *
    * Both formats can be mixed within the same map.
    * May be omitted when `configPath` supplies the routes.
    */
-  routes?: Record<string, CdpRouteConfig>;
+  routes?: Record<string, CdpRouteConfig | RouteConfig>;
   /**
    * Path to a JSON file whose fields are merged with this inline config.
    * Inline config takes precedence over file config when both specify the
@@ -574,7 +566,7 @@ function getDefaultNetworksForScheme(
  * @returns The network families referenced by the route.
  */
 function routeNetworkFamilies(
-  route: CdpRouteConfig,
+  route: CdpRouteConfig | RouteConfig,
   environment: "production" | "development",
 ): NetworkFamilies {
   const networks: string[] = [];
@@ -601,7 +593,7 @@ function routeNetworkFamilies(
  * @returns The union of network families referenced by the route set.
  */
 function requiredNetworkFamilies(
-  routes: Record<string, CdpRouteConfig>,
+  routes: Record<string, CdpRouteConfig | RouteConfig>,
   environment: "production" | "development",
 ): NetworkFamilies {
   const result: NetworkFamilies = { evm: false, svm: false };
@@ -646,10 +638,7 @@ function assertSchemeSupportsNetwork(scheme: string, network: string): void {
  * @param route - Simplified CDP route config being converted.
  * @param scheme - Resolved scheme for the route (`"exact"` or `"upto"`).
  */
-function assertPaymentFlowCompatible(
-  route: CdpSimplifiedRouteConfig,
-  scheme: CdpPaymentScheme,
-): void {
+function assertPaymentFlowCompatible(route: CdpRouteConfig, scheme: CdpPaymentScheme): void {
   if (route.paymentFlow === undefined) return;
   if (!CDP_EXACT_PAYMENT_FLOWS.has(route.paymentFlow)) {
     throw new Error(
@@ -734,8 +723,8 @@ function fillX402RoutePayTo(
 }
 
 /**
- * Converts a {@link CdpSimplifiedRouteConfig} into a full x402 `RouteConfig`,
- * wiring the provisioned receiver addresses into each payment option's `payTo`.
+ * Converts a {@link CdpRouteConfig} into a full x402 `RouteConfig`, wiring
+ * the provisioned receiver addresses into each payment option's `payTo`.
  *
  * @param route - Simplified CDP route config with `price` and optional fields.
  * @param evmAddress - EVM receiver address for `eip155:*` networks (`""` when none).
@@ -747,7 +736,7 @@ function fillX402RoutePayTo(
  * @returns A full x402 `RouteConfig` with `accepts`, `payTo`, and `scheme` resolved.
  */
 function convertCdpRoute(
-  route: CdpSimplifiedRouteConfig,
+  route: CdpRouteConfig,
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
@@ -878,9 +867,10 @@ function withAutoInjectedExtensions(
 }
 
 /**
- * Resolves a mixed `Record<string, CdpRouteConfig>` into the x402
- * `RoutesConfig` format. Simplified routes are expanded; full x402 routes have
- * vacant `payTo` fields filled. All CDP extensions are injected into every route.
+ * Resolves a mixed `Record<string, CdpRouteConfig | RouteConfig>` into the
+ * x402 `RoutesConfig` format. Simplified routes are expanded; full x402
+ * routes have vacant `payTo` fields filled. All CDP extensions are injected
+ * into every route.
  *
  * @param routes - Map of route patterns to simplified or full x402 route configs.
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
@@ -890,7 +880,7 @@ function withAutoInjectedExtensions(
  * @returns A fully resolved `RoutesConfig` ready to pass to an HTTP resource server.
  */
 function resolveRoutes(
-  routes: Record<string, CdpRouteConfig>,
+  routes: Record<string, CdpRouteConfig | RouteConfig>,
   evmAddress: Address | "",
   svmAddress: string,
   environment: "production" | "development",
