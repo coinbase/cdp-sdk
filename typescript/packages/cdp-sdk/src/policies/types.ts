@@ -27,6 +27,8 @@ import {
   SendEndUserSolAssetRuleSchema,
 } from "./solanaSchema.js";
 
+export const MAX_RULES_PER_POLICY = 100;
+
 /**
  * A single Policy that can be used to govern the behavior of projects and accounts.
  */
@@ -108,9 +110,9 @@ export const CreatePolicyBodySchema = z.object({
     .optional(),
   /**
    * Array of rules that comprise the policy.
-   * Limited to a maximum of 10 rules per policy.
+   * Limited to a maximum of 100 rules per policy.
    */
-  rules: z.array(RuleSchema).max(10).min(1),
+  rules: z.array(RuleSchema).max(MAX_RULES_PER_POLICY).min(1),
 });
 /**
  * Type representing the request body for creating a new policy.
@@ -129,9 +131,9 @@ export const UpdatePolicyBodySchema = z.object({
     .optional(),
   /**
    * Array of rules that comprise the policy.
-   * Limited to a maximum of 10 rules per policy.
+   * Limited to a maximum of 100 rules per policy.
    */
-  rules: z.array(RuleSchema).max(10).min(1),
+  rules: z.array(RuleSchema).max(MAX_RULES_PER_POLICY).min(1),
 });
 /**
  * Type representing the request body for updating an existing policy.
