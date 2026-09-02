@@ -639,6 +639,27 @@ describe("createX402Server", () => {
         }),
       ).rejects.toThrow('Unsupported paymentFlow "escrow"');
     });
+
+    it("rejects an incompatible paymentFlow before provisioning any wallets", async () => {
+      // Regression test: this config used to fail inside `resolveRoutes`, by
+      // which point `provisionServerAccounts` had already created a real EVM
+      // receiver wallet via `CdpClient`.
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /metered": {
+              price: "$0.01",
+              scheme: "upto" as CdpPaymentScheme,
+              paymentFlow: "upfront",
+            },
+          },
+        }),
+      ).rejects.toThrow('paymentFlow is only supported on the "exact" scheme');
+
+      expect(CdpClient).not.toHaveBeenCalled();
+    });
   });
 
   describe("route conversion — scheme field", () => {
@@ -705,6 +726,28 @@ describe("createX402Server", () => {
           },
         }),
       ).rejects.toThrow(/only supports EVM/);
+    });
+
+    it("rejects 'upto' scheme with an explicit Solana network before provisioning any wallets", async () => {
+      // Regression test: this config used to fail inside `resolveRoutes`, by
+      // which point `provisionServerAccounts` had already created real EVM
+      // and Solana receiver wallets via `CdpClient` for the (wrongly)
+      // inferred network families.
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /metered-solana": {
+              price: "$0.01",
+              scheme: "upto" as CdpPaymentScheme,
+              networks: ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+            },
+          },
+        }),
+      ).rejects.toThrow(/only supports EVM/);
+
+      expect(CdpClient).not.toHaveBeenCalled();
     });
 
     it("fills payTo for 'upto' scheme using EVM address", async () => {
@@ -1635,6 +1678,31 @@ describe("createX402Server — empty payTo guard", () => {
         payToConfig: { type: "address", solana: "MySolanaAddress" },
       }),
     ).rejects.toThrow(/No receiver address for EVM/);
+  });
+
+  it("rejects a full x402 route with 'upto' on a Solana network before provisioning any wallets", async () => {
+    // Regression test: the full x402 format's `accepts[].scheme`/`network`
+    // pairs previously weren't validated until `resolveRoutes`, by which
+    // point `provisionServerAccounts` had already run.
+    const { CdpClient } = await import("../client/cdp.js");
+
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /r": {
+            accepts: {
+              scheme: "upto" as const,
+              price: "$0.01",
+              network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" as `${string}:${string}`,
+              payTo: "",
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+      }),
+    ).rejects.toThrow(/only supports EVM/);
+
+    expect(CdpClient).not.toHaveBeenCalled();
   });
 
   it("does NOT throw when only EVM network is used and only evm address is provided", async () => {

@@ -656,6 +656,38 @@ function assertPaymentFlowCompatible(route: CdpRouteConfig, scheme: CdpPaymentSc
 }
 
 /**
+ * Validates every route's scheme/network and `paymentFlow` compatibility up
+ * front, before any CDP or facilitator I/O. Without this, an invalid route
+ * (e.g. `{ scheme: "upto", paymentFlow: "upfront" }`) would only be caught
+ * during `resolveRoutes`, by which point `provisionServerAccounts` has
+ * already created real receiver wallets for the (wrongly) inferred network
+ * families.
+ *
+ * @param routes - Map of route patterns to simplified or full x402 route configs.
+ * @param environment - Deployment environment controlling default network selection.
+ */
+function validateRouteSemantics(
+  routes: Record<string, CdpRouteConfig | RouteConfig>,
+  environment: "production" | "development",
+): void {
+  for (const route of Object.values(routes)) {
+    if ("accepts" in route) {
+      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
+      for (const option of accepts) {
+        assertSchemeSupportsNetwork(option.scheme as string, option.network as string);
+      }
+      continue;
+    }
+    const scheme = route.scheme ?? "exact";
+    assertPaymentFlowCompatible(route, scheme);
+    const networks = route.networks ?? getDefaultNetworksForScheme(scheme, environment);
+    for (const network of networks) {
+      assertSchemeSupportsNetwork(scheme, network);
+    }
+  }
+}
+
+/**
  * Throws when the resolved `payTo` address for a network is empty. This can
  * happen when `payToConfig: { type: "address" }` is used without providing
  * an address for the given network family.
@@ -1039,6 +1071,7 @@ export class X402Server extends x402HTTPResourceServer {
 
     const credentials = resolveServerCredentials(merged);
     const { environment } = credentials;
+    validateRouteSemantics(routes, environment);
 
     const facilitatorClient = createCdpFacilitatorClient({
       apiKeyId: credentials.apiKeyId,
