@@ -4,7 +4,6 @@ plugins {
     `maven-publish`
     id("org.openapi.generator") version "7.11.0"
     id("com.diffplug.spotless") version "7.0.2"
-    id("org.jreleaser") version "1.17.0"
 }
 
 group = "com.coinbase"
@@ -32,6 +31,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.18.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
 
     // Gson for our custom code
@@ -89,7 +89,18 @@ tasks.register<Copy>("copyGeneratedSources") {
 spotless {
     java {
         target("src/**/*.java")
-        targetExclude("src/main/java/com/coinbase/cdp/openapi/**")
+        targetExclude(
+            // Retain the legacy exclusion until the GHE-to-public source sync removes it.
+            "src/main/java/com/coinbase/cdp/openapi/**",
+            "src/main/java/com/coinbase/cdp/core/**",
+            "src/main/java/com/coinbase/cdp/errors/**",
+            "src/main/java/com/coinbase/cdp/resources/**",
+            "src/main/java/com/coinbase/cdp/types/**",
+            "src/main/java/com/coinbase/cdp/AsyncCdpClient.java",
+            "src/main/java/com/coinbase/cdp/AsyncCdpClientBuilder.java",
+            "src/main/java/com/coinbase/cdp/CdpClient.java",
+            "src/main/java/com/coinbase/cdp/CdpClientBuilder.java"
+        )
         googleJavaFormat("1.33.0")
         removeUnusedImports()
         trimTrailingWhitespace()
@@ -133,7 +144,7 @@ tasks.test {
     exclude("**/e2e/**")
 }
 
-// Maven Central Publishing Configuration
+// GitHub Packages publishing configuration
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -176,37 +187,11 @@ publishing {
 
     repositories {
         maven {
-            name = "staging"
-            url = uri(layout.buildDirectory.dir("staging-deploy"))
-        }
-        maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/coinbase/cdp-sdk")
             credentials {
                 username = System.getenv("GITHUB_ACTOR") ?: ""
                 password = System.getenv("GITHUB_TOKEN") ?: ""
-            }
-        }
-    }
-}
-
-// JReleaser Configuration for Maven Central deployment
-jreleaser {
-    signing {
-        active.set(org.jreleaser.model.Active.ALWAYS)
-        armored.set(true)
-    }
-
-    deploy {
-        maven {
-            mavenCentral {
-                create("sonatype") {
-                    active.set(org.jreleaser.model.Active.ALWAYS)
-                    url.set("https://central.sonatype.com/api/v1/publisher")
-                    stagingRepository("build/staging-deploy")
-                    retryDelay.set(30)
-                    maxRetries.set(60)
-                }
             }
         }
     }
