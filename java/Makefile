@@ -5,7 +5,7 @@
 OPENAPI_GENERATOR_VERSION = 7.11.0
 GRADLE = ./gradlew
 
-.PHONY: help build clean test test-e2e lint lint-fix format docs client preprocess-openapi check-openapi stage-deploy publish-local publish-github
+.PHONY: help build clean test test-e2e lint lint-fix format docs client preprocess-openapi check-openapi publish-local publish-github
 
 help:
 	@echo "Available commands:"
@@ -18,7 +18,6 @@ help:
 	@echo "  make format         - Format code (alias for lint-fix)"
 	@echo "  make docs           - Generate Javadoc"
 	@echo "  make client         - Generate OpenAPI client"
-	@echo "  make stage-deploy   - Stage artifacts for publishing"
 	@echo "  make publish-local  - Publish to local Maven repository"
 	@echo "  make publish-github - Publish to GitHub Packages"
 
@@ -81,8 +80,6 @@ client: check-openapi preprocess-openapi
 	@$(GRADLE) spotlessApply
 	@echo "OpenAPI client generation completed"
 
-stage-deploy:
-	$(GRADLE) publishMavenJavaPublicationToStagingRepository
 
 publish-local:
 	$(GRADLE) publishToMavenLocal
