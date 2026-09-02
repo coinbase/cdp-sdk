@@ -9,7 +9,6 @@ on:
       - "typescript/packages/cdp-sdk/src/openapi-client/publicOperations.gen.ts"
       - "python/cdp/openapi_client/**"
       - "go/openapi/**"
-      - "java/src/main/java/com/coinbase/cdp/openapi/**"
       - ".github/workflows/check-generated-clients.yml"
       - "scripts/preprocess_openapi.py" # Python preprocessing script
       - "scripts/generate_public_operations.py" # Public (unauthenticated) operations lookup table generator
@@ -87,11 +86,6 @@ jobs:
           chmod +x /usr/local/bin/openapi-generator
           openapi-generator version
 
-      # Gradle setup for Java SDK
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
-        with:
-          cache-read-only: true
 
       # Store current state
       - name: Store current git state
@@ -120,12 +114,6 @@ jobs:
           echo "🔧 Generating Go client..."
           make client
 
-      # Generate Java client
-      - name: Generate Java client
-        working-directory: ./java
-        run: |
-          echo "🔧 Generating Java client..."
-          make client
 
       # Check for differences
       - name: Check for manual changes
@@ -148,8 +136,6 @@ jobs:
                 echo "  🐍 Python: $file"
               elif [[ $file == go/openapi/* ]]; then
                 echo "  🐹 Go: $file"
-              elif [[ $file == java/src/main/java/com/coinbase/cdp/openapi/* ]]; then
-                echo "  ☕ Java: $file"
               else
                 echo "  📄 Other: $file"
               fi
@@ -164,7 +150,6 @@ jobs:
             echo "   - TypeScript: cd typescript && pnpm orval"
             echo "   - Python: cd python && make python-client"
             echo "   - Go: cd go && make client"
-            echo "   - Java: cd java && make client"
             echo ""
             echo "Generated files should never be manually edited as they will be overwritten."
 
@@ -198,8 +183,6 @@ jobs:
           echo "### Go Changes:"
           git diff --color=always -- 'go/openapi/**' || echo "No Go changes"
           echo ""
-          echo "### Java Changes:"
-          git diff --color=always -- 'java/src/main/java/com/coinbase/cdp/openapi/**' || echo "No Java changes"
 
             # Manage PR comment - create/update if failed, delete if passed
       - name: Manage PR Comment
@@ -249,7 +232,6 @@ jobs:
                - \`typescript/packages/cdp-sdk/src/openapi-client/publicOperations.gen.ts\`
                - \`python/cdp/openapi_client/\`
                - \`go/openapi/\`
-               - \`java/src/main/java/com/coinbase/cdp/openapi/\`
             2. If you need to change the generated code, update the OpenAPI spec (\`openapi.yaml\`) instead
             3. Run the generation commands locally to update the generated files
 
