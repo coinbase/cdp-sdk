@@ -18,20 +18,22 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
 class TermsOfService(BaseModel):
     """
-    Metadata for one Terms of Service document a Customer may need to accept. Each entry represents one logical document (identified by `versionId`) that may be published in multiple languages — `languages` lists the BCP 47 language tags the document is available to view and accept in. `url` is the canonical, language-agnostic document URL; partners append `?lang=<tag>` (where `<tag>` is one of `languages`) to retrieve a specific translation, and omit the parameter to let the documentation site choose a default. This API does not serve Terms of Service body content; this schema describes metadata only. 
+    Metadata for one Terms of Service document a Customer may need to accept. Each entry represents one logical document (identified by `versionId`) that may be published in multiple languages — `languages` lists the BCP 47 language tags the document is available to view and accept in. An optional `deadline` records the end of a grace period: a future deadline is non-blocking `due`, an elapsed deadline is `past_due`, and no deadline means acceptance is required immediately with status `due`. `url` is the canonical, language-agnostic document URL; partners append `?lang=<tag>` (where `<tag>` is one of `languages`) to retrieve a specific translation, and omit the parameter to let the documentation site choose a default. This API does not serve Terms of Service body content; this schema describes metadata only. 
     """ # noqa: E501
     version_id: Annotated[str, Field(min_length=1, strict=True, max_length=64)] = Field(description="Stable identifier for this Terms of Service document. Submit this value as `versionId` on a `TosAcceptance` to record acceptance. ", alias="versionId")
+    deadline: Optional[datetime] = Field(default=None, description="Optional deadline by which the Customer must accept this Terms of Service version, in ISO 8601 / RFC 3339 format. A future deadline is non-blocking grace with requirement status `due`; an elapsed deadline produces `past_due`. When omitted, acceptance is required immediately and the requirement status remains `due`. ")
     languages: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="BCP 47 language tags this Terms of Service document can be viewed and accepted in. The list is non-empty (every published document carries at least one language). Append the chosen tag to `url` as `?lang=<tag>` to fetch the localized document, and submit the same tag as `language` on the corresponding `TosAcceptance` to record which translation the Customer reviewed. ")
     url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="Canonical, language-agnostic URL where the Terms of Service document is hosted (for example, `https://docs.cdp.coinbase.com/legal/terms/us_individual`). Append `?lang=<tag>` (where `<tag>` is one of `languages`) to retrieve a specific translation; without the parameter, the documentation site renders a default translation. ")
-    __properties: ClassVar[List[str]] = ["versionId", "languages", "url"]
+    __properties: ClassVar[List[str]] = ["versionId", "deadline", "languages", "url"]
 
     @field_validator('url')
     def url_validate_regular_expression(cls, value):
@@ -92,6 +94,7 @@ class TermsOfService(BaseModel):
 
         _obj = cls.model_validate({
             "versionId": obj.get("versionId"),
+            "deadline": obj.get("deadline"),
             "languages": obj.get("languages"),
             "url": obj.get("url")
         })

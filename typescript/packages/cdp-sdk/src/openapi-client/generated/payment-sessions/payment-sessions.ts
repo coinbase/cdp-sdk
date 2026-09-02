@@ -152,7 +152,7 @@ export const getWalletAuthorizationOptions = (
   );
 };
 /**
- * Authorizes a payment session using the payer's wallet. The session must be in `created` status.
+ * **Customer-initiated.** Authorizes a payment session using the payer's wallet. The payer signs the payloads themselves, so this call is unauthenticated. The session must be in `created` status.
 
 The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.
 
@@ -177,7 +177,7 @@ export const authorizeWalletPaymentSession = (
   );
 };
 /**
- * Authorizes a payment session using x402. The session must be in `created` status.
+ * **Customer-initiated.** Authorizes a payment session using x402. The payer supplies the payment payload, so this call is unauthenticated. The session must be in `created` status.
 
 The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.
 
@@ -198,7 +198,7 @@ export const authorizeX402PaymentSession = (
   );
 };
 /**
- * Authorizes a payment session using the payer's Coinbase account authenticated via OAuth. The session must be in `created` status.
+ * **Merchant-initiated.** The merchant charges the payer's Coinbase account using an OAuth grant the payer authorized earlier, so the payer does not need to be present at payment time. The session must be in `created` status.
 
 **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.
 

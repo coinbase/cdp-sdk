@@ -1,7 +1,7 @@
 package com.coinbase.cdp.auth;
 
 import com.coinbase.cdp.auth.exceptions.WalletSecretException;
-import com.coinbase.cdp.openapi.ApiClient;
+import com.coinbase.cdp.core.ObjectMappers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class CdpTokenGenerator {
     this.apiKeySecret = apiKeySecret;
     this.walletSecret = walletSecret != null ? walletSecret : Optional.empty();
     this.expiresIn = expiresIn > 0 ? expiresIn : JwtOptions.DEFAULT_EXPIRES_IN;
-    this.objectMapper = ApiClient.createDefaultObjectMapper();
+    this.objectMapper = ObjectMappers.JSON_MAPPER;
   }
 
   /**

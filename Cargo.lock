@@ -2992,9 +2992,9 @@ dependencies = [
 
 [[package]]
 name = "progenitor-middleware"
-version = "0.12.4"
+version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "097170f84eb242c80821a30a62bebdc6c9028b219383839792cdaf18b7cc3d54"
+checksum = "cc84be5cbdce53f7328fafb676efb2948529ccc4a717545a1dede7480500a455"
 dependencies = [
  "progenitor-middleware-client",
  "progenitor-middleware-impl",
@@ -3020,9 +3020,9 @@ dependencies = [
 
 [[package]]
 name = "progenitor-middleware-impl"
-version = "0.12.4"
+version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0010fb6529116a161bbedc7e72edd4cc140df79283aa04d1d2b995aaf7fbdf4e"
+checksum = "ecd2352f54f7740e268ad63c8378ab5c2833bd4a843100a59ff26e73edea92a9"
 dependencies = [
  "heck",
  "http",
@@ -3042,9 +3042,9 @@ dependencies = [
 
 [[package]]
 name = "progenitor-middleware-macro"
-version = "0.12.4"
+version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "702604f610ff3aa01efa831f7f8df6f8824ef6812f5bd2d130b1133684f3633b"
+checksum = "a4deb6070fb06628eb538bf3141ce68211e1384fb14c44adc65331cb4615fdab"
 dependencies = [
  "openapiv3",
  "proc-macro2",

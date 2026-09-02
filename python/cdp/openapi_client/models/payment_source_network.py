@@ -29,6 +29,7 @@ class PaymentSourceNetwork(str, Enum):
     """
     ARBITRUM = 'arbitrum'
     ARBITRUM_MINUS_SEPOLIA = 'arbitrum-sepolia'
+    AVALANCHE = 'avalanche'
     BASE = 'base'
     BASE_MINUS_SEPOLIA = 'base-sepolia'
     ETHEREUM = 'ethereum'

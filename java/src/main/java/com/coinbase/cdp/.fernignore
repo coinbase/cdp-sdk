@@ -1,0 +1,7 @@
+# Preserve source-root files that are maintained outside Fern's Java generator.
+.gitignore
+core/CdpAuthenticationInterceptor.java
+resources/accounts/WithRawResponseAccountsClient.java
+resources/accounts/AsyncWithRawResponseAccountsClient.java
+types/DepositDestinationTarget.java
+auth/**

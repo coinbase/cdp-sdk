@@ -21,13 +21,14 @@ from typing_extensions import Self
 
 class RequirementStatus(str, Enum):
     """
-    The current status of a requirement: - `due`: Must be submitted - `pending`: Submitted, awaiting verification - `rejected`: Verification failed - customer must resubmit  When verification passes, the requirement disappears from the response entirely. 
+    The current status of a requirement: - `due`: Must be submitted and no set deadline has passed - `past_due`: Must be submitted and a set deadline has passed - `pending`: Submitted, awaiting verification - `rejected`: Verification failed - customer must resubmit  For a Terms of Service requirement, `past_due` applies if any unaccepted version has a deadline set in the past. Otherwise the status is `due`, including when a version has no deadline and requires immediate acceptance, or when every set deadline is in the future and acceptance is in grace.  When verification passes, the requirement disappears from the response entirely. 
     """
 
     """
     allowed enum values
     """
     DUE = 'due'
+    PAST_DUE = 'past_due'
     PENDING = 'pending'
     REJECTED = 'rejected'
 
