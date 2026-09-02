@@ -81,7 +81,7 @@ class PaymentSessionsApi:
     ) -> Authorization:
         """Authorize a payment session with a Coinbase account
 
-        Authorizes a payment session using the payer's Coinbase account authenticated via OAuth. The session must be in `created` status.  **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Merchant-initiated.** The merchant charges the payer's Coinbase account using an OAuth grant the payer authorized earlier, so the payer does not need to be present at payment time. The session must be in `created` status.  **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize via Coinbase. (required)
         :type payment_session_id: str
@@ -167,7 +167,7 @@ class PaymentSessionsApi:
     ) -> ApiResponse[Authorization]:
         """Authorize a payment session with a Coinbase account
 
-        Authorizes a payment session using the payer's Coinbase account authenticated via OAuth. The session must be in `created` status.  **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Merchant-initiated.** The merchant charges the payer's Coinbase account using an OAuth grant the payer authorized earlier, so the payer does not need to be present at payment time. The session must be in `created` status.  **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize via Coinbase. (required)
         :type payment_session_id: str
@@ -253,7 +253,7 @@ class PaymentSessionsApi:
     ) -> RESTResponseType:
         """Authorize a payment session with a Coinbase account
 
-        Authorizes a payment session using the payer's Coinbase account authenticated via OAuth. The session must be in `created` status.  **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Merchant-initiated.** The merchant charges the payer's Coinbase account using an OAuth grant the payer authorized earlier, so the payer does not need to be present at payment time. The session must be in `created` status.  **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize via Coinbase. (required)
         :type payment_session_id: str
@@ -419,7 +419,7 @@ class PaymentSessionsApi:
     ) -> Authorization:
         """Authorize a payment session with a wallet
 
-        Authorizes a payment session using the payer's wallet. The session must be in `created` status.  The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Customer-initiated.** Authorizes a payment session using the payer's wallet. The payer signs the payloads themselves, so this call is unauthenticated. The session must be in `created` status.  The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize. (required)
         :type payment_session_id: str
@@ -500,7 +500,7 @@ class PaymentSessionsApi:
     ) -> ApiResponse[Authorization]:
         """Authorize a payment session with a wallet
 
-        Authorizes a payment session using the payer's wallet. The session must be in `created` status.  The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Customer-initiated.** Authorizes a payment session using the payer's wallet. The payer signs the payloads themselves, so this call is unauthenticated. The session must be in `created` status.  The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize. (required)
         :type payment_session_id: str
@@ -581,7 +581,7 @@ class PaymentSessionsApi:
     ) -> RESTResponseType:
         """Authorize a payment session with a wallet
 
-        Authorizes a payment session using the payer's wallet. The session must be in `created` status.  The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Customer-initiated.** Authorizes a payment session using the payer's wallet. The payer signs the payloads themselves, so this call is unauthenticated. The session must be in `created` status.  The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize. (required)
         :type payment_session_id: str
@@ -743,7 +743,7 @@ class PaymentSessionsApi:
     ) -> Authorization:
         """Authorize a payment session with x402
 
-        Authorizes a payment session using x402. The session must be in `created` status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **`Error`** JSON body and may include a **`PAYMENT-REQUIRED`** header (see the **402** response) describing accepted networks, assets, and amounts.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Customer-initiated.** Authorizes a payment session using x402. The payer supplies the payment payload, so this call is unauthenticated. The session must be in `created` status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **`Error`** JSON body and may include a **`PAYMENT-REQUIRED`** header (see the **402** response) describing accepted networks, assets, and amounts.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize with x402. (required)
         :type payment_session_id: str
@@ -833,7 +833,7 @@ class PaymentSessionsApi:
     ) -> ApiResponse[Authorization]:
         """Authorize a payment session with x402
 
-        Authorizes a payment session using x402. The session must be in `created` status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **`Error`** JSON body and may include a **`PAYMENT-REQUIRED`** header (see the **402** response) describing accepted networks, assets, and amounts.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Customer-initiated.** Authorizes a payment session using x402. The payer supplies the payment payload, so this call is unauthenticated. The session must be in `created` status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **`Error`** JSON body and may include a **`PAYMENT-REQUIRED`** header (see the **402** response) describing accepted networks, assets, and amounts.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize with x402. (required)
         :type payment_session_id: str
@@ -923,7 +923,7 @@ class PaymentSessionsApi:
     ) -> RESTResponseType:
         """Authorize a payment session with x402
 
-        Authorizes a payment session using x402. The session must be in `created` status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **`Error`** JSON body and may include a **`PAYMENT-REQUIRED`** header (see the **402** response) describing accepted networks, assets, and amounts.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+        **Customer-initiated.** Authorizes a payment session using x402. The payer supplies the payment payload, so this call is unauthenticated. The session must be in `created` status.  The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`.  **402 Payment Required** may be returned when payment must be supplied before authorization can proceed. The **402** response uses the standard CDP **`Error`** JSON body and may include a **`PAYMENT-REQUIRED`** header (see the **402** response) describing accepted networks, assets, and amounts.  If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
 
         :param payment_session_id: The unique identifier of the payment session to authorize with x402. (required)
         :type payment_session_id: str

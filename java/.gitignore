@@ -35,3 +35,7 @@ Thumbs.db
 # Local env files
 .env
 .env.local
+
+
+## Local Fern documentation staging
+docs-generated/

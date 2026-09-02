@@ -389,9 +389,15 @@ export interface CapabilitiesMap {
 
 /**
  * The current status of a requirement:
-- `due`: Must be submitted
+- `due`: Must be submitted and no set deadline has passed
+- `past_due`: Must be submitted and a set deadline has passed
 - `pending`: Submitted, awaiting verification
 - `rejected`: Verification failed - customer must resubmit
+
+For a Terms of Service requirement, `past_due` applies if any unaccepted
+version has a deadline set in the past. Otherwise the status is `due`,
+including when a version has no deadline and requires immediate acceptance,
+or when every set deadline is in the future and acceptance is in grace.
 
 When verification passes, the requirement disappears from the response entirely.
 
@@ -401,6 +407,7 @@ export type RequirementStatus = (typeof RequirementStatus)[keyof typeof Requirem
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const RequirementStatus = {
   due: "due",
+  past_due: "past_due",
   pending: "pending",
   rejected: "rejected",
 } as const;
@@ -426,12 +433,14 @@ export type TosVersionId = string;
 accept. Each entry represents one logical document (identified by
 `versionId`) that may be published in multiple languages —
 `languages` lists the BCP 47 language tags the document is available
-to view and accept in. `url` is the canonical, language-agnostic
-document URL; partners append `?lang=<tag>` (where `<tag>` is one of
-`languages`) to retrieve a specific translation, and omit the
-parameter to let the documentation site choose a default. This API
-does not serve Terms of Service body content; this schema describes
-metadata only.
+to view and accept in. An optional `deadline` records the end of a grace
+period: a future deadline is non-blocking `due`, an elapsed deadline is
+`past_due`, and no deadline means acceptance is required immediately with
+status `due`. `url` is the canonical, language-agnostic document URL;
+partners append `?lang=<tag>` (where `<tag>` is one of `languages`) to
+retrieve a specific translation, and omit the parameter to let the
+documentation site choose a default. This API does not serve Terms of
+Service body content; this schema describes metadata only.
 
  */
 export interface TermsOfService {
@@ -439,6 +448,13 @@ export interface TermsOfService {
 value as `versionId` on a `TosAcceptance` to record acceptance.
  */
   versionId: TosVersionId;
+  /** Optional deadline by which the Customer must accept this Terms of
+Service version, in ISO 8601 / RFC 3339 format. A future deadline is
+non-blocking grace with requirement status `due`; an elapsed deadline
+produces `past_due`. When omitted, acceptance is required immediately
+and the requirement status remains `due`.
+ */
+  deadline?: string;
   /**
    * BCP 47 language tags this Terms of Service document can be viewed
 and accepted in. The list is non-empty (every published document
@@ -482,26 +498,32 @@ Requirements are only shown for requested capabilities.
  */
 export interface Requirement {
   status: RequirementStatus;
-  /** Optional deadline by which this requirement must be satisfied.
+  /** Optional aggregate deadline by which this requirement must be satisfied.
 
-For the `tos` requirement, when present, `deadline` is the earliest
-deadline among the unaccepted required Terms of Service versions.
+For the `tos` requirement, this is the earliest set deadline among the
+unaccepted required Terms of Service versions listed in `tosVersions`.
+It is omitted only when none of the unaccepted versions has a deadline.
+Do not infer `past_due` or whether the requirement blocks from this
+aggregate field alone; inspect each version's deadline.
  */
   deadline?: string;
   /** List of capabilities affected by this requirement, sorted alphabetically.
-Only present for `due`, `pending`, or `rejected` statuses.
+Only present for `due`, `past_due`, `pending`, or `rejected` statuses.
  */
   impact?: CapabilityName[];
   /** Required Terms of Service versions the Customer has not yet
 accepted, with the metadata needed to render an acceptance UI
 (each entry carries a stable `versionId`, the BCP 47
-`languages` the version is published in, and a
-language-agnostic `url`). This field appears only under the
-requirement key `tos`; do not infer meaning from `tosVersions`
-on other requirement keys. Only populated for the `tos`
+`languages` the version is published in, an optional per-version
+`deadline`, and a language-agnostic `url`). A missing deadline means
+acceptance is required immediately while the requirement status remains
+`due`; only a set deadline in the past produces `past_due`. This field
+appears only under the requirement key `tos`; do not infer meaning from
+`tosVersions` on other requirement keys. Only populated for the `tos`
 requirement; omitted on every other requirement key. Submit each
-`versionId` back via `tosAcceptances[].versionId` on `Update Customer` (or
-`Create Customer`) together with `language` and `acceptedAt` to clear the requirement.
+`versionId` back via `tosAcceptances[].versionId` on `Update Customer`
+(or `Create Customer`) together with `language` and `acceptedAt` to
+clear the requirement.
  */
   tosVersions?: TermsOfService[];
   /** Required tax attestation forms the Customer has not yet completed.
@@ -519,10 +541,14 @@ fields required for that form to clear the requirement.
 are only shown for requested capabilities. When a requirement is
 verified, it disappears from this map.
 
-When comparing deadlines across keys, note that `requirements.tos.deadline`
-is an aggregate: the earliest deadline among unaccepted required Terms of
-Service versions listed in `requirements.tos.tosVersions[]` (not a separate
-clock from those version rows).
+For the `tos` key, each entry in `tosVersions[]` has its own optional
+deadline. The requirement-level `deadline` is an aggregate of those rows:
+the earliest set deadline among unaccepted versions, not a separate clock.
+A version with no deadline requires immediate acceptance but keeps the
+aggregate status `due`. A future deadline is also `due` and represents
+non-blocking grace. The aggregate status is `past_due` only when at least
+one unaccepted version has a deadline set in the past. Do not infer status
+or blocking behavior from omission of the aggregate deadline.
 
  */
 export interface RequirementsMap {
@@ -1106,6 +1132,7 @@ export const PaymentNetwork = {
   monad: "monad",
   sui: "sui",
   avacchain: "avacchain",
+  tempo: "tempo",
 } as const;
 
 /**
@@ -2010,6 +2037,7 @@ export type PaymentSourceNetwork = (typeof PaymentSourceNetwork)[keyof typeof Pa
 export const PaymentSourceNetwork = {
   arbitrum: "arbitrum",
   "arbitrum-sepolia": "arbitrum-sepolia",
+  avalanche: "avalanche",
   base: "base",
   "base-sepolia": "base-sepolia",
   ethereum: "ethereum",
@@ -6765,6 +6793,11 @@ export const EventType = {
   acceptancedisbursementpending: "acceptance.disbursement.pending",
   acceptancedisbursementsucceeded: "acceptance.disbursement.succeeded",
   acceptancedisbursementfailed: "acceptance.disbursement.failed",
+  healthstatusupdated: "health.status.updated",
+  healthmaintenancescheduled: "health.maintenance.scheduled",
+  healthmaintenancestarted: "health.maintenance.started",
+  healthmaintenancecompleted: "health.maintenance.completed",
+  healthmaintenancecanceled: "health.maintenance.canceled",
   customerscapabilitychanged: "customers.capability.changed",
   customerscustomerdeleted: "customers.customer.deleted",
 } as const;
@@ -10338,6 +10371,313 @@ export type AcceptanceDisbursementFailedEvent = DisbursementEventBase &
   AcceptanceDisbursementFailedEventAllOf;
 
 /**
+ * A CDP service whose health and maintenance status are tracked here.
+ */
+export type HealthService = (typeof HealthService)[keyof typeof HealthService];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthService = {
+  /** Payment Acceptance — accepting and processing payments on behalf of merchants. */
+  payments_acceptance: "payments_acceptance",
+  /** CDP\'s webhook delivery infrastructure. */
+  webhooks: "webhooks",
+} as const;
+
+/**
+ * A finer-grained operation within a service. Optional — omitted when a health status or maintenance window applies to the service as a whole.
+ */
+export type HealthOperation = (typeof HealthOperation)[keyof typeof HealthOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthOperation = {
+  /** Authorizing a payment session funded by the customer\'s onchain wallet. */
+  payment_session_authorize_wallet: "payment_session_authorize_wallet",
+  /** Authorizing a payment session funded by the customer\'s Coinbase account. */
+  payment_session_authorize_coinbase: "payment_session_authorize_coinbase",
+  /** Authorizing a payment session funded via the x402 payment protocol. */
+  payment_session_authorize_x402: "payment_session_authorize_x402",
+  /** Capturing funds for a previously authorized payment session. */
+  payment_session_capture: "payment_session_capture",
+  /** Voiding a previously authorized payment session. */
+  payment_session_void: "payment_session_void",
+  /** Refunding a previously captured payment session. */
+  payment_session_refund: "payment_session_refund",
+  /** Disbursing funds to a payee. */
+  disbursement: "disbursement",
+  /** Linking a customer\'s external account to Payment Acceptance. */
+  account_linking: "account_linking",
+} as const;
+
+/**
+ * The operational status of a service or operation. `operational`, `degraded_performance`, `partial_outage`, and `major_outage` form a severity ladder that can move up or down between adjacent levels as an organic issue develops or recovers.
+ */
+export type HealthStatusValue = (typeof HealthStatusValue)[keyof typeof HealthStatusValue];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthStatusValue = {
+  /** Working normally. */
+  operational: "operational",
+  /** Elevated latency or reduced capacity, with no significant failure rate. */
+  degraded_performance: "degraded_performance",
+  /** A subset of requests or users are failing; still functional for most. */
+  partial_outage: "partial_outage",
+  /** A significant portion of requests are failing; most users are impacted. */
+  major_outage: "major_outage",
+  /** A planned maintenance window is active — not a failure. Computed, not caller-settable: returned when there is an active maintenance window and no organic outage is currently declared. */
+  under_maintenance: "under_maintenance",
+} as const;
+
+/**
+ * The health status of a service or operation. See `HealthStatusValue` for the severity ladder this moves along, and `under_maintenance`'s special computed-status behavior.
+ */
+export interface HealthStatus {
+  /** The service this status applies to. */
+  service: HealthService;
+  /** The operation this status applies to. Omitted when the status applies to the service as a whole. */
+  operation?: HealthOperation;
+  /** The current health status. */
+  status: HealthStatusValue;
+  /** The time this status took effect. */
+  startedAt: string;
+  /** A human-readable description of the status. */
+  message?: string;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type HealthStatusUpdatedEventEventType =
+  (typeof HealthStatusUpdatedEventEventType)[keyof typeof HealthStatusUpdatedEventEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthStatusUpdatedEventEventType = {
+  healthstatusupdated: "health.status.updated",
+} as const;
+
+export interface HealthStatusUpdatedEvent {
+  /** Unique identifier for this logical webhook event. Webhooks are delivered at least once, so your endpoint may receive duplicate deliveries for the same event. Use this `eventId` as the idempotency/deduplication key. */
+  eventId: string;
+  /** The UTC ISO 8601 timestamp at which this event's transition occurred, not the time at which this webhook was delivered. */
+  timestamp: string;
+  /** The type of webhook event. */
+  eventType: HealthStatusUpdatedEventEventType;
+  data: HealthStatus;
+}
+
+/**
+ * Common fields included in every maintenance event payload.
+ */
+export interface MaintenanceEventBase {
+  /** Unique identifier for this logical webhook event. Webhooks are delivered at least once, so your endpoint may receive duplicate deliveries for the same event. Use this `eventId` as the idempotency/deduplication key. */
+  eventId: string;
+  /** The UTC ISO 8601 timestamp at which this event's transition occurred, not the time at which this webhook was delivered. */
+  timestamp: string;
+}
+
+/**
+ * The lifecycle status of a maintenance window: `scheduled` → `started` → `completed`, or `scheduled` → `canceled`. `completed` and `canceled` are terminal.
+ */
+export type MaintenanceStatus = (typeof MaintenanceStatus)[keyof typeof MaintenanceStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MaintenanceStatus = {
+  /** The maintenance window has been scheduled but has not started yet. */
+  scheduled: "scheduled",
+  /** The maintenance window is currently in progress. */
+  started: "started",
+  /** The maintenance window has finished. */
+  completed: "completed",
+  /** The maintenance window was canceled before starting. */
+  canceled: "canceled",
+} as const;
+
+/**
+ * A maintenance window for a service or operation, moving through `scheduled` → `started` → `completed`, or `scheduled` → `canceled`. While `started`, it moves the affected service or operation's effective `HealthStatus` to `under_maintenance`.
+ */
+export interface MaintenanceWindow {
+  /** The service this maintenance window applies to. */
+  service: HealthService;
+  /** The operation this maintenance window applies to. Omitted when the maintenance window applies to the service as a whole. */
+  operation?: HealthOperation;
+  /** The start time of the maintenance window: in the future for a `scheduled` window, in the past for one that has already `started`. */
+  startsAt: string;
+  /**
+   * The expected duration of the maintenance window, in seconds.
+   * @minimum 0
+   */
+  expectedDurationSeconds?: number;
+  /** The current status of the maintenance window. */
+  status: MaintenanceStatus;
+  /** A human-readable description of the maintenance window. */
+  message?: string;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type HealthMaintenanceScheduledEventAllOfEventType =
+  (typeof HealthMaintenanceScheduledEventAllOfEventType)[keyof typeof HealthMaintenanceScheduledEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceScheduledEventAllOfEventType = {
+  healthmaintenancescheduled: "health.maintenance.scheduled",
+} as const;
+
+export type HealthMaintenanceScheduledEventAllOfDataAllOfStatus =
+  (typeof HealthMaintenanceScheduledEventAllOfDataAllOfStatus)[keyof typeof HealthMaintenanceScheduledEventAllOfDataAllOfStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceScheduledEventAllOfDataAllOfStatus = {
+  scheduled: "scheduled",
+} as const;
+
+export type HealthMaintenanceScheduledEventAllOfDataAllOf = {
+  status?: HealthMaintenanceScheduledEventAllOfDataAllOfStatus;
+};
+
+/**
+ * Announces a future maintenance window. Does not change the affected service's or operation's current recorded status.
+ */
+export type HealthMaintenanceScheduledEventAllOfData = MaintenanceWindow &
+  HealthMaintenanceScheduledEventAllOfDataAllOf &
+  Required<
+    Pick<
+      MaintenanceWindow & HealthMaintenanceScheduledEventAllOfDataAllOf,
+      "expectedDurationSeconds"
+    >
+  >;
+
+export type HealthMaintenanceScheduledEventAllOf = {
+  /** The type of webhook event. */
+  eventType: HealthMaintenanceScheduledEventAllOfEventType;
+  /** Announces a future maintenance window. Does not change the affected service's or operation's current recorded status. */
+  data: HealthMaintenanceScheduledEventAllOfData;
+};
+
+export type HealthMaintenanceScheduledEvent = MaintenanceEventBase &
+  HealthMaintenanceScheduledEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type HealthMaintenanceStartedEventAllOfEventType =
+  (typeof HealthMaintenanceStartedEventAllOfEventType)[keyof typeof HealthMaintenanceStartedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceStartedEventAllOfEventType = {
+  healthmaintenancestarted: "health.maintenance.started",
+} as const;
+
+export type HealthMaintenanceStartedEventAllOfDataAllOfStatus =
+  (typeof HealthMaintenanceStartedEventAllOfDataAllOfStatus)[keyof typeof HealthMaintenanceStartedEventAllOfDataAllOfStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceStartedEventAllOfDataAllOfStatus = {
+  started: "started",
+} as const;
+
+export type HealthMaintenanceStartedEventAllOfDataAllOf = {
+  status?: HealthMaintenanceStartedEventAllOfDataAllOfStatus;
+};
+
+/**
+ * Fired when a previously scheduled maintenance window begins. The affected service's or operation's effective health status is recomputed and reports `under_maintenance`, unless an organic outage is already in progress, which continues to take priority.
+ */
+export type HealthMaintenanceStartedEventAllOfData = MaintenanceWindow &
+  HealthMaintenanceStartedEventAllOfDataAllOf &
+  Required<
+    Pick<MaintenanceWindow & HealthMaintenanceStartedEventAllOfDataAllOf, "expectedDurationSeconds">
+  >;
+
+export type HealthMaintenanceStartedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: HealthMaintenanceStartedEventAllOfEventType;
+  /** Fired when a previously scheduled maintenance window begins. The affected service's or operation's effective health status is recomputed and reports `under_maintenance`, unless an organic outage is already in progress, which continues to take priority. */
+  data: HealthMaintenanceStartedEventAllOfData;
+};
+
+export type HealthMaintenanceStartedEvent = MaintenanceEventBase &
+  HealthMaintenanceStartedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type HealthMaintenanceCompletedEventAllOfEventType =
+  (typeof HealthMaintenanceCompletedEventAllOfEventType)[keyof typeof HealthMaintenanceCompletedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceCompletedEventAllOfEventType = {
+  healthmaintenancecompleted: "health.maintenance.completed",
+} as const;
+
+export type HealthMaintenanceCompletedEventAllOfDataAllOfStatus =
+  (typeof HealthMaintenanceCompletedEventAllOfDataAllOfStatus)[keyof typeof HealthMaintenanceCompletedEventAllOfDataAllOfStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceCompletedEventAllOfDataAllOfStatus = {
+  completed: "completed",
+} as const;
+
+export type HealthMaintenanceCompletedEventAllOfDataAllOf = {
+  status?: HealthMaintenanceCompletedEventAllOfDataAllOfStatus;
+};
+
+/**
+ * Fired when a maintenance window ends normally. The affected service's or operation's effective health status is recomputed and returns to `operational`, unless an organic outage remains in progress, which continues to take priority.
+ */
+export type HealthMaintenanceCompletedEventAllOfData = MaintenanceWindow &
+  HealthMaintenanceCompletedEventAllOfDataAllOf;
+
+export type HealthMaintenanceCompletedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: HealthMaintenanceCompletedEventAllOfEventType;
+  /** Fired when a maintenance window ends normally. The affected service's or operation's effective health status is recomputed and returns to `operational`, unless an organic outage remains in progress, which continues to take priority. */
+  data: HealthMaintenanceCompletedEventAllOfData;
+};
+
+export type HealthMaintenanceCompletedEvent = MaintenanceEventBase &
+  HealthMaintenanceCompletedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type HealthMaintenanceCanceledEventAllOfEventType =
+  (typeof HealthMaintenanceCanceledEventAllOfEventType)[keyof typeof HealthMaintenanceCanceledEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceCanceledEventAllOfEventType = {
+  healthmaintenancecanceled: "health.maintenance.canceled",
+} as const;
+
+export type HealthMaintenanceCanceledEventAllOfDataAllOfStatus =
+  (typeof HealthMaintenanceCanceledEventAllOfDataAllOfStatus)[keyof typeof HealthMaintenanceCanceledEventAllOfDataAllOfStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthMaintenanceCanceledEventAllOfDataAllOfStatus = {
+  canceled: "canceled",
+} as const;
+
+export type HealthMaintenanceCanceledEventAllOfDataAllOf = {
+  status?: HealthMaintenanceCanceledEventAllOfDataAllOfStatus;
+};
+
+/**
+ * Fired when a previously scheduled maintenance window is canceled before it starts.
+ */
+export type HealthMaintenanceCanceledEventAllOfData = MaintenanceWindow &
+  HealthMaintenanceCanceledEventAllOfDataAllOf;
+
+export type HealthMaintenanceCanceledEventAllOf = {
+  /** The type of webhook event. */
+  eventType: HealthMaintenanceCanceledEventAllOfEventType;
+  /** Fired when a previously scheduled maintenance window is canceled before it starts. */
+  data: HealthMaintenanceCanceledEventAllOfData;
+};
+
+export type HealthMaintenanceCanceledEvent = MaintenanceEventBase &
+  HealthMaintenanceCanceledEventAllOf;
+
+/**
  * Common envelope fields included in every Customers webhook event payload.
  */
 export interface CustomersEventBase {
@@ -10620,59 +10960,6 @@ export type XDeveloperAuthParameter = string;
  */
 export type ProjectIDOptionalParameter = string;
 
-export type ListFoundationAccountsParams = {
-  /**
-   * The number of resources to return per page.
-   */
-  pageSize?: PageSizeParameter;
-  /**
-   * The token for the next page of resources, if any.
-   */
-  pageToken?: PageTokenParameter;
-  /**
- * Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.
-
-**Specific Owner IDs:**
-* `entity_<uuid>` - Accounts owned by a specific entity
-* `customer_<uuid>` - Accounts owned by a specific customer
-
-**Owner type wildcards:**
-* `entity` - All entity-owned accounts
-* `customer` - All customer-owned accounts
-
-**Examples:**
-* `owner=customer_af29...` - A specific customer's accounts
-* `owner=customer` - All customer accounts
-* `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts
-* When omitted, accounts with any owner are returned.
- */
-  owner?: string[];
-  /**
-   * Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND.
-   */
-  type?: AccountType;
-};
-
-export type ListFoundationAccounts200AllOf = {
-  /** The list of accounts. */
-  accounts: Account[];
-};
-
-export type ListFoundationAccounts200 = ListFoundationAccounts200AllOf & ListResponse;
-
-export type ListBalancesParams = {
-  /**
-   * The number of resources to return per page.
-   */
-  pageSize?: PageSizeParameter;
-  /**
-   * The token for the next page of resources, if any.
-   */
-  pageToken?: PageTokenParameter;
-};
-
-export type ListBalances200 = Balances & ListResponse;
-
 export type ListCustomersParams = {
   /**
    * The number of resources to return per page.
@@ -10690,115 +10977,6 @@ export type ListCustomers200AllOf = {
 };
 
 export type ListCustomers200 = ListCustomers200AllOf & ListResponse;
-
-export type ListDepositDestinationsParams = {
-  /**
-   * Filter deposit destinations by account ID.
-   */
-  accountId?: AccountId;
-  /**
-   * The cryptocurrency address to filter by. Format depends on the network (e.g., 0x-prefixed for EVM networks, base58 for Solana).
-   */
-  address?: string;
-  /**
-   * Filter deposit destinations by type.
-   */
-  type?: DepositDestinationType;
-  /**
-   * The blockchain network to filter by (e.g., base, ethereum). Only applies to crypto deposit destinations.
-   */
-  network?: string;
-  /**
-   * The number of resources to return per page.
-   */
-  pageSize?: PageSizeParameter;
-  /**
-   * The token for the next page of resources, if any.
-   */
-  pageToken?: PageTokenParameter;
-};
-
-export type ListDepositDestinations200AllOf = {
-  /** The list of deposit destinations. */
-  depositDestinations: DepositDestination[];
-};
-
-export type ListDepositDestinations200 = ListDepositDestinations200AllOf & ListResponse;
-
-export type ListTransfersParams = {
-  /**
-   * Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
-   */
-  status?: TransferStatus;
-  /**
-   * Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.
-   */
-  accountId?: AccountId;
-  /**
-   * Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.
-   */
-  sourceAccountId?: AccountId;
-  /**
-   * Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.
-   */
-  targetAccountId?: AccountId;
-  /**
-   * Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.
-   */
-  createdAfter?: string;
-  /**
-   * Filter transfers to those created at or before this datetime (inclusive). ISO 8601 format.
-   */
-  createdBefore?: string;
-  /**
-   * Filter transfers to those updated at or after this datetime (inclusive). ISO 8601 format. Useful for incremental sync — poll for transfers that changed state since your last check.
-   */
-  updatedAfter?: string;
-  /**
-   * Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format.
-   */
-  updatedBefore?: string;
-  /**
-   * Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).
-   */
-  sourceAsset?: string;
-  /**
-   * Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
-   */
-  targetAsset?: string;
-  /**
-   * Filter transfers by the on-chain address of the source.
-   */
-  sourceAddress?: BlockchainAddress;
-  /**
-   * Filter transfers by the on-chain destination address of the target.
-   */
-  targetAddress?: BlockchainAddress;
-  /**
-   * Filter transfers by the email address of the target recipient.
-   */
-  targetEmail?: Email;
-  /**
-   * Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
-   * @pattern ^transfer_[a-f0-9\-]{36}$
-   */
-  transferId?: string;
-  /**
-   * The number of resources to return per page.
-   */
-  pageSize?: PageSizeParameter;
-  /**
-   * The token for the next page of resources, if any.
-   */
-  pageToken?: PageTokenParameter;
-};
-
-export type ListTransfers200AllOf = {
-  /** The list of transfers. */
-  transfers: Transfer[];
-};
-
-export type ListTransfers200 = ListTransfers200AllOf & ListResponse;
 
 export type ListPaymentSessionsParams = {
   /**
@@ -12471,21 +12649,3 @@ export type GetOnrampUserLimits200 = {
   /** The user's limit upgrade status and associated upgrade details. Omitted when limit upgrades are not available for the calling app or user. Use the [Request Limit Upgrade](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/request-limits-upgrade) endpoint to request a limit upgrade. */
   limitUpgradeOptions?: OnrampLimitUpgradeOption[];
 };
-
-export type ListPaymentMethodsParams = {
-  /**
-   * The number of resources to return per page.
-   */
-  pageSize?: PageSizeParameter;
-  /**
-   * The token for the next page of resources, if any.
-   */
-  pageToken?: PageTokenParameter;
-};
-
-export type ListPaymentMethods200AllOf = {
-  /** The list of payment methods. */
-  paymentMethods: PaymentMethodsPaymentMethod[];
-};
-
-export type ListPaymentMethods200 = ListPaymentMethods200AllOf & ListResponse;

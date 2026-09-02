@@ -92,7 +92,7 @@ Follow these steps to publish a new version of the Rust CDP SDK.
 
 Follow these steps to publish a new version of the Java CDP SDK.
 
-Java artifacts are published exclusively to GitHub Packages. Maven Central is used only to resolve build dependencies.
+Java artifacts are published exclusively to GitHub Packages. Maven Central remains a dependency-resolution repository, not a publishing target.
 
 1. Ensure you are on the `main` branch and have the latest changes
 1. Create a new branch for your changes, e.g. `bump/java`. The branch name doesn't matter, and you will delete this branch after the release
@@ -107,7 +107,8 @@ Java artifacts are published exclusively to GitHub Packages. Maven Central is us
 1. Add and commit all the changes with the message: `chore(java): bump cdp-sdk to {NEW_VERSION}`
 1. Push your branch, create a PR and get an approval
 1. Once approved, merge your PR
-1. Once merged, manually trigger the [Publish cdp-sdk (Java) to GitHub Packages](https://github.com/coinbase/cdp-sdk/actions/workflows/java_publish_github_packages.yml) workflow
+1. Ensure the corresponding version-bump changes are merged into `coinbase/cdp-sdk` before publishing.
+1. Manually trigger the [Publish cdp-sdk (Java) to GitHub Packages](https://github.com/coinbase/cdp-sdk/actions/workflows/java_publish_github_packages.yml) workflow
 1. Once the workflow has completed, go back to the `main` branch and pull the latest changes
 1. Tag the new version with `git tag -s cdp-sdk-java@v{NEW_VERSION} -m "Release cdp-sdk (Java) {NEW_VERSION}"`
 1. Push the tag with `git push origin cdp-sdk-java@v{NEW_VERSION}`

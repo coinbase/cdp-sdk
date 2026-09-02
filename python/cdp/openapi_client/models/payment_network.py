@@ -35,6 +35,7 @@ class PaymentNetwork(str, Enum):
     MONAD = 'monad'
     SUI = 'sui'
     AVACCHAIN = 'avacchain'
+    TEMPO = 'tempo'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

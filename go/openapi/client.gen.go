@@ -296,6 +296,11 @@ const (
 	AcceptancePaymentSessionVoidSucceeded          EventType = "acceptance.payment_session.void_succeeded"
 	CustomersCapabilityChanged                     EventType = "customers.capability.changed"
 	CustomersCustomerDeleted                       EventType = "customers.customer.deleted"
+	HealthMaintenanceCanceled                      EventType = "health.maintenance.canceled"
+	HealthMaintenanceCompleted                     EventType = "health.maintenance.completed"
+	HealthMaintenanceScheduled                     EventType = "health.maintenance.scheduled"
+	HealthMaintenanceStarted                       EventType = "health.maintenance.started"
+	HealthStatusUpdated                            EventType = "health.status.updated"
 	OfframpTransactionCreated                      EventType = "offramp.transaction.created"
 	OfframpTransactionFailed                       EventType = "offramp.transaction.failed"
 	OfframpTransactionSuccess                      EventType = "offramp.transaction.success"
@@ -786,6 +791,7 @@ const (
 	PaymentNetworkOptimism  PaymentNetwork = "optimism"
 	PaymentNetworkSolana    PaymentNetwork = "solana"
 	PaymentNetworkSui       PaymentNetwork = "sui"
+	PaymentNetworkTempo     PaymentNetwork = "tempo"
 )
 
 // Defines values for PaymentSessionStatus.
@@ -810,6 +816,7 @@ const (
 const (
 	PaymentSourceNetworkArbitrum        PaymentSourceNetwork = "arbitrum"
 	PaymentSourceNetworkArbitrumSepolia PaymentSourceNetwork = "arbitrum-sepolia"
+	PaymentSourceNetworkAvalanche       PaymentSourceNetwork = "avalanche"
 	PaymentSourceNetworkBase            PaymentSourceNetwork = "base"
 	PaymentSourceNetworkBaseSepolia     PaymentSourceNetwork = "base-sepolia"
 	PaymentSourceNetworkEthereum        PaymentSourceNetwork = "ethereum"
@@ -862,6 +869,7 @@ const (
 // Defines values for RequirementStatus.
 const (
 	RequirementStatusDue      RequirementStatus = "due"
+	RequirementStatusPastDue  RequirementStatus = "past_due"
 	RequirementStatusPending  RequirementStatus = "pending"
 	RequirementStatusRejected RequirementStatus = "rejected"
 )
@@ -5213,20 +5221,29 @@ type RefundWallet struct {
 // Requirement A single requirement that a customer must submit to enable capabilities.
 // Requirements are only shown for requested capabilities.
 type Requirement struct {
-	// Deadline Optional deadline by which this requirement must be satisfied.
+	// Deadline Optional aggregate deadline by which this requirement must be satisfied.
 	//
-	// For the `tos` requirement, when present, `deadline` is the earliest
-	// deadline among the unaccepted required Terms of Service versions.
+	// For the `tos` requirement, this is the earliest set deadline among the
+	// unaccepted required Terms of Service versions listed in `tosVersions`.
+	// It is omitted only when none of the unaccepted versions has a deadline.
+	// Do not infer `past_due` or whether the requirement blocks from this
+	// aggregate field alone; inspect each version's deadline.
 	Deadline *time.Time `json:"deadline,omitempty"`
 
 	// Impact List of capabilities affected by this requirement, sorted alphabetically.
-	// Only present for `due`, `pending`, or `rejected` statuses.
+	// Only present for `due`, `past_due`, `pending`, or `rejected` statuses.
 	Impact *[]CapabilityName `json:"impact,omitempty"`
 
 	// Status The current status of a requirement:
-	// - `due`: Must be submitted
+	// - `due`: Must be submitted and no set deadline has passed
+	// - `past_due`: Must be submitted and a set deadline has passed
 	// - `pending`: Submitted, awaiting verification
 	// - `rejected`: Verification failed - customer must resubmit
+	//
+	// For a Terms of Service requirement, `past_due` applies if any unaccepted
+	// version has a deadline set in the past. Otherwise the status is `due`,
+	// including when a version has no deadline and requires immediate acceptance,
+	// or when every set deadline is in the future and acceptance is in grace.
 	//
 	// When verification passes, the requirement disappears from the response entirely.
 	Status RequirementStatus `json:"status"`
@@ -5241,20 +5258,29 @@ type Requirement struct {
 	// TosVersions Required Terms of Service versions the Customer has not yet
 	// accepted, with the metadata needed to render an acceptance UI
 	// (each entry carries a stable `versionId`, the BCP 47
-	// `languages` the version is published in, and a
-	// language-agnostic `url`). This field appears only under the
-	// requirement key `tos`; do not infer meaning from `tosVersions`
-	// on other requirement keys. Only populated for the `tos`
+	// `languages` the version is published in, an optional per-version
+	// `deadline`, and a language-agnostic `url`). A missing deadline means
+	// acceptance is required immediately while the requirement status remains
+	// `due`; only a set deadline in the past produces `past_due`. This field
+	// appears only under the requirement key `tos`; do not infer meaning from
+	// `tosVersions` on other requirement keys. Only populated for the `tos`
 	// requirement; omitted on every other requirement key. Submit each
-	// `versionId` back via `tosAcceptances[].versionId` on `Update Customer` (or
-	// `Create Customer`) together with `language` and `acceptedAt` to clear the requirement.
+	// `versionId` back via `tosAcceptances[].versionId` on `Update Customer`
+	// (or `Create Customer`) together with `language` and `acceptedAt` to
+	// clear the requirement.
 	TosVersions *[]TermsOfService `json:"tosVersions,omitempty"`
 }
 
 // RequirementStatus The current status of a requirement:
-// - `due`: Must be submitted
+// - `due`: Must be submitted and no set deadline has passed
+// - `past_due`: Must be submitted and a set deadline has passed
 // - `pending`: Submitted, awaiting verification
 // - `rejected`: Verification failed - customer must resubmit
+//
+// For a Terms of Service requirement, `past_due` applies if any unaccepted
+// version has a deadline set in the past. Otherwise the status is `due`,
+// including when a version has no deadline and requires immediate acceptance,
+// or when every set deadline is in the future and acceptance is in grace.
 //
 // When verification passes, the requirement disappears from the response entirely.
 type RequirementStatus string
@@ -5264,10 +5290,14 @@ type RequirementStatus string
 // are only shown for requested capabilities. When a requirement is
 // verified, it disappears from this map.
 //
-// When comparing deadlines across keys, note that `requirements.tos.deadline`
-// is an aggregate: the earliest deadline among unaccepted required Terms of
-// Service versions listed in `requirements.tos.tosVersions[]` (not a separate
-// clock from those version rows).
+// For the `tos` key, each entry in `tosVersions[]` has its own optional
+// deadline. The requirement-level `deadline` is an aggregate of those rows:
+// the earliest set deadline among unaccepted versions, not a separate clock.
+// A version with no deadline requires immediate acceptance but keeps the
+// aggregate status `due`. A future deadline is also `due` and represents
+// non-blocking grace. The aggregate status is `past_due` only when at least
+// one unaccepted version has a deadline set in the past. Do not infer status
+// or blocking behavior from omission of the aggregate deadline.
 type RequirementsMap map[string]Requirement
 
 // RevokeSpendPermissionRequest Request parameters for revoking a Spend Permission.
@@ -6302,13 +6332,22 @@ type TelegramAuthentication struct {
 // accept. Each entry represents one logical document (identified by
 // `versionId`) that may be published in multiple languages —
 // `languages` lists the BCP 47 language tags the document is available
-// to view and accept in. `url` is the canonical, language-agnostic
-// document URL; partners append `?lang=<tag>` (where `<tag>` is one of
-// `languages`) to retrieve a specific translation, and omit the
-// parameter to let the documentation site choose a default. This API
-// does not serve Terms of Service body content; this schema describes
-// metadata only.
+// to view and accept in. An optional `deadline` records the end of a grace
+// period: a future deadline is non-blocking `due`, an elapsed deadline is
+// `past_due`, and no deadline means acceptance is required immediately with
+// status `due`. `url` is the canonical, language-agnostic document URL;
+// partners append `?lang=<tag>` (where `<tag>` is one of `languages`) to
+// retrieve a specific translation, and omit the parameter to let the
+// documentation site choose a default. This API does not serve Terms of
+// Service body content; this schema describes metadata only.
 type TermsOfService struct {
+	// Deadline Optional deadline by which the Customer must accept this Terms of
+	// Service version, in ISO 8601 / RFC 3339 format. A future deadline is
+	// non-blocking grace with requirement status `due`; an elapsed deadline
+	// produces `past_due`. When omitted, acceptance is required immediately
+	// and the requirement status remains `due`.
+	Deadline *time.Time `json:"deadline,omitempty"`
+
 	// Languages BCP 47 language tags this Terms of Service document can be viewed
 	// and accepted in. The list is non-empty (every published document
 	// carries at least one language). Append the chosen tag to `url` as

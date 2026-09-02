@@ -4,6 +4,12 @@ export default defineConfig({
   cdp: {
     input: {
       target: "../openapi.yaml",
+      // These tags are owned by the fern-generated `_vendor` client (see
+      // fern/generators.yml); exclude them here so orval no longer emits them.
+      filters: {
+        tags: ["Accounts", "Payment Methods", "Transfers", "Deposit Destinations"],
+        mode: "exclude",
+      },
     },
     output: {
       clean: true,
