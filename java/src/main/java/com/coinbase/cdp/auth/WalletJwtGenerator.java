@@ -1,8 +1,6 @@
 package com.coinbase.cdp.auth;
 
 import com.coinbase.cdp.auth.exceptions.JwtGenerationException;
-import com.coinbase.cdp.utils.HashUtils;
-import com.coinbase.cdp.utils.JsonUtils;
 import io.jsonwebtoken.Jwts;
 import java.security.PrivateKey;
 import java.time.Instant;

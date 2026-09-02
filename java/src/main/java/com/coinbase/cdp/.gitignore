@@ -1,0 +1,7 @@
+# Fern records the local generator invocation (including the source commit) here.
+# It is intentionally not versioned because it changes on every regeneration.
+.fern/
+
+## Generated documentation is published through the dedicated docs target.
+README.md
+reference.md

@@ -239,6 +239,11 @@ tags:
     x-slo-tier:
       tier: ga
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Health
+    x-audience: public
+    x-slo-tier:
+      tier: beta
+    description: The `health.*` webhook payloads describe health status changes and maintenance window events for a CDP service or operation.
   - name: Onchain Data
     x-audience: public
     x-slo-tier:
@@ -273,7 +278,16 @@ tags:
     x-audience: public
     x-slo-tier:
       tier: ga
-    description: Payment Sessions track the full lifecycle of a merchant payment — from authorization through capture, void, or refund. Each session records every operation and balance change across its lifecycle.
+    description: |-
+      Payment Sessions track the full lifecycle of a merchant payment, from authorization through capture, void, or refund. Each session records every operation and balance change across its lifecycle.
+
+      **Who initiates an authorization.** A session can be authorized in four ways, split by who acts:
+
+      - **Customer-initiated:** the payer authorizes at payment time by signing. Use **Authorize a payment session with a wallet** or **Authorize a payment session with x402**. These calls are unauthenticated because the payer's signature is the authorization.
+
+      - **Merchant-initiated:** the merchant charges against an authorization the payer granted earlier, with the payer no longer present. Use **Authorize a payment session with a mandate** (draws on a mandate's standing spending allowance) or **Authorize a payment session with a Coinbase account** (charges a Coinbase account the payer linked over OAuth).
+
+      Creating, listing, canceling, capturing, voiding, and refunding a session are merchant actions authenticated with your API key.
   - name: Policy Engine
     x-audience: public
     x-slo-tier:
@@ -3890,7 +3904,7 @@ paths:
     post:
       summary: Authorize a payment session with a wallet
       description: |-
-        Authorizes a payment session using the payer's wallet. The session must be in `created` status.
+        **Customer-initiated.** Authorizes a payment session using the payer's wallet. The payer signs the payloads themselves, so this call is unauthenticated. The session must be in `created` status.
 
         The `optionId` must match one of the options returned by the **Get Wallet Authorization Options** endpoint. Include the signed payloads for the selected option.
 
@@ -3979,7 +3993,7 @@ paths:
     post:
       summary: Authorize a payment session with x402
       description: |-
-        Authorizes a payment session using x402. The session must be in `created` status.
+        **Customer-initiated.** Authorizes a payment session using x402. The payer supplies the payment payload, so this call is unauthenticated. The session must be in `created` status.
 
         The client sends no request body. You may supply the base64-encoded x402-compliant payment payload in the optional **`PAYMENT-SIGNATURE`** header.
 
@@ -4086,7 +4100,7 @@ paths:
     post:
       summary: Authorize a payment session with a Coinbase account
       description: |-
-        Authorizes a payment session using the payer's Coinbase account authenticated via OAuth. The session must be in `created` status.
+        **Merchant-initiated.** The merchant charges the payer's Coinbase account using an OAuth grant the payer authorized earlier, so the payer does not need to be present at payment time. The session must be in `created` status.
 
         **Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:payment-create` scope.
 
@@ -6747,25 +6761,21 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid amount format. Amount must be a valid decimal string.
-                    errorParam: amount
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 invalid_network:
                   value:
                     errorType: invalid_request
                     errorMessage: Unsupported network for USDC transfers.
-                    errorParam: network
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 invalid_asset:
                   value:
                     errorType: invalid_request
                     errorMessage: Unsupported asset. Currently only 'usdc' is supported.
-                    errorParam: asset
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 insufficient_balance:
                   value:
                     errorType: invalid_request
                     errorMessage: Account has insufficient USDC balance to complete the transfer.
-                    errorParam: amount
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 conflicting_paymaster:
                   value:
@@ -6776,7 +6786,6 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: 'paymasterContext requires a paymaster: set paymasterUrl or useCdpPaymaster.'
-                    errorParam: paymasterContext
                     errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -6795,7 +6804,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: EVM account with the given address not found.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '422':
           $ref: '#/components/responses/IdempotencyError'
@@ -7042,7 +7050,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: No active delegation found for the specified end user.
-                    errorParam: userId
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -7104,7 +7111,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: No active delegation found for the specified end user.
-                    errorParam: userId
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -7195,13 +7201,11 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field 'expiresAt' is required.
-                    errorParam: expiresAt
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 invalid_expiresAt:
                   value:
                     errorType: invalid_request
                     errorMessage: Field 'expiresAt' must be a valid ISO 8601 string.
-                    errorParam: expiresAt
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -7218,7 +7222,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: No account with the given address exists for this end user.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '409':
           description: Conflict with an existing delegation.
@@ -7236,7 +7239,6 @@ paths:
                   value:
                     errorType: already_exists
                     errorMessage: An account-scoped delegation is already active for this address.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
         '422':
           $ref: '#/components/responses/IdempotencyError'
@@ -7317,7 +7319,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: No active account-scoped delegation found for the specified address.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -7388,7 +7389,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: No active account-scoped delegation found for the specified address.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -7481,13 +7481,11 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field 'network' is required.
-                    errorParam: network
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 unsupported_network:
                   value:
                     errorType: invalid_request
                     errorMessage: Network 'gnosis' is not supported for EIP-7702.
-                    errorParam: network
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -7506,7 +7504,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: EVM account with the given address not found.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '409':
           description: Account already delegated on the given network.
@@ -7519,7 +7516,6 @@ paths:
                   value:
                     errorType: already_exists
                     errorMessage: Account already has an active EIP-7702 delegation on the given network.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
         '422':
           $ref: '#/components/responses/IdempotencyError'
@@ -8360,25 +8356,21 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid amount format. Amount must be a valid decimal string.
-                    errorParam: amount
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 invalid_network:
                   value:
                     errorType: invalid_request
                     errorMessage: Unsupported network for USDC transfers.
-                    errorParam: network
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 invalid_asset:
                   value:
                     errorType: invalid_request
                     errorMessage: Unsupported asset. Currently only 'usdc' is supported.
-                    errorParam: asset
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 insufficient_balance:
                   value:
                     errorType: invalid_request
                     errorMessage: Account has insufficient USDC balance to complete the transfer.
-                    errorParam: amount
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 insufficient_sol:
                   value:
@@ -8389,7 +8381,6 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: 'Recipient does not have a USDC Associated Token Account. Set ''createRecipientAta: true'' to create one automatically.'
-                    errorParam: to
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -8408,7 +8399,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: Solana account with the given address not found.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '422':
           $ref: '#/components/responses/IdempotencyError'
@@ -9296,13 +9286,11 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field 'network' is required.
-                    errorParam: network
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
                 unsupported_network:
                   value:
                     errorType: invalid_request
                     errorMessage: Network 'gnosis' is not supported for EIP-7702.
-                    errorParam: network
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -9319,7 +9307,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: EVM account with the given address not found.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '409':
           description: Account already delegated on the given network.
@@ -9332,7 +9319,6 @@ paths:
                   value:
                     errorType: already_exists
                     errorMessage: Account already has an active EIP-7702 delegation on the given network.
-                    errorParam: address
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#already-exists
         '422':
           $ref: '#/components/responses/IdempotencyError'
@@ -9380,7 +9366,6 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid delegation operation ID format.
-                    errorParam: delegationOperationId
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
         '404':
           description: Delegation operation not found.
@@ -9393,7 +9378,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: Delegation operation not found.
-                    errorParam: delegationOperationId
                     errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#not-found
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -16041,6 +16025,116 @@ webhooks:
           description: Webhook received and processed successfully.
         '401':
           description: Invalid signature.
+  healthStatusUpdated:
+    post:
+      summary: Service health updated
+      description: Fires whenever the operational status of a CDP service or operation changes — an outage begins, its severity changes, or it recovers to `operational`. Subscribe to react to CDP disruptions in real time.
+      operationId: healthStatusUpdatedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Health
+      requestBody:
+        description: The `health.status.updated` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthStatusUpdatedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  healthMaintenanceScheduled:
+    post:
+      summary: Maintenance scheduled
+      description: Fires when a maintenance window is scheduled for a CDP service or operation, ahead of it starting. Subscribe for advance notice to plan around planned downtime.
+      operationId: healthMaintenanceScheduledWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Health
+      requestBody:
+        description: The `health.maintenance.scheduled` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthMaintenanceScheduledEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  healthMaintenanceStarted:
+    post:
+      summary: Maintenance started
+      description: Fires when a previously scheduled maintenance window begins; the affected service's or operation's effective status is recomputed and reports `under_maintenance`, unless an organic outage is already in progress, which continues to take priority. Subscribe to react in real time when a dependency enters maintenance.
+      operationId: healthMaintenanceStartedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Health
+      requestBody:
+        description: The `health.maintenance.started` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthMaintenanceStartedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  healthMaintenanceCompleted:
+    post:
+      summary: Maintenance completed
+      description: Fires when a maintenance window ends normally; the affected service's or operation's effective status is recomputed and returns to `operational`, unless an organic outage remains in progress, which continues to take priority.
+      operationId: healthMaintenanceCompletedWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Health
+      requestBody:
+        description: The `health.maintenance.completed` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthMaintenanceCompletedEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
+  healthMaintenanceCanceled:
+    post:
+      summary: Maintenance canceled
+      description: Fires when a previously scheduled maintenance window is canceled before it starts.
+      operationId: healthMaintenanceCanceledWebhook
+      security:
+        - webhookSignature: []
+      x-audience: public
+      tags:
+        - Health
+      requestBody:
+        description: The `health.maintenance.canceled` webhook event payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthMaintenanceCanceledEvent'
+      responses:
+        '200':
+          description: Webhook received and processed successfully.
+        '401':
+          description: Invalid signature.
   customersCapabilityChanged:
     post:
       summary: Customers capability changed
@@ -17594,13 +17688,20 @@ components:
       type: string
       description: |
         The current status of a requirement:
-        - `due`: Must be submitted
+        - `due`: Must be submitted and no set deadline has passed
+        - `past_due`: Must be submitted and a set deadline has passed
         - `pending`: Submitted, awaiting verification
         - `rejected`: Verification failed - customer must resubmit
+
+        For a Terms of Service requirement, `past_due` applies if any unaccepted
+        version has a deadline set in the past. Otherwise the status is `due`,
+        including when a version has no deadline and requires immediate acceptance,
+        or when every set deadline is in the future and acceptance is in grace.
 
         When verification passes, the requirement disappears from the response entirely.
       enum:
         - due
+        - past_due
         - pending
         - rejected
       example: due
@@ -17626,12 +17727,14 @@ components:
         accept. Each entry represents one logical document (identified by
         `versionId`) that may be published in multiple languages —
         `languages` lists the BCP 47 language tags the document is available
-        to view and accept in. `url` is the canonical, language-agnostic
-        document URL; partners append `?lang=<tag>` (where `<tag>` is one of
-        `languages`) to retrieve a specific translation, and omit the
-        parameter to let the documentation site choose a default. This API
-        does not serve Terms of Service body content; this schema describes
-        metadata only.
+        to view and accept in. An optional `deadline` records the end of a grace
+        period: a future deadline is non-blocking `due`, an elapsed deadline is
+        `past_due`, and no deadline means acceptance is required immediately with
+        status `due`. `url` is the canonical, language-agnostic document URL;
+        partners append `?lang=<tag>` (where `<tag>` is one of `languages`) to
+        retrieve a specific translation, and omit the parameter to let the
+        documentation site choose a default. This API does not serve Terms of
+        Service body content; this schema describes metadata only.
       properties:
         versionId:
           allOf:
@@ -17639,6 +17742,16 @@ components:
           description: |
             Stable identifier for this Terms of Service document. Submit this
             value as `versionId` on a `TosAcceptance` to record acceptance.
+        deadline:
+          type: string
+          format: date-time
+          description: |
+            Optional deadline by which the Customer must accept this Terms of
+            Service version, in ISO 8601 / RFC 3339 format. A future deadline is
+            non-blocking grace with requirement status `due`; an elapsed deadline
+            produces `past_due`. When omitted, acceptance is required immediately
+            and the requirement status remains `due`.
+          example: '2026-06-30T23:59:59Z'
         languages:
           type: array
           description: |
@@ -17697,15 +17810,18 @@ components:
           type: string
           format: date-time
           description: |
-            Optional deadline by which this requirement must be satisfied.
+            Optional aggregate deadline by which this requirement must be satisfied.
 
-            For the `tos` requirement, when present, `deadline` is the earliest
-            deadline among the unaccepted required Terms of Service versions.
+            For the `tos` requirement, this is the earliest set deadline among the
+            unaccepted required Terms of Service versions listed in `tosVersions`.
+            It is omitted only when none of the unaccepted versions has a deadline.
+            Do not infer `past_due` or whether the requirement blocks from this
+            aggregate field alone; inspect each version's deadline.
         impact:
           type: array
           description: |
             List of capabilities affected by this requirement, sorted alphabetically.
-            Only present for `due`, `pending`, or `rejected` statuses.
+            Only present for `due`, `past_due`, `pending`, or `rejected` statuses.
           items:
             $ref: '#/components/schemas/CapabilityName'
           example:
@@ -17717,13 +17833,16 @@ components:
             Required Terms of Service versions the Customer has not yet
             accepted, with the metadata needed to render an acceptance UI
             (each entry carries a stable `versionId`, the BCP 47
-            `languages` the version is published in, and a
-            language-agnostic `url`). This field appears only under the
-            requirement key `tos`; do not infer meaning from `tosVersions`
-            on other requirement keys. Only populated for the `tos`
+            `languages` the version is published in, an optional per-version
+            `deadline`, and a language-agnostic `url`). A missing deadline means
+            acceptance is required immediately while the requirement status remains
+            `due`; only a set deadline in the past produces `past_due`. This field
+            appears only under the requirement key `tos`; do not infer meaning from
+            `tosVersions` on other requirement keys. Only populated for the `tos`
             requirement; omitted on every other requirement key. Submit each
-            `versionId` back via `tosAcceptances[].versionId` on `Update Customer` (or
-            `Create Customer`) together with `language` and `acceptedAt` to clear the requirement.
+            `versionId` back via `tosAcceptances[].versionId` on `Update Customer`
+            (or `Create Customer`) together with `language` and `acceptedAt` to
+            clear the requirement.
           items:
             $ref: '#/components/schemas/TermsOfService'
           example:
@@ -17758,10 +17877,14 @@ components:
         are only shown for requested capabilities. When a requirement is
         verified, it disappears from this map.
 
-        When comparing deadlines across keys, note that `requirements.tos.deadline`
-        is an aggregate: the earliest deadline among unaccepted required Terms of
-        Service versions listed in `requirements.tos.tosVersions[]` (not a separate
-        clock from those version rows).
+        For the `tos` key, each entry in `tosVersions[]` has its own optional
+        deadline. The requirement-level `deadline` is an aggregate of those rows:
+        the earliest set deadline among unaccepted versions, not a separate clock.
+        A version with no deadline requires immediate acceptance but keeps the
+        aggregate status `due`. A future deadline is also `due` and represents
+        non-blocking grace. The aggregate status is `past_due` only when at least
+        one unaccepted version has a deadline set in the past. Do not infer status
+        or blocking behavior from omission of the aggregate deadline.
       additionalProperties:
         $ref: '#/components/schemas/Requirement'
       example:
@@ -18481,6 +18604,7 @@ components:
         - monad
         - sui
         - avacchain
+        - tempo
       example: base
     BlockchainAddress:
       type: string
@@ -19884,6 +20008,7 @@ components:
       enum:
         - arbitrum
         - arbitrum-sepolia
+        - avalanche
         - base
         - base-sepolia
         - ethereum
@@ -23460,6 +23585,7 @@ components:
         payload:
           type: object
           description: 'The payload of the payment depending on the x402Version, scheme, and network. Discriminated by scheme-specific fields: exact-EVM/upto-EVM payloads carry a `signature`; exact-Solana carries a `transaction`; batch-settlement carries a `type` discriminator. See `x402BatchSettlementEvmPayload` for the documented batch-settlement variants.'
+          x-oneof-no-discriminator: Branches are third-party x402 protocol payload shapes (per scheme/network), not a Coinbase-controlled tag; clients select a branch by field presence as described above, matching the upstream x402 wire format.
           oneOf:
             - $ref: '#/components/schemas/x402ExactEvmPayload'
             - $ref: '#/components/schemas/x402ExactEvmPermit2Payload'
@@ -27035,6 +27161,11 @@ components:
         - acceptance.disbursement.pending
         - acceptance.disbursement.succeeded
         - acceptance.disbursement.failed
+        - health.status.updated
+        - health.maintenance.scheduled
+        - health.maintenance.started
+        - health.maintenance.completed
+        - health.maintenance.canceled
         - customers.capability.changed
         - customers.customer.deleted
     WebhookTarget:
@@ -32198,6 +32329,344 @@ components:
               example: acceptance.disbursement.failed
           required:
             - eventType
+    HealthService:
+      type: string
+      description: A CDP service whose health and maintenance status are tracked here.
+      enum:
+        - payments_acceptance
+        - webhooks
+      example: payments_acceptance
+      x-enum-descriptions:
+        - Payment Acceptance — accepting and processing payments on behalf of merchants.
+        - CDP's webhook delivery infrastructure.
+    HealthOperation:
+      type: string
+      description: A finer-grained operation within a service. Optional — omitted when a health status or maintenance window applies to the service as a whole.
+      enum:
+        - payment_session_authorize_wallet
+        - payment_session_authorize_coinbase
+        - payment_session_authorize_x402
+        - payment_session_capture
+        - payment_session_void
+        - payment_session_refund
+        - disbursement
+        - account_linking
+      example: payment_session_capture
+      x-enum-descriptions:
+        - Authorizing a payment session funded by the customer's onchain wallet.
+        - Authorizing a payment session funded by the customer's Coinbase account.
+        - Authorizing a payment session funded via the x402 payment protocol.
+        - Capturing funds for a previously authorized payment session.
+        - Voiding a previously authorized payment session.
+        - Refunding a previously captured payment session.
+        - Disbursing funds to a payee.
+        - Linking a customer's external account to Payment Acceptance.
+    HealthStatusValue:
+      type: string
+      description: The operational status of a service or operation. `operational`, `degraded_performance`, `partial_outage`, and `major_outage` form a severity ladder that can move up or down between adjacent levels as an organic issue develops or recovers.
+      enum:
+        - operational
+        - degraded_performance
+        - partial_outage
+        - major_outage
+        - under_maintenance
+      example: major_outage
+      x-enum-descriptions:
+        - Working normally.
+        - Elevated latency or reduced capacity, with no significant failure rate.
+        - A subset of requests or users are failing; still functional for most.
+        - A significant portion of requests are failing; most users are impacted.
+        - 'A planned maintenance window is active — not a failure. Computed, not caller-settable: returned when there is an active maintenance window and no organic outage is currently declared.'
+    HealthStatus:
+      type: object
+      description: The health status of a service or operation. See `HealthStatusValue` for the severity ladder this moves along, and `under_maintenance`'s special computed-status behavior.
+      properties:
+        service:
+          allOf:
+            - $ref: '#/components/schemas/HealthService'
+          description: The service this status applies to.
+        operation:
+          allOf:
+            - $ref: '#/components/schemas/HealthOperation'
+          description: The operation this status applies to. Omitted when the status applies to the service as a whole.
+        status:
+          allOf:
+            - $ref: '#/components/schemas/HealthStatusValue'
+          description: The current health status.
+        startedAt:
+          type: string
+          format: date-time
+          description: The time this status took effect.
+          example: '2026-04-21T14:30:00.000Z'
+        message:
+          type: string
+          description: A human-readable description of the status.
+          example: Elevated error rates observed.
+      required:
+        - service
+        - status
+        - startedAt
+      example:
+        service: payments_acceptance
+        operation: payment_session_capture
+        status: major_outage
+        startedAt: '2026-04-21T14:30:00.000Z'
+        message: Elevated error rates observed.
+    HealthStatusUpdatedEvent:
+      type: object
+      x-event-type: health.status.updated
+      example:
+        eventType: health.status.updated
+        eventId: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp: '2026-04-21T14:32:00.000Z'
+        data:
+          service: payments_acceptance
+          operation: payment_session_capture
+          status: major_outage
+          startedAt: '2026-04-21T14:30:00.000Z'
+          message: Elevated error rates observed.
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Unique identifier for this logical webhook event. Webhooks are delivered at least once, so your endpoint may receive duplicate deliveries for the same event. Use this `eventId` as the idempotency/deduplication key.
+          example: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 timestamp at which this event's transition occurred, not the time at which this webhook was delivered.
+          example: '2026-04-21T14:32:00.000Z'
+        eventType:
+          type: string
+          description: The type of webhook event.
+          enum:
+            - health.status.updated
+          example: health.status.updated
+        data:
+          $ref: '#/components/schemas/HealthStatus'
+      required:
+        - eventId
+        - timestamp
+        - eventType
+        - data
+    MaintenanceEventBase:
+      type: object
+      description: Common fields included in every maintenance event payload.
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Unique identifier for this logical webhook event. Webhooks are delivered at least once, so your endpoint may receive duplicate deliveries for the same event. Use this `eventId` as the idempotency/deduplication key.
+          example: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 timestamp at which this event's transition occurred, not the time at which this webhook was delivered.
+          example: '2026-04-21T14:32:00.000Z'
+      required:
+        - eventId
+        - timestamp
+    MaintenanceStatus:
+      type: string
+      description: 'The lifecycle status of a maintenance window: `scheduled` → `started` → `completed`, or `scheduled` → `canceled`. `completed` and `canceled` are terminal.'
+      enum:
+        - scheduled
+        - started
+        - completed
+        - canceled
+      example: scheduled
+      x-enum-descriptions:
+        - The maintenance window has been scheduled but has not started yet.
+        - The maintenance window is currently in progress.
+        - The maintenance window has finished.
+        - The maintenance window was canceled before starting.
+    MaintenanceWindow:
+      type: object
+      description: A maintenance window for a service or operation, moving through `scheduled` → `started` → `completed`, or `scheduled` → `canceled`. While `started`, it moves the affected service or operation's effective `HealthStatus` to `under_maintenance`.
+      properties:
+        service:
+          allOf:
+            - $ref: '#/components/schemas/HealthService'
+          description: The service this maintenance window applies to.
+        operation:
+          allOf:
+            - $ref: '#/components/schemas/HealthOperation'
+          description: The operation this maintenance window applies to. Omitted when the maintenance window applies to the service as a whole.
+        startsAt:
+          type: string
+          format: date-time
+          description: 'The start time of the maintenance window: in the future for a `scheduled` window, in the past for one that has already `started`.'
+          example: '2026-04-22T02:00:00.000Z'
+        expectedDurationSeconds:
+          type: integer
+          minimum: 0
+          description: The expected duration of the maintenance window, in seconds.
+          example: 7200
+        status:
+          allOf:
+            - $ref: '#/components/schemas/MaintenanceStatus'
+          description: The current status of the maintenance window.
+        message:
+          type: string
+          description: A human-readable description of the maintenance window.
+          example: Scheduled maintenance window.
+      required:
+        - service
+        - startsAt
+        - status
+      example:
+        service: payments_acceptance
+        operation: account_linking
+        startsAt: '2026-04-22T02:00:00.000Z'
+        expectedDurationSeconds: 7200
+        status: scheduled
+        message: Scheduled maintenance window.
+    HealthMaintenanceScheduledEvent:
+      x-event-type: health.maintenance.scheduled
+      example:
+        eventType: health.maintenance.scheduled
+        eventId: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp: '2026-04-21T14:32:00.000Z'
+        data:
+          service: payments_acceptance
+          operation: account_linking
+          startsAt: '2026-04-22T02:00:00.000Z'
+          expectedDurationSeconds: 7200
+          status: scheduled
+          message: Scheduled maintenance window.
+      allOf:
+        - $ref: '#/components/schemas/MaintenanceEventBase'
+        - type: object
+          properties:
+            eventType:
+              type: string
+              description: The type of webhook event.
+              enum:
+                - health.maintenance.scheduled
+              example: health.maintenance.scheduled
+            data:
+              description: Announces a future maintenance window. Does not change the affected service's or operation's current recorded status.
+              allOf:
+                - $ref: '#/components/schemas/MaintenanceWindow'
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                        - scheduled
+                  required:
+                    - expectedDurationSeconds
+          required:
+            - eventType
+            - data
+    HealthMaintenanceStartedEvent:
+      x-event-type: health.maintenance.started
+      example:
+        eventType: health.maintenance.started
+        eventId: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp: '2026-04-22T02:00:00.000Z'
+        data:
+          service: payments_acceptance
+          operation: account_linking
+          startsAt: '2026-04-22T02:00:00.000Z'
+          expectedDurationSeconds: 7200
+          status: started
+          message: Maintenance window has begun.
+      allOf:
+        - $ref: '#/components/schemas/MaintenanceEventBase'
+        - type: object
+          properties:
+            eventType:
+              type: string
+              description: The type of webhook event.
+              enum:
+                - health.maintenance.started
+              example: health.maintenance.started
+            data:
+              description: Fired when a previously scheduled maintenance window begins. The affected service's or operation's effective health status is recomputed and reports `under_maintenance`, unless an organic outage is already in progress, which continues to take priority.
+              allOf:
+                - $ref: '#/components/schemas/MaintenanceWindow'
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                        - started
+                  required:
+                    - expectedDurationSeconds
+          required:
+            - eventType
+            - data
+    HealthMaintenanceCompletedEvent:
+      x-event-type: health.maintenance.completed
+      example:
+        eventType: health.maintenance.completed
+        eventId: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp: '2026-04-22T04:00:00.000Z'
+        data:
+          service: payments_acceptance
+          operation: account_linking
+          startsAt: '2026-04-22T02:00:00.000Z'
+          status: completed
+          message: Maintenance window has completed.
+      allOf:
+        - $ref: '#/components/schemas/MaintenanceEventBase'
+        - type: object
+          properties:
+            eventType:
+              type: string
+              description: The type of webhook event.
+              enum:
+                - health.maintenance.completed
+              example: health.maintenance.completed
+            data:
+              description: Fired when a maintenance window ends normally. The affected service's or operation's effective health status is recomputed and returns to `operational`, unless an organic outage remains in progress, which continues to take priority.
+              allOf:
+                - $ref: '#/components/schemas/MaintenanceWindow'
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                        - completed
+          required:
+            - eventType
+            - data
+    HealthMaintenanceCanceledEvent:
+      x-event-type: health.maintenance.canceled
+      example:
+        eventType: health.maintenance.canceled
+        eventId: 9d3f2b1a-6e4c-4a8b-9f1d-2c7a5e8b4f60
+        timestamp: '2026-04-21T18:00:00.000Z'
+        data:
+          service: payments_acceptance
+          operation: account_linking
+          startsAt: '2026-04-22T02:00:00.000Z'
+          status: canceled
+          message: Maintenance window canceled ahead of schedule.
+      allOf:
+        - $ref: '#/components/schemas/MaintenanceEventBase'
+        - type: object
+          properties:
+            eventType:
+              type: string
+              description: The type of webhook event.
+              enum:
+                - health.maintenance.canceled
+              example: health.maintenance.canceled
+            data:
+              description: Fired when a previously scheduled maintenance window is canceled before it starts.
+              allOf:
+                - $ref: '#/components/schemas/MaintenanceWindow'
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                        - canceled
+          required:
+            - eventType
+            - data
     CustomersEventBase:
       type: object
       description: Common envelope fields included in every Customers webhook event payload.
@@ -33018,6 +33487,9 @@ x-tagGroups:
   - name: Customers
     tags:
       - Customers
+  - name: Health
+    tags:
+      - Health
   - name: Webhooks
     tags:
       - Webhooks

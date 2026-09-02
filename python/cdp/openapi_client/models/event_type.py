@@ -74,6 +74,11 @@ class EventType(str, Enum):
     ACCEPTANCE_DOT_DISBURSEMENT_DOT_PENDING = 'acceptance.disbursement.pending'
     ACCEPTANCE_DOT_DISBURSEMENT_DOT_SUCCEEDED = 'acceptance.disbursement.succeeded'
     ACCEPTANCE_DOT_DISBURSEMENT_DOT_FAILED = 'acceptance.disbursement.failed'
+    HEALTH_DOT_STATUS_DOT_UPDATED = 'health.status.updated'
+    HEALTH_DOT_MAINTENANCE_DOT_SCHEDULED = 'health.maintenance.scheduled'
+    HEALTH_DOT_MAINTENANCE_DOT_STARTED = 'health.maintenance.started'
+    HEALTH_DOT_MAINTENANCE_DOT_COMPLETED = 'health.maintenance.completed'
+    HEALTH_DOT_MAINTENANCE_DOT_CANCELED = 'health.maintenance.canceled'
     CUSTOMERS_DOT_CAPABILITY_DOT_CHANGED = 'customers.capability.changed'
     CUSTOMERS_DOT_CUSTOMER_DOT_DELETED = 'customers.customer.deleted'
 

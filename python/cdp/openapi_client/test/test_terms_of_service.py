@@ -37,6 +37,7 @@ class TestTermsOfService(unittest.TestCase):
         if include_optional:
             return TermsOfService(
                 version_id = 'us_individual_2026-05-29',
+                deadline = '2026-06-30T23:59:59Z',
                 languages = [en],
                 url = 'https://example.com'
             )
