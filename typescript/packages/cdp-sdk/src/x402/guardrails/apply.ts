@@ -57,7 +57,12 @@ export interface SpendControlsRegistry {
    */
   confirm(paymentPayload: PaymentPayload): Promise<void>;
   /**
-   * Undo a previously-recorded provisional spend after the payment did not settle.
+   * Undo a previously-recorded provisional spend entry.
+   *
+   * Only safe for a payload that was never transmitted — a sent authorization
+   * is independently redeemable and can't be safely un-counted. Not called by
+   * the SDK's own `onPaymentResponse` wiring; for callers with out-of-band
+   * knowledge that a specific payload was never sent.
    *
    * @param paymentPayload - The payment payload to roll back.
    */
@@ -161,11 +166,20 @@ const getStoreMutex = (store: object): Map<string, Promise<unknown>> => {
   return created;
 };
 
-const parseAtomicFromRequirement = (req: PaymentRequirements): bigint => {
+/**
+ * Extracts the atomic payment amount from a requirement, keyed on the
+ * negotiated x402 version (v1 signs `maxAmountRequired`, v2 signs `amount`)
+ * rather than field presence — a spoofed second field is never read.
+ *
+ * @param req - The selected payment requirement.
+ * @param x402Version - The negotiated x402 protocol version.
+ * @returns The atomic amount that will actually be signed.
+ */
+const parseAtomicFromRequirement = (req: PaymentRequirements, x402Version: number): bigint => {
   const raw =
-    "amount" in req && req.amount !== undefined
-      ? req.amount
-      : (req as unknown as { maxAmountRequired?: string }).maxAmountRequired;
+    x402Version === 1
+      ? (req as unknown as { maxAmountRequired?: string }).maxAmountRequired
+      : req.amount;
   let parsed: bigint;
   try {
     parsed = BigInt(raw as string);
@@ -184,7 +198,7 @@ const parseAtomicFromRequirement = (req: PaymentRequirements): bigint => {
   if (parsed < 0n) {
     throw new SpendControlError(
       "amount_unparseable",
-      `PaymentRequirements.amount ${JSON.stringify(req.amount)} must be a non-negative atomic integer`,
+      `PaymentRequirements amount ${JSON.stringify(raw)} must be a non-negative atomic integer`,
       {
         attempted: parsed.toString(),
         asset: req.asset,
@@ -430,7 +444,7 @@ export function applySpendControls(
 
   const beforeHook: BeforePaymentCreationHook = async context => {
     const req = context.selectedRequirements;
-    const atomic = parseAtomicFromRequirement(req);
+    const atomic = parseAtomicFromRequirement(req, context.paymentRequired.x402Version);
     const normalizedReqAsset = normalizeAsset(req.asset);
 
     if (
@@ -635,31 +649,12 @@ export function applySpendControls(
   (taggedClient as Record<symbol, unknown>)[SPEND_CONTROLS_REGISTRY] = registry;
 
   /*
-   * Wire settlement finalization into the standard onPaymentResponse hook so
-   * upstream wrappers like @x402/fetch automatically confirm or roll back
-   * provisional spend entries — no SDK-owned fetch wrapper required.
-   *
-   * Settlement decision:
-   *   - settleResponse.success === true  → confirmed on-chain, keep the spend
-   *   - settleResponse.success === false → settlement failed, roll back
-   *   - paymentRequired present          → verify failed (got 402 back), roll back
-   *   - otherwise (ambiguous)            → no settlement header and no follow-up
-   *     402, OR a transport/parse error (ctx.error) after the payment header was
-   *     sent. The on-chain outcome is unknown, so we KEEP the spend (fail-closed
-   *     for the budget): we would rather over-count and block a future payment
-   *     than risk under-counting and exceeding the configured cap. Callers that
-   *     need stronger guarantees should enforce caps with an authoritative,
-   *     durable backend (see SpendControls.store) or a server-side policy.
+   * Always confirm: by the time this fires the authorization is already
+   * transmitted and independently redeemable, so a self-reported failure
+   * isn't a trustworthy reason to release counted spend.
    */
   const paymentResponseHook: OnPaymentResponseHook = async ctx => {
-    if (ctx.settleResponse?.success === true) {
-      await registry.confirm(ctx.paymentPayload);
-    } else if (ctx.settleResponse !== undefined || ctx.paymentRequired !== undefined) {
-      await registry.rollback(ctx.paymentPayload);
-    } else {
-      // Ambiguous settlement (including ctx.error): keep the spend (fail-closed).
-      await registry.confirm(ctx.paymentPayload);
-    }
+    await registry.confirm(ctx.paymentPayload);
   };
   client.onPaymentResponse(paymentResponseHook);
 
