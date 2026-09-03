@@ -18,6 +18,8 @@ gpr.token=YOUR_GITHUB_PERSONAL_ACCESS_TOKEN
 ```kotlin
 repositories {
     mavenCentral()
+    // Required by the SDK's Solana dependency.
+    maven { url = uri("https://jitpack.io") }
     maven {
         url = uri("https://maven.pkg.github.com/coinbase/cdp-sdk")
         credentials {
@@ -31,6 +33,8 @@ dependencies {
     implementation("com.coinbase:cdp-sdk:<version>")
 }
 ```
+
+The SDK currently depends on the Solana library `com.github.skynetcap:solanaj`, which is resolved from JitPack. Keep the JitPack repository even if your application does not directly call Solana APIs.
 
 ## Configure a client
 
