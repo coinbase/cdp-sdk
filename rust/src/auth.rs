@@ -458,7 +458,8 @@ impl WalletAuth {
             return false;
         }
 
-        path.contains("/accounts")
+        path.contains("/evm/accounts")
+            || path.contains("/solana/accounts")
             || path.contains("/spend-permissions")
             || path.contains("/user-operations/prepare-and-send")
             || path.contains("/embedded-wallet-api/")
@@ -733,8 +734,12 @@ mod tests {
             .build()
             .unwrap();
 
-        // Should require wallet auth for POST to accounts
+        // Should require wallet auth for POST to EVM and Solana accounts
         assert!(auth.requires_wallet_auth("POST", "/v2/evm/accounts"));
+        assert!(auth.requires_wallet_auth("POST", "/v2/solana/accounts"));
+
+        // Custodial account creation uses API key auth only
+        assert!(!auth.requires_wallet_auth("POST", "/v2/accounts"));
 
         // Should require wallet auth for PUT to accounts
         assert!(auth.requires_wallet_auth("PUT", "/v2/evm/accounts/0x123"));

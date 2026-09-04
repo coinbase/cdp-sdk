@@ -52,8 +52,8 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
     """Test error when wallet auth is required but not provided."""
     # Setup
     mock_jwt.return_value = "mock.jwt.token"
-    # POST to accounts path requires wallet auth
-    options = auth_options_factory(request_method="POST", request_path="/accounts")
+    # POST to an EVM accounts path requires wallet auth
+    options = auth_options_factory(request_method="POST", request_path="/v2/evm/accounts")
 
     # Execute & Verify
     with pytest.raises(
@@ -61,6 +61,20 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
         match="Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
     ):
         get_auth_headers(options)
+
+
+@patch("cdp.auth.utils.http.generate_jwt")
+def test_get_auth_headers_does_not_require_wallet_auth_for_custodial_accounts(
+    mock_jwt, auth_options_factory
+):
+    """Test that custodial account creation does not require wallet auth."""
+    mock_jwt.return_value = "mock.jwt.token"
+    options = auth_options_factory(request_method="POST", request_path="/v2/accounts")
+
+    headers = get_auth_headers(options)
+
+    assert headers["Authorization"] == "Bearer mock.jwt.token"
+    assert "X-Wallet-Auth" not in headers
 
 
 @patch("cdp.auth.utils.http.generate_jwt")
@@ -119,12 +133,14 @@ def test_get_auth_headers_still_sends_bearer_token_for_public_operation_with_cre
 @pytest.mark.parametrize(
     "request_method,request_path,expected",
     [
-        ("POST", "/accounts", True),
+        ("POST", "/v2/evm/accounts", True),
+        ("POST", "/v2/solana/accounts", True),
+        ("POST", "/v2/accounts", False),
         ("POST", "/any/123", False),
-        ("PUT", "/accounts/123", True),
+        ("PUT", "/v2/evm/accounts/123", True),
         ("PUT", "/spend-permissions", True),
         ("PUT", "/any/123", False),
-        ("DELETE", "/accounts/123", True),
+        ("DELETE", "/v2/evm/accounts/123", True),
         ("DELETE", "/any/123", False),
         ("GET", "/any/accounts", False),
         ("GET", "/any/path", False),
