@@ -163,6 +163,8 @@ export interface SignTransactionOptions {
   transaction: string;
   /** The idempotency key. */
   idempotencyKey?: string;
+  /** The network, required only when the transaction references address lookup tables. */
+  network?: SendSolanaTransactionBodyNetwork;
 }
 
 /**
