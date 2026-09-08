@@ -52,6 +52,8 @@ export const SpendControlErrorCodes = {
   ASSET_NOT_ALLOWED: "asset_not_allowed",
   PAYEE_NOT_ALLOWED: "payee_not_allowed",
   AMOUNT_UNPARSEABLE: "amount_unparseable",
+  MALFORMED_REQUIREMENT: "malformed_requirement",
+  MAX_TIMEOUT_EXCEEDED: "max_timeout_exceeded",
 } as const;
 
 /**

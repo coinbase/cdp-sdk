@@ -7,12 +7,12 @@ package com.coinbase.cdp.resources.accounts;
 import com.coinbase.cdp.core.ClientOptions;
 import com.coinbase.cdp.core.RequestOptions;
 import com.coinbase.cdp.resources.accounts.requests.CreateAccountRequest;
+import com.coinbase.cdp.resources.accounts.requests.GetAccountByIdRequest;
 import com.coinbase.cdp.resources.accounts.requests.GetBalanceByAssetRequest;
-import com.coinbase.cdp.resources.accounts.requests.GetFoundationAccountByIdRequest;
+import com.coinbase.cdp.resources.accounts.requests.ListAccountsRequest;
 import com.coinbase.cdp.resources.accounts.requests.ListBalancesRequest;
-import com.coinbase.cdp.resources.accounts.requests.ListFoundationAccountsRequest;
+import com.coinbase.cdp.resources.accounts.types.ListAccountsResponse;
 import com.coinbase.cdp.resources.accounts.types.ListBalancesResponse;
-import com.coinbase.cdp.resources.accounts.types.ListFoundationAccountsResponse;
 import com.coinbase.cdp.types.Account;
 import com.coinbase.cdp.types.AccountId;
 import com.coinbase.cdp.types.Asset;
@@ -22,161 +22,159 @@ import java.util.concurrent.CompletableFuture;
 public class AsyncAccountsClient {
   protected final ClientOptions clientOptions;
 
-  private final AsyncWithRawResponseAccountsClient rawClient;
+  private final AsyncRawAccountsClient rawClient;
 
   public AsyncAccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
-    this.rawClient = new AsyncWithRawResponseAccountsClient(clientOptions);
+    this.rawClient = new AsyncRawAccountsClient(clientOptions);
   }
 
   /**
    * Get responses with HTTP metadata like headers
    */
-  public AsyncWithRawResponseAccountsClient withRawResponse() {
+  public AsyncRawAccountsClient withRawResponse() {
     return this.rawClient;
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<ListFoundationAccountsResponse> listFoundationAccounts() {
-    return this.rawClient.listFoundationAccounts().thenApply(response -> response.body());
+  public CompletableFuture<ListAccountsResponse> listAccounts() {
+    return this.rawClient.listAccounts().thenApply(response -> response.body());
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<ListFoundationAccountsResponse> listFoundationAccounts(
-      RequestOptions requestOptions) {
-    return this.rawClient.listFoundationAccounts(requestOptions).thenApply(response -> response.body());
+  public CompletableFuture<ListAccountsResponse> listAccounts(RequestOptions requestOptions) {
+    return this.rawClient.listAccounts(requestOptions).thenApply(response -> response.body());
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<ListFoundationAccountsResponse> listFoundationAccounts(
-      ListFoundationAccountsRequest request) {
-    return this.rawClient.listFoundationAccounts(request).thenApply(response -> response.body());
+  public CompletableFuture<ListAccountsResponse> listAccounts(ListAccountsRequest request) {
+    return this.rawClient.listAccounts(request).thenApply(response -> response.body());
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<ListFoundationAccountsResponse> listFoundationAccounts(
-      ListFoundationAccountsRequest request, RequestOptions requestOptions) {
-    return this.rawClient.listFoundationAccounts(request, requestOptions).thenApply(response -> response.body());
-  }
-
-  /**
-   * Create an account. Two ownership modes are supported:
-   * <ul>
-   * <li>
-   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
-   * </li>
-   * <li>
-   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
-   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
-   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
-   * capabilities enabled, otherwise the request is rejected with
-   * <code>customer_not_authorized</code> (HTTP 403).</p>
-   * </li>
-   * </ul>
-   */
-  public CompletableFuture<Account> createFoundationAccount() {
-    return this.rawClient.createFoundationAccount().thenApply(response -> response.body());
-  }
-
-  /**
-   * Create an account. Two ownership modes are supported:
-   * <ul>
-   * <li>
-   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
-   * </li>
-   * <li>
-   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
-   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
-   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
-   * capabilities enabled, otherwise the request is rejected with
-   * <code>customer_not_authorized</code> (HTTP 403).</p>
-   * </li>
-   * </ul>
-   */
-  public CompletableFuture<Account> createFoundationAccount(RequestOptions requestOptions) {
-    return this.rawClient.createFoundationAccount(requestOptions).thenApply(response -> response.body());
-  }
-
-  /**
-   * Create an account. Two ownership modes are supported:
-   * <ul>
-   * <li>
-   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
-   * </li>
-   * <li>
-   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
-   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
-   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
-   * capabilities enabled, otherwise the request is rejected with
-   * <code>customer_not_authorized</code> (HTTP 403).</p>
-   * </li>
-   * </ul>
-   */
-  public CompletableFuture<Account> createFoundationAccount(CreateAccountRequest request) {
-    return this.rawClient.createFoundationAccount(request).thenApply(response -> response.body());
-  }
-
-  /**
-   * Create an account. Two ownership modes are supported:
-   * <ul>
-   * <li>
-   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
-   * </li>
-   * <li>
-   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
-   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
-   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
-   * capabilities enabled, otherwise the request is rejected with
-   * <code>customer_not_authorized</code> (HTTP 403).</p>
-   * </li>
-   * </ul>
-   */
-  public CompletableFuture<Account> createFoundationAccount(CreateAccountRequest request,
+  public CompletableFuture<ListAccountsResponse> listAccounts(ListAccountsRequest request,
       RequestOptions requestOptions) {
-    return this.rawClient.createFoundationAccount(request, requestOptions).thenApply(response -> response.body());
+    return this.rawClient.listAccounts(request, requestOptions).thenApply(response -> response.body());
   }
 
   /**
-   * Get an account by its ID.
+   * Create an account. Two ownership modes are supported:
+   * <ul>
+   * <li>
+   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
+   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+   * </li>
+   * <li>
+   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
+   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
+   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
+   * capabilities enabled, otherwise the request is rejected with
+   * <code>customer_not_authorized</code> (HTTP 403).</p>
+   * </li>
+   * </ul>
    */
-  public CompletableFuture<Account> getFoundationAccountById(AccountId accountId) {
-    return this.rawClient.getFoundationAccountById(accountId).thenApply(response -> response.body());
+  public CompletableFuture<Account> createAccount() {
+    return this.rawClient.createAccount().thenApply(response -> response.body());
   }
 
   /**
-   * Get an account by its ID.
+   * Create an account. Two ownership modes are supported:
+   * <ul>
+   * <li>
+   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
+   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+   * </li>
+   * <li>
+   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
+   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
+   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
+   * capabilities enabled, otherwise the request is rejected with
+   * <code>customer_not_authorized</code> (HTTP 403).</p>
+   * </li>
+   * </ul>
    */
-  public CompletableFuture<Account> getFoundationAccountById(AccountId accountId,
+  public CompletableFuture<Account> createAccount(RequestOptions requestOptions) {
+    return this.rawClient.createAccount(requestOptions).thenApply(response -> response.body());
+  }
+
+  /**
+   * Create an account. Two ownership modes are supported:
+   * <ul>
+   * <li>
+   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
+   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+   * </li>
+   * <li>
+   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
+   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
+   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
+   * capabilities enabled, otherwise the request is rejected with
+   * <code>customer_not_authorized</code> (HTTP 403).</p>
+   * </li>
+   * </ul>
+   */
+  public CompletableFuture<Account> createAccount(CreateAccountRequest request) {
+    return this.rawClient.createAccount(request).thenApply(response -> response.body());
+  }
+
+  /**
+   * Create an account. Two ownership modes are supported:
+   * <ul>
+   * <li>
+   * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
+   * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+   * </li>
+   * <li>
+   * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
+   * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
+   * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
+   * capabilities enabled, otherwise the request is rejected with
+   * <code>customer_not_authorized</code> (HTTP 403).</p>
+   * </li>
+   * </ul>
+   */
+  public CompletableFuture<Account> createAccount(CreateAccountRequest request,
       RequestOptions requestOptions) {
-    return this.rawClient.getFoundationAccountById(accountId, requestOptions).thenApply(response -> response.body());
+    return this.rawClient.createAccount(request, requestOptions).thenApply(response -> response.body());
   }
 
   /**
    * Get an account by its ID.
    */
-  public CompletableFuture<Account> getFoundationAccountById(AccountId accountId,
-      GetFoundationAccountByIdRequest request) {
-    return this.rawClient.getFoundationAccountById(accountId, request).thenApply(response -> response.body());
+  public CompletableFuture<Account> getAccountById(AccountId accountId) {
+    return this.rawClient.getAccountById(accountId).thenApply(response -> response.body());
   }
 
   /**
    * Get an account by its ID.
    */
-  public CompletableFuture<Account> getFoundationAccountById(AccountId accountId,
-      GetFoundationAccountByIdRequest request, RequestOptions requestOptions) {
-    return this.rawClient.getFoundationAccountById(accountId, request, requestOptions).thenApply(response -> response.body());
+  public CompletableFuture<Account> getAccountById(AccountId accountId,
+      RequestOptions requestOptions) {
+    return this.rawClient.getAccountById(accountId, requestOptions).thenApply(response -> response.body());
+  }
+
+  /**
+   * Get an account by its ID.
+   */
+  public CompletableFuture<Account> getAccountById(AccountId accountId,
+      GetAccountByIdRequest request) {
+    return this.rawClient.getAccountById(accountId, request).thenApply(response -> response.body());
+  }
+
+  /**
+   * Get an account by its ID.
+   */
+  public CompletableFuture<Account> getAccountById(AccountId accountId,
+      GetAccountByIdRequest request, RequestOptions requestOptions) {
+    return this.rawClient.getAccountById(accountId, request, requestOptions).thenApply(response -> response.body());
   }
 
   /**

@@ -8,7 +8,6 @@ import com.coinbase.cdp.core.CdpClientApiException;
 import com.coinbase.cdp.core.CdpClientException;
 import com.coinbase.cdp.core.CdpClientHttpResponse;
 import com.coinbase.cdp.core.ClientOptions;
-import com.coinbase.cdp.core.EndpointMetadata;
 import com.coinbase.cdp.core.MediaTypes;
 import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.core.QueryStringMapper;
@@ -21,12 +20,12 @@ import com.coinbase.cdp.errors.ServiceUnavailableError;
 import com.coinbase.cdp.errors.UnauthorizedError;
 import com.coinbase.cdp.errors.UnprocessableEntityError;
 import com.coinbase.cdp.resources.accounts.requests.CreateAccountRequest;
+import com.coinbase.cdp.resources.accounts.requests.GetAccountByIdRequest;
 import com.coinbase.cdp.resources.accounts.requests.GetBalanceByAssetRequest;
-import com.coinbase.cdp.resources.accounts.requests.GetFoundationAccountByIdRequest;
+import com.coinbase.cdp.resources.accounts.requests.ListAccountsRequest;
 import com.coinbase.cdp.resources.accounts.requests.ListBalancesRequest;
-import com.coinbase.cdp.resources.accounts.requests.ListFoundationAccountsRequest;
+import com.coinbase.cdp.resources.accounts.types.ListAccountsResponse;
 import com.coinbase.cdp.resources.accounts.types.ListBalancesResponse;
-import com.coinbase.cdp.resources.accounts.types.ListFoundationAccountsResponse;
 import com.coinbase.cdp.types.Account;
 import com.coinbase.cdp.types.AccountId;
 import com.coinbase.cdp.types.Asset;
@@ -38,7 +37,7 @@ import java.lang.Exception;
 import java.lang.Object;
 import java.lang.RuntimeException;
 import java.lang.String;
-import java.util.Collections;
+import java.util.stream.Collectors;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -47,41 +46,39 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class WithRawResponseAccountsClient {
+public class RawAccountsClient {
   protected final ClientOptions clientOptions;
 
-  WithRawResponseAccountsClient(ClientOptions clientOptions) {
+  public RawAccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CdpClientHttpResponse<ListFoundationAccountsResponse> listFoundationAccounts() {
-    return listFoundationAccounts(ListFoundationAccountsRequest.builder().build());
+  public CdpClientHttpResponse<ListAccountsResponse> listAccounts() {
+    return listAccounts(ListAccountsRequest.builder().build());
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CdpClientHttpResponse<ListFoundationAccountsResponse> listFoundationAccounts(
+  public CdpClientHttpResponse<ListAccountsResponse> listAccounts(RequestOptions requestOptions) {
+    return listAccounts(ListAccountsRequest.builder().build(),requestOptions);
+  }
+
+  /**
+   * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
+   */
+  public CdpClientHttpResponse<ListAccountsResponse> listAccounts(ListAccountsRequest request) {
+    return listAccounts(request,null);
+  }
+
+  /**
+   * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
+   */
+  public CdpClientHttpResponse<ListAccountsResponse> listAccounts(ListAccountsRequest request,
       RequestOptions requestOptions) {
-    return listFoundationAccounts(ListFoundationAccountsRequest.builder().build(),requestOptions);
-  }
-
-  /**
-   * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
-   */
-  public CdpClientHttpResponse<ListFoundationAccountsResponse> listFoundationAccounts(
-      ListFoundationAccountsRequest request) {
-    return listFoundationAccounts(request,null);
-  }
-
-  /**
-   * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
-   */
-  public CdpClientHttpResponse<ListFoundationAccountsResponse> listFoundationAccounts(
-      ListFoundationAccountsRequest request, RequestOptions requestOptions) {
     HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
       .addPathSegments("v2/accounts");if (request.getPageSize().isPresent()) {
@@ -94,8 +91,7 @@ public class WithRawResponseAccountsClient {
         QueryStringMapper.addQueryParameter(httpUrl, "type", request.getType().get(), false);
       }
       if (request.getOwner().isPresent()) {
-        QueryStringMapper.addQueryParameter(
-            httpUrl, "owner", String.join(",", request.getOwner().get()), false);
+        QueryStringMapper.addQueryParameter(httpUrl, "owner", request.getOwner().get().stream().map(String::valueOf).collect(Collectors.joining(",")), false);
       }
       if (requestOptions != null) {
         requestOptions.getQueryParameters().forEach((_key, _value) -> {
@@ -105,7 +101,6 @@ public class WithRawResponseAccountsClient {
       Request.Builder _requestBuilder = new Request.Builder()
         .url(httpUrl.build())
         .method("GET", null)
-        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
         .headers(Headers.of(clientOptions.headers(requestOptions)))
         .addHeader("Accept", "application/json");
       Request okhttpRequest = _requestBuilder.build();
@@ -117,7 +112,7 @@ public class WithRawResponseAccountsClient {
         ResponseBody responseBody = response.body();
         String responseBodyString = responseBody != null ? responseBody.string() : "{}";
         if (response.isSuccessful()) {
-          return new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, ListFoundationAccountsResponse.class), response);
+          return new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, ListAccountsResponse.class), response);
         }
         try {
           if (response.code() == 400) {
@@ -129,9 +124,6 @@ public class WithRawResponseAccountsClient {
         }
         Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
         throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
-      }
-      catch (JsonProcessingException e) {
-        throw new CdpClientException("Failed to decode HTTP response", e);
       }
       catch (IOException e) {
         throw new CdpClientException("Network error executing HTTP request", e);
@@ -154,8 +146,8 @@ public class WithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CdpClientHttpResponse<Account> createFoundationAccount() {
-      return createFoundationAccount(CreateAccountRequest.builder().build());
+    public CdpClientHttpResponse<Account> createAccount() {
+      return createAccount(CreateAccountRequest.builder().build());
     }
 
     /**
@@ -174,8 +166,8 @@ public class WithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CdpClientHttpResponse<Account> createFoundationAccount(RequestOptions requestOptions) {
-      return createFoundationAccount(CreateAccountRequest.builder().build(),requestOptions);
+    public CdpClientHttpResponse<Account> createAccount(RequestOptions requestOptions) {
+      return createAccount(CreateAccountRequest.builder().build(),requestOptions);
     }
 
     /**
@@ -194,8 +186,8 @@ public class WithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CdpClientHttpResponse<Account> createFoundationAccount(CreateAccountRequest request) {
-      return createFoundationAccount(request,null);
+    public CdpClientHttpResponse<Account> createAccount(CreateAccountRequest request) {
+      return createAccount(request,null);
     }
 
     /**
@@ -214,7 +206,7 @@ public class WithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CdpClientHttpResponse<Account> createFoundationAccount(CreateAccountRequest request,
+    public CdpClientHttpResponse<Account> createAccount(CreateAccountRequest request,
         RequestOptions requestOptions) {
       HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -233,7 +225,6 @@ public class WithRawResponseAccountsClient {
         Request.Builder _requestBuilder = new Request.Builder()
           .url(httpUrl.build())
           .method("POST", body)
-          .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
           .headers(Headers.of(clientOptions.headers(requestOptions)))
           .addHeader("Content-Type", "application/json")
           .addHeader("Accept", "application/json");
@@ -265,9 +256,6 @@ public class WithRawResponseAccountsClient {
           Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
           throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
         }
-        catch (JsonProcessingException e) {
-          throw new CdpClientException("Failed to decode HTTP response", e);
-        }
         catch (IOException e) {
           throw new CdpClientException("Network error executing HTTP request", e);
         }
@@ -276,31 +264,31 @@ public class WithRawResponseAccountsClient {
       /**
        * Get an account by its ID.
        */
-      public CdpClientHttpResponse<Account> getFoundationAccountById(AccountId accountId) {
-        return getFoundationAccountById(accountId,GetFoundationAccountByIdRequest.builder().build());
+      public CdpClientHttpResponse<Account> getAccountById(AccountId accountId) {
+        return getAccountById(accountId,GetAccountByIdRequest.builder().build());
       }
 
       /**
        * Get an account by its ID.
        */
-      public CdpClientHttpResponse<Account> getFoundationAccountById(AccountId accountId,
+      public CdpClientHttpResponse<Account> getAccountById(AccountId accountId,
           RequestOptions requestOptions) {
-        return getFoundationAccountById(accountId,GetFoundationAccountByIdRequest.builder().build(),requestOptions);
+        return getAccountById(accountId,GetAccountByIdRequest.builder().build(),requestOptions);
       }
 
       /**
        * Get an account by its ID.
        */
-      public CdpClientHttpResponse<Account> getFoundationAccountById(AccountId accountId,
-          GetFoundationAccountByIdRequest request) {
-        return getFoundationAccountById(accountId,request,null);
+      public CdpClientHttpResponse<Account> getAccountById(AccountId accountId,
+          GetAccountByIdRequest request) {
+        return getAccountById(accountId,request,null);
       }
 
       /**
        * Get an account by its ID.
        */
-      public CdpClientHttpResponse<Account> getFoundationAccountById(AccountId accountId,
-          GetFoundationAccountByIdRequest request, RequestOptions requestOptions) {
+      public CdpClientHttpResponse<Account> getAccountById(AccountId accountId,
+          GetAccountByIdRequest request, RequestOptions requestOptions) {
         HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
           .addPathSegments("v2/accounts")
@@ -312,7 +300,6 @@ public class WithRawResponseAccountsClient {
           Request.Builder _requestBuilder = new Request.Builder()
             .url(httpUrl.build())
             .method("GET", null)
-            .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
             .headers(Headers.of(clientOptions.headers(requestOptions)))
             .addHeader("Accept", "application/json");
           Request okhttpRequest = _requestBuilder.build();
@@ -337,9 +324,6 @@ public class WithRawResponseAccountsClient {
             }
             Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
             throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
-          }
-          catch (JsonProcessingException e) {
-            throw new CdpClientException("Failed to decode HTTP response", e);
           }
           catch (IOException e) {
             throw new CdpClientException("Network error executing HTTP request", e);
@@ -392,7 +376,6 @@ public class WithRawResponseAccountsClient {
             Request.Builder _requestBuilder = new Request.Builder()
               .url(httpUrl.build())
               .method("GET", null)
-              .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
               .headers(Headers.of(clientOptions.headers(requestOptions)))
               .addHeader("Accept", "application/json");
             Request okhttpRequest = _requestBuilder.build();
@@ -420,9 +403,6 @@ public class WithRawResponseAccountsClient {
               }
               Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
               throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
-            }
-            catch (JsonProcessingException e) {
-              throw new CdpClientException("Failed to decode HTTP response", e);
             }
             catch (IOException e) {
               throw new CdpClientException("Network error executing HTTP request", e);
@@ -471,7 +451,6 @@ public class WithRawResponseAccountsClient {
               Request.Builder _requestBuilder = new Request.Builder()
                 .url(httpUrl.build())
                 .method("GET", null)
-                .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                 .headers(Headers.of(clientOptions.headers(requestOptions)))
                 .addHeader("Accept", "application/json");
               Request okhttpRequest = _requestBuilder.build();
@@ -499,9 +478,6 @@ public class WithRawResponseAccountsClient {
                 }
                 Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                 throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
-              }
-              catch (JsonProcessingException e) {
-                throw new CdpClientException("Failed to decode HTTP response", e);
               }
               catch (IOException e) {
                 throw new CdpClientException("Network error executing HTTP request", e);

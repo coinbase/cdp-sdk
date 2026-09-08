@@ -8,7 +8,7 @@ public final class ListAccounts {
   public static void main(String[] args) throws Exception {
     EnvLoader.load();
 
-    var accounts = CdpClientFactory.create().accounts().listFoundationAccounts();
+    var accounts = CdpClientFactory.create().accounts().listAccounts();
     System.out.println("Flexible custody accounts: " + accounts);
   }
 }

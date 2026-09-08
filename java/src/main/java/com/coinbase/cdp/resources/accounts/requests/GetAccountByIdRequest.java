@@ -17,19 +17,19 @@ import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(
-    builder = GetFoundationAccountByIdRequest.Builder.class
+    builder = GetAccountByIdRequest.Builder.class
 )
-public final class GetFoundationAccountByIdRequest {
+public final class GetAccountByIdRequest {
   private final Map<String, Object> additionalProperties;
 
-  private GetFoundationAccountByIdRequest(Map<String, Object> additionalProperties) {
+  private GetAccountByIdRequest(Map<String, Object> additionalProperties) {
     this.additionalProperties = additionalProperties;
   }
 
   @java.lang.Override
   public boolean equals(Object other) {
     if (this == other) return true;
-    return other instanceof GetFoundationAccountByIdRequest;
+    return other instanceof GetAccountByIdRequest;
   }
 
   @JsonAnyGetter
@@ -56,12 +56,12 @@ public final class GetFoundationAccountByIdRequest {
     private Builder() {
     }
 
-    public Builder from(GetFoundationAccountByIdRequest other) {
+    public Builder from(GetAccountByIdRequest other) {
       return this;
     }
 
-    public GetFoundationAccountByIdRequest build() {
-      return new GetFoundationAccountByIdRequest(additionalProperties);
+    public GetAccountByIdRequest build() {
+      return new GetAccountByIdRequest(additionalProperties);
     }
 
     public Builder additionalProperty(String key, Object value) {

@@ -2,6 +2,8 @@
  * Wires a SpendControls configuration onto an upstream x402Client.
  */
 
+import { PaymentRequirementsV1Schema, PaymentRequirementsV2Schema } from "@x402/core/schemas";
+
 import { normalizeAsset, normalizeNetwork, normalizePayee } from "./normalize.js";
 import { SpendTracker } from "./spend-tracker.js";
 import {
@@ -28,6 +30,15 @@ import type { Network, PaymentPayload, PaymentRequirements } from "@x402/core/ty
 
 /** Default thresholds (as fractions of the cap) for `onApproachingLimit`. */
 export const DEFAULT_APPROACHING_LIMIT_THRESHOLDS: readonly number[] = [0.8, 0.95];
+
+/**
+ * Hard ceiling on `PaymentRequirements.maxTimeoutSeconds`, independent of
+ * whatever value the resource server sends. `maxTimeoutSeconds` feeds
+ * directly into the EIP-3009 `validBefore` the wallet signs, so an
+ * unbounded server-supplied value could grant an authorization an
+ * arbitrarily long redemption window.
+ */
+export const MAX_PAYMENT_TIMEOUT_SECONDS = 3600;
 
 const STORE_ASSET_MUTEX = new WeakMap<object, Map<string, Promise<unknown>>>();
 const STORE_PROVISIONAL_ATOMIC = new WeakMap<object, Map<string, bigint>>();
@@ -171,18 +182,76 @@ const getStoreMutex = (store: object): Map<string, Promise<unknown>> => {
  * negotiated x402 version (v1 signs `maxAmountRequired`, v2 signs `amount`)
  * rather than field presence — a spoofed second field is never read.
  *
+ * Also rejects the requirement outright (as malformed) if:
+ *  - it carries both `amount` and `maxAmountRequired` — a well-formed
+ *    single-version response never carries both;
+ *  - it fails to validate against the version-specific `@x402/core/schemas`
+ *    shape, so unexpected/missing fields are caught before signing;
+ *  - its `maxTimeoutSeconds` exceeds {@link MAX_PAYMENT_TIMEOUT_SECONDS},
+ *    since that value is used directly to compute the signed authorization's
+ *    validity window.
+ *
  * @param req - The selected payment requirement.
  * @param x402Version - The negotiated x402 protocol version.
  * @returns The atomic amount that will actually be signed.
  */
 const parseAtomicFromRequirement = (req: PaymentRequirements, x402Version: number): bigint => {
-  const raw =
-    x402Version === 1
-      ? (req as unknown as { maxAmountRequired?: string }).maxAmountRequired
-      : req.amount;
+  const untyped = req as unknown as { amount?: string; maxAmountRequired?: string };
+  const hasAmount = "amount" in untyped && untyped.amount !== undefined;
+  const hasMaxAmountRequired =
+    "maxAmountRequired" in untyped && untyped.maxAmountRequired !== undefined;
+  if (hasAmount && hasMaxAmountRequired) {
+    throw new SpendControlError(
+      "malformed_requirement",
+      "PaymentRequirements must not include both `amount` (v2) and `maxAmountRequired` (v1) " +
+        "in the same object — a well-formed single-version response never carries both.",
+      { asset: req.asset, network: req.network, payTo: req.payTo },
+    );
+  }
+
+  let raw: string;
+  let maxTimeoutSeconds: number;
+  if (x402Version === 1) {
+    const validated = PaymentRequirementsV1Schema.safeParse(req);
+    if (!validated.success) {
+      throw new SpendControlError(
+        "malformed_requirement",
+        `PaymentRequirements failed v1 schema validation: ${validated.error.message}`,
+        { asset: req.asset, network: req.network, payTo: req.payTo },
+      );
+    }
+    raw = validated.data.maxAmountRequired;
+    maxTimeoutSeconds = validated.data.maxTimeoutSeconds;
+  } else {
+    const validated = PaymentRequirementsV2Schema.safeParse(req);
+    if (!validated.success) {
+      throw new SpendControlError(
+        "malformed_requirement",
+        `PaymentRequirements failed v2 schema validation: ${validated.error.message}`,
+        { asset: req.asset, network: req.network, payTo: req.payTo },
+      );
+    }
+    raw = validated.data.amount;
+    maxTimeoutSeconds = validated.data.maxTimeoutSeconds;
+  }
+
+  if (maxTimeoutSeconds > MAX_PAYMENT_TIMEOUT_SECONDS) {
+    throw new SpendControlError(
+      "max_timeout_exceeded",
+      `PaymentRequirements maxTimeoutSeconds ${maxTimeoutSeconds} exceeds the maximum allowed ${MAX_PAYMENT_TIMEOUT_SECONDS}s`,
+      {
+        attempted: String(maxTimeoutSeconds),
+        limit: String(MAX_PAYMENT_TIMEOUT_SECONDS),
+        asset: req.asset,
+        network: req.network,
+        payTo: req.payTo,
+      },
+    );
+  }
+
   let parsed: bigint;
   try {
-    parsed = BigInt(raw as string);
+    parsed = BigInt(raw);
   } catch {
     throw new SpendControlError(
       "amount_unparseable",

@@ -16,7 +16,7 @@ public final class CreateCustodyAccount {
     var account =
         CdpClientFactory.create()
             .accounts()
-            .createFoundationAccount(
+            .createAccount(
                 CreateAccountRequest.builder()
                     .name(AccountName.of(accountName))
                     .idempotencyKey(UUID.randomUUID().toString())

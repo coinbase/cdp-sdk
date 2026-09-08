@@ -8,7 +8,6 @@ import com.coinbase.cdp.core.CdpClientApiException;
 import com.coinbase.cdp.core.CdpClientException;
 import com.coinbase.cdp.core.CdpClientHttpResponse;
 import com.coinbase.cdp.core.ClientOptions;
-import com.coinbase.cdp.core.EndpointMetadata;
 import com.coinbase.cdp.core.MediaTypes;
 import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.core.QueryStringMapper;
@@ -21,12 +20,12 @@ import com.coinbase.cdp.errors.ServiceUnavailableError;
 import com.coinbase.cdp.errors.UnauthorizedError;
 import com.coinbase.cdp.errors.UnprocessableEntityError;
 import com.coinbase.cdp.resources.accounts.requests.CreateAccountRequest;
+import com.coinbase.cdp.resources.accounts.requests.GetAccountByIdRequest;
 import com.coinbase.cdp.resources.accounts.requests.GetBalanceByAssetRequest;
-import com.coinbase.cdp.resources.accounts.requests.GetFoundationAccountByIdRequest;
+import com.coinbase.cdp.resources.accounts.requests.ListAccountsRequest;
 import com.coinbase.cdp.resources.accounts.requests.ListBalancesRequest;
-import com.coinbase.cdp.resources.accounts.requests.ListFoundationAccountsRequest;
+import com.coinbase.cdp.resources.accounts.types.ListAccountsResponse;
 import com.coinbase.cdp.resources.accounts.types.ListBalancesResponse;
-import com.coinbase.cdp.resources.accounts.types.ListFoundationAccountsResponse;
 import com.coinbase.cdp.types.Account;
 import com.coinbase.cdp.types.AccountId;
 import com.coinbase.cdp.types.Asset;
@@ -39,8 +38,8 @@ import java.lang.Object;
 import java.lang.Override;
 import java.lang.RuntimeException;
 import java.lang.String;
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -52,42 +51,41 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.jetbrains.annotations.NotNull;
 
-public class AsyncWithRawResponseAccountsClient {
+public class AsyncRawAccountsClient {
   protected final ClientOptions clientOptions;
 
-  AsyncWithRawResponseAccountsClient(ClientOptions clientOptions) {
+  public AsyncRawAccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<CdpClientHttpResponse<ListFoundationAccountsResponse>> listFoundationAccounts(
-      ) {
-    return listFoundationAccounts(ListFoundationAccountsRequest.builder().build());
+  public CompletableFuture<CdpClientHttpResponse<ListAccountsResponse>> listAccounts() {
+    return listAccounts(ListAccountsRequest.builder().build());
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<CdpClientHttpResponse<ListFoundationAccountsResponse>> listFoundationAccounts(
+  public CompletableFuture<CdpClientHttpResponse<ListAccountsResponse>> listAccounts(
       RequestOptions requestOptions) {
-    return listFoundationAccounts(ListFoundationAccountsRequest.builder().build(),requestOptions);
+    return listAccounts(ListAccountsRequest.builder().build(),requestOptions);
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<CdpClientHttpResponse<ListFoundationAccountsResponse>> listFoundationAccounts(
-      ListFoundationAccountsRequest request) {
-    return listFoundationAccounts(request,null);
+  public CompletableFuture<CdpClientHttpResponse<ListAccountsResponse>> listAccounts(
+      ListAccountsRequest request) {
+    return listAccounts(request,null);
   }
 
   /**
    * List all accounts. The API will return all accounts that the API Key has Permissions to access. You can filter the results by using query parameters, which will be treated as a single conjunction (i.e. AND). Results are sorted by creation date in descending order (newest first).
    */
-  public CompletableFuture<CdpClientHttpResponse<ListFoundationAccountsResponse>> listFoundationAccounts(
-      ListFoundationAccountsRequest request, RequestOptions requestOptions) {
+  public CompletableFuture<CdpClientHttpResponse<ListAccountsResponse>> listAccounts(
+      ListAccountsRequest request, RequestOptions requestOptions) {
     HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
       .addPathSegments("v2/accounts");if (request.getPageSize().isPresent()) {
@@ -100,8 +98,7 @@ public class AsyncWithRawResponseAccountsClient {
         QueryStringMapper.addQueryParameter(httpUrl, "type", request.getType().get(), false);
       }
       if (request.getOwner().isPresent()) {
-        QueryStringMapper.addQueryParameter(
-            httpUrl, "owner", String.join(",", request.getOwner().get()), false);
+        QueryStringMapper.addQueryParameter(httpUrl, "owner", request.getOwner().get().stream().map(String::valueOf).collect(Collectors.joining(",")), false);
       }
       if (requestOptions != null) {
         requestOptions.getQueryParameters().forEach((_key, _value) -> {
@@ -111,7 +108,6 @@ public class AsyncWithRawResponseAccountsClient {
       Request.Builder _requestBuilder = new Request.Builder()
         .url(httpUrl.build())
         .method("GET", null)
-        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
         .headers(Headers.of(clientOptions.headers(requestOptions)))
         .addHeader("Accept", "application/json");
       Request okhttpRequest = _requestBuilder.build();
@@ -119,14 +115,14 @@ public class AsyncWithRawResponseAccountsClient {
       if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
         client = clientOptions.httpClientWithTimeout(requestOptions);
       }
-      CompletableFuture<CdpClientHttpResponse<ListFoundationAccountsResponse>> future = new CompletableFuture<>();
+      CompletableFuture<CdpClientHttpResponse<ListAccountsResponse>> future = new CompletableFuture<>();
       client.newCall(okhttpRequest).enqueue(new Callback() {
         @Override
         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
           try (ResponseBody responseBody = response.body()) {
             String responseBodyString = responseBody != null ? responseBody.string() : "{}";
             if (response.isSuccessful()) {
-              future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, ListFoundationAccountsResponse.class), response));
+              future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, ListAccountsResponse.class), response));
               return;
             }
             try {
@@ -141,9 +137,6 @@ public class AsyncWithRawResponseAccountsClient {
             Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
             future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
             return;
-          }
-          catch (JsonProcessingException e) {
-            future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
           }
           catch (IOException e) {
             future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -174,8 +167,8 @@ public class AsyncWithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CompletableFuture<CdpClientHttpResponse<Account>> createFoundationAccount() {
-      return createFoundationAccount(CreateAccountRequest.builder().build());
+    public CompletableFuture<CdpClientHttpResponse<Account>> createAccount() {
+      return createAccount(CreateAccountRequest.builder().build());
     }
 
     /**
@@ -194,9 +187,9 @@ public class AsyncWithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CompletableFuture<CdpClientHttpResponse<Account>> createFoundationAccount(
+    public CompletableFuture<CdpClientHttpResponse<Account>> createAccount(
         RequestOptions requestOptions) {
-      return createFoundationAccount(CreateAccountRequest.builder().build(),requestOptions);
+      return createAccount(CreateAccountRequest.builder().build(),requestOptions);
     }
 
     /**
@@ -215,9 +208,9 @@ public class AsyncWithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CompletableFuture<CdpClientHttpResponse<Account>> createFoundationAccount(
+    public CompletableFuture<CdpClientHttpResponse<Account>> createAccount(
         CreateAccountRequest request) {
-      return createFoundationAccount(request,null);
+      return createAccount(request,null);
     }
 
     /**
@@ -236,7 +229,7 @@ public class AsyncWithRawResponseAccountsClient {
      * </li>
      * </ul>
      */
-    public CompletableFuture<CdpClientHttpResponse<Account>> createFoundationAccount(
+    public CompletableFuture<CdpClientHttpResponse<Account>> createAccount(
         CreateAccountRequest request, RequestOptions requestOptions) {
       HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -255,7 +248,6 @@ public class AsyncWithRawResponseAccountsClient {
         Request.Builder _requestBuilder = new Request.Builder()
           .url(httpUrl.build())
           .method("POST", body)
-          .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
           .headers(Headers.of(clientOptions.headers(requestOptions)))
           .addHeader("Content-Type", "application/json")
           .addHeader("Accept", "application/json");
@@ -296,9 +288,6 @@ public class AsyncWithRawResponseAccountsClient {
               future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
               return;
             }
-            catch (JsonProcessingException e) {
-              future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
-            }
             catch (IOException e) {
               future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
             }
@@ -315,33 +304,31 @@ public class AsyncWithRawResponseAccountsClient {
       /**
        * Get an account by its ID.
        */
-      public CompletableFuture<CdpClientHttpResponse<Account>> getFoundationAccountById(
-          AccountId accountId) {
-        return getFoundationAccountById(accountId,GetFoundationAccountByIdRequest.builder().build());
+      public CompletableFuture<CdpClientHttpResponse<Account>> getAccountById(AccountId accountId) {
+        return getAccountById(accountId,GetAccountByIdRequest.builder().build());
       }
 
       /**
        * Get an account by its ID.
        */
-      public CompletableFuture<CdpClientHttpResponse<Account>> getFoundationAccountById(
-          AccountId accountId, RequestOptions requestOptions) {
-        return getFoundationAccountById(accountId,GetFoundationAccountByIdRequest.builder().build(),requestOptions);
-      }
-
-      /**
-       * Get an account by its ID.
-       */
-      public CompletableFuture<CdpClientHttpResponse<Account>> getFoundationAccountById(
-          AccountId accountId, GetFoundationAccountByIdRequest request) {
-        return getFoundationAccountById(accountId,request,null);
-      }
-
-      /**
-       * Get an account by its ID.
-       */
-      public CompletableFuture<CdpClientHttpResponse<Account>> getFoundationAccountById(
-          AccountId accountId, GetFoundationAccountByIdRequest request,
+      public CompletableFuture<CdpClientHttpResponse<Account>> getAccountById(AccountId accountId,
           RequestOptions requestOptions) {
+        return getAccountById(accountId,GetAccountByIdRequest.builder().build(),requestOptions);
+      }
+
+      /**
+       * Get an account by its ID.
+       */
+      public CompletableFuture<CdpClientHttpResponse<Account>> getAccountById(AccountId accountId,
+          GetAccountByIdRequest request) {
+        return getAccountById(accountId,request,null);
+      }
+
+      /**
+       * Get an account by its ID.
+       */
+      public CompletableFuture<CdpClientHttpResponse<Account>> getAccountById(AccountId accountId,
+          GetAccountByIdRequest request, RequestOptions requestOptions) {
         HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
           .addPathSegments("v2/accounts")
@@ -353,7 +340,6 @@ public class AsyncWithRawResponseAccountsClient {
           Request.Builder _requestBuilder = new Request.Builder()
             .url(httpUrl.build())
             .method("GET", null)
-            .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
             .headers(Headers.of(clientOptions.headers(requestOptions)))
             .addHeader("Accept", "application/json");
           Request okhttpRequest = _requestBuilder.build();
@@ -385,9 +371,6 @@ public class AsyncWithRawResponseAccountsClient {
                 Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                 future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
                 return;
-              }
-              catch (JsonProcessingException e) {
-                future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
               }
               catch (IOException e) {
                 future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -449,7 +432,6 @@ public class AsyncWithRawResponseAccountsClient {
             Request.Builder _requestBuilder = new Request.Builder()
               .url(httpUrl.build())
               .method("GET", null)
-              .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
               .headers(Headers.of(clientOptions.headers(requestOptions)))
               .addHeader("Accept", "application/json");
             Request okhttpRequest = _requestBuilder.build();
@@ -487,9 +469,6 @@ public class AsyncWithRawResponseAccountsClient {
                   Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                   future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
                   return;
-                }
-                catch (JsonProcessingException e) {
-                  future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
                 }
                 catch (IOException e) {
                   future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -547,7 +526,6 @@ public class AsyncWithRawResponseAccountsClient {
               Request.Builder _requestBuilder = new Request.Builder()
                 .url(httpUrl.build())
                 .method("GET", null)
-                .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                 .headers(Headers.of(clientOptions.headers(requestOptions)))
                 .addHeader("Accept", "application/json");
               Request okhttpRequest = _requestBuilder.build();
@@ -585,9 +563,6 @@ public class AsyncWithRawResponseAccountsClient {
                     Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                     future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
                     return;
-                  }
-                  catch (JsonProcessingException e) {
-                    future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
                   }
                   catch (IOException e) {
                     future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));

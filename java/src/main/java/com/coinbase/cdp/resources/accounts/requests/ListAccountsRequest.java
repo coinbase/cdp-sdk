@@ -26,9 +26,9 @@ import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(
-    builder = ListFoundationAccountsRequest.Builder.class
+    builder = ListAccountsRequest.Builder.class
 )
-public final class ListFoundationAccountsRequest {
+public final class ListAccountsRequest {
   private final Optional<List<String>> owner;
 
   private final Optional<Integer> pageSize;
@@ -39,7 +39,7 @@ public final class ListFoundationAccountsRequest {
 
   private final Map<String, Object> additionalProperties;
 
-  private ListFoundationAccountsRequest(Optional<List<String>> owner, Optional<Integer> pageSize,
+  private ListAccountsRequest(Optional<List<String>> owner, Optional<Integer> pageSize,
       Optional<String> pageToken, Optional<AccountType> type,
       Map<String, Object> additionalProperties) {
     this.owner = owner;
@@ -101,7 +101,7 @@ public final class ListFoundationAccountsRequest {
   @java.lang.Override
   public boolean equals(Object other) {
     if (this == other) return true;
-    return other instanceof ListFoundationAccountsRequest && equalTo((ListFoundationAccountsRequest) other);
+    return other instanceof ListAccountsRequest && equalTo((ListAccountsRequest) other);
   }
 
   @JsonAnyGetter
@@ -109,7 +109,7 @@ public final class ListFoundationAccountsRequest {
     return this.additionalProperties;
   }
 
-  private boolean equalTo(ListFoundationAccountsRequest other) {
+  private boolean equalTo(ListAccountsRequest other) {
     return owner.equals(other.owner) && pageSize.equals(other.pageSize) && pageToken.equals(other.pageToken) && type.equals(other.type);
   }
 
@@ -145,7 +145,7 @@ public final class ListFoundationAccountsRequest {
     private Builder() {
     }
 
-    public Builder from(ListFoundationAccountsRequest other) {
+    public Builder from(ListAccountsRequest other) {
       owner(other.getOwner());
       pageSize(other.getPageSize());
       pageToken(other.getPageToken());
@@ -243,8 +243,8 @@ public final class ListFoundationAccountsRequest {
       return this;
     }
 
-    public ListFoundationAccountsRequest build() {
-      return new ListFoundationAccountsRequest(owner, pageSize, pageToken, type, additionalProperties);
+    public ListAccountsRequest build() {
+      return new ListAccountsRequest(owner, pageSize, pageToken, type, additionalProperties);
     }
 
     public Builder additionalProperty(String key, Object value) {

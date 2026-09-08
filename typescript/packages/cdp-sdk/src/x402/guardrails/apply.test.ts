@@ -1,7 +1,11 @@
 import { x402Client } from "@x402/core/client";
 import { describe, expect, it, vi } from "vitest";
 
-import { applySpendControls, getSpendControlsRegistry } from "./apply.js";
+import {
+  applySpendControls,
+  getSpendControlsRegistry,
+  MAX_PAYMENT_TIMEOUT_SECONDS,
+} from "./apply.js";
 
 import type { SchemeNetworkClient, x402Client as X402Client } from "@x402/core/client";
 import type {
@@ -294,40 +298,41 @@ describe("applySpendControls settlement reconciliation", () => {
 });
 
 describe("applySpendControls field-precedence (spoofed amount/maxAmountRequired)", () => {
-  it("caps a v1 payment on maxAmountRequired even when a spoofed low amount is present", async () => {
+  it("rejects a v1 payment that also carries a spoofed amount, regardless of the configured cap", async () => {
     const client = makeClientV1();
     applySpendControls(client, {
       maxAmountPerPayment: { atomic: 5_000n, asset: USDC },
     });
 
-    // Real signed value (maxAmountRequired) exceeds the cap; spoofed `amount` is tiny.
-    await expect(client.createPaymentPayload(makeRequiredV1("1000000", "1"))).rejects.toThrow(
-      /per_payment_cap|exceeds per-payment cap/,
+    // A well-formed v1 response never carries `amount` alongside `maxAmountRequired` —
+    // reject outright rather than pick a field to trust.
+    await expect(client.createPaymentPayload(makeRequiredV1("1000000", "1"))).rejects.toMatchObject(
+      { code: "malformed_requirement" },
     );
   });
 
-  it("tracks a v1 payment's spend by maxAmountRequired, not a spoofed amount", async () => {
+  it("rejects a v1 payment carrying a spoofed amount even when the real value is within cap", async () => {
     const client = makeClientV1();
-    const resolved = applySpendControls(client, {
+    applySpendControls(client, {
       maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC },
     });
 
-    await client.createPaymentPayload(makeRequiredV1("10000", "1"));
-
-    // Ledger must reflect the value that will actually be signed/transmitted.
-    expect(await totalFor(resolved)).toBe(10_000n);
+    // The dual-field shape itself is malformed and is rejected before any
+    // cap or ledger check runs, independent of whether either value would pass.
+    await expect(client.createPaymentPayload(makeRequiredV1("10000", "1"))).rejects.toMatchObject({
+      code: "malformed_requirement",
+    });
   });
 
-  it("caps a v2 payment on amount even when a spoofed low maxAmountRequired is present", async () => {
+  it("rejects a v2 payment that also carries a spoofed maxAmountRequired, regardless of the configured cap", async () => {
     const client = makeClient();
     applySpendControls(client, {
       maxAmountPerPayment: { atomic: 5_000n, asset: USDC },
     });
 
-    // Real signed value (amount) exceeds the cap; spoofed `maxAmountRequired` is tiny.
-    await expect(client.createPaymentPayload(makeRequired("1000000", "1"))).rejects.toThrow(
-      /per_payment_cap|exceeds per-payment cap/,
-    );
+    await expect(client.createPaymentPayload(makeRequired("1000000", "1"))).rejects.toMatchObject({
+      code: "malformed_requirement",
+    });
   });
 
   it("tracks and caps a legitimate v1 payment correctly (no spoofing)", async () => {
@@ -356,6 +361,90 @@ describe("applySpendControls field-precedence (spoofed amount/maxAmountRequired)
     await expect(client.createPaymentPayload(makeRequiredV1("-100"))).rejects.toMatchObject({
       code: "amount_unparseable",
       message: expect.stringContaining('"-100"'),
+    });
+  });
+
+  it("rejects a v1 requirement missing fields required by the v1 schema", async () => {
+    const client = makeClientV1();
+    applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC },
+    });
+
+    const malformed = {
+      x402Version: 1,
+      accepts: [
+        {
+          scheme: "exact",
+          network: NETWORK_V1,
+          maxAmountRequired: "1000",
+          // `resource` and `description` are required by PaymentRequirementsV1Schema.
+          payTo: PAY_TO,
+          maxTimeoutSeconds: 300,
+          asset: USDC,
+          extra: {},
+        },
+      ],
+    } as unknown as PaymentRequiredV1;
+
+    await expect(client.createPaymentPayload(malformed)).rejects.toMatchObject({
+      code: "malformed_requirement",
+    });
+  });
+
+  it("rejects a requirement whose maxTimeoutSeconds exceeds the server-independent ceiling", async () => {
+    const client = makeClientV1();
+    applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC },
+    });
+
+    const req = makeRequiredV1("1000");
+    (req.accepts[0] as { maxTimeoutSeconds: number }).maxTimeoutSeconds =
+      MAX_PAYMENT_TIMEOUT_SECONDS + 1;
+
+    await expect(client.createPaymentPayload(req)).rejects.toMatchObject({
+      code: "max_timeout_exceeded",
+    });
+  });
+
+  it("rejects a v2 requirement missing fields required by the v2 schema", async () => {
+    const client = makeClient();
+    applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC },
+    });
+
+    const malformed = {
+      x402Version: 2,
+      resource: { url: "https://example.com/report", mimeType: "application/json" },
+      accepts: [
+        {
+          scheme: "exact",
+          network: NETWORK,
+          asset: USDC,
+          amount: "1000",
+          // `payTo` is required by PaymentRequirementsV2Schema.
+          maxTimeoutSeconds: 300,
+          extra: {},
+        },
+      ],
+    } as unknown as PaymentRequired;
+
+    await expect(client.createPaymentPayload(malformed)).rejects.toMatchObject({
+      code: "malformed_requirement",
+    });
+  });
+
+  it("rejects a v2 requirement whose maxTimeoutSeconds exceeds the server-independent ceiling", async () => {
+    const client = makeClient();
+    applySpendControls(client, {
+      maxCumulativeSpend: { atomic: 1_000_000n, asset: USDC },
+    });
+
+    const req = makeRequired("1000");
+    (req.accepts[0] as { maxTimeoutSeconds: number }).maxTimeoutSeconds =
+      MAX_PAYMENT_TIMEOUT_SECONDS + 1;
+
+    await expect(client.createPaymentPayload(req)).rejects.toMatchObject({
+      code: "max_timeout_exceeded",
     });
   });
 });

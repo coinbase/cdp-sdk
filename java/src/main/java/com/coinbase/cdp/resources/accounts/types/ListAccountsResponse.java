@@ -25,16 +25,16 @@ import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(
-    builder = ListFoundationAccountsResponse.Builder.class
+    builder = ListAccountsResponse.Builder.class
 )
-public final class ListFoundationAccountsResponse {
+public final class ListAccountsResponse {
   private final List<Account> accounts;
 
   private final Optional<String> nextPageToken;
 
   private final Map<String, Object> additionalProperties;
 
-  private ListFoundationAccountsResponse(List<Account> accounts, Optional<String> nextPageToken,
+  private ListAccountsResponse(List<Account> accounts, Optional<String> nextPageToken,
       Map<String, Object> additionalProperties) {
     this.accounts = accounts;
     this.nextPageToken = nextPageToken;
@@ -60,7 +60,7 @@ public final class ListFoundationAccountsResponse {
   @java.lang.Override
   public boolean equals(Object other) {
     if (this == other) return true;
-    return other instanceof ListFoundationAccountsResponse && equalTo((ListFoundationAccountsResponse) other);
+    return other instanceof ListAccountsResponse && equalTo((ListAccountsResponse) other);
   }
 
   @JsonAnyGetter
@@ -68,7 +68,7 @@ public final class ListFoundationAccountsResponse {
     return this.additionalProperties;
   }
 
-  private boolean equalTo(ListFoundationAccountsResponse other) {
+  private boolean equalTo(ListAccountsResponse other) {
     return accounts.equals(other.accounts) && nextPageToken.equals(other.nextPageToken);
   }
 
@@ -100,7 +100,7 @@ public final class ListFoundationAccountsResponse {
     private Builder() {
     }
 
-    public Builder from(ListFoundationAccountsResponse other) {
+    public Builder from(ListAccountsResponse other) {
       accounts(other.getAccounts());
       nextPageToken(other.getNextPageToken());
       return this;
@@ -150,8 +150,8 @@ public final class ListFoundationAccountsResponse {
       return this;
     }
 
-    public ListFoundationAccountsResponse build() {
-      return new ListFoundationAccountsResponse(accounts, nextPageToken, additionalProperties);
+    public ListAccountsResponse build() {
+      return new ListAccountsResponse(accounts, nextPageToken, additionalProperties);
     }
 
     public Builder additionalProperty(String key, Object value) {

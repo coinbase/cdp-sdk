@@ -3,7 +3,7 @@ package com.coinbase.cdp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.coinbase.cdp.core.ObjectMappers;
-import com.coinbase.cdp.resources.accounts.requests.ListFoundationAccountsRequest;
+import com.coinbase.cdp.resources.accounts.requests.ListAccountsRequest;
 import com.coinbase.cdp.types.DepositDestinationTarget;
 import com.coinbase.cdp.types.DepositDestinationTargetAccount;
 import com.coinbase.cdp.types.DepositDestinationTargetOnchainAddress;
@@ -32,8 +32,8 @@ class FlexibleCustodyClientTest {
               .build();
       client
           .accounts()
-          .listFoundationAccounts(
-              ListFoundationAccountsRequest.builder()
+          .listAccounts(
+              ListAccountsRequest.builder()
                   .owner(List.of("entity", "customer_af2937b0-9846-4fe7-bfe9-ccc22d935114"))
                   .build());
 
