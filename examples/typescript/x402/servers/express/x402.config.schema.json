@@ -119,13 +119,18 @@
         "scheme": {
           "type": "string",
           "enum": ["exact", "upto"],
-          "description": "Payment scheme. Defaults to \"exact\". \"upto\" is EVM-only."
+          "description": "Payment scheme. Defaults to \"exact\", which supports Base and Solana. \"upto\" supports Base only."
+        },
+        "paymentFlow": {
+          "type": "string",
+          "enum": ["authorization", "upfront"],
+          "description": "Payment flow. Exact-scheme only. Defaults to \"authorization\". \"upfront\" settles before the handler runs and is applied to every network the route expands to (Base and Solana when networks is omitted)."
         },
         "networks": {
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/definitions/caip2Network" },
-          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet for \"exact\" (or the environment's testnet equivalents), and EVM-only for \"upto\"."
+          "description": "CAIP-2 networks the route accepts. Defaults to Base mainnet + Solana mainnet for \"exact\" (Base mainnet only for \"upto\"), or the environment's testnet equivalents."
         },
         "maxTimeoutSeconds": {
           "type": "number",

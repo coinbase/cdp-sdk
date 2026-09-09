@@ -37,6 +37,15 @@ const fakeExactScheme: SchemeNetworkClient = {
 const makeClient = (): X402Client => {
   const client = new x402Client();
   client.register(NETWORK, fakeExactScheme);
+  /*
+   * @x402/core's own built-in `x402Client.spendControls` (new upstream, on by
+   * default) filters out any accept whose scheme doesn't recognize it as a
+   * "default asset" via `findDefaultAsset`. `fakeExactScheme` above is a
+   * minimal test double that doesn't implement that, so it must be disabled
+   * here — these tests exercise the CDP SDK's own, independent
+   * `applySpendControls` guardrail layer under test, not upstream's.
+   */
+  client.setSpendControls(false);
   return client;
 };
 
@@ -89,6 +98,14 @@ const fakeExactSchemeV1: SchemeNetworkClient = {
 const makeClientV1 = (): X402Client => {
   const client = new x402Client();
   client.registerV1(NETWORK_V1, fakeExactSchemeV1);
+  /*
+   * Same rationale as `makeClient()` above: upstream's built-in
+   * `x402Client.spendControls` (on by default) filters out any accept it
+   * can't resolve to a recognized "default asset", which `fakeExactSchemeV1`
+   * doesn't implement. Disable it so these tests exercise only the CDP SDK's
+   * own `applySpendControls` guardrail layer.
+   */
+  client.setSpendControls(false);
   return client;
 };
 

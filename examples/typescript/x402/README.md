@@ -123,6 +123,51 @@ It provisions a CDP receiver wallet (so it needs `CDP_WALLET_SECRET`, or set `PA
 provisioning) and serves `generate_report` (paid, $0.01) and `ping` (free). Point the MCP clients at
 it with `MCP_SERVER_URL` (defaults to `http://localhost:4022`).
 
+## Scheme + network coverage matrix
+
+`x402/clients/payForSchemes.ts` is a CLI harness (not a fixed demo like `payForApi.ts`) for driving
+every scheme/network combination `CdpX402Client` supports against these example servers. It's
+entirely environment-variable driven — see `X402_API_URL` and `X402_PREFERRED_NETWORK` in
+[Environment variables](#environment-variables) — and exits non-zero on failure, so it doubles as
+a pass/fail check. `exact`, `upto`, and `authCapture` are all registered by default (matching
+`CdpX402Client`'s own defaults), so no scheme opt-in flag is needed.
+
+| Scheme | Network | Server | Command |
+| --- | --- | --- | --- |
+| `exact` | Base Sepolia | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
+| `exact` | Solana Devnet | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
+| `upto` | Base Sepolia | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
+| `auth-capture` | Base Sepolia | CDP Express (`GET /auth-capture-mock`, smoke test only) | `X402_API_URL=http://localhost:8402/auth-capture-mock pnpm tsx x402/clients/payForSchemes.ts` |
+
+`GET /report` accepts Base Sepolia and Solana Devnet by default, so `X402_PREFERRED_NETWORK` forces
+the client's network choice via a registered `PaymentPolicy` — without it, `CdpX402Client` picks
+whichever the underlying `x402Client` selects first. `GET /usage` is Base Sepolia only —
+`createX402Server`'s `upto` support doesn't extend to Solana yet (see below).
+
+**`exact` on Base + Solana, `upto` on Base** run against the CDP Express server from the
+[Servers](#servers) section above (`cd x402/servers/express && APPROACH=2 pnpm start`) — no extra
+setup beyond funding the wallet (see [Funding](#funding); fund the Solana address too, via
+`cdp.solana.requestFaucet({ address, token: "usdc" | "sol" })`, for the Solana Devnet case).
+
+**`upto` on Solana** is supported by `CdpX402Client` (registered by default whenever a route
+requests it), but not by `createX402Server`: the resource server would need to sign an
+arbitrary-bytes settlement voucher, and CDP's Solana account signing API can only sign UTF-8 text
+today. Tracked separately; no example route exercises it until server-side support lands.
+
+**`auth-capture` on Base** has no facilitator or resource-server support yet (client-only, on by
+default alongside `exact`/`upto`; see the CDP SDK's `README.md`). `GET /auth-capture-mock` on the
+CDP Express server is a smoke test, not a real payment route: it returns `402` with hand-built
+`auth-capture` payment requirements, and once the client signs and retries with a
+`PAYMENT-SIGNATURE` header, responds `501` to confirm the payload was received without claiming
+settlement actually happened. Running `payForSchemes.ts` against it therefore exits non-zero on
+that `501` — that's expected; it's proof `CdpX402Client.createPaymentPayload` produces a valid
+`auth-capture` payload, not an end-to-end settlement test.
+
+**`batch-settlement` on Base** is supported by `CdpX402Client` (opt-in via
+`scheme: { batchSettlement: true }`) but isn't covered by this CLI matrix yet — it needs a
+long-lived client process to exercise its off-chain voucher-channel reuse correctly, which doesn't
+fit this harness's one-shot-per-command model. Tracked separately.
+
 ## Environment variables
 
 - `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, `CDP_WALLET_SECRET` — CDP credentials (see Prerequisites).
@@ -131,8 +176,13 @@ it with `MCP_SERVER_URL` (defaults to `http://localhost:4022`).
   `claude-sonnet-4-5`.
 - `X402_API_URL` — override the x402-protected URL the HTTP clients call. Defaults to
   `https://x402.vercel.app/protected`.
-- `X402_FUND_FROM_FAUCET` — set to `true` for one `payForApi.ts` run to request USDC from the
-  faucet. That run exits without paying.
+- `X402_FUND_FROM_FAUCET` — set to `true` for one `payForApi.ts` or `payForSchemes.ts` run to
+  request USDC from the faucet. That run exits without paying. Only funds Base Sepolia EVM
+  USDC — fund the Solana Devnet payer separately (e.g. via the Solana faucet) before running the
+  Solana rows of the matrix.
+- `X402_PREFERRED_NETWORK` — (`payForSchemes.ts` only) a CAIP-2 network id (e.g. `eip155:84532`,
+  `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`) to force on a dual-network route like `GET /report`,
+  via a registered `PaymentPolicy`. Omit to let the client pick its default.
 - `MCP_SERVER_URL` — (MCP clients) the MCP server URL. Defaults to `http://localhost:4022`.
 - `CDP_X402_CLIENT_ENVIRONMENT` — `"production"` (default, Base mainnet) or `"development"` (Base
   Sepolia). Controls which Base network `CdpX402Client` prescribes by default; overridden by the

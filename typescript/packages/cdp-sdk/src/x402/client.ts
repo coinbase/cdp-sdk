@@ -8,6 +8,7 @@
  * RPC URLs are supplied explicitly via config.
  */
 import { x402Client } from "@x402/core/client";
+import { AuthCaptureEvmScheme } from "@x402/evm/auth-capture/client";
 import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
@@ -15,6 +16,7 @@ import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
+import { UptoSvmScheme } from "@x402/svm/upto/client";
 
 import {
   cdpSolanaAccountToSvmSigner,
@@ -71,9 +73,29 @@ export type WalletConfig =
     };
 
 export type SchemesConfig = {
+  /** Registers the `exact` scheme: transfers a fixed amount. On by default. */
   exact?: boolean;
+  /**
+   * Registers the `upto` scheme: authorizes a maximum amount and lets the
+   * resource server settle the actual amount used. On by default — except on
+   * EVM for a `"smart"` {@link WalletConfig}, since `upto`'s Permit2 approval
+   * transaction can't be sponsored for Smart Contract Wallets.
+   */
   upto?: boolean;
+  /**
+   * Registers the `batch-settlement` scheme (EVM only): reuses an off-chain
+   * voucher channel across multiple payments. Opt-in.
+   */
   batchSettlement?: boolean;
+  /**
+   * Registers the `auth-capture` scheme (EVM only): the client signs a
+   * payer-agnostic authorization that the resource server's captureAuthorizer
+   * can later capture, void, or let expire. On by default — except on EVM
+   * for a `"smart"` {@link WalletConfig}, since the ERC-1271/ERC-6492-wrapped
+   * signature a Smart Contract Wallet produces isn't supported by the
+   * `auth-capture` settlement path yet.
+   */
+  authCapture?: boolean;
 };
 
 export type NetworkConfig = {
@@ -97,7 +119,10 @@ export interface CdpX402ClientConfig {
    */
   walletConfig?: WalletConfig;
   /**
-   * Optional SDK-managed spend controls.
+   * Optional SDK-managed spend controls. Unset by default — unlike upstream
+   * `x402Client` (which defaults to a $1 per-payment cap), `CdpX402Client`
+   * applies no cap unless you set one here. The constructor emits a
+   * `console.warn` when this is unset.
    */
   spendControls?: SpendControls;
 
@@ -134,7 +159,7 @@ export interface CdpX402ClientConfig {
    * baseline, regardless of this option, since CDP hosts a default RPC for it:
    *
    * Defaults to [
-   *    { network: "base", scheme: { exact: true, upto: true } },
+   *    { network: "base", scheme: { exact: true, upto: true, authCapture: true } },
    * ]
    * (or `"base-sepolia"` instead of `"base"` when `environment` is `"development"`)
    *
@@ -145,9 +170,13 @@ export interface CdpX402ClientConfig {
    * the CDP-hosted default RPC injected for it.
    *
    * Solana has no CDP-hosted default RPC and no override is required for
-   * `exact` — it falls back to a public default RPC. `upto` and
-   * `batchSettlement` aren't yet supported for Solana (skipped with a
-   * warning), regardless of `rpcUrl`.
+   * `exact` or `upto` — both fall back to a public default RPC. `authCapture`
+   * isn't supported for Solana (skipped with a warning), regardless of
+   * `rpcUrl` — it's an EVM-only scheme upstream. It's also skipped (with a
+   * warning) on EVM for a `"smart"` {@link WalletConfig}, since a Smart
+   * Contract Wallet's ERC-1271/ERC-6492-wrapped signature isn't supported by
+   * the `auth-capture` settlement path yet. `batchSettlement` is opt-in on
+   * top of the default baseline (EVM-only as well).
    */
   networkSchemes?: NetworkConfig[];
 }
@@ -294,22 +323,42 @@ const setupCdpSigners = async (
           {
             network: "base-sepolia",
             rpcUrl: defaultBaseSepoliaRpcUrl,
-            scheme: { exact: true, upto: true },
+            scheme: { exact: true, upto: true, authCapture: true },
           },
         ]
       : [
           {
             network: "base",
             rpcUrl: defaultBaseRpcUrl,
-            scheme: { exact: true, upto: true },
+            scheme: { exact: true, upto: true, authCapture: true },
           },
         ];
 
-  // `networkSchemes` is additive on top of the default baseline: it overrides the prescribed network's scheme, or adds a new one.
+  /*
+   * `networkSchemes` merges into the default baseline per network: a partial `scheme` override
+   * (e.g. `{ authCapture: false }`) only touches the fields it sets — it doesn't disable the
+   * other schemes the network defaulted to (or a prior override already set).
+   */
   const networksByName = new Map(defaultNetworkSchemes.map(config => [config.network, config]));
   for (const override of config?.networkSchemes ?? []) {
-    const rpcUrl = override.rpcUrl ?? networksByName.get(override.network)?.rpcUrl;
-    networksByName.set(override.network, { ...override, rpcUrl });
+    const existing = networksByName.get(override.network);
+    /*
+     * `existing` (and thus `existing?.rpcUrl`) is only populated for the Base
+     * network matching `environment` — the one already in the default
+     * baseline. An override for the *other* Base network (e.g. `"base"` in a
+     * `"development"` environment) has no `existing` entry, so fall back to
+     * the pre-fetched CDP-hosted default RPC by name to honor the documented
+     * contract that Base and Base Sepolia always get a default RPC injected.
+     */
+    const defaultRpcUrl =
+      override.network === "base"
+        ? defaultBaseRpcUrl
+        : override.network === "base-sepolia"
+          ? defaultBaseSepoliaRpcUrl
+          : undefined;
+    const rpcUrl = override.rpcUrl ?? existing?.rpcUrl ?? defaultRpcUrl;
+    const scheme = { ...existing?.scheme, ...override.scheme };
+    networksByName.set(override.network, { ...override, rpcUrl, scheme });
   }
 
   // `normalizeNetwork` converts the v1-style plain names used here (e.g. "base") into the CAIP-2 form v2's `register` needs (e.g. "eip155:8453"); `registerV1` keeps using the plain name.
@@ -338,12 +387,19 @@ const setupCdpSigners = async (
       }
     }
 
-    // `upto`'s Permit2 transfer method requires an initial approval transaction that cannot be sponsored; disabled for smart accounts at this time.
-    if (netConfig.scheme.upto && walletType !== "smart") {
+    if (netConfig.scheme.upto) {
       if (isSolana) {
+        client.register(caip2Network, new UptoSvmScheme(svmSigner, { rpcUrl: netConfig.rpcUrl }));
+        /*
+         * `upto`'s EVM Permit2 transfer method requires an initial approval
+         * transaction that cannot be sponsored; disabled for smart accounts at
+         * this time. Solana `upto` has no such restriction — CDP Solana
+         * accounts are never smart-wallet-typed, so it's unaffected either way.
+         */
+      } else if (walletType === "smart") {
         // eslint-disable-next-line no-console
         console.warn(
-          `CdpX402Client: skipping network "${network}": Solana Upto scheme is not yet supported.`,
+          `CdpX402Client: skipping network "${network}": upto scheme is not supported for Smart Contract Wallets (Permit2 approval cannot be sponsored).`,
         );
       } else {
         client.register(caip2Network, new UptoEvmScheme(evmSigner, evmRpcUrlsByChainId));
@@ -361,6 +417,30 @@ const setupCdpSigners = async (
           caip2Network,
           new BatchSettlementEvmScheme(evmSigner, { rpcUrl: netConfig.rpcUrl }),
         );
+      }
+    }
+
+    if (netConfig.scheme.authCapture) {
+      if (isSolana) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `CdpX402Client: skipping network "${network}": Solana Auth Capture scheme is not supported (EVM-only upstream).`,
+        );
+      } else if (walletType === "smart") {
+        /*
+         * `fromCdpSmartWallet` produces an ERC-1271/ERC-6492-wrapped signature.
+         * `AuthCaptureEvmScheme`'s settlement path (and this SDK's
+         * `signEvmSmartAccountX402Payment` capability, which only supports
+         * `exact`) has no verified support for that signature shape yet, so
+         * registering it here would let a smart-wallet client select an
+         * auth-capture requirement and produce an unsettleable payload.
+         */
+        // eslint-disable-next-line no-console
+        console.warn(
+          `CdpX402Client: skipping network "${network}": auth-capture is not supported for Smart Contract Wallets.`,
+        );
+      } else {
+        client.register(caip2Network, new AuthCaptureEvmScheme(evmSigner));
       }
     }
   }
@@ -442,6 +522,20 @@ export class CdpX402Client extends x402Client {
    */
   constructor(config?: CdpX402ClientConfig) {
     super();
+    /*
+     * Disable x402Client's own default $1-per-payment cap so the only active
+     * spend policy is this SDK's own, set via `config.spendControls`. That
+     * leaves no cap at all when `config.spendControls` is unset, so warn
+     * instead of failing silently.
+     */
+    this.setSpendControls(false);
+    if (!config?.spendControls) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "CdpX402Client: spendControls not configured. No default spend cap is applied. " +
+          "Set `spendControls` to bound payment size.",
+      );
+    }
     this._serviceBuilderCodes = [
       ...(config?.builderCode !== undefined ? toServiceBuilderCodes(config.builderCode) : []),
       CDP_SDK_CLIENT_BUILDER_CODE,

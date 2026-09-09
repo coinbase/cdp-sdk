@@ -23,6 +23,7 @@
  * });
  * app.use(paymentMiddlewareFromHTTPServer(server));
  * console.log("Receiving EVM payments at", server.payToEvmAddress);
+ * console.log("Receiving Solana payments at", server.payToSvmAddress);
  * ```
  *
  * ### Pay for an x402-protected API
@@ -70,6 +71,7 @@ export type {
   CdpX402ServerConfig,
   CdpRouteConfig,
   CdpPaymentScheme,
+  CdpPaymentFlow,
   PayToConfig,
   RoutesConfig,
   RouteConfig,
@@ -88,7 +90,13 @@ export type { CdpSchemeRegistration } from "./server-extensions.js";
 
 // Main client
 export { CdpX402Client } from "./client.js";
-export type { CdpX402ClientConfig, CdpX402WalletAddresses, WalletConfig } from "./client.js";
+export type {
+  CdpX402ClientConfig,
+  CdpX402WalletAddresses,
+  WalletConfig,
+  NetworkConfig,
+  SchemesConfig,
+} from "./client.js";
 
 // Facilitator
 export { createCdpFacilitatorClient, CDP_FACILITATOR_URL } from "./facilitator.js";

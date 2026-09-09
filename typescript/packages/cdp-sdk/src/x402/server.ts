@@ -13,8 +13,10 @@
  * Routes may be supplied in either format:
  *
  * **Simplified CDP format** (`CdpRouteConfig`) — just `price` and optional
- * `description` / `networks`. The server fills in `scheme`, `payTo`, and
- * all x402 internals automatically.
+ * `description` / `networks` / `paymentFlow`. The server fills in `scheme`,
+ * `payTo`, and all x402 internals automatically. `paymentFlow` is exact-scheme
+ * only (`"authorization"` default, or `"upfront"`) and is applied to every
+ * network the route expands to (Base and Solana when `networks` is omitted).
  *
  * **Full x402 format** (`RouteConfig`) — the same `accepts` / `description`
  * shape accepted by `x402HTTPResourceServer`. Vacant `payTo` fields (`""`)
@@ -40,6 +42,7 @@
  * });
  * app.use(paymentMiddlewareFromHTTPServer(server));
  * console.log("EVM receiver:", server.payToEvmAddress);
+ * console.log("Solana receiver:", server.payToSvmAddress);
  * ```
  *
  * @example Bring your own addresses (skip wallet provisioning):
@@ -149,22 +152,35 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
  * - `"exact"` — (default) Transfer a fixed amount, locked at signing time.
  *   Supports EVM and Solana networks.
  * - `"upto"` — Usage-based billing: the client authorizes a maximum amount
- *   and the server settles the actual amount charged (≤ max) via Permit2.
- *   EVM-only (`eip155:*`).
+ *   and the server settles the actual amount charged (≤ max). EVM only
+ *   (via Permit2) — Solana isn't supported today, since it requires the
+ *   resource server to sign an arbitrary-bytes settlement voucher and CDP's
+ *   Solana account signing API can't sign arbitrary bytes yet.
  */
 export type CdpPaymentScheme = "exact" | "upto";
 
 /**
+ * Payment flows supported on the simplified CDP route format.
+ *
+ * The shorthand is exact-scheme only:
+ * - `"authorization"` — (default) verify, run the handler, then settle.
+ * - `"upfront"` — settle on-chain before the handler runs.
+ */
+export type CdpPaymentFlow = "authorization" | "upfront";
+
+const CDP_EXACT_PAYMENT_FLOWS: ReadonlySet<string> = new Set(["authorization", "upfront"]);
+
+/**
  * Simplified CDP-owned route configuration.
  *
- * Specifying just `price` (and optionally `description` / `networks`) is
- * enough for most routes. `createX402Server` automatically expands this
- * into the full x402 `RouteConfig` format with `scheme`, `payTo`, and
- * `maxTimeoutSeconds` filled in.
+ * Specifying just `price` (and optionally `description` / `networks` /
+ * `paymentFlow`) is enough for most routes. `createX402Server` automatically
+ * expands this into the full x402 `RouteConfig` format with `scheme`, `payTo`,
+ * and `maxTimeoutSeconds` filled in.
  *
- * For routes that need fine-grained control (custom scheme, explicit `payTo`,
- * etc.) pass a full x402 `RouteConfig` instead — both formats are accepted
- * in the same `routes` map.
+ * For routes that need fine-grained control (custom scheme, `extra`, explicit
+ * `payTo`, etc.) pass a full x402 `RouteConfig` instead — both formats are
+ * accepted in the same `routes` map.
  */
 export interface CdpRouteConfig {
   /**
@@ -177,18 +193,27 @@ export interface CdpRouteConfig {
   /**
    * Payment scheme to use for this route.
    *
-   * Defaults to `"exact"`. The `"upto"` scheme is EVM-only — `networks` must
-   * not include Solana or other non-EVM chains when specified. When an
-   * EVM-only scheme is used without an explicit `networks` list the default
-   * falls back to the environment's EVM networks (Base mainnet or Base
-   * Sepolia depending on `environment`).
+   * Defaults to `"exact"`, which supports Base and Solana out of the box.
+   * `"upto"` supports Base only — see {@link CdpPaymentScheme}.
    */
   scheme?: CdpPaymentScheme;
   /**
+   * Payment flow for this route. Exact-scheme only.
+   *
+   * Defaults to `"authorization"` (the x402 protocol default) when omitted.
+   * `"upfront"` settles on-chain before the route handler runs, and is
+   * stamped onto every payment option this route expands to — including the
+   * default Base and Solana networks when `networks` is omitted.
+   *
+   * Throws if set on a non-`"exact"` scheme. For other schemes, pass a
+   * full x402 route with `accepts[].extra.paymentFlow`.
+   */
+  paymentFlow?: CdpPaymentFlow;
+  /**
    * CAIP-2 network identifiers for which the route accepts payments.
-   * Defaults to `CDP_SERVER_DEFAULT_NETWORKS` (Base mainnet + Solana mainnet)
-   * for the `"exact"` scheme, or `CDP_SERVER_DEFAULT_EVM_NETWORKS` (Base
-   * mainnet only) for `"upto"`.
+   * Defaults to `CDP_SERVER_DEFAULT_NETWORKS` (Base mainnet + Solana mainnet),
+   * or `CDP_SERVER_DEVELOPMENT_NETWORKS` (Base Sepolia + Solana Devnet) when
+   * `environment` is `"development"`.
    */
   networks?: string[];
   /**
@@ -474,13 +499,25 @@ async function provisionServerAccounts(
  */
 
 /**
- * Returns `true` when the given payment scheme only supports EVM networks.
+ * Payment schemes whose *default* network list (used only when a route omits
+ * `networks`) is EVM-only.
+ *
+ * `"upto"` defaults to Base only: the resource server has no way to hold its
+ * own Solana `receiverAuthorizerSigner` today (CDP's Solana account signing
+ * API can only sign UTF-8 text, not the arbitrary-bytes settlement voucher
+ * `@x402/svm`'s `upto` scheme requires), so `createX402Server` cannot support
+ * `upto` on Solana at all right now — see {@link EVM_ONLY_SCHEMES}.
+ */
+const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
+
+/**
+ * Returns `true` when the given payment scheme defaults to EVM-only networks.
  *
  * @param scheme - The payment scheme to check.
- * @returns `true` for EVM-only schemes (`"upto"`).
+ * @returns `true` for schemes in {@link EVM_DEFAULT_ONLY_SCHEMES}.
  */
-function isEvmOnlyScheme(scheme: CdpPaymentScheme): boolean {
-  return scheme === "upto";
+function isEvmDefaultOnlyScheme(scheme: CdpPaymentScheme): boolean {
+  return EVM_DEFAULT_ONLY_SCHEMES.has(scheme);
 }
 
 /**
@@ -497,7 +534,9 @@ function networkFamily(network: string): "evm" | "svm" | "other" {
 
 /**
  * Returns the default networks for a simplified route given its scheme and the
- * deployment environment. EVM-only schemes (`"upto"`) default to EVM networks only.
+ * deployment environment. Schemes in {@link EVM_DEFAULT_ONLY_SCHEMES} (`"upto"`)
+ * default to EVM networks only; all other schemes (currently `"exact"`)
+ * default to Base + Solana.
  *
  * @param scheme - Payment scheme for the route.
  * @param environment - Deployment environment controlling mainnet vs testnet defaults.
@@ -507,7 +546,7 @@ function getDefaultNetworksForScheme(
   scheme: CdpPaymentScheme,
   environment: "production" | "development",
 ): readonly string[] {
-  if (isEvmOnlyScheme(scheme)) {
+  if (isEvmDefaultOnlyScheme(scheme)) {
     return environment === "development"
       ? CDP_SERVER_DEVELOPMENT_EVM_NETWORKS
       : CDP_SERVER_DEFAULT_EVM_NETWORKS;
@@ -522,7 +561,7 @@ function getDefaultNetworksForScheme(
  * resolving simplified routes against their scheme defaults so the answer
  * reflects the networks that will actually be served.
  *
- * @param route - Simplified CDP route config or full x402 `RouteConfig`.
+ * @param route - Simplified or full x402 route config.
  * @param environment - Deployment environment controlling default network selection.
  * @returns The network families referenced by the route.
  */
@@ -567,18 +606,123 @@ function requiredNetworkFamilies(
 }
 
 /**
- * Throws when a scheme is configured with an unsupported network family.
+ * Payment schemes that are never valid on a non-EVM network, even when
+ * explicitly requested via `networks`. `"upto"` is here for the same reason
+ * it's in {@link EVM_DEFAULT_ONLY_SCHEMES}: the resource server can't produce
+ * a Solana `receiverAuthorizerSigner` today, so there's no way to make it
+ * work even by opting in explicitly.
+ */
+const EVM_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
+
+/**
+ * Throws when a scheme is configured with a network family it can never
+ * support (see {@link EVM_ONLY_SCHEMES}).
  *
  * @param scheme - Payment scheme name (e.g. `"upto"`).
  * @param network - CAIP-2 network identifier (e.g. `"eip155:8453"`).
  */
 function assertSchemeSupportsNetwork(scheme: string, network: string): void {
-  if (isEvmOnlyScheme(scheme as CdpPaymentScheme) && !network.startsWith("eip155:")) {
+  if (EVM_ONLY_SCHEMES.has(scheme as CdpPaymentScheme) && !network.startsWith("eip155:")) {
     throw new Error(
       `Scheme "${scheme}" only supports EVM (eip155:*) networks. ` +
         `Network "${network}" is not supported. ` +
         `Remove it from the networks list or use scheme "exact".`,
     );
+  }
+}
+
+/**
+ * Throws when `paymentFlow` is set on a simplified route that cannot use it:
+ * unknown flow names, or any scheme other than `"exact"`.
+ *
+ * @param route - Simplified CDP route config being converted.
+ * @param scheme - Resolved scheme for the route (`"exact"` or `"upto"`).
+ */
+function assertPaymentFlowCompatible(route: CdpRouteConfig, scheme: CdpPaymentScheme): void {
+  if (route.paymentFlow === undefined) return;
+  if (!CDP_EXACT_PAYMENT_FLOWS.has(route.paymentFlow)) {
+    throw new Error(
+      `Unsupported paymentFlow "${String(route.paymentFlow)}". ` +
+        `The simplified route format only supports "authorization" (default) and "upfront".`,
+    );
+  }
+  if (scheme !== "exact") {
+    throw new Error(
+      `paymentFlow is only supported on the "exact" scheme. ` +
+        `Route uses scheme "${scheme}". Omit paymentFlow, or pass a full x402 route ` +
+        `with accepts[].extra.paymentFlow to configure other schemes.`,
+    );
+  }
+}
+
+/**
+ * Simplified-route scheme identifiers accepted by {@link validateRouteSemantics}.
+ * Kept separate from the `CdpPaymentScheme` type check since config files are
+ * untyped JSON cast to `CdpX402ServerConfig` — a typo or unsupported scheme
+ * (e.g. `"auth-capture"`) has no compile-time guard and must be rejected here.
+ */
+const CDP_SIMPLIFIED_ROUTE_SCHEMES: ReadonlySet<string> = new Set<CdpPaymentScheme>([
+  "exact",
+  "upto",
+]);
+
+/**
+ * Throws when a simplified route's `scheme` isn't one of the values the
+ * simplified route format actually supports.
+ *
+ * @param scheme - The raw `scheme` value from a simplified route config.
+ * @returns The validated scheme, narrowed to {@link CdpPaymentScheme}.
+ */
+function assertValidSimplifiedScheme(scheme: unknown): CdpPaymentScheme {
+  if (typeof scheme !== "string" || !CDP_SIMPLIFIED_ROUTE_SCHEMES.has(scheme)) {
+    throw new Error(
+      `Unsupported simplified route scheme "${String(scheme)}". ` +
+        `Supported values: ${[...CDP_SIMPLIFIED_ROUTE_SCHEMES].map(s => `"${s}"`).join(", ")}.`,
+    );
+  }
+  return scheme as CdpPaymentScheme;
+}
+
+/**
+ * Validates every route's scheme/network and `paymentFlow` compatibility up
+ * front, before any CDP or facilitator I/O. Without this, an invalid route
+ * (e.g. `{ scheme: "upto", paymentFlow: "upfront" }`, an unsupported/typo'd
+ * scheme such as `"auth-capture"`, an empty `networks` list, or a non-EVM/
+ * non-Solana network) would only be caught during `resolveRoutes` — or not
+ * at all until facilitator init — by which point `provisionServerAccounts`
+ * has already created real receiver wallets for the (wrongly) inferred
+ * network families.
+ *
+ * @param routes - Map of route patterns to simplified or full x402 route configs.
+ * @param environment - Deployment environment controlling default network selection.
+ */
+function validateRouteSemantics(
+  routes: Record<string, CdpRouteConfig | RouteConfig>,
+  environment: "production" | "development",
+): void {
+  for (const route of Object.values(routes)) {
+    if ("accepts" in route) {
+      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
+      for (const option of accepts) {
+        assertSchemeSupportsNetwork(option.scheme as string, option.network as string);
+      }
+      continue;
+    }
+    const scheme = assertValidSimplifiedScheme(route.scheme ?? "exact");
+    assertPaymentFlowCompatible(route, scheme);
+    const networks = route.networks ?? getDefaultNetworksForScheme(scheme, environment);
+    if (networks.length === 0) {
+      throw new Error("Simplified route must include at least one network.");
+    }
+    for (const network of networks) {
+      if (networkFamily(network) === "other") {
+        throw new Error(
+          `Unsupported network family for simplified route: "${network}". ` +
+            `Simplified routes only support "eip155:*" (EVM) and "solana:*" networks.`,
+        );
+      }
+      assertSchemeSupportsNetwork(scheme, network);
+    }
   }
 }
 
@@ -650,7 +794,7 @@ function fillX402RoutePayTo(
 }
 
 /**
- * Converts a simplified `CdpRouteConfig` into a full x402 `RouteConfig`, wiring
+ * Converts a {@link CdpRouteConfig} into a full x402 `RouteConfig`, wiring
  * the provisioned receiver addresses into each payment option's `payTo`.
  *
  * @param route - Simplified CDP route config with `price` and optional fields.
@@ -670,6 +814,7 @@ function convertCdpRoute(
   available: NetworkFamilies,
 ): RouteConfig {
   const scheme = route.scheme ?? "exact";
+  assertPaymentFlowCompatible(route, scheme);
   const usingDefaultNetworks = route.networks === undefined;
   const defaultNetworks = getDefaultNetworksForScheme(scheme, environment);
   /*
@@ -715,6 +860,7 @@ function convertCdpRoute(
       network: network as `${string}:${string}`,
       payTo,
       maxTimeoutSeconds,
+      ...(route.paymentFlow === "upfront" ? { extra: { paymentFlow: "upfront" as const } } : {}),
     };
   });
 
@@ -792,9 +938,10 @@ function withAutoInjectedExtensions(
 }
 
 /**
- * Resolves a mixed `Record<string, CdpRouteConfig | RouteConfig>` into the x402
- * `RoutesConfig` format. Simplified routes are expanded; full x402 routes have
- * vacant `payTo` fields filled. All CDP extensions are injected into every route.
+ * Resolves a mixed `Record<string, CdpRouteConfig | RouteConfig>` into the
+ * x402 `RoutesConfig` format. Simplified routes are expanded; full x402
+ * routes have vacant `payTo` fields filled. All CDP extensions are injected
+ * into every route.
  *
  * @param routes - Map of route patterns to simplified or full x402 route configs.
  * @param evmAddress - EVM receiver address for `eip155:*` payment options (`""` when none).
@@ -933,11 +1080,7 @@ export class X402Server extends x402HTTPResourceServer {
    *   any framework middleware.
    */
   static async create(config: CdpX402ServerConfig): Promise<X402Server> {
-    /*
-     * 1. Merge file config (if any) with inline config; inline takes precedence.
-     *    Routes are deep-merged so both file and inline routes are preserved;
-     *    inline routes win on conflicting keys.
-     */
+    // Routes are deep-merged so file and inline routes both survive; inline wins on conflicts.
     let merged = config;
     if (config.configPath) {
       const fileConfig = await loadConfigFile(config.configPath);
@@ -948,10 +1091,7 @@ export class X402Server extends x402HTTPResourceServer {
       };
     }
 
-    /*
-     * 2. Validate routes and builder code before doing any I/O (fail fast
-     *    before wallet provisioning).
-     */
+    // Validate before any I/O so a bad config fails before wallet provisioning.
     const routes = merged.routes;
     if (!routes || Object.keys(routes).length === 0) {
       throw new Error("createX402Server requires at least one payment route.");
@@ -968,25 +1108,20 @@ export class X402Server extends x402HTTPResourceServer {
       merged.builderCode,
     );
 
-    // 3. Resolve credentials and environment (config → CDP_* env var fallbacks).
     const credentials = resolveServerCredentials(merged);
     const { environment } = credentials;
+    validateRouteSemantics(routes, environment);
 
-    // 4. Build the CDP facilitator client and x402ResourceServer.
     const facilitatorClient = createCdpFacilitatorClient({
       apiKeyId: credentials.apiKeyId,
       apiKeySecret: credentials.apiKeySecret,
     });
 
     const resourceServer = new x402ResourceServer(facilitatorClient);
-    for (const scheme of getCdpDefaultSchemes()) {
-      resourceServer.register(scheme.network as Network, scheme.server);
-    }
     for (const ext of getCdpExtensionRegistrations()) {
       resourceServer.registerExtension(ext);
     }
 
-    // 5. Resolve payTo addresses — provision wallets or use provided addresses.
     const payToConfig = merged.payToConfig;
     let evmAddress: Address | "";
     let svmAddress: string;
@@ -1029,7 +1164,10 @@ export class X402Server extends x402HTTPResourceServer {
       ownerWallet = provisioned.ownerWallet;
     }
 
-    // 6. Resolve routes (simplified CDP format or full x402 format).
+    for (const scheme of getCdpDefaultSchemes()) {
+      resourceServer.register(scheme.network as Network, scheme.server);
+    }
+
     const resolvedRoutes = resolveRoutes(
       routes,
       evmAddress,
@@ -1038,7 +1176,6 @@ export class X402Server extends x402HTTPResourceServer {
       builderCodeDeclaration,
     );
 
-    // 7. Construct and initialize — syncs supported schemes with the facilitator.
     const instance = new X402Server(
       resourceServer,
       resolvedRoutes,
@@ -1107,6 +1244,7 @@ export class X402Server extends x402HTTPResourceServer {
  * });
  * app.use(paymentMiddlewareFromHTTPServer(server));
  * console.log("EVM receiver:", server.payToEvmAddress);
+ * console.log("Solana receiver:", server.payToSvmAddress);
  * ```
  *
  * @example Bring your own addresses:
@@ -1114,6 +1252,15 @@ export class X402Server extends x402HTTPResourceServer {
  * const server = await createX402Server({
  *   routes: { "GET /report": { price: "$0.01" } },
  *   payToConfig: { type: "address", evm: "0x1234...", solana: "ABC..." },
+ * });
+ * ```
+ *
+ * @example Exact + upfront payment flow (shorthand; applies to Base and Solana):
+ * ```typescript
+ * const server = await createX402Server({
+ *   routes: {
+ *     "GET /report": { price: "$0.01", paymentFlow: "upfront" },
+ *   },
  * });
  * ```
  *

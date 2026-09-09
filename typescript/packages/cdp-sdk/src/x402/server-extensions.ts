@@ -185,6 +185,10 @@ export interface CdpSchemeRegistration {
  * - `upto` for all EVM networks (`eip155:*`)
  * - `exact` for all Solana networks (`solana:*`)
  *
+ * Solana `upto` is not included: it requires the resource server to sign an
+ * arbitrary-bytes settlement voucher, and CDP's Solana account signing API
+ * can't sign arbitrary bytes today.
+ *
  * Pass the result to `paymentMiddlewareFromConfig` (Express / Hono) or
  * any other framework adapter to replicate the same scheme coverage
  * when building middleware manually.
@@ -196,7 +200,7 @@ export interface CdpSchemeRegistration {
  *
  * app.use(paymentMiddlewareFromConfig(routes, createCdpFacilitatorClient(), getCdpDefaultSchemes()));
  * ```
- * @returns Array of scheme+network registrations for EVM (exact+upto) and Solana (exact).
+ * @returns Array of scheme+network registrations for EVM (exact+upto) and Solana (exact only).
  */
 export function getCdpDefaultSchemes(): CdpSchemeRegistration[] {
   return [

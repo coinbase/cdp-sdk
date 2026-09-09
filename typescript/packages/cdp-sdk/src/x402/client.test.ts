@@ -71,6 +71,13 @@ const {
 
 vi.mock("@x402/core/client", () => {
   class MockX402Client {
+    spendControls: unknown = {};
+
+    setSpendControls(controls: unknown) {
+      this.spendControls = controls;
+      return this;
+    }
+
     register(...args: unknown[]) {
       return mockRegister(...args);
     }
@@ -124,11 +131,17 @@ vi.mock("@x402/evm/upto/client", () => ({
 vi.mock("@x402/evm/batch-settlement/client", () => ({
   BatchSettlementEvmScheme: vi.fn().mockImplementation(() => ({})),
 }));
+vi.mock("@x402/evm/auth-capture/client", () => ({
+  AuthCaptureEvmScheme: vi.fn().mockImplementation(() => ({})),
+}));
 vi.mock("@x402/svm/exact/client", () => ({
   ExactSvmScheme: vi.fn().mockImplementation(() => ({})),
 }));
 vi.mock("@x402/svm/exact/v1/client", () => ({
   ExactSvmSchemeV1: vi.fn().mockImplementation(() => ({})),
+}));
+vi.mock("@x402/svm/upto/client", () => ({
+  UptoSvmScheme: vi.fn().mockImplementation(() => ({})),
 }));
 
 vi.mock("../client/cdp.js", () => ({ CdpClient: MockCdpClient }));
@@ -156,6 +169,7 @@ vi.mock("../accounts/evm/getBaseNodeRpcUrl.js", () => ({
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
 import { CdpX402Client } from "./client.js";
+import { AuthCaptureEvmScheme } from "@x402/evm/auth-capture/client";
 import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { ExactEvmSchemeV1 } from "@x402/evm/exact/v1/client";
@@ -163,6 +177,7 @@ import { UptoEvmScheme } from "@x402/evm/upto/client";
 import { BuilderCodeClientExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { ExactSvmSchemeV1 } from "@x402/svm/exact/v1/client";
+import { UptoSvmScheme } from "@x402/svm/upto/client";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -298,6 +313,34 @@ describe("CdpX402Client", () => {
           }),
       ).not.toThrow();
     });
+
+    it("disables upstream x402Client's default spend controls", () => {
+      // x402Client defaults to `{}`, silently capping every payment at $1.
+      const client = new CdpX402Client();
+      expect((client as unknown as { spendControls: unknown }).spendControls).toBe(false);
+    });
+  });
+
+  describe("constructor — missing-spendControls warning", () => {
+    const CAP_WARNING = /spendControls not configured/;
+
+    it("warns when spendControls is not configured", () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      new CdpX402Client();
+
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(CAP_WARNING));
+      warnSpy.mockRestore();
+    });
+
+    it("does not warn when spendControls is configured", () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      new CdpX402Client({
+        spendControls: { maxAmountPerPayment: { atomic: 10_000n } },
+      });
+
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringMatching(CAP_WARNING));
+      warnSpy.mockRestore();
+    });
   });
 
   describe("lazy initialization", () => {
@@ -398,8 +441,7 @@ describe("CdpX402Client", () => {
       );
     });
 
-    it("skips the upto scheme for Solana regardless of rpcUrl — not yet supported", async () => {
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    it("registers the upto scheme for Solana when enabled via networkSchemes", async () => {
       const client = new CdpX402Client({
         networkSchemes: [
           { network: "base", scheme: { upto: false } },
@@ -413,8 +455,138 @@ describe("CdpX402Client", () => {
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(UptoEvmScheme).not.toHaveBeenCalled();
+      expect(UptoSvmScheme).toHaveBeenCalledWith(expect.anything(), {
+        rpcUrl: "https://my-solana-rpc.example.com",
+      });
+      expect(mockRegister).toHaveBeenCalledWith(
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+        expect.anything(),
+      );
+    });
+
+    it("does not warn when Solana upto is registered", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "solana", scheme: { upto: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining("Solana Upto"));
+      warnSpy.mockRestore();
+    });
+
+    it("registers authCapture by default, alongside exact/upto", async () => {
+      const client = new CdpX402Client();
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).toHaveBeenCalledWith(
+        expect.objectContaining({ address: "0xEvm" }),
+      );
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
+    });
+
+    it("registers authCapture by default in the development environment", async () => {
+      // Regression test: the default baseline for "base-sepolia" mirrors
+      // "base"'s `authCapture: true`, but every other `authCapture` test above
+      // only exercises the production ("base" / eip155:8453) baseline — a
+      // regression that dropped `authCapture` from the "base-sepolia" default
+      // would go undetected without this.
+      const client = new CdpX402Client({ environment: "development" });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).toHaveBeenCalledWith(
+        expect.objectContaining({ address: "0xEvm" }),
+      );
+      expect(mockRegister).toHaveBeenCalledWith("eip155:84532", expect.anything());
+    });
+
+    it("does not register authCapture when explicitly disabled via networkSchemes", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [
+          { network: "base", scheme: { exact: true, upto: true, authCapture: false } },
+        ],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
+    });
+
+    it("merges a partial networkSchemes override into the default baseline instead of replacing it", async () => {
+      // Only `authCapture` is set here — `exact`/`upto` must still come from base's default scheme.
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { authCapture: false } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
+      expect(ExactEvmScheme).toHaveBeenCalled();
+      expect(UptoEvmScheme).toHaveBeenCalled();
+    });
+
+    it("registers authCapture for an EOA wallet via an explicit networkSchemes override", async () => {
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base", scheme: { authCapture: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).toHaveBeenCalledWith(
+        expect.objectContaining({ address: "0xEvm" }),
+      );
+      expect(mockRegister).toHaveBeenCalledWith("eip155:8453", expect.anything());
+    });
+
+    it("skips authCapture for a smart wallet even when explicitly requested — incompatible signature scheme", async () => {
+      // `fromCdpSmartWallet` produces an ERC-1271/ERC-6492-wrapped signature,
+      // which the `auth-capture` settlement path doesn't support yet.
+      // Registering it would let a smart-wallet client emit an unsettleable payload.
+      mockGetOrCreateAccount
+        .mockResolvedValueOnce({ address: "0xowner", signTypedData: vi.fn() })
+        .mockResolvedValue(mockEvmAccount);
+      mockGetOrCreateSmartAccount.mockResolvedValue(mockSmartAccount);
+
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const client = new CdpX402Client({
+        walletConfig: { type: "smart", ownerAccountName: "my-owner" },
+        networkSchemes: [{ network: "base", scheme: { authCapture: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('skipping network "solana": Solana Upto scheme'),
+        expect.stringContaining('skipping network "base": auth-capture is not supported'),
+      );
+      warnSpy.mockRestore();
+    });
+
+    it("skips authCapture for the default Base baseline scheme when the wallet is smart", async () => {
+      // The default baseline sets `authCapture: true` for Base regardless of
+      // wallet type; the registration loop must still gate it on `walletType`.
+      mockGetOrCreateAccount
+        .mockResolvedValueOnce({ address: "0xowner", signTypedData: vi.fn() })
+        .mockResolvedValue(mockEvmAccount);
+      mockGetOrCreateSmartAccount.mockResolvedValue(mockSmartAccount);
+
+      const client = new CdpX402Client({
+        walletConfig: { type: "smart", ownerAccountName: "my-owner" },
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
+    });
+
+    it("skips authCapture for Solana even when explicitly requested — EVM-only upstream", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const client = new CdpX402Client({
+        networkSchemes: [
+          { network: "base", scheme: { exact: true, upto: true, authCapture: false } },
+          { network: "solana", scheme: { authCapture: true } },
+        ],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(AuthCaptureEvmScheme).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('skipping network "solana": Solana Auth Capture scheme'),
       );
       warnSpy.mockRestore();
     });
@@ -522,13 +694,16 @@ describe("CdpX402Client", () => {
       expect(ExactEvmScheme).toHaveBeenCalled();
     });
 
-    it("does not register the upto EVM scheme for smart wallets", async () => {
+    it("does not register the upto EVM scheme for smart wallets, and warns", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const client = new CdpX402Client({
         walletConfig: { type: "smart", ownerAccountName: "my-owner" },
       });
       await client.createPaymentPayload(mockPaymentRequired);
 
       expect(UptoEvmScheme).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(/upto scheme is not supported/));
+      warnSpy.mockRestore();
     });
   });
 
@@ -634,6 +809,34 @@ describe("CdpX402Client", () => {
 
       expect(lastEvmRpcMap(ExactEvmScheme)?.[84532]?.rpcUrl).toBe(
         "https://api.developer.coinbase.com/rpc/v1/base-sepolia/mock-token",
+      );
+    });
+
+    it("still injects the CDP-hosted default RPC when networkSchemes adds the *other* environment's Base network", async () => {
+      // Regression test: in production (default environment), "base-sepolia"
+      // has no `existing` entry in the default baseline map — only "base"
+      // does — so the override merge previously fell through to `undefined`
+      // instead of the pre-fetched default RPC, silently breaking `upto`
+      // (which needs the chain RPC for Permit2) and `authCapture` on it.
+      const client = new CdpX402Client({
+        networkSchemes: [{ network: "base-sepolia", scheme: { exact: true, upto: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(lastEvmRpcMap(UptoEvmScheme)?.[84532]?.rpcUrl).toBe(
+        "https://api.developer.coinbase.com/rpc/v1/base-sepolia/mock-token",
+      );
+    });
+
+    it("still injects the CDP-hosted default RPC when networkSchemes adds 'base' in a development environment", async () => {
+      const client = new CdpX402Client({
+        environment: "development",
+        networkSchemes: [{ network: "base", scheme: { exact: true, upto: true } }],
+      });
+      await client.createPaymentPayload(mockPaymentRequired);
+
+      expect(lastEvmRpcMap(UptoEvmScheme)?.[8453]?.rpcUrl).toBe(
+        "https://api.developer.coinbase.com/rpc/v1/base/mock-token",
       );
     });
 

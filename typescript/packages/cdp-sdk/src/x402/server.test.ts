@@ -408,6 +408,17 @@ describe("createX402Server", () => {
     });
   });
 
+  describe("Solana upto scheme registration", () => {
+    it("never registers Solana upto — only exact is registered for solana:*", async () => {
+      await createX402Server({ routes: { "GET /r": { price: "$0.01" } } }); // default networks include Solana
+
+      const svmSchemes = mockResourceServer.register.mock.calls
+        .filter(call => call[0] === "solana:*")
+        .map(call => (call[1] as { scheme: string }).scheme);
+      expect(svmSchemes).toEqual(["exact"]);
+    });
+  });
+
   describe("route conversion — simplified CDP format", () => {
     it("converts simplified routes to x402 format with default EVM+SVM networks", async () => {
       const { x402HTTPResourceServer } = await import("@x402/core/server");
@@ -508,6 +519,194 @@ describe("createX402Server", () => {
     });
   });
 
+  describe("route conversion — paymentFlow shorthand", () => {
+    it("stamps upfront onto both default Base and Solana accepts when networks is omitted", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: { "GET /report": { price: "$0.01", paymentFlow: "upfront" } },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: Array<{ network: string; extra?: { paymentFlow?: string } }> }>,
+      ];
+      const accepts = passedRoutes["GET /report"].accepts;
+      expect(accepts).toHaveLength(2);
+      const evmOpt = accepts.find(a => a.network.startsWith("eip155:"));
+      const svmOpt = accepts.find(a => a.network.startsWith("solana:"));
+      expect(evmOpt!.extra?.paymentFlow).toBe("upfront");
+      expect(svmOpt!.extra?.paymentFlow).toBe("upfront");
+    });
+
+    it("stamps upfront onto an explicitly listed Base network", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /report": {
+            price: "$0.01",
+            paymentFlow: "upfront",
+            networks: ["eip155:8453"],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBe("upfront");
+    });
+
+    it("stamps upfront onto an explicitly listed Solana network", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /report": {
+            price: "$0.01",
+            paymentFlow: "upfront",
+            networks: ["solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBe("upfront");
+    });
+
+    it("omits extra.paymentFlow when paymentFlow is omitted", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: { "GET /report": { price: "$0.01", networks: ["eip155:8453"] } },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBeUndefined();
+    });
+
+    it("omits extra.paymentFlow when paymentFlow is authorization", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /report": {
+            price: "$0.01",
+            paymentFlow: "authorization",
+            networks: ["eip155:8453"],
+          },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: { extra?: { paymentFlow?: string } } }>,
+      ];
+      expect(passedRoutes["GET /report"].accepts.extra?.paymentFlow).toBeUndefined();
+    });
+
+    it("throws when paymentFlow is set on a non-exact scheme", async () => {
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /metered": {
+              price: "$0.01",
+              scheme: "upto" as CdpPaymentScheme,
+              paymentFlow: "upfront",
+            },
+          },
+        }),
+      ).rejects.toThrow('paymentFlow is only supported on the "exact" scheme');
+    });
+
+    it("throws when paymentFlow is not authorization or upfront", async () => {
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /report": {
+              price: "$0.01",
+              paymentFlow: "escrow" as unknown as "upfront",
+            },
+          },
+        }),
+      ).rejects.toThrow('Unsupported paymentFlow "escrow"');
+    });
+
+    it("rejects an incompatible paymentFlow before provisioning any wallets", async () => {
+      // Regression test: this config used to fail inside `resolveRoutes`, by
+      // which point `provisionServerAccounts` had already created a real EVM
+      // receiver wallet via `CdpClient`.
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /metered": {
+              price: "$0.01",
+              scheme: "upto" as CdpPaymentScheme,
+              paymentFlow: "upfront",
+            },
+          },
+        }),
+      ).rejects.toThrow('paymentFlow is only supported on the "exact" scheme');
+
+      expect(CdpClient).not.toHaveBeenCalled();
+    });
+
+    it("rejects an unsupported/typo'd simplified route scheme before provisioning any wallets", async () => {
+      // Regression test: config files are untyped JSON cast to
+      // `CdpX402ServerConfig`, so a typo like "auth-capture" previously passed
+      // this preflight, expanded to default networks, and only failed later
+      // (after wallet provisioning) once no matching server scheme was found.
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /report": {
+              price: "$0.01",
+              scheme: "auth-capture" as unknown as CdpPaymentScheme,
+            },
+          },
+        }),
+      ).rejects.toThrow('Unsupported simplified route scheme "auth-capture"');
+
+      expect(CdpClient).not.toHaveBeenCalled();
+    });
+
+    it("rejects an empty explicit networks list before provisioning any wallets", async () => {
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: { "GET /report": { price: "$0.01", networks: [] } },
+        }),
+      ).rejects.toThrow("Simplified route must include at least one network");
+
+      expect(CdpClient).not.toHaveBeenCalled();
+    });
+
+    it("rejects an unsupported network family on a simplified route before provisioning any wallets", async () => {
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: { "GET /report": { price: "$0.01", networks: ["bitcoin:mainnet"] } },
+        }),
+      ).rejects.toThrow('Unsupported network family for simplified route: "bitcoin:mainnet"');
+
+      expect(CdpClient).not.toHaveBeenCalled();
+    });
+  });
+
   describe("route conversion — scheme field", () => {
     it("defaults to 'exact' when no scheme is specified", async () => {
       const { x402HTTPResourceServer } = await import("@x402/core/server");
@@ -556,22 +755,44 @@ describe("createX402Server", () => {
       ];
       const accepts = passedRoutes["GET /metered"].accepts;
       const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
-      expect(networks.every(n => n.startsWith("eip155:"))).toBe(true);
+      expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]);
       expect(networks).not.toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
     });
 
-    it("throws when 'upto' scheme is used with a Solana network", async () => {
+    it("rejects 'upto' scheme with an explicit Solana network", async () => {
       await expect(
         createX402Server({
           routes: {
-            "GET /bad": {
+            "GET /metered-solana": {
               price: "$0.01",
               scheme: "upto" as CdpPaymentScheme,
               networks: ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
             },
           },
         }),
-      ).rejects.toThrow('Scheme "upto" only supports EVM (eip155:*) networks');
+      ).rejects.toThrow(/only supports EVM/);
+    });
+
+    it("rejects 'upto' scheme with an explicit Solana network before provisioning any wallets", async () => {
+      // Regression test: this config used to fail inside `resolveRoutes`, by
+      // which point `provisionServerAccounts` had already created real EVM
+      // and Solana receiver wallets via `CdpClient` for the (wrongly)
+      // inferred network families.
+      const { CdpClient } = await import("../client/cdp.js");
+
+      await expect(
+        createX402Server({
+          routes: {
+            "GET /metered-solana": {
+              price: "$0.01",
+              scheme: "upto" as CdpPaymentScheme,
+              networks: ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+            },
+          },
+        }),
+      ).rejects.toThrow(/only supports EVM/);
+
+      expect(CdpClient).not.toHaveBeenCalled();
     });
 
     it("fills payTo for 'upto' scheme using EVM address", async () => {
@@ -1266,7 +1487,7 @@ describe("X402Server auto-injects the builder-code extension", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fix 1: CDP_X402_SERVER_ENVIRONMENT
+// Development/production network defaults (CDP_X402_SERVER_ENVIRONMENT)
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("CDP_SERVER_DEVELOPMENT_NETWORKS constants", () => {
@@ -1375,7 +1596,7 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
     expect(networks).not.toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
   });
 
-  it("upto with development environment defaults to development EVM networks only", async () => {
+  it("upto with development environment defaults to development EVM-only networks", async () => {
     const { x402HTTPResourceServer } = await import("@x402/core/server");
 
     await createX402Server({
@@ -1389,8 +1610,8 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
     ];
     const accepts = passedRoutes["GET /metered"].accepts;
     const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
-    expect(networks.every(n => n.startsWith("eip155:"))).toBe(true);
     expect(networks).toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
+    expect(networks).not.toContain(CDP_SERVER_DEVELOPMENT_SVM_NETWORKS[0]);
   });
 
   it("unknown CDP_X402_SERVER_ENVIRONMENT value falls back to production", async () => {
@@ -1409,7 +1630,7 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fix 3: empty payTo guard for address payToConfig
+// Empty payTo guard for address payToConfig
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("createX402Server — empty payTo guard", () => {
@@ -1504,6 +1725,31 @@ describe("createX402Server — empty payTo guard", () => {
     ).rejects.toThrow(/No receiver address for EVM/);
   });
 
+  it("rejects a full x402 route with 'upto' on a Solana network before provisioning any wallets", async () => {
+    // Regression test: the full x402 format's `accepts[].scheme`/`network`
+    // pairs previously weren't validated until `resolveRoutes`, by which
+    // point `provisionServerAccounts` had already run.
+    const { CdpClient } = await import("../client/cdp.js");
+
+    await expect(
+      createX402Server({
+        routes: {
+          "GET /r": {
+            accepts: {
+              scheme: "upto" as const,
+              price: "$0.01",
+              network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" as `${string}:${string}`,
+              payTo: "",
+              maxTimeoutSeconds: 300,
+            },
+          },
+        },
+      }),
+    ).rejects.toThrow(/only supports EVM/);
+
+    expect(CdpClient).not.toHaveBeenCalled();
+  });
+
   it("does NOT throw when only EVM network is used and only evm address is provided", async () => {
     await expect(
       createX402Server({
@@ -1532,7 +1778,7 @@ describe("createX402Server — empty payTo guard", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fix 4: configPath route deep-merge
+// configPath route deep-merge
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("createX402Server — configPath deep route merge", () => {

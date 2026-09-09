@@ -56,15 +56,7 @@ The client exposes API resources such as:
 
 End User Accounts operations that require end-user-only authentication are intentionally not included in this backend SDK.
 
-## Development
+API reference documentation is available at [CDP Java SDK API Reference](https://docs.cdp.coinbase.com/sdks/cdp-sdks-v2/java).
 
-```bash
-# Generate the SDK from Fern
-CDP_FERN_DIR=/path/to/cdp-fern make client
 
-# Run unit tests and style checks
-make test
-make lint
-```
-
-Runnable usage examples are in [`../examples/java`](../examples/java).
+Runnable usage examples are available at [https://github.com/coinbase/cdp-sdk/tree/main/examples/java](https://github.com/coinbase/cdp-sdk/tree/main/examples/java).
