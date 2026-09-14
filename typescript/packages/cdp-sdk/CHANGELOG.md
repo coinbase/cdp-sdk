@@ -1,5 +1,22 @@
 # CDP SDK Changelog
 
+## 1.56.0
+
+### Minor Changes
+
+- f15e64f: Bumped the `@x402/core`, `@x402/evm`, `@x402/extensions`, and `@x402/svm` peer dependencies to `^2.25.0`. `CdpX402Client` now supports the `upto` scheme on Solana when explicitly enabled via `networkSchemes` and registers the `authCapture` scheme by default on Base, alongside `exact` and `upto`. `createX402Server` also gained `upto` (usage-based billing) support on Solana; `upto` was previously EVM-only server-side because the resource server had to sign an arbitrary-bytes settlement voucher, and `@x402/svm@2.25.0` makes the voucher-signing key optional, so `createX402Server` delegates the payment channel's `authorized_signer` role to the CDP Facilitator.
+
+  As a result, a simplified route with `scheme: "upto"` and no explicit `networks` now expands to Base **and** Solana (previously Base only), matching `scheme: "exact"`, and `getCdpDefaultSchemes()` returns four registrations instead of three. Routes that should stay EVM-only need an explicit `networks` list. `upto` on a Solana network is also no longer rejected when requested explicitly, in either the simplified or the full x402 route format. This requires a CDP Facilitator that advertises a `receiverAuthorizer` for `upto` on `solana:*`.
+
+  Also gave `CdpRouteConfig` (the simplified route shape — `price` + optional fields, accepted alongside the full x402 `RouteConfig` in `createX402Server`'s `routes` map) an optional `paymentFlow` shorthand (`"authorization"` | `"upfront"`, exact-scheme only), applied to every network the route expands to. Invalid scheme/network and scheme/`paymentFlow` combinations are now rejected up front, before `createX402Server` provisions any receiver wallets.
+
+### Patch Changes
+
+- 9f9eee1: Widen the `axios` dependency to `^1.18.0` to pick up vulnerability fixes while staying permissive on minor and patch updates.
+- f6c01c5: `CdpX402Client` now emits a `console.warn` on construction when no `spendControls.maxAmountPerPayment` is configured. Unlike upstream `x402Client` (which defaults to a $1 per-payment cap), `CdpX402Client` disables that upstream default and applies no per-payment cap of its own unless one is set via `spendControls`. Without an explicit cap, a malicious or misconfigured resource server can request an arbitrarily large payment and the client will sign it — set `spendControls: { maxAmountPerPayment: { atomic: ..., asset: ... } }` to bound payment size. If you're migrating code that relied on upstream's default $1 cap, add this explicitly; it is not preserved.
+- 1ff5a14: Hardened x402 spend control guardrails: a `PaymentRequirements` object carrying both `amount` (v2) and `maxAmountRequired` (v1) is now rejected outright as malformed instead of selecting one field, each requirement is validated against the version-specific `@x402/core/schemas` shape before its amount is read, and `maxTimeoutSeconds` is bounded against a server-independent ceiling before it can influence a signed authorization's validity window.
+- 616112b: Fixed x402 spend control guardrails to select the amount field by negotiated protocol version instead of field presence, and to always confirm (never roll back) provisional spend once a payment response is observed, since a self-reported settlement failure is not a trustworthy signal once the payment authorization has already been transmitted.
+
 ## 1.55.0
 
 ### Minor Changes

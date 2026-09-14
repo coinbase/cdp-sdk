@@ -15,7 +15,10 @@ import {
   setSettlementOverrides,
   x402ResourceServer,
 } from "@x402/express";
-import { createCdpFacilitatorClient, createX402Server } from "@coinbase/cdp-sdk/x402";
+import {
+  createCdpFacilitatorClient,
+  createX402Server,
+} from "@coinbase/cdp-sdk/x402";
 
 const APPROACH = process.env.APPROACH ?? "2";
 const PORT = Number(process.env.PORT ?? 8402);
@@ -24,10 +27,16 @@ const app = express();
 if (APPROACH === "1") {
   // Drop the CDP facilitator into an existing x402ResourceServer / paymentMiddleware setup.
   const PAY_TO = (process.env.PAY_TO ?? "") as Address;
-  if (!PAY_TO) throw new Error("PAY_TO env var required (an EVM address to receive payments)");
+  if (!PAY_TO)
+    throw new Error(
+      "PAY_TO env var required (an EVM address to receive payments)",
+    );
 
   const facilitator = createCdpFacilitatorClient();
-  const server = new x402ResourceServer(facilitator).register("eip155:84532", new ExactEvmScheme());
+  const server = new x402ResourceServer(facilitator).register(
+    "eip155:84532",
+    new ExactEvmScheme(),
+  );
 
   app.use(
     paymentMiddleware(
@@ -50,18 +59,21 @@ if (APPROACH === "1") {
 
   app.get("/report", (_req, res) => res.json({ report: "..." }));
   app.listen(PORT, () =>
-    console.log(`Listening on http://localhost:${PORT}\nReceiving EVM payments at ${PAY_TO}`),
+    console.log(
+      `Listening on http://localhost:${PORT}\nReceiving EVM payments at ${PAY_TO}`,
+    ),
   );
 } else if (APPROACH === "2") {
   const server = await createX402Server({
     environment: "development", // Base Sepolia + Solana Devnet; "production" for mainnet
     routes: {
       "GET /report": { price: "$0.01", description: "AI-generated report" },
-      // "upto" defaults to Base only — no explicit networks needed.
+      // "upto" defaults to Base + Solana, same as "exact" — no explicit networks needed.
       "GET /usage": {
         price: "$0.10",
         scheme: "upto",
-        description: "Usage-based billing — authorize up to $0.10, settle actual usage",
+        description:
+          "Usage-based billing — authorize up to $0.10, settle actual usage",
       },
     },
   });
@@ -89,7 +101,8 @@ if (APPROACH === "1") {
 
   // Smoke test only: createX402Server never registers auth-capture server-side (client-only
   // upstream today). Hand-builds a 402, then returns 501 once a signed payload arrives.
-  const AUTH_CAPTURE_USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+  const AUTH_CAPTURE_USDC_BASE_SEPOLIA =
+    "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
 
   app.get("/auth-capture-mock", (req, res) => {
     if (req.header("PAYMENT-SIGNATURE")) {
@@ -131,7 +144,10 @@ if (APPROACH === "1") {
 
     res
       .status(402)
-      .set("PAYMENT-REQUIRED", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"))
+      .set(
+        "PAYMENT-REQUIRED",
+        Buffer.from(JSON.stringify(paymentRequired)).toString("base64"),
+      )
       .json(paymentRequired);
   });
 
@@ -156,5 +172,7 @@ if (APPROACH === "1") {
     ),
   );
 } else {
-  throw new Error(`Unknown APPROACH "${APPROACH}" — set APPROACH to 1, 2, or 3.`);
+  throw new Error(
+    `Unknown APPROACH "${APPROACH}" — set APPROACH to 1, 2, or 3.`,
+  );
 }

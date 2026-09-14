@@ -83,6 +83,10 @@ vi.mock("@x402/svm/exact/server", () => ({
   ExactSvmScheme: vi.fn().mockImplementation(() => ({ scheme: "exact", network: "solana:*" })),
 }));
 
+vi.mock("@x402/svm/upto/server", () => ({
+  UptoSvmScheme: vi.fn().mockImplementation(() => ({ scheme: "upto", network: "solana:*" })),
+}));
+
 vi.mock("./facilitator.js", () => ({
   createCdpFacilitatorClient: vi.fn().mockReturnValue(mockFacilitatorClient),
 }));
@@ -97,7 +101,14 @@ vi.mock("../client/cdp.js", () => ({
       listSmartAccounts: vi.fn().mockResolvedValue({ accounts: [], nextPageToken: undefined }),
     },
     solana: {
-      getOrCreateAccount: vi.fn().mockResolvedValue({ address: MOCK_SVM_ADDRESS }),
+      getOrCreateAccount: vi.fn().mockResolvedValue({
+        address: MOCK_SVM_ADDRESS,
+        signMessage: vi.fn(),
+      }),
+      getAccount: vi.fn().mockResolvedValue({
+        address: MOCK_SVM_ADDRESS,
+        signMessage: vi.fn(),
+      }),
     },
   })),
 }));
@@ -185,6 +196,10 @@ describe("createX402Server", () => {
       expect(mockResourceServer.register).toHaveBeenCalledWith(
         "solana:*",
         expect.objectContaining({ scheme: "exact" }),
+      );
+      expect(mockResourceServer.register).toHaveBeenCalledWith(
+        "solana:*",
+        expect.objectContaining({ scheme: "upto" }),
       );
     });
 
@@ -345,7 +360,10 @@ describe("createX402Server", () => {
   describe("wallet provisioning — only needed families", () => {
     const makeCdpMock = () => {
       const evmGetOrCreate = vi.fn().mockResolvedValue({ address: MOCK_EVM_ADDRESS });
-      const solanaGetOrCreate = vi.fn().mockResolvedValue({ address: MOCK_SVM_ADDRESS });
+      const solanaGetOrCreate = vi.fn().mockResolvedValue({
+        address: MOCK_SVM_ADDRESS,
+        signMessage: vi.fn(),
+      });
       const instance = {
         evm: {
           getOrCreateAccount: evmGetOrCreate,
@@ -406,16 +424,39 @@ describe("createX402Server", () => {
       expect(evmGetOrCreate).toHaveBeenCalledOnce();
       expect(solanaGetOrCreate).toHaveBeenCalledOnce();
     });
+
+    it("provisions both families for a default (upto) route", async () => {
+      const { CdpClient } = await import("../client/cdp.js");
+      const { instance, evmGetOrCreate, solanaGetOrCreate } = makeCdpMock();
+      vi.mocked(CdpClient).mockImplementationOnce(
+        () => instance as unknown as ReturnType<typeof CdpClient>,
+      );
+
+      await createX402Server({
+        routes: { "GET /r": { price: "$0.01", scheme: "upto" as CdpPaymentScheme } },
+      });
+
+      expect(evmGetOrCreate).toHaveBeenCalledOnce();
+      expect(solanaGetOrCreate).toHaveBeenCalledOnce();
+    });
   });
 
   describe("Solana upto scheme registration", () => {
-    it("never registers Solana upto — only exact is registered for solana:*", async () => {
+    it("registers both exact and upto for solana:*", async () => {
       await createX402Server({ routes: { "GET /r": { price: "$0.01" } } }); // default networks include Solana
 
       const svmSchemes = mockResourceServer.register.mock.calls
         .filter(call => call[0] === "solana:*")
         .map(call => (call[1] as { scheme: string }).scheme);
-      expect(svmSchemes).toEqual(["exact"]);
+      expect(svmSchemes).toEqual(["exact", "upto"]);
+    });
+
+    it("constructs the Solana upto scheme with no receiverAuthorizerSigner, delegating to the facilitator", async () => {
+      const { UptoSvmScheme } = await import("@x402/svm/upto/server");
+
+      await createX402Server({ routes: { "GET /r": { price: "$0.01" } } });
+
+      expect(UptoSvmScheme).toHaveBeenCalledWith();
     });
   });
 
@@ -742,7 +783,7 @@ describe("createX402Server", () => {
       expect(passedRoutes["GET /metered"].accepts.scheme).toBe("upto");
     });
 
-    it("defaults to EVM-only networks when 'upto' scheme is used without explicit networks", async () => {
+    it("defaults to EVM+SVM networks when 'upto' scheme is used without explicit networks", async () => {
       const { x402HTTPResourceServer } = await import("@x402/core/server");
 
       await createX402Server({
@@ -751,48 +792,52 @@ describe("createX402Server", () => {
 
       const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
         unknown,
-        Record<string, { accepts: Array<{ network: string }> | { network: string } }>,
+        Record<
+          string,
+          {
+            accepts:
+              | Array<{ network: string; scheme: string }>
+              | { network: string; scheme: string };
+          }
+        >,
       ];
       const accepts = passedRoutes["GET /metered"].accepts;
-      const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
+      const acceptsArray = Array.isArray(accepts) ? accepts : [accepts];
+      const networks = acceptsArray.map(a => a.network);
       expect(networks).toContain(CDP_SERVER_DEFAULT_EVM_NETWORKS[0]);
-      expect(networks).not.toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
+      expect(networks).toContain(CDP_SERVER_DEFAULT_SVM_NETWORKS[0]);
+      expect(acceptsArray.every(accept => accept.scheme === "upto")).toBe(true);
     });
 
-    it("rejects 'upto' scheme with an explicit Solana network", async () => {
-      await expect(
-        createX402Server({
-          routes: {
-            "GET /metered-solana": {
-              price: "$0.01",
-              scheme: "upto" as CdpPaymentScheme,
-              networks: ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
-            },
+    it("accepts 'upto' scheme with an explicit Solana network", async () => {
+      const { x402HTTPResourceServer } = await import("@x402/core/server");
+
+      await createX402Server({
+        routes: {
+          "GET /metered-solana": {
+            price: "$0.01",
+            scheme: "upto" as CdpPaymentScheme,
+            networks: ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
           },
+        },
+      });
+
+      const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+        unknown,
+        Record<string, { accepts: Array<{ network: string; scheme: string; payTo: string }> }>,
+      ];
+      expect(passedRoutes["GET /metered-solana"].accepts).toEqual([
+        expect.objectContaining({
+          scheme: "upto",
+          network: "eip155:8453",
+          payTo: MOCK_EVM_ADDRESS,
         }),
-      ).rejects.toThrow(/only supports EVM/);
-    });
-
-    it("rejects 'upto' scheme with an explicit Solana network before provisioning any wallets", async () => {
-      // Regression test: this config used to fail inside `resolveRoutes`, by
-      // which point `provisionServerAccounts` had already created real EVM
-      // and Solana receiver wallets via `CdpClient` for the (wrongly)
-      // inferred network families.
-      const { CdpClient } = await import("../client/cdp.js");
-
-      await expect(
-        createX402Server({
-          routes: {
-            "GET /metered-solana": {
-              price: "$0.01",
-              scheme: "upto" as CdpPaymentScheme,
-              networks: ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
-            },
-          },
+        expect.objectContaining({
+          scheme: "upto",
+          network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+          payTo: MOCK_SVM_ADDRESS,
         }),
-      ).rejects.toThrow(/only supports EVM/);
-
-      expect(CdpClient).not.toHaveBeenCalled();
+      ]);
     });
 
     it("fills payTo for 'upto' scheme using EVM address", async () => {
@@ -1073,13 +1118,13 @@ describe("CDP_SERVER_DEFAULT_NETWORKS", () => {
 });
 
 describe("getCdpDefaultSchemes", () => {
-  it("returns three entries — exact+upto for EVM and exact for Solana", () => {
+  it("returns four entries — exact+upto for both EVM and Solana", () => {
     const schemes = getCdpDefaultSchemes();
-    expect(schemes).toHaveLength(3);
+    expect(schemes).toHaveLength(4);
     const evmSchemes = schemes.filter(s => (s.network as string) === "eip155:*");
     const svmSchemes = schemes.filter(s => (s.network as string) === "solana:*");
     expect(evmSchemes).toHaveLength(2);
-    expect(svmSchemes).toHaveLength(1);
+    expect(svmSchemes).toHaveLength(2);
   });
 
   it("EVM entries cover exact and upto schemes", () => {
@@ -1091,10 +1136,13 @@ describe("getCdpDefaultSchemes", () => {
     expect(evmSchemeNames).toContain("upto");
   });
 
-  it("Solana entry covers exact scheme only", () => {
+  it("Solana entries cover exact and upto schemes", () => {
     const schemes = getCdpDefaultSchemes();
-    const svmEntry = schemes.find(s => (s.network as string) === "solana:*");
-    expect(svmEntry?.server.scheme).toBe("exact");
+    const svmSchemeNames = schemes
+      .filter(s => (s.network as string) === "solana:*")
+      .map(s => s.server.scheme);
+    expect(svmSchemeNames).toContain("exact");
+    expect(svmSchemeNames).toContain("upto");
   });
 
   it("returns independent instances on each call", () => {
@@ -1596,7 +1644,7 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
     expect(networks).not.toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
   });
 
-  it("upto with development environment defaults to development EVM-only networks", async () => {
+  it("upto with development environment defaults to development EVM+SVM networks", async () => {
     const { x402HTTPResourceServer } = await import("@x402/core/server");
 
     await createX402Server({
@@ -1611,7 +1659,7 @@ describe("createX402Server — environment / CDP_X402_SERVER_ENVIRONMENT", () =>
     const accepts = passedRoutes["GET /metered"].accepts;
     const networks = (Array.isArray(accepts) ? accepts : [accepts]).map(a => a.network);
     expect(networks).toContain(CDP_SERVER_DEVELOPMENT_EVM_NETWORKS[0]);
-    expect(networks).not.toContain(CDP_SERVER_DEVELOPMENT_SVM_NETWORKS[0]);
+    expect(networks).toContain(CDP_SERVER_DEVELOPMENT_SVM_NETWORKS[0]);
   });
 
   it("unknown CDP_X402_SERVER_ENVIRONMENT value falls back to production", async () => {
@@ -1725,29 +1773,30 @@ describe("createX402Server — empty payTo guard", () => {
     ).rejects.toThrow(/No receiver address for EVM/);
   });
 
-  it("rejects a full x402 route with 'upto' on a Solana network before provisioning any wallets", async () => {
-    // Regression test: the full x402 format's `accepts[].scheme`/`network`
-    // pairs previously weren't validated until `resolveRoutes`, by which
-    // point `provisionServerAccounts` had already run.
-    const { CdpClient } = await import("../client/cdp.js");
+  it("fills the Solana payTo on a full x402 route with 'upto' on a Solana network", async () => {
+    const { x402HTTPResourceServer } = await import("@x402/core/server");
 
-    await expect(
-      createX402Server({
-        routes: {
-          "GET /r": {
-            accepts: {
-              scheme: "upto" as const,
-              price: "$0.01",
-              network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" as `${string}:${string}`,
-              payTo: "",
-              maxTimeoutSeconds: 300,
-            },
+    await createX402Server({
+      routes: {
+        "GET /r": {
+          accepts: {
+            scheme: "upto" as const,
+            price: "$0.01",
+            network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" as `${string}:${string}`,
+            payTo: "",
+            maxTimeoutSeconds: 300,
           },
         },
-      }),
-    ).rejects.toThrow(/only supports EVM/);
+      },
+    });
 
-    expect(CdpClient).not.toHaveBeenCalled();
+    const [, passedRoutes] = vi.mocked(x402HTTPResourceServer).mock.calls[0] as [
+      unknown,
+      Record<string, { accepts: { scheme: string; payTo: string } }>,
+    ];
+    expect(passedRoutes["GET /r"].accepts).toEqual(
+      expect.objectContaining({ scheme: "upto", payTo: MOCK_SVM_ADDRESS }),
+    );
   });
 
   it("does NOT throw when only EVM network is used and only evm address is provided", async () => {

@@ -23,8 +23,9 @@ your `.env`:
 
 ## Funding
 
-The client examples pay in USDC on Base Sepolia, so the wallet needs testnet USDC before it can
-pay. Each client prints its EVM address on startup. Fund that address using any of:
+The client examples pay in USDC, so the selected wallet needs testnet USDC before it can pay. Most
+examples use Base Sepolia; the scheme matrix also covers Solana Devnet. The clients print the
+relevant payment addresses on startup. Fund the Base Sepolia address using any of:
 
 - **CDP Faucet (portal):** https://portal.cdp.coinbase.com -> "Onchain Tools" -> "Faucet"
 - **Programmatically:** `cdp.evm.requestFaucet({ address, network: "base-sepolia", token: "usdc" })`
@@ -32,7 +33,8 @@ pay. Each client prints its EVM address on startup. Fund that address using any 
   requests USDC and exits; re-run it without the flag once the transfer confirms.
 
 The CDP faucet funds the same wallets the CDP x402 facilitator settles against — no separate
-faucet is needed.
+faucet is needed. For Solana Devnet, call
+`cdp.solana.requestFaucet({ address, token: "usdc" })` with the printed Solana address.
 
 ## Clients
 
@@ -68,8 +70,9 @@ from the client examples — install and start it from its own directory. They f
 shared `examples/typescript/.env`, so there is no second copy of your credentials to maintain.
 
 Express and Hono serve a paid `GET /report` on http://localhost:8402; the Next.js server serves
-`GET /api/report` on the same port. Every server settles on Base Sepolia so the clients above can
-pay it. `APPROACH` selects the CDP wiring:
+`GET /api/report` on the same port. Routes created by `createX402Server` accept Base Sepolia and
+Solana Devnet by default; the manual wiring examples use Base Sepolia. `APPROACH` selects the CDP
+wiring:
 
 1. **`APPROACH=1`** — drop `createCdpFacilitatorClient()` into an x402 server you already have.
    Needs `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`, and `PAY_TO`; no wallet secret, because the
@@ -137,22 +140,20 @@ a pass/fail check. `exact`, `upto`, and `authCapture` are all registered by defa
 | `exact` | Base Sepolia | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
 | `exact` | Solana Devnet | CDP Express (`GET /report`) | `X402_API_URL=http://localhost:8402/report X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
 | `upto` | Base Sepolia | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage X402_PREFERRED_NETWORK=eip155:84532 pnpm tsx x402/clients/payForSchemes.ts` |
+| `upto` | Solana Devnet | CDP Express (`GET /usage`) | `X402_API_URL=http://localhost:8402/usage X402_PREFERRED_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1 pnpm tsx x402/clients/payForSchemes.ts` |
 | `auth-capture` | Base Sepolia | CDP Express (`GET /auth-capture-mock`, smoke test only) | `X402_API_URL=http://localhost:8402/auth-capture-mock pnpm tsx x402/clients/payForSchemes.ts` |
 
-`GET /report` accepts Base Sepolia and Solana Devnet by default, so `X402_PREFERRED_NETWORK` forces
-the client's network choice via a registered `PaymentPolicy` — without it, `CdpX402Client` picks
-whichever the underlying `x402Client` selects first. `GET /usage` is Base Sepolia only —
-`createX402Server`'s `upto` support doesn't extend to Solana yet (see below).
+`GET /report` and `GET /usage` both accept Base Sepolia and Solana Devnet by default, so
+`X402_PREFERRED_NETWORK` forces the client's network choice via a registered `PaymentPolicy` —
+without it, `CdpX402Client` picks whichever the underlying `x402Client` selects first.
 
-**`exact` on Base + Solana, `upto` on Base** run against the CDP Express server from the
+**`exact` and `upto` on Base + Solana** run against the CDP Express server from the
 [Servers](#servers) section above (`cd x402/servers/express && APPROACH=2 pnpm start`) — no extra
 setup beyond funding the wallet (see [Funding](#funding); fund the Solana address too, via
-`cdp.solana.requestFaucet({ address, token: "usdc" | "sol" })`, for the Solana Devnet case).
+`cdp.solana.requestFaucet({ address, token: "usdc" })`, for the Solana Devnet cases).
 
-**`upto` on Solana** is supported by `CdpX402Client` (registered by default whenever a route
-requests it), but not by `createX402Server`: the resource server would need to sign an
-arbitrary-bytes settlement voucher, and CDP's Solana account signing API can only sign UTF-8 text
-today. Tracked separately; no example route exercises it until server-side support lands.
+On Solana, `upto` settles through a payment channel whose `authorized_signer` is delegated to the
+CDP Facilitator, so the example server never holds a voucher-signing key.
 
 **`auth-capture` on Base** has no facilitator or resource-server support yet (client-only, on by
 default alongside `exact`/`upto`; see the CDP SDK's `README.md`). `GET /auth-capture-mock` on the

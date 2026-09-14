@@ -4540,6 +4540,14 @@ async function ensureX402DefaultEvmPayerFunded(): Promise<void> {
   await ensureSufficientBaseSepoliaUsdcBalance(cdp, payer);
 }
 
+async function ensureX402DefaultSvmPayerFunded(): Promise<void> {
+  const cdp = new CdpClient(
+    process.env.E2E_BASE_PATH ? { basePath: process.env.E2E_BASE_PATH } : {},
+  );
+  const payer = await cdp.solana.getOrCreateAccount({ name: X402_CLIENT_DEFAULT_ACCOUNT_NAME });
+  await ensureSufficientSolanaDevnetUsdcBalance(cdp, payer);
+}
+
 describe("x402 signing E2E Tests", () => {
   it("EVM EOA account signs an x402 payment the CDP facilitator verifies", async () => {
     const cdp = new CdpClient(
@@ -5495,6 +5503,38 @@ function createX402HttpTestServer(
 }
 
 /**
+ * Binds `httpServer` to an ephemeral port, invokes `run` with the resulting
+ * resource URL, and always closes the server afterward.
+ *
+ * @param httpServer - An unbound HTTP server.
+ * @param path - Path to append to the origin, e.g. `"/ping"`.
+ * @param run - Callback invoked with the resource URL.
+ * @returns The value returned by `run`.
+ */
+async function withServedUrl<T>(
+  httpServer: Server,
+  path: string,
+  run: (url: string) => Promise<T>,
+): Promise<T> {
+  try {
+    const url = await new Promise<string>((resolve, reject) => {
+      httpServer.on("error", reject);
+      httpServer.listen(0, () => {
+        const addr = httpServer.address() as { port: number } | null;
+        if (addr) {
+          resolve(`http://localhost:${addr.port}${path}`);
+        } else {
+          reject(new Error("failed to bind local X402 test server"));
+        }
+      });
+    });
+    return await run(url);
+  } finally {
+    httpServer.close();
+  }
+}
+
+/**
  * Spins up a local `X402Server`-backed HTTP resource on an ephemeral port,
  * invokes `run` with its URL, and always tears the server down afterward.
  *
@@ -5530,28 +5570,12 @@ async function withLocalX402PaidResource<T>(
     body: { pong: true },
   }));
 
-  try {
-    const url = await new Promise<string>((resolve, reject) => {
-      httpServer.on("error", reject);
-      httpServer.listen(0, () => {
-        const addr = httpServer.address() as { port: number } | null;
-        if (!addr) {
-          reject(new Error("failed to bind local X402 test server"));
-          return;
-        }
-        resolve(`http://localhost:${addr.port}/ping`);
-      });
-    });
-    return await run(url);
-  } finally {
-    httpServer.close();
-  }
+  return withServedUrl(httpServer, "/ping", run);
 }
 
 describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
   it("CdpX402Client pays X402Server, server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
     await ensureX402DefaultEvmPayerFunded();
-    // 1. Spin up an X402Server — auto-provisions receiver wallet on Base Sepolia.
     const x402Server = await createX402Server({
       routes: {
         "GET /ping": {
@@ -5563,8 +5587,6 @@ describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
       },
     });
 
-    // Receiver must differ from payer — CDP facilitator rejects self-sends.
-    // The provisioned receiver is a separate CDP wallet from the payer wallet.
     expect(x402Server.payToEvmAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
 
     const httpServer = createX402HttpTestServer(x402Server, async () => ({
@@ -5572,35 +5594,15 @@ describe("createX402Server + CdpX402Client round-trip E2E Tests", () => {
       body: { pong: true },
     }));
 
-    await new Promise<void>((resolve, reject) => {
-      httpServer.listen(0, async () => {
-        const addr = httpServer.address() as { port: number };
-        const url = `http://localhost:${addr.port}/ping`;
+    await withServedUrl(httpServer, "/ping", async url => {
+      const client = new CdpX402Client({ environment: "development" });
+      const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+      const response = await fetchWithPayment(url);
 
-        try {
-          // 2. Pay with CdpX402Client — auto-provisions a separate payer wallet.
-          const client = new CdpX402Client({ environment: "development" });
-          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-          const response = await fetchWithPayment(url);
-
-          // 3. Assert the full flow succeeded.
-          expect(response.status).toBe(200);
-
-          // PAYMENT-RESPONSE header is set by processSettlement on success,
-          // confirming the CDP facilitator verified and settled the payment.
-          const paymentResponse = response.headers.get("payment-response");
-          expect(paymentResponse).toBeTruthy();
-
-          const body = (await response.json()) as { pong: boolean };
-          expect(body.pong).toBe(true);
-
-          resolve();
-        } catch (err) {
-          reject(err);
-        } finally {
-          httpServer.close();
-        }
-      });
+      expect(response.status).toBe(200);
+      expect(response.headers.get("payment-response")).toBeTruthy();
+      const body = (await response.json()) as { pong: boolean };
+      expect(body.pong).toBe(true);
     });
   }, 300_000);
 });
@@ -5672,6 +5674,44 @@ describe("createX402Server E2E Tests", () => {
 
 // ─── upto round-trip E2E Tests ─────────────────────────────────────────────
 
+async function expectSvmUptoRoundTrip(): Promise<void> {
+  await ensureX402DefaultSvmPayerFunded();
+
+  const x402Server = await createX402Server({
+    routes: {
+      "GET /ping": {
+        price: "$0.001",
+        scheme: "upto",
+        description: "Solana upto round-trip e2e test",
+        networks: [X402_SOLANA_DEVNET_CAIP2],
+        extensions: { bazaar: null },
+      },
+    },
+  });
+
+  expect(x402Server.payToSvmAddress).toMatch(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/);
+  expect(x402Server.payToEvmAddress).toBeUndefined();
+
+  const httpServer = createX402HttpTestServer(x402Server, async () => ({
+    status: 200,
+    body: { pong: true },
+  }));
+
+  await withServedUrl(httpServer, "/ping", async url => {
+    const client = new CdpX402Client({
+      environment: "development",
+      networkSchemes: [{ network: "solana-devnet", scheme: { upto: true } }],
+    });
+    const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+    const response = await fetchWithPayment(url);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("payment-response")).toBeTruthy();
+    const body = (await response.json()) as { pong: boolean };
+    expect(body.pong).toBe(true);
+  });
+}
+
 describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
   it("CdpX402Client pays X402Server (upto), server verifies+settles via CDP facilitator, client gets 200 + PAYMENT-RESPONSE", async () => {
     await ensureX402DefaultEvmPayerFunded();
@@ -5695,29 +5735,66 @@ describe("createX402Server upto + CdpX402Client round-trip E2E Tests", () => {
       body: { pong: true },
     }));
 
-    await new Promise<void>((resolve, reject) => {
-      httpServer.listen(0, async () => {
-        const addr = httpServer.address() as { port: number };
-        const url = `http://localhost:${addr.port}/ping`;
+    await withServedUrl(httpServer, "/ping", async url => {
+      const client = new CdpX402Client({ environment: "development" });
+      const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
+      const response = await fetchWithPayment(url);
 
-        try {
-          // Client: CdpX402Client auto-registers UptoEvmScheme for EOA wallets.
-          const client = new CdpX402Client({ environment: "development" });
-          const fetchWithPayment = wrapFetchWithPayment(globalThis.fetch, client);
-          const response = await fetchWithPayment(url);
-
-          expect(response.status).toBe(200);
-          expect(response.headers.get("payment-response")).toBeTruthy();
-          const body = (await response.json()) as { pong: boolean };
-          expect(body.pong).toBe(true);
-          resolve();
-        } catch (err) {
-          reject(err);
-        } finally {
-          httpServer.close();
-        }
-      });
+      expect(response.status).toBe(200);
+      expect(response.headers.get("payment-response")).toBeTruthy();
+      const body = (await response.json()) as { pong: boolean };
+      expect(body.pong).toBe(true);
     });
+  }, 300_000);
+
+  it("CDP facilitator advertises a delegated receiverAuthorizer for upto on Solana devnet", async () => {
+    const facilitator = createCdpFacilitatorClient();
+    const supported = await facilitator.getSupported();
+
+    const uptoSolanaKind = supported.kinds.find(
+      kind => kind.scheme === "upto" && String(kind.network) === X402_SOLANA_DEVNET_CAIP2,
+    );
+    expect(uptoSolanaKind).toBeDefined();
+
+    const receiverAuthorizer = uptoSolanaKind!.extra?.receiverAuthorizer;
+    expect(typeof receiverAuthorizer).toBe("string");
+    expect(receiverAuthorizer).toMatch(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/);
+  }, 60_000);
+
+  it("serves a 402 on a default-network upto route covering both Base Sepolia and Solana devnet", async () => {
+    const server = await createX402Server({
+      routes: {
+        "GET /ping": { price: "$0.001", scheme: "upto", extensions: { bazaar: null } },
+      },
+      environment: "development",
+    });
+
+    const httpServer = createX402HttpTestServer(server, async () => ({
+      status: 200,
+      body: { pong: true },
+    }));
+
+    await withServedUrl(httpServer, "/ping", async url => {
+      const response = await fetch(url);
+      expect(response.status).toBe(402);
+
+      const header = response.headers.get("payment-required");
+      expect(header).toBeTruthy();
+      const challenge = JSON.parse(Buffer.from(header!, "base64").toString("utf8")) as {
+        accepts: Array<{ network: string; extra?: Record<string, unknown> }>;
+      };
+
+      const networks = challenge.accepts.map(a => a.network);
+      expect(networks).toContain(X402_BASE_SEPOLIA_CAIP2);
+      expect(networks).toContain(X402_SOLANA_DEVNET_CAIP2);
+
+      const svmAccept = challenge.accepts.find(a => a.network === X402_SOLANA_DEVNET_CAIP2)!;
+      expect(typeof svmAccept.extra?.receiverAuthorizer).toBe("string");
+    });
+  }, 120_000);
+
+  it("settles Solana devnet upto through the delegated facilitator authorizer", async () => {
+    await expectSvmUptoRoundTrip();
   }, 300_000);
 });
 

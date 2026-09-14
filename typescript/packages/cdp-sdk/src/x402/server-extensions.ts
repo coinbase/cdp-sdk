@@ -25,6 +25,7 @@ import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
 import { BUILDER_CODE, builderCodeResourceServerExtension } from "@x402/extensions/builder-code";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
+import { UptoSvmScheme } from "@x402/svm/upto/server";
 
 import type { ResourceServerExtension, Network, SchemeNetworkServer } from "@x402/core/types";
 
@@ -180,14 +181,12 @@ export interface CdpSchemeRegistration {
 }
 
 /**
- * Returns the default CDP scheme registrations:
- * - `exact` for all EVM networks (`eip155:*`)
- * - `upto` for all EVM networks (`eip155:*`)
- * - `exact` for all Solana networks (`solana:*`)
+ * Returns the default CDP scheme registrations — `exact` and `upto` for all
+ * EVM (`eip155:*`) and Solana (`solana:*`) networks.
  *
- * Solana `upto` is not included: it requires the resource server to sign an
- * arbitrary-bytes settlement voucher, and CDP's Solana account signing API
- * can't sign arbitrary bytes today.
+ * Solana `upto` delegates voucher signing to the facilitator. No `rpcUrl` is
+ * passed; the client fetches a blockhash and slot when the challenge does not
+ * include them.
  *
  * Pass the result to `paymentMiddlewareFromConfig` (Express / Hono) or
  * any other framework adapter to replicate the same scheme coverage
@@ -200,13 +199,14 @@ export interface CdpSchemeRegistration {
  *
  * app.use(paymentMiddlewareFromConfig(routes, createCdpFacilitatorClient(), getCdpDefaultSchemes()));
  * ```
- * @returns Array of scheme+network registrations for EVM (exact+upto) and Solana (exact only).
+ * @returns Array of scheme+network registrations covering exact+upto on EVM and Solana.
  */
 export function getCdpDefaultSchemes(): CdpSchemeRegistration[] {
   return [
     { network: "eip155:*" as Network, server: new ExactEvmScheme() },
     { network: "eip155:*" as Network, server: new UptoEvmScheme() },
     { network: "solana:*" as Network, server: new ExactSvmScheme() },
+    { network: "solana:*" as Network, server: new UptoSvmScheme() },
   ];
 }
 

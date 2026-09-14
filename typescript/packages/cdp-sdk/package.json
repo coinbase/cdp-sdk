@@ -1,6 +1,6 @@
 {
   "name": "@coinbase/cdp-sdk",
-  "version": "1.55.0",
+  "version": "1.56.0",
   "description": "SDK for interacting with the Coinbase Developer Platform Wallet API",
   "type": "module",
   "main": "./_cjs/index.js",
@@ -56,10 +56,10 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@x402/core": "^2.24.0",
-    "@x402/evm": "^2.24.0",
-    "@x402/extensions": "^2.24.0",
-    "@x402/svm": "^2.24.0"
+    "@x402/core": "^2.25.0",
+    "@x402/evm": "^2.25.0",
+    "@x402/extensions": "^2.25.0",
+    "@x402/svm": "^2.25.0"
   },
   "peerDependenciesMeta": {
     "@x402/core": {

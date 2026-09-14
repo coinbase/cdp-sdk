@@ -150,12 +150,12 @@ export const CDP_SERVER_DEVELOPMENT_NETWORKS: readonly string[] = [
  * Payment scheme identifiers supported by the simplified CDP route format.
  *
  * - `"exact"` — (default) Transfer a fixed amount, locked at signing time.
- *   Supports EVM and Solana networks.
  * - `"upto"` — Usage-based billing: the client authorizes a maximum amount
- *   and the server settles the actual amount charged (≤ max). EVM only
- *   (via Permit2) — Solana isn't supported today, since it requires the
- *   resource server to sign an arbitrary-bytes settlement voucher and CDP's
- *   Solana account signing API can't sign arbitrary bytes yet.
+ *   and the server settles the actual amount charged (≤ max), via Permit2 on
+ *   EVM and a payment channel on Solana.
+ *
+ * Both support EVM and Solana networks. Solana `upto` delegates voucher signing
+ * to the facilitator.
  */
 export type CdpPaymentScheme = "exact" | "upto";
 
@@ -193,8 +193,8 @@ export interface CdpRouteConfig {
   /**
    * Payment scheme to use for this route.
    *
-   * Defaults to `"exact"`, which supports Base and Solana out of the box.
-   * `"upto"` supports Base only — see {@link CdpPaymentScheme}.
+   * Defaults to `"exact"`. Both `"exact"` and `"upto"` support Base and
+   * Solana out of the box — see {@link CdpPaymentScheme}.
    */
   scheme?: CdpPaymentScheme;
   /**
@@ -499,28 +499,6 @@ async function provisionServerAccounts(
  */
 
 /**
- * Payment schemes whose *default* network list (used only when a route omits
- * `networks`) is EVM-only.
- *
- * `"upto"` defaults to Base only: the resource server has no way to hold its
- * own Solana `receiverAuthorizerSigner` today (CDP's Solana account signing
- * API can only sign UTF-8 text, not the arbitrary-bytes settlement voucher
- * `@x402/svm`'s `upto` scheme requires), so `createX402Server` cannot support
- * `upto` on Solana at all right now — see {@link EVM_ONLY_SCHEMES}.
- */
-const EVM_DEFAULT_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
-
-/**
- * Returns `true` when the given payment scheme defaults to EVM-only networks.
- *
- * @param scheme - The payment scheme to check.
- * @returns `true` for schemes in {@link EVM_DEFAULT_ONLY_SCHEMES}.
- */
-function isEvmDefaultOnlyScheme(scheme: CdpPaymentScheme): boolean {
-  return EVM_DEFAULT_ONLY_SCHEMES.has(scheme);
-}
-
-/**
  * Classifies a CAIP-2 network identifier into a receiver-wallet family.
  *
  * @param network - CAIP-2 network identifier, e.g. `"eip155:8453"`.
@@ -533,33 +511,20 @@ function networkFamily(network: string): "evm" | "svm" | "other" {
 }
 
 /**
- * Returns the default networks for a simplified route given its scheme and the
- * deployment environment. Schemes in {@link EVM_DEFAULT_ONLY_SCHEMES} (`"upto"`)
- * default to EVM networks only; all other schemes (currently `"exact"`)
- * default to Base + Solana.
+ * Returns the default networks for a simplified route that omits `networks`.
+ * Both supported schemes (`"exact"` and `"upto"`) cover Base + Solana.
  *
- * @param scheme - Payment scheme for the route.
  * @param environment - Deployment environment controlling mainnet vs testnet defaults.
- * @returns The default CAIP-2 networks for the scheme.
+ * @returns The default CAIP-2 networks.
  */
-function getDefaultNetworksForScheme(
-  scheme: CdpPaymentScheme,
-  environment: "production" | "development",
-): readonly string[] {
-  if (isEvmDefaultOnlyScheme(scheme)) {
-    return environment === "development"
-      ? CDP_SERVER_DEVELOPMENT_EVM_NETWORKS
-      : CDP_SERVER_DEFAULT_EVM_NETWORKS;
-  }
+function getDefaultNetworks(environment: "production" | "development"): readonly string[] {
   return environment === "development"
     ? CDP_SERVER_DEVELOPMENT_NETWORKS
     : CDP_SERVER_DEFAULT_NETWORKS;
 }
 
 /**
- * Determines which network families (EVM / Solana) a single route references,
- * resolving simplified routes against their scheme defaults so the answer
- * reflects the networks that will actually be served.
+ * Determines which network families a route references.
  *
  * @param route - Simplified or full x402 route config.
  * @param environment - Deployment environment controlling default network selection.
@@ -569,13 +534,12 @@ function routeNetworkFamilies(
   route: CdpRouteConfig | RouteConfig,
   environment: "production" | "development",
 ): NetworkFamilies {
-  const networks: string[] = [];
+  let networks: string[];
   if ("accepts" in route) {
     const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
-    for (const option of accepts) networks.push(option.network as string);
+    networks = accepts.map(option => option.network as string);
   } else {
-    const scheme = route.scheme ?? "exact";
-    networks.push(...(route.networks ?? getDefaultNetworksForScheme(scheme, environment)));
+    networks = [...(route.networks ?? getDefaultNetworks(environment))];
   }
   return {
     evm: networks.some(network => networkFamily(network) === "evm"),
@@ -584,9 +548,7 @@ function routeNetworkFamilies(
 }
 
 /**
- * Aggregates the network families referenced across all routes. Used to decide
- * which receiver wallets to provision so an EVM-only server never creates a
- * Solana account (and vice versa).
+ * Aggregates the network families referenced across all routes.
  *
  * @param routes - Map of route patterns to simplified or full x402 route configs.
  * @param environment - Deployment environment controlling default network selection.
@@ -603,32 +565,6 @@ function requiredNetworkFamilies(
     result.svm ||= families.svm;
   }
   return result;
-}
-
-/**
- * Payment schemes that are never valid on a non-EVM network, even when
- * explicitly requested via `networks`. `"upto"` is here for the same reason
- * it's in {@link EVM_DEFAULT_ONLY_SCHEMES}: the resource server can't produce
- * a Solana `receiverAuthorizerSigner` today, so there's no way to make it
- * work even by opting in explicitly.
- */
-const EVM_ONLY_SCHEMES: ReadonlySet<CdpPaymentScheme> = new Set(["upto"]);
-
-/**
- * Throws when a scheme is configured with a network family it can never
- * support (see {@link EVM_ONLY_SCHEMES}).
- *
- * @param scheme - Payment scheme name (e.g. `"upto"`).
- * @param network - CAIP-2 network identifier (e.g. `"eip155:8453"`).
- */
-function assertSchemeSupportsNetwork(scheme: string, network: string): void {
-  if (EVM_ONLY_SCHEMES.has(scheme as CdpPaymentScheme) && !network.startsWith("eip155:")) {
-    throw new Error(
-      `Scheme "${scheme}" only supports EVM (eip155:*) networks. ` +
-        `Network "${network}" is not supported. ` +
-        `Remove it from the networks list or use scheme "exact".`,
-    );
-  }
 }
 
 /**
@@ -701,16 +637,10 @@ function validateRouteSemantics(
   environment: "production" | "development",
 ): void {
   for (const route of Object.values(routes)) {
-    if ("accepts" in route) {
-      const accepts = Array.isArray(route.accepts) ? route.accepts : [route.accepts];
-      for (const option of accepts) {
-        assertSchemeSupportsNetwork(option.scheme as string, option.network as string);
-      }
-      continue;
-    }
+    if ("accepts" in route) continue;
     const scheme = assertValidSimplifiedScheme(route.scheme ?? "exact");
     assertPaymentFlowCompatible(route, scheme);
-    const networks = route.networks ?? getDefaultNetworksForScheme(scheme, environment);
+    const networks = route.networks ?? getDefaultNetworks(environment);
     if (networks.length === 0) {
       throw new Error("Simplified route must include at least one network.");
     }
@@ -721,7 +651,6 @@ function validateRouteSemantics(
             `Simplified routes only support "eip155:*" (EVM) and "solana:*" networks.`,
         );
       }
-      assertSchemeSupportsNetwork(scheme, network);
     }
   }
 }
@@ -768,7 +697,6 @@ function fillX402RoutePayTo(
 
   const filled = accepts.map(option => {
     const network = option.network as string;
-    assertSchemeSupportsNetwork(option.scheme as string, network);
 
     if (typeof option.payTo !== "string" || option.payTo.trim() !== "") {
       return option;
@@ -816,7 +744,7 @@ function convertCdpRoute(
   const scheme = route.scheme ?? "exact";
   assertPaymentFlowCompatible(route, scheme);
   const usingDefaultNetworks = route.networks === undefined;
-  const defaultNetworks = getDefaultNetworksForScheme(scheme, environment);
+  const defaultNetworks = getDefaultNetworks(environment);
   /*
    * For default networks, drop families that have no receiver address so a
    * partial payToConfig (e.g. EVM-only) doesn't fail on an unused default
@@ -842,8 +770,6 @@ function convertCdpRoute(
   const maxTimeoutSeconds = route.maxTimeoutSeconds ?? 300;
 
   const accepts = networks.map(network => {
-    assertSchemeSupportsNetwork(scheme, network);
-
     const payTo = network.startsWith("eip155:")
       ? (evmAddress as string)
       : network.startsWith("solana:")
