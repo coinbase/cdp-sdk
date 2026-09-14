@@ -128,7 +128,8 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
     import re
 
     return (
-        "/accounts" in path
+        "/evm/accounts" in path
+        or "/solana/accounts" in path
         or "/spend-permissions" in path
         or "/user-operations/prepare-and-send" in path
         or "/embedded-wallet-api/" in path
