@@ -163,8 +163,9 @@ Gotchas worth stating once:
 and a price that acts as a ceiling; the handler calls `setSettlementOverrides(res, { amount })`
 with the amount actually used before sending the body. `amount` is a string, and it accepts atomic
 units (`"100000"` is $0.10 in 6-decimal USDC), a dollar price (`"$0.05"`), or a percentage of the
-authorized ceiling (`"50%"`) — pick whichever the usage calculation produces naturally. `upto` is
-EVM-only, so under `"development"` it resolves to Base Sepolia alone.
+authorized ceiling (`"50%"`) — pick whichever the usage calculation produces naturally. `upto`
+defaults to the same networks as `exact`, so under `"development"` it resolves to Base Sepolia and
+Solana Devnet. Solana voucher signing delegates to the facilitator.
 
 #### Python
 
