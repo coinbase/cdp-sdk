@@ -10,6 +10,7 @@ export type {
 export type { Policy } from "./policies/types.js";
 export {
   CreatePolicyBodySchema,
+  MAX_RULES_PER_POLICY,
   UpdatePolicyBodySchema,
   type CreatePolicyBody,
   type UpdatePolicyBody,

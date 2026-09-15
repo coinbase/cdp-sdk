@@ -31,7 +31,7 @@ class CreatePolicyRequest(BaseModel):
     """ # noqa: E501
     scope: StrictStr = Field(description="The scope of the policy.")
     description: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional human-readable description for the policy. Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.")
-    rules: List[Rule] = Field(description="A list of rules that comprise the policy. There is a limit of 10 rules per policy.")
+    rules: Annotated[List[Rule], Field(min_length=1, max_length=100)] = Field(description="A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.")
     __properties: ClassVar[List[str]] = ["scope", "description", "rules"]
 
     @field_validator('scope')

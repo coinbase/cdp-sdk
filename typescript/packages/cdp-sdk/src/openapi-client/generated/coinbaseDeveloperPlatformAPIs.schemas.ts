@@ -12202,7 +12202,11 @@ Policy descriptions can consist of alphanumeric characters, spaces, commas, and 
    * @pattern ^[A-Za-z0-9 ,.]{1,50}$
    */
   description?: string;
-  /** A list of rules that comprise the policy. There is a limit of 10 rules per policy. */
+  /**
+   * A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
+   * @minItems 1
+   * @maxItems 100
+   */
   rules: Rule[];
 };
 
@@ -12213,7 +12217,11 @@ Policy descriptions can consist of alphanumeric characters, spaces, commas, and 
    * @pattern ^[A-Za-z0-9 ,.]{1,50}$
    */
   description?: string;
-  /** A list of rules that comprise the policy. There is a limit of 10 rules per policy. */
+  /**
+   * A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
+   * @minItems 1
+   * @maxItems 100
+   */
   rules: Rule[];
 };
 
