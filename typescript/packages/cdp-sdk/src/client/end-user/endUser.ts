@@ -318,7 +318,7 @@ export class EndUserClient {
 
     const { userId, idempotencyKey } = options;
 
-    await CdpOpenApiClient.revokeDelegationForEndUser(userId, {}, undefined, idempotencyKey);
+    await CdpOpenApiClient.revokeDelegationForEndUserPost(userId, {}, undefined, idempotencyKey);
   }
 
   // ─── Account-Scoped Delegation Methods ───
@@ -376,7 +376,7 @@ export class EndUserClient {
 
     const { userId, address, idempotencyKey } = options;
 
-    await CdpOpenApiClient.revokeDelegationForEndUserAccount(
+    await CdpOpenApiClient.revokeDelegationForEndUserAccountPost(
       userId,
       address,
       {},

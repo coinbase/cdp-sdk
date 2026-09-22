@@ -434,7 +434,7 @@ class EndUserClient:
         """
         track_action(action="revoke_delegation_for_end_user")
 
-        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user(
+        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_post(
             user_id=user_id,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
             x_idempotency_key=idempotency_key,
@@ -482,7 +482,7 @@ class EndUserClient:
         """
         track_action(action="revoke_delegation_for_end_user_account")
 
-        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_account(
+        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_account_post(
             user_id=user_id,
             address=address,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),

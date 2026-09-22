@@ -427,7 +427,7 @@ class EndUserAccount(BaseModel):
         """
         track_action(action="end_user_revoke_delegation")
 
-        await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user(
+        await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user_post(
             user_id=self.__user_id,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
             x_idempotency_key=idempotency_key,
@@ -481,7 +481,7 @@ class EndUserAccount(BaseModel):
         track_action(action="end_user_revoke_delegation_for_account")
 
         resolved_address = self._resolve_evm_address(address)
-        await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user_account(
+        await self.__api_clients.embedded_wallets.revoke_delegation_for_end_user_account_post(
             user_id=self.__user_id,
             address=resolved_address,
             revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),

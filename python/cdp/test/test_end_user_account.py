@@ -264,14 +264,14 @@ def test_resolve_solana_address_no_account():
 async def test_revoke_delegation():
     """Test revoking delegation on EndUserAccount."""
     mock_api_clients = AsyncMock()
-    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user = AsyncMock(return_value=None)
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_post = AsyncMock(return_value=None)
 
     model = create_mock_end_user_model()
     account = EndUserAccount(model, mock_api_clients)
     await account.revoke_delegation()
 
-    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user.assert_called_once()
-    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user.call_args
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_post.assert_called_once()
+    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_post.call_args
     assert call_args.kwargs["user_id"] == "test-user-id"
 
 
@@ -547,7 +547,7 @@ async def test_get_delegation_for_account():
 async def test_revoke_delegation_for_account():
     """Test revoking the account-scoped delegation on EndUserAccount."""
     mock_api_clients = AsyncMock()
-    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account = AsyncMock(
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account_post = AsyncMock(
         return_value=None
     )
 
@@ -555,8 +555,8 @@ async def test_revoke_delegation_for_account():
     account = EndUserAccount(model, mock_api_clients)
     await account.revoke_delegation_for_account()
 
-    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.assert_called_once()
-    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account.call_args
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account_post.assert_called_once()
+    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_account_post.call_args
     assert call_args.kwargs["user_id"] == "test-user-id"
     assert call_args.kwargs["address"] == VALID_EVM_ADDRESS
 
@@ -585,13 +585,13 @@ async def test_add_evm_account_with_idempotency_key():
 async def test_revoke_delegation_with_idempotency_key():
     """Test that idempotency_key is forwarded when revoking delegation."""
     mock_api_clients = AsyncMock()
-    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user = AsyncMock(return_value=None)
+    mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_post = AsyncMock(return_value=None)
 
     model = create_mock_end_user_model()
     account = EndUserAccount(model, mock_api_clients)
     await account.revoke_delegation(idempotency_key="idem-revoke")
 
-    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user.call_args
+    call_args = mock_api_clients.embedded_wallets.revoke_delegation_for_end_user_post.call_args
     assert call_args.kwargs["x_idempotency_key"] == "idem-revoke"
 
 

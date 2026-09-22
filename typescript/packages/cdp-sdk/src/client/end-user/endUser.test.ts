@@ -7,8 +7,8 @@ vi.mock("../../openapi-client/index.js", () => ({
     addEndUserEvmAccount: vi.fn(),
     addEndUserEvmSmartAccount: vi.fn(),
     addEndUserSolanaAccount: vi.fn(),
-    revokeDelegationForEndUser: vi.fn(),
-    revokeDelegationForEndUserAccount: vi.fn(),
+    revokeDelegationForEndUserPost: vi.fn(),
+    revokeDelegationForEndUserAccountPost: vi.fn(),
     signEvmTransactionWithEndUserAccount: vi.fn(),
     signEvmMessageWithEndUserAccount: vi.fn(),
     signEvmTypedDataWithEndUserAccount: vi.fn(),
@@ -124,14 +124,14 @@ describe("EndUserClient idempotencyKey forwarding", () => {
   });
 
   it("should forward idempotencyKey for revokeDelegationForEndUser", async () => {
-    mockClient.revokeDelegationForEndUser.mockResolvedValueOnce(undefined as any);
+    mockClient.revokeDelegationForEndUserPost.mockResolvedValueOnce(undefined as any);
 
     await client.revokeDelegationForEndUser({
       userId: "user-1",
       idempotencyKey: "test-key",
     });
 
-    expect(mockClient.revokeDelegationForEndUser).toHaveBeenCalledWith(
+    expect(mockClient.revokeDelegationForEndUserPost).toHaveBeenCalledWith(
       "user-1",
       {},
       undefined,
@@ -140,7 +140,7 @@ describe("EndUserClient idempotencyKey forwarding", () => {
   });
 
   it("should forward idempotencyKey for revokeDelegationForEndUserAccount", async () => {
-    mockClient.revokeDelegationForEndUserAccount.mockResolvedValueOnce(undefined as any);
+    mockClient.revokeDelegationForEndUserAccountPost.mockResolvedValueOnce(undefined as any);
 
     await client.revokeDelegationForEndUserAccount({
       userId: "user-1",
@@ -148,7 +148,7 @@ describe("EndUserClient idempotencyKey forwarding", () => {
       idempotencyKey: "test-key",
     });
 
-    expect(mockClient.revokeDelegationForEndUserAccount).toHaveBeenCalledWith(
+    expect(mockClient.revokeDelegationForEndUserAccountPost).toHaveBeenCalledWith(
       "user-1",
       "0xabc",
       {},
