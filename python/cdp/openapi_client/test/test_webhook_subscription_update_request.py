@@ -40,7 +40,7 @@ class TestWebhookSubscriptionUpdateRequest(unittest.TestCase):
                 event_types = [onchain.activity.detected],
                 is_enabled = False,
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},
-                metadata = {customer_id=cust_12345, order_reference=order-67890},
+                metadata = {foo=bar, baz=qux},
                 labels = {
                     'key' : ''
                     }

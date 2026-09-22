@@ -39,7 +39,7 @@ class TestRequirement(unittest.TestCase):
                 status = 'due',
                 deadline = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 impact = [custodyCrypto, transferCrypto],
-                tos_versions = [{versionId=us_individual_2026-05-29, languages=[en], url=https://docs.cdp.coinbase.com/legal/terms/us_individual}],
+                tos_versions = [{versionId=us_individual_2026-05-29, languages=[en], url=https://www.coinbase.com/legal/user-agreements-third-party-provider}],
                 tax_forms = [us_w9]
             )
         else:

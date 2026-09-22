@@ -137,6 +137,7 @@ export const ErrorType = {
   asset_mismatch: "asset_mismatch",
   mfa_already_enrolled: "mfa_already_enrolled",
   mfa_invalid_code: "mfa_invalid_code",
+  mfa_challenge_not_found: "mfa_challenge_not_found",
   mfa_flow_expired: "mfa_flow_expired",
   mfa_required: "mfa_required",
   mfa_not_enrolled: "mfa_not_enrolled",
@@ -468,7 +469,7 @@ which translation the Customer reviewed.
   languages: string[];
   /** Canonical, language-agnostic URL where the Terms of Service
 document is hosted (for example,
-`https://docs.cdp.coinbase.com/legal/terms/us_individual`).
+`https://www.coinbase.com/legal/user-agreements-third-party-provider`).
 Append `?lang=<tag>` (where `<tag>` is one of `languages`) to
 retrieve a specific translation; without the parameter, the
 documentation site renders a default translation.
@@ -1247,6 +1248,12 @@ export interface CryptoDepositDestination {
 }
 
 /**
+ * The bank account number.
+ * @pattern ^[0-9]{4,17}$
+ */
+export type FiatAccountNumber = string;
+
+/**
  * A payment rail supported by a fiat deposit destination.
  */
 export type DepositDestinationPaymentRail =
@@ -1293,11 +1300,7 @@ export interface BankAccountUS {
    * @pattern ^[0-9]{9}$
    */
   routingNumber: string;
-  /**
-   * The bank account number.
-   * @pattern ^[0-9]{4,17}$
-   */
-  accountNumber: string;
+  accountNumber: FiatAccountNumber;
   /** The address of the bank. Present when required by the receiving institution. */
   bankAddress?: string;
   /** A reference code that must be included in the payment memo or reference field so the receiving institution can route the deposit to the correct account. Only present when required by the receiving institution. */
@@ -3188,6 +3191,193 @@ export interface EndUser {
 }
 
 /**
+ * The name of the EVM network that a borrow product is deployed on.
+ */
+export type BorrowProductNetwork = (typeof BorrowProductNetwork)[keyof typeof BorrowProductNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const BorrowProductNetwork = {
+  base: "base",
+} as const;
+
+/**
+ * The lending protocol that operates the borrow product.
+ */
+export type BorrowProductProtocol =
+  (typeof BorrowProductProtocol)[keyof typeof BorrowProductProtocol];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const BorrowProductProtocol = {
+  morpho_blue: "morpho_blue",
+} as const;
+
+/**
+ * The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+ * @pattern ^bp_[a-f0-9-]{36}$
+ */
+export type BorrowProductId = string;
+
+/**
+ * The onchain venue that hosts a borrow product. The venue comprises the protocol and  network the product is deployed on. An example of a venue would be Morpho Blue on  Base Mainnet.
+ */
+export interface BorrowProductVenue {
+  /**
+   * A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.
+   * @pattern ^bp_venue_[a-f0-9-]{36}$
+   */
+  venueId: string;
+  /**
+   * The contract address of the venue's entrypoint.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  entrypointAddress: string;
+  /** A human-readable name for the venue. */
+  name: string;
+}
+
+/**
+ * A token on an EVM borrow product network.
+ */
+export interface BorrowProductToken {
+  /**
+   * The contract address of the token.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /** The symbol of the token (e.g. USDC, WETH). */
+  symbol: string;
+  /** The number of decimal places used by the token. */
+  decimals: number;
+}
+
+/**
+ * The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.
+ */
+export type BorrowProductAssetCapabilityType =
+  (typeof BorrowProductAssetCapabilityType)[keyof typeof BorrowProductAssetCapabilityType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const BorrowProductAssetCapabilityType = {
+  collateral: "collateral",
+  debt: "debt",
+} as const;
+
+/**
+ * A capability an asset provides within a borrow product, describing the role the asset plays, either as collateral or debt, and whether that capability is currently active.
+ */
+export interface BorrowProductAssetCapability {
+  /** The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed. */
+  type: BorrowProductAssetCapabilityType;
+  /** Whether this capability is currently active. For example, an asset with a `collateral` capability and `enabled: false` cannot currently be borrowed against.
+Some venues may temporarily disable an asset's capability, which will be  reflected in the `enabled` field. This would not affect any user's existing  borrow positions. */
+  enabled: boolean;
+}
+
+/**
+ * The assets available to be borrowed or borrowed against in this market, together with the capabilities (collateral and/or debt) they provide.
+ */
+export interface BorrowProductAsset {
+  /**
+   * A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.
+   * @pattern ^bp_asset_[a-f0-9-]{36}$
+   */
+  assetId: string;
+  /** The onchain token that can be used as collateral or debt. */
+  token: BorrowProductToken;
+  /**
+   * The capabilities this asset provides within the borrow product. An asset may be used as collateral and/or debt.
+   * @minItems 1
+   */
+  capabilities: BorrowProductAssetCapability[];
+}
+
+/**
+ * The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.
+ */
+export interface BorrowProductSnapshot {
+  /** The block number at which the state was observed. */
+  blockNumber: number;
+  /**
+   * The hash of the block at which the state was observed.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  blockHash: string;
+  /** The onchain block timestamp at which the state was observed in Unix seconds. */
+  blockTimestamp: number;
+  /** The timestamp at which the state was observed. */
+  observedAt: string;
+}
+
+/**
+ * Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.
+ */
+export interface MorphoBlueMarketParams {
+  /**
+   * The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  onchainMarketId: string;
+  /** The token that is borrowed in the product. */
+  loanToken: BorrowProductToken;
+  /** The token posted as collateral in the product. */
+  collateralToken: BorrowProductToken;
+  /**
+   * The contract address of the oracle used to price the collateral token against the loan token.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  oracleAddress: string;
+  /**
+   * The contract address of the interest rate model that governs the product's borrow rate.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  interestRateModelAddress: string;
+  /**
+   * The liquidation loan-to-value of the product, expressed in basis points. For example, `9150` represents an LLTV of 91.5%.
+   * @minimum 0
+   * @maximum 10000
+   */
+  lltvBps: number;
+}
+
+export type MorphoBlueProtocolDetailsType =
+  (typeof MorphoBlueProtocolDetailsType)[keyof typeof MorphoBlueProtocolDetailsType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MorphoBlueProtocolDetailsType = {
+  morpho_blue: "morpho_blue",
+} as const;
+
+/**
+ * Morpho Blue-specific immutable onchain protocol details that uniquely define a borrow product.
+ */
+export interface MorphoBlueProtocolDetails {
+  type: MorphoBlueProtocolDetailsType;
+  /** The Morpho Blue market parameters that uniquely define the product onchain. */
+  marketParams: MorphoBlueMarketParams;
+}
+
+/**
+ * Protocol-specific immutable onchain details that uniquely define a borrow product. The `type` field indicates which protocol-specific schema describes the product's details.
+ */
+export type BorrowProductProtocolDetails = MorphoBlueProtocolDetails;
+
+/**
+ * A borrow product on an EVM network, operated by a lending protocol such as Morpho Blue. 
+A borrow product is a protocol-native representation of a borrowable market,  describing the venue that hosts it, the assets that are borrowed or borrowed against  in it, a point-in-time snapshot of its onchain state, and the protocol-specific  immutable parameters that uniquely define it.
+ */
+export interface BorrowProduct {
+  borrowProductId: BorrowProductId;
+  network: BorrowProductNetwork;
+  /** A human-readable name for the product, typically derived from its loan and collateral tokens. */
+  name: string;
+  venue: BorrowProductVenue;
+  /** The assets available to be borrowed or borrowed against in this market. */
+  assets: BorrowProductAsset[];
+  snapshot: BorrowProductSnapshot;
+  protocolDetails: BorrowProductProtocolDetails;
+}
+
+/**
  * The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
  */
 export interface PaymasterContext {
@@ -3321,6 +3511,177 @@ export interface EvmUserOperation {
   receipts?: UserOperationReceipt[];
   /** The timestamp at which the prepared user operation expires. */
   expiresAt?: string;
+}
+
+/**
+ * The balance of either the collateral or debt token for a borrow position, as a decimal string in the token's standard unit denomination.
+ */
+export interface BorrowPositionAssetAmount {
+  /**
+   * The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+   * @pattern ^bp_asset_[a-f0-9-]{36}$
+   */
+  assetId: string;
+  /** The onchain token this balance is denominated in. */
+  token: BorrowProductToken;
+  /** The token balance as a decimal string in the token's standard unit denomination (i.e. "5000" for 5000 mGLO). */
+  amount: PositiveDecimal;
+}
+
+export type BorrowPositionDebtAllOf = {
+  /**
+   * The current annualized borrow rate for the debt, expressed in basis points. For example, `525` represents a borrow APY of 5.25%. Omitted when the rate is unavailable.
+   * @minimum 0
+   */
+  borrowApyBps?: number;
+};
+
+/**
+ * The debt balance for a borrow position, including accrued interest, plus its current borrow rate.
+ */
+export type BorrowPositionDebt = BorrowPositionAssetAmount & BorrowPositionDebtAllOf;
+
+/**
+ * The aggregate health of a borrow position.
+
+- `no_debt`: the position has no outstanding debt.
+- `healthy`: the position has debt and is above its liquidation threshold.
+- `undercollateralized`: the position is at or below its liquidation threshold and may be eligible for liquidation.
+ */
+export type BorrowPositionHealthStatus =
+  (typeof BorrowPositionHealthStatus)[keyof typeof BorrowPositionHealthStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const BorrowPositionHealthStatus = {
+  no_debt: "no_debt",
+  healthy: "healthy",
+  undercollateralized: "undercollateralized",
+} as const;
+
+export type MorphoBlueOnchainStateType =
+  (typeof MorphoBlueOnchainStateType)[keyof typeof MorphoBlueOnchainStateType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MorphoBlueOnchainStateType = {
+  morpho_blue: "morpho_blue",
+} as const;
+
+/**
+ * The live onchain state of a Morpho Blue borrow position, read at the block described by the position's snapshot.
+ */
+export interface MorphoBlueOnchainState {
+  type: MorphoBlueOnchainStateType;
+  /** The non-zero collateral balances securing the position. */
+  collateral: BorrowPositionAssetAmount[];
+  /** The non-zero debt balances owed by the position. */
+  debt: BorrowPositionDebt[];
+  /** The position's liquidation headroom as a decimal string, where `1.0` is the liquidation boundary and higher is safer. For example, `1.79` means the position's weighted collateral is 1.79x its debt. Omitted when the position has no debt. */
+  healthFactor?: string;
+  /**
+   * The position's current loan-to-value, expressed in basis points. For example, `5000` represents a current LTV of 50%. Omitted when the position has no debt.
+   * @minimum 0
+   */
+  currentLtvBps?: number;
+  /**
+   * The loan-to-value at which the position becomes eligible for liquidation, expressed in basis points. For example, `8250` represents 82.5%. Omitted when the position has no debt.
+   * @minimum 0
+   * @maximum 10000
+   */
+  liquidationThresholdBps?: number;
+  healthStatus: BorrowPositionHealthStatus;
+}
+
+/**
+ * The live onchain state of a borrow position. The `type` field indicates which protocol-specific schema describes the state.
+ */
+export type BorrowPositionOnchainState = MorphoBlueOnchainState;
+
+/**
+ * A borrow position held by a smart account in a borrow product, together with its live onchain state read at a point-in-time snapshot.
+ */
+export interface BorrowPosition {
+  borrowProductId: BorrowProductId;
+  /**
+   * The smart account address that owns the borrow position.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  network: BorrowProductNetwork;
+  snapshot: BorrowProductSnapshot;
+  onchainState: BorrowPositionOnchainState;
+}
+
+/**
+ * A request to create a borrow position for an end user's smart account for the specified borrow product. 
+The smart account posts collateral and borrows against it, broadcasting a user operation  to open the position onchain.
+ */
+export interface CreateBorrowPositionRequest {
+  borrowProductId: BorrowProductId;
+  /** The amount of collateral to post, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC). */
+  collateralAmount: PositiveDecimal;
+  /** The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC). */
+  loanAmount: PositiveDecimal;
+  /**
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId: string;
+  /** Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set. */
+  useCdpPaymaster: boolean;
+  /** Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees. */
+  paymasterUrl?: Url;
+  /** Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`. */
+  paymasterContext?: PaymasterContext;
+}
+
+/**
+ * A request to adjust an existing borrow position for an end user's smart account on the specified borrow product.
+The request can supply collateral, withdraw collateral, repay debt, and/or borrow more of the loan asset, broadcasting a user operation to apply the changes onchain.
+A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+ */
+export interface AdjustBorrowPositionRequest {
+  borrowProductId: BorrowProductId;
+  /** The amount of collateral to add to the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC). Must not be combined with `removeCollateralAmount` or `repayLoanAmount`. */
+  addCollateralAmount?: PositiveDecimal;
+  /** The amount of collateral to withdraw from the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).  Must not be combined with `addCollateralAmount` or `borrowLoanAmount`. */
+  removeCollateralAmount?: PositiveDecimal;
+  /** The amount of the loan token to repay, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `borrowLoanAmount` or `addCollateralAmount`. */
+  repayLoanAmount?: PositiveDecimal;
+  /** The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `repayLoanAmount` or `removeCollateralAmount`. */
+  borrowLoanAmount?: PositiveDecimal;
+  /**
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId: string;
+  /** Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set. */
+  useCdpPaymaster: boolean;
+  /** Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees. */
+  paymasterUrl?: Url;
+  /** Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`. */
+  paymasterContext?: PaymasterContext;
+}
+
+/**
+ * A request to close an end user smart account's borrow position for the specified borrow product.
+Closing fully repays the position's outstanding loan and withdraws all remaining collateral back to the smart account, broadcasting a single user operation to settle the position onchain. There is no partial close; use `adjustBorrowPositionWithEndUserAccount` to adjust a position without closing it.
+ */
+export interface CloseBorrowPositionRequest {
+  borrowProductId: BorrowProductId;
+  /**
+   * The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId: string;
+  /** Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set. */
+  useCdpPaymaster: boolean;
+  /** Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees. */
+  paymasterUrl?: Url;
+  /** Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`. */
+  paymasterContext?: PaymasterContext;
 }
 
 /**
@@ -6727,6 +7088,150 @@ export interface AccountTokenAddressesResponse {
 }
 
 /**
+ * Blockchain network being monitored.
+ */
+export type OnchainActivityWebhookResponseLabelsNetwork =
+  (typeof OnchainActivityWebhookResponseLabelsNetwork)[keyof typeof OnchainActivityWebhookResponseLabelsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnchainActivityWebhookResponseLabelsNetwork = {
+  "base-mainnet": "base-mainnet",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * Effective labels returned for `onchain.activity.detected` subscriptions.
+ */
+export interface OnchainActivityWebhookResponseLabels {
+  /** Blockchain network being monitored. */
+  network: OnchainActivityWebhookResponseLabelsNetwork;
+  /** Smart contract address being monitored. */
+  contract_address: string;
+  /** Decoded contract event name being matched. */
+  event_name?: string;
+  /** Canonical event signature being matched. */
+  event_signature?: string;
+  /** Transaction sender address being matched. */
+  transaction_from?: string;
+  /** Transaction recipient address being matched. */
+  transaction_to?: string;
+}
+
+/**
+ * Blockchain network being monitored.
+ */
+export type WalletActivityDetectedWebhookResponseLabelsNetwork =
+  (typeof WalletActivityDetectedWebhookResponseLabelsNetwork)[keyof typeof WalletActivityDetectedWebhookResponseLabelsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const WalletActivityDetectedWebhookResponseLabelsNetwork = {
+  "base-mainnet": "base-mainnet",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * Effective labels returned for `wallet.activity.detected` subscriptions.
+ */
+export type WalletActivityDetectedWebhookResponseLabels =
+  | (unknown & {
+      /** Blockchain network being monitored. */
+      network: WalletActivityDetectedWebhookResponseLabelsNetwork;
+      /** Transaction recipient address being matched. */
+      "params.to"?: string;
+      /** Transaction sender address being matched. */
+      "params.from"?: string;
+    })
+  | (unknown & {
+      /** Blockchain network being monitored. */
+      network: WalletActivityDetectedWebhookResponseLabelsNetwork;
+      /** Transaction recipient address being matched. */
+      "params.to"?: string;
+      /** Transaction sender address being matched. */
+      "params.from"?: string;
+    });
+
+/**
+ * Blockchain network being monitored.
+ */
+export type WalletActivityMultiWebhookResponseLabelsNetwork =
+  (typeof WalletActivityMultiWebhookResponseLabelsNetwork)[keyof typeof WalletActivityMultiWebhookResponseLabelsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const WalletActivityMultiWebhookResponseLabelsNetwork = {
+  "base-mainnet": "base-mainnet",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * Effective labels returned for `wallet.activity.multi` subscriptions.
+ */
+export interface WalletActivityMultiWebhookResponseLabels {
+  /** Blockchain network being monitored. */
+  network: WalletActivityMultiWebhookResponseLabelsNetwork;
+  /** Comma-separated EVM wallet addresses being monitored. */
+  wallet_addresses: string;
+}
+
+/**
+ * A CDP service whose health and maintenance status are tracked here.
+ */
+export type HealthService = (typeof HealthService)[keyof typeof HealthService];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const HealthService = {
+  /** Payment Acceptance — accepting and processing payments on behalf of merchants. */
+  payments_acceptance: "payments_acceptance",
+  /** CDP\'s webhook delivery infrastructure. */
+  webhooks: "webhooks",
+} as const;
+
+/**
+ * Effective labels returned for `health.*` subscriptions.
+ */
+export interface HealthWebhookResponseLabels {
+  /** Service whose health events are delivered. */
+  service: HealthService;
+}
+
+/**
+ * Server-injected labels returned for entity-scoped subscriptions.
+ */
+export interface EntityWebhookResponseLabels {
+  /** Authenticated entity that owns the subscription. */
+  entity: string;
+}
+
+/**
+ * Stringified boolean indicating whether the subscription receives sandbox user events.
+ */
+export type UserWebhookResponseLabelsSandbox =
+  (typeof UserWebhookResponseLabelsSandbox)[keyof typeof UserWebhookResponseLabelsSandbox];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const UserWebhookResponseLabelsSandbox = {
+  true: "true",
+  false: "false",
+} as const;
+
+/**
+ * Server-injected labels returned for user-scoped subscriptions.
+ */
+export interface UserWebhookResponseLabels {
+  /** Authenticated user whose events are delivered. */
+  user_uuid: string;
+  /** Stringified boolean indicating whether the subscription receives sandbox user events. */
+  sandbox: UserWebhookResponseLabelsSandbox;
+}
+
+/**
+ * Server-injected labels returned for project-scoped subscriptions.
+ */
+export interface ProjectWebhookResponseLabels {
+  /** Authenticated project that owns the subscription. */
+  project: string;
+}
+
+/**
  * A human-readable description of the webhook subscription.
 Must be at most 100 characters.
 
@@ -6819,6 +7324,23 @@ export interface WebhookTarget {
   headers?: WebhookTargetHeaders;
 }
 
+/**
+ * Effective filters stored on the webhook subscription. The response includes
+client-supplied labels plus labels defaulted or injected by the server.
+
+* `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`
+  include `network`. It defaults to `base-mainnet` when omitted from the request.
+* `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`.
+* `health.*` includes the requested `service`.
+* Project-scoped events include the authenticated `project`.
+* Entity-scoped events include the authenticated `entity`.
+* User-scoped events include the authenticated `user_uuid` and a `sandbox` value.
+
+ */
+export interface WebhookResponseLabels {
+  [key: string]: string;
+}
+
 export type WebhookSubscriptionResponseMetadataAllOf = {
   /**
    * Use the root-level `secret` field instead. Maintained for backward compatibility only.
@@ -6832,13 +7354,6 @@ export type WebhookSubscriptionResponseMetadataAllOf = {
  */
 export type WebhookSubscriptionResponseMetadata = Metadata &
   WebhookSubscriptionResponseMetadataAllOf;
-
-/**
- * Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
-Present when subscription uses multi-label format.
-
- */
-export type WebhookSubscriptionResponseLabels = { [key: string]: string };
 
 /**
  * Response containing webhook subscription details.
@@ -6863,10 +7378,7 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
   /** Unique identifier for the subscription. */
   subscriptionId: string;
   target: WebhookTarget;
-  /** Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
-Present when subscription uses multi-label format.
- */
-  labels?: WebhookSubscriptionResponseLabels;
+  labels?: WebhookResponseLabels;
 }
 
 /**
@@ -6880,23 +7392,123 @@ export type WebhookSubscriptionListResponseAllOf = {
 export type WebhookSubscriptionListResponse = WebhookSubscriptionListResponseAllOf & ListResponse;
 
 /**
- * Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-an event contains ALL the key-value pairs specified here. Additional labels on
-the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
+ * Blockchain network to monitor.
+ */
+export type OnchainActivityWebhookLabelsNetwork =
+  (typeof OnchainActivityWebhookLabelsNetwork)[keyof typeof OnchainActivityWebhookLabelsNetwork];
 
-**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnchainActivityWebhookLabelsNetwork = {
+  "base-mainnet": "base-mainnet",
+  "base-sepolia": "base-sepolia",
+} as const;
 
-**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-- `network` (required) — Blockchain network
-- `contract_address` — Smart contract address
-- `event_name` — Event name (e.g., "Transfer", "Burn")
-- `event_signature` — Event signature hash
-- `transaction_from` — Transaction sender address
-- `transaction_to` — Transaction recipient address
-- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
+/**
+ * Labels accepted for `onchain.activity.detected` subscriptions.
+ */
+export interface OnchainActivityWebhookLabels {
+  /** Blockchain network to monitor. */
+  network?: OnchainActivityWebhookLabelsNetwork;
+  /** Smart contract address to monitor. */
+  contract_address: string;
+  /** Decoded contract event name to match. */
+  event_name?: string;
+  /** Canonical event signature to match. */
+  event_signature?: string;
+  /** Transaction sender address to match. */
+  transaction_from?: string;
+  /** Transaction recipient address to match. */
+  transaction_to?: string;
+}
+
+/**
+ * Blockchain network to monitor.
+ */
+export type WalletActivityDetectedWebhookLabelsNetwork =
+  (typeof WalletActivityDetectedWebhookLabelsNetwork)[keyof typeof WalletActivityDetectedWebhookLabelsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const WalletActivityDetectedWebhookLabelsNetwork = {
+  "base-mainnet": "base-mainnet",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * Labels accepted for `wallet.activity.detected` subscriptions.
+ */
+export type WalletActivityDetectedWebhookLabels =
+  | (unknown & {
+      /** Blockchain network to monitor. */
+      network?: WalletActivityDetectedWebhookLabelsNetwork;
+      /** Transaction recipient address to match. */
+      "params.to"?: string;
+      /** Transaction sender address to match. */
+      "params.from"?: string;
+    })
+  | (unknown & {
+      /** Blockchain network to monitor. */
+      network?: WalletActivityDetectedWebhookLabelsNetwork;
+      /** Transaction recipient address to match. */
+      "params.to"?: string;
+      /** Transaction sender address to match. */
+      "params.from"?: string;
+    });
+
+/**
+ * Blockchain network to monitor.
+ */
+export type WalletActivityMultiWebhookLabelsNetwork =
+  (typeof WalletActivityMultiWebhookLabelsNetwork)[keyof typeof WalletActivityMultiWebhookLabelsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const WalletActivityMultiWebhookLabelsNetwork = {
+  "base-mainnet": "base-mainnet",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * Labels accepted for `wallet.activity.multi` subscriptions.
+ */
+export interface WalletActivityMultiWebhookLabels {
+  /** Blockchain network to monitor. */
+  network?: WalletActivityMultiWebhookLabelsNetwork;
+  /**
+   * Comma-separated EVM wallet addresses to monitor. Each address must be `0x`-prefixed and contain 40 hexadecimal characters. Maximum 100 addresses.
+   * @minLength 42
+   * @maxLength 4299
+   * @pattern ^0x[0-9a-fA-F]{40}(,0x[0-9a-fA-F]{40})*$
+   */
+  wallet_addresses: string;
+}
+
+/**
+ * Labels accepted for `health.*` subscriptions.
+ */
+export interface HealthWebhookLabels {
+  /** Service whose health events should be delivered. */
+  service: HealthService;
+}
+
+/**
+ * Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.
+ */
+export interface WebhookMetadata {
+  [key: string]: string;
+}
+
+/**
+ * String-valued filters supplied when creating or updating a webhook subscription.
+The subscription's `eventTypes` determine whether labels are required and which
+label keys are accepted. A subscription accepts at most 20 client-supplied labels.
+
+#### Label Behavior
+
+An event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.
 
  */
-export type WebhookSubscriptionRequestLabels = { [key: string]: string };
+export interface WebhookRequestLabels {
+  [key: string]: string;
+}
 
 /**
  * Request to create a new webhook subscription with support for multi-label filtering.
@@ -6913,42 +7525,9 @@ The subscription will only receive events matching these types AND the label fil
   /** Whether the subscription is enabled. */
   isEnabled: boolean;
   target: WebhookTarget;
-  metadata?: Metadata;
-  /** Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-an event contains ALL the key-value pairs specified here. Additional labels on
-the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
-
-**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-- `network` (required) — Blockchain network
-- `contract_address` — Smart contract address
-- `event_name` — Event name (e.g., "Transfer", "Burn")
-- `event_signature` — Event signature hash
-- `transaction_from` — Transaction sender address
-- `transaction_to` — Transaction recipient address
-- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
- */
-  labels?: WebhookSubscriptionRequestLabels;
+  metadata?: WebhookMetadata;
+  labels?: WebhookRequestLabels;
 }
-
-/**
- * Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-Omit to receive all events for the selected event types.
-
-**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-- `network` (required) — Blockchain network
-- `contract_address` — Smart contract address
-- `event_name` — Event name (e.g., "Transfer", "Burn")
-- `event_signature` — Event signature hash
-- `transaction_from` — Transaction sender address
-- `transaction_to` — Transaction recipient address
-- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-
- */
-export type WebhookSubscriptionUpdateRequestLabels = { [key: string]: string };
 
 /**
  * Request to update an existing webhook subscription.
@@ -6963,22 +7542,8 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
   /** Whether the subscription is enabled. */
   isEnabled: boolean;
   target: WebhookTarget;
-  metadata?: Metadata;
-  /** Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-Omit to receive all events for the selected event types.
-
-**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-**Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-- `network` (required) — Blockchain network
-- `contract_address` — Smart contract address
-- `event_name` — Event name (e.g., "Transfer", "Burn")
-- `event_signature` — Event signature hash
-- `transaction_from` — Transaction sender address
-- `transaction_to` — Transaction recipient address
-- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
- */
-  labels?: WebhookSubscriptionUpdateRequestLabels;
+  metadata?: WebhookMetadata;
+  labels?: WebhookRequestLabels;
 }
 
 /**
@@ -10371,19 +10936,6 @@ export type AcceptanceDisbursementFailedEvent = DisbursementEventBase &
   AcceptanceDisbursementFailedEventAllOf;
 
 /**
- * A CDP service whose health and maintenance status are tracked here.
- */
-export type HealthService = (typeof HealthService)[keyof typeof HealthService];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const HealthService = {
-  /** Payment Acceptance — accepting and processing payments on behalf of merchants. */
-  payments_acceptance: "payments_acceptance",
-  /** CDP\'s webhook delivery infrastructure. */
-  webhooks: "webhooks",
-} as const;
-
-/**
  * A finer-grained operation within a service. Optional — omitted when a health status or maintenance window applies to the service as a whole.
  */
 export type HealthOperation = (typeof HealthOperation)[keyof typeof HealthOperation];
@@ -10940,6 +11492,11 @@ section of our Authentication docs for more details on how to generate your Wall
 export type XWalletAuthParameter = string;
 
 /**
+ * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+ */
+export type ProjectIDOptionalParameter = string;
+
+/**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
 [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -10954,11 +11511,6 @@ section of our Authentication docs for more details on how to generate your Wall
 
  */
 export type XDeveloperAuthParameter = string;
-
-/**
- * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
- */
-export type ProjectIDOptionalParameter = string;
 
 export type ListCustomersParams = {
   /**
@@ -10977,6 +11529,34 @@ export type ListCustomers200AllOf = {
 };
 
 export type ListCustomers200 = ListCustomers200AllOf & ListResponse;
+
+export type GetCustomerRequirementsParams = {
+  /**
+   * The type of the hypothetical customer.
+   */
+  customerType: CustomerType;
+  /**
+ * The capabilities the hypothetical customer would request.
+Repeat the parameter to specify multiple capabilities, for
+example `capabilities=custodyCrypto&capabilities=transferCrypto`.
+
+ * @minItems 1
+ */
+  capabilities: CapabilityName[];
+  /**
+ * The hypothetical customer's country of residence. At least one
+of `countryCode` or `citizenship` is required. When both are
+present, `countryCode` takes precedence.
+
+ */
+  countryCode?: CountryCode;
+  /**
+ * The hypothetical customer's citizenship. At least one of
+`countryCode` or `citizenship` is required.
+
+ */
+  citizenship?: CountryCode;
+};
 
 export type ListPaymentSessionsParams = {
   /**
@@ -11008,7 +11588,7 @@ export type GetWalletAuthorizationOptionsParams = {
    */
   network?: PaymentSourceNetwork;
   /**
-   * Optional filter to restrict options to a specific asset.
+   * Filter options by asset. Currently, only `usdc` and `usdt` return results.
    */
   asset?: Asset;
 };
@@ -11263,6 +11843,48 @@ export type ImportEndUserBody = {
   keyType: ImportEndUserBodyKeyType;
 };
 
+export type ListEvmBorrowProductsParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+  /**
+   * The EVM network name to list borrow products for.
+   */
+  network?: BorrowProductNetwork;
+  /**
+   * The lending protocol whose borrow products to list.
+   */
+  protocol?: BorrowProductProtocol;
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+/**
+ * Response containing a list of borrow products.
+ */
+export type ListEvmBorrowProducts200AllOf = {
+  /** The list of borrow products, optionally filtered by the supplied network and/or protocol. */
+  borrowProducts: BorrowProduct[];
+};
+
+export type ListEvmBorrowProducts200 = ListEvmBorrowProducts200AllOf & ListResponse;
+
+export type GetEvmBorrowProductParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
 export type SignEvmTransactionWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -11494,6 +12116,22 @@ export type RevokeDelegationForEndUserBody = {
   walletSecretId?: string;
 };
 
+export type RevokeDelegationForEndUserPostParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type RevokeDelegationForEndUserPostBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
 export type CreateDelegationForEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -11546,6 +12184,22 @@ export type RevokeDelegationForEndUserAccountBody = {
   walletSecretId?: string;
 };
 
+export type RevokeDelegationForEndUserAccountPostParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type RevokeDelegationForEndUserAccountPostBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
 export type CreateEvmEip7702DelegationWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -11575,6 +12229,14 @@ export type CreateEvmEip7702DelegationWithEndUserAccount201 = {
   delegationOperationId: string;
 };
 
+export type GetUserOperationWithEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
 export type SendUserOperationWithEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -11602,6 +12264,57 @@ export type SendUserOperationWithEndUserAccountBody = {
    * @pattern ^0x[0-9a-fA-F]+$
    */
   dataSuffix?: string;
+};
+
+export type ListBorrowPositionsWithEndUserAccountParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+/**
+ * Response containing a list of borrow positions.
+ */
+export type ListBorrowPositionsWithEndUserAccount200AllOf = {
+  /** The borrow positions held by the smart account. */
+  borrowPositions: BorrowPosition[];
+};
+
+export type ListBorrowPositionsWithEndUserAccount200 =
+  ListBorrowPositionsWithEndUserAccount200AllOf & ListResponse;
+
+export type CreateBorrowPositionWithEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type AdjustBorrowPositionWithEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type CloseBorrowPositionWithEndUserAccountParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
 };
 
 export type SignSolanaMessageWithEndUserAccountParams = {
@@ -11640,12 +12353,26 @@ export type SignSolanaTransactionWithEndUserAccountParams = {
   projectID?: ProjectIDOptionalParameter;
 };
 
+/**
+ * The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+ */
+export type SignSolanaTransactionWithEndUserAccountBodyNetwork =
+  (typeof SignSolanaTransactionWithEndUserAccountBodyNetwork)[keyof typeof SignSolanaTransactionWithEndUserAccountBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignSolanaTransactionWithEndUserAccountBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
 export type SignSolanaTransactionWithEndUserAccountBody = {
   /**
    * The base58 encoded address of the Solana account belonging to the end user.
    * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
    */
   address: string;
+  /** The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise. */
+  network?: SignSolanaTransactionWithEndUserAccountBodyNetwork;
   /** The base64 encoded transaction to sign. */
   transaction: string;
   /**
@@ -12296,7 +13023,21 @@ export type ExportSolanaAccountByName200 = {
   encryptedPrivateKey: string;
 };
 
+/**
+ * The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+ */
+export type SignSolanaTransactionBodyNetwork =
+  (typeof SignSolanaTransactionBodyNetwork)[keyof typeof SignSolanaTransactionBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignSolanaTransactionBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
 export type SignSolanaTransactionBody = {
+  /** The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise. */
+  network?: SignSolanaTransactionBodyNetwork;
   /** The base64 encoded transaction to sign. */
   transaction: string;
 };
@@ -12306,9 +13047,23 @@ export type SignSolanaTransaction200 = {
   signedTransaction: string;
 };
 
+/**
+ * The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.
+ */
+export type SignSolanaMessageBodyEncoding =
+  (typeof SignSolanaMessageBodyEncoding)[keyof typeof SignSolanaMessageBodyEncoding];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignSolanaMessageBodyEncoding = {
+  utf8: "utf8",
+  base64: "base64",
+} as const;
+
 export type SignSolanaMessageBody = {
   /** The arbitrary message to sign. */
   message: string;
+  /** The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8. */
+  encoding?: SignSolanaMessageBodyEncoding;
 };
 
 export type SignSolanaMessage200 = {
@@ -12583,9 +13338,9 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
   isQuote?: boolean;
   /** Optional partner order reference ID. */
   partnerOrderRef?: string;
-  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+  /** A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
 
-This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
+This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
   partnerUserRef: string;
   /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency. */
   paymentAmount?: string;

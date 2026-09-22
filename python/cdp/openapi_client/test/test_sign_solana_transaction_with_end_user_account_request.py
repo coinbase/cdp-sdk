@@ -37,6 +37,7 @@ class TestSignSolanaTransactionWithEndUserAccountRequest(unittest.TestCase):
         if include_optional:
             return SignSolanaTransactionWithEndUserAccountRequest(
                 address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
+                network = 'solana-devnet',
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=',
                 wallet_secret_id = 'e051beeb-7163-4527-a5b6-35e301529ff2'
             )

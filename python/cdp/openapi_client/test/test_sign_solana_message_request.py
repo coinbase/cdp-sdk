@@ -36,7 +36,8 @@ class TestSignSolanaMessageRequest(unittest.TestCase):
         model = SignSolanaMessageRequest()
         if include_optional:
             return SignSolanaMessageRequest(
-                message = 'Hello, world!'
+                message = 'Hello, world!',
+                encoding = 'utf8'
             )
         else:
             return SignSolanaMessageRequest(

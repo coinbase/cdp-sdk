@@ -970,6 +970,7 @@ class AccountsApi:
             '400': "Error",
             '401': "Error",
             '404': "Error",
+            '409': "Error",
             '500': "Error",
             '503': "Error",
         }
@@ -1050,6 +1051,7 @@ class AccountsApi:
             '400': "Error",
             '401': "Error",
             '404': "Error",
+            '409': "Error",
             '500': "Error",
             '503': "Error",
         }
@@ -1130,6 +1132,7 @@ class AccountsApi:
             '400': "Error",
             '401': "Error",
             '404': "Error",
+            '409': "Error",
             '500': "Error",
             '503': "Error",
         }

@@ -6,7 +6,15 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
+  AdjustBorrowPositionRequest,
+  AdjustBorrowPositionWithEndUserAccountParams,
   BlockchainAddress,
+  BorrowProduct,
+  BorrowProductId,
+  CloseBorrowPositionRequest,
+  CloseBorrowPositionWithEndUserAccountParams,
+  CreateBorrowPositionRequest,
+  CreateBorrowPositionWithEndUserAccountParams,
   CreateDelegationForEndUserAccount201,
   CreateDelegationForEndUserAccountBody,
   CreateDelegationForEndUserAccountParams,
@@ -18,10 +26,20 @@ import type {
   GetDelegationForEndUserAccount200,
   GetDelegationForEndUserAccountParams,
   GetDelegationForEndUserParams,
+  GetEvmBorrowProductParams,
+  GetUserOperationWithEndUserAccountParams,
+  ListBorrowPositionsWithEndUserAccount200,
+  ListBorrowPositionsWithEndUserAccountParams,
+  ListEvmBorrowProducts200,
+  ListEvmBorrowProductsParams,
   RevokeDelegationForEndUserAccountBody,
   RevokeDelegationForEndUserAccountParams,
+  RevokeDelegationForEndUserAccountPostBody,
+  RevokeDelegationForEndUserAccountPostParams,
   RevokeDelegationForEndUserBody,
   RevokeDelegationForEndUserParams,
+  RevokeDelegationForEndUserPostBody,
+  RevokeDelegationForEndUserPostParams,
   SendEvmAssetWithEndUserAccount200,
   SendEvmAssetWithEndUserAccountBody,
   SendEvmAssetWithEndUserAccountParams,
@@ -60,6 +78,39 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+ * @summary List borrow products
+ */
+export const listEvmBorrowProducts = (
+  params?: ListEvmBorrowProductsParams,
+  options?: SecondParameter<typeof cdpApiClient<ListEvmBorrowProducts200>>,
+) => {
+  return cdpApiClient<ListEvmBorrowProducts200>(
+    { url: `/v2/embedded-wallet-api/evm/borrow-products`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Gets a single borrow product by its ID.
+The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+ * @summary Get a borrow product
+ */
+export const getEvmBorrowProduct = (
+  borrowProductId: BorrowProductId,
+  params?: GetEvmBorrowProductParams,
+  options?: SecondParameter<typeof cdpApiClient<BorrowProduct>>,
+) => {
+  return cdpApiClient<BorrowProduct>(
+    {
+      url: `/v2/embedded-wallet-api/evm/borrow-products/${borrowProductId}`,
+      method: "GET",
+      params,
+    },
+    options,
+  );
+};
 /**
  * Signs a transaction with the given end user EVM account.
 The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
@@ -213,8 +264,21 @@ export const getDelegationForEndUser = (
   );
 };
 /**
- * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
- * @summary Revoke delegation for end user
+ * > **Deprecation Notice:** Prefer
+> [Revoke delegation for end user](#operation/revokeDelegationForEndUserPost)
+> (`POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`), which takes the
+> same request body. This `DELETE` path is kept for existing clients until it is removed
+> (at least 30 days after the CDP API gateway body-strip rollout; the exact date will be
+> updated here before the rollout). The gateway is being updated to drop request bodies on
+> non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for `walletSecretId` and
+> for its `X-Wallet-Auth` signature — migrate before that rollout, not just before the
+> removal date above.
+
+Revokes all active delegations for the specified end user. This operation
+can be performed by the end user themselves or by a developer using their
+API key.
+ * @deprecated
+ * @summary Revoke delegation for end user (deprecated)
  */
 export const revokeDelegationForEndUser = (
   userId: string,
@@ -228,6 +292,27 @@ export const revokeDelegationForEndUser = (
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       data: revokeDelegationForEndUserBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+ * @summary Revoke delegation for end user
+ */
+export const revokeDelegationForEndUserPost = (
+  userId: string,
+  revokeDelegationForEndUserPostBody: RevokeDelegationForEndUserPostBody,
+  params?: RevokeDelegationForEndUserPostParams,
+  options?: SecondParameter<typeof cdpApiClient<void>>,
+) => {
+  return cdpApiClient<void>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/delegation/revoke`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: revokeDelegationForEndUserPostBody,
       params,
     },
     options,
@@ -278,9 +363,24 @@ export const getDelegationForEndUserAccount = (
   );
 };
 /**
- * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
- * @summary Revoke account-scoped delegation for end user
+ * > **Deprecation Notice:** Prefer
+> [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccountPost)
+> (`POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`),
+> which takes the same request body. This `DELETE` path is kept for existing clients until
+> it is removed (at least 30 days after the CDP API gateway body-strip rollout; the exact
+> date will be updated here before the rollout). The gateway is being updated to drop
+> request bodies on non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for
+> `walletSecretId` and for its `X-Wallet-Auth` signature — migrate before that rollout, not
+> just before the removal date above.
+
+Revokes the active account-scoped delegation for the specified end user account.
+Other account-scoped delegations for the same user are unaffected. This operation
+can be performed by the end user themselves or by a developer using their API key.
+
+When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+Smart Account's owner EOA.
+ * @deprecated
+ * @summary Revoke account-scoped delegation for end user (deprecated)
  */
 export const revokeDelegationForEndUserAccount = (
   userId: string,
@@ -295,6 +395,29 @@ export const revokeDelegationForEndUserAccount = (
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       data: revokeDelegationForEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+ * @summary Revoke account-scoped delegation for end user
+ */
+export const revokeDelegationForEndUserAccountPost = (
+  userId: string,
+  address: BlockchainAddress,
+  revokeDelegationForEndUserAccountPostBody: RevokeDelegationForEndUserAccountPostBody,
+  params?: RevokeDelegationForEndUserAccountPostParams,
+  options?: SecondParameter<typeof cdpApiClient<void>>,
+) => {
+  return cdpApiClient<void>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation/revoke`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: revokeDelegationForEndUserAccountPostBody,
       params,
     },
     options,
@@ -330,6 +453,26 @@ export const createEvmEip7702DelegationWithEndUserAccount = (
   );
 };
 /**
+ * Gets a user operation by its hash for an end user's EVM Smart Account.
+ * @summary Get a user operation for end user EVM Smart Account
+ */
+export const getUserOperationWithEndUserAccount = (
+  userId: string,
+  address: string,
+  userOpHash: string,
+  params?: GetUserOperationWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/user-operations/${userOpHash}`,
+      method: "GET",
+      params,
+    },
+    options,
+  );
+};
+/**
  * Prepares, signs, and sends a user operation for an end user's Smart Account.
  * @summary Send user operation for end user Smart Account
  */
@@ -346,6 +489,99 @@ export const sendUserOperationWithEndUserAccount = (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: sendUserOperationWithEndUserAccountBody,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+ * @summary List borrow positions for an end user smart account
+ */
+export const listBorrowPositionsWithEndUserAccount = (
+  userId: string,
+  address: string,
+  params?: ListBorrowPositionsWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<ListBorrowPositionsWithEndUserAccount200>>,
+) => {
+  return cdpApiClient<ListBorrowPositionsWithEndUserAccount200>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/borrow-positions`,
+      method: "GET",
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The `borrowProductId` identifies the product to borrow against, and the `collateralAmount` and `loanAmount` specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+A user operation is broadcast to open the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+ * @summary Create a borrow position for an end user smart account
+ */
+export const createBorrowPositionWithEndUserAccount = (
+  userId: string,
+  address: string,
+  createBorrowPositionRequest: CreateBorrowPositionRequest,
+  params?: CreateBorrowPositionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/borrow-positions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createBorrowPositionRequest,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+The `borrowProductId` identifies the product whose position to adjust, and the `addCollateralAmount`, `removeCollateralAmount`, `repayLoanAmount`, and `borrowLoanAmount` fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+A user operation is broadcast to adjust the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+ * @summary Adjust a borrow position for an end user smart account
+ */
+export const adjustBorrowPositionWithEndUserAccount = (
+  userId: string,
+  address: string,
+  adjustBorrowPositionRequest: AdjustBorrowPositionRequest,
+  params?: AdjustBorrowPositionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/borrow-positions/adjust`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: adjustBorrowPositionRequest,
+      params,
+    },
+    options,
+  );
+};
+/**
+ * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+A borrow position is identified by the smart account `address` and the `borrowProductId` in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use `adjustBorrowPositionWithEndUserAccount` instead.
+A user operation is broadcast to close the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+ * @summary Close a borrow position for an end user smart account
+ */
+export const closeBorrowPositionWithEndUserAccount = (
+  userId: string,
+  address: string,
+  closeBorrowPositionRequest: CloseBorrowPositionRequest,
+  params?: CloseBorrowPositionWithEndUserAccountParams,
+  options?: SecondParameter<typeof cdpApiClient<EvmUserOperation>>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/embedded-wallet-api/end-users/${userId}/evm/smart-accounts/${address}/borrow-positions/close`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: closeBorrowPositionRequest,
       params,
     },
     options,
@@ -483,6 +719,12 @@ export const sendSolanaAssetWithEndUserAccount = (
     options,
   );
 };
+export type ListEvmBorrowProductsResult = NonNullable<
+  Awaited<ReturnType<typeof listEvmBorrowProducts>>
+>;
+export type GetEvmBorrowProductResult = NonNullable<
+  Awaited<ReturnType<typeof getEvmBorrowProduct>>
+>;
 export type SignEvmTransactionWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signEvmTransactionWithEndUserAccount>>
 >;
@@ -504,6 +746,9 @@ export type GetDelegationForEndUserResult = NonNullable<
 export type RevokeDelegationForEndUserResult = NonNullable<
   Awaited<ReturnType<typeof revokeDelegationForEndUser>>
 >;
+export type RevokeDelegationForEndUserPostResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUserPost>>
+>;
 export type CreateDelegationForEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof createDelegationForEndUserAccount>>
 >;
@@ -513,11 +758,29 @@ export type GetDelegationForEndUserAccountResult = NonNullable<
 export type RevokeDelegationForEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof revokeDelegationForEndUserAccount>>
 >;
+export type RevokeDelegationForEndUserAccountPostResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUserAccountPost>>
+>;
 export type CreateEvmEip7702DelegationWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof createEvmEip7702DelegationWithEndUserAccount>>
 >;
+export type GetUserOperationWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof getUserOperationWithEndUserAccount>>
+>;
 export type SendUserOperationWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof sendUserOperationWithEndUserAccount>>
+>;
+export type ListBorrowPositionsWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof listBorrowPositionsWithEndUserAccount>>
+>;
+export type CreateBorrowPositionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof createBorrowPositionWithEndUserAccount>>
+>;
+export type AdjustBorrowPositionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof adjustBorrowPositionWithEndUserAccount>>
+>;
+export type CloseBorrowPositionWithEndUserAccountResult = NonNullable<
+  Awaited<ReturnType<typeof closeBorrowPositionWithEndUserAccount>>
 >;
 export type SignSolanaMessageWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof signSolanaMessageWithEndUserAccount>>

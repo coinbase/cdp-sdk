@@ -91,6 +91,7 @@ class ErrorType(str, Enum):
     ASSET_MISMATCH = 'asset_mismatch'
     MFA_ALREADY_ENROLLED = 'mfa_already_enrolled'
     MFA_INVALID_CODE = 'mfa_invalid_code'
+    MFA_CHALLENGE_NOT_FOUND = 'mfa_challenge_not_found'
     MFA_FLOW_EXPIRED = 'mfa_flow_expired'
     MFA_REQUIRED = 'mfa_required'
     MFA_NOT_ENROLLED = 'mfa_not_enrolled'

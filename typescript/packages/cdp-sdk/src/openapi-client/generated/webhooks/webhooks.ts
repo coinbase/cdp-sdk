@@ -41,22 +41,7 @@ export const listWebhookSubscriptions = (
   );
 };
 /**
- * Subscribe to real-time events across CDP products.
-
-### Filtering
-
-Onchain events can utilize multi-label filtering to only receive events that match all the specified labels.
-
-Allows labels are:
-- `network` (required) — Blockchain network
-- `contract_address` — Smart contract address
-- `event_name` — Event name (e.g., "Transfer", "Burn")
-- `event_signature` — Event signature (e.g., "Transfer(address,address,uint256)")
-- `transaction_from` — Transaction sender address
-- `transaction_to` — Transaction recipient address
-- `params.*` — Any event parameter from the log event (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-
-For webhook types that aren't `onchain.*`, labels are ignored.
+ * Subscribe to real-time events across CDP products. A webhook subscription provides a `targetURL` and other relevant endpoint configuration to enable receiving webhooks when events occur.
 
 ### Webhook Signature Verification
 

@@ -48,6 +48,13 @@ class TestCustomersApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_get_customer_requirements(self) -> None:
+        """Test case for get_customer_requirements
+
+        Get customer requirements
+        """
+        pass
+
     async def test_list_customers(self) -> None:
         """Test case for list_customers
 

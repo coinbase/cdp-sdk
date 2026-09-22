@@ -18,11 +18,14 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictInt, StrictStr, field_validator
-from typing import Optional
+from typing import Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.capability_name import CapabilityName
 from cdp.openapi_client.models.create_customer_request import CreateCustomerRequest
 from cdp.openapi_client.models.customer import Customer
+from cdp.openapi_client.models.customer_type import CustomerType
 from cdp.openapi_client.models.list_customers200_response import ListCustomers200Response
+from cdp.openapi_client.models.requirement import Requirement
 from cdp.openapi_client.models.update_customer_request import UpdateCustomerRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -908,6 +911,336 @@ class CustomersApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/customers/{customerId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_customer_requirements(
+        self,
+        customer_type: Annotated[CustomerType, Field(description="The type of the hypothetical customer.")],
+        capabilities: Annotated[List[CapabilityName], Field(min_length=1, description="The capabilities the hypothetical customer would request. Repeat the parameter to specify multiple capabilities, for example `capabilities=custodyCrypto&capabilities=transferCrypto`. ")],
+        country_code: Annotated[Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(description="The hypothetical customer's country of residence. At least one of `countryCode` or `citizenship` is required. When both are present, `countryCode` takes precedence. ")] = None,
+        citizenship: Annotated[Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(description="The hypothetical customer's citizenship. At least one of `countryCode` or `citizenship` is required. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Dict[str, Requirement]:
+        """Get customer requirements
+
+        Preview the requirements a hypothetical customer of the given `customerType` and jurisdiction would need to satisfy to enable the requested `capabilities`, without creating a customer record. Partner onboarding UIs can use this to render the collection flow before any customer state exists.  Today this endpoint only previews the Terms of Service requirement: the response's `RequirementsMap` will only ever contain a `tos` key. Other requirement families (PII / CDD inputs) are not yet available through this endpoint; use `POST /v2/customers` or `PUT /v2/customers/{customerId}` to discover those via `Customer.requirements`.  Only `customerType: individual` customers resident in or citizens of the US are currently supported; every other combination returns `400 invalid_request`. 
+
+        :param customer_type: The type of the hypothetical customer. (required)
+        :type customer_type: CustomerType
+        :param capabilities: The capabilities the hypothetical customer would request. Repeat the parameter to specify multiple capabilities, for example `capabilities=custodyCrypto&capabilities=transferCrypto`.  (required)
+        :type capabilities: List[CapabilityName]
+        :param country_code: The hypothetical customer's country of residence. At least one of `countryCode` or `citizenship` is required. When both are present, `countryCode` takes precedence. 
+        :type country_code: str
+        :param citizenship: The hypothetical customer's citizenship. At least one of `countryCode` or `citizenship` is required. 
+        :type citizenship: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_customer_requirements_serialize(
+            customer_type=customer_type,
+            capabilities=capabilities,
+            country_code=country_code,
+            citizenship=citizenship,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Dict[str, Requirement]",
+            '400': "Error",
+            '401': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_customer_requirements_with_http_info(
+        self,
+        customer_type: Annotated[CustomerType, Field(description="The type of the hypothetical customer.")],
+        capabilities: Annotated[List[CapabilityName], Field(min_length=1, description="The capabilities the hypothetical customer would request. Repeat the parameter to specify multiple capabilities, for example `capabilities=custodyCrypto&capabilities=transferCrypto`. ")],
+        country_code: Annotated[Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(description="The hypothetical customer's country of residence. At least one of `countryCode` or `citizenship` is required. When both are present, `countryCode` takes precedence. ")] = None,
+        citizenship: Annotated[Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(description="The hypothetical customer's citizenship. At least one of `countryCode` or `citizenship` is required. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Dict[str, Requirement]]:
+        """Get customer requirements
+
+        Preview the requirements a hypothetical customer of the given `customerType` and jurisdiction would need to satisfy to enable the requested `capabilities`, without creating a customer record. Partner onboarding UIs can use this to render the collection flow before any customer state exists.  Today this endpoint only previews the Terms of Service requirement: the response's `RequirementsMap` will only ever contain a `tos` key. Other requirement families (PII / CDD inputs) are not yet available through this endpoint; use `POST /v2/customers` or `PUT /v2/customers/{customerId}` to discover those via `Customer.requirements`.  Only `customerType: individual` customers resident in or citizens of the US are currently supported; every other combination returns `400 invalid_request`. 
+
+        :param customer_type: The type of the hypothetical customer. (required)
+        :type customer_type: CustomerType
+        :param capabilities: The capabilities the hypothetical customer would request. Repeat the parameter to specify multiple capabilities, for example `capabilities=custodyCrypto&capabilities=transferCrypto`.  (required)
+        :type capabilities: List[CapabilityName]
+        :param country_code: The hypothetical customer's country of residence. At least one of `countryCode` or `citizenship` is required. When both are present, `countryCode` takes precedence. 
+        :type country_code: str
+        :param citizenship: The hypothetical customer's citizenship. At least one of `countryCode` or `citizenship` is required. 
+        :type citizenship: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_customer_requirements_serialize(
+            customer_type=customer_type,
+            capabilities=capabilities,
+            country_code=country_code,
+            citizenship=citizenship,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Dict[str, Requirement]",
+            '400': "Error",
+            '401': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_customer_requirements_without_preload_content(
+        self,
+        customer_type: Annotated[CustomerType, Field(description="The type of the hypothetical customer.")],
+        capabilities: Annotated[List[CapabilityName], Field(min_length=1, description="The capabilities the hypothetical customer would request. Repeat the parameter to specify multiple capabilities, for example `capabilities=custodyCrypto&capabilities=transferCrypto`. ")],
+        country_code: Annotated[Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(description="The hypothetical customer's country of residence. At least one of `countryCode` or `citizenship` is required. When both are present, `countryCode` takes precedence. ")] = None,
+        citizenship: Annotated[Optional[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(description="The hypothetical customer's citizenship. At least one of `countryCode` or `citizenship` is required. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get customer requirements
+
+        Preview the requirements a hypothetical customer of the given `customerType` and jurisdiction would need to satisfy to enable the requested `capabilities`, without creating a customer record. Partner onboarding UIs can use this to render the collection flow before any customer state exists.  Today this endpoint only previews the Terms of Service requirement: the response's `RequirementsMap` will only ever contain a `tos` key. Other requirement families (PII / CDD inputs) are not yet available through this endpoint; use `POST /v2/customers` or `PUT /v2/customers/{customerId}` to discover those via `Customer.requirements`.  Only `customerType: individual` customers resident in or citizens of the US are currently supported; every other combination returns `400 invalid_request`. 
+
+        :param customer_type: The type of the hypothetical customer. (required)
+        :type customer_type: CustomerType
+        :param capabilities: The capabilities the hypothetical customer would request. Repeat the parameter to specify multiple capabilities, for example `capabilities=custodyCrypto&capabilities=transferCrypto`.  (required)
+        :type capabilities: List[CapabilityName]
+        :param country_code: The hypothetical customer's country of residence. At least one of `countryCode` or `citizenship` is required. When both are present, `countryCode` takes precedence. 
+        :type country_code: str
+        :param citizenship: The hypothetical customer's citizenship. At least one of `countryCode` or `citizenship` is required. 
+        :type citizenship: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_customer_requirements_serialize(
+            customer_type=customer_type,
+            capabilities=capabilities,
+            country_code=country_code,
+            citizenship=citizenship,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Dict[str, Requirement]",
+            '400': "Error",
+            '401': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_customer_requirements_serialize(
+        self,
+        customer_type,
+        capabilities,
+        country_code,
+        citizenship,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+            'capabilities': 'multi',
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if customer_type is not None:
+            
+            _query_params.append(('customerType', customer_type.value))
+            
+        if capabilities is not None:
+            
+            _query_params.append(('capabilities', capabilities))
+            
+        if country_code is not None:
+            
+            _query_params.append(('countryCode', country_code))
+            
+        if citizenship is not None:
+            
+            _query_params.append(('citizenship', citizenship))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/customers/requirements',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

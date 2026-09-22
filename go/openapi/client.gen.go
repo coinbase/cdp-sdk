@@ -70,6 +70,29 @@ const (
 	BankAccountUSCurrencyUsd BankAccountUSCurrency = "usd"
 )
 
+// Defines values for BorrowPositionHealthStatus.
+const (
+	Healthy             BorrowPositionHealthStatus = "healthy"
+	NoDebt              BorrowPositionHealthStatus = "no_debt"
+	Undercollateralized BorrowPositionHealthStatus = "undercollateralized"
+)
+
+// Defines values for BorrowProductAssetCapabilityType.
+const (
+	Collateral BorrowProductAssetCapabilityType = "collateral"
+	Debt       BorrowProductAssetCapabilityType = "debt"
+)
+
+// Defines values for BorrowProductNetwork.
+const (
+	BorrowProductNetworkBase BorrowProductNetwork = "base"
+)
+
+// Defines values for BorrowProductProtocol.
+const (
+	BorrowProductProtocolMorphoBlue BorrowProductProtocol = "morpho_blue"
+)
+
 // Defines values for CapabilityName.
 const (
 	CustodyCrypto      CapabilityName = "custodyCrypto"
@@ -206,6 +229,7 @@ const (
 	ErrorTypeMetadataTooManyEntries                  ErrorType = "metadata_too_many_entries"
 	ErrorTypeMetadataValueTooLong                    ErrorType = "metadata_value_too_long"
 	ErrorTypeMfaAlreadyEnrolled                      ErrorType = "mfa_already_enrolled"
+	ErrorTypeMfaChallengeNotFound                    ErrorType = "mfa_challenge_not_found"
 	ErrorTypeMfaFlowExpired                          ErrorType = "mfa_flow_expired"
 	ErrorTypeMfaInvalidCode                          ErrorType = "mfa_invalid_code"
 	ErrorTypeMfaNotEnrolled                          ErrorType = "mfa_not_enrolled"
@@ -640,6 +664,11 @@ const (
 // Defines values for MintAddressCriterionType.
 const (
 	MintAddress MintAddressCriterionType = "mintAddress"
+)
+
+// Defines values for MorphoBlueProtocolDetailsType.
+const (
+	MorphoBlueProtocolDetailsTypeMorphoBlue MorphoBlueProtocolDetailsType = "morpho_blue"
 )
 
 // Defines values for NetUSDChangeCriterionOperator.
@@ -1302,14 +1331,14 @@ const (
 
 // Defines values for X402V2Network.
 const (
-	Eip155137                              X402V2Network = "eip155:137"
-	Eip15542161                            X402V2Network = "eip155:42161"
-	Eip155480                              X402V2Network = "eip155:480"
-	Eip1554801                             X402V2Network = "eip155:4801"
-	Eip1558453                             X402V2Network = "eip155:8453"
-	Eip15584532                            X402V2Network = "eip155:84532"
-	Solana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402V2Network = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
-	SolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402V2Network = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+	X402V2NetworkEip155137                              X402V2Network = "eip155:137"
+	X402V2NetworkEip15542161                            X402V2Network = "eip155:42161"
+	X402V2NetworkEip155480                              X402V2Network = "eip155:480"
+	X402V2NetworkEip1554801                             X402V2Network = "eip155:4801"
+	X402V2NetworkEip1558453                             X402V2Network = "eip155:8453"
+	X402V2NetworkEip15584532                            X402V2Network = "eip155:84532"
+	X402V2NetworkSolana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402V2Network = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+	X402V2NetworkSolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402V2Network = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
 )
 
 // Defines values for X402Version.
@@ -1900,6 +1929,12 @@ const (
 	SendSolanaTransactionWithEndUserAccountJSONBodyNetworkSolanaDevnet SendSolanaTransactionWithEndUserAccountJSONBodyNetwork = "solana-devnet"
 )
 
+// Defines values for SignSolanaTransactionWithEndUserAccountJSONBodyNetwork.
+const (
+	SignSolanaTransactionWithEndUserAccountJSONBodyNetworkSolana       SignSolanaTransactionWithEndUserAccountJSONBodyNetwork = "solana"
+	SignSolanaTransactionWithEndUserAccountJSONBodyNetworkSolanaDevnet SignSolanaTransactionWithEndUserAccountJSONBodyNetwork = "solana-devnet"
+)
+
 // Defines values for SendSolanaAssetWithEndUserAccountJSONBodyNetwork.
 const (
 	SendSolanaAssetWithEndUserAccountJSONBodyNetworkSolana       SendSolanaAssetWithEndUserAccountJSONBodyNetwork = "solana"
@@ -1964,6 +1999,18 @@ const (
 const (
 	SendSolanaTransactionJSONBodyNetworkSolana       SendSolanaTransactionJSONBodyNetwork = "solana"
 	SendSolanaTransactionJSONBodyNetworkSolanaDevnet SendSolanaTransactionJSONBodyNetwork = "solana-devnet"
+)
+
+// Defines values for SignSolanaMessageJSONBodyEncoding.
+const (
+	Base64 SignSolanaMessageJSONBodyEncoding = "base64"
+	Utf8   SignSolanaMessageJSONBodyEncoding = "utf8"
+)
+
+// Defines values for SignSolanaTransactionJSONBodyNetwork.
+const (
+	SignSolanaTransactionJSONBodyNetworkSolana       SignSolanaTransactionJSONBodyNetwork = "solana"
+	SignSolanaTransactionJSONBodyNetworkSolanaDevnet SignSolanaTransactionJSONBodyNetwork = "solana-devnet"
 )
 
 // Defines values for RequestSolanaFaucetJSONBodyToken.
@@ -2117,6 +2164,39 @@ type AchDepositSource struct {
 	IndividualIdentificationNumber *string `json:"individualIdentificationNumber,omitempty"`
 }
 
+// AdjustBorrowPositionRequest A request to adjust an existing borrow position for an end user's smart account on the specified borrow product.
+// The request can supply collateral, withdraw collateral, repay debt, and/or borrow more of the loan asset, broadcasting a user operation to apply the changes onchain.
+// A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+type AdjustBorrowPositionRequest struct {
+	// AddCollateralAmount The amount of collateral to add to the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC). Must not be combined with `removeCollateralAmount` or `repayLoanAmount`.
+	AddCollateralAmount *PositiveDecimal `json:"addCollateralAmount,omitempty"`
+
+	// BorrowLoanAmount The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `repayLoanAmount` or `removeCollateralAmount`.
+	BorrowLoanAmount *PositiveDecimal `json:"borrowLoanAmount,omitempty"`
+
+	// BorrowProductId The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+	BorrowProductId BorrowProductId `json:"borrowProductId"`
+
+	// PaymasterContext Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+	// If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// RemoveCollateralAmount The amount of collateral to withdraw from the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).  Must not be combined with `addCollateralAmount` or `borrowLoanAmount`.
+	RemoveCollateralAmount *PositiveDecimal `json:"removeCollateralAmount,omitempty"`
+
+	// RepayLoanAmount The amount of the loan token to repay, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `borrowLoanAmount` or `addCollateralAmount`.
+	RepayLoanAmount *PositiveDecimal `json:"repayLoanAmount,omitempty"`
+
+	// UseCdpPaymaster Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+	UseCdpPaymaster bool `json:"useCdpPaymaster"`
+
+	// WalletSecretId The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+	WalletSecretId string `json:"walletSecretId"`
+}
+
 // AmountDetail Available and total amounts for a specific currency.
 type AmountDetail struct {
 	// Available The amount that is currently available to be used.
@@ -2204,7 +2284,7 @@ type Balances struct {
 // BankAccountUS A US bank account identified by ABA routing number and account number.
 type BankAccountUS struct {
 	// AccountNumber The bank account number.
-	AccountNumber string `json:"accountNumber"`
+	AccountNumber FiatAccountNumber `json:"accountNumber"`
 
 	// AccountType The type of bank account, based on the account identification scheme (e.g., `us_bank`).
 	AccountType BankAccountUSAccountType `json:"accountType"`
@@ -2239,6 +2319,166 @@ type BankAccountUSCurrency string
 
 // BlockchainAddress A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
 type BlockchainAddress = string
+
+// BorrowPosition A borrow position held by a smart account in a borrow product, together with its live onchain state read at a point-in-time snapshot.
+type BorrowPosition struct {
+	// Address The smart account address that owns the borrow position.
+	Address string `json:"address"`
+
+	// BorrowProductId The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+	BorrowProductId BorrowProductId `json:"borrowProductId"`
+
+	// Network The name of the EVM network that a borrow product is deployed on.
+	Network BorrowProductNetwork `json:"network"`
+
+	// OnchainState The live onchain state of a borrow position. The `type` field indicates which protocol-specific schema describes the state.
+	OnchainState BorrowPositionOnchainState `json:"onchainState"`
+
+	// Snapshot The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.
+	Snapshot BorrowProductSnapshot `json:"snapshot"`
+}
+
+// BorrowPositionAssetAmount The balance of either the collateral or debt token for a borrow position, as a decimal string in the token's standard unit denomination.
+type BorrowPositionAssetAmount struct {
+	// Amount The token balance as a decimal string in the token's standard unit denomination (i.e. "5000" for 5000 mGLO).
+	Amount PositiveDecimal `json:"amount"`
+
+	// AssetId The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+	AssetId string `json:"assetId"`
+
+	// Token A token on an EVM borrow product network.
+	Token BorrowProductToken `json:"token"`
+}
+
+// BorrowPositionDebt defines model for BorrowPositionDebt.
+type BorrowPositionDebt struct {
+	// Amount The token balance as a decimal string in the token's standard unit denomination (i.e. "5000" for 5000 mGLO).
+	Amount PositiveDecimal `json:"amount"`
+
+	// AssetId The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+	AssetId string `json:"assetId"`
+
+	// BorrowApyBps The current annualized borrow rate for the debt, expressed in basis points. For example, `525` represents a borrow APY of 5.25%. Omitted when the rate is unavailable.
+	BorrowApyBps *int `json:"borrowApyBps,omitempty"`
+
+	// Token A token on an EVM borrow product network.
+	Token BorrowProductToken `json:"token"`
+}
+
+// BorrowPositionHealthStatus The aggregate health of a borrow position.
+//
+// - `no_debt`: the position has no outstanding debt.
+// - `healthy`: the position has debt and is above its liquidation threshold.
+// - `undercollateralized`: the position is at or below its liquidation threshold and may be eligible for liquidation.
+type BorrowPositionHealthStatus string
+
+// BorrowPositionOnchainState The live onchain state of a borrow position. The `type` field indicates which protocol-specific schema describes the state.
+type BorrowPositionOnchainState struct {
+	union json.RawMessage
+}
+
+// BorrowProduct A borrow product on an EVM network, operated by a lending protocol such as Morpho Blue.
+// A borrow product is a protocol-native representation of a borrowable market,  describing the venue that hosts it, the assets that are borrowed or borrowed against  in it, a point-in-time snapshot of its onchain state, and the protocol-specific  immutable parameters that uniquely define it.
+type BorrowProduct struct {
+	// Assets The assets available to be borrowed or borrowed against in this market.
+	Assets []BorrowProductAsset `json:"assets"`
+
+	// BorrowProductId The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+	BorrowProductId BorrowProductId `json:"borrowProductId"`
+
+	// Name A human-readable name for the product, typically derived from its loan and collateral tokens.
+	Name string `json:"name"`
+
+	// Network The name of the EVM network that a borrow product is deployed on.
+	Network BorrowProductNetwork `json:"network"`
+
+	// ProtocolDetails Protocol-specific immutable onchain details that uniquely define a borrow product. The `type` field indicates which protocol-specific schema describes the product's details.
+	ProtocolDetails BorrowProductProtocolDetails `json:"protocolDetails"`
+
+	// Snapshot The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.
+	Snapshot BorrowProductSnapshot `json:"snapshot"`
+
+	// Venue The onchain venue that hosts a borrow product. The venue comprises the protocol and  network the product is deployed on. An example of a venue would be Morpho Blue on  Base Mainnet.
+	Venue BorrowProductVenue `json:"venue"`
+}
+
+// BorrowProductAsset The assets available to be borrowed or borrowed against in this market, together with the capabilities (collateral and/or debt) they provide.
+type BorrowProductAsset struct {
+	// AssetId A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.
+	AssetId string `json:"assetId"`
+
+	// Capabilities The capabilities this asset provides within the borrow product. An asset may be used as collateral and/or debt.
+	Capabilities []BorrowProductAssetCapability `json:"capabilities"`
+
+	// Token A token on an EVM borrow product network.
+	Token BorrowProductToken `json:"token"`
+}
+
+// BorrowProductAssetCapability A capability an asset provides within a borrow product, describing the role the asset plays, either as collateral or debt, and whether that capability is currently active.
+type BorrowProductAssetCapability struct {
+	// Enabled Whether this capability is currently active. For example, an asset with a `collateral` capability and `enabled: false` cannot currently be borrowed against.
+	// Some venues may temporarily disable an asset's capability, which will be  reflected in the `enabled` field. This would not affect any user's existing  borrow positions.
+	Enabled bool `json:"enabled"`
+
+	// Type The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.
+	Type BorrowProductAssetCapabilityType `json:"type"`
+}
+
+// BorrowProductAssetCapabilityType The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.
+type BorrowProductAssetCapabilityType string
+
+// BorrowProductId The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+type BorrowProductId = string
+
+// BorrowProductNetwork The name of the EVM network that a borrow product is deployed on.
+type BorrowProductNetwork string
+
+// BorrowProductProtocol The lending protocol that operates the borrow product.
+type BorrowProductProtocol string
+
+// BorrowProductProtocolDetails Protocol-specific immutable onchain details that uniquely define a borrow product. The `type` field indicates which protocol-specific schema describes the product's details.
+type BorrowProductProtocolDetails struct {
+	union json.RawMessage
+}
+
+// BorrowProductSnapshot The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.
+type BorrowProductSnapshot struct {
+	// BlockHash The hash of the block at which the state was observed.
+	BlockHash string `json:"blockHash"`
+
+	// BlockNumber The block number at which the state was observed.
+	BlockNumber int64 `json:"blockNumber"`
+
+	// BlockTimestamp The onchain block timestamp at which the state was observed in Unix seconds.
+	BlockTimestamp int64 `json:"blockTimestamp"`
+
+	// ObservedAt The timestamp at which the state was observed.
+	ObservedAt time.Time `json:"observedAt"`
+}
+
+// BorrowProductToken A token on an EVM borrow product network.
+type BorrowProductToken struct {
+	// Address The contract address of the token.
+	Address string `json:"address"`
+
+	// Decimals The number of decimal places used by the token.
+	Decimals int64 `json:"decimals"`
+
+	// Symbol The symbol of the token (e.g. USDC, WETH).
+	Symbol string `json:"symbol"`
+}
+
+// BorrowProductVenue The onchain venue that hosts a borrow product. The venue comprises the protocol and  network the product is deployed on. An example of a venue would be Morpho Blue on  Base Mainnet.
+type BorrowProductVenue struct {
+	// EntrypointAddress The contract address of the venue's entrypoint.
+	EntrypointAddress string `json:"entrypointAddress"`
+
+	// Name A human-readable name for the venue.
+	Name string `json:"name"`
+
+	// VenueId A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.
+	VenueId string `json:"venueId"`
+}
 
 // CancelPaymentSessionRequest A request to cancel a payment session.
 type CancelPaymentSessionRequest struct {
@@ -2374,6 +2614,26 @@ type Capture struct {
 // CaptureId The ID of the capture, a UUID prefixed by `capture_`.
 type CaptureId = string
 
+// CloseBorrowPositionRequest A request to close an end user smart account's borrow position for the specified borrow product.
+// Closing fully repays the position's outstanding loan and withdraws all remaining collateral back to the smart account, broadcasting a single user operation to settle the position onchain. There is no partial close; use `adjustBorrowPositionWithEndUserAccount` to adjust a position without closing it.
+type CloseBorrowPositionRequest struct {
+	// BorrowProductId The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+	BorrowProductId BorrowProductId `json:"borrowProductId"`
+
+	// PaymasterContext Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+	// If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// UseCdpPaymaster Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+	UseCdpPaymaster bool `json:"useCdpPaymaster"`
+
+	// WalletSecretId The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+	WalletSecretId string `json:"walletSecretId"`
+}
+
 // CoinbaseAuthorizationRequest A request to authorize a payment session using the payer's Coinbase account authenticated via OAuth.
 type CoinbaseAuthorizationRequest struct {
 	// CustomerDisplay Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
@@ -2491,6 +2751,32 @@ type CreateAccountRequest struct {
 	//   - `custodyFiat`
 	//   - `custodyStablecoin`.
 	Owner *Owner `json:"owner,omitempty"`
+}
+
+// CreateBorrowPositionRequest A request to create a borrow position for an end user's smart account for the specified borrow product.
+// The smart account posts collateral and borrows against it, broadcasting a user operation  to open the position onchain.
+type CreateBorrowPositionRequest struct {
+	// BorrowProductId The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+	BorrowProductId BorrowProductId `json:"borrowProductId"`
+
+	// CollateralAmount The amount of collateral to post, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).
+	CollateralAmount PositiveDecimal `json:"collateralAmount"`
+
+	// LoanAmount The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).
+	LoanAmount PositiveDecimal `json:"loanAmount"`
+
+	// PaymasterContext Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+	// If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// UseCdpPaymaster Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+	UseCdpPaymaster bool `json:"useCdpPaymaster"`
+
+	// WalletSecretId The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+	WalletSecretId string `json:"walletSecretId"`
 }
 
 // CreateCaptureRequest A request to create a capture for a payment session.
@@ -3919,6 +4205,9 @@ type FedwirePaymentMethod struct {
 // FedwirePaymentMethodPaymentRail The payment rail for this payment method.
 type FedwirePaymentMethodPaymentRail string
 
+// FiatAccountNumber The bank account number.
+type FiatAccountNumber = string
+
 // FiatDepositDestination A fiat deposit destination. Represents a single bank account provisioned at a single banking partner. Each deposit destination has one status and one lifecycle. The `fiat` object contains the bank account details, keyed by account type.
 type FiatDepositDestination struct {
 	// AccountId The ID of the Account, which is a UUID prefixed by the string `account_`.
@@ -4298,6 +4587,67 @@ type MintAddressCriterionOperator string
 
 // MintAddressCriterionType The type of criterion to use. This should be `mintAddress`.
 type MintAddressCriterionType string
+
+// MorphoBlueMarketParams Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.
+type MorphoBlueMarketParams struct {
+	// CollateralToken A token on an EVM borrow product network.
+	CollateralToken BorrowProductToken `json:"collateralToken"`
+
+	// InterestRateModelAddress The contract address of the interest rate model that governs the product's borrow rate.
+	InterestRateModelAddress string `json:"interestRateModelAddress"`
+
+	// LltvBps The liquidation loan-to-value of the product, expressed in basis points. For example, `9150` represents an LLTV of 91.5%.
+	LltvBps int `json:"lltvBps"`
+
+	// LoanToken A token on an EVM borrow product network.
+	LoanToken BorrowProductToken `json:"loanToken"`
+
+	// OnchainMarketId The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.
+	OnchainMarketId string `json:"onchainMarketId"`
+
+	// OracleAddress The contract address of the oracle used to price the collateral token against the loan token.
+	OracleAddress string `json:"oracleAddress"`
+}
+
+// MorphoBlueOnchainState The live onchain state of a Morpho Blue borrow position, read at the block described by the position's snapshot.
+type MorphoBlueOnchainState struct {
+	// Collateral The non-zero collateral balances securing the position.
+	Collateral []BorrowPositionAssetAmount `json:"collateral"`
+
+	// CurrentLtvBps The position's current loan-to-value, expressed in basis points. For example, `5000` represents a current LTV of 50%. Omitted when the position has no debt.
+	CurrentLtvBps *int `json:"currentLtvBps,omitempty"`
+
+	// Debt The non-zero debt balances owed by the position.
+	Debt []BorrowPositionDebt `json:"debt"`
+
+	// HealthFactor The position's liquidation headroom as a decimal string, where `1.0` is the liquidation boundary and higher is safer. For example, `1.79` means the position's weighted collateral is 1.79x its debt. Omitted when the position has no debt.
+	HealthFactor *string `json:"healthFactor,omitempty"`
+
+	// HealthStatus The aggregate health of a borrow position.
+	//
+	// - `no_debt`: the position has no outstanding debt.
+	// - `healthy`: the position has debt and is above its liquidation threshold.
+	// - `undercollateralized`: the position is at or below its liquidation threshold and may be eligible for liquidation.
+	HealthStatus BorrowPositionHealthStatus `json:"healthStatus"`
+
+	// LiquidationThresholdBps The loan-to-value at which the position becomes eligible for liquidation, expressed in basis points. For example, `8250` represents 82.5%. Omitted when the position has no debt.
+	LiquidationThresholdBps *int `json:"liquidationThresholdBps,omitempty"`
+
+	// Type The protocol type, used to discriminate the onchain state schema.
+	Type BorrowProductProtocol `json:"type"`
+}
+
+// MorphoBlueProtocolDetails Morpho Blue-specific immutable onchain protocol details that uniquely define a borrow product.
+type MorphoBlueProtocolDetails struct {
+	// MarketParams Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.
+	MarketParams MorphoBlueMarketParams `json:"marketParams"`
+
+	// Type The protocol type, used to discriminate the protocol details schema.
+	Type MorphoBlueProtocolDetailsType `json:"type"`
+}
+
+// MorphoBlueProtocolDetailsType The protocol type, used to discriminate the protocol details schema.
+type MorphoBlueProtocolDetailsType string
 
 // NetUSDChangeCriterion A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
 type NetUSDChangeCriterion struct {
@@ -6358,7 +6708,7 @@ type TermsOfService struct {
 
 	// Url Canonical, language-agnostic URL where the Terms of Service
 	// document is hosted (for example,
-	// `https://docs.cdp.coinbase.com/legal/terms/us_individual`).
+	// `https://www.coinbase.com/legal/user-agreements-third-party-provider`).
 	// Append `?lang=<tag>` (where `<tag>` is one of `languages`) to
 	// retrieve a specific translation; without the parameter, the
 	// documentation site renders a default translation.
@@ -6999,6 +7349,30 @@ type WebhookEventResponseDetail struct {
 	HttpCode *int `json:"httpCode,omitempty"`
 }
 
+// WebhookMetadata Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.
+type WebhookMetadata map[string]string
+
+// WebhookRequestLabels String-valued filters supplied when creating or updating a webhook subscription.
+// The subscription's `eventTypes` determine whether labels are required and which
+// label keys are accepted. A subscription accepts at most 20 client-supplied labels.
+//
+// #### Label Behavior
+//
+// An event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.
+type WebhookRequestLabels map[string]string
+
+// WebhookResponseLabels Effective filters stored on the webhook subscription. The response includes
+// client-supplied labels plus labels defaulted or injected by the server.
+//
+//   - `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`
+//     include `network`. It defaults to `base-mainnet` when omitted from the request.
+//   - `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`.
+//   - `health.*` includes the requested `service`.
+//   - Project-scoped events include the authenticated `project`.
+//   - Entity-scoped events include the authenticated `entity`.
+//   - User-scoped events include the authenticated `user_uuid` and a `sandbox` value.
+type WebhookResponseLabels map[string]string
+
 // WebhookSubscriptionListResponse defines model for WebhookSubscriptionListResponse.
 type WebhookSubscriptionListResponse struct {
 	// NextPageToken The token for the next page of items, if any.
@@ -7023,24 +7397,17 @@ type WebhookSubscriptionRequest struct {
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
 
-	// Labels Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-	// an event contains ALL the key-value pairs specified here. Additional labels on
-	// the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
+	// Labels String-valued filters supplied when creating or updating a webhook subscription.
+	// The subscription's `eventTypes` determine whether labels are required and which
+	// label keys are accepted. A subscription accepts at most 20 client-supplied labels.
 	//
-	// **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+	// #### Label Behavior
 	//
-	// **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-	// - `network` (required) — Blockchain network
-	// - `contract_address` — Smart contract address
-	// - `event_name` — Event name (e.g., "Transfer", "Burn")
-	// - `event_signature` — Event signature hash
-	// - `transaction_from` — Transaction sender address
-	// - `transaction_to` — Transaction recipient address
-	// - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-	Labels *map[string]string `json:"labels,omitempty"`
+	// An event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.
+	Labels *WebhookRequestLabels `json:"labels,omitempty"`
 
-	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
-	Metadata *Metadata `json:"metadata,omitempty"`
+	// Metadata Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.
+	Metadata *WebhookMetadata `json:"metadata,omitempty"`
 
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
@@ -7064,9 +7431,17 @@ type WebhookSubscriptionResponse struct {
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
 
-	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
-	// Present when subscription uses multi-label format.
-	Labels *map[string]string `json:"labels,omitempty"`
+	// Labels Effective filters stored on the webhook subscription. The response includes
+	// client-supplied labels plus labels defaulted or injected by the server.
+	//
+	// * `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`
+	//   include `network`. It defaults to `base-mainnet` when omitted from the request.
+	// * `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`.
+	// * `health.*` includes the requested `service`.
+	// * Project-scoped events include the authenticated `project`.
+	// * Entity-scoped events include the authenticated `entity`.
+	// * User-scoped events include the authenticated `user_uuid` and a `sandbox` value.
+	Labels *WebhookResponseLabels `json:"labels,omitempty"`
 
 	// Metadata Additional metadata for the subscription.
 	Metadata *WebhookSubscriptionResponse_Metadata `json:"metadata,omitempty"`
@@ -7106,23 +7481,17 @@ type WebhookSubscriptionUpdateRequest struct {
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
 
-	// Labels Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-	// Omit to receive all events for the selected event types.
+	// Labels String-valued filters supplied when creating or updating a webhook subscription.
+	// The subscription's `eventTypes` determine whether labels are required and which
+	// label keys are accepted. A subscription accepts at most 20 client-supplied labels.
 	//
-	// **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
+	// #### Label Behavior
 	//
-	// **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-	// - `network` (required) — Blockchain network
-	// - `contract_address` — Smart contract address
-	// - `event_name` — Event name (e.g., "Transfer", "Burn")
-	// - `event_signature` — Event signature hash
-	// - `transaction_from` — Transaction sender address
-	// - `transaction_to` — Transaction recipient address
-	// - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-	Labels *map[string]string `json:"labels,omitempty"`
+	// An event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.
+	Labels *WebhookRequestLabels `json:"labels,omitempty"`
 
-	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
-	Metadata *Metadata `json:"metadata,omitempty"`
+	// Metadata Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.
+	Metadata *WebhookMetadata `json:"metadata,omitempty"`
 
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
@@ -8287,6 +8656,26 @@ type CreateCustomerParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// GetCustomerRequirementsParams defines parameters for GetCustomerRequirements.
+type GetCustomerRequirementsParams struct {
+	// CustomerType The type of the hypothetical customer.
+	CustomerType CustomerType `form:"customerType" json:"customerType"`
+
+	// Capabilities The capabilities the hypothetical customer would request.
+	// Repeat the parameter to specify multiple capabilities, for
+	// example `capabilities=custodyCrypto&capabilities=transferCrypto`.
+	Capabilities []CapabilityName `form:"capabilities" json:"capabilities"`
+
+	// CountryCode The hypothetical customer's country of residence. At least one
+	// of `countryCode` or `citizenship` is required. When both are
+	// present, `countryCode` takes precedence.
+	CountryCode *CountryCode `form:"countryCode,omitempty" json:"countryCode,omitempty"`
+
+	// Citizenship The hypothetical customer's citizenship. At least one of
+	// `countryCode` or `citizenship` is required.
+	Citizenship *CountryCode `form:"citizenship,omitempty" json:"citizenship,omitempty"`
+}
+
 // DeleteCustomerByIdParams defines parameters for DeleteCustomerById.
 type DeleteCustomerByIdParams struct {
 	// XIdempotencyKey An optional string request header for making requests safely retryable.
@@ -8464,6 +8853,33 @@ type CreateDelegationForEndUserAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// RevokeDelegationForEndUserAccountPostJSONBody defines parameters for RevokeDelegationForEndUserAccountPost.
+type RevokeDelegationForEndUserAccountPostJSONBody struct {
+	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// RevokeDelegationForEndUserAccountPostParams defines parameters for RevokeDelegationForEndUserAccountPost.
+type RevokeDelegationForEndUserAccountPostParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // RevokeDelegationForEndUserJSONBody defines parameters for RevokeDelegationForEndUser.
 type RevokeDelegationForEndUserJSONBody struct {
 	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
@@ -8495,6 +8911,33 @@ type RevokeDelegationForEndUserParams struct {
 type GetDelegationForEndUserParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+}
+
+// RevokeDelegationForEndUserPostJSONBody defines parameters for RevokeDelegationForEndUserPost.
+type RevokeDelegationForEndUserPostJSONBody struct {
+	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
+
+// RevokeDelegationForEndUserPostParams defines parameters for RevokeDelegationForEndUserPost.
+type RevokeDelegationForEndUserPostParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
 // CreateEvmEip7702DelegationWithEndUserAccountJSONBody defines parameters for CreateEvmEip7702DelegationWithEndUserAccount.
@@ -8671,6 +9114,51 @@ type SignEvmTypedDataWithEndUserAccountParams struct {
 	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
 }
 
+// ListBorrowPositionsWithEndUserAccountParams defines parameters for ListBorrowPositionsWithEndUserAccount.
+type ListBorrowPositionsWithEndUserAccountParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+}
+
+// CreateBorrowPositionWithEndUserAccountParams defines parameters for CreateBorrowPositionWithEndUserAccount.
+type CreateBorrowPositionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+}
+
+// AdjustBorrowPositionWithEndUserAccountParams defines parameters for AdjustBorrowPositionWithEndUserAccount.
+type AdjustBorrowPositionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+}
+
+// CloseBorrowPositionWithEndUserAccountParams defines parameters for CloseBorrowPositionWithEndUserAccount.
+type CloseBorrowPositionWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+}
+
 // SendUserOperationWithEndUserAccountJSONBody defines parameters for SendUserOperationWithEndUserAccount.
 type SendUserOperationWithEndUserAccountJSONBody struct {
 	// Calls The list of calls to make from the Smart Account.
@@ -8714,6 +9202,12 @@ type SendUserOperationWithEndUserAccountParams struct {
 	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+}
+
+// GetUserOperationWithEndUserAccountParams defines parameters for GetUserOperationWithEndUserAccount.
+type GetUserOperationWithEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 }
 
 // SendEvmAssetWithEndUserAccountJSONBody defines parameters for SendEvmAssetWithEndUserAccount.
@@ -8844,6 +9338,9 @@ type SignSolanaTransactionWithEndUserAccountJSONBody struct {
 	// Address The base58 encoded address of the Solana account belonging to the end user.
 	Address string `json:"address"`
 
+	// Network The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+	Network *SignSolanaTransactionWithEndUserAccountJSONBodyNetwork `json:"network,omitempty"`
+
 	// Transaction The base64 encoded transaction to sign.
 	Transaction string `json:"transaction"`
 
@@ -8871,6 +9368,9 @@ type SignSolanaTransactionWithEndUserAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
 }
+
+// SignSolanaTransactionWithEndUserAccountJSONBodyNetwork defines parameters for SignSolanaTransactionWithEndUserAccount.
+type SignSolanaTransactionWithEndUserAccountJSONBodyNetwork string
 
 // SignSolanaX402PaymentWithEndUserAccountJSONBody defines parameters for SignSolanaX402PaymentWithEndUserAccount.
 type SignSolanaX402PaymentWithEndUserAccountJSONBody struct {
@@ -8952,6 +9452,30 @@ type SendSolanaAssetWithEndUserAccountParams struct {
 
 // SendSolanaAssetWithEndUserAccountJSONBodyNetwork defines parameters for SendSolanaAssetWithEndUserAccount.
 type SendSolanaAssetWithEndUserAccountJSONBodyNetwork string
+
+// ListEvmBorrowProductsParams defines parameters for ListEvmBorrowProducts.
+type ListEvmBorrowProductsParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// Network The EVM network name to list borrow products for.
+	Network *BorrowProductNetwork `form:"network,omitempty" json:"network,omitempty"`
+
+	// Protocol The lending protocol whose borrow products to list.
+	Protocol *BorrowProductProtocol `form:"protocol,omitempty" json:"protocol,omitempty"`
+
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// GetEvmBorrowProductParams defines parameters for GetEvmBorrowProduct.
+type GetEvmBorrowProductParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+}
 
 // ListEndUsersParams defines parameters for ListEndUsers.
 type ListEndUsersParams struct {
@@ -9591,9 +10115,9 @@ type CreateOnrampOrderJSONBody struct {
 	// PartnerOrderRef Optional partner order reference ID.
 	PartnerOrderRef *string `json:"partnerOrderRef,omitempty"`
 
-	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
 	//
-	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+	// This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
 	PartnerUserRef string `json:"partnerUserRef"`
 
 	// PaymentAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.
@@ -9705,7 +10229,7 @@ type GetWalletAuthorizationOptionsParams struct {
 	// Network Optional filter to restrict options to a specific blockchain network.
 	Network *PaymentSourceNetwork `form:"network,omitempty" json:"network,omitempty"`
 
-	// Asset Optional filter to restrict options to a specific asset.
+	// Asset Filter options by asset. Currently, only `usdc` and `usdt` return results.
 	Asset *Asset `form:"asset,omitempty" json:"asset,omitempty"`
 }
 
@@ -9993,6 +10517,9 @@ type ExportSolanaAccountParams struct {
 
 // SignSolanaMessageJSONBody defines parameters for SignSolanaMessage.
 type SignSolanaMessageJSONBody struct {
+	// Encoding The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.
+	Encoding *SignSolanaMessageJSONBodyEncoding `json:"encoding,omitempty"`
+
 	// Message The arbitrary message to sign.
 	Message string `json:"message"`
 }
@@ -10010,8 +10537,14 @@ type SignSolanaMessageParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// SignSolanaMessageJSONBodyEncoding defines parameters for SignSolanaMessage.
+type SignSolanaMessageJSONBodyEncoding string
+
 // SignSolanaTransactionJSONBody defines parameters for SignSolanaTransaction.
 type SignSolanaTransactionJSONBody struct {
+	// Network The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+	Network *SignSolanaTransactionJSONBodyNetwork `json:"network,omitempty"`
+
 	// Transaction The base64 encoded transaction to sign.
 	Transaction string `json:"transaction"`
 }
@@ -10028,6 +10561,9 @@ type SignSolanaTransactionParams struct {
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
+
+// SignSolanaTransactionJSONBodyNetwork defines parameters for SignSolanaTransaction.
+type SignSolanaTransactionJSONBodyNetwork string
 
 // RequestSolanaFaucetJSONBody defines parameters for RequestSolanaFaucet.
 type RequestSolanaFaucetJSONBody struct {
@@ -10253,8 +10789,14 @@ type RevokeDelegationForEndUserAccountJSONRequestBody RevokeDelegationForEndUser
 // CreateDelegationForEndUserAccountJSONRequestBody defines body for CreateDelegationForEndUserAccount for application/json ContentType.
 type CreateDelegationForEndUserAccountJSONRequestBody CreateDelegationForEndUserAccountJSONBody
 
+// RevokeDelegationForEndUserAccountPostJSONRequestBody defines body for RevokeDelegationForEndUserAccountPost for application/json ContentType.
+type RevokeDelegationForEndUserAccountPostJSONRequestBody RevokeDelegationForEndUserAccountPostJSONBody
+
 // RevokeDelegationForEndUserJSONRequestBody defines body for RevokeDelegationForEndUser for application/json ContentType.
 type RevokeDelegationForEndUserJSONRequestBody RevokeDelegationForEndUserJSONBody
+
+// RevokeDelegationForEndUserPostJSONRequestBody defines body for RevokeDelegationForEndUserPost for application/json ContentType.
+type RevokeDelegationForEndUserPostJSONRequestBody RevokeDelegationForEndUserPostJSONBody
 
 // CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody defines body for CreateEvmEip7702DelegationWithEndUserAccount for application/json ContentType.
 type CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody CreateEvmEip7702DelegationWithEndUserAccountJSONBody
@@ -10270,6 +10812,15 @@ type SignEvmTransactionWithEndUserAccountJSONRequestBody SignEvmTransactionWithE
 
 // SignEvmTypedDataWithEndUserAccountJSONRequestBody defines body for SignEvmTypedDataWithEndUserAccount for application/json ContentType.
 type SignEvmTypedDataWithEndUserAccountJSONRequestBody SignEvmTypedDataWithEndUserAccountJSONBody
+
+// CreateBorrowPositionWithEndUserAccountJSONRequestBody defines body for CreateBorrowPositionWithEndUserAccount for application/json ContentType.
+type CreateBorrowPositionWithEndUserAccountJSONRequestBody = CreateBorrowPositionRequest
+
+// AdjustBorrowPositionWithEndUserAccountJSONRequestBody defines body for AdjustBorrowPositionWithEndUserAccount for application/json ContentType.
+type AdjustBorrowPositionWithEndUserAccountJSONRequestBody = AdjustBorrowPositionRequest
+
+// CloseBorrowPositionWithEndUserAccountJSONRequestBody defines body for CloseBorrowPositionWithEndUserAccount for application/json ContentType.
+type CloseBorrowPositionWithEndUserAccountJSONRequestBody = CloseBorrowPositionRequest
 
 // SendUserOperationWithEndUserAccountJSONRequestBody defines body for SendUserOperationWithEndUserAccount for application/json ContentType.
 type SendUserOperationWithEndUserAccountJSONRequestBody SendUserOperationWithEndUserAccountJSONBody
@@ -10752,6 +11303,124 @@ func (t AuthenticationMethod) MarshalJSON() ([]byte, error) {
 }
 
 func (t *AuthenticationMethod) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsMorphoBlueOnchainState returns the union data inside the BorrowPositionOnchainState as a MorphoBlueOnchainState
+func (t BorrowPositionOnchainState) AsMorphoBlueOnchainState() (MorphoBlueOnchainState, error) {
+	var body MorphoBlueOnchainState
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMorphoBlueOnchainState overwrites any union data inside the BorrowPositionOnchainState as the provided MorphoBlueOnchainState
+func (t *BorrowPositionOnchainState) FromMorphoBlueOnchainState(v MorphoBlueOnchainState) error {
+	v.Type = "morpho_blue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMorphoBlueOnchainState performs a merge with any union data inside the BorrowPositionOnchainState, using the provided MorphoBlueOnchainState
+func (t *BorrowPositionOnchainState) MergeMorphoBlueOnchainState(v MorphoBlueOnchainState) error {
+	v.Type = "morpho_blue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t BorrowPositionOnchainState) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t BorrowPositionOnchainState) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "morpho_blue":
+		return t.AsMorphoBlueOnchainState()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t BorrowPositionOnchainState) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *BorrowPositionOnchainState) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsMorphoBlueProtocolDetails returns the union data inside the BorrowProductProtocolDetails as a MorphoBlueProtocolDetails
+func (t BorrowProductProtocolDetails) AsMorphoBlueProtocolDetails() (MorphoBlueProtocolDetails, error) {
+	var body MorphoBlueProtocolDetails
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMorphoBlueProtocolDetails overwrites any union data inside the BorrowProductProtocolDetails as the provided MorphoBlueProtocolDetails
+func (t *BorrowProductProtocolDetails) FromMorphoBlueProtocolDetails(v MorphoBlueProtocolDetails) error {
+	v.Type = "morpho_blue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMorphoBlueProtocolDetails performs a merge with any union data inside the BorrowProductProtocolDetails, using the provided MorphoBlueProtocolDetails
+func (t *BorrowProductProtocolDetails) MergeMorphoBlueProtocolDetails(v MorphoBlueProtocolDetails) error {
+	v.Type = "morpho_blue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t BorrowProductProtocolDetails) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t BorrowProductProtocolDetails) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "morpho_blue":
+		return t.AsMorphoBlueProtocolDetails()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t BorrowProductProtocolDetails) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *BorrowProductProtocolDetails) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -16087,6 +16756,9 @@ type ClientInterface interface {
 
 	CreateCustomer(ctx context.Context, params *CreateCustomerParams, body CreateCustomerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetCustomerRequirements request
+	GetCustomerRequirements(ctx context.Context, params *GetCustomerRequirementsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteCustomerById request
 	DeleteCustomerById(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -16172,6 +16844,11 @@ type ClientInterface interface {
 
 	CreateDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RevokeDelegationForEndUserAccountPostWithBody request with any body
+	RevokeDelegationForEndUserAccountPostWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUserAccountPost(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RevokeDelegationForEndUserWithBody request with any body
 	RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -16179,6 +16856,11 @@ type ClientInterface interface {
 
 	// GetDelegationForEndUser request
 	GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeDelegationForEndUserPostWithBody request with any body
+	RevokeDelegationForEndUserPostWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUserPost(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBody request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -16205,10 +16887,31 @@ type ClientInterface interface {
 
 	SignEvmTypedDataWithEndUserAccount(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListBorrowPositionsWithEndUserAccount request
+	ListBorrowPositionsWithEndUserAccount(ctx context.Context, userId string, address string, params *ListBorrowPositionsWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateBorrowPositionWithEndUserAccountWithBody request with any body
+	CreateBorrowPositionWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateBorrowPositionWithEndUserAccount(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, body CreateBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AdjustBorrowPositionWithEndUserAccountWithBody request with any body
+	AdjustBorrowPositionWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AdjustBorrowPositionWithEndUserAccount(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, body AdjustBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CloseBorrowPositionWithEndUserAccountWithBody request with any body
+	CloseBorrowPositionWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CloseBorrowPositionWithEndUserAccount(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, body CloseBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SendUserOperationWithEndUserAccountWithBody request with any body
 	SendUserOperationWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SendUserOperationWithEndUserAccount(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetUserOperationWithEndUserAccount request
+	GetUserOperationWithEndUserAccount(ctx context.Context, userId string, address string, userOpHash string, params *GetUserOperationWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendEvmAssetWithEndUserAccountWithBody request with any body
 	SendEvmAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -16239,6 +16942,12 @@ type ClientInterface interface {
 	SendSolanaAssetWithEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SendSolanaAssetWithEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListEvmBorrowProducts request
+	ListEvmBorrowProducts(ctx context.Context, params *ListEvmBorrowProductsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetEvmBorrowProduct request
+	GetEvmBorrowProduct(ctx context.Context, borrowProductId BorrowProductId, params *GetEvmBorrowProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListEndUsers request
 	ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -16776,6 +17485,18 @@ func (c *CDPClient) CreateCustomer(ctx context.Context, params *CreateCustomerPa
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) GetCustomerRequirements(ctx context.Context, params *GetCustomerRequirementsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCustomerRequirementsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) DeleteCustomerById(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteCustomerByIdRequest(c.Server, customerId, params)
 	if err != nil {
@@ -17148,6 +17869,30 @@ func (c *CDPClient) CreateDelegationForEndUserAccount(ctx context.Context, userI
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) RevokeDelegationForEndUserAccountPostWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountPostRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserAccountPost(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountPostRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeDelegationForEndUserRequestWithBody(c.Server, userId, params, contentType, body)
 	if err != nil {
@@ -17174,6 +17919,30 @@ func (c *CDPClient) RevokeDelegationForEndUser(ctx context.Context, userId strin
 
 func (c *CDPClient) GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDelegationForEndUserRequest(c.Server, userId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserPostWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserPostRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserPost(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserPostRequest(c.Server, userId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17304,6 +18073,90 @@ func (c *CDPClient) SignEvmTypedDataWithEndUserAccount(ctx context.Context, user
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) ListBorrowPositionsWithEndUserAccount(ctx context.Context, userId string, address string, params *ListBorrowPositionsWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListBorrowPositionsWithEndUserAccountRequest(c.Server, userId, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateBorrowPositionWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateBorrowPositionWithEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateBorrowPositionWithEndUserAccount(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, body CreateBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateBorrowPositionWithEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AdjustBorrowPositionWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAdjustBorrowPositionWithEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AdjustBorrowPositionWithEndUserAccount(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, body AdjustBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAdjustBorrowPositionWithEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CloseBorrowPositionWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCloseBorrowPositionWithEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CloseBorrowPositionWithEndUserAccount(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, body CloseBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCloseBorrowPositionWithEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) SendUserOperationWithEndUserAccountWithBody(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendUserOperationWithEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
 	if err != nil {
@@ -17318,6 +18171,18 @@ func (c *CDPClient) SendUserOperationWithEndUserAccountWithBody(ctx context.Cont
 
 func (c *CDPClient) SendUserOperationWithEndUserAccount(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendUserOperationWithEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetUserOperationWithEndUserAccount(ctx context.Context, userId string, address string, userOpHash string, params *GetUserOperationWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUserOperationWithEndUserAccountRequest(c.Server, userId, address, userOpHash, params)
 	if err != nil {
 		return nil, err
 	}
@@ -17462,6 +18327,30 @@ func (c *CDPClient) SendSolanaAssetWithEndUserAccountWithBody(ctx context.Contex
 
 func (c *CDPClient) SendSolanaAssetWithEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendSolanaAssetWithEndUserAccountRequest(c.Server, userId, address, asset, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListEvmBorrowProducts(ctx context.Context, params *ListEvmBorrowProductsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListEvmBorrowProductsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetEvmBorrowProduct(ctx context.Context, borrowProductId BorrowProductId, params *GetEvmBorrowProductParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEvmBorrowProductRequest(c.Server, borrowProductId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -19802,6 +20691,95 @@ func NewCreateCustomerRequestWithBody(server string, params *CreateCustomerParam
 	return req, nil
 }
 
+// NewGetCustomerRequirementsRequest generates requests for GetCustomerRequirements
+func NewGetCustomerRequirementsRequest(server string, params *GetCustomerRequirementsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/customers/requirements")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "customerType", runtime.ParamLocationQuery, params.CustomerType); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "capabilities", runtime.ParamLocationQuery, params.Capabilities); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.CountryCode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "countryCode", runtime.ParamLocationQuery, *params.CountryCode); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Citizenship != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "citizenship", runtime.ParamLocationQuery, *params.Citizenship); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteCustomerByIdRequest generates requests for DeleteCustomerById
 func NewDeleteCustomerByIdRequest(server string, customerId CustomerId, params *DeleteCustomerByIdParams) (*http.Request, error) {
 	var err error
@@ -21221,6 +22199,119 @@ func NewCreateDelegationForEndUserAccountRequestWithBody(server string, userId s
 	return req, nil
 }
 
+// NewRevokeDelegationForEndUserAccountPostRequest calls the generic RevokeDelegationForEndUserAccountPost builder with application/json body
+func NewRevokeDelegationForEndUserAccountPostRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeDelegationForEndUserAccountPostRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewRevokeDelegationForEndUserAccountPostRequestWithBody generates requests for RevokeDelegationForEndUserAccountPost with any type of body
+func NewRevokeDelegationForEndUserAccountPostRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/address/%s/delegation/revoke", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam1)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
 func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -21378,6 +22469,112 @@ func NewGetDelegationForEndUserRequest(server string, userId string, params *Get
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeDelegationForEndUserPostRequest calls the generic RevokeDelegationForEndUserPost builder with application/json body
+func NewRevokeDelegationForEndUserPostRequest(server string, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeDelegationForEndUserPostRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewRevokeDelegationForEndUserPostRequestWithBody generates requests for RevokeDelegationForEndUserPost with any type of body
+func NewRevokeDelegationForEndUserPostRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/delegation/revoke", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam1)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam2)
+		}
+
 	}
 
 	return req, nil
@@ -21913,6 +23110,374 @@ func NewSignEvmTypedDataWithEndUserAccountRequestWithBody(server string, userId 
 	return req, nil
 }
 
+// NewListBorrowPositionsWithEndUserAccountRequest generates requests for ListBorrowPositionsWithEndUserAccount
+func NewListBorrowPositionsWithEndUserAccountRequest(server string, userId string, address string, params *ListBorrowPositionsWithEndUserAccountParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/smart-accounts/%s/borrow-positions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateBorrowPositionWithEndUserAccountRequest calls the generic CreateBorrowPositionWithEndUserAccount builder with application/json body
+func NewCreateBorrowPositionWithEndUserAccountRequest(server string, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, body CreateBorrowPositionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateBorrowPositionWithEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewCreateBorrowPositionWithEndUserAccountRequestWithBody generates requests for CreateBorrowPositionWithEndUserAccount with any type of body
+func NewCreateBorrowPositionWithEndUserAccountRequestWithBody(server string, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/smart-accounts/%s/borrow-positions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewAdjustBorrowPositionWithEndUserAccountRequest calls the generic AdjustBorrowPositionWithEndUserAccount builder with application/json body
+func NewAdjustBorrowPositionWithEndUserAccountRequest(server string, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, body AdjustBorrowPositionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAdjustBorrowPositionWithEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewAdjustBorrowPositionWithEndUserAccountRequestWithBody generates requests for AdjustBorrowPositionWithEndUserAccount with any type of body
+func NewAdjustBorrowPositionWithEndUserAccountRequestWithBody(server string, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/smart-accounts/%s/borrow-positions/adjust", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewCloseBorrowPositionWithEndUserAccountRequest calls the generic CloseBorrowPositionWithEndUserAccount builder with application/json body
+func NewCloseBorrowPositionWithEndUserAccountRequest(server string, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, body CloseBorrowPositionWithEndUserAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCloseBorrowPositionWithEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+}
+
+// NewCloseBorrowPositionWithEndUserAccountRequestWithBody generates requests for CloseBorrowPositionWithEndUserAccount with any type of body
+func NewCloseBorrowPositionWithEndUserAccountRequestWithBody(server string, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/smart-accounts/%s/borrow-positions/close", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewSendUserOperationWithEndUserAccountRequest calls the generic SendUserOperationWithEndUserAccount builder with application/json body
 func NewSendUserOperationWithEndUserAccountRequest(server string, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -22021,6 +23586,76 @@ func NewSendUserOperationWithEndUserAccountRequestWithBody(server string, userId
 			req.Header.Set("X-Developer-Auth", headerParam2)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewGetUserOperationWithEndUserAccountRequest generates requests for GetUserOperationWithEndUserAccount
+func NewGetUserOperationWithEndUserAccountRequest(server string, userId string, address string, userOpHash string, params *GetUserOperationWithEndUserAccountParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "userOpHash", runtime.ParamLocationPath, userOpHash)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/evm/smart-accounts/%s/user-operations/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -22685,6 +24320,175 @@ func NewSendSolanaAssetWithEndUserAccountRequestWithBody(server string, userId s
 			req.Header.Set("X-Developer-Auth", headerParam2)
 		}
 
+	}
+
+	return req, nil
+}
+
+// NewListEvmBorrowProductsRequest generates requests for ListEvmBorrowProducts
+func NewListEvmBorrowProductsRequest(server string, params *ListEvmBorrowProductsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/evm/borrow-products")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Network != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, *params.Network); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Protocol != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "protocol", runtime.ParamLocationQuery, *params.Protocol); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetEvmBorrowProductRequest generates requests for GetEvmBorrowProduct
+func NewGetEvmBorrowProductRequest(server string, borrowProductId BorrowProductId, params *GetEvmBorrowProductParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "borrowProductId", runtime.ParamLocationPath, borrowProductId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/evm/borrow-products/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -29076,6 +30880,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateCustomerWithResponse(ctx context.Context, params *CreateCustomerParams, body CreateCustomerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCustomerResponse, error)
 
+	// GetCustomerRequirementsWithResponse request
+	GetCustomerRequirementsWithResponse(ctx context.Context, params *GetCustomerRequirementsParams, reqEditors ...RequestEditorFn) (*GetCustomerRequirementsResponse, error)
+
 	// DeleteCustomerByIdWithResponse request
 	DeleteCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*DeleteCustomerByIdResponse, error)
 
@@ -29161,6 +30968,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error)
 
+	// RevokeDelegationForEndUserAccountPostWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserAccountPostWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error)
+
+	RevokeDelegationForEndUserAccountPostWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error)
+
 	// RevokeDelegationForEndUserWithBodyWithResponse request with any body
 	RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
 
@@ -29168,6 +30980,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetDelegationForEndUserWithResponse request
 	GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error)
+
+	// RevokeDelegationForEndUserPostWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserPostWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error)
+
+	RevokeDelegationForEndUserPostWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error)
 
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error)
@@ -29194,10 +31011,31 @@ type ClientWithResponsesInterface interface {
 
 	SignEvmTypedDataWithEndUserAccountWithResponse(ctx context.Context, userId string, params *SignEvmTypedDataWithEndUserAccountParams, body SignEvmTypedDataWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTypedDataWithEndUserAccountResponse, error)
 
+	// ListBorrowPositionsWithEndUserAccountWithResponse request
+	ListBorrowPositionsWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *ListBorrowPositionsWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*ListBorrowPositionsWithEndUserAccountResponse, error)
+
+	// CreateBorrowPositionWithEndUserAccountWithBodyWithResponse request with any body
+	CreateBorrowPositionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateBorrowPositionWithEndUserAccountResponse, error)
+
+	CreateBorrowPositionWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, body CreateBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateBorrowPositionWithEndUserAccountResponse, error)
+
+	// AdjustBorrowPositionWithEndUserAccountWithBodyWithResponse request with any body
+	AdjustBorrowPositionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AdjustBorrowPositionWithEndUserAccountResponse, error)
+
+	AdjustBorrowPositionWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, body AdjustBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AdjustBorrowPositionWithEndUserAccountResponse, error)
+
+	// CloseBorrowPositionWithEndUserAccountWithBodyWithResponse request with any body
+	CloseBorrowPositionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloseBorrowPositionWithEndUserAccountResponse, error)
+
+	CloseBorrowPositionWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, body CloseBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CloseBorrowPositionWithEndUserAccountResponse, error)
+
 	// SendUserOperationWithEndUserAccountWithBodyWithResponse request with any body
 	SendUserOperationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error)
 
 	SendUserOperationWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, body SendUserOperationWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error)
+
+	// GetUserOperationWithEndUserAccountWithResponse request
+	GetUserOperationWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, userOpHash string, params *GetUserOperationWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*GetUserOperationWithEndUserAccountResponse, error)
 
 	// SendEvmAssetWithEndUserAccountWithBodyWithResponse request with any body
 	SendEvmAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendEvmAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmAssetWithEndUserAccountResponse, error)
@@ -29228,6 +31066,12 @@ type ClientWithResponsesInterface interface {
 	SendSolanaAssetWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error)
 
 	SendSolanaAssetWithEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, asset Asset, params *SendSolanaAssetWithEndUserAccountParams, body SendSolanaAssetWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaAssetWithEndUserAccountResponse, error)
+
+	// ListEvmBorrowProductsWithResponse request
+	ListEvmBorrowProductsWithResponse(ctx context.Context, params *ListEvmBorrowProductsParams, reqEditors ...RequestEditorFn) (*ListEvmBorrowProductsResponse, error)
+
+	// GetEvmBorrowProductWithResponse request
+	GetEvmBorrowProductWithResponse(ctx context.Context, borrowProductId BorrowProductId, params *GetEvmBorrowProductParams, reqEditors ...RequestEditorFn) (*GetEvmBorrowProductResponse, error)
 
 	// ListEndUsersWithResponse request
 	ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error)
@@ -29737,6 +31581,7 @@ type ListBalancesResponse struct {
 	JSON400 *Error
 	JSON401 *Error
 	JSON404 *Error
+	JSON409 *Error
 	JSON500 *Error
 	JSON503 *EndpointUnavailableError
 }
@@ -29866,6 +31711,33 @@ func (r CreateCustomerResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateCustomerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetCustomerRequirementsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RequirementsMap
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCustomerRequirementsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCustomerRequirementsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -30293,6 +32165,7 @@ type CreateDepositDestinationResponse struct {
 	JSON401      *Error
 	JSON403      *Error
 	JSON404      *Error
+	JSON409      *Error
 	JSON422      *IdempotencyError
 	JSON500      *Error
 	JSON503      *EndpointUnavailableError
@@ -30516,6 +32389,32 @@ func (r CreateDelegationForEndUserAccountResponse) StatusCode() int {
 	return 0
 }
 
+type RevokeDelegationForEndUserAccountPostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeDelegationForEndUserAccountPostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeDelegationForEndUserAccountPostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RevokeDelegationForEndUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30566,6 +32465,32 @@ func (r GetDelegationForEndUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDelegationForEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeDelegationForEndUserPostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeDelegationForEndUserPostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeDelegationForEndUserPostResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -30746,6 +32671,131 @@ func (r SignEvmTypedDataWithEndUserAccountResponse) StatusCode() int {
 	return 0
 }
 
+type ListBorrowPositionsWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// BorrowPositions The borrow positions held by the smart account.
+		BorrowPositions []BorrowPosition `json:"borrowPositions"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListBorrowPositionsWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListBorrowPositionsWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateBorrowPositionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateBorrowPositionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateBorrowPositionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AdjustBorrowPositionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON404      *Error
+	JSON409      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r AdjustBorrowPositionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AdjustBorrowPositionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CloseBorrowPositionWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON404      *Error
+	JSON409      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CloseBorrowPositionWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CloseBorrowPositionWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SendUserOperationWithEndUserAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30771,6 +32821,34 @@ func (r SendUserOperationWithEndUserAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SendUserOperationWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetUserOperationWithEndUserAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetUserOperationWithEndUserAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetUserOperationWithEndUserAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -30981,6 +33059,67 @@ func (r SendSolanaAssetWithEndUserAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SendSolanaAssetWithEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListEvmBorrowProductsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// BorrowProducts The list of borrow products, optionally filtered by the supplied network and/or protocol.
+		BorrowProducts []BorrowProduct `json:"borrowProducts"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListEvmBorrowProductsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListEvmBorrowProductsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetEvmBorrowProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BorrowProduct
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEvmBorrowProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEvmBorrowProductResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -34035,6 +36174,15 @@ func (c *ClientWithResponses) CreateCustomerWithResponse(ctx context.Context, pa
 	return ParseCreateCustomerResponse(rsp)
 }
 
+// GetCustomerRequirementsWithResponse request returning *GetCustomerRequirementsResponse
+func (c *ClientWithResponses) GetCustomerRequirementsWithResponse(ctx context.Context, params *GetCustomerRequirementsParams, reqEditors ...RequestEditorFn) (*GetCustomerRequirementsResponse, error) {
+	rsp, err := c.GetCustomerRequirements(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCustomerRequirementsResponse(rsp)
+}
+
 // DeleteCustomerByIdWithResponse request returning *DeleteCustomerByIdResponse
 func (c *ClientWithResponses) DeleteCustomerByIdWithResponse(ctx context.Context, customerId CustomerId, params *DeleteCustomerByIdParams, reqEditors ...RequestEditorFn) (*DeleteCustomerByIdResponse, error) {
 	rsp, err := c.DeleteCustomerById(ctx, customerId, params, reqEditors...)
@@ -34306,6 +36454,23 @@ func (c *ClientWithResponses) CreateDelegationForEndUserAccountWithResponse(ctx 
 	return ParseCreateDelegationForEndUserAccountResponse(rsp)
 }
 
+// RevokeDelegationForEndUserAccountPostWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountPostResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountPostWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountPostWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserAccountPostResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountPostWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountPost(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserAccountPostResponse(rsp)
+}
+
 // RevokeDelegationForEndUserWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserResponse
 func (c *ClientWithResponses) RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error) {
 	rsp, err := c.RevokeDelegationForEndUserWithBody(ctx, userId, params, contentType, body, reqEditors...)
@@ -34330,6 +36495,23 @@ func (c *ClientWithResponses) GetDelegationForEndUserWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseGetDelegationForEndUserResponse(rsp)
+}
+
+// RevokeDelegationForEndUserPostWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserPostResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserPostWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserPostWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserPostResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserPostWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserPost(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserPostResponse(rsp)
 }
 
 // CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationWithEndUserAccountResponse
@@ -34417,6 +36599,66 @@ func (c *ClientWithResponses) SignEvmTypedDataWithEndUserAccountWithResponse(ctx
 	return ParseSignEvmTypedDataWithEndUserAccountResponse(rsp)
 }
 
+// ListBorrowPositionsWithEndUserAccountWithResponse request returning *ListBorrowPositionsWithEndUserAccountResponse
+func (c *ClientWithResponses) ListBorrowPositionsWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *ListBorrowPositionsWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*ListBorrowPositionsWithEndUserAccountResponse, error) {
+	rsp, err := c.ListBorrowPositionsWithEndUserAccount(ctx, userId, address, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListBorrowPositionsWithEndUserAccountResponse(rsp)
+}
+
+// CreateBorrowPositionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateBorrowPositionWithEndUserAccountResponse
+func (c *ClientWithResponses) CreateBorrowPositionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateBorrowPositionWithEndUserAccountResponse, error) {
+	rsp, err := c.CreateBorrowPositionWithEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateBorrowPositionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateBorrowPositionWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *CreateBorrowPositionWithEndUserAccountParams, body CreateBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateBorrowPositionWithEndUserAccountResponse, error) {
+	rsp, err := c.CreateBorrowPositionWithEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateBorrowPositionWithEndUserAccountResponse(rsp)
+}
+
+// AdjustBorrowPositionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *AdjustBorrowPositionWithEndUserAccountResponse
+func (c *ClientWithResponses) AdjustBorrowPositionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AdjustBorrowPositionWithEndUserAccountResponse, error) {
+	rsp, err := c.AdjustBorrowPositionWithEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAdjustBorrowPositionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) AdjustBorrowPositionWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *AdjustBorrowPositionWithEndUserAccountParams, body AdjustBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*AdjustBorrowPositionWithEndUserAccountResponse, error) {
+	rsp, err := c.AdjustBorrowPositionWithEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAdjustBorrowPositionWithEndUserAccountResponse(rsp)
+}
+
+// CloseBorrowPositionWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CloseBorrowPositionWithEndUserAccountResponse
+func (c *ClientWithResponses) CloseBorrowPositionWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloseBorrowPositionWithEndUserAccountResponse, error) {
+	rsp, err := c.CloseBorrowPositionWithEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCloseBorrowPositionWithEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) CloseBorrowPositionWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, params *CloseBorrowPositionWithEndUserAccountParams, body CloseBorrowPositionWithEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CloseBorrowPositionWithEndUserAccountResponse, error) {
+	rsp, err := c.CloseBorrowPositionWithEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCloseBorrowPositionWithEndUserAccountResponse(rsp)
+}
+
 // SendUserOperationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendUserOperationWithEndUserAccountResponse
 func (c *ClientWithResponses) SendUserOperationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address string, params *SendUserOperationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendUserOperationWithEndUserAccountResponse, error) {
 	rsp, err := c.SendUserOperationWithEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
@@ -34432,6 +36674,15 @@ func (c *ClientWithResponses) SendUserOperationWithEndUserAccountWithResponse(ct
 		return nil, err
 	}
 	return ParseSendUserOperationWithEndUserAccountResponse(rsp)
+}
+
+// GetUserOperationWithEndUserAccountWithResponse request returning *GetUserOperationWithEndUserAccountResponse
+func (c *ClientWithResponses) GetUserOperationWithEndUserAccountWithResponse(ctx context.Context, userId string, address string, userOpHash string, params *GetUserOperationWithEndUserAccountParams, reqEditors ...RequestEditorFn) (*GetUserOperationWithEndUserAccountResponse, error) {
+	rsp, err := c.GetUserOperationWithEndUserAccount(ctx, userId, address, userOpHash, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetUserOperationWithEndUserAccountResponse(rsp)
 }
 
 // SendEvmAssetWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *SendEvmAssetWithEndUserAccountResponse
@@ -34534,6 +36785,24 @@ func (c *ClientWithResponses) SendSolanaAssetWithEndUserAccountWithResponse(ctx 
 		return nil, err
 	}
 	return ParseSendSolanaAssetWithEndUserAccountResponse(rsp)
+}
+
+// ListEvmBorrowProductsWithResponse request returning *ListEvmBorrowProductsResponse
+func (c *ClientWithResponses) ListEvmBorrowProductsWithResponse(ctx context.Context, params *ListEvmBorrowProductsParams, reqEditors ...RequestEditorFn) (*ListEvmBorrowProductsResponse, error) {
+	rsp, err := c.ListEvmBorrowProducts(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListEvmBorrowProductsResponse(rsp)
+}
+
+// GetEvmBorrowProductWithResponse request returning *GetEvmBorrowProductResponse
+func (c *ClientWithResponses) GetEvmBorrowProductWithResponse(ctx context.Context, borrowProductId BorrowProductId, params *GetEvmBorrowProductParams, reqEditors ...RequestEditorFn) (*GetEvmBorrowProductResponse, error) {
+	rsp, err := c.GetEvmBorrowProduct(ctx, borrowProductId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEvmBorrowProductResponse(rsp)
 }
 
 // ListEndUsersWithResponse request returning *ListEndUsersResponse
@@ -36074,6 +38343,13 @@ func ParseListBalancesResponse(rsp *http.Response) (*ListBalancesResponse, error
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -36323,6 +38599,67 @@ func ParseCreateCustomerResponse(rsp *http.Response) (*CreateCustomerResponse, e
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCustomerRequirementsResponse parses an HTTP response from a GetCustomerRequirementsWithResponse call
+func ParseGetCustomerRequirementsResponse(rsp *http.Response) (*GetCustomerRequirementsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCustomerRequirementsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RequirementsMap
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
@@ -37298,6 +39635,13 @@ func ParseCreateDepositDestinationResponse(rsp *http.Response) (*CreateDepositDe
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -37770,6 +40114,60 @@ func ParseCreateDelegationForEndUserAccountResponse(rsp *http.Response) (*Create
 	return response, nil
 }
 
+// ParseRevokeDelegationForEndUserAccountPostResponse parses an HTTP response from a RevokeDelegationForEndUserAccountPostWithResponse call
+func ParseRevokeDelegationForEndUserAccountPostResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountPostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeDelegationForEndUserAccountPostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseRevokeDelegationForEndUserResponse parses an HTTP response from a RevokeDelegationForEndUserWithResponse call
 func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegationForEndUserResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -37848,6 +40246,60 @@ func ParseGetDelegationForEndUserResponse(rsp *http.Response) (*GetDelegationFor
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeDelegationForEndUserPostResponse parses an HTTP response from a RevokeDelegationForEndUserPostWithResponse call
+func ParseRevokeDelegationForEndUserPostResponse(rsp *http.Response) (*RevokeDelegationForEndUserPostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeDelegationForEndUserPostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest UnauthorizedError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -38376,6 +40828,333 @@ func ParseSignEvmTypedDataWithEndUserAccountResponse(rsp *http.Response) (*SignE
 	return response, nil
 }
 
+// ParseListBorrowPositionsWithEndUserAccountResponse parses an HTTP response from a ListBorrowPositionsWithEndUserAccountWithResponse call
+func ParseListBorrowPositionsWithEndUserAccountResponse(rsp *http.Response) (*ListBorrowPositionsWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListBorrowPositionsWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// BorrowPositions The borrow positions held by the smart account.
+			BorrowPositions []BorrowPosition `json:"borrowPositions"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateBorrowPositionWithEndUserAccountResponse parses an HTTP response from a CreateBorrowPositionWithEndUserAccountWithResponse call
+func ParseCreateBorrowPositionWithEndUserAccountResponse(rsp *http.Response) (*CreateBorrowPositionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateBorrowPositionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAdjustBorrowPositionWithEndUserAccountResponse parses an HTTP response from a AdjustBorrowPositionWithEndUserAccountWithResponse call
+func ParseAdjustBorrowPositionWithEndUserAccountResponse(rsp *http.Response) (*AdjustBorrowPositionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AdjustBorrowPositionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCloseBorrowPositionWithEndUserAccountResponse parses an HTTP response from a CloseBorrowPositionWithEndUserAccountWithResponse call
+func ParseCloseBorrowPositionWithEndUserAccountResponse(rsp *http.Response) (*CloseBorrowPositionWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CloseBorrowPositionWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseSendUserOperationWithEndUserAccountResponse parses an HTTP response from a SendUserOperationWithEndUserAccountWithResponse call
 func ParseSendUserOperationWithEndUserAccountResponse(rsp *http.Response) (*SendUserOperationWithEndUserAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -38438,6 +41217,74 @@ func ParseSendUserOperationWithEndUserAccountResponse(rsp *http.Response) (*Send
 			return nil, err
 		}
 		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetUserOperationWithEndUserAccountResponse parses an HTTP response from a GetUserOperationWithEndUserAccountWithResponse call
+func ParseGetUserOperationWithEndUserAccountResponse(rsp *http.Response) (*GetUserOperationWithEndUserAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetUserOperationWithEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
@@ -39014,6 +41861,141 @@ func ParseSendSolanaAssetWithEndUserAccountResponse(rsp *http.Response) (*SendSo
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListEvmBorrowProductsResponse parses an HTTP response from a ListEvmBorrowProductsWithResponse call
+func ParseListEvmBorrowProductsResponse(rsp *http.Response) (*ListEvmBorrowProductsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListEvmBorrowProductsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// BorrowProducts The list of borrow products, optionally filtered by the supplied network and/or protocol.
+			BorrowProducts []BorrowProduct `json:"borrowProducts"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEvmBorrowProductResponse parses an HTTP response from a GetEvmBorrowProductWithResponse call
+func ParseGetEvmBorrowProductResponse(rsp *http.Response) (*GetEvmBorrowProductResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEvmBorrowProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BorrowProduct
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
