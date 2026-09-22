@@ -33,13 +33,13 @@ import type {
   ListEvmBorrowProducts200,
   ListEvmBorrowProductsParams,
   RevokeDelegationForEndUserAccountBody,
+  RevokeDelegationForEndUserAccountDeprecatedBody,
+  RevokeDelegationForEndUserAccountDeprecatedParams,
   RevokeDelegationForEndUserAccountParams,
-  RevokeDelegationForEndUserAccountPostBody,
-  RevokeDelegationForEndUserAccountPostParams,
   RevokeDelegationForEndUserBody,
+  RevokeDelegationForEndUserDeprecatedBody,
+  RevokeDelegationForEndUserDeprecatedParams,
   RevokeDelegationForEndUserParams,
-  RevokeDelegationForEndUserPostBody,
-  RevokeDelegationForEndUserPostParams,
   SendEvmAssetWithEndUserAccount200,
   SendEvmAssetWithEndUserAccountBody,
   SendEvmAssetWithEndUserAccountParams,
@@ -265,14 +265,9 @@ export const getDelegationForEndUser = (
 };
 /**
  * > **Deprecation Notice:** Prefer
-> [Revoke delegation for end user](#operation/revokeDelegationForEndUserPost)
+> [Revoke delegation for end user](#operation/revokeDelegationForEndUser)
 > (`POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`), which takes the
-> same request body. This `DELETE` path is kept for existing clients until it is removed
-> (at least 30 days after the CDP API gateway body-strip rollout; the exact date will be
-> updated here before the rollout). The gateway is being updated to drop request bodies on
-> non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for `walletSecretId` and
-> for its `X-Wallet-Auth` signature — migrate before that rollout, not just before the
-> removal date above.
+> same request body. This `DELETE` path will be removed on **2026-10-22**.
 
 Revokes all active delegations for the specified end user. This operation
 can be performed by the end user themselves or by a developer using their
@@ -280,10 +275,10 @@ API key.
  * @deprecated
  * @summary Revoke delegation for end user (deprecated)
  */
-export const revokeDelegationForEndUser = (
+export const revokeDelegationForEndUserDeprecated = (
   userId: string,
-  revokeDelegationForEndUserBody: RevokeDelegationForEndUserBody,
-  params?: RevokeDelegationForEndUserParams,
+  revokeDelegationForEndUserDeprecatedBody: RevokeDelegationForEndUserDeprecatedBody,
+  params?: RevokeDelegationForEndUserDeprecatedParams,
   options?: SecondParameter<typeof cdpApiClient<void>>,
 ) => {
   return cdpApiClient<void>(
@@ -291,7 +286,7 @@ export const revokeDelegationForEndUser = (
       url: `/v2/embedded-wallet-api/end-users/${userId}/delegation`,
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      data: revokeDelegationForEndUserBody,
+      data: revokeDelegationForEndUserDeprecatedBody,
       params,
     },
     options,
@@ -301,10 +296,10 @@ export const revokeDelegationForEndUser = (
  * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
  * @summary Revoke delegation for end user
  */
-export const revokeDelegationForEndUserPost = (
+export const revokeDelegationForEndUser = (
   userId: string,
-  revokeDelegationForEndUserPostBody: RevokeDelegationForEndUserPostBody,
-  params?: RevokeDelegationForEndUserPostParams,
+  revokeDelegationForEndUserBody: RevokeDelegationForEndUserBody,
+  params?: RevokeDelegationForEndUserParams,
   options?: SecondParameter<typeof cdpApiClient<void>>,
 ) => {
   return cdpApiClient<void>(
@@ -312,7 +307,7 @@ export const revokeDelegationForEndUserPost = (
       url: `/v2/embedded-wallet-api/end-users/${userId}/delegation/revoke`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: revokeDelegationForEndUserPostBody,
+      data: revokeDelegationForEndUserBody,
       params,
     },
     options,
@@ -364,14 +359,9 @@ export const getDelegationForEndUserAccount = (
 };
 /**
  * > **Deprecation Notice:** Prefer
-> [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccountPost)
+> [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccount)
 > (`POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`),
-> which takes the same request body. This `DELETE` path is kept for existing clients until
-> it is removed (at least 30 days after the CDP API gateway body-strip rollout; the exact
-> date will be updated here before the rollout). The gateway is being updated to drop
-> request bodies on non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for
-> `walletSecretId` and for its `X-Wallet-Auth` signature — migrate before that rollout, not
-> just before the removal date above.
+> which takes the same request body. This `DELETE` path will be removed on **2026-10-22**.
 
 Revokes the active account-scoped delegation for the specified end user account.
 Other account-scoped delegations for the same user are unaffected. This operation
@@ -382,11 +372,11 @@ Smart Account's owner EOA.
  * @deprecated
  * @summary Revoke account-scoped delegation for end user (deprecated)
  */
-export const revokeDelegationForEndUserAccount = (
+export const revokeDelegationForEndUserAccountDeprecated = (
   userId: string,
   address: BlockchainAddress,
-  revokeDelegationForEndUserAccountBody: RevokeDelegationForEndUserAccountBody,
-  params?: RevokeDelegationForEndUserAccountParams,
+  revokeDelegationForEndUserAccountDeprecatedBody: RevokeDelegationForEndUserAccountDeprecatedBody,
+  params?: RevokeDelegationForEndUserAccountDeprecatedParams,
   options?: SecondParameter<typeof cdpApiClient<void>>,
 ) => {
   return cdpApiClient<void>(
@@ -394,7 +384,7 @@ export const revokeDelegationForEndUserAccount = (
       url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation`,
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      data: revokeDelegationForEndUserAccountBody,
+      data: revokeDelegationForEndUserAccountDeprecatedBody,
       params,
     },
     options,
@@ -405,11 +395,11 @@ export const revokeDelegationForEndUserAccount = (
 When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
  * @summary Revoke account-scoped delegation for end user
  */
-export const revokeDelegationForEndUserAccountPost = (
+export const revokeDelegationForEndUserAccount = (
   userId: string,
   address: BlockchainAddress,
-  revokeDelegationForEndUserAccountPostBody: RevokeDelegationForEndUserAccountPostBody,
-  params?: RevokeDelegationForEndUserAccountPostParams,
+  revokeDelegationForEndUserAccountBody: RevokeDelegationForEndUserAccountBody,
+  params?: RevokeDelegationForEndUserAccountParams,
   options?: SecondParameter<typeof cdpApiClient<void>>,
 ) => {
   return cdpApiClient<void>(
@@ -417,7 +407,7 @@ export const revokeDelegationForEndUserAccountPost = (
       url: `/v2/embedded-wallet-api/end-users/${userId}/address/${address}/delegation/revoke`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: revokeDelegationForEndUserAccountPostBody,
+      data: revokeDelegationForEndUserAccountBody,
       params,
     },
     options,
@@ -743,11 +733,11 @@ export type SignEvmTypedDataWithEndUserAccountResult = NonNullable<
 export type GetDelegationForEndUserResult = NonNullable<
   Awaited<ReturnType<typeof getDelegationForEndUser>>
 >;
+export type RevokeDelegationForEndUserDeprecatedResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUserDeprecated>>
+>;
 export type RevokeDelegationForEndUserResult = NonNullable<
   Awaited<ReturnType<typeof revokeDelegationForEndUser>>
->;
-export type RevokeDelegationForEndUserPostResult = NonNullable<
-  Awaited<ReturnType<typeof revokeDelegationForEndUserPost>>
 >;
 export type CreateDelegationForEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof createDelegationForEndUserAccount>>
@@ -755,11 +745,11 @@ export type CreateDelegationForEndUserAccountResult = NonNullable<
 export type GetDelegationForEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof getDelegationForEndUserAccount>>
 >;
+export type RevokeDelegationForEndUserAccountDeprecatedResult = NonNullable<
+  Awaited<ReturnType<typeof revokeDelegationForEndUserAccountDeprecated>>
+>;
 export type RevokeDelegationForEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof revokeDelegationForEndUserAccount>>
->;
-export type RevokeDelegationForEndUserAccountPostResult = NonNullable<
-  Awaited<ReturnType<typeof revokeDelegationForEndUserAccountPost>>
 >;
 export type CreateEvmEip7702DelegationWithEndUserAccountResult = NonNullable<
   Awaited<ReturnType<typeof createEvmEip7702DelegationWithEndUserAccount>>

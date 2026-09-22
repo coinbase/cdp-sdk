@@ -8795,14 +8795,14 @@ type CreateDisbursementParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// RevokeDelegationForEndUserAccountJSONBody defines parameters for RevokeDelegationForEndUserAccount.
-type RevokeDelegationForEndUserAccountJSONBody struct {
+// RevokeDelegationForEndUserAccountDeprecatedJSONBody defines parameters for RevokeDelegationForEndUserAccountDeprecated.
+type RevokeDelegationForEndUserAccountDeprecatedJSONBody struct {
 	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
 	WalletSecretId *string `json:"walletSecretId,omitempty"`
 }
 
-// RevokeDelegationForEndUserAccountParams defines parameters for RevokeDelegationForEndUserAccount.
-type RevokeDelegationForEndUserAccountParams struct {
+// RevokeDelegationForEndUserAccountDeprecatedParams defines parameters for RevokeDelegationForEndUserAccountDeprecated.
+type RevokeDelegationForEndUserAccountDeprecatedParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -8853,14 +8853,14 @@ type CreateDelegationForEndUserAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// RevokeDelegationForEndUserAccountPostJSONBody defines parameters for RevokeDelegationForEndUserAccountPost.
-type RevokeDelegationForEndUserAccountPostJSONBody struct {
+// RevokeDelegationForEndUserAccountJSONBody defines parameters for RevokeDelegationForEndUserAccount.
+type RevokeDelegationForEndUserAccountJSONBody struct {
 	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
 	WalletSecretId *string `json:"walletSecretId,omitempty"`
 }
 
-// RevokeDelegationForEndUserAccountPostParams defines parameters for RevokeDelegationForEndUserAccountPost.
-type RevokeDelegationForEndUserAccountPostParams struct {
+// RevokeDelegationForEndUserAccountParams defines parameters for RevokeDelegationForEndUserAccount.
+type RevokeDelegationForEndUserAccountParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -8880,14 +8880,14 @@ type RevokeDelegationForEndUserAccountPostParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// RevokeDelegationForEndUserJSONBody defines parameters for RevokeDelegationForEndUser.
-type RevokeDelegationForEndUserJSONBody struct {
+// RevokeDelegationForEndUserDeprecatedJSONBody defines parameters for RevokeDelegationForEndUserDeprecated.
+type RevokeDelegationForEndUserDeprecatedJSONBody struct {
 	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
 	WalletSecretId *string `json:"walletSecretId,omitempty"`
 }
 
-// RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
-type RevokeDelegationForEndUserParams struct {
+// RevokeDelegationForEndUserDeprecatedParams defines parameters for RevokeDelegationForEndUserDeprecated.
+type RevokeDelegationForEndUserDeprecatedParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -8913,14 +8913,14 @@ type GetDelegationForEndUserParams struct {
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 }
 
-// RevokeDelegationForEndUserPostJSONBody defines parameters for RevokeDelegationForEndUserPost.
-type RevokeDelegationForEndUserPostJSONBody struct {
+// RevokeDelegationForEndUserJSONBody defines parameters for RevokeDelegationForEndUser.
+type RevokeDelegationForEndUserJSONBody struct {
 	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
 	WalletSecretId *string `json:"walletSecretId,omitempty"`
 }
 
-// RevokeDelegationForEndUserPostParams defines parameters for RevokeDelegationForEndUserPost.
-type RevokeDelegationForEndUserPostParams struct {
+// RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
+type RevokeDelegationForEndUserParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -10783,20 +10783,20 @@ type CreateDepositDestinationJSONRequestBody = CreateDepositDestinationRequest
 // CreateDisbursementJSONRequestBody defines body for CreateDisbursement for application/json ContentType.
 type CreateDisbursementJSONRequestBody = CreateDisbursementRequest
 
-// RevokeDelegationForEndUserAccountJSONRequestBody defines body for RevokeDelegationForEndUserAccount for application/json ContentType.
-type RevokeDelegationForEndUserAccountJSONRequestBody RevokeDelegationForEndUserAccountJSONBody
+// RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody defines body for RevokeDelegationForEndUserAccountDeprecated for application/json ContentType.
+type RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody RevokeDelegationForEndUserAccountDeprecatedJSONBody
 
 // CreateDelegationForEndUserAccountJSONRequestBody defines body for CreateDelegationForEndUserAccount for application/json ContentType.
 type CreateDelegationForEndUserAccountJSONRequestBody CreateDelegationForEndUserAccountJSONBody
 
-// RevokeDelegationForEndUserAccountPostJSONRequestBody defines body for RevokeDelegationForEndUserAccountPost for application/json ContentType.
-type RevokeDelegationForEndUserAccountPostJSONRequestBody RevokeDelegationForEndUserAccountPostJSONBody
+// RevokeDelegationForEndUserAccountJSONRequestBody defines body for RevokeDelegationForEndUserAccount for application/json ContentType.
+type RevokeDelegationForEndUserAccountJSONRequestBody RevokeDelegationForEndUserAccountJSONBody
+
+// RevokeDelegationForEndUserDeprecatedJSONRequestBody defines body for RevokeDelegationForEndUserDeprecated for application/json ContentType.
+type RevokeDelegationForEndUserDeprecatedJSONRequestBody RevokeDelegationForEndUserDeprecatedJSONBody
 
 // RevokeDelegationForEndUserJSONRequestBody defines body for RevokeDelegationForEndUser for application/json ContentType.
 type RevokeDelegationForEndUserJSONRequestBody RevokeDelegationForEndUserJSONBody
-
-// RevokeDelegationForEndUserPostJSONRequestBody defines body for RevokeDelegationForEndUserPost for application/json ContentType.
-type RevokeDelegationForEndUserPostJSONRequestBody RevokeDelegationForEndUserPostJSONBody
 
 // CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody defines body for CreateEvmEip7702DelegationWithEndUserAccount for application/json ContentType.
 type CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody CreateEvmEip7702DelegationWithEndUserAccountJSONBody
@@ -16831,10 +16831,10 @@ type ClientInterface interface {
 	// GetDisbursement request
 	GetDisbursement(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// RevokeDelegationForEndUserAccountWithBody request with any body
-	RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// RevokeDelegationForEndUserAccountDeprecatedWithBody request with any body
+	RevokeDelegationForEndUserAccountDeprecatedWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RevokeDelegationForEndUserAccountDeprecated(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDelegationForEndUserAccount request
 	GetDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -16844,23 +16844,23 @@ type ClientInterface interface {
 
 	CreateDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// RevokeDelegationForEndUserAccountPostWithBody request with any body
-	RevokeDelegationForEndUserAccountPostWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// RevokeDelegationForEndUserAccountWithBody request with any body
+	RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	RevokeDelegationForEndUserAccountPost(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeDelegationForEndUserDeprecatedWithBody request with any body
+	RevokeDelegationForEndUserDeprecatedWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUserDeprecated(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDelegationForEndUser request
+	GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RevokeDelegationForEndUserWithBody request with any body
 	RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetDelegationForEndUser request
-	GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RevokeDelegationForEndUserPostWithBody request with any body
-	RevokeDelegationForEndUserPostWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	RevokeDelegationForEndUserPost(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBody request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -17809,8 +17809,8 @@ func (c *CDPClient) GetDisbursement(ctx context.Context, disbursementId Disburse
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+func (c *CDPClient) RevokeDelegationForEndUserAccountDeprecatedWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody(c.Server, userId, address, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17821,8 +17821,8 @@ func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Contex
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserAccountRequest(c.Server, userId, address, params, body)
+func (c *CDPClient) RevokeDelegationForEndUserAccountDeprecated(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountDeprecatedRequest(c.Server, userId, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17869,8 +17869,8 @@ func (c *CDPClient) CreateDelegationForEndUserAccount(ctx context.Context, userI
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) RevokeDelegationForEndUserAccountPostWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserAccountPostRequestWithBody(c.Server, userId, address, params, contentType, body)
+func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17881,8 +17881,44 @@ func (c *CDPClient) RevokeDelegationForEndUserAccountPostWithBody(ctx context.Co
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) RevokeDelegationForEndUserAccountPost(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserAccountPostRequest(c.Server, userId, address, params, body)
+func (c *CDPClient) RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserDeprecatedWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserDeprecatedRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserDeprecated(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserDeprecatedRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDelegationForEndUserRequest(c.Server, userId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -17907,42 +17943,6 @@ func (c *CDPClient) RevokeDelegationForEndUserWithBody(ctx context.Context, user
 
 func (c *CDPClient) RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeDelegationForEndUserRequest(c.Server, userId, params, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDelegationForEndUserRequest(c.Server, userId, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) RevokeDelegationForEndUserPostWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserPostRequestWithBody(c.Server, userId, params, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) RevokeDelegationForEndUserPost(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserPostRequest(c.Server, userId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -21921,19 +21921,19 @@ func NewGetDisbursementRequest(server string, disbursementId DisbursementId) (*h
 	return req, nil
 }
 
-// NewRevokeDelegationForEndUserAccountRequest calls the generic RevokeDelegationForEndUserAccount builder with application/json body
-func NewRevokeDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountDeprecatedRequest calls the generic RevokeDelegationForEndUserAccountDeprecated builder with application/json body
+func NewRevokeDelegationForEndUserAccountDeprecatedRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRevokeDelegationForEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+	return NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody(server, userId, address, params, "application/json", bodyReader)
 }
 
-// NewRevokeDelegationForEndUserAccountRequestWithBody generates requests for RevokeDelegationForEndUserAccount with any type of body
-func NewRevokeDelegationForEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody generates requests for RevokeDelegationForEndUserAccountDeprecated with any type of body
+func NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -22199,19 +22199,19 @@ func NewCreateDelegationForEndUserAccountRequestWithBody(server string, userId s
 	return req, nil
 }
 
-// NewRevokeDelegationForEndUserAccountPostRequest calls the generic RevokeDelegationForEndUserAccountPost builder with application/json body
-func NewRevokeDelegationForEndUserAccountPostRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountRequest calls the generic RevokeDelegationForEndUserAccount builder with application/json body
+func NewRevokeDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRevokeDelegationForEndUserAccountPostRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+	return NewRevokeDelegationForEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
 }
 
-// NewRevokeDelegationForEndUserAccountPostRequestWithBody generates requests for RevokeDelegationForEndUserAccountPost with any type of body
-func NewRevokeDelegationForEndUserAccountPostRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountRequestWithBody generates requests for RevokeDelegationForEndUserAccount with any type of body
+func NewRevokeDelegationForEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -22312,19 +22312,19 @@ func NewRevokeDelegationForEndUserAccountPostRequestWithBody(server string, user
 	return req, nil
 }
 
-// NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
-func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
+// NewRevokeDelegationForEndUserDeprecatedRequest calls the generic RevokeDelegationForEndUserDeprecated builder with application/json body
+func NewRevokeDelegationForEndUserDeprecatedRequest(server string, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRevokeDelegationForEndUserRequestWithBody(server, userId, params, "application/json", bodyReader)
+	return NewRevokeDelegationForEndUserDeprecatedRequestWithBody(server, userId, params, "application/json", bodyReader)
 }
 
-// NewRevokeDelegationForEndUserRequestWithBody generates requests for RevokeDelegationForEndUser with any type of body
-func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewRevokeDelegationForEndUserDeprecatedRequestWithBody generates requests for RevokeDelegationForEndUserDeprecated with any type of body
+func NewRevokeDelegationForEndUserDeprecatedRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -22474,19 +22474,19 @@ func NewGetDelegationForEndUserRequest(server string, userId string, params *Get
 	return req, nil
 }
 
-// NewRevokeDelegationForEndUserPostRequest calls the generic RevokeDelegationForEndUserPost builder with application/json body
-func NewRevokeDelegationForEndUserPostRequest(server string, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody) (*http.Request, error) {
+// NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
+func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRevokeDelegationForEndUserPostRequestWithBody(server, userId, params, "application/json", bodyReader)
+	return NewRevokeDelegationForEndUserRequestWithBody(server, userId, params, "application/json", bodyReader)
 }
 
-// NewRevokeDelegationForEndUserPostRequestWithBody generates requests for RevokeDelegationForEndUserPost with any type of body
-func NewRevokeDelegationForEndUserPostRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewRevokeDelegationForEndUserRequestWithBody generates requests for RevokeDelegationForEndUser with any type of body
+func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -30955,10 +30955,10 @@ type ClientWithResponsesInterface interface {
 	// GetDisbursementWithResponse request
 	GetDisbursementWithResponse(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*GetDisbursementResponse, error)
 
-	// RevokeDelegationForEndUserAccountWithBodyWithResponse request with any body
-	RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+	// RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error)
 
-	RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+	RevokeDelegationForEndUserAccountDeprecatedWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error)
 
 	// GetDelegationForEndUserAccountWithResponse request
 	GetDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserAccountResponse, error)
@@ -30968,23 +30968,23 @@ type ClientWithResponsesInterface interface {
 
 	CreateDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error)
 
-	// RevokeDelegationForEndUserAccountPostWithBodyWithResponse request with any body
-	RevokeDelegationForEndUserAccountPostWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error)
+	// RevokeDelegationForEndUserAccountWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
 
-	RevokeDelegationForEndUserAccountPostWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error)
+	RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+
+	// RevokeDelegationForEndUserDeprecatedWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserDeprecatedWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error)
+
+	RevokeDelegationForEndUserDeprecatedWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error)
+
+	// GetDelegationForEndUserWithResponse request
+	GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error)
 
 	// RevokeDelegationForEndUserWithBodyWithResponse request with any body
 	RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
 
 	RevokeDelegationForEndUserWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
-
-	// GetDelegationForEndUserWithResponse request
-	GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error)
-
-	// RevokeDelegationForEndUserPostWithBodyWithResponse request with any body
-	RevokeDelegationForEndUserPostWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error)
-
-	RevokeDelegationForEndUserPostWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error)
 
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error)
@@ -32298,7 +32298,7 @@ func (r GetDisbursementResponse) StatusCode() int {
 	return 0
 }
 
-type RevokeDelegationForEndUserAccountResponse struct {
+type RevokeDelegationForEndUserAccountDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON401      *UnauthorizedError
@@ -32309,7 +32309,7 @@ type RevokeDelegationForEndUserAccountResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r RevokeDelegationForEndUserAccountResponse) Status() string {
+func (r RevokeDelegationForEndUserAccountDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -32317,7 +32317,7 @@ func (r RevokeDelegationForEndUserAccountResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r RevokeDelegationForEndUserAccountResponse) StatusCode() int {
+func (r RevokeDelegationForEndUserAccountDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32389,7 +32389,7 @@ func (r CreateDelegationForEndUserAccountResponse) StatusCode() int {
 	return 0
 }
 
-type RevokeDelegationForEndUserAccountPostResponse struct {
+type RevokeDelegationForEndUserAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON401      *UnauthorizedError
@@ -32400,7 +32400,7 @@ type RevokeDelegationForEndUserAccountPostResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r RevokeDelegationForEndUserAccountPostResponse) Status() string {
+func (r RevokeDelegationForEndUserAccountResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -32408,14 +32408,14 @@ func (r RevokeDelegationForEndUserAccountPostResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r RevokeDelegationForEndUserAccountPostResponse) StatusCode() int {
+func (r RevokeDelegationForEndUserAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type RevokeDelegationForEndUserResponse struct {
+type RevokeDelegationForEndUserDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON401      *UnauthorizedError
@@ -32426,7 +32426,7 @@ type RevokeDelegationForEndUserResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r RevokeDelegationForEndUserResponse) Status() string {
+func (r RevokeDelegationForEndUserDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -32434,7 +32434,7 @@ func (r RevokeDelegationForEndUserResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r RevokeDelegationForEndUserResponse) StatusCode() int {
+func (r RevokeDelegationForEndUserDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32471,7 +32471,7 @@ func (r GetDelegationForEndUserResponse) StatusCode() int {
 	return 0
 }
 
-type RevokeDelegationForEndUserPostResponse struct {
+type RevokeDelegationForEndUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON401      *UnauthorizedError
@@ -32482,7 +32482,7 @@ type RevokeDelegationForEndUserPostResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r RevokeDelegationForEndUserPostResponse) Status() string {
+func (r RevokeDelegationForEndUserResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -32490,7 +32490,7 @@ func (r RevokeDelegationForEndUserPostResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r RevokeDelegationForEndUserPostResponse) StatusCode() int {
+func (r RevokeDelegationForEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -36411,21 +36411,21 @@ func (c *ClientWithResponses) GetDisbursementWithResponse(ctx context.Context, d
 	return ParseGetDisbursementResponse(rsp)
 }
 
-// RevokeDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountResponse
-func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+// RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountDeprecatedResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountDeprecatedWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+	return ParseRevokeDelegationForEndUserAccountDeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountDeprecatedWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountDeprecated(ctx, userId, address, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+	return ParseRevokeDelegationForEndUserAccountDeprecatedResponse(rsp)
 }
 
 // GetDelegationForEndUserAccountWithResponse request returning *GetDelegationForEndUserAccountResponse
@@ -36454,21 +36454,47 @@ func (c *ClientWithResponses) CreateDelegationForEndUserAccountWithResponse(ctx 
 	return ParseCreateDelegationForEndUserAccountResponse(rsp)
 }
 
-// RevokeDelegationForEndUserAccountPostWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountPostResponse
-func (c *ClientWithResponses) RevokeDelegationForEndUserAccountPostWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserAccountPostWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+// RevokeDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseRevokeDelegationForEndUserAccountPostResponse(rsp)
+	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
 }
 
-func (c *ClientWithResponses) RevokeDelegationForEndUserAccountPostWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountPostParams, body RevokeDelegationForEndUserAccountPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountPostResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserAccountPost(ctx, userId, address, params, body, reqEditors...)
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccount(ctx, userId, address, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseRevokeDelegationForEndUserAccountPostResponse(rsp)
+	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+}
+
+// RevokeDelegationForEndUserDeprecatedWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserDeprecatedResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserDeprecatedWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserDeprecatedWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserDeprecatedWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserDeprecated(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserDeprecatedResponse(rsp)
+}
+
+// GetDelegationForEndUserWithResponse request returning *GetDelegationForEndUserResponse
+func (c *ClientWithResponses) GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error) {
+	rsp, err := c.GetDelegationForEndUser(ctx, userId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDelegationForEndUserResponse(rsp)
 }
 
 // RevokeDelegationForEndUserWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserResponse
@@ -36486,32 +36512,6 @@ func (c *ClientWithResponses) RevokeDelegationForEndUserWithResponse(ctx context
 		return nil, err
 	}
 	return ParseRevokeDelegationForEndUserResponse(rsp)
-}
-
-// GetDelegationForEndUserWithResponse request returning *GetDelegationForEndUserResponse
-func (c *ClientWithResponses) GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error) {
-	rsp, err := c.GetDelegationForEndUser(ctx, userId, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetDelegationForEndUserResponse(rsp)
-}
-
-// RevokeDelegationForEndUserPostWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserPostResponse
-func (c *ClientWithResponses) RevokeDelegationForEndUserPostWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserPostWithBody(ctx, userId, params, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRevokeDelegationForEndUserPostResponse(rsp)
-}
-
-func (c *ClientWithResponses) RevokeDelegationForEndUserPostWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserPostParams, body RevokeDelegationForEndUserPostJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserPostResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserPost(ctx, userId, params, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRevokeDelegationForEndUserPostResponse(rsp)
 }
 
 // CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationWithEndUserAccountResponse
@@ -39897,15 +39897,15 @@ func ParseGetDisbursementResponse(rsp *http.Response) (*GetDisbursementResponse,
 	return response, nil
 }
 
-// ParseRevokeDelegationForEndUserAccountResponse parses an HTTP response from a RevokeDelegationForEndUserAccountWithResponse call
-func ParseRevokeDelegationForEndUserAccountResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountResponse, error) {
+// ParseRevokeDelegationForEndUserAccountDeprecatedResponse parses an HTTP response from a RevokeDelegationForEndUserAccountDeprecatedWithResponse call
+func ParseRevokeDelegationForEndUserAccountDeprecatedResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &RevokeDelegationForEndUserAccountResponse{
+	response := &RevokeDelegationForEndUserAccountDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -40114,15 +40114,15 @@ func ParseCreateDelegationForEndUserAccountResponse(rsp *http.Response) (*Create
 	return response, nil
 }
 
-// ParseRevokeDelegationForEndUserAccountPostResponse parses an HTTP response from a RevokeDelegationForEndUserAccountPostWithResponse call
-func ParseRevokeDelegationForEndUserAccountPostResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountPostResponse, error) {
+// ParseRevokeDelegationForEndUserAccountResponse parses an HTTP response from a RevokeDelegationForEndUserAccountWithResponse call
+func ParseRevokeDelegationForEndUserAccountResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &RevokeDelegationForEndUserAccountPostResponse{
+	response := &RevokeDelegationForEndUserAccountResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -40168,15 +40168,15 @@ func ParseRevokeDelegationForEndUserAccountPostResponse(rsp *http.Response) (*Re
 	return response, nil
 }
 
-// ParseRevokeDelegationForEndUserResponse parses an HTTP response from a RevokeDelegationForEndUserWithResponse call
-func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegationForEndUserResponse, error) {
+// ParseRevokeDelegationForEndUserDeprecatedResponse parses an HTTP response from a RevokeDelegationForEndUserDeprecatedWithResponse call
+func ParseRevokeDelegationForEndUserDeprecatedResponse(rsp *http.Response) (*RevokeDelegationForEndUserDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &RevokeDelegationForEndUserResponse{
+	response := &RevokeDelegationForEndUserDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -40286,15 +40286,15 @@ func ParseGetDelegationForEndUserResponse(rsp *http.Response) (*GetDelegationFor
 	return response, nil
 }
 
-// ParseRevokeDelegationForEndUserPostResponse parses an HTTP response from a RevokeDelegationForEndUserPostWithResponse call
-func ParseRevokeDelegationForEndUserPostResponse(rsp *http.Response) (*RevokeDelegationForEndUserPostResponse, error) {
+// ParseRevokeDelegationForEndUserResponse parses an HTTP response from a RevokeDelegationForEndUserWithResponse call
+func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegationForEndUserResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &RevokeDelegationForEndUserPostResponse{
+	response := &RevokeDelegationForEndUserResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

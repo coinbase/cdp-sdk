@@ -44,8 +44,8 @@ from cdp.openapi_client.models.get_delegation_for_end_user200_response import (
     GetDelegationForEndUser200Response,
 )
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
-from cdp.openapi_client.models.revoke_delegation_for_end_user_request import (
-    RevokeDelegationForEndUserRequest,
+from cdp.openapi_client.models.revoke_delegation_for_end_user_deprecated_request import (
+    RevokeDelegationForEndUserDeprecatedRequest,
 )
 from cdp.openapi_client.models.send_evm_asset_with_end_user_account200_response import (
     SendEvmAssetWithEndUserAccount200Response,
@@ -434,9 +434,9 @@ class EndUserClient:
         """
         track_action(action="revoke_delegation_for_end_user")
 
-        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_post(
+        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user(
             user_id=user_id,
-            revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+            revoke_delegation_for_end_user_deprecated_request=RevokeDelegationForEndUserDeprecatedRequest(),
             x_idempotency_key=idempotency_key,
         )
 
@@ -482,10 +482,10 @@ class EndUserClient:
         """
         track_action(action="revoke_delegation_for_end_user_account")
 
-        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_account_post(
+        await self.api_clients.embedded_wallets.revoke_delegation_for_end_user_account(
             user_id=user_id,
             address=address,
-            revoke_delegation_for_end_user_request=RevokeDelegationForEndUserRequest(),
+            revoke_delegation_for_end_user_deprecated_request=RevokeDelegationForEndUserDeprecatedRequest(),
             x_idempotency_key=idempotency_key,
         )
 

@@ -24,9 +24,9 @@ from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RevokeDelegationForEndUserRequest(BaseModel):
+class RevokeDelegationForEndUserDeprecatedRequest(BaseModel):
     """
-    RevokeDelegationForEndUserRequest
+    RevokeDelegationForEndUserDeprecatedRequest
     """ # noqa: E501
     wallet_secret_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.", alias="walletSecretId")
     __properties: ClassVar[List[str]] = ["walletSecretId"]
@@ -59,7 +59,7 @@ class RevokeDelegationForEndUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RevokeDelegationForEndUserRequest from a JSON string"""
+        """Create an instance of RevokeDelegationForEndUserDeprecatedRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -84,7 +84,7 @@ class RevokeDelegationForEndUserRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RevokeDelegationForEndUserRequest from a dict"""
+        """Create an instance of RevokeDelegationForEndUserDeprecatedRequest from a dict"""
         if obj is None:
             return None
 

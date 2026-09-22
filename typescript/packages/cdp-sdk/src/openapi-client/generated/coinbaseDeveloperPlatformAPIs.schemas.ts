@@ -12100,6 +12100,22 @@ export type GetDelegationForEndUser200 = {
   expiresAt: string;
 };
 
+export type RevokeDelegationForEndUserDeprecatedParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type RevokeDelegationForEndUserDeprecatedBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
 export type RevokeDelegationForEndUserParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -12109,22 +12125,6 @@ export type RevokeDelegationForEndUserParams = {
 };
 
 export type RevokeDelegationForEndUserBody = {
-  /**
-   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
-   */
-  walletSecretId?: string;
-};
-
-export type RevokeDelegationForEndUserPostParams = {
-  /**
-   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-   */
-  projectID?: ProjectIDOptionalParameter;
-};
-
-export type RevokeDelegationForEndUserPostBody = {
   /**
    * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$
@@ -12168,6 +12168,22 @@ export type GetDelegationForEndUserAccount200 = {
   expiresAt: string;
 };
 
+export type RevokeDelegationForEndUserAccountDeprecatedParams = {
+  /**
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   */
+  projectID?: ProjectIDOptionalParameter;
+};
+
+export type RevokeDelegationForEndUserAccountDeprecatedBody = {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
+};
+
 export type RevokeDelegationForEndUserAccountParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
@@ -12177,22 +12193,6 @@ export type RevokeDelegationForEndUserAccountParams = {
 };
 
 export type RevokeDelegationForEndUserAccountBody = {
-  /**
-   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
-   */
-  walletSecretId?: string;
-};
-
-export type RevokeDelegationForEndUserAccountPostParams = {
-  /**
-   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-   */
-  projectID?: ProjectIDOptionalParameter;
-};
-
-export type RevokeDelegationForEndUserAccountPostBody = {
   /**
    * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
    * @pattern ^[a-zA-Z0-9-]{1,100}$

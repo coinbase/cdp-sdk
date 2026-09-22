@@ -107,28 +107,28 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def test_revoke_delegation_for_end_user(self) -> None:
         """Test case for revoke_delegation_for_end_user
 
-        Revoke delegation for end user (deprecated)
+        Revoke delegation for end user
         """
         pass
 
     async def test_revoke_delegation_for_end_user_account(self) -> None:
         """Test case for revoke_delegation_for_end_user_account
 
-        Revoke account-scoped delegation for end user (deprecated)
-        """
-        pass
-
-    async def test_revoke_delegation_for_end_user_account_post(self) -> None:
-        """Test case for revoke_delegation_for_end_user_account_post
-
         Revoke account-scoped delegation for end user
         """
         pass
 
-    async def test_revoke_delegation_for_end_user_post(self) -> None:
-        """Test case for revoke_delegation_for_end_user_post
+    async def test_revoke_delegation_for_end_user_account_deprecated(self) -> None:
+        """Test case for revoke_delegation_for_end_user_account_deprecated
 
-        Revoke delegation for end user
+        Revoke account-scoped delegation for end user (deprecated)
+        """
+        pass
+
+    async def test_revoke_delegation_for_end_user_deprecated(self) -> None:
+        """Test case for revoke_delegation_for_end_user_deprecated
+
+        Revoke delegation for end user (deprecated)
         """
         pass
 

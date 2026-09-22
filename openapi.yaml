@@ -7502,19 +7502,14 @@ paths:
       summary: Revoke delegation for end user (deprecated)
       description: |-
         > **Deprecation Notice:** Prefer
-        > [Revoke delegation for end user](#operation/revokeDelegationForEndUserPost)
+        > [Revoke delegation for end user](#operation/revokeDelegationForEndUser)
         > (`POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`), which takes the
-        > same request body. This `DELETE` path is kept for existing clients until it is removed
-        > (at least 30 days after the CDP API gateway body-strip rollout; the exact date will be
-        > updated here before the rollout). The gateway is being updated to drop request bodies on
-        > non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for `walletSecretId` and
-        > for its `X-Wallet-Auth` signature — migrate before that rollout, not just before the
-        > removal date above.
+        > same request body. This `DELETE` path will be removed on **2026-10-22**.
 
         Revokes all active delegations for the specified end user. This operation
         can be performed by the end user themselves or by a developer using their
         API key.
-      operationId: revokeDelegationForEndUser
+      operationId: revokeDelegationForEndUserDeprecated
       tags:
         - End User Accounts
       security:
@@ -7576,7 +7571,7 @@ paths:
       x-audience: public
       summary: Revoke delegation for end user
       description: Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
-      operationId: revokeDelegationForEndUserPost
+      operationId: revokeDelegationForEndUser
       tags:
         - End User Accounts
       security:
@@ -7847,14 +7842,9 @@ paths:
       summary: Revoke account-scoped delegation for end user (deprecated)
       description: |-
         > **Deprecation Notice:** Prefer
-        > [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccountPost)
+        > [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccount)
         > (`POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`),
-        > which takes the same request body. This `DELETE` path is kept for existing clients until
-        > it is removed (at least 30 days after the CDP API gateway body-strip rollout; the exact
-        > date will be updated here before the rollout). The gateway is being updated to drop
-        > request bodies on non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for
-        > `walletSecretId` and for its `X-Wallet-Auth` signature — migrate before that rollout, not
-        > just before the removal date above.
+        > which takes the same request body. This `DELETE` path will be removed on **2026-10-22**.
 
         Revokes the active account-scoped delegation for the specified end user account.
         Other account-scoped delegations for the same user are unaffected. This operation
@@ -7862,7 +7852,7 @@ paths:
 
         When the address corresponds to an EVM Smart Account, this revokes the delegation for the
         Smart Account's owner EOA.
-      operationId: revokeDelegationForEndUserAccount
+      operationId: revokeDelegationForEndUserAccountDeprecated
       tags:
         - End User Accounts
       security:
@@ -7933,7 +7923,7 @@ paths:
       description: |-
         Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
         When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
-      operationId: revokeDelegationForEndUserAccountPost
+      operationId: revokeDelegationForEndUserAccount
       tags:
         - End User Accounts
       security:

@@ -21656,7 +21656,7 @@ pub mod types {
         */
         pub requirements: RequirementsMap,
         /**Terms of Service acceptances recorded for the customer.
-         */
+        */
         #[serde(
             rename = "tosAcceptances",
             default,
@@ -22161,7 +22161,7 @@ pub mod types {
         }
     }
     /**The type of the customer. Required on create; accepted but ignored on update.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -43193,7 +43193,7 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub address: ::std::option::Option<IndividualInputAddress>,
         /**ISO 3166-1 alpha-2 country code representing the customer's citizenship.
-         */
+        */
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub citizenship: ::std::option::Option<CountryCode>,
         ///Date of birth.
@@ -43207,7 +43207,7 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub email: ::std::option::Option<Email>,
         /**Current employment status.
-         */
+        */
         #[serde(
             rename = "employmentStatus",
             default,
@@ -43239,7 +43239,7 @@ pub mod types {
         )]
         pub first_name: ::std::option::Option<::std::string::String>,
         /**Full Social Security Number (US only).
-         */
+        */
         #[serde(
             rename = "fullSsn",
             default,
@@ -43254,7 +43254,7 @@ pub mod types {
         )]
         pub last_name: ::std::option::Option<::std::string::String>,
         /**Industry or occupation.
-         */
+        */
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub occupation: ::std::option::Option<IndividualInputOccupation>,
         ///Phone number in [E.164](https://en.wikipedia.org/wiki/E.164) format.
@@ -43265,7 +43265,7 @@ pub mod types {
         )]
         pub phone_number: ::std::option::Option<PhoneNumber>,
         /**Primary purpose for using Coinbase services.
-         */
+        */
         #[serde(
             rename = "purposeOfAccount",
             default,
@@ -43273,7 +43273,7 @@ pub mod types {
         )]
         pub purpose_of_account: ::std::option::Option<IndividualInputPurposeOfAccount>,
         /**Primary source of funds for the account.
-         */
+        */
         #[serde(
             rename = "sourceOfFunds",
             default,
@@ -43473,7 +43473,7 @@ pub mod types {
         }
     }
     /**Current employment status.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -43734,7 +43734,7 @@ pub mod types {
         }
     }
     /**Full Social Security Number (US only).
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -43822,7 +43822,7 @@ pub mod types {
         }
     }
     /**Industry or occupation.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -44124,7 +44124,7 @@ pub mod types {
         }
     }
     /**Primary purpose for using Coinbase services.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -44276,7 +44276,7 @@ pub mod types {
         }
     }
     /**Primary source of funds for the account.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -48581,7 +48581,7 @@ pub mod types {
         }
     }
     /**Information about the end user's MFA enrollments.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -52297,7 +52297,7 @@ pub mod types {
         }
     }
     /**Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -65262,7 +65262,7 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct RequestEvmFaucetResponse {
         /**The hash of the transaction that requested the funds.
-         **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
+        **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
         #[serde(rename = "transactionHash")]
         pub transaction_hash: ::std::string::String,
     }
@@ -66023,7 +66023,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserAccountPostBody`
+    ///`RevokeDelegationForEndUserAccountDeprecatedBody`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -66044,7 +66044,7 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct RevokeDelegationForEndUserAccountPostBody {
+    pub struct RevokeDelegationForEndUserAccountDeprecatedBody {
         ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
         #[serde(
             rename = "walletSecretId",
@@ -66052,24 +66052,24 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub wallet_secret_id:
-            ::std::option::Option<RevokeDelegationForEndUserAccountPostBodyWalletSecretId>,
+            ::std::option::Option<RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId>,
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountPostBody>
-        for RevokeDelegationForEndUserAccountPostBody
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedBody>
+        for RevokeDelegationForEndUserAccountDeprecatedBody
     {
-        fn from(value: &RevokeDelegationForEndUserAccountPostBody) -> Self {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedBody) -> Self {
             value.clone()
         }
     }
-    impl ::std::default::Default for RevokeDelegationForEndUserAccountPostBody {
+    impl ::std::default::Default for RevokeDelegationForEndUserAccountDeprecatedBody {
         fn default() -> Self {
             Self {
                 wallet_secret_id: Default::default(),
             }
         }
     }
-    impl RevokeDelegationForEndUserAccountPostBody {
-        pub fn builder() -> builder::RevokeDelegationForEndUserAccountPostBody {
+    impl RevokeDelegationForEndUserAccountDeprecatedBody {
+        pub fn builder() -> builder::RevokeDelegationForEndUserAccountDeprecatedBody {
             Default::default()
         }
     }
@@ -66090,28 +66090,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserAccountPostBodyWalletSecretId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountPostBodyWalletSecretId {
+    pub struct RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserAccountPostBodyWalletSecretId>
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId>
         for ::std::string::String
     {
-        fn from(value: RevokeDelegationForEndUserAccountPostBodyWalletSecretId) -> Self {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountPostBodyWalletSecretId>
-        for RevokeDelegationForEndUserAccountPostBodyWalletSecretId
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId>
+        for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId
     {
-        fn from(value: &RevokeDelegationForEndUserAccountPostBodyWalletSecretId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountPostBodyWalletSecretId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -66124,14 +66124,16 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountPostBodyWalletSecretId {
+    impl ::std::convert::TryFrom<&str>
+        for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserAccountPostBodyWalletSecretId
+        for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66141,7 +66143,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserAccountPostBodyWalletSecretId
+        for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66150,7 +66152,9 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountPostBodyWalletSecretId {
+    impl<'de> ::serde::Deserialize<'de>
+        for RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId
+    {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66162,7 +66166,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserAccountPostProjectId`
+    ///`RevokeDelegationForEndUserAccountDeprecatedProjectId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -66178,28 +66182,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserAccountPostProjectId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountPostProjectId {
+    pub struct RevokeDelegationForEndUserAccountDeprecatedProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedProjectId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserAccountPostProjectId>
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedProjectId>
         for ::std::string::String
     {
-        fn from(value: RevokeDelegationForEndUserAccountPostProjectId) -> Self {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedProjectId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountPostProjectId>
-        for RevokeDelegationForEndUserAccountPostProjectId
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedProjectId>
+        for RevokeDelegationForEndUserAccountDeprecatedProjectId
     {
-        fn from(value: &RevokeDelegationForEndUserAccountPostProjectId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedProjectId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountPostProjectId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedProjectId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -66218,14 +66222,14 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountPostProjectId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountDeprecatedProjectId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserAccountPostProjectId
+        for RevokeDelegationForEndUserAccountDeprecatedProjectId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66235,7 +66239,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserAccountPostProjectId
+        for RevokeDelegationForEndUserAccountDeprecatedProjectId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66244,7 +66248,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountPostProjectId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountDeprecatedProjectId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66256,7 +66260,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserAccountPostUserId`
+    ///`RevokeDelegationForEndUserAccountDeprecatedUserId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -66272,26 +66276,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserAccountPostUserId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountPostUserId {
+    pub struct RevokeDelegationForEndUserAccountDeprecatedUserId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedUserId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserAccountPostUserId> for ::std::string::String {
-        fn from(value: RevokeDelegationForEndUserAccountPostUserId) -> Self {
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedUserId>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedUserId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountPostUserId>
-        for RevokeDelegationForEndUserAccountPostUserId
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedUserId>
+        for RevokeDelegationForEndUserAccountDeprecatedUserId
     {
-        fn from(value: &RevokeDelegationForEndUserAccountPostUserId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedUserId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountPostUserId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedUserId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -66304,14 +66310,14 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountPostUserId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountDeprecatedUserId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserAccountPostUserId
+        for RevokeDelegationForEndUserAccountDeprecatedUserId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66321,7 +66327,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserAccountPostUserId
+        for RevokeDelegationForEndUserAccountDeprecatedUserId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66330,7 +66336,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountPostUserId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountDeprecatedUserId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66342,7 +66348,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserAccountPostXIdempotencyKey`
+    ///`RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -66356,28 +66362,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserAccountPostXIdempotencyKey(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountPostXIdempotencyKey {
+    pub struct RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserAccountPostXIdempotencyKey>
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey>
         for ::std::string::String
     {
-        fn from(value: RevokeDelegationForEndUserAccountPostXIdempotencyKey) -> Self {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountPostXIdempotencyKey>
-        for RevokeDelegationForEndUserAccountPostXIdempotencyKey
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey>
+        for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey
     {
-        fn from(value: &RevokeDelegationForEndUserAccountPostXIdempotencyKey) -> Self {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountPostXIdempotencyKey {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             if value.chars().count() > 128usize {
@@ -66389,14 +66395,14 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountPostXIdempotencyKey {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserAccountPostXIdempotencyKey
+        for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66406,7 +66412,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserAccountPostXIdempotencyKey
+        for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66415,7 +66421,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountPostXIdempotencyKey {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66818,7 +66824,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserPostBody`
+    ///`RevokeDelegationForEndUserDeprecatedBody`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -66839,7 +66845,7 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct RevokeDelegationForEndUserPostBody {
+    pub struct RevokeDelegationForEndUserDeprecatedBody {
         ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
         #[serde(
             rename = "walletSecretId",
@@ -66847,24 +66853,24 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub wallet_secret_id:
-            ::std::option::Option<RevokeDelegationForEndUserPostBodyWalletSecretId>,
+            ::std::option::Option<RevokeDelegationForEndUserDeprecatedBodyWalletSecretId>,
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserPostBody>
-        for RevokeDelegationForEndUserPostBody
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedBody>
+        for RevokeDelegationForEndUserDeprecatedBody
     {
-        fn from(value: &RevokeDelegationForEndUserPostBody) -> Self {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedBody) -> Self {
             value.clone()
         }
     }
-    impl ::std::default::Default for RevokeDelegationForEndUserPostBody {
+    impl ::std::default::Default for RevokeDelegationForEndUserDeprecatedBody {
         fn default() -> Self {
             Self {
                 wallet_secret_id: Default::default(),
             }
         }
     }
-    impl RevokeDelegationForEndUserPostBody {
-        pub fn builder() -> builder::RevokeDelegationForEndUserPostBody {
+    impl RevokeDelegationForEndUserDeprecatedBody {
+        pub fn builder() -> builder::RevokeDelegationForEndUserDeprecatedBody {
             Default::default()
         }
     }
@@ -66885,28 +66891,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserPostBodyWalletSecretId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserPostBodyWalletSecretId {
+    pub struct RevokeDelegationForEndUserDeprecatedBodyWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserPostBodyWalletSecretId>
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedBodyWalletSecretId>
         for ::std::string::String
     {
-        fn from(value: RevokeDelegationForEndUserPostBodyWalletSecretId) -> Self {
+        fn from(value: RevokeDelegationForEndUserDeprecatedBodyWalletSecretId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserPostBodyWalletSecretId>
-        for RevokeDelegationForEndUserPostBodyWalletSecretId
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedBodyWalletSecretId>
+        for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId
     {
-        fn from(value: &RevokeDelegationForEndUserPostBodyWalletSecretId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedBodyWalletSecretId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserPostBodyWalletSecretId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -66919,14 +66925,14 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserPostBodyWalletSecretId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserPostBodyWalletSecretId
+        for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66936,7 +66942,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserPostBodyWalletSecretId
+        for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66945,7 +66951,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserPostBodyWalletSecretId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedBodyWalletSecretId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66957,7 +66963,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserPostProjectId`
+    ///`RevokeDelegationForEndUserDeprecatedProjectId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -66973,26 +66979,26 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserPostProjectId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserPostProjectId {
+    pub struct RevokeDelegationForEndUserDeprecatedProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedProjectId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserPostProjectId> for ::std::string::String {
-        fn from(value: RevokeDelegationForEndUserPostProjectId) -> Self {
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedProjectId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserDeprecatedProjectId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserPostProjectId>
-        for RevokeDelegationForEndUserPostProjectId
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedProjectId>
+        for RevokeDelegationForEndUserDeprecatedProjectId
     {
-        fn from(value: &RevokeDelegationForEndUserPostProjectId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedProjectId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserPostProjectId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedProjectId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -67011,13 +67017,15 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserPostProjectId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedProjectId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserPostProjectId {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserDeprecatedProjectId
+    {
         type Error = self::error::ConversionError;
         fn try_from(
             value: &::std::string::String,
@@ -67025,7 +67033,9 @@ pub mod types {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserPostProjectId {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserDeprecatedProjectId
+    {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -67033,7 +67043,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserPostProjectId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedProjectId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -67045,7 +67055,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserPostUserId`
+    ///`RevokeDelegationForEndUserDeprecatedUserId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -67061,26 +67071,26 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserPostUserId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserPostUserId {
+    pub struct RevokeDelegationForEndUserDeprecatedUserId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedUserId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserPostUserId> for ::std::string::String {
-        fn from(value: RevokeDelegationForEndUserPostUserId) -> Self {
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedUserId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserDeprecatedUserId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserPostUserId>
-        for RevokeDelegationForEndUserPostUserId
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedUserId>
+        for RevokeDelegationForEndUserDeprecatedUserId
     {
-        fn from(value: &RevokeDelegationForEndUserPostUserId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedUserId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserPostUserId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedUserId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -67093,13 +67103,15 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserPostUserId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedUserId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationForEndUserPostUserId {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserDeprecatedUserId
+    {
         type Error = self::error::ConversionError;
         fn try_from(
             value: &::std::string::String,
@@ -67107,7 +67119,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserPostUserId {
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserDeprecatedUserId {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -67115,7 +67127,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserPostUserId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedUserId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -67127,7 +67139,7 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserPostXIdempotencyKey`
+    ///`RevokeDelegationForEndUserDeprecatedXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -67141,26 +67153,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserPostXIdempotencyKey(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserPostXIdempotencyKey {
+    pub struct RevokeDelegationForEndUserDeprecatedXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserPostXIdempotencyKey> for ::std::string::String {
-        fn from(value: RevokeDelegationForEndUserPostXIdempotencyKey) -> Self {
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserDeprecatedXIdempotencyKey) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserPostXIdempotencyKey>
-        for RevokeDelegationForEndUserPostXIdempotencyKey
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedXIdempotencyKey>
+        for RevokeDelegationForEndUserDeprecatedXIdempotencyKey
     {
-        fn from(value: &RevokeDelegationForEndUserPostXIdempotencyKey) -> Self {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedXIdempotencyKey) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserPostXIdempotencyKey {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             if value.chars().count() > 128usize {
@@ -67172,14 +67186,14 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserPostXIdempotencyKey {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserPostXIdempotencyKey
+        for RevokeDelegationForEndUserDeprecatedXIdempotencyKey
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -67189,7 +67203,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserPostXIdempotencyKey
+        for RevokeDelegationForEndUserDeprecatedXIdempotencyKey
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -67198,7 +67212,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserPostXIdempotencyKey {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -101941,7 +101955,7 @@ pub mod types {
         }
     }
     /**Request to create a new webhook subscription with support for multi-label filtering.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -102333,7 +102347,7 @@ pub mod types {
         }
     }
     /**Request to update an existing webhook subscription.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -146456,27 +146470,27 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
-        pub struct RevokeDelegationForEndUserAccountPostBody {
+        pub struct RevokeDelegationForEndUserAccountDeprecatedBody {
             wallet_secret_id: ::std::result::Result<
                 ::std::option::Option<
-                    super::RevokeDelegationForEndUserAccountPostBodyWalletSecretId,
+                    super::RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId,
                 >,
                 ::std::string::String,
             >,
         }
-        impl ::std::default::Default for RevokeDelegationForEndUserAccountPostBody {
+        impl ::std::default::Default for RevokeDelegationForEndUserAccountDeprecatedBody {
             fn default() -> Self {
                 Self {
                     wallet_secret_id: Ok(Default::default()),
                 }
             }
         }
-        impl RevokeDelegationForEndUserAccountPostBody {
+        impl RevokeDelegationForEndUserAccountDeprecatedBody {
             pub fn wallet_secret_id<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<
                     ::std::option::Option<
-                        super::RevokeDelegationForEndUserAccountPostBodyWalletSecretId,
+                        super::RevokeDelegationForEndUserAccountDeprecatedBodyWalletSecretId,
                     >,
                 >,
                 T::Error: ::std::fmt::Display,
@@ -146490,22 +146504,22 @@ pub mod types {
                 self
             }
         }
-        impl ::std::convert::TryFrom<RevokeDelegationForEndUserAccountPostBody>
-            for super::RevokeDelegationForEndUserAccountPostBody
+        impl ::std::convert::TryFrom<RevokeDelegationForEndUserAccountDeprecatedBody>
+            for super::RevokeDelegationForEndUserAccountDeprecatedBody
         {
             type Error = super::error::ConversionError;
             fn try_from(
-                value: RevokeDelegationForEndUserAccountPostBody,
+                value: RevokeDelegationForEndUserAccountDeprecatedBody,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     wallet_secret_id: value.wallet_secret_id?,
                 })
             }
         }
-        impl ::std::convert::From<super::RevokeDelegationForEndUserAccountPostBody>
-            for RevokeDelegationForEndUserAccountPostBody
+        impl ::std::convert::From<super::RevokeDelegationForEndUserAccountDeprecatedBody>
+            for RevokeDelegationForEndUserAccountDeprecatedBody
         {
-            fn from(value: super::RevokeDelegationForEndUserAccountPostBody) -> Self {
+            fn from(value: super::RevokeDelegationForEndUserAccountDeprecatedBody) -> Self {
                 Self {
                     wallet_secret_id: Ok(value.wallet_secret_id),
                 }
@@ -146564,24 +146578,28 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
-        pub struct RevokeDelegationForEndUserPostBody {
+        pub struct RevokeDelegationForEndUserDeprecatedBody {
             wallet_secret_id: ::std::result::Result<
-                ::std::option::Option<super::RevokeDelegationForEndUserPostBodyWalletSecretId>,
+                ::std::option::Option<
+                    super::RevokeDelegationForEndUserDeprecatedBodyWalletSecretId,
+                >,
                 ::std::string::String,
             >,
         }
-        impl ::std::default::Default for RevokeDelegationForEndUserPostBody {
+        impl ::std::default::Default for RevokeDelegationForEndUserDeprecatedBody {
             fn default() -> Self {
                 Self {
                     wallet_secret_id: Ok(Default::default()),
                 }
             }
         }
-        impl RevokeDelegationForEndUserPostBody {
+        impl RevokeDelegationForEndUserDeprecatedBody {
             pub fn wallet_secret_id<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<
-                    ::std::option::Option<super::RevokeDelegationForEndUserPostBodyWalletSecretId>,
+                    ::std::option::Option<
+                        super::RevokeDelegationForEndUserDeprecatedBodyWalletSecretId,
+                    >,
                 >,
                 T::Error: ::std::fmt::Display,
             {
@@ -146594,22 +146612,22 @@ pub mod types {
                 self
             }
         }
-        impl ::std::convert::TryFrom<RevokeDelegationForEndUserPostBody>
-            for super::RevokeDelegationForEndUserPostBody
+        impl ::std::convert::TryFrom<RevokeDelegationForEndUserDeprecatedBody>
+            for super::RevokeDelegationForEndUserDeprecatedBody
         {
             type Error = super::error::ConversionError;
             fn try_from(
-                value: RevokeDelegationForEndUserPostBody,
+                value: RevokeDelegationForEndUserDeprecatedBody,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     wallet_secret_id: value.wallet_secret_id?,
                 })
             }
         }
-        impl ::std::convert::From<super::RevokeDelegationForEndUserPostBody>
-            for RevokeDelegationForEndUserPostBody
+        impl ::std::convert::From<super::RevokeDelegationForEndUserDeprecatedBody>
+            for RevokeDelegationForEndUserDeprecatedBody
         {
-            fn from(value: super::RevokeDelegationForEndUserPostBody) -> Self {
+            fn from(value: super::RevokeDelegationForEndUserDeprecatedBody) -> Self {
                 Self {
                     wallet_secret_id: Ok(value.wallet_secret_id),
                 }
@@ -164912,14 +164930,9 @@ impl Client {
     /**Revoke account-scoped delegation for end user (deprecated)
 
     > **Deprecation Notice:** Prefer
-    > [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccountPost)
+    > [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccount)
     > (`POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`),
-    > which takes the same request body. This `DELETE` path is kept for existing clients until
-    > it is removed (at least 30 days after the CDP API gateway body-strip rollout; the exact
-    > date will be updated here before the rollout). The gateway is being updated to drop
-    > request bodies on non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for
-    > `walletSecretId` and for its `X-Wallet-Auth` signature — migrate before that rollout, not
-    > just before the removal date above.
+    > which takes the same request body. This `DELETE` path will be removed on **2026-10-22**.
 
     Revokes the active account-scoped delegation for the specified end user account.
     Other account-scoped delegations for the same user are unaffected. This operation
@@ -164929,6 +164942,47 @@ impl Client {
     Smart Account's owner EOA.
 
     Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_delegation_for_end_user_account_deprecated()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_delegation_for_end_user_account_deprecated(
+        &self,
+    ) -> builder::RevokeDelegationForEndUserAccountDeprecated<'_> {
+        builder::RevokeDelegationForEndUserAccountDeprecated::new(self)
+    }
+    /**Revoke account-scoped delegation for end user
+
+    Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+    When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`
 
     Arguments:
     - `user_id`: The ID of the end user.
@@ -164964,47 +165018,6 @@ impl Client {
     ) -> builder::RevokeDelegationForEndUserAccount<'_> {
         builder::RevokeDelegationForEndUserAccount::new(self)
     }
-    /**Revoke account-scoped delegation for end user
-
-    Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-    When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
-
-    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`
-
-    Arguments:
-    - `user_id`: The ID of the end user.
-    - `address`: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.
-    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
-    section of our Authentication docs for more details on how to generate your Wallet Token.
-
-    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
-    When included, duplicate requests with the same key will return identical responses.
-    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
-
-    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
-    section of our Authentication docs for more details on how to generate your Wallet Token.
-
-    - `body`
-    ```ignore
-    let response = client.revoke_delegation_for_end_user_account_post()
-        .user_id(user_id)
-        .address(address)
-        .project_id(project_id)
-        .x_developer_auth(x_developer_auth)
-        .x_idempotency_key(x_idempotency_key)
-        .x_wallet_auth(x_wallet_auth)
-        .body(body)
-        .send()
-        .await;
-    ```*/
-    pub fn revoke_delegation_for_end_user_account_post(
-        &self,
-    ) -> builder::RevokeDelegationForEndUserAccountPost<'_> {
-        builder::RevokeDelegationForEndUserAccountPost::new(self)
-    }
     /**Get delegation for end user
 
     Returns the active delegation for the specified end user, if one exists. This operation can be performed by the end user themselves or by a developer using their API key.
@@ -165027,20 +165040,53 @@ impl Client {
     /**Revoke delegation for end user (deprecated)
 
     > **Deprecation Notice:** Prefer
-    > [Revoke delegation for end user](#operation/revokeDelegationForEndUserPost)
+    > [Revoke delegation for end user](#operation/revokeDelegationForEndUser)
     > (`POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`), which takes the
-    > same request body. This `DELETE` path is kept for existing clients until it is removed
-    > (at least 30 days after the CDP API gateway body-strip rollout; the exact date will be
-    > updated here before the rollout). The gateway is being updated to drop request bodies on
-    > non-`POST`/`PUT`/`PATCH` methods, which this endpoint depends on for `walletSecretId` and
-    > for its `X-Wallet-Auth` signature — migrate before that rollout, not just before the
-    > removal date above.
+    > same request body. This `DELETE` path will be removed on **2026-10-22**.
 
     Revokes all active delegations for the specified end user. This operation
     can be performed by the end user themselves or by a developer using their
     API key.
 
     Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_delegation_for_end_user_deprecated()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_delegation_for_end_user_deprecated(
+        &self,
+    ) -> builder::RevokeDelegationForEndUserDeprecated<'_> {
+        builder::RevokeDelegationForEndUserDeprecated::new(self)
+    }
+    /**Revoke delegation for end user
+
+    Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`
 
     Arguments:
     - `user_id`: The ID of the end user.
@@ -165071,44 +165117,6 @@ impl Client {
     ```*/
     pub fn revoke_delegation_for_end_user(&self) -> builder::RevokeDelegationForEndUser<'_> {
         builder::RevokeDelegationForEndUser::new(self)
-    }
-    /**Revoke delegation for end user
-
-    Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
-
-    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`
-
-    Arguments:
-    - `user_id`: The ID of the end user.
-    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
-    section of our Authentication docs for more details on how to generate your Wallet Token.
-
-    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
-    When included, duplicate requests with the same key will return identical responses.
-    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
-
-    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
-    section of our Authentication docs for more details on how to generate your Wallet Token.
-
-    - `body`
-    ```ignore
-    let response = client.revoke_delegation_for_end_user_post()
-        .user_id(user_id)
-        .project_id(project_id)
-        .x_developer_auth(x_developer_auth)
-        .x_idempotency_key(x_idempotency_key)
-        .x_wallet_auth(x_wallet_auth)
-        .body(body)
-        .send()
-        .await;
-    ```*/
-    pub fn revoke_delegation_for_end_user_post(
-        &self,
-    ) -> builder::RevokeDelegationForEndUserPost<'_> {
-        builder::RevokeDelegationForEndUserPost::new(self)
     }
     /**Create EIP-7702 delegation for end user EVM account
 
@@ -171687,6 +171695,221 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::revoke_delegation_for_end_user_account_deprecated`]
+
+    [`Client::revoke_delegation_for_end_user_account_deprecated`]: super::Client::revoke_delegation_for_end_user_account_deprecated*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeDelegationForEndUserAccountDeprecated<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::RevokeDelegationForEndUserAccountDeprecatedUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        project_id:
+            Result<Option<types::RevokeDelegationForEndUserAccountDeprecatedProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key: Result<
+            Option<types::RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey>,
+            String,
+        >,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::RevokeDelegationForEndUserAccountDeprecatedBody, String>,
+    }
+    impl<'a> RevokeDelegationForEndUserAccountDeprecated<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountDeprecatedUserId>,
+        {
+            self.user_id = value
+                .try_into()
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountDeprecatedUserId` for user_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountDeprecatedProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountDeprecatedProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<
+                types::RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey,
+            >,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<
+                types::RevokeDelegationForEndUserAccountDeprecatedBody,
+            >,
+            <V as std::convert::TryInto<
+                types::RevokeDelegationForEndUserAccountDeprecatedBody,
+            >>::Error: std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| {
+                    format!(
+                        "conversion to `RevokeDelegationForEndUserAccountDeprecatedBody` for body failed: {}",
+                        s
+                    )
+                });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::RevokeDelegationForEndUserAccountDeprecatedBody,
+            )
+                -> types::builder::RevokeDelegationForEndUserAccountDeprecatedBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::RevokeDelegationForEndUserAccountDeprecatedBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .delete(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_delegation_for_end_user_account_deprecated",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                204u16 => Ok(ResponseValue::empty(response)),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::revoke_delegation_for_end_user_account`]
 
     [`Client::revoke_delegation_for_end_user_account`]: super::Client::revoke_delegation_for_end_user_account*/
@@ -171799,208 +172022,6 @@ pub mod builder {
             self.body = self.body.map(f);
             self
         }
-        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
-        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
-            let Self {
-                client,
-                user_id,
-                address,
-                project_id,
-                x_developer_auth,
-                x_idempotency_key,
-                x_wallet_auth,
-                body,
-            } = self;
-            let user_id = user_id.map_err(Error::InvalidRequest)?;
-            let address = address.map_err(Error::InvalidRequest)?;
-            let project_id = project_id.map_err(Error::InvalidRequest)?;
-            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
-            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
-            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
-            let body = body
-                .and_then(|v| {
-                    types::RevokeDelegationForEndUserAccountBody::try_from(v)
-                        .map_err(|e| e.to_string())
-                })
-                .map_err(Error::InvalidRequest)?;
-            let url = format!(
-                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
-                client.baseurl,
-                encode_path(&user_id.to_string()),
-                encode_path(&address.to_string()),
-            );
-            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
-            header_map.append(
-                ::reqwest::header::HeaderName::from_static("api-version"),
-                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
-            );
-            if let Some(value) = x_developer_auth {
-                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
-            }
-            if let Some(value) = x_idempotency_key {
-                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
-            }
-            if let Some(value) = x_wallet_auth {
-                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
-            }
-            #[allow(unused_mut)]
-            let mut request = client
-                .client
-                .delete(url)
-                .header(
-                    ::reqwest::header::ACCEPT,
-                    ::reqwest::header::HeaderValue::from_static("application/json"),
-                )
-                .json(&body)
-                .query(&progenitor_middleware_client::QueryParam::new(
-                    "projectID",
-                    &project_id,
-                ))
-                .headers(header_map)
-                .build()?;
-            let info = OperationInfo {
-                operation_id: "revoke_delegation_for_end_user_account",
-            };
-            client.pre(&mut request, &info).await?;
-            let result = client.exec(request, &info).await;
-            client.post(&result, &info).await?;
-            let response = result?;
-            match response.status().as_u16() {
-                204u16 => Ok(ResponseValue::empty(response)),
-                401u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                404u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                500u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                502u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                503u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                _ => Err(Error::UnexpectedResponse(response)),
-            }
-        }
-    }
-    /**Builder for [`Client::revoke_delegation_for_end_user_account_post`]
-
-    [`Client::revoke_delegation_for_end_user_account_post`]: super::Client::revoke_delegation_for_end_user_account_post*/
-    #[derive(Debug, Clone)]
-    pub struct RevokeDelegationForEndUserAccountPost<'a> {
-        client: &'a super::Client,
-        user_id: Result<types::RevokeDelegationForEndUserAccountPostUserId, String>,
-        address: Result<types::BlockchainAddress, String>,
-        project_id: Result<Option<types::RevokeDelegationForEndUserAccountPostProjectId>, String>,
-        x_developer_auth: Result<Option<::std::string::String>, String>,
-        x_idempotency_key:
-            Result<Option<types::RevokeDelegationForEndUserAccountPostXIdempotencyKey>, String>,
-        x_wallet_auth: Result<Option<::std::string::String>, String>,
-        body: Result<types::builder::RevokeDelegationForEndUserAccountPostBody, String>,
-    }
-    impl<'a> RevokeDelegationForEndUserAccountPost<'a> {
-        pub fn new(client: &'a super::Client) -> Self {
-            Self {
-                client: client,
-                user_id: Err("user_id was not initialized".to_string()),
-                address: Err("address was not initialized".to_string()),
-                project_id: Ok(None),
-                x_developer_auth: Ok(None),
-                x_idempotency_key: Ok(None),
-                x_wallet_auth: Ok(None),
-                body: Ok(::std::default::Default::default()),
-            }
-        }
-        pub fn user_id<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountPostUserId>,
-        {
-            self.user_id = value.try_into().map_err(|_| {
-                "conversion to `RevokeDelegationForEndUserAccountPostUserId` for user_id failed"
-                    .to_string()
-            });
-            self
-        }
-        pub fn address<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::BlockchainAddress>,
-        {
-            self.address = value
-                .try_into()
-                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
-            self
-        }
-        pub fn project_id<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountPostProjectId>,
-        {
-            self.project_id = value
-                .try_into()
-                .map(Some)
-                .map_err(|_| {
-                    "conversion to `RevokeDelegationForEndUserAccountPostProjectId` for project_id failed"
-                        .to_string()
-                });
-            self
-        }
-        pub fn x_developer_auth<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<::std::string::String>,
-        {
-            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
-                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
-            });
-            self
-        }
-        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountPostXIdempotencyKey>,
-        {
-            self.x_idempotency_key = value
-                .try_into()
-                .map(Some)
-                .map_err(|_| {
-                    "conversion to `RevokeDelegationForEndUserAccountPostXIdempotencyKey` for x_idempotency_key failed"
-                        .to_string()
-                });
-            self
-        }
-        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<::std::string::String>,
-        {
-            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
-                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
-            });
-            self
-        }
-        pub fn body<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountPostBody>,
-            <V as std::convert::TryInto<types::RevokeDelegationForEndUserAccountPostBody>>::Error:
-                std::fmt::Display,
-        {
-            self.body = value.try_into().map(From::from).map_err(|s| {
-                format!(
-                    "conversion to `RevokeDelegationForEndUserAccountPostBody` for body failed: {}",
-                    s
-                )
-            });
-            self
-        }
-        pub fn body_map<F>(mut self, f: F) -> Self
-        where
-            F: std::ops::FnOnce(
-                types::builder::RevokeDelegationForEndUserAccountPostBody,
-            )
-                -> types::builder::RevokeDelegationForEndUserAccountPostBody,
-        {
-            self.body = self.body.map(f);
-            self
-        }
         ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`
         pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
             let Self {
@@ -172021,7 +172042,7 @@ pub mod builder {
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
             let body = body
                 .and_then(|v| {
-                    types::RevokeDelegationForEndUserAccountPostBody::try_from(v)
+                    types::RevokeDelegationForEndUserAccountBody::try_from(v)
                         .map_err(|e| e.to_string())
                 })
                 .map_err(Error::InvalidRequest)?;
@@ -172061,7 +172082,7 @@ pub mod builder {
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
-                operation_id: "revoke_delegation_for_end_user_account_post",
+                operation_id: "revoke_delegation_for_end_user_account",
             };
             client.pre(&mut request, &info).await?;
             let result = client.exec(request, &info).await;
@@ -172187,6 +172208,194 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::revoke_delegation_for_end_user_deprecated`]
+
+    [`Client::revoke_delegation_for_end_user_deprecated`]: super::Client::revoke_delegation_for_end_user_deprecated*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeDelegationForEndUserDeprecated<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::RevokeDelegationForEndUserDeprecatedUserId, String>,
+        project_id: Result<Option<types::RevokeDelegationForEndUserDeprecatedProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::RevokeDelegationForEndUserDeprecatedXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::RevokeDelegationForEndUserDeprecatedBody, String>,
+    }
+    impl<'a> RevokeDelegationForEndUserDeprecated<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserDeprecatedUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserDeprecatedProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserDeprecatedXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedBody>,
+            <V as std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedBody>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `RevokeDelegationForEndUserDeprecatedBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::RevokeDelegationForEndUserDeprecatedBody,
+            )
+                -> types::builder::RevokeDelegationForEndUserDeprecatedBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::RevokeDelegationForEndUserDeprecatedBody::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .delete(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_delegation_for_end_user_deprecated",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                204u16 => Ok(ResponseValue::empty(response)),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::revoke_delegation_for_end_user`]
 
     [`Client::revoke_delegation_for_end_user`]: super::Client::revoke_delegation_for_end_user*/
@@ -172285,189 +172494,6 @@ pub mod builder {
             self.body = self.body.map(f);
             self
         }
-        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
-        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
-            let Self {
-                client,
-                user_id,
-                project_id,
-                x_developer_auth,
-                x_idempotency_key,
-                x_wallet_auth,
-                body,
-            } = self;
-            let user_id = user_id.map_err(Error::InvalidRequest)?;
-            let project_id = project_id.map_err(Error::InvalidRequest)?;
-            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
-            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
-            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
-            let body = body
-                .and_then(|v| {
-                    types::RevokeDelegationForEndUserBody::try_from(v).map_err(|e| e.to_string())
-                })
-                .map_err(Error::InvalidRequest)?;
-            let url = format!(
-                "{}/v2/embedded-wallet-api/end-users/{}/delegation",
-                client.baseurl,
-                encode_path(&user_id.to_string()),
-            );
-            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
-            header_map.append(
-                ::reqwest::header::HeaderName::from_static("api-version"),
-                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
-            );
-            if let Some(value) = x_developer_auth {
-                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
-            }
-            if let Some(value) = x_idempotency_key {
-                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
-            }
-            if let Some(value) = x_wallet_auth {
-                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
-            }
-            #[allow(unused_mut)]
-            let mut request = client
-                .client
-                .delete(url)
-                .header(
-                    ::reqwest::header::ACCEPT,
-                    ::reqwest::header::HeaderValue::from_static("application/json"),
-                )
-                .json(&body)
-                .query(&progenitor_middleware_client::QueryParam::new(
-                    "projectID",
-                    &project_id,
-                ))
-                .headers(header_map)
-                .build()?;
-            let info = OperationInfo {
-                operation_id: "revoke_delegation_for_end_user",
-            };
-            client.pre(&mut request, &info).await?;
-            let result = client.exec(request, &info).await;
-            client.post(&result, &info).await?;
-            let response = result?;
-            match response.status().as_u16() {
-                204u16 => Ok(ResponseValue::empty(response)),
-                401u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                404u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                500u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                502u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                503u16 => Err(Error::ErrorResponse(
-                    ResponseValue::from_response(response).await?,
-                )),
-                _ => Err(Error::UnexpectedResponse(response)),
-            }
-        }
-    }
-    /**Builder for [`Client::revoke_delegation_for_end_user_post`]
-
-    [`Client::revoke_delegation_for_end_user_post`]: super::Client::revoke_delegation_for_end_user_post*/
-    #[derive(Debug, Clone)]
-    pub struct RevokeDelegationForEndUserPost<'a> {
-        client: &'a super::Client,
-        user_id: Result<types::RevokeDelegationForEndUserPostUserId, String>,
-        project_id: Result<Option<types::RevokeDelegationForEndUserPostProjectId>, String>,
-        x_developer_auth: Result<Option<::std::string::String>, String>,
-        x_idempotency_key:
-            Result<Option<types::RevokeDelegationForEndUserPostXIdempotencyKey>, String>,
-        x_wallet_auth: Result<Option<::std::string::String>, String>,
-        body: Result<types::builder::RevokeDelegationForEndUserPostBody, String>,
-    }
-    impl<'a> RevokeDelegationForEndUserPost<'a> {
-        pub fn new(client: &'a super::Client) -> Self {
-            Self {
-                client: client,
-                user_id: Err("user_id was not initialized".to_string()),
-                project_id: Ok(None),
-                x_developer_auth: Ok(None),
-                x_idempotency_key: Ok(None),
-                x_wallet_auth: Ok(None),
-                body: Ok(::std::default::Default::default()),
-            }
-        }
-        pub fn user_id<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserPostUserId>,
-        {
-            self.user_id = value.try_into().map_err(|_| {
-                "conversion to `RevokeDelegationForEndUserPostUserId` for user_id failed"
-                    .to_string()
-            });
-            self
-        }
-        pub fn project_id<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserPostProjectId>,
-        {
-            self.project_id = value.try_into().map(Some).map_err(|_| {
-                "conversion to `RevokeDelegationForEndUserPostProjectId` for project_id failed"
-                    .to_string()
-            });
-            self
-        }
-        pub fn x_developer_auth<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<::std::string::String>,
-        {
-            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
-                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
-            });
-            self
-        }
-        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserPostXIdempotencyKey>,
-        {
-            self.x_idempotency_key = value
-                .try_into()
-                .map(Some)
-                .map_err(|_| {
-                    "conversion to `RevokeDelegationForEndUserPostXIdempotencyKey` for x_idempotency_key failed"
-                        .to_string()
-                });
-            self
-        }
-        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<::std::string::String>,
-        {
-            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
-                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
-            });
-            self
-        }
-        pub fn body<V>(mut self, value: V) -> Self
-        where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserPostBody>,
-            <V as std::convert::TryInto<types::RevokeDelegationForEndUserPostBody>>::Error:
-                std::fmt::Display,
-        {
-            self.body = value.try_into().map(From::from).map_err(|s| {
-                format!(
-                    "conversion to `RevokeDelegationForEndUserPostBody` for body failed: {}",
-                    s
-                )
-            });
-            self
-        }
-        pub fn body_map<F>(mut self, f: F) -> Self
-        where
-            F: std::ops::FnOnce(
-                types::builder::RevokeDelegationForEndUserPostBody,
-            ) -> types::builder::RevokeDelegationForEndUserPostBody,
-        {
-            self.body = self.body.map(f);
-            self
-        }
         ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`
         pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
             let Self {
@@ -172486,8 +172512,7 @@ pub mod builder {
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
             let body = body
                 .and_then(|v| {
-                    types::RevokeDelegationForEndUserPostBody::try_from(v)
-                        .map_err(|e| e.to_string())
+                    types::RevokeDelegationForEndUserBody::try_from(v).map_err(|e| e.to_string())
                 })
                 .map_err(Error::InvalidRequest)?;
             let url = format!(
@@ -172525,7 +172550,7 @@ pub mod builder {
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
-                operation_id: "revoke_delegation_for_end_user_post",
+                operation_id: "revoke_delegation_for_end_user",
             };
             client.pre(&mut request, &info).await?;
             let result = client.exec(request, &info).await;
